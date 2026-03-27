@@ -9,6 +9,7 @@
 /// - Auth state change callbacks
 ///
 /// Run with: flutter test test/unit/auth/token_test.dart
+library;
 
 import 'dart:convert';
 
@@ -266,7 +267,7 @@ void main() {
       final nextRefresh =
           expiresAt.subtract(const Duration(seconds: bufferSeconds));
 
-      final expectedRefreshMs = (ttlSeconds - bufferSeconds) * 1000;
+      const expectedRefreshMs = (ttlSeconds - bufferSeconds) * 1000;
       final actualRefreshMs = nextRefresh.difference(issuedAt).inMilliseconds;
 
       expect(actualRefreshMs, closeTo(expectedRefreshMs, 1000));
@@ -280,9 +281,9 @@ void main() {
     test('AuthStateCallback type accepts boolean argument', () {
       bool? capturedState;
 
-      AuthStateCallback callback = (bool isAuthenticated) {
+      callback(bool isAuthenticated) {
         capturedState = isAuthenticated;
-      };
+      }
 
       callback(true);
       expect(capturedState, isTrue);
@@ -294,9 +295,9 @@ void main() {
     test('auth state changes are tracked correctly', () {
       final stateChanges = <bool>[];
 
-      AuthStateCallback trackChanges = (bool isAuthenticated) {
+      trackChanges(bool isAuthenticated) {
         stateChanges.add(isAuthenticated);
-      };
+      }
 
       // Simulate login -> logout -> login cycle
       trackChanges(true);
@@ -315,13 +316,13 @@ void main() {
   // ============================================================
   group('TokenRefreshCallback - رد نداء تحديث الرمز', () {
     test('successful refresh callback returns valid result', () async {
-      TokenRefreshCallback refreshCallback = (String refreshToken) async {
+      Future<TokenRefreshResult> refreshCallback(String refreshToken) async {
         return TokenRefreshResult.success(
           accessToken: 'new_access_${refreshToken.hashCode}',
           refreshToken: 'new_refresh_token',
           expiresIn: 3600,
         );
-      };
+      }
 
       final result = await refreshCallback('old_refresh_token');
       expect(result.success, isTrue);
@@ -330,7 +331,7 @@ void main() {
     });
 
     test('failed refresh callback returns failure result', () async {
-      TokenRefreshCallback refreshCallback = (String refreshToken) async {
+      Future<TokenRefreshResult> refreshCallback(String refreshToken) async {
         if (refreshToken == 'expired') {
           return TokenRefreshResult.failure('Refresh token expired');
         }
@@ -339,7 +340,7 @@ void main() {
           refreshToken: 'refresh',
           expiresIn: 3600,
         );
-      };
+      }
 
       final result = await refreshCallback('expired');
       expect(result.success, isFalse);

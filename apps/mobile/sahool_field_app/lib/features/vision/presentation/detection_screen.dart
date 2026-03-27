@@ -6,7 +6,6 @@ library;
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -289,7 +288,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
     with WidgetsBindingObserver {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
-  bool _isProcessingFrame = false;
+  final bool _isProcessingFrame = false;
   Timer? _processingTimer;
 
   @override
@@ -534,9 +533,9 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
 
             // Loading indicator
             if (state.isDetecting)
-              Container(
+              const ColoredBox(
                 color: Colors.black54,
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -560,7 +559,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.9),
+                    color: Colors.red.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -634,7 +633,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -672,8 +671,8 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: available
-                      ? Colors.green.withOpacity(0.3)
-                      : Colors.orange.withOpacity(0.3),
+                      ? Colors.green.withValues(alpha: 0.3)
+                      : Colors.orange.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(
@@ -734,11 +733,11 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 8,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -813,7 +812,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                         ),
                         decoration: BoxDecoration(
                           color: _getConfidenceColor(d.confidence)
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -845,9 +844,9 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Text(
           '$label: $count',
@@ -1067,7 +1066,7 @@ class _DetectionScreenState extends ConsumerState<DetectionScreen>
                         ),
                         decoration: BoxDecoration(
                           color: _getConfidenceColor(detection.confidence)
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

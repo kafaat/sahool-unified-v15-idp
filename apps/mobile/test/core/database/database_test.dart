@@ -9,6 +9,7 @@
 /// - Error handling
 ///
 /// Uses in-memory database for testing
+library;
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -422,8 +423,8 @@ void main() {
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
           ),
-          onConflict: DoUpdate((old) => TestTasksCompanion(
-                title: const Value('Updated Title'),
+          onConflict: DoUpdate((old) => const TestTasksCompanion(
+                title: Value('Updated Title'),
               )),
         );
       });
@@ -725,7 +726,7 @@ void main() {
           ));
 
       expect(
-        () async => await db.into(db.testTasks).insert(TestTasksCompanion.insert(
+        () async => db.into(db.testTasks).insert(TestTasksCompanion.insert(
               id: 'dup-task',
               tenantId: 'tenant-1',
               fieldId: 'field-1',
@@ -739,7 +740,7 @@ void main() {
 
     test('should throw on invalid SQL', () async {
       expect(
-        () async => await db.customSelect('INVALID SQL QUERY').get(),
+        () async => db.customSelect('INVALID SQL QUERY').get(),
         throwsA(isA<SqliteException>()),
       );
     });
@@ -968,14 +969,14 @@ void main() {
 
     test('should mark task done with evidence photos as JSON array', () async {
       final photos = ['photo_001.jpg', 'photo_002.jpg', 'photo_003.jpg'];
-      final photosJson = '["photo_001.jpg","photo_002.jpg","photo_003.jpg"]';
+      const photosJson = '["photo_001.jpg","photo_002.jpg","photo_003.jpg"]';
 
       await (db.update(db.testTasks)
             ..where((t) => t.id.equals('mark-done-1')))
           .write(TestTasksCompanion(
         status: const Value('done'),
         evidenceNotes: const Value('Field inspection complete'),
-        evidencePhotos: Value(photosJson),
+        evidencePhotos: const Value(photosJson),
         updatedAt: Value(DateTime.now()),
         synced: const Value(false),
       ));

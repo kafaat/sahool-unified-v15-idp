@@ -3,11 +3,17 @@ Event Publisher - SAHOOL Weather Core
 """
 
 import json
+import logging
 import os
 import uuid
 from datetime import UTC, datetime, timezone
 
-from nats.aio.client import Client as NATS
+try:
+    from nats.aio.client import Client as NATS
+except ImportError:
+    NATS = None  # Optional: not available in test environments
+
+logger = logging.getLogger(__name__)
 
 from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
 
@@ -76,17 +82,25 @@ class WeatherPublisher:
 
     def __init__(self, nats_url: str = None):
         self.nats_url = nats_url or NATS_URL
-        self.nc: NATS | None = None
+        self.nc = None
         self._connected = False
 
     async def connect(self):
         """Connect to NATS"""
         if self._connected:
             return
+        if NATS is None:
+            logger.warning("nats-py not installed, event publishing disabled")
+            return
         self.nc = NATS()
         await self.nc.connect(self.nats_url)
         self._connected = True
-        print("📡 Weather Publisher connected to NATS")
+        logger.info("Weather Publisher connected to NATS")
+
+    @property
+    def _is_available(self) -> bool:
+        """Check if NATS publishing is available"""
+        return NATS is not None and self.nc is not None and self._connected
 
     async def close(self):
         """Close connection"""
@@ -108,6 +122,10 @@ class WeatherPublisher:
         """Publish weather alert event"""
         if not self._connected:
             await self.connect()
+
+        if not self._is_available:
+            logger.debug("NATS unavailable, skipping weather_alert publish for field=%s", field_id)
+            return str(uuid.uuid4())
 
         payload = {
             "field_id": field_id,
@@ -131,9 +149,18 @@ class WeatherPublisher:
         )
 
         subject = get_subject(WEATHER_ALERT)
-        await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        try:
+            await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        except Exception as e:
+            logger.error(
+                "Failed to publish weather_alert event: subject=%s, field=%s, error=%s",
+                subject,
+                field_id,
+                str(e),
+            )
+            raise
 
-        print(f"🌤️ Published weather_alert: field={field_id}, type={alert_type}, severity={severity}")
+        logger.info("Published weather_alert: field=%s, type=%s, severity=%s", field_id, alert_type, severity)
         return env.event_id
 
     async def publish_forecast_issued(
@@ -147,6 +174,10 @@ class WeatherPublisher:
         """Publish forecast issued event"""
         if not self._connected:
             await self.connect()
+
+        if not self._is_available:
+            logger.debug("NATS unavailable, skipping forecast_issued publish for field=%s", field_id)
+            return str(uuid.uuid4())
 
         payload = {
             "field_id": field_id,
@@ -164,9 +195,18 @@ class WeatherPublisher:
         )
 
         subject = get_subject(WEATHER_FORECAST_ISSUED)
-        await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        try:
+            await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        except Exception as e:
+            logger.error(
+                "Failed to publish forecast_issued event: subject=%s, field=%s, error=%s",
+                subject,
+                field_id,
+                str(e),
+            )
+            raise
 
-        print(f"📋 Published forecast_issued: field={field_id}, provider={provider}, days={days}")
+        logger.info("Published forecast_issued: field=%s, provider=%s, days=%d", field_id, provider, days)
         return env.event_id
 
     async def publish_irrigation_adjustment(
@@ -181,6 +221,10 @@ class WeatherPublisher:
         """Publish irrigation adjustment event"""
         if not self._connected:
             await self.connect()
+
+        if not self._is_available:
+            logger.debug("NATS unavailable, skipping irrigation_adjustment publish for field=%s", field_id)
+            return str(uuid.uuid4())
 
         payload = {
             "field_id": field_id,
@@ -199,9 +243,18 @@ class WeatherPublisher:
         )
 
         subject = get_subject(IRRIGATION_ADJUSTMENT)
-        await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        try:
+            await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+        except Exception as e:
+            logger.error(
+                "Failed to publish irrigation_adjustment event: subject=%s, field=%s, error=%s",
+                subject,
+                field_id,
+                str(e),
+            )
+            raise
 
-        print(f"💧 Published irrigation_adjustment: field={field_id}, factor={adjustment_factor}")
+        logger.info("Published irrigation_adjustment: field=%s, factor=%s", field_id, adjustment_factor)
         return env.event_id
 
 
@@ -213,5 +266,8 @@ async def get_publisher() -> WeatherPublisher:
     global _publisher
     if _publisher is None:
         _publisher = WeatherPublisher()
-        await _publisher.connect()
+        try:
+            await _publisher.connect()
+        except Exception as e:
+            logger.warning("Failed to connect to NATS: %s", e)
     return _publisher

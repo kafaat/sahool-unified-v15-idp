@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Health Zones Layer Component
@@ -16,11 +16,11 @@
  * - Error handling and fallback states
  */
 
-import { useEffect, useState } from "react";
-import { logger } from "@/lib/logger";
-import dynamic from "next/dynamic";
-import { AlertCircle } from "lucide-react";
-import type { LeafletMouseEvent } from "leaflet";
+import { useEffect, useState } from 'react';
+import { logger } from '@/lib/logger';
+import dynamic from 'next/dynamic';
+import { AlertCircle } from 'lucide-react';
+import type { LeafletMouseEvent } from 'leaflet';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types - الأنواع
@@ -35,7 +35,7 @@ export interface FieldZone {
   name: string;
   boundary: [number, number][]; // Array of [lat, lng] coordinates
   ndviValue: number;
-  healthStatus: "excellent" | "good" | "moderate" | "poor" | "critical";
+  healthStatus: 'excellent' | 'good' | 'moderate' | 'poor' | 'critical';
   area: number; // in hectares
 }
 
@@ -55,17 +55,17 @@ interface HealthZonesLayerProps {
  * تحميل مكونات react-leaflet بشكل ديناميكي لتجنب مشاكل SSR
  * Dynamically import react-leaflet components to avoid SSR issues
  */
-const Polygon = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Polygon),
-  { ssr: false, loading: () => null },
-) as any;
+const Polygon = dynamic(() => import('react-leaflet').then((mod) => mod.Polygon), {
+  ssr: false,
+  loading: () => null,
+}) as any;
 
-const Tooltip = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Tooltip),
-  { ssr: false, loading: () => null },
-) as any;
+const Tooltip = dynamic(() => import('react-leaflet').then((mod) => mod.Tooltip), {
+  ssr: false,
+  loading: () => null,
+}) as any;
 
-const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
+const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), {
   ssr: false,
   loading: () => null,
 }) as any;
@@ -84,11 +84,11 @@ const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
  * - Red (<0.4): Poor health - صحة ضعيفة
  */
 export const getNDVIColor = (ndviValue: number): string => {
-  if (ndviValue >= 0.7) return "#1B5E20"; // Dark green - أخضر داكن (ممتاز)
-  if (ndviValue >= 0.5) return "#4CAF50"; // Green - أخضر (جيد)
-  if (ndviValue >= 0.3) return "#FDD835"; // Yellow - أصفر (متوسط)
-  if (ndviValue >= 0.15) return "#FF9800"; // Orange - برتقالي (ضعيف)
-  return "#F44336"; // Red - أحمر (حرج)
+  if (ndviValue >= 0.7) return '#1B5E20'; // Dark green - أخضر داكن (ممتاز)
+  if (ndviValue >= 0.5) return '#4CAF50'; // Green - أخضر (جيد)
+  if (ndviValue >= 0.3) return '#FDD835'; // Yellow - أصفر (متوسط)
+  if (ndviValue >= 0.15) return '#FF9800'; // Orange - برتقالي (ضعيف)
+  return '#F44336'; // Red - أحمر (حرج)
 };
 
 /**
@@ -96,26 +96,26 @@ export const getNDVIColor = (ndviValue: number): string => {
  * Get border color based on NDVI value (darker shade)
  */
 export const getNDVIBorderColor = (ndviValue: number): string => {
-  if (ndviValue >= 0.7) return "#0D3311"; // Darker green
-  if (ndviValue >= 0.5) return "#2E7D32"; // Dark green
-  if (ndviValue >= 0.3) return "#F9A825"; // Dark yellow
-  if (ndviValue >= 0.15) return "#E65100"; // Dark orange
-  return "#C62828"; // Dark red
+  if (ndviValue >= 0.7) return '#0D3311'; // Darker green
+  if (ndviValue >= 0.5) return '#2E7D32'; // Dark green
+  if (ndviValue >= 0.3) return '#F9A825'; // Dark yellow
+  if (ndviValue >= 0.15) return '#E65100'; // Dark orange
+  return '#C62828'; // Dark red
 };
 
 /**
  * الحصول على النص العربي لحالة الصحة
  * Get Arabic text for health status
  */
-export const getHealthStatusArabic = (status: FieldZone["healthStatus"]): string => {
+export const getHealthStatusArabic = (status: FieldZone['healthStatus']): string => {
   const statusMap = {
-    excellent: "ممتازة",
-    good: "جيدة",
-    moderate: "متوسطة",
-    poor: "ضعيفة",
-    critical: "حرجة",
+    excellent: 'ممتازة',
+    good: 'جيدة',
+    moderate: 'متوسطة',
+    poor: 'ضعيفة',
+    critical: 'حرجة',
   };
-  return statusMap[status] || "غير معروفة";
+  return statusMap[status] || 'غير معروفة';
 };
 
 /**
@@ -131,14 +131,14 @@ export const isValidBoundary = (boundary: [number, number][]): boolean => {
     (coord) =>
       Array.isArray(coord) &&
       coord.length === 2 &&
-      typeof coord[0] === "number" &&
-      typeof coord[1] === "number" &&
+      typeof coord[0] === 'number' &&
+      typeof coord[1] === 'number' &&
       !isNaN(coord[0]) &&
       !isNaN(coord[1]) &&
       coord[0] >= -90 &&
       coord[0] <= 90 &&
       coord[1] >= -180 &&
-      coord[1] <= 180,
+      coord[1] <= 180
   );
 };
 
@@ -187,20 +187,14 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
       // التحقق من صحة الحدود
       // Validate boundary
       if (!isValidBoundary(zone.boundary)) {
-        validationErrors.push(
-          `المنطقة "${zone.name || zone.id}" تحتوي على إحداثيات غير صالحة`,
-        );
+        validationErrors.push(`المنطقة "${zone.name || zone.id}" تحتوي على إحداثيات غير صالحة`);
       }
 
       // التحقق من قيمة NDVI
       // Validate NDVI value
-      if (
-        typeof zone.ndviValue !== "number" ||
-        zone.ndviValue < -1 ||
-        zone.ndviValue > 1
-      ) {
+      if (typeof zone.ndviValue !== 'number' || zone.ndviValue < -1 || zone.ndviValue > 1) {
         validationErrors.push(
-          `المنطقة "${zone.name || zone.id}" تحتوي على قيمة NDVI غير صالحة: ${zone.ndviValue}`,
+          `المنطقة "${zone.name || zone.id}" تحتوي على قيمة NDVI غير صالحة: ${zone.ndviValue}`
         );
       }
     });
@@ -209,8 +203,8 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
 
     // طباعة الأخطاء في وضع التطوير
     // Log errors in development mode
-    if (validationErrors.length > 0 && process.env.NODE_ENV === "development") {
-      logger.error("HealthZonesLayer validation errors:", validationErrors);
+    if (validationErrors.length > 0 && process.env.NODE_ENV === 'development') {
+      logger.error('HealthZonesLayer validation errors:', validationErrors);
     }
   }, [zones]);
 
@@ -248,7 +242,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
         onZoneClick(zone);
       }
     } catch (error) {
-      logger.error("Error handling zone click:", error);
+      logger.error('Error handling zone click:', error);
     }
   };
 
@@ -259,21 +253,17 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
   return (
     <>
       {/* عرض الأخطاء في وضع التطوير - Show errors in development */}
-      {errors.length > 0 && process.env.NODE_ENV === "development" && (
+      {errors.length > 0 && process.env.NODE_ENV === 'development' && (
         <div className="absolute top-4 right-4 z-[1000] bg-red-50 border border-red-200 rounded-lg p-3 max-w-sm">
           <div className="flex items-start gap-2">
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-sm font-semibold text-red-900 mb-1">
-                أخطاء التحقق من المناطق
-              </h4>
+              <h4 className="text-sm font-semibold text-red-900 mb-1">أخطاء التحقق من المناطق</h4>
               <ul className="text-xs text-red-700 space-y-1">
                 {errors.slice(0, 3).map((error, index) => (
                   <li key={index}>{error}</li>
                 ))}
-                {errors.length > 3 && (
-                  <li>... و {errors.length - 3} خطأ إضافي</li>
-                )}
+                {errors.length > 3 && <li>... و {errors.length - 3} خطأ إضافي</li>}
               </ul>
             </div>
           </div>
@@ -300,7 +290,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
               // الألوان والتعبئة - Colors and fill
               fillColor: fillColor,
               fillOpacity: isSelected ? 0.7 : 0.5,
-              color: isSelected ? "#1e40af" : borderColor,
+              color: isSelected ? '#1e40af' : borderColor,
               weight: isSelected ? 4 : 2,
               opacity: 1,
             }}
@@ -341,13 +331,11 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
                   <div className="font-bold text-sm mb-1">{zone.name}</div>
                   <div className="text-xs space-y-0.5">
                     <div>
-                      <span className="text-gray-600">NDVI:</span>{" "}
-                      <span className="font-semibold">
-                        {zone.ndviValue.toFixed(3)}
-                      </span>
+                      <span className="text-gray-600">NDVI:</span>{' '}
+                      <span className="font-semibold">{zone.ndviValue.toFixed(3)}</span>
                     </div>
                     <div>
-                      <span className="text-gray-600">الحالة:</span>{" "}
+                      <span className="text-gray-600">الحالة:</span>{' '}
                       <span className="font-semibold">
                         {getHealthStatusArabic(zone.healthStatus)}
                       </span>
@@ -368,9 +356,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
                   {/* قيمة NDVI - NDVI Value */}
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">قيمة NDVI:</span>
-                    <span className="font-bold text-gray-900">
-                      {zone.ndviValue.toFixed(3)}
-                    </span>
+                    <span className="font-bold text-gray-900">{zone.ndviValue.toFixed(3)}</span>
                   </div>
 
                   {/* حالة الصحة - Health Status */}

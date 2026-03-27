@@ -474,9 +474,9 @@ services:
 
   # Qdrant Vector Database - RAG & Semantic Search
   qdrant:
-    # Using v1.7.4 - stable release with improved vector search performance
-    # استخدام الإصدار v1.7.4 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
-    image: qdrant/qdrant:v1.7.4
+    # Using v1.10.1 - stable release with improved vector search performance
+    # استخدام الإصدار v1.10.1 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
+    image: qdrant/qdrant:v1.10.1
     container_name: sahool-qdrant
     volumes:
       - qdrant_data:/qdrant/storage
@@ -1169,7 +1169,7 @@ services:
 
   # API Gateway (Kong)
   kong:
-    image: kong:3.4.2
+    image: kong:3.9.0
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"
@@ -2853,6 +2853,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "127.0.0.1:8116:8116"
@@ -3513,6 +3514,9 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OLLAMA_BASE_URL=http://ollama:11434
     ports:
       - "127.0.0.1:8088:8088"
     depends_on:
@@ -3526,6 +3530,8 @@ services:
         condition: service_healthy
       # FIX: Add missing dependency - copilot-api references LLM_ORCHESTRATOR_URL
       llm-orchestrator-service:
+        condition: service_healthy
+      qdrant:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz')" ]
@@ -3667,8 +3673,8 @@ services:
       - PORT=8114
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # NOTE: sslmode=disable for dev only. Production uses sslmode=require via docker-compose.tls.yml
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=${POSTGRES_SSL_MODE:-disable}
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:

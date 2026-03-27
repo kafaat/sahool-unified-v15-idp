@@ -46,8 +46,9 @@ class OutboxRepository {
           .map((e) => OutboxEntry.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      AppLogger.e('Failed to load outbox', tag: 'OUTBOX', error: e);
+      AppLogger.e('Failed to load outbox, clearing corrupted data', tag: 'OUTBOX', error: e);
       _entries = [];
+      await _prefs?.remove(_storageKey);
     }
   }
 
@@ -222,9 +223,22 @@ class OutboxRepository {
   // التنظيف والصيانة
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// تنظيف العناصر المكتملة
-  Future<void> clearCompleted() async {
-    _entries.removeWhere((e) => e.status == OutboxStatus.completed);
+  /// تنظيف العناصر المكتملة مع حد أقصى اختياري
+  /// [limit] - الحد الأقصى لعدد العناصر المحذوفة (null = حذف الكل)
+  Future<void> clearCompleted({int? limit}) async {
+    if (limit == null) {
+      _entries.removeWhere((e) => e.status == OutboxStatus.completed);
+    } else {
+      int removed = 0;
+      _entries.removeWhere((e) {
+        if (removed >= limit) return false;
+        if (e.status == OutboxStatus.completed) {
+          removed++;
+          return true;
+        }
+        return false;
+      });
+    }
     await _save();
     AppLogger.d('Cleared completed items', tag: 'OUTBOX');
   }
@@ -306,7 +320,7 @@ class OutboxRepository {
     if (pending.length <= 1) return;
 
     // Merge all updates into one
-    Map<String, dynamic> mergedData = {};
+    final Map<String, dynamic> mergedData = {};
     for (final entry in pending) {
       mergedData.addAll(entry.data);
     }

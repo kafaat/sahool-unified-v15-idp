@@ -8,6 +8,7 @@
 /// - Typing indicators
 /// - Online status
 /// - Auto-disposal with keepAlive for session persistence
+library;
 
 import 'dart:async';
 

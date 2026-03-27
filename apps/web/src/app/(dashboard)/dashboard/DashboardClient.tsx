@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Dashboard Home Page Client Component
@@ -8,16 +8,16 @@
  * immediately while each data-dependent section loads independently.
  */
 
-import React, { Suspense, useMemo } from "react";
-import { useAuth } from "@/stores/auth.store";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import React, { Suspense, useMemo } from 'react';
+import { useAuth } from '@/stores/auth.store';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import {
   DashboardStats,
   RecentActivity,
   WeatherWidget,
   TasksSummary,
   QuickActions,
-} from "@/features/home";
+} from '@/features/home';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Loading Skeletons - lightweight placeholders for progressive rendering
@@ -166,10 +166,10 @@ const QuickActionsFallback = () => (
 
 function getGreeting(): { ar: string; en: string } {
   const hour = new Date().getHours();
-  if (hour < 6) return { ar: "مساء الخير", en: "Good evening" };
-  if (hour < 12) return { ar: "صباح الخير", en: "Good morning" };
-  if (hour < 17) return { ar: "مساء الخير", en: "Good afternoon" };
-  return { ar: "مساء الخير", en: "Good evening" };
+  if (hour < 6) return { ar: 'مساء الخير', en: 'Good evening' };
+  if (hour < 12) return { ar: 'صباح الخير', en: 'Good morning' };
+  if (hour < 17) return { ar: 'مساء الخير', en: 'Good afternoon' };
+  return { ar: 'مساء الخير', en: 'Good evening' };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -181,11 +181,11 @@ export default function DashboardClient() {
   const greeting = useMemo(() => getGreeting(), []);
 
   return (
-    <div className="space-y-6" role="main" aria-label="لوحة التحكم الرئيسية">
+    <div className="space-y-6" aria-label="لوحة التحكم الرئيسية">
       {/* Welcome Section - renders immediately (no data dependency) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-6 transition-colors">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          {greeting.ar}، {user?.name_ar || user?.name || "المستخدم"}
+          {greeting.ar}، {user?.name_ar || user?.name || 'المستخدم'}
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
           {greeting.en} — Welcome back to SAHOOL Agricultural Management Platform

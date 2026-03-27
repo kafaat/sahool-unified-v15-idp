@@ -13,9 +13,9 @@ Exceptions:
 
 import os
 import re
+import shlex
 import sys
 from pathlib import Path
-import shlex
 from urllib.parse import urlparse
 
 

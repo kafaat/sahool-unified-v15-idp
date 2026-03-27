@@ -103,11 +103,12 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash sahool
 
-# Install curl for healthcheck, ca-certificates, and OpenSSL for Prisma native query engine
+# Upgrade system packages and install runtime dependencies
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && \
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends && \
     apt-get install -y --no-install-recommends curl ca-certificates openssl && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
 
 # Upgrade npm to latest version
 RUN npm install -g npm@11.7.0 || \
@@ -140,6 +141,9 @@ RUN --mount=type=cache,target=/root/.npm \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
+
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Copy built files
 COPY --from=builder /app/dist ./dist

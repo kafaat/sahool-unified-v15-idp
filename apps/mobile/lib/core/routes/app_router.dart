@@ -18,6 +18,7 @@ import '../../features/main_layout/main_layout.dart';
 import '../../features/home/presentation/screens/home_dashboard.dart';
 
 // Features - Field Management
+import '../../features/fields/domain/entities/field_entity.dart';
 import '../../features/map_home/ui/map_screen.dart';
 import '../../features/fields/presentation/screens/fields_list_screen.dart';
 import '../../features/fields/presentation/screens/field_details_screen.dart';
@@ -71,11 +72,57 @@ import '../../features/crop_health/presentation/screens/crop_health_dashboard.da
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/marketplace/marketplace_screen.dart';
 
+// Features - AI Advisor, Billing, Equipment, Community
+import '../../features/ai_advisor/presentation/screens/ai_advisor_screen.dart';
+import '../../features/ai_advisor/presentation/screens/advisory_details_screen.dart';
+import '../../features/billing/presentation/screens/billing_screen.dart';
+import '../../features/equipment/ui/equipment_screen.dart';
+import '../../features/community/ui/community_screen.dart';
+
+// Features - Settings, Reports, Help, Field Form, Irrigation
+import '../../features/settings/ui/settings_screen.dart';
+import '../../features/reports/presentation/screens/reports_dashboard_screen.dart';
+import '../../features/settings/presentation/screens/help_screen.dart';
+import '../../features/field/ui/field_form_screen.dart';
+import '../../features/irrigation/presentation/screens/irrigation_dashboard_screen.dart';
+
 // Features - Astronomical Calendar
 import '../../features/astronomical/presentation/screens/astronomical_screen.dart';
 
 // Features - Pivot Irrigation - الري المحوري
 import '../../features/pivot_irrigation/pivot_irrigation.dart';
+
+// Features - CRM (Farmer Management)
+import '../../features/crm/presentation/screens/farmers_list_screen.dart';
+import '../../features/crm/presentation/screens/farmer_profile_screen.dart';
+import '../../features/crm/presentation/screens/farmer_analytics_screen.dart';
+
+// Features - Crops
+import '../../features/crops/presentation/screens/crops_screen.dart';
+
+// Features - Gamification
+import '../../features/gamification/presentation/screens/achievements_screen.dart';
+
+// Features - IoT
+import '../../features/iot/ui/iot_control_screen.dart';
+
+// Features - Lab (Sample Tracking)
+import '../../features/lab/ui/sample_tracking_screen.dart';
+
+// Features - Offline Maps
+import '../../features/maps/presentation/screens/field_map_screen.dart';
+
+// Features - Onboarding
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+
+// Features - Payment & Wallet
+import '../../features/payment/presentation/payment_screen.dart';
+import '../../features/wallet/wallet_screen.dart';
+
+// Features - Research
+import '../../features/research/ui/experiments_list_screen.dart';
+import '../../features/research/ui/researcher_task_screen.dart';
+import '../../features/research/ui/daily_observation_screen.dart';
 
 /// SAHOOL App Router Configuration
 /// تكوين مسارات التطبيق باستخدام go_router
@@ -125,8 +172,8 @@ class AppRouter {
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
           return ResetPasswordScreen(
-            token: args?['token'] ?? '',
-            identifier: args?['identifier'],
+            token: (args?['token'] as String?) ?? '',
+            identifier: args?['identifier'] as String?,
           );
         },
       ),
@@ -200,8 +247,18 @@ class AppRouter {
         path: '/field/:id',
         name: 'field-details',
         builder: (context, state) {
-          final fieldId = state.pathParameters['id']!;
-          return FieldDetailsScreen(fieldId: fieldId);
+          final fieldId = state.pathParameters['id'];
+          final field = state.extra as FieldEntity?;
+          if (field == null && fieldId != null) {
+            // Deep link — show field detail with ID-based loading
+            // TODO: FieldDetailsScreen currently requires a FieldEntity; consider adding
+            // a fieldId-only constructor that fetches the entity internally.
+            return const FieldsListScreen();
+          }
+          if (field == null) {
+            return const FieldsListScreen();
+          }
+          return FieldDetailsScreen(field: field);
         },
       ),
 
@@ -220,13 +277,13 @@ class AppRouter {
       GoRoute(
         path: '/vra',
         name: 'vra',
-        builder: (context, state) => const VraListScreen(),
+        builder: (context, state) => const VRAListScreen(),
       ),
 
       GoRoute(
         path: '/vra/create',
         name: 'vra-create',
-        builder: (context, state) => const VraCreateScreen(),
+        builder: (context, state) => const VRACreateScreen(),
       ),
 
       GoRoute(
@@ -234,7 +291,7 @@ class AppRouter {
         name: 'vra-detail',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          return VraDetailScreen(vraId: id);
+          return VRADetailScreen(prescriptionId: id);
         },
       ),
 
@@ -243,23 +300,29 @@ class AppRouter {
       // ═══════════════════════════════════════════════════════════════════════
 
       GoRoute(
-        path: '/gdd',
-        name: 'gdd',
-        builder: (context, state) => const GddDashboardScreen(),
-      ),
-
-      GoRoute(
-        path: '/gdd/settings',
-        name: 'gdd-settings',
-        builder: (context, state) => const GddSettingsScreen(),
-      ),
-
-      GoRoute(
         path: '/gdd/:fieldId',
+        name: 'gdd',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          return GDDDashboardScreen(fieldId: fieldId);
+        },
+      ),
+
+      GoRoute(
+        path: '/gdd/:fieldId/settings',
+        name: 'gdd-settings',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          return GDDSettingsScreen(fieldId: fieldId);
+        },
+      ),
+
+      GoRoute(
+        path: '/gdd/:fieldId/chart',
         name: 'gdd-chart',
         builder: (context, state) {
           final fieldId = state.pathParameters['fieldId']!;
-          return GddChartScreen(fieldId: fieldId);
+          return GDDChartScreen(fieldId: fieldId);
         },
       ),
 
@@ -268,21 +331,30 @@ class AppRouter {
       // ═══════════════════════════════════════════════════════════════════════
 
       GoRoute(
-        path: '/spray',
+        path: '/spray/:fieldId',
         name: 'spray',
-        builder: (context, state) => const SprayDashboardScreen(),
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          return SprayDashboardScreen(fieldId: fieldId);
+        },
       ),
 
       GoRoute(
-        path: '/spray/calendar',
+        path: '/spray/:fieldId/calendar',
         name: 'spray-calendar',
-        builder: (context, state) => const SprayCalendarScreen(),
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          return SprayCalendarScreen(fieldId: fieldId);
+        },
       ),
 
       GoRoute(
-        path: '/spray/log',
+        path: '/spray/:fieldId/log',
         name: 'spray-log',
-        builder: (context, state) => const SprayLogScreen(),
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          return SprayLogScreen(fieldId: fieldId);
+        },
       ),
 
       // ═══════════════════════════════════════════════════════════════════════
@@ -290,9 +362,12 @@ class AppRouter {
       // ═══════════════════════════════════════════════════════════════════════
 
       GoRoute(
-        path: '/rotation',
+        path: '/rotation/:fieldId',
         name: 'rotation',
-        builder: (context, state) => const RotationCalendarScreen(),
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          return RotationCalendarScreen(fieldId: fieldId);
+        },
       ),
 
       GoRoute(
@@ -315,23 +390,31 @@ class AppRouter {
       // ═══════════════════════════════════════════════════════════════════════
 
       GoRoute(
-        path: '/profitability',
+        path: '/profitability/:farmId/:season',
         name: 'profitability',
-        builder: (context, state) => const ProfitabilityDashboardScreen(),
+        builder: (context, state) {
+          final farmId = state.pathParameters['farmId'] ?? '';
+          final season = state.pathParameters['season'] ?? '';
+          return ProfitabilityDashboardScreen(farmId: farmId, season: season);
+        },
       ),
 
       GoRoute(
-        path: '/profitability/season',
+        path: '/profitability/:farmId/:season/summary',
         name: 'profitability-season',
-        builder: (context, state) => const SeasonSummaryScreen(),
+        builder: (context, state) {
+          final farmId = state.pathParameters['farmId'] ?? '';
+          final season = state.pathParameters['season'] ?? '';
+          return SeasonSummaryScreen(farmId: farmId, season: season);
+        },
       ),
 
       GoRoute(
-        path: '/profitability/:fieldId',
+        path: '/profitability/detail/:id',
         name: 'profitability-detail',
         builder: (context, state) {
-          final fieldId = state.pathParameters['fieldId']!;
-          return CropProfitabilityScreen(fieldId: fieldId);
+          final id = state.pathParameters['id']!;
+          return CropProfitabilityScreen(profitabilityId: id);
         },
       ),
 
@@ -384,29 +467,42 @@ class AppRouter {
       // ═══════════════════════════════════════════════════════════════════════
 
       GoRoute(
-        path: '/satellite',
-        name: 'satellite',
-        builder: (context, state) => const SatelliteDashboardScreen(),
-      ),
-
-      GoRoute(
-        path: '/satellite/phenology',
-        name: 'satellite-phenology',
-        builder: (context, state) => const PhenologyScreen(),
-      ),
-
-      GoRoute(
-        path: '/satellite/weather',
-        name: 'satellite-weather',
-        builder: (context, state) => const sat_weather.WeatherScreen(fieldId: ''),
-      ),
-
-      GoRoute(
         path: '/satellite/:fieldId',
+        name: 'satellite',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          final fieldName = (state.extra as Map<String, dynamic>?)?['fieldName'] as String? ?? '';
+          return SatelliteDashboardScreen(fieldId: fieldId, fieldName: fieldName);
+        },
+      ),
+
+      GoRoute(
+        path: '/satellite/:fieldId/phenology',
+        name: 'satellite-phenology',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          final fieldName = (state.extra as Map<String, dynamic>?)?['fieldName'] as String? ?? '';
+          return PhenologyScreen(fieldId: fieldId, fieldName: fieldName);
+        },
+      ),
+
+      GoRoute(
+        path: '/satellite/:fieldId/weather',
+        name: 'satellite-weather',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId'] ?? '';
+          final fieldName = (state.extra as Map<String, dynamic>?)?['fieldName'] as String? ?? '';
+          return sat_weather.WeatherScreen(fieldId: fieldId, fieldName: fieldName);
+        },
+      ),
+
+      GoRoute(
+        path: '/satellite/:fieldId/ndvi',
         name: 'satellite-field',
         builder: (context, state) {
           final fieldId = state.pathParameters['fieldId']!;
-          return NdviDetailScreen(fieldId: fieldId);
+          final fieldName = (state.extra as Map<String, dynamic>?)?['fieldName'] as String? ?? '';
+          return NdviDetailScreen(fieldId: fieldId, fieldName: fieldName);
         },
       ),
 
@@ -441,7 +537,7 @@ class AppRouter {
         name: 'weather',
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
-          return WeatherScreen(fieldId: args?['fieldId'] ?? '');
+          return WeatherScreen(fieldId: (args?['fieldId'] as String?) ?? '');
         },
       ),
 
@@ -450,7 +546,7 @@ class AppRouter {
         name: 'tasks',
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
-          return TasksListScreen(fieldId: args?['fieldId']);
+          return TasksListScreen(fieldId: args?['fieldId'] as String?);
         },
       ),
 
@@ -468,7 +564,7 @@ class AppRouter {
         name: 'crop-health',
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
-          return CropHealthDashboard(fieldId: args?['fieldId'] ?? '');
+          return CropHealthDashboard(fieldId: (args?['fieldId'] as String?) ?? '');
         },
       ),
 
@@ -505,6 +601,53 @@ class AppRouter {
         path: '/map',
         name: 'map',
         builder: (context, state) => const MapScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // AI Advisor Routes
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/ai-advisor',
+        name: 'ai-advisor',
+        builder: (context, state) => const AiAdvisorScreen(),
+      ),
+
+      GoRoute(
+        path: '/ai-advisor/history',
+        name: 'ai-advisor-history',
+        builder: (context, state) => const AiAdvisorScreen(),
+      ),
+
+      GoRoute(
+        path: '/ai-advisor/details/:id',
+        name: 'ai-advisor-details',
+        builder: (context, state) {
+          final advisoryId = state.pathParameters['id']!;
+          return AdvisoryDetailsScreen(advisoryId: advisoryId);
+        },
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Billing, Equipment, Community Routes
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/billing',
+        name: 'billing',
+        builder: (context, state) => const BillingScreen(),
+      ),
+
+      GoRoute(
+        path: '/equipment',
+        name: 'equipment',
+        builder: (context, state) => const EquipmentScreen(),
+      ),
+
+      GoRoute(
+        path: '/community',
+        name: 'community',
+        builder: (context, state) => const CommunityScreen(),
       ),
 
       // ═══════════════════════════════════════════════════════════════════════
@@ -586,6 +729,197 @@ class AppRouter {
             onConfigUpdate: (_) {
               context.pop();
             },
+          );
+        },
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Settings, Reports, Help & Field Form Routes
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+
+      GoRoute(
+        path: '/reports',
+        name: 'reports',
+        builder: (context, state) => const ReportsDashboardScreen(),
+      ),
+
+      GoRoute(
+        path: '/help',
+        name: 'help',
+        builder: (context, state) => const HelpScreen(),
+      ),
+
+      GoRoute(
+        path: '/field-form',
+        name: 'field-form',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return FieldFormScreen(fieldId: args?['fieldId'] as String?);
+        },
+      ),
+
+      GoRoute(
+        path: '/irrigation',
+        name: 'irrigation',
+        builder: (context, state) => const IrrigationDashboardScreen(
+          fields: [],
+        ),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // CRM Routes - إدارة علاقات المزارعين
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/crm',
+        name: 'crm',
+        builder: (context, state) => const FarmersListScreen(),
+      ),
+
+      GoRoute(
+        path: '/crm/farmer/:id',
+        name: 'farmer-profile',
+        builder: (context, state) {
+          final farmerId = state.pathParameters['id']!;
+          return FarmerProfileScreen(farmerId: farmerId);
+        },
+      ),
+
+      GoRoute(
+        path: '/crm/farmer/:id/analytics',
+        name: 'crm-analytics',
+        builder: (context, state) {
+          final farmerId = state.pathParameters['id']!;
+          final args = state.extra as Map<String, dynamic>?;
+          final farmerName = (args?['farmerName'] as String?) ?? '';
+          return FarmerAnalyticsScreen(farmerId: farmerId, farmerName: farmerName);
+        },
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Crops Route - إدارة المحاصيل
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/crops',
+        name: 'crops',
+        builder: (context, state) => const CropsScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Gamification Route - الإنجازات
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/achievements',
+        name: 'achievements',
+        builder: (context, state) => const AchievementsScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // IoT Route - التحكم بأجهزة إنترنت الأشياء
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/iot',
+        name: 'iot',
+        builder: (context, state) => const IoTControlScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Lab Route - تتبع العينات المخبرية
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/lab',
+        name: 'lab',
+        builder: (context, state) => const SampleTrackingScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Offline Maps Route - الخرائط غير المتصلة
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/maps/:fieldId',
+        name: 'maps',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['fieldId']!;
+          final args = state.extra as Map<String, dynamic>?;
+          return FieldMapScreen(
+            fieldId: fieldId,
+            fieldName: args?['fieldName'] as String?,
+            initialCenter: args?['initialCenter'] as Map<String, dynamic>?,
+          );
+        },
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Onboarding Route - مسار التعريف بالتطبيق
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Payment & Wallet Routes - الدفع والمحفظة
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/payment/:walletId',
+        name: 'payment',
+        builder: (context, state) {
+          final walletId = state.pathParameters['walletId']!;
+          return PaymentScreen(walletId: walletId);
+        },
+      ),
+
+      GoRoute(
+        path: '/wallet',
+        name: 'wallet',
+        builder: (context, state) => const WalletScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Research Routes - التجارب البحثية
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/research',
+        name: 'research',
+        builder: (context, state) => const ExperimentsListScreen(),
+      ),
+
+      GoRoute(
+        path: '/research/task',
+        name: 'research-task',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return ResearcherTaskScreen(
+            taskId: args?['taskId'] as String?,
+            plotCode: args?['plotCode'] as String?,
+            experimentName: args?['experimentName'] as String?,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/research/observation',
+        name: 'research-observation',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return DailyObservationScreen(
+            experimentId: args?['experimentId'] as String?,
+            plotCode: args?['plotCode'] as String?,
           );
         },
       ),

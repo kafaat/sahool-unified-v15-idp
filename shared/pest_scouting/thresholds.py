@@ -542,12 +542,24 @@ def assess_threshold(
         modifiers_applied["virus_present"] = 0.5
 
     # Calculate percentages
-    pct_action = (observed_value / adj_action * 100) if adj_action > 0 else float("inf")
-    pct_economic = (observed_value / adj_economic * 100) if adj_economic > 0 else float("inf")
+    # SECURITY: Guard against zero/negative adjusted thresholds to prevent division by zero / inf
+    if adj_action <= 0:
+        pct_action = 999.9 if observed_value > 0 else 0.0
+    else:
+        pct_action = observed_value / adj_action * 100
+
+    if adj_economic <= 0:
+        pct_economic = 999.9 if observed_value > 0 else 0.0
+    else:
+        pct_economic = observed_value / adj_economic * 100
 
     # Determine if thresholds exceeded
-    exceeds_action = observed_value >= adj_action
-    exceeds_economic = observed_value >= adj_economic
+    # SECURITY: When adjustments drive thresholds to zero/negative, clamp to a
+    # safe minimum so that the exceeded check remains meaningful.
+    safe_adj_action = max(adj_action, 0.01)
+    safe_adj_economic = max(adj_economic, 0.01)
+    exceeds_action = observed_value >= safe_adj_action
+    exceeds_economic = observed_value >= safe_adj_economic
 
     # Determine infestation level
     if observed_value == 0:

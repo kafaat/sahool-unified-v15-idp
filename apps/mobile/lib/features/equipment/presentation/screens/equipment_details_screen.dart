@@ -1,11 +1,11 @@
 /// Equipment Details Screen - شاشة تفاصيل المعدة
 /// Comprehensive equipment details with tabs
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
-import '../../domain/models/equipment.dart';
 import '../../state/equipment_providers.dart';
 import '../widgets/fuel_gauge.dart';
 import '../widgets/status_indicator.dart';
@@ -60,11 +60,11 @@ class _EquipmentDetailsScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, size: 48, color: SahoolColors.danger),
+              const Icon(Icons.error_outline, size: 48, color: SahoolColors.danger),
               const SizedBox(height: 16),
               Text(
                 error.toString(),
-                style: TextStyle(color: SahoolColors.danger),
+                style: const TextStyle(color: SahoolColors.danger),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -158,7 +158,7 @@ class _EquipmentDetailsScreenState
   }
 
   Widget _buildHeader(Equipment equipment) {
-    return Container(
+    return DecoratedBox(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -179,7 +179,7 @@ class _EquipmentDetailsScreenState
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
@@ -204,7 +204,7 @@ class _EquipmentDetailsScreenState
                         Text(
                           '${equipment.equipmentType.nameAr} ${equipment.brand != null ? "• ${equipment.brand}" : ""}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 13,
                           ),
                         ),
@@ -396,11 +396,11 @@ class _OverviewTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
-                    const Icon(Icons.location_on, color: SahoolColors.forestGreen),
-                    const SizedBox(width: 8),
-                    const Text(
+                    Icon(Icons.location_on, color: SahoolColors.forestGreen),
+                    SizedBox(width: 8),
+                    Text(
                       'الموقع',
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
@@ -432,15 +432,15 @@ class _OverviewTab extends StatelessWidget {
         if (equipment.needsMaintenanceSoon || equipment.isLowFuel) ...[
           const SizedBox(height: 16),
           OrganicCard(
-            color: SahoolColors.harvestGold.withOpacity(0.1),
+            color: SahoolColors.harvestGold.withValues(alpha: 0.1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
-                    const Icon(Icons.warning_amber, color: SahoolColors.harvestGold),
-                    const SizedBox(width: 8),
-                    const Text(
+                    Icon(Icons.warning_amber, color: SahoolColors.harvestGold),
+                    SizedBox(width: 8),
+                    Text(
                       'تنبيهات',
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
@@ -663,7 +663,7 @@ class _FuelTab extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.local_gas_station,
                           color: SahoolColors.forestGreen,
                         ),

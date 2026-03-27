@@ -1,8 +1,9 @@
 """Test database migration SQL files are valid."""
 
-import pytest
 import os
 import re
+
+import pytest
 
 MIGRATIONS_DIR = os.path.join(os.path.dirname(__file__), "../../infrastructure/migrations")
 

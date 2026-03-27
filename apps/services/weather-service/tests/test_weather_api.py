@@ -3,7 +3,7 @@ Comprehensive Weather Service API Tests
 Tests for weather API endpoints, external provider integration, and error handling
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
@@ -27,7 +27,7 @@ def mock_weather_data():
         "cloud_cover_pct": 25.0,
         "pressure_hpa": 1013.0,
         "uv_index": 8.0,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -63,17 +63,23 @@ def mock_daily_forecast():
 @pytest.fixture
 def app():
     """Create FastAPI test app instance with auth dependency overridden"""
-    from shared.auth.dependencies import get_current_user
-    from shared.auth.models import User
     from src.main import app as weather_app
 
+    from shared.auth.dependencies import get_current_user
+
+    # Import User from the same module that src/main.py loaded (apps/services/shared/)
+    # to match the User type expected by get_current_user dependency
+    from shared.auth.models import User
+
     def fake_current_user():
-        return User(
-            id="test-user-001",
-            email="test@sahool.sa",
-            roles=["farmer"],
-            tenant_id="tenant-123",
-        )
+        # Use a MagicMock that quacks like User to avoid constructor mismatch
+        # between root shared/auth/models.py and apps/services/shared/auth/models.py
+        user = MagicMock(spec=User)
+        user.id = "test-user-001"
+        user.email = "test@sahool.sa"
+        user.roles = ["farmer"]
+        user.tenant_id = "00000000-0000-0000-0000-000000000123"
+        return user
 
     weather_app.dependency_overrides[get_current_user] = fake_current_user
     yield weather_app
@@ -84,7 +90,7 @@ def app():
 def client(app):
     """Create test client with tenant context"""
     c = TestClient(app)
-    c.headers["X-Tenant-ID"] = "tenant-123"
+    c.headers["X-Tenant-ID"] = "00000000-0000-0000-0000-000000000123"
     return c
 
 
@@ -129,7 +135,7 @@ class TestCurrentWeatherEndpoint:
                     cloud_cover_pct=25.0,
                     pressure_hpa=1013.0,
                     uv_index=8.0,
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                 )
             )
             mock_state.weather_provider = mock_provider
@@ -139,7 +145,7 @@ class TestCurrentWeatherEndpoint:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -157,7 +163,7 @@ class TestCurrentWeatherEndpoint:
         response = client.post(
             "/weather/current",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "lat": 95.0,  # Invalid latitude
                 "lon": 44.20,
@@ -183,7 +189,7 @@ class TestCurrentWeatherEndpoint:
                 cloud_cover_pct=30.0,
                 pressure_hpa=1012.0,
                 uv_index=7.5,
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
             )
             mock_multi.get_current = AsyncMock(return_value=mock_result)
             mock_state.multi_provider = mock_multi
@@ -192,7 +198,7 @@ class TestCurrentWeatherEndpoint:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-789",
                     "lat": 13.58,
                     "lon": 44.02,
@@ -208,7 +214,7 @@ class TestCurrentWeatherEndpoint:
         response = client.post(
             "/weather/current",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 # Missing field_id, lat, lon
             },
         )
@@ -233,7 +239,7 @@ class TestForecastEndpoint:
             response = client.post(
                 "/weather/forecast?days=7",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -260,7 +266,7 @@ class TestForecastEndpoint:
                 response = client.post(
                     f"/weather/forecast?days={days}",
                     json={
-                        "tenant_id": "tenant-123",
+                        "tenant_id": "00000000-0000-0000-0000-000000000123",
                         "field_id": "field-456",
                         "lat": 15.35,
                         "lon": 44.20,
@@ -282,7 +288,7 @@ class TestForecastEndpoint:
             response = client.post(
                 "/weather/forecast?days=30",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -301,7 +307,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 "humidity_pct": 55.0,
@@ -322,7 +328,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 42.0,
                 "humidity_pct": 30.0,
@@ -346,7 +352,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 22.0,
                 "humidity_pct": 85.0,
@@ -370,7 +376,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 # Optional fields omitted
@@ -390,7 +396,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 "humidity_pct": 55.0,
@@ -411,7 +417,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 38.0,
                 "humidity_pct": 25.0,
@@ -430,7 +436,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 22.0,
                 "humidity_pct": 75.0,
@@ -617,7 +623,7 @@ class TestExternalAPIIntegration:
             mock_client_getter.return_value = mock_client
 
             # Should raise exception
-            with pytest.raises(Exception):
+            with pytest.raises((ValueError, Exception)):
                 await provider.get_current(15.35, 44.20)
 
         await provider.close()
@@ -641,7 +647,7 @@ class TestCorrelationID:
                     cloud_cover_pct=25.0,
                     pressure_hpa=1013.0,
                     uv_index=8.0,
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                 )
             )
             mock_state.weather_provider = mock_provider
@@ -652,7 +658,7 @@ class TestCorrelationID:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,

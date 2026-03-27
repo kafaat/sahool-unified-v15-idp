@@ -3,8 +3,14 @@
  * أنواع ميزة المخزون
  */
 
-export type InventoryStatus = "in_stock" | "low_stock" | "out_of_stock" | "expired";
-export type InventoryCategory = "seeds" | "fertilizers" | "pesticides" | "equipment" | "fuel" | "other";
+export type InventoryStatus = 'in_stock' | 'low_stock' | 'out_of_stock' | 'expired';
+export type InventoryCategory =
+  | 'seeds'
+  | 'fertilizers'
+  | 'pesticides'
+  | 'equipment'
+  | 'fuel'
+  | 'other';
 
 export interface InventoryItem {
   id: string;
@@ -64,7 +70,7 @@ export interface InventoryTransaction {
   id: string;
   itemId: string;
   itemName: string;
-  type: "in" | "out" | "adjustment";
+  type: 'in' | 'out' | 'adjustment';
   quantity: number;
   reason: string;
   reasonAr: string;

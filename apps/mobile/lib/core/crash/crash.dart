@@ -47,7 +47,7 @@
 /// - Sends pending reports when network is restored
 /// - Tracks breadcrumbs for debugging
 
-library crash;
+library;
 
 // Configuration
 export 'crash_config.dart'

@@ -7,7 +7,7 @@ import type {
   Task as ApiTask,
   TaskStatus as ApiTaskStatus,
   Priority as ApiPriority,
-} from "@sahool/api-client";
+} from '@sahool/api-client';
 
 // Re-export core types from API client
 export type Task = ApiTask & {

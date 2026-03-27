@@ -52,6 +52,12 @@ class RedisSentinelConfig:
         # Redis configuration
         self.password = os.getenv("REDIS_PASSWORD")
         if not self.password:
+            env = os.getenv("ENVIRONMENT", "development").lower()
+            if env == "production":
+                raise RuntimeError(
+                    "REDIS_PASSWORD must be set in production. "
+                    "Redis cannot operate without authentication in a production environment."
+                )
             logger.warning(
                 "REDIS_PASSWORD environment variable is not set. Redis authentication will fail in production."
             )
@@ -234,7 +240,8 @@ class RedisSentinelClient:
             logger.info(f"Successfully connected to Redis master: {self.config.master_name}")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Sentinel: {e}")
+            logger.error("Failed to initialize Sentinel: %s", type(e).__name__)
+            logger.debug("Sentinel initialization error details", exc_info=True)
             raise
 
     def get_master_address(self) -> tuple | None:
@@ -247,7 +254,8 @@ class RedisSentinelClient:
         try:
             return self._sentinel.discover_master(self.config.master_name)
         except Exception as e:
-            logger.error(f"Failed to discover master: {e}")
+            logger.error("Failed to discover master: %s", type(e).__name__)
+            logger.debug("Master discovery error details", exc_info=True)
             return None
 
     def get_slaves_addresses(self) -> list[tuple]:
@@ -647,19 +655,25 @@ class RedisSentinelClient:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 _redis_client: RedisSentinelClient | None = None
+_redis_client_lock = threading.Lock()
 
 
 def get_redis_client() -> RedisSentinelClient:
     """
     الحصول على Redis Client (Singleton)
+    Thread-safe with double-check locking.
 
     Returns:
         RedisSentinelClient instance
     """
     global _redis_client
 
-    if _redis_client is None:
-        _redis_client = RedisSentinelClient()
+    if _redis_client is not None:
+        return _redis_client
+
+    with _redis_client_lock:
+        if _redis_client is None:
+            _redis_client = RedisSentinelClient()
 
     return _redis_client
 

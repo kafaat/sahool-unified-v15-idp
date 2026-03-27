@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -188,7 +187,7 @@ class KongServices {
   );
 
   static const yield_ = KongService(
-    name: 'yield-engine',
+    name: 'yield-prediction-service',
     nameAr: 'الإنتاج',
     basePath: '/api/v1/yield',
   );
@@ -713,9 +712,9 @@ class KongGatewayClient {
       );
 
       if (response.statusCode == 200) {
-        final data = response.data;
-        _accessToken = data['access_token'];
-        _refreshToken = data['refresh_token'] ?? _refreshToken;
+        final data = response.data as Map<String, dynamic>;
+        _accessToken = data['access_token'] as String?;
+        _refreshToken = data['refresh_token'] as String? ?? _refreshToken;
         return true;
       }
     } catch (e) {

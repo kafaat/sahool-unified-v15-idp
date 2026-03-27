@@ -744,6 +744,8 @@ def generate_postgis_neighbors_query(
     Generate PostGIS query to find neighboring boundaries.
     إنشاء استعلام PostGIS للعثور على الحدود المجاورة.
 
+    SECURITY: Uses $1 for boundary_id and $2 for buffer_m to prevent SQL injection.
+
     Args:
         table: Table name
         boundary_id: ID of the boundary to find neighbors for
@@ -751,10 +753,10 @@ def generate_postgis_neighbors_query(
         buffer_m: Buffer distance in meters for "near" neighbors
 
     Returns:
-        SQL query string
+        SQL query string with $1 and $2 parameter placeholders
     """
     g = geometry_column
-    # SECURITY: Use parameterized placeholder ($1) for boundary_id to prevent SQL injection
+    # SECURITY: Use parameterized placeholders ($1, $2) to prevent SQL injection
     return f"""
     SELECT
         b.id,
@@ -767,7 +769,7 @@ def generate_postgis_neighbors_query(
     WHERE a.id = $1
         AND (
             ST_Touches(a.{g}, b.{g})
-            OR ST_DWithin(a.{g}::geography, b.{g}::geography, {buffer_m})
+            OR ST_DWithin(a.{g}::geography, b.{g}::geography, $2)
         )
     ORDER BY distance_m ASC
     """

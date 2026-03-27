@@ -34,7 +34,8 @@ from slowapi.util import get_remote_address
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware as shared_add_request_id_middleware
+from shared.errors_py import add_request_id_middleware as shared_add_request_id_middleware
+from shared.errors_py import setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Add project root to path
@@ -886,7 +887,9 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # CORS middleware
-cors_origins = [o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")]
+cors_origins = [
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+]
 
 app.add_middleware(
     CORSMiddleware,

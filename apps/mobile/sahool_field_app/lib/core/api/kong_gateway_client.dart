@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
@@ -193,7 +192,7 @@ class KongServices {
   );
 
   static const yield_ = KongService(
-    name: 'yield-engine',
+    name: 'yield-prediction-service',
     nameAr: 'الإنتاج',
     basePath: '/api/v1/yield',
   );
@@ -214,7 +213,7 @@ class KongServices {
 
   /// Spray/Yield operations - عمليات الرش والمحصول
   static const spray = KongService(
-    name: 'yield-engine',
+    name: 'yield-prediction-service',
     nameAr: 'عمليات الرش',
     basePath: '/api/v1/spray',
   );
@@ -883,7 +882,7 @@ class KongGatewayClient {
 
       if (response.statusCode == 304) {
         return ConditionalResponse(
-          response: ApiResponse.success(null as T),
+          response: ApiResponse(success: true, data: null),
           notModified: true,
           etag: response.headers.value('ETag'),
         );
@@ -900,7 +899,9 @@ class KongGatewayClient {
       }
 
       return ConditionalResponse(
-        response: ApiResponse.success(data as T, requestId: requestId),
+        response: data != null
+            ? ApiResponse.success(data, requestId: requestId)
+            : ApiResponse(success: true, data: null, requestId: requestId),
         notModified: false,
         etag: newEtag,
       );
@@ -1033,9 +1034,7 @@ class KongGatewayClient {
       'isOpen': isOpen,
       'failureCount': failures,
       'openedAt': openTime?.toIso8601String(),
-      'willResetAt': openTime != null
-          ? openTime.add(_circuitTimeout).toIso8601String()
-          : null,
+      'willResetAt': openTime?.add(_circuitTimeout).toIso8601String(),
     };
   }
 
@@ -1109,6 +1108,9 @@ class KongGatewayClient {
             requestId: requestId);
       }
 
+      if (responseData == null) {
+        return ApiResponse(success: true, data: null, requestId: requestId);
+      }
       return ApiResponse.success(responseData as T, requestId: requestId);
     } on DioException catch (e) {
       _recordFailure(service.name);

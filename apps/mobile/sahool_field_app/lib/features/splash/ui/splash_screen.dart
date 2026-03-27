@@ -60,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -97,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -124,7 +124,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Text(
                       'منصة الزراعة الذكية',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 18,
                         fontWeight: FontWeight.w300,
                       ),
@@ -159,7 +159,7 @@ class _SplashScreenState extends State<SplashScreen>
                           borderRadius: BorderRadius.circular(10),
                           child: LinearProgressIndicator(
                             value: _loadingAnimation.value,
-                            backgroundColor: Colors.white.withOpacity(0.3),
+                            backgroundColor: Colors.white.withValues(alpha: 0.3),
                             valueColor:
                                 const AlwaysStoppedAnimation(Colors.white),
                             minHeight: 6,
@@ -169,7 +169,7 @@ class _SplashScreenState extends State<SplashScreen>
                         Text(
                           'جاري التحميل...',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -189,7 +189,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Text(
                       'Power of',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                     ),

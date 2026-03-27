@@ -43,17 +43,17 @@ const nextConfig = {
     "@sahool/shared-types",
     "@sahool/api-client",
     "@sahool/i18n",
+    "@sahool/design-system",
   ],
 
-  // Ignore ESLint warnings during build - lint job checks separately
+  // ESLint errors must be fixed before build succeeds
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
 
-  // TypeScript - ignore during build since type-check runs separately in CI
+  // TypeScript errors must be fixed before build succeeds
   typescript: {
-    // Type checking is done by dedicated 'typecheck' job in CI pipeline
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
   // Note: i18n is handled via next-intl for App Router

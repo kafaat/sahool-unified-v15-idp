@@ -7,6 +7,7 @@
 /// - Soil interpretation
 /// - Deficiency symptoms
 /// - AI-powered advice
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';
@@ -505,7 +506,7 @@ class AdvisoryServiceConnector extends ServiceConnector {
     String? fieldId,
   }) async {
     return uploadFile(
-      '/api/v1/crop-health/diagnose',
+      '/api/v1/diagnose',
       filePath: imagePath,
       fieldName: 'image',
       additionalData: {

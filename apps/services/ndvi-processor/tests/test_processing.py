@@ -22,48 +22,51 @@ _service_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _service_root not in sys.path:
     sys.path.insert(0, _service_root)
 
-from src.models import (
-    ChangeAnalysisResponse,
-    CompositeMethod,
-    CompositeResponse,
-    DateRange,
-    ExportFormat,
-    FileUrls,
-    JobResponse,
-    JobStatus,
-    NDVIResult,
-    NDVIStatistics,
-    ProcessingInfo,
-    ProcessRequest,
-    QualityMetrics,
-    SatelliteSource,
-    SeasonalAnalysisResponse,
-    SourceInfo,
-    TimeseriesPoint,
-    TimeseriesResponse,
-    TrendDirection,
-    ZoneChange,
-)
-from src.processing import (
-    analyze_change,
-    analyze_seasonal,
-    cancel_job,
-    create_job,
-    detect_anomaly,
-    get_composites,
-    get_field_ndvi,
-    get_job,
-    get_ndvi_timeseries,
-    list_jobs,
-    process_ndvi_mock,
-    update_job_status,
-)
-from src.store import _jobs, _results, _composites
-
+try:
+    from src.models import (
+        ChangeAnalysisResponse,
+        CompositeMethod,
+        CompositeResponse,
+        DateRange,
+        ExportFormat,
+        FileUrls,
+        JobResponse,
+        JobStatus,
+        NDVIResult,
+        NDVIStatistics,
+        ProcessingInfo,
+        ProcessRequest,
+        QualityMetrics,
+        SatelliteSource,
+        SeasonalAnalysisResponse,
+        SourceInfo,
+        TimeseriesPoint,
+        TimeseriesResponse,
+        TrendDirection,
+        ZoneChange,
+    )
+    from src.processing import (
+        analyze_change,
+        analyze_seasonal,
+        cancel_job,
+        create_job,
+        detect_anomaly,
+        get_composites,
+        get_field_ndvi,
+        get_job,
+        get_ndvi_timeseries,
+        list_jobs,
+        process_ndvi_mock,
+        update_job_status,
+    )
+    from src.store import _composites, _jobs, _results
+except ImportError:
+    pytest.skip("ndvi-processor dependencies not installed", allow_module_level=True)
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _clear_stores():
     """Reset in-memory stores between tests."""
@@ -189,9 +192,7 @@ class TestJobManagement:
     def test_update_job_status_completed(self):
         job_id = create_job("t1", "f1", "ndvi", {})
         update_job_status(job_id, JobStatus.PROCESSING)
-        updated = update_job_status(
-            job_id, JobStatus.COMPLETED, progress=100, result={"ndvi_mean": 0.6}
-        )
+        updated = update_job_status(job_id, JobStatus.COMPLETED, progress=100, result={"ndvi_mean": 0.6})
         assert updated["status"] == "completed"
         assert updated["completed_at"] is not None
         assert updated["result"]["ndvi_mean"] == 0.6
@@ -219,11 +220,12 @@ class TestJobManagement:
     def test_cancel_nonexistent_job_fails(self):
         assert cancel_job("nope") is False
 
-    def test_list_jobs_all(self):
+    def test_list_jobs_by_tenant(self):
         create_job("t1", "f1", "ndvi", {})
         create_job("t2", "f2", "ndvi", {})
-        jobs = list_jobs()
-        assert len(jobs) == 2
+        jobs = list_jobs(tenant_id="t1")
+        assert len(jobs) == 1
+        assert jobs[0]["tenant_id"] == "t1"
 
     def test_list_jobs_filter_tenant(self):
         create_job("t1", "f1", "ndvi", {})
@@ -235,14 +237,14 @@ class TestJobManagement:
     def test_list_jobs_filter_field(self):
         create_job("t1", "f1", "ndvi", {})
         create_job("t1", "f2", "ndvi", {})
-        jobs = list_jobs(field_id="f2")
+        jobs = list_jobs(tenant_id="t1", field_id="f2")
         assert len(jobs) == 1
 
     def test_list_jobs_filter_status(self):
         j1 = create_job("t1", "f1", "ndvi", {})
         create_job("t1", "f2", "ndvi", {})
         update_job_status(j1, JobStatus.COMPLETED)
-        jobs = list_jobs(status="completed")
+        jobs = list_jobs(tenant_id="t1", status="completed")
         assert len(jobs) == 1
 
 
@@ -380,6 +382,7 @@ class TestStore:
 
     def test_store_configure_no_args(self):
         from src.store import configure
+
         configure()  # should not raise
 
     def test_composites_empty(self):

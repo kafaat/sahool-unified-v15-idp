@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'websocket_service.dart';
+import 'websocket_provider.dart';
 import '../notifications/notification_service.dart';
+import '../notifications/notification_types.dart'
+    show NotificationPriority, NotificationType;
+import '../notifications/notification_provider.dart';
 import '../utils/app_logger.dart';
 
 /// Event handler for WebSocket events
@@ -112,7 +116,7 @@ class WebSocketEventHandler {
         break;
 
       default:
-        AppLogger.debug('Unhandled event type: ${event.eventType}');
+        AppLogger.d('Unhandled event type: ${event.eventType}');
     }
   }
 
@@ -363,9 +367,9 @@ class WebSocketEventListener extends ConsumerWidget {
   final Widget child;
 
   const WebSocketEventListener({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -385,15 +389,7 @@ class WebSocketEventListener extends ConsumerWidget {
   }
 }
 
-/// Notification priority enum
-enum NotificationPriority {
-  low,
-  medium,
-  high,
-  critical,
-}
-
-/// Extension for NotificationService to support our priority
+/// Extension for NotificationService to support bilingual notifications with priority
 extension NotificationServiceExtension on NotificationService {
   Future<void> showNotification({
     required String title,
@@ -403,8 +399,28 @@ extension NotificationServiceExtension on NotificationService {
     required Map<String, dynamic> data,
     NotificationPriority priority = NotificationPriority.medium,
   }) async {
-    // Implement notification display
-    // This is a placeholder - actual implementation depends on your NotificationService
-    AppLogger.info('Notification: $title - $body');
+    // Map priority to NotificationType for the underlying service
+    final NotificationType type;
+    switch (priority) {
+      case NotificationPriority.critical:
+      case NotificationPriority.high:
+        type = NotificationType.alertHigh;
+      case NotificationPriority.medium:
+        type = NotificationType.alertMedium;
+      case NotificationPriority.low:
+        type = NotificationType.alertLow;
+    }
+
+    // Use Arabic title/body (primary language for the platform)
+    await showLocal(
+      type: type,
+      title: titleAr,
+      body: bodyAr,
+      data: {
+        ...data,
+        'title_en': title,
+        'body_en': body,
+      },
+    );
   }
 }

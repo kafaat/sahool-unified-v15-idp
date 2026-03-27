@@ -143,7 +143,7 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -274,7 +274,7 @@ class MoreScreen extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: SahoolTheme.primary.withOpacity(0.1),
+              color: SahoolTheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(
@@ -325,7 +325,7 @@ class MoreScreen extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: (color ?? SahoolTheme.primary).withOpacity(0.1),
+          color: (color ?? SahoolTheme.primary).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: color ?? SahoolTheme.primary),
@@ -461,7 +461,7 @@ class QuickActionsSheet extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: color, size: 28),

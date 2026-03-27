@@ -107,14 +107,14 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.92),
+                color: Colors.white.withValues(alpha: 0.92),
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     offset: const Offset(0, -5),
                   ),
@@ -183,7 +183,7 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: SahoolColors.primary.withOpacity(0.1),
+                  color: SahoolColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -213,13 +213,13 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: SahoolColors.success.withOpacity(0.1),
+                    color: SahoolColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.check,
                         size: 12,
                         color: SahoolColors.success,
@@ -227,7 +227,7 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
                       const SizedBox(width: 4),
                       Text(
                         '$_completedCount',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: SahoolColors.success,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
@@ -243,8 +243,8 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: _pendingCount > 0
-                      ? SahoolColors.warning.withOpacity(0.1)
-                      : SahoolColors.success.withOpacity(0.1),
+                      ? SahoolColors.warning.withValues(alpha: 0.1)
+                      : SahoolColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -270,7 +270,7 @@ class _DailyTasksSheetState extends State<DailyTasksSheet> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.check_circle_outline,
             size: 48,
             color: SahoolColors.success,
@@ -320,14 +320,14 @@ class CompactTasksSummary extends StatelessWidget {
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(16),
           boxShadow: SahoolShadows.small,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.task_alt,
               color: SahoolColors.primary,
               size: 20,
@@ -345,12 +345,12 @@ class CompactTasksSummary extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: SahoolColors.danger.withOpacity(0.1),
+                  color: SahoolColors.danger.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '$urgent عاجل',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: SahoolColors.danger,
                     fontWeight: FontWeight.bold,
                     fontSize: 10,

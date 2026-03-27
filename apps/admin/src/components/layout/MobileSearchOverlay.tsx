@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Mobile Search Overlay
@@ -7,7 +7,7 @@
  * Lazy-loaded: Only rendered on mobile when the user taps the search icon.
  */
 
-import { Search, X } from "lucide-react";
+import { Search, X } from 'lucide-react';
 
 interface MobileSearchOverlayProps {
   searchQuery: string;

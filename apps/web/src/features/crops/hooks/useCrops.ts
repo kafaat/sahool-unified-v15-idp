@@ -2,18 +2,18 @@
  * Crops Feature - React Hooks
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { cropsApi } from "../api";
-import type { CropFilters, CropFormData } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { cropsApi } from '../api';
+import type { CropFilters, CropFormData } from '../types';
 
 export const cropKeys = {
-  all: ["crops"] as const,
-  lists: () => [...cropKeys.all, "list"] as const,
+  all: ['crops'] as const,
+  lists: () => [...cropKeys.all, 'list'] as const,
   list: (filters?: CropFilters) => [...cropKeys.lists(), filters] as const,
-  detail: (id: string) => [...cropKeys.all, "detail", id] as const,
-  stats: () => [...cropKeys.all, "stats"] as const,
+  detail: (id: string) => [...cropKeys.all, 'detail', id] as const,
+  stats: () => [...cropKeys.all, 'stats'] as const,
 };
 
 export function useCrops(filters?: CropFilters) {

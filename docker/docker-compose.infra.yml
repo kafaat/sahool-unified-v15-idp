@@ -162,7 +162,7 @@ services:
   # Kong (API Gateway)
   # ─────────────────────────────────────────────────────────────────────────────
   kong:
-    image: kong:3.9
+    image: kong:3.9.0
     container_name: sahool-kong
     depends_on:
       postgres:

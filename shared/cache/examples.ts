@@ -179,15 +179,33 @@ export class DistributedLock {
   }
 
   /**
-   * تحرير القفل
+   * Lua script for atomic check-and-delete to prevent race conditions.
+   * SECURITY: Ensures only the lock owner can release, atomically.
+   */
+  private static readonly RELEASE_SCRIPT = `
+    if redis.call('get', KEYS[1]) == ARGV[1] then
+      return redis.call('del', KEYS[1])
+    else
+      return 0
+    end
+  `;
+
+  /**
+   * تحرير القفل بشكل ذري (atomic)
+   *
+   * Uses a Lua script to atomically verify ownership and delete,
+   * preventing race conditions between GET and DELETE.
    */
   async release(): Promise<boolean> {
-    const value = await this.redis.get(this.lockName, false);
-    if (value === this.identifier) {
-      await this.redis.delete(this.lockName);
-      return true;
-    }
-    return false;
+    // Atomic release via Lua script - prevents race condition where
+    // another process acquires the lock between our GET and DELETE
+    const result = await (this.redis as any).masterClient.eval(
+      DistributedLock.RELEASE_SCRIPT,
+      1,
+      this.lockName,
+      this.identifier,
+    );
+    return result === 1;
   }
 
   /**

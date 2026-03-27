@@ -1,10 +1,11 @@
 """Tests for smart crop insurance."""
 
 import pytest
+
 from shared.crop_insurance.smart_insurance import (
-    SmartInsuranceEngine,
     InsuranceType,
     RiskLevel,
+    SmartInsuranceEngine,
 )
 
 

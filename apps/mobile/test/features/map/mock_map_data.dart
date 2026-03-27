@@ -3,6 +3,7 @@
 ///
 /// This file contains mock GeoJSON data, coordinates, and other
 /// test fixtures for map-related unit tests.
+library;
 
 import 'dart:convert';
 import 'dart:typed_data';

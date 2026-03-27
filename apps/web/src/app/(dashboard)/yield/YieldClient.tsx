@@ -1,14 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import {
-  TrendingUp,
-  Search,
-  BarChart3,
-  Wheat,
-  Calendar,
-  Target,
-} from "lucide-react";
+import React, { useState, useMemo } from 'react';
+import { TrendingUp, Search, BarChart3, Wheat, Calendar, Target } from 'lucide-react';
 
 interface YieldRecord {
   id: string;
@@ -22,79 +15,79 @@ interface YieldRecord {
   actualYield?: number;
   unit: string;
   harvestDate?: string;
-  status: "growing" | "harvested" | "predicted";
+  status: 'growing' | 'harvested' | 'predicted';
 }
 
 const mockYields: YieldRecord[] = [
   {
-    id: "1",
-    fieldId: "field-1",
-    fieldName: "الحقل الشمالي",
-    cropType: "Wheat",
-    cropTypeAr: "قمح",
-    season: "Winter 2024-25",
-    seasonAr: "شتاء 2024-25",
+    id: '1',
+    fieldId: 'field-1',
+    fieldName: 'الحقل الشمالي',
+    cropType: 'Wheat',
+    cropTypeAr: 'قمح',
+    season: 'Winter 2024-25',
+    seasonAr: 'شتاء 2024-25',
     expectedYield: 4.5,
     actualYield: 4.8,
-    unit: "طن/هكتار",
-    harvestDate: "2025-01-15",
-    status: "harvested",
+    unit: 'طن/هكتار',
+    harvestDate: '2025-01-15',
+    status: 'harvested',
   },
   {
-    id: "2",
-    fieldId: "field-2",
-    fieldName: "الحقل الجنوبي",
-    cropType: "Barley",
-    cropTypeAr: "شعير",
-    season: "Winter 2024-25",
-    seasonAr: "شتاء 2024-25",
+    id: '2',
+    fieldId: 'field-2',
+    fieldName: 'الحقل الجنوبي',
+    cropType: 'Barley',
+    cropTypeAr: 'شعير',
+    season: 'Winter 2024-25',
+    seasonAr: 'شتاء 2024-25',
     expectedYield: 3.8,
-    unit: "طن/هكتار",
-    status: "growing",
+    unit: 'طن/هكتار',
+    status: 'growing',
   },
   {
-    id: "3",
-    fieldId: "field-3",
-    fieldName: "حقل القمح",
-    cropType: "Wheat",
-    cropTypeAr: "قمح",
-    season: "Winter 2024-25",
-    seasonAr: "شتاء 2024-25",
+    id: '3',
+    fieldId: 'field-3',
+    fieldName: 'حقل القمح',
+    cropType: 'Wheat',
+    cropTypeAr: 'قمح',
+    season: 'Winter 2024-25',
+    seasonAr: 'شتاء 2024-25',
     expectedYield: 5.2,
-    unit: "طن/هكتار",
-    status: "predicted",
+    unit: 'طن/هكتار',
+    status: 'predicted',
   },
   {
-    id: "4",
-    fieldId: "field-4",
-    fieldName: "بستان النخيل",
-    cropType: "Date Palm",
-    cropTypeAr: "نخيل",
-    season: "2024",
-    seasonAr: "2024",
+    id: '4',
+    fieldId: 'field-4',
+    fieldName: 'بستان النخيل',
+    cropType: 'Date Palm',
+    cropTypeAr: 'نخيل',
+    season: '2024',
+    seasonAr: '2024',
     expectedYield: 80,
     actualYield: 85,
-    unit: "كجم/شجرة",
-    harvestDate: "2024-10-20",
-    status: "harvested",
+    unit: 'كجم/شجرة',
+    harvestDate: '2024-10-20',
+    status: 'harvested',
   },
   {
-    id: "5",
-    fieldId: "field-5",
-    fieldName: "الصوب الزراعية",
-    cropType: "Tomato",
-    cropTypeAr: "طماطم",
-    season: "Winter 2024-25",
-    seasonAr: "شتاء 2024-25",
+    id: '5',
+    fieldId: 'field-5',
+    fieldName: 'الصوب الزراعية',
+    cropType: 'Tomato',
+    cropTypeAr: 'طماطم',
+    season: 'Winter 2024-25',
+    seasonAr: 'شتاء 2024-25',
     expectedYield: 120,
-    unit: "طن/هكتار",
-    status: "growing",
+    unit: 'طن/هكتار',
+    status: 'growing',
   },
 ];
 
 export default function YieldClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const filteredYields = useMemo(() => {
     return mockYields.filter((record) => {
@@ -102,21 +95,21 @@ export default function YieldClient() {
         !searchTerm ||
         record.fieldName.includes(searchTerm) ||
         record.cropTypeAr.includes(searchTerm);
-      const matchesStatus = statusFilter === "all" || record.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || record.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [searchTerm, statusFilter]);
 
-  const getStatusBadge = (status: YieldRecord["status"]) => {
+  const getStatusBadge = (status: YieldRecord['status']) => {
     const styles = {
-      growing: "bg-green-100 text-green-800",
-      harvested: "bg-blue-100 text-blue-800",
-      predicted: "bg-yellow-100 text-yellow-800",
+      growing: 'bg-green-100 text-green-800',
+      harvested: 'bg-blue-100 text-blue-800',
+      predicted: 'bg-yellow-100 text-yellow-800',
     };
     const labels = {
-      growing: "ينمو",
-      harvested: "تم الحصاد",
-      predicted: "متوقع",
+      growing: 'ينمو',
+      harvested: 'تم الحصاد',
+      predicted: 'متوقع',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -130,14 +123,15 @@ export default function YieldClient() {
     const diff = ((actual - expected) / expected) * 100;
     const isPositive = diff >= 0;
     return (
-      <span className={`text-sm font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}>
-        {isPositive ? "+" : ""}{diff.toFixed(1)}%
+      <span className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+        {isPositive ? '+' : ''}
+        {diff.toFixed(1)}%
       </span>
     );
   };
 
-  const harvestedCount = mockYields.filter((r) => r.status === "harvested").length;
-  const growingCount = mockYields.filter((r) => r.status === "growing").length;
+  const harvestedCount = mockYields.filter((r) => r.status === 'harvested').length;
+  const growingCount = mockYields.filter((r) => r.status === 'growing').length;
 
   return (
     <div className="space-y-6">
@@ -264,10 +258,10 @@ export default function YieldClient() {
                     {record.expectedYield} {record.unit}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
-                    {record.actualYield ? `${record.actualYield} ${record.unit}` : "-"}
+                    {record.actualYield ? `${record.actualYield} ${record.unit}` : '-'}
                   </td>
                   <td className="px-4 py-3">
-                    {getYieldComparison(record.expectedYield, record.actualYield) || "-"}
+                    {getYieldComparison(record.expectedYield, record.actualYield) || '-'}
                   </td>
                   <td className="px-4 py-3">{getStatusBadge(record.status)}</td>
                 </tr>

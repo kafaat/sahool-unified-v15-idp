@@ -42,7 +42,7 @@ python-dotenv==1.2.2
 # Database (PostgreSQL with Tortoise ORM)
 asyncpg>=0.30.0,<1.0.0
 tortoise-orm==1.1.6
-# aerich removed: 0.9.2 requires tortoise-orm<1.0.0, incompatible with 1.1.6
-# tortoise-orm 1.x includes built-in migration support
+# aerich removed: incompatible with tortoise-orm>=1.0.0
+# tortoise-orm 1.x includes built-in migration CLI: python -m tortoise migrate
 
 structlog>=24.1.0

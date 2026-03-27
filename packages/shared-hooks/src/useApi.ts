@@ -3,7 +3,7 @@
 // خطاف API للطلبات
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 export interface UseApiOptions<T> {
   initialData?: T;
@@ -23,7 +23,7 @@ export interface UseApiReturn<T> {
 
 export function useApi<T>(
   fetcher: () => Promise<T>,
-  options: UseApiOptions<T> = {},
+  options: UseApiOptions<T> = {}
 ): UseApiReturn<T> {
   const { initialData, onSuccess, onError, autoFetch = false } = options;
 
@@ -46,7 +46,7 @@ export function useApi<T>(
 
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error("Unknown error");
+      const error = err instanceof Error ? err : new Error('Unknown error');
 
       if (mountedRef.current) {
         setError(error);
@@ -93,10 +93,7 @@ export interface UsePaginatedApiOptions<T> extends UseApiOptions<T[]> {
   pageSize?: number;
 }
 
-export interface UsePaginatedApiReturn<T> extends Omit<
-  UseApiReturn<T[]>,
-  "execute"
-> {
+export interface UsePaginatedApiReturn<T> extends Omit<UseApiReturn<T[]>, 'execute'> {
   page: number;
   hasMore: boolean;
   loadMore: () => Promise<void>;
@@ -105,11 +102,8 @@ export interface UsePaginatedApiReturn<T> extends Omit<
 }
 
 export function usePaginatedApi<T>(
-  fetcher: (
-    page: number,
-    pageSize: number,
-  ) => Promise<{ data: T[]; hasMore: boolean }>,
-  options: UsePaginatedApiOptions<T> = {},
+  fetcher: (page: number, pageSize: number) => Promise<{ data: T[]; hasMore: boolean }>,
+  options: UsePaginatedApiOptions<T> = {}
 ): UsePaginatedApiReturn<T> {
   const { initialData = [], pageSize = 20, onSuccess, onError } = options;
 
@@ -144,7 +138,7 @@ export function usePaginatedApi<T>(
       onSuccess?.(result.data);
     } catch (err) {
       if (generationRef.current !== generation) return;
-      const error = err instanceof Error ? err : new Error("Unknown error");
+      const error = err instanceof Error ? err : new Error('Unknown error');
       setError(error);
       onError?.(error);
     } finally {
@@ -179,7 +173,7 @@ export function usePaginatedApi<T>(
       onSuccess?.(result.data);
     } catch (err) {
       if (generationRef.current !== generation) return;
-      const error = err instanceof Error ? err : new Error("Unknown error");
+      const error = err instanceof Error ? err : new Error('Unknown error');
       setError(error);
       onError?.(error);
     } finally {

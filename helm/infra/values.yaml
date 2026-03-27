@@ -84,6 +84,21 @@ nats:
       cpu: 200m
       memory: 512Mi
 
+# Default Security Context for infrastructure pods
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  # Infrastructure pods (postgres, redis, nats) require writable root filesystem
+  # for data directory initialization. Data paths use persistent volumes.
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL
+
 # Qdrant Vector Database Configuration
 qdrant:
   enabled: false

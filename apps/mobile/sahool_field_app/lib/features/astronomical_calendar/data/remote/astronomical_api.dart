@@ -1,5 +1,6 @@
 /// SAHOOL Astronomical Calendar API Client
 /// عميل API التقويم الفلكي
+library;
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;

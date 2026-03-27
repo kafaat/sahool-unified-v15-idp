@@ -1,24 +1,20 @@
-"use client";
-import * as React from "react";
-import { QueryClient } from "@tanstack/query-core";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { Sidebar } from "@/components/layouts/sidebar";
-import { Header } from "@/components/layouts/header";
-import { useAuth } from "@/stores/auth.store";
-import { Loading } from "@/components/ui/loading";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+'use client';
+import * as React from 'react';
+import { QueryClient } from '@tanstack/query-core';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { Sidebar } from '@/components/layouts/sidebar';
+import { Header } from '@/components/layouts/header';
+import { useAuth } from '@/stores/auth.store';
+import { Loading } from '@/components/ui/loading';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 /**
  * QueryClientProvider is scoped to the dashboard route group so that auth
  * pages (login, register, forgot-password, etc.) do not pay the cost of
  * loading @tanstack/react-query in their initial bundle.
  */
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, isLoading, checkAuth } = useAuth();
 
@@ -34,7 +30,7 @@ export default function DashboardLayout({
             retry: 1, // Single retry for failed queries (low-bandwidth friendly)
           },
         },
-      }),
+      })
   );
 
   React.useEffect(() => {
@@ -43,7 +39,7 @@ export default function DashboardLayout({
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push("/login");
+      router.push('/login');
     }
   }, [isAuthenticated, isLoading, router]);
 

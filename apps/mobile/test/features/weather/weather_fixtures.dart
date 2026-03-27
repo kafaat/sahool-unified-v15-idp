@@ -549,7 +549,7 @@ class WeatherFixtures {
   }) {
     final now = DateTime.now();
     return {
-      'id': 'alert-${type}-${now.millisecondsSinceEpoch}',
+      'id': 'alert-$type-${now.millisecondsSinceEpoch}',
       'type': type,
       'severity': severity,
       'title': '$type Alert',

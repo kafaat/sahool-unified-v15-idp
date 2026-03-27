@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:drift/drift.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
 import '../http/rate_limiter.dart';
@@ -197,7 +196,7 @@ class SyncEngine {
       try {
         // Add small delay between items to respect rate limits
         if (processed > 0) {
-          await Future.delayed(const Duration(milliseconds: 100));
+          await Future<void>.delayed(const Duration(milliseconds: 100));
         }
 
         final result = await _processOutboxItem(item);
@@ -226,7 +225,7 @@ class SyncEngine {
           // For rate limit errors, add longer delay and retry later
           AppLogger.w('Rate limit hit, pausing outbox processing',
               tag: 'SyncEngine');
-          await Future.delayed(const Duration(seconds: 5));
+          await Future<void>.delayed(const Duration(seconds: 5));
 
           // Don't increment retry count for rate limit errors
           // They will be retried in the next sync cycle
@@ -751,7 +750,7 @@ class PullResult {
 }
 
 /// Internal item processing result
-enum _ItemResult { success, conflict, failed }
+enum _ItemResult { success, conflict }
 
 /// Sync statistics with backoff information
 class SyncStatistics {

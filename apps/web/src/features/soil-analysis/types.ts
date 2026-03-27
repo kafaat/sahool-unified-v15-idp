@@ -23,7 +23,7 @@ export interface SoilTest {
   iron?: number;
   zinc?: number;
   manganese?: number;
-  status: "pending" | "processing" | "completed" | "failed";
+  status: 'pending' | 'processing' | 'completed' | 'failed';
   labName?: string;
   notes?: string;
   notesAr?: string;
@@ -44,7 +44,7 @@ export interface SoilRecommendation {
   fertilizerAr?: string;
   rate?: number;
   unit?: string;
-  priority: "low" | "medium" | "high";
+  priority: 'low' | 'medium' | 'high';
 }
 
 export interface SoilFilters {

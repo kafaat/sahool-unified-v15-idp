@@ -31,6 +31,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
@@ -50,6 +51,8 @@ _change_detector = None
 try:
     from .multi_provider import (
         MultiSatelliteService,
+    )
+    from .multi_provider import (
         SatelliteType as MultiSatelliteType,
     )
 
@@ -165,11 +168,13 @@ try:
         AllIndices,
         BandData,
         CropType,
-        GrowthStage as VegGrowthStage,
         HealthStatus,
         IndexInterpreter,
         VegetationIndex,
         VegetationIndicesCalculator,
+    )
+    from .vegetation_indices import (
+        GrowthStage as VegGrowthStage,
     )
 
     _indices_available = True
@@ -1544,7 +1549,8 @@ async def get_phenology(
             planting_date=planting_dt,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        logger.error("phenology_detection_failed", error=str(e), field_id=field_id, crop_type=crop_type)
+        raise HTTPException(status_code=400, detail="Invalid phenology detection parameters") from e
 
     return {
         "field_id": result.field_id,
@@ -1607,7 +1613,8 @@ async def get_phenology_timeline(
             field_id=field_id, crop_type=crop_type, planting_date=planting_dt
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        logger.error("phenology_timeline_failed", error=str(e), field_id=field_id, crop_type=crop_type)
+        raise HTTPException(status_code=400, detail="Invalid phenology timeline parameters") from e
 
     return {
         "field_id": timeline.field_id,
@@ -1744,7 +1751,10 @@ async def analyze_phenology_with_action(
             planting_date=planting_dt,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        logger.error(
+            "phenology_action_detection_failed", error=str(e), field_id=request.field_id, crop_type=request.crop_type
+        )
+        raise HTTPException(status_code=400, detail="Invalid phenology detection parameters") from e
 
     # Create ActionTemplate based on growth stage
     action_template = _create_phenology_action_template(
@@ -3055,7 +3065,7 @@ async def get_cloud_cover(
 
     except Exception as e:
         logger.error(f"Cloud cover analysis failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @app.get("/v1/clear-observations/{field_id}")
@@ -3117,7 +3127,7 @@ async def find_clear_observations(
         raise
     except Exception as e:
         logger.error(f"Clear observations search failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @app.get("/v1/best-observation/{field_id}")
@@ -3184,7 +3194,7 @@ async def get_best_observation(
         raise
     except Exception as e:
         logger.error(f"Best observation search failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @app.post("/v1/interpolate-cloudy")
@@ -3251,7 +3261,7 @@ async def interpolate_cloudy_pixels(
         raise
     except Exception as e:
         logger.error(f"Interpolation failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 # =============================================================================
@@ -3304,7 +3314,7 @@ async def export_analysis(
         )
     except Exception as e:
         logger.error(f"Export analysis error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
+        raise HTTPException(status_code=500, detail="Export failed") from e
 
 
 @app.get("/v1/export/timeseries/{field_id}")
@@ -3384,7 +3394,7 @@ async def export_timeseries(
         )
     except Exception as e:
         logger.error(f"Export timeseries error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
+        raise HTTPException(status_code=500, detail="Export failed") from e
 
 
 @app.get("/v1/export/boundaries")
@@ -3460,7 +3470,7 @@ async def export_boundaries(
         )
     except Exception as e:
         logger.error(f"Export boundaries error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
+        raise HTTPException(status_code=500, detail="Export failed") from e
 
 
 @app.get("/v1/export/report/{field_id}")
@@ -3562,7 +3572,7 @@ async def export_report(
         )
     except Exception as e:
         logger.error(f"Export report error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
+        raise HTTPException(status_code=500, detail="Export failed") from e
 
 
 async def _perform_analysis(field_id: str, lat: float, lon: float, analysis_date: date = None) -> dict:
@@ -3703,10 +3713,10 @@ async def detect_changes(
         return ChangeReportResponse(**report.to_dict())
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
+        raise HTTPException(status_code=400, detail="Invalid date format") from e
     except Exception as e:
         logger.error(f"Error detecting changes: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Change detection failed: {str(e)}") from e
+        raise HTTPException(status_code=500, detail="Change detection failed") from e
 
 
 @app.get("/v1/changes/{field_id}/compare", response_model=ChangeEventResponse)
@@ -3763,10 +3773,10 @@ async def compare_dates(
         return ChangeEventResponse(**event.to_dict())
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
+        raise HTTPException(status_code=400, detail="Invalid date format") from e
     except Exception as e:
         logger.error(f"Error comparing dates: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Date comparison failed: {str(e)}") from e
+        raise HTTPException(status_code=500, detail="Date comparison failed") from e
 
 
 @app.get("/v1/changes/{field_id}/anomalies")
@@ -3848,7 +3858,7 @@ async def get_anomalies(
 
     except Exception as e:
         logger.error(f"Error detecting anomalies: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Anomaly detection failed: {str(e)}") from e
+        raise HTTPException(status_code=500, detail="Anomaly detection failed") from e
 
 
 # =============================================================================

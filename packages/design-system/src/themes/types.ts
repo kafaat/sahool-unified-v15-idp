@@ -12,12 +12,12 @@
 /**
  * Direction for RTL/LTR support
  */
-export type Direction = "ltr" | "rtl";
+export type Direction = 'ltr' | 'rtl';
 
 /**
  * Theme mode
  */
-export type ThemeMode = "light" | "dark" | "system";
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 /**
  * Color shade values (50-900 scale)
@@ -167,7 +167,7 @@ export interface Shadows {
   md: string;
   lg: string;
   xl: string;
-  "2xl": string;
+  '2xl': string;
   inner: string;
   /** Card shadow */
   card: string;
@@ -184,9 +184,9 @@ export interface LayoutConfig {
   /** Text direction */
   direction: Direction;
   /** Start direction (left for LTR, right for RTL) */
-  start: "left" | "right";
+  start: 'left' | 'right';
   /** End direction (right for LTR, left for RTL) */
-  end: "left" | "right";
+  end: 'left' | 'right';
   /** Font family based on direction */
   fontFamily: string;
   /** Base font size */
@@ -208,7 +208,7 @@ export interface ThemeConfig {
   /** Display name in Arabic */
   displayNameAr: string;
   /** Theme mode */
-  mode: "light" | "dark";
+  mode: 'light' | 'dark';
   /** Color palette */
   colors: {
     primary: ColorShades;
@@ -285,21 +285,21 @@ export interface ThemeProviderProps {
  * Color utility function types
  */
 export type ColorCategory =
-  | "primary"
-  | "secondary"
-  | "accent"
-  | "neutral"
-  | "success"
-  | "warning"
-  | "error"
-  | "info";
+  | 'primary'
+  | 'secondary'
+  | 'accent'
+  | 'neutral'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'info';
 
-export type ColorShade = keyof ColorShades | "light" | "main" | "dark";
+export type ColorShade = keyof ColorShades | 'light' | 'main' | 'dark';
 
 /**
  * Agricultural color category types
  */
 export type AgriculturalCategory = keyof AgriculturalColors;
-export type CropHealthLevel = keyof AgriculturalColors["cropHealth"];
-export type NDVILevel = keyof AgriculturalColors["ndvi"];
-export type MoistureLevel = keyof AgriculturalColors["moisture"];
+export type CropHealthLevel = keyof AgriculturalColors['cropHealth'];
+export type NDVILevel = keyof AgriculturalColors['ndvi'];
+export type MoistureLevel = keyof AgriculturalColors['moisture'];

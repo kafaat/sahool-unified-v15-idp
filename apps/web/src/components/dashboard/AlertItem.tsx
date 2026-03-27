@@ -3,8 +3,8 @@
  * عنصر التنبيه
  */
 
-import React from "react";
-import { Alert as AlertType, AlertSeverity } from "../../types";
+import React from 'react';
+import { Alert as AlertType, AlertSeverity } from '../../types';
 
 interface AlertItemProps {
   alert: AlertType;
@@ -22,28 +22,28 @@ const severityConfig: Record<
   }
 > = {
   info: {
-    icon: "ℹ️",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-200",
-    iconColor: "text-blue-500",
+    icon: 'ℹ️',
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+    iconColor: 'text-blue-500',
   },
   warning: {
-    icon: "⚠️",
-    bgColor: "bg-yellow-50",
-    borderColor: "border-yellow-200",
-    iconColor: "text-yellow-500",
+    icon: '⚠️',
+    bgColor: 'bg-yellow-50',
+    borderColor: 'border-yellow-200',
+    iconColor: 'text-yellow-500',
   },
   critical: {
-    icon: "🚨",
-    bgColor: "bg-red-50",
-    borderColor: "border-red-200",
-    iconColor: "text-red-500",
+    icon: '🚨',
+    bgColor: 'bg-red-50',
+    borderColor: 'border-red-200',
+    iconColor: 'text-red-500',
   },
   emergency: {
-    icon: "🆘",
-    bgColor: "bg-red-100",
-    borderColor: "border-red-400",
-    iconColor: "text-red-700",
+    icon: '🆘',
+    bgColor: 'bg-red-100',
+    borderColor: 'border-red-400',
+    iconColor: 'text-red-700',
   },
 };
 
@@ -55,7 +55,7 @@ function formatTimeAgo(dateString: string): string {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMins < 1) return "الآن";
+  if (diffMins < 1) return 'الآن';
   if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
   if (diffHours < 24) return `منذ ${diffHours} ساعة`;
   return `منذ ${diffDays} يوم`;
@@ -72,9 +72,9 @@ export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
   return (
     <div
       className={`
-        p-4 rounded-lg border-r-4
+        p-4 rounded-lg border-e-4
         ${config.bgColor} ${config.borderColor}
-        ${alert.read ? "opacity-60" : ""}
+        ${alert.read ? 'opacity-60' : ''}
         transition-all duration-200
       `}
       role="article"

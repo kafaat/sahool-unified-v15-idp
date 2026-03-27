@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
 /**
  * Export Button Component
  * زر التصدير
  */
 
-import { useState, useRef, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { Download, FileSpreadsheet, FileText, ChevronDown, Loader2 } from "lucide-react";
-import { exportData, ExportFormat, ExportColumn, exportFormatLabels } from "@/lib/export";
+import { useState, useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { Download, FileSpreadsheet, FileText, ChevronDown, Loader2 } from 'lucide-react';
+import { exportData, ExportFormat, ExportColumn, exportFormatLabels } from '@/lib/export';
 
 interface ExportButtonProps {
   data: Record<string, unknown>[];
@@ -18,8 +18,8 @@ interface ExportButtonProps {
   titleAr?: string;
   formats?: ExportFormat[];
   className?: string;
-  variant?: "default" | "outline" | "ghost";
-  size?: "sm" | "md" | "lg";
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
 }
 
@@ -29,10 +29,10 @@ export default function ExportButton({
   filename,
   title,
   titleAr,
-  formats = ["csv", "excel", "pdf"],
-  className = "",
-  variant = "default",
-  size = "md",
+  formats = ['csv', 'excel', 'pdf'],
+  className = '',
+  variant = 'default',
+  size = 'md',
   disabled = false,
 }: ExportButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,8 +48,8 @@ export default function ExportButton({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleExport = async (format: ExportFormat) => {
@@ -83,11 +83,11 @@ export default function ExportButton({
 
   const getFormatIcon = (format: ExportFormat) => {
     switch (format) {
-      case "csv":
+      case 'csv':
         return FileText;
-      case "excel":
+      case 'excel':
         return FileSpreadsheet;
-      case "pdf":
+      case 'pdf':
         return FileText;
       default:
         return Download;
@@ -96,28 +96,28 @@ export default function ExportButton({
 
   const getFormatColor = (format: ExportFormat) => {
     switch (format) {
-      case "csv":
-        return "text-green-600 bg-green-50 dark:bg-green-900/30";
-      case "excel":
-        return "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30";
-      case "pdf":
-        return "text-red-600 bg-red-50 dark:bg-red-900/30";
+      case 'csv':
+        return 'text-green-600 bg-green-50 dark:bg-green-900/30';
+      case 'excel':
+        return 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30';
+      case 'pdf':
+        return 'text-red-600 bg-red-50 dark:bg-red-900/30';
       default:
-        return "text-gray-600 bg-gray-50 dark:bg-gray-800";
+        return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
   const variantClasses = {
-    default: "bg-sahool-600 hover:bg-sahool-700 text-white",
+    default: 'bg-sahool-600 hover:bg-sahool-700 text-white',
     outline:
-      "border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
-    ghost: "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700",
+      'border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
+    ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
   };
 
   const sizeClasses = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-sm",
-    lg: "px-5 py-2.5 text-base",
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-5 py-2.5 text-base',
   };
 
   // If only one format, show direct button
@@ -130,17 +130,13 @@ export default function ExportButton({
         onClick={() => handleExport(format)}
         disabled={disabled || isExporting || data.length === 0}
         className={cn(
-          "inline-flex items-center gap-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+          'inline-flex items-center gap-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
           variantClasses[variant],
           sizeClasses[size],
           className
         )}
       >
-        {isExporting ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <Icon className="w-4 h-4" />
-        )}
+        {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Icon className="w-4 h-4" />}
         <span>تصدير {exportFormatLabels[format].ar}</span>
       </button>
     );
@@ -152,7 +148,7 @@ export default function ExportButton({
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled || data.length === 0}
         className={cn(
-          "inline-flex items-center gap-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+          'inline-flex items-center gap-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
           variantClasses[variant],
           sizeClasses[size],
           className
@@ -164,7 +160,7 @@ export default function ExportButton({
           <Download className="w-4 h-4" />
         )}
         <span>تصدير</span>
-        <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown className={cn('w-4 h-4 transition-transform', isOpen && 'rotate-180')} />
       </button>
 
       {isOpen && (
@@ -180,7 +176,7 @@ export default function ExportButton({
                 disabled={isExporting}
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
-                <div className={cn("p-1.5 rounded-lg", getFormatColor(format))}>
+                <div className={cn('p-1.5 rounded-lg', getFormatColor(format))}>
                   {isFormatExporting ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
@@ -190,9 +186,9 @@ export default function ExportButton({
                 <div className="flex-1 text-right">
                   <div className="font-medium">{exportFormatLabels[format].ar}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {format === "csv" && "ملف نصي مفصول بفاصلة"}
-                    {format === "excel" && "جدول بيانات Microsoft"}
-                    {format === "pdf" && "مستند قابل للطباعة"}
+                    {format === 'csv' && 'ملف نصي مفصول بفاصلة'}
+                    {format === 'excel' && 'جدول بيانات Microsoft'}
+                    {format === 'pdf' && 'مستند قابل للطباعة'}
                   </div>
                 </div>
               </button>

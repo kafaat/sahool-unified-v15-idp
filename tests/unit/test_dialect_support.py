@@ -1,11 +1,12 @@
 """Tests for Arabic dialect support."""
 
 import pytest
+
 from shared.nlp.dialect_support import (
-    ArabicDialectProcessor,
-    ArabicDialect,
     AGRI_TERMS_DICT,
     DIALECT_VOCABULARY,
+    ArabicDialect,
+    ArabicDialectProcessor,
 )
 
 

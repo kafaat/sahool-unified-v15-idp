@@ -10,6 +10,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /build
 
+ENV PIP_NO_CACHE_DIR=1
+
 # Install build dependencies
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && apt-get install -y --no-install-recommends \
@@ -19,10 +21,10 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 # Upgrade pip
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY constraints.txt .

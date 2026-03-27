@@ -3,12 +3,12 @@
  * خطافات التنبيهات
  */
 
-"use client";
+'use client';
 
-import { useApiQuery, useApiMutation } from "./use-api-query";
-import { fetchAlerts } from "@/lib/api";
-import { apiClient } from "@/lib/api";
-import { API_URLS } from "@/config/api";
+import { useApiQuery, useApiMutation } from './use-api-query';
+import { fetchAlerts } from '@/lib/api';
+import { apiClient } from '@/lib/api';
+import { API_URLS } from '@/config/api';
 
 /**
  * List alerts
@@ -19,11 +19,10 @@ export function useAlerts(params?: {
   acknowledged?: boolean;
   limit?: number;
 }) {
-  return useApiQuery(
-    ["alerts", JSON.stringify(params ?? {})],
-    () => fetchAlerts(params),
-    { refetchInterval: 30000, staleTime: 15000 },
-  );
+  return useApiQuery(['alerts', JSON.stringify(params ?? {})], () => fetchAlerts(params), {
+    refetchInterval: 30000,
+    staleTime: 15000,
+  });
 }
 
 /**
@@ -32,11 +31,9 @@ export function useAlerts(params?: {
 export function useAcknowledgeAlert() {
   return useApiMutation(
     async (id: string) => {
-      const response = await apiClient.patch(
-        `${API_URLS.alerts}/api/v1/alerts/${id}/acknowledge`,
-      );
+      const response = await apiClient.patch(`${API_URLS.alerts}/api/v1/alerts/${id}/acknowledge`);
       return response.data;
     },
-    { invalidateKeys: ["alerts"] },
+    { invalidateKeys: ['alerts'] }
   );
 }

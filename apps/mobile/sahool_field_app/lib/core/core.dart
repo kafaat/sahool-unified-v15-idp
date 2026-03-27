@@ -2,6 +2,7 @@
 /// الوحدة الأساسية للتطبيق
 ///
 /// تصدير جميع مكونات النواة في مكان واحد
+library;
 
 // Configuration
 export 'config/env_config.dart';
@@ -35,13 +36,13 @@ export 'auth/biometric_service.dart';
 export 'performance/performance.dart';
 
 // Map
-export 'map/map.dart';
+export 'map/map.dart' hide CacheStats;
 
 // Notifications
 export 'notifications/notifications.dart';
 
 // Offline Sync
-export 'offline/offline.dart';
+export 'offline/offline.dart' hide SyncStatus, SyncResult;
 
 // Voice Commands
 export 'voice/voice.dart';

@@ -21,6 +21,7 @@
 ///   // ...
 /// )
 /// ```
+library;
 
 // Main theme - الثيم الرئيسي
 export 'sahool_theme.dart';
@@ -34,6 +35,7 @@ export 'sahool_glass.dart';
 // Organic/Bento widgets - ويدجات عضوية
 export 'organic_widgets.dart';
 
-// Re-export from config for backwards compatibility
-// إعادة التصدير من config للتوافق مع الإصدارات السابقة
-export '../config/theme.dart' show SahoolTheme;
+// Note: SahoolTheme from config/theme.dart is not re-exported here
+// to avoid ambiguous_export with sahool_theme.dart's SahoolTheme.
+// Import 'package:sahool_field_app/core/config/theme.dart' directly if needed.
+// ملاحظة: لا يُعاد تصدير SahoolTheme من config/theme.dart هنا لتجنب التعارض.

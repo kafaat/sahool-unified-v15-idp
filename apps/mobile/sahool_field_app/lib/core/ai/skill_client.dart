@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../http/api_client.dart';
 
@@ -383,7 +382,6 @@ class SkillClient {
     SkillRequest request, {
     Duration? timeout,
   }) async* {
-    final requestId = _generateRequestId();
     final executionTimeout = timeout ?? request.timeout ?? defaultTimeout;
 
     if (kDebugMode) {
@@ -391,12 +389,6 @@ class SkillClient {
     }
 
     try {
-      final payload = {
-        ...request.toJson(),
-        'request_id': requestId,
-        'stream': true,
-      };
-
       // For now, execute as single request and yield response
       // In production, implement actual streaming via WebSocket or Server-Sent Events
       final response = await executeSkill(request, timeout: executionTimeout);

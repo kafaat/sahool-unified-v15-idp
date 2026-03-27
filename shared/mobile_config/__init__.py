@@ -14,8 +14,8 @@ Tracks 20 mobile improvements organized by category:
 from __future__ import annotations
 
 import logging
-from enum import StrEnum
 from dataclasses import dataclass, field
+from enum import StrEnum
 
 logger = logging.getLogger(__name__)
 

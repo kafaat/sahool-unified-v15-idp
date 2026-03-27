@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -194,7 +193,7 @@ class NetworkConnectivityService {
     // Listen for connectivity changes
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       _handleConnectivityChange,
-      onError: (error) {
+      onError: (Object error) {
         AppLogger.e('Connectivity stream error',
             tag: 'NetworkConnectivity', error: error);
       },
@@ -250,7 +249,7 @@ class NetworkConnectivityService {
     try {
       final stopwatch = Stopwatch()..start();
 
-      final response = await _healthCheckDio!.get(
+      final response = await _healthCheckDio.get(
         _healthCheckUrl,
         options: Options(
           receiveTimeout: _healthCheckTimeout,

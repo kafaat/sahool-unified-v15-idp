@@ -18,7 +18,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Protocol
 
 from shared.ai.knowledge._logging import get_logger

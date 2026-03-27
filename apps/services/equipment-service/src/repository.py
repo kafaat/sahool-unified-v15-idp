@@ -39,23 +39,23 @@ def get_equipment(
     db: Session,
     *,
     equipment_id: str,
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> Equipment | None:
     """
-    Get a specific equipment by ID.
+    Get a specific equipment by ID with mandatory tenant isolation.
 
     Args:
         db: SQLAlchemy session
         equipment_id: Equipment identifier
-        tenant_id: Optional tenant ID for isolation
+        tenant_id: Tenant ID for isolation
 
     Returns:
         Equipment or None if not found
     """
-    query = select(Equipment).where(Equipment.equipment_id == equipment_id)
-
-    if tenant_id:
-        query = query.where(Equipment.tenant_id == tenant_id)
+    query = select(Equipment).where(
+        Equipment.equipment_id == equipment_id,
+        Equipment.tenant_id == tenant_id,
+    )
 
     return db.execute(query).scalar_one_or_none()
 
@@ -64,23 +64,23 @@ def get_equipment_by_qr(
     db: Session,
     *,
     qr_code: str,
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> Equipment | None:
     """
-    Get equipment by QR code.
+    Get equipment by QR code with mandatory tenant isolation.
 
     Args:
         db: SQLAlchemy session
         qr_code: QR code
-        tenant_id: Optional tenant ID for isolation
+        tenant_id: Tenant ID for isolation
 
     Returns:
         Equipment or None if not found
     """
-    query = select(Equipment).where(Equipment.qr_code == qr_code)
-
-    if tenant_id:
-        query = query.where(Equipment.tenant_id == tenant_id)
+    query = select(Equipment).where(
+        Equipment.qr_code == qr_code,
+        Equipment.tenant_id == tenant_id,
+    )
 
     return db.execute(query).scalar_one_or_none()
 
@@ -217,17 +217,27 @@ def get_equipment_stats(
     Returns:
         Dictionary with statistics
     """
-    equipment_list = db.query(Equipment).filter(Equipment.tenant_id == tenant_id).all()
+    # Use GROUP BY instead of loading all records into memory
+    type_rows = (
+        db.query(Equipment.equipment_type, func.count())
+        .filter(Equipment.tenant_id == tenant_id)
+        .group_by(Equipment.equipment_type)
+        .all()
+    )
+    by_type = {row[0]: row[1] for row in type_rows}
 
-    by_type = {}
-    by_status = {}
+    status_rows = (
+        db.query(Equipment.status, func.count())
+        .filter(Equipment.tenant_id == tenant_id)
+        .group_by(Equipment.status)
+        .all()
+    )
+    by_status = {row[0]: row[1] for row in status_rows}
 
-    for eq in equipment_list:
-        by_type[eq.equipment_type] = by_type.get(eq.equipment_type, 0) + 1
-        by_status[eq.status] = by_status.get(eq.status, 0) + 1
+    total = sum(by_status.values())
 
     return {
-        "total": len(equipment_list),
+        "total": total,
         "by_type": by_type,
         "by_status": by_status,
         "operational": by_status.get("operational", 0),
@@ -324,14 +334,12 @@ def get_maintenance_alerts(
     Returns:
         List of maintenance alerts
     """
-    # Get equipment IDs for this tenant
-    equipment_ids = db.query(Equipment.equipment_id).filter(Equipment.tenant_id == tenant_id).all()
-    equipment_id_list = [eq[0] for eq in equipment_ids]
-
-    if not equipment_id_list:
-        return []
-
-    query = select(MaintenanceAlert).where(MaintenanceAlert.equipment_id.in_(equipment_id_list))
+    # Use JOIN to filter alerts by tenant instead of fetching IDs first
+    query = (
+        select(MaintenanceAlert)
+        .join(Equipment, Equipment.equipment_id == MaintenanceAlert.equipment_id)
+        .where(Equipment.tenant_id == tenant_id)
+    )
 
     if priority:
         query = query.where(MaintenanceAlert.priority == priority)
@@ -348,18 +356,34 @@ def get_maintenance_alerts(
     return list(db.execute(query).scalars())
 
 
-def delete_maintenance_alert(db: Session, alert_id: str) -> bool:
+def delete_maintenance_alert(db: Session, alert_id: str, tenant_id: str | None = None) -> bool:
     """
-    Delete a maintenance alert.
+    Delete a maintenance alert with tenant isolation.
+    حذف تنبيه الصيانة مع عزل المستأجر.
 
     Args:
         db: SQLAlchemy session
         alert_id: Alert identifier
+        tenant_id: Tenant identifier for isolation (required)
+                   معرف المستأجر للعزل (مطلوب)
 
     Returns:
         True if deleted, False if not found
     """
-    alert = db.query(MaintenanceAlert).filter(MaintenanceAlert.alert_id == alert_id).first()
+    # Tenant isolation: tenant_id is required to prevent cross-tenant deletion
+    # عزل المستأجر: معرف المستأجر مطلوب لمنع الحذف عبر المستأجرين
+    if not tenant_id:
+        raise ValueError("tenant_id is required for delete_maintenance_alert")
+
+    # MaintenanceAlert does not have tenant_id directly; enforce tenant
+    # isolation by joining through Equipment which owns the tenant_id column.
+    # عزل المستأجر عبر الانضمام إلى جدول المعدات الذي يحتوي على معرف المستأجر
+    alert = (
+        db.query(MaintenanceAlert)
+        .join(Equipment, Equipment.equipment_id == MaintenanceAlert.equipment_id)
+        .filter(MaintenanceAlert.alert_id == alert_id, Equipment.tenant_id == tenant_id)
+        .first()
+    )
 
     if not alert:
         return False

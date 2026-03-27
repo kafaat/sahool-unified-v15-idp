@@ -15,6 +15,7 @@ from typing import Any
 import structlog
 from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 

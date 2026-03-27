@@ -3,28 +3,28 @@ Unit tests for shared/auth/jwt_handler.py
 Tests JWT token creation, verification, and security features.
 """
 
-import pytest
-from datetime import datetime, timedelta, timezone, UTC
-from unittest.mock import patch, MagicMock
-import jwt
-
 # Set test environment before imports
 import os
+from datetime import UTC, datetime, timedelta, timezone
+from unittest.mock import MagicMock, patch
+
+import jwt
+import pytest
 
 os.environ["ENVIRONMENT"] = "test"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 os.environ["JWT_ALGORITHM"] = "HS256"
 
 from shared.auth.jwt_handler import (
+    ALLOWED_ALGORITHMS,
     create_access_token,
     create_refresh_token,
-    verify_token,
     create_token_pair,
-    refresh_access_token,
     decode_token_unsafe,
-    ALLOWED_ALGORITHMS,
+    refresh_access_token,
+    verify_token,
 )
-from shared.auth.models import AuthException, AuthErrors
+from shared.auth.models import AuthErrors, AuthException
 
 
 class TestCreateAccessToken:

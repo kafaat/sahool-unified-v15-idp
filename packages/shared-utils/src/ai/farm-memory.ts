@@ -16,7 +16,7 @@
  * Updated: January 2025
  */
 
-import { estimateTokens } from "./context-compressor";
+import { estimateTokens } from './context-compressor';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants & Configuration
@@ -33,30 +33,30 @@ const DEFAULT_RELEVANCE_THRESHOLD = 0.5;
 
 export enum MemoryType {
   /** Chat/interaction history */
-  CONVERSATION = "conversation",
+  CONVERSATION = 'conversation',
   /** Field status snapshots */
-  FIELD_STATE = "field_state",
+  FIELD_STATE = 'field_state',
   /** AI recommendations */
-  RECOMMENDATION = "recommendation",
+  RECOMMENDATION = 'recommendation',
   /** Field observations */
-  OBSERVATION = "observation",
+  OBSERVATION = 'observation',
   /** Weather data */
-  WEATHER = "weather",
+  WEATHER = 'weather',
   /** User actions */
-  ACTION = "action",
+  ACTION = 'action',
   /** System events */
-  SYSTEM = "system",
+  SYSTEM = 'system',
 }
 
 export enum RelevanceScore {
   /** Always include */
-  CRITICAL = "critical",
+  CRITICAL = 'critical',
   /** Include if space */
-  HIGH = "high",
+  HIGH = 'high',
   /** Include if relevant */
-  MEDIUM = "medium",
+  MEDIUM = 'medium',
   /** Only if specifically requested */
-  LOW = "low",
+  LOW = 'low',
 }
 
 export interface MemoryConfig {
@@ -123,7 +123,7 @@ export function createMemoryEntry(
   fieldId?: string | null,
   metadata?: Record<string, unknown>,
   relevance: RelevanceScore = RelevanceScore.MEDIUM,
-  ttlHours: number = DEFAULT_TTL_HOURS,
+  ttlHours: number = DEFAULT_TTL_HOURS
 ): MemoryEntry {
   const now = new Date();
   const expiresAt = ttlHours > 0 ? new Date(now.getTime() + ttlHours * 3600000) : undefined;
@@ -209,7 +209,7 @@ export class FarmMemory {
   private config: Required<MemoryConfig>;
   private memory: Map<string, MemoryEntry[]>;
   private fieldIndex: Map<string, Set<string>>;
-  private stats: Record<string, number>;
+  private stats: { stores: number; recalls: number; forgets: number; expirations: number };
 
   constructor(config?: MemoryConfig) {
     /**
@@ -262,11 +262,19 @@ export class FarmMemory {
     fieldId?: string | null,
     metadata?: Record<string, unknown>,
     relevance: RelevanceScore = RelevanceScore.MEDIUM,
-    ttlHours?: number,
+    ttlHours?: number
   ): MemoryEntry {
     const ttl = ttlHours ?? this.config.ttlHours;
 
-    const entry = createMemoryEntry(tenantId, memoryType, content, fieldId, metadata, relevance, ttl);
+    const entry = createMemoryEntry(
+      tenantId,
+      memoryType,
+      content,
+      fieldId,
+      metadata,
+      relevance,
+      ttl
+    );
 
     // Add to memory
     if (!this.memory.has(tenantId)) {
@@ -314,7 +322,7 @@ export class FarmMemory {
     minRelevance?: RelevanceScore,
     limit?: number,
     since?: Date,
-    includeExpired: boolean = false,
+    includeExpired: boolean = false
   ): RecallResult {
     const startTime = performance.now();
 
@@ -327,7 +335,7 @@ export class FarmMemory {
       memoryTypes,
       minRelevance,
       since,
-      includeExpired,
+      includeExpired
     );
 
     const totalFound = filtered.length;
@@ -371,14 +379,13 @@ export class FarmMemory {
     entryId?: string,
     fieldId?: string | null,
     memoryTypes?: MemoryType[],
-    before?: Date,
+    before?: Date
   ): number {
     if (!this.memory.has(tenantId)) {
       return 0;
     }
 
     const entries = this.memory.get(tenantId)!;
-    const originalCount = entries.length;
     let forgottenCount = 0;
 
     const entriesToKeep: MemoryEntry[] = [];
@@ -430,7 +437,7 @@ export class FarmMemory {
     query: string,
     fieldId?: string | null,
     maxTokens: number = 2000,
-    memoryTypes?: MemoryType[],
+    memoryTypes?: MemoryType[]
   ): string {
     // Recall all relevant entries
     const result = this.recall(
@@ -438,11 +445,11 @@ export class FarmMemory {
       fieldId,
       memoryTypes,
       undefined,
-      this.config.windowSize * 2, // Get more for filtering
+      this.config.windowSize * 2 // Get more for filtering
     );
 
     if (result.entries.length === 0) {
-      return "";
+      return '';
     }
 
     // Score entries by relevance to query
@@ -470,7 +477,7 @@ export class FarmMemory {
       currentTokens += entryTokens;
     }
 
-    return contextParts.join("\n---\n");
+    return contextParts.join('\n---\n');
   }
 
   /**
@@ -548,7 +555,7 @@ export class FarmMemory {
     memoryTypes?: MemoryType[],
     minRelevance?: RelevanceScore,
     since?: Date,
-    includeExpired: boolean = false,
+    includeExpired: boolean = false
   ): MemoryEntry[] {
     const result: MemoryEntry[] = [];
 
@@ -596,7 +603,7 @@ export class FarmMemory {
     entries.sort(
       (a, b) =>
         relevanceToInt(a.relevance) - relevanceToInt(b.relevance) ||
-        a.timestamp.getTime() - b.timestamp.getTime(),
+        a.timestamp.getTime() - b.timestamp.getTime()
     );
 
     // Keep the most relevant/recent entries
@@ -650,11 +657,7 @@ export class FarmMemory {
     const queryLower = query.toLowerCase();
     const contentStr = String(entry.content).toLowerCase();
 
-    const keywords = new Set(
-      queryLower
-        .split(/\s+/)
-        .filter((w) => w.length > 0),
-    );
+    const keywords = new Set(queryLower.split(/\s+/).filter((w) => w.length > 0));
 
     if (keywords.size > 0) {
       let matches = 0;
@@ -672,23 +675,23 @@ export class FarmMemory {
 
   private _entriesToContext(entries: MemoryEntry[]): string {
     if (entries.length === 0) {
-      return "";
+      return '';
     }
 
     const parts = entries.map((entry) => this._formatEntryForContext(entry));
-    return parts.join("\n---\n");
+    return parts.join('\n---\n');
   }
 
   private _formatEntryForContext(entry: MemoryEntry): string {
     const lines: string[] = [];
 
     // Header
-    const timeStr = entry.timestamp.toLocaleString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
+    const timeStr = entry.timestamp.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
     });
     lines.push(`[${entry.memoryType.toUpperCase()}] ${timeStr}`);
 
@@ -698,7 +701,7 @@ export class FarmMemory {
     }
 
     // Content
-    if (typeof entry.content === "object" && entry.content !== null) {
+    if (typeof entry.content === 'object' && entry.content !== null) {
       for (const [key, value] of Object.entries(entry.content)) {
         lines.push(`  ${key}: ${value}`);
       }
@@ -706,6 +709,6 @@ export class FarmMemory {
       lines.push(`  ${entry.content}`);
     }
 
-    return lines.join("\n");
+    return lines.join('\n');
   }
 }

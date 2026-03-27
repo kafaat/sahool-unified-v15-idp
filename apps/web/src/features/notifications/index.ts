@@ -4,7 +4,7 @@
  */
 
 // API Layer
-export { notificationsApi, ERROR_MESSAGES } from "./api";
+export { notificationsApi, ERROR_MESSAGES } from './api';
 
 // Types
 export type {
@@ -14,7 +14,7 @@ export type {
   NotificationChannel,
   NotificationPreferences,
   NotificationFilters,
-} from "./types";
+} from './types';
 
 // Hooks - Query
 export {
@@ -23,7 +23,7 @@ export {
   useNotification,
   useUnreadCount,
   useNotificationPreferences,
-} from "./hooks/useNotifications";
+} from './hooks/useNotifications';
 
 // Hooks - Mutations
 export {
@@ -32,4 +32,4 @@ export {
   useUpdatePreferences,
   useSubscribe,
   useUnsubscribe,
-} from "./hooks/useNotifications";
+} from './hooks/useNotifications';

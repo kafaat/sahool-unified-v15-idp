@@ -1,6 +1,7 @@
 /// Drift Database Tests for SAHOOL Mobile App
 ///
 /// Tests validate database initialization, schema, and core operations.
+library;
 import 'package:flutter_test/flutter_test.dart';
 
 /// Mock database table structure for testing

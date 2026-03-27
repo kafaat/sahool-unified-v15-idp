@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Fleet GPS Tracking Page
 // صفحة تتبع الأسطول بنظام GPS
 
-import React, { useState, useMemo, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
-import { cn } from "@/lib/utils";
+import React, { useState, useMemo, useCallback } from 'react';
+import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import { cn } from '@/lib/utils';
 import {
   Tractor,
   Plane,
@@ -33,15 +33,15 @@ import {
   Shield,
   Calendar,
   BarChart3,
-} from "lucide-react";
+} from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
 // أنواع البيانات
 // ═══════════════════════════════════════════════════════════════════════════
 
-type EquipmentType = "tractor" | "drone" | "harvester" | "sprayer" | "pump" | "vehicle";
-type FleetStatus = "active" | "idle" | "maintenance" | "offline";
+type EquipmentType = 'tractor' | 'drone' | 'harvester' | 'sprayer' | 'pump' | 'vehicle';
+type FleetStatus = 'active' | 'idle' | 'maintenance' | 'offline';
 
 interface GpsPosition {
   lat: number;
@@ -54,7 +54,7 @@ interface MaintenanceItem {
   task: string;
   taskAr: string;
   dueDate: string;
-  priority: "high" | "medium" | "low";
+  priority: 'high' | 'medium' | 'low';
 }
 
 interface GeofenceAlert {
@@ -62,7 +62,7 @@ interface GeofenceAlert {
   message: string;
   messageAr: string;
   timestamp: string;
-  type: "entry" | "exit" | "speed";
+  type: 'entry' | 'exit' | 'speed';
 }
 
 interface FleetItem {
@@ -75,7 +75,7 @@ interface FleetItem {
   lon: number;
   speed_kmh: number;
   fuel_pct: number;
-  fuelType: "diesel" | "electric" | "gasoline";
+  fuelType: 'diesel' | 'electric' | 'gasoline';
   lastUpdate: string;
   assignedField: string | null;
   currentTask: string | null;
@@ -94,249 +94,308 @@ interface FleetItem {
 
 const MOCK_FLEET: FleetItem[] = [
   {
-    id: "EQ-001",
-    name: "Al-Rashid Field Tractor",
-    nameAr: "جرار حقل الرشيد",
-    type: "tractor",
-    status: "active",
+    id: 'EQ-001',
+    name: 'Al-Rashid Field Tractor',
+    nameAr: 'جرار حقل الرشيد',
+    type: 'tractor',
+    status: 'active',
     lat: 24.7123,
     lon: 46.6745,
     speed_kmh: 8,
     fuel_pct: 75,
-    fuelType: "diesel",
-    lastUpdate: "منذ دقيقتين",
-    assignedField: "Field-001",
-    currentTask: "Plowing",
-    currentTaskAr: "حراثة الأرض",
+    fuelType: 'diesel',
+    lastUpdate: 'منذ دقيقتين',
+    assignedField: 'Field-001',
+    currentTask: 'Plowing',
+    currentTaskAr: 'حراثة الأرض',
     engineTemp: 87,
     engineHours: 1240,
     locationHistory: [
-      { lat: 24.7120, lon: 46.6742, timestamp: "09:00", speed_kmh: 7 },
-      { lat: 24.7121, lon: 46.6743, timestamp: "09:15", speed_kmh: 8 },
-      { lat: 24.7122, lon: 46.6744, timestamp: "09:30", speed_kmh: 9 },
-      { lat: 24.7122, lon: 46.6744, timestamp: "09:45", speed_kmh: 8 },
-      { lat: 24.7123, lon: 46.6745, timestamp: "10:00", speed_kmh: 8 },
+      { lat: 24.712, lon: 46.6742, timestamp: '09:00', speed_kmh: 7 },
+      { lat: 24.7121, lon: 46.6743, timestamp: '09:15', speed_kmh: 8 },
+      { lat: 24.7122, lon: 46.6744, timestamp: '09:30', speed_kmh: 9 },
+      { lat: 24.7122, lon: 46.6744, timestamp: '09:45', speed_kmh: 8 },
+      { lat: 24.7123, lon: 46.6745, timestamp: '10:00', speed_kmh: 8 },
     ],
     maintenanceSchedule: [
-      { task: "Oil Change", taskAr: "تغيير الزيت", dueDate: "2026-04-01", priority: "medium" },
-      { task: "Filter Replacement", taskAr: "تغيير الفلتر", dueDate: "2026-05-15", priority: "low" },
+      { task: 'Oil Change', taskAr: 'تغيير الزيت', dueDate: '2026-04-01', priority: 'medium' },
+      {
+        task: 'Filter Replacement',
+        taskAr: 'تغيير الفلتر',
+        dueDate: '2026-05-15',
+        priority: 'low',
+      },
     ],
     geofenceAlerts: [
-      { id: "gf-1", message: "Entered Field-001 zone", messageAr: "دخول منطقة الحقل-001", timestamp: "08:30", type: "entry" },
+      {
+        id: 'gf-1',
+        message: 'Entered Field-001 zone',
+        messageAr: 'دخول منطقة الحقل-001',
+        timestamp: '08:30',
+        type: 'entry',
+      },
     ],
   },
   {
-    id: "EQ-002",
-    name: "North Drone",
-    nameAr: "طائرة مسيّرة الشمال",
-    type: "drone",
-    status: "active",
-    lat: 24.7890,
+    id: 'EQ-002',
+    name: 'North Drone',
+    nameAr: 'طائرة مسيّرة الشمال',
+    type: 'drone',
+    status: 'active',
+    lat: 24.789,
     lon: 46.7012,
     speed_kmh: 35,
     fuel_pct: 45,
-    fuelType: "electric",
-    lastUpdate: "منذ 30 ثانية",
-    assignedField: "Field-003",
-    currentTask: "NDVI Scan",
-    currentTaskAr: "مسح NDVI",
+    fuelType: 'electric',
+    lastUpdate: 'منذ 30 ثانية',
+    assignedField: 'Field-003',
+    currentTask: 'NDVI Scan',
+    currentTaskAr: 'مسح NDVI',
     engineTemp: 42,
     engineHours: 320,
     locationHistory: [
-      { lat: 24.7870, lon: 46.6990, timestamp: "09:10", speed_kmh: 30 },
-      { lat: 24.7875, lon: 46.6995, timestamp: "09:15", speed_kmh: 32 },
-      { lat: 24.7880, lon: 46.7000, timestamp: "09:20", speed_kmh: 35 },
-      { lat: 24.7885, lon: 46.7005, timestamp: "09:25", speed_kmh: 36 },
-      { lat: 24.7890, lon: 46.7012, timestamp: "09:30", speed_kmh: 35 },
+      { lat: 24.787, lon: 46.699, timestamp: '09:10', speed_kmh: 30 },
+      { lat: 24.7875, lon: 46.6995, timestamp: '09:15', speed_kmh: 32 },
+      { lat: 24.788, lon: 46.7, timestamp: '09:20', speed_kmh: 35 },
+      { lat: 24.7885, lon: 46.7005, timestamp: '09:25', speed_kmh: 36 },
+      { lat: 24.789, lon: 46.7012, timestamp: '09:30', speed_kmh: 35 },
     ],
     maintenanceSchedule: [
-      { task: "Battery Check", taskAr: "فحص البطارية", dueDate: "2026-03-25", priority: "high" },
-      { task: "Propeller Inspection", taskAr: "فحص المروحة", dueDate: "2026-04-10", priority: "medium" },
+      { task: 'Battery Check', taskAr: 'فحص البطارية', dueDate: '2026-03-25', priority: 'high' },
+      {
+        task: 'Propeller Inspection',
+        taskAr: 'فحص المروحة',
+        dueDate: '2026-04-10',
+        priority: 'medium',
+      },
     ],
     geofenceAlerts: [
-      { id: "gf-2", message: "Entered Field-003 airspace", messageAr: "دخول مجال الحقل-003 الجوي", timestamp: "09:05", type: "entry" },
+      {
+        id: 'gf-2',
+        message: 'Entered Field-003 airspace',
+        messageAr: 'دخول مجال الحقل-003 الجوي',
+        timestamp: '09:05',
+        type: 'entry',
+      },
     ],
   },
   {
-    id: "EQ-003",
-    name: "East Farm Harvester",
-    nameAr: "حصّادة المزرعة الشرقية",
-    type: "harvester",
-    status: "idle",
+    id: 'EQ-003',
+    name: 'East Farm Harvester',
+    nameAr: 'حصّادة المزرعة الشرقية',
+    type: 'harvester',
+    status: 'idle',
     lat: 24.6543,
     lon: 46.6234,
     speed_kmh: 0,
     fuel_pct: 90,
-    fuelType: "diesel",
-    lastUpdate: "منذ 45 دقيقة",
+    fuelType: 'diesel',
+    lastUpdate: 'منذ 45 دقيقة',
     assignedField: null,
     currentTask: null,
     currentTaskAr: null,
     engineTemp: 35,
     engineHours: 2850,
     locationHistory: [
-      { lat: 24.6543, lon: 46.6234, timestamp: "08:00", speed_kmh: 0 },
-      { lat: 24.6543, lon: 46.6234, timestamp: "08:15", speed_kmh: 0 },
-      { lat: 24.6543, lon: 46.6234, timestamp: "08:30", speed_kmh: 0 },
-      { lat: 24.6543, lon: 46.6234, timestamp: "08:45", speed_kmh: 0 },
-      { lat: 24.6543, lon: 46.6234, timestamp: "09:00", speed_kmh: 0 },
+      { lat: 24.6543, lon: 46.6234, timestamp: '08:00', speed_kmh: 0 },
+      { lat: 24.6543, lon: 46.6234, timestamp: '08:15', speed_kmh: 0 },
+      { lat: 24.6543, lon: 46.6234, timestamp: '08:30', speed_kmh: 0 },
+      { lat: 24.6543, lon: 46.6234, timestamp: '08:45', speed_kmh: 0 },
+      { lat: 24.6543, lon: 46.6234, timestamp: '09:00', speed_kmh: 0 },
     ],
     maintenanceSchedule: [
-      { task: "Blade Sharpening", taskAr: "شحذ الشفرات", dueDate: "2026-04-20", priority: "medium" },
+      {
+        task: 'Blade Sharpening',
+        taskAr: 'شحذ الشفرات',
+        dueDate: '2026-04-20',
+        priority: 'medium',
+      },
     ],
     geofenceAlerts: [],
   },
   {
-    id: "EQ-004",
-    name: "Pesticide Sprayer",
-    nameAr: "مرش المبيدات",
-    type: "sprayer",
-    status: "active",
+    id: 'EQ-004',
+    name: 'Pesticide Sprayer',
+    nameAr: 'مرش المبيدات',
+    type: 'sprayer',
+    status: 'active',
     lat: 24.7234,
-    lon: 46.6890,
+    lon: 46.689,
     speed_kmh: 5,
     fuel_pct: 60,
-    fuelType: "diesel",
-    lastUpdate: "منذ دقيقة",
-    assignedField: "Field-002",
-    currentTask: "Pesticide Application",
-    currentTaskAr: "رش المبيدات",
+    fuelType: 'diesel',
+    lastUpdate: 'منذ دقيقة',
+    assignedField: 'Field-002',
+    currentTask: 'Pesticide Application',
+    currentTaskAr: 'رش المبيدات',
     engineTemp: 75,
     engineHours: 680,
     locationHistory: [
-      { lat: 24.7230, lon: 46.6886, timestamp: "09:00", speed_kmh: 5 },
-      { lat: 24.7231, lon: 46.6887, timestamp: "09:15", speed_kmh: 5 },
-      { lat: 24.7232, lon: 46.6888, timestamp: "09:30", speed_kmh: 4 },
-      { lat: 24.7233, lon: 46.6889, timestamp: "09:45", speed_kmh: 5 },
-      { lat: 24.7234, lon: 46.6890, timestamp: "10:00", speed_kmh: 5 },
+      { lat: 24.723, lon: 46.6886, timestamp: '09:00', speed_kmh: 5 },
+      { lat: 24.7231, lon: 46.6887, timestamp: '09:15', speed_kmh: 5 },
+      { lat: 24.7232, lon: 46.6888, timestamp: '09:30', speed_kmh: 4 },
+      { lat: 24.7233, lon: 46.6889, timestamp: '09:45', speed_kmh: 5 },
+      { lat: 24.7234, lon: 46.689, timestamp: '10:00', speed_kmh: 5 },
     ],
     maintenanceSchedule: [
-      { task: "Nozzle Cleaning", taskAr: "تنظيف الفوهات", dueDate: "2026-03-30", priority: "high" },
-      { task: "Tank Inspection", taskAr: "فحص الخزان", dueDate: "2026-04-15", priority: "medium" },
+      { task: 'Nozzle Cleaning', taskAr: 'تنظيف الفوهات', dueDate: '2026-03-30', priority: 'high' },
+      { task: 'Tank Inspection', taskAr: 'فحص الخزان', dueDate: '2026-04-15', priority: 'medium' },
     ],
     geofenceAlerts: [
-      { id: "gf-3", message: "Speed limit exceeded briefly", messageAr: "تجاوز حد السرعة مؤقتاً", timestamp: "09:20", type: "speed" },
+      {
+        id: 'gf-3',
+        message: 'Speed limit exceeded briefly',
+        messageAr: 'تجاوز حد السرعة مؤقتاً',
+        timestamp: '09:20',
+        type: 'speed',
+      },
     ],
   },
   {
-    id: "EQ-005",
-    name: "Main Irrigation Pump",
-    nameAr: "مضخة الري الرئيسية",
-    type: "pump",
-    status: "active",
+    id: 'EQ-005',
+    name: 'Main Irrigation Pump',
+    nameAr: 'مضخة الري الرئيسية',
+    type: 'pump',
+    status: 'active',
     lat: 24.7456,
     lon: 46.7123,
     speed_kmh: 0,
     fuel_pct: 100,
-    fuelType: "electric",
-    lastUpdate: "منذ 5 دقائق",
-    assignedField: "Field-001",
-    currentTask: "Irrigation",
-    currentTaskAr: "ري الحقول",
+    fuelType: 'electric',
+    lastUpdate: 'منذ 5 دقائق',
+    assignedField: 'Field-001',
+    currentTask: 'Irrigation',
+    currentTaskAr: 'ري الحقول',
     engineTemp: 55,
     engineHours: 4200,
     locationHistory: [
-      { lat: 24.7456, lon: 46.7123, timestamp: "06:00", speed_kmh: 0 },
-      { lat: 24.7456, lon: 46.7123, timestamp: "07:00", speed_kmh: 0 },
-      { lat: 24.7456, lon: 46.7123, timestamp: "08:00", speed_kmh: 0 },
-      { lat: 24.7456, lon: 46.7123, timestamp: "09:00", speed_kmh: 0 },
-      { lat: 24.7456, lon: 46.7123, timestamp: "10:00", speed_kmh: 0 },
+      { lat: 24.7456, lon: 46.7123, timestamp: '06:00', speed_kmh: 0 },
+      { lat: 24.7456, lon: 46.7123, timestamp: '07:00', speed_kmh: 0 },
+      { lat: 24.7456, lon: 46.7123, timestamp: '08:00', speed_kmh: 0 },
+      { lat: 24.7456, lon: 46.7123, timestamp: '09:00', speed_kmh: 0 },
+      { lat: 24.7456, lon: 46.7123, timestamp: '10:00', speed_kmh: 0 },
     ],
     maintenanceSchedule: [
-      { task: "Bearing Replacement", taskAr: "تغيير المحامل", dueDate: "2026-06-01", priority: "low" },
+      {
+        task: 'Bearing Replacement',
+        taskAr: 'تغيير المحامل',
+        dueDate: '2026-06-01',
+        priority: 'low',
+      },
     ],
     geofenceAlerts: [],
   },
   {
-    id: "EQ-006",
-    name: "Transport Truck",
-    nameAr: "شاحنة النقل",
-    type: "vehicle",
-    status: "maintenance",
-    lat: 24.7000,
-    lon: 46.6500,
+    id: 'EQ-006',
+    name: 'Transport Truck',
+    nameAr: 'شاحنة النقل',
+    type: 'vehicle',
+    status: 'maintenance',
+    lat: 24.7,
+    lon: 46.65,
     speed_kmh: 0,
     fuel_pct: 30,
-    fuelType: "diesel",
-    lastUpdate: "منذ 3 ساعات",
+    fuelType: 'diesel',
+    lastUpdate: 'منذ 3 ساعات',
     assignedField: null,
     currentTask: null,
     currentTaskAr: null,
     engineTemp: 25,
     engineHours: 87500,
     locationHistory: [
-      { lat: 24.7000, lon: 46.6500, timestamp: "07:00", speed_kmh: 0 },
-      { lat: 24.7000, lon: 46.6500, timestamp: "07:30", speed_kmh: 0 },
-      { lat: 24.7000, lon: 46.6500, timestamp: "08:00", speed_kmh: 0 },
-      { lat: 24.7000, lon: 46.6500, timestamp: "08:30", speed_kmh: 0 },
-      { lat: 24.7000, lon: 46.6500, timestamp: "09:00", speed_kmh: 0 },
+      { lat: 24.7, lon: 46.65, timestamp: '07:00', speed_kmh: 0 },
+      { lat: 24.7, lon: 46.65, timestamp: '07:30', speed_kmh: 0 },
+      { lat: 24.7, lon: 46.65, timestamp: '08:00', speed_kmh: 0 },
+      { lat: 24.7, lon: 46.65, timestamp: '08:30', speed_kmh: 0 },
+      { lat: 24.7, lon: 46.65, timestamp: '09:00', speed_kmh: 0 },
     ],
     maintenanceSchedule: [
-      { task: "Brake System Repair", taskAr: "إصلاح نظام الفرامل", dueDate: "2026-03-20", priority: "high" },
-      { task: "Tire Replacement", taskAr: "تغيير الإطارات", dueDate: "2026-03-22", priority: "high" },
-      { task: "Engine Tune-up", taskAr: "ضبط المحرك", dueDate: "2026-03-25", priority: "medium" },
+      {
+        task: 'Brake System Repair',
+        taskAr: 'إصلاح نظام الفرامل',
+        dueDate: '2026-03-20',
+        priority: 'high',
+      },
+      {
+        task: 'Tire Replacement',
+        taskAr: 'تغيير الإطارات',
+        dueDate: '2026-03-22',
+        priority: 'high',
+      },
+      { task: 'Engine Tune-up', taskAr: 'ضبط المحرك', dueDate: '2026-03-25', priority: 'medium' },
     ],
     geofenceAlerts: [],
   },
   {
-    id: "EQ-007",
-    name: "Plowing Tractor",
-    nameAr: "جرار الحراثة",
-    type: "tractor",
-    status: "offline",
-    lat: 24.6800,
-    lon: 46.6300,
+    id: 'EQ-007',
+    name: 'Plowing Tractor',
+    nameAr: 'جرار الحراثة',
+    type: 'tractor',
+    status: 'offline',
+    lat: 24.68,
+    lon: 46.63,
     speed_kmh: 0,
     fuel_pct: 15,
-    fuelType: "diesel",
-    lastUpdate: "منذ يوم",
+    fuelType: 'diesel',
+    lastUpdate: 'منذ يوم',
     assignedField: null,
     currentTask: null,
     currentTaskAr: null,
     engineTemp: 22,
     engineHours: 3100,
     locationHistory: [
-      { lat: 24.6800, lon: 46.6300, timestamp: "يوم أمس 10:00", speed_kmh: 0 },
-      { lat: 24.6800, lon: 46.6300, timestamp: "يوم أمس 12:00", speed_kmh: 0 },
-      { lat: 24.6800, lon: 46.6300, timestamp: "يوم أمس 14:00", speed_kmh: 0 },
-      { lat: 24.6800, lon: 46.6300, timestamp: "يوم أمس 16:00", speed_kmh: 0 },
-      { lat: 24.6800, lon: 46.6300, timestamp: "يوم أمس 18:00", speed_kmh: 0 },
+      { lat: 24.68, lon: 46.63, timestamp: 'يوم أمس 10:00', speed_kmh: 0 },
+      { lat: 24.68, lon: 46.63, timestamp: 'يوم أمس 12:00', speed_kmh: 0 },
+      { lat: 24.68, lon: 46.63, timestamp: 'يوم أمس 14:00', speed_kmh: 0 },
+      { lat: 24.68, lon: 46.63, timestamp: 'يوم أمس 16:00', speed_kmh: 0 },
+      { lat: 24.68, lon: 46.63, timestamp: 'يوم أمس 18:00', speed_kmh: 0 },
     ],
     maintenanceSchedule: [
-      { task: "Full Service", taskAr: "صيانة شاملة", dueDate: "2026-04-05", priority: "medium" },
-      { task: "Fuel Refill", taskAr: "تعبئة وقود", dueDate: "2026-03-19", priority: "high" },
+      { task: 'Full Service', taskAr: 'صيانة شاملة', dueDate: '2026-04-05', priority: 'medium' },
+      { task: 'Fuel Refill', taskAr: 'تعبئة وقود', dueDate: '2026-03-19', priority: 'high' },
     ],
     geofenceAlerts: [],
   },
   {
-    id: "EQ-008",
-    name: "Pivot Sprinkler",
-    nameAr: "رشاش محوري",
-    type: "sprayer",
-    status: "active",
-    lat: 24.7600,
-    lon: 46.7200,
+    id: 'EQ-008',
+    name: 'Pivot Sprinkler',
+    nameAr: 'رشاش محوري',
+    type: 'sprayer',
+    status: 'active',
+    lat: 24.76,
+    lon: 46.72,
     speed_kmh: 2,
     fuel_pct: 80,
-    fuelType: "electric",
-    lastUpdate: "منذ دقيقة",
-    assignedField: "Field-004",
-    currentTask: "Pivot Irrigation",
-    currentTaskAr: "ري محوري",
+    fuelType: 'electric',
+    lastUpdate: 'منذ دقيقة',
+    assignedField: 'Field-004',
+    currentTask: 'Pivot Irrigation',
+    currentTaskAr: 'ري محوري',
     engineTemp: 48,
     engineHours: 950,
     locationHistory: [
-      { lat: 24.7592, lon: 46.7192, timestamp: "08:00", speed_kmh: 2 },
-      { lat: 24.7594, lon: 46.7195, timestamp: "08:30", speed_kmh: 2 },
-      { lat: 24.7596, lon: 46.7197, timestamp: "09:00", speed_kmh: 2 },
-      { lat: 24.7598, lon: 46.7199, timestamp: "09:30", speed_kmh: 2 },
-      { lat: 24.7600, lon: 46.7200, timestamp: "10:00", speed_kmh: 2 },
+      { lat: 24.7592, lon: 46.7192, timestamp: '08:00', speed_kmh: 2 },
+      { lat: 24.7594, lon: 46.7195, timestamp: '08:30', speed_kmh: 2 },
+      { lat: 24.7596, lon: 46.7197, timestamp: '09:00', speed_kmh: 2 },
+      { lat: 24.7598, lon: 46.7199, timestamp: '09:30', speed_kmh: 2 },
+      { lat: 24.76, lon: 46.72, timestamp: '10:00', speed_kmh: 2 },
     ],
     maintenanceSchedule: [
-      { task: "Pivot Arm Lubrication", taskAr: "تزييت ذراع المحور", dueDate: "2026-04-30", priority: "low" },
+      {
+        task: 'Pivot Arm Lubrication',
+        taskAr: 'تزييت ذراع المحور',
+        dueDate: '2026-04-30',
+        priority: 'low',
+      },
     ],
     geofenceAlerts: [
-      { id: "gf-4", message: "Operating within Field-004 boundary", messageAr: "تشغيل داخل حدود الحقل-004", timestamp: "07:55", type: "entry" },
+      {
+        id: 'gf-4',
+        message: 'Operating within Field-004 boundary',
+        messageAr: 'تشغيل داخل حدود الحقل-004',
+        timestamp: '07:55',
+        type: 'entry',
+      },
     ],
   },
 ];
@@ -346,19 +405,19 @@ const MOCK_FLEET: FleetItem[] = [
 // دوال مساعدة
 // ═══════════════════════════════════════════════════════════════════════════
 
-function getTypeIcon(type: EquipmentType, className = "w-5 h-5") {
+function getTypeIcon(type: EquipmentType, className = 'w-5 h-5') {
   switch (type) {
-    case "tractor":
+    case 'tractor':
       return <Tractor className={className} />;
-    case "drone":
+    case 'drone':
       return <Plane className={className} />;
-    case "harvester":
+    case 'harvester':
       return <Tractor className={className} />;
-    case "sprayer":
+    case 'sprayer':
       return <SprayCan className={className} />;
-    case "pump":
+    case 'pump':
       return <Droplets className={className} />;
-    case "vehicle":
+    case 'vehicle':
       return <Truck className={className} />;
     default:
       return <Wrench className={className} />;
@@ -367,24 +426,48 @@ function getTypeIcon(type: EquipmentType, className = "w-5 h-5") {
 
 function getTypeLabel(type: EquipmentType): string {
   const labels: Record<EquipmentType, string> = {
-    tractor: "جرار",
-    drone: "طائرة مسيّرة",
-    harvester: "حصّادة",
-    sprayer: "رشاش",
-    pump: "مضخة",
-    vehicle: "مركبة",
+    tractor: 'جرار',
+    drone: 'طائرة مسيّرة',
+    harvester: 'حصّادة',
+    sprayer: 'رشاش',
+    pump: 'مضخة',
+    vehicle: 'مركبة',
   };
   return labels[type] ?? type;
 }
 
 function getTypeColors(type: EquipmentType): { bg: string; text: string; iconBg: string } {
   const map: Record<EquipmentType, { bg: string; text: string; iconBg: string }> = {
-    tractor:   { bg: "bg-blue-50 dark:bg-blue-900/20",   text: "text-blue-700 dark:text-blue-300",   iconBg: "bg-blue-100 dark:bg-blue-800/50 text-blue-600 dark:text-blue-300" },
-    drone:     { bg: "bg-emerald-50 dark:bg-emerald-900/20", text: "text-emerald-700 dark:text-emerald-300", iconBg: "bg-emerald-100 dark:bg-emerald-800/50 text-emerald-600 dark:text-emerald-300" },
-    harvester: { bg: "bg-amber-50 dark:bg-amber-900/20",  text: "text-amber-700 dark:text-amber-300",  iconBg: "bg-amber-100 dark:bg-amber-800/50 text-amber-600 dark:text-amber-300" },
-    sprayer:   { bg: "bg-purple-50 dark:bg-purple-900/20", text: "text-purple-700 dark:text-purple-300", iconBg: "bg-purple-100 dark:bg-purple-800/50 text-purple-600 dark:text-purple-300" },
-    pump:      { bg: "bg-cyan-50 dark:bg-cyan-900/20",    text: "text-cyan-700 dark:text-cyan-300",    iconBg: "bg-cyan-100 dark:bg-cyan-800/50 text-cyan-600 dark:text-cyan-300" },
-    vehicle:   { bg: "bg-gray-50 dark:bg-gray-800/50",   text: "text-gray-700 dark:text-gray-300",   iconBg: "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300" },
+    tractor: {
+      bg: 'bg-blue-50 dark:bg-blue-900/20',
+      text: 'text-blue-700 dark:text-blue-300',
+      iconBg: 'bg-blue-100 dark:bg-blue-800/50 text-blue-600 dark:text-blue-300',
+    },
+    drone: {
+      bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+      text: 'text-emerald-700 dark:text-emerald-300',
+      iconBg: 'bg-emerald-100 dark:bg-emerald-800/50 text-emerald-600 dark:text-emerald-300',
+    },
+    harvester: {
+      bg: 'bg-amber-50 dark:bg-amber-900/20',
+      text: 'text-amber-700 dark:text-amber-300',
+      iconBg: 'bg-amber-100 dark:bg-amber-800/50 text-amber-600 dark:text-amber-300',
+    },
+    sprayer: {
+      bg: 'bg-purple-50 dark:bg-purple-900/20',
+      text: 'text-purple-700 dark:text-purple-300',
+      iconBg: 'bg-purple-100 dark:bg-purple-800/50 text-purple-600 dark:text-purple-300',
+    },
+    pump: {
+      bg: 'bg-cyan-50 dark:bg-cyan-900/20',
+      text: 'text-cyan-700 dark:text-cyan-300',
+      iconBg: 'bg-cyan-100 dark:bg-cyan-800/50 text-cyan-600 dark:text-cyan-300',
+    },
+    vehicle: {
+      bg: 'bg-gray-50 dark:bg-gray-800/50',
+      text: 'text-gray-700 dark:text-gray-300',
+      iconBg: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
+    },
   };
   return map[type] ?? map.vehicle;
 }
@@ -398,59 +481,68 @@ interface StatusConfig {
 
 function getStatusConfig(status: FleetStatus): StatusConfig {
   switch (status) {
-    case "active":
+    case 'active':
       return {
-        label: "نشط",
-        dotClass: "bg-green-500 animate-pulse",
-        badgeClass: "text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40",
+        label: 'نشط',
+        dotClass: 'bg-green-500 animate-pulse',
+        badgeClass: 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40',
         icon: <CheckCircle2 className="w-3 h-3" />,
       };
-    case "idle":
+    case 'idle':
       return {
-        label: "خامل",
-        dotClass: "bg-yellow-400",
-        badgeClass: "text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/40",
+        label: 'خامل',
+        dotClass: 'bg-yellow-400',
+        badgeClass: 'text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/40',
         icon: <PauseCircle className="w-3 h-3" />,
       };
-    case "maintenance":
+    case 'maintenance':
       return {
-        label: "صيانة",
-        dotClass: "bg-orange-500",
-        badgeClass: "text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/40",
+        label: 'صيانة',
+        dotClass: 'bg-orange-500',
+        badgeClass: 'text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/40',
         icon: <AlertTriangle className="w-3 h-3" />,
       };
-    case "offline":
+    case 'offline':
       return {
-        label: "غير متصل",
-        dotClass: "bg-red-500",
-        badgeClass: "text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40",
+        label: 'غير متصل',
+        dotClass: 'bg-red-500',
+        badgeClass: 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40',
         icon: <WifiOff className="w-3 h-3" />,
       };
     default:
       return {
         label: status,
-        dotClass: "bg-gray-400",
-        badgeClass: "text-gray-700 bg-gray-100",
+        dotClass: 'bg-gray-400',
+        badgeClass: 'text-gray-700 bg-gray-100',
         icon: null,
       };
   }
 }
 
-function getFuelBarColor(pct: number, type: "diesel" | "electric" | "gasoline"): string {
-  if (type === "electric") return "bg-cyan-500";
-  if (pct >= 60) return "bg-green-500";
-  if (pct >= 30) return "bg-yellow-500";
-  return "bg-red-500";
+function getFuelBarColor(pct: number, type: 'diesel' | 'electric' | 'gasoline'): string {
+  if (type === 'electric') return 'bg-cyan-500';
+  if (pct >= 60) return 'bg-green-500';
+  if (pct >= 30) return 'bg-yellow-500';
+  return 'bg-red-500';
 }
 
-function getPriorityConfig(priority: "high" | "medium" | "low") {
+function getPriorityConfig(priority: 'high' | 'medium' | 'low') {
   switch (priority) {
-    case "high":
-      return { label: "عاجل", class: "text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40" };
-    case "medium":
-      return { label: "متوسط", class: "text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/40" };
-    case "low":
-      return { label: "منخفض", class: "text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40" };
+    case 'high':
+      return {
+        label: 'عاجل',
+        class: 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40',
+      };
+    case 'medium':
+      return {
+        label: 'متوسط',
+        class: 'text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/40',
+      };
+    case 'low':
+      return {
+        label: 'منخفض',
+        class: 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40',
+      };
   }
 }
 
@@ -475,23 +567,32 @@ function FleetCard({ item, isSelected, onClick }: FleetCardProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full text-right rounded-xl border p-4 transition-all hover:shadow-md cursor-pointer",
+        'w-full text-right rounded-xl border p-4 transition-all hover:shadow-md cursor-pointer',
         isSelected
-          ? "border-sahool-500 ring-2 ring-sahool-500/30 bg-sahool-50 dark:bg-sahool-900/20"
-          : "border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-600"
+          ? 'border-sahool-500 ring-2 ring-sahool-500/30 bg-sahool-50 dark:bg-sahool-900/20'
+          : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-600'
       )}
     >
       {/* Header row */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Type icon */}
-          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0", colors.iconBg)}>
+          <div
+            className={cn(
+              'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0',
+              colors.iconBg
+            )}
+          >
             {getTypeIcon(item.type)}
           </div>
           {/* Name & type */}
           <div className="min-w-0 text-right">
-            <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">{item.nameAr}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{item.id} · {getTypeLabel(item.type)}</p>
+            <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
+              {item.nameAr}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {item.id} · {getTypeLabel(item.type)}
+            </p>
           </div>
         </div>
 
@@ -499,11 +600,11 @@ function FleetCard({ item, isSelected, onClick }: FleetCardProps) {
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <span
             className={cn(
-              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
+              'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
               status.badgeClass
             )}
           >
-            <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", status.dotClass)} />
+            <span className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', status.dotClass)} />
             {status.label}
           </span>
         </div>
@@ -548,21 +649,21 @@ function FleetCard({ item, isSelected, onClick }: FleetCardProps) {
       <div>
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-            {item.fuelType === "electric" ? (
+            {item.fuelType === 'electric' ? (
               <Battery className="w-3 h-3" />
             ) : (
               <Fuel className="w-3 h-3" />
             )}
-            {item.fuelType === "electric" ? "شحن" : "وقود"}
+            {item.fuelType === 'electric' ? 'شحن' : 'وقود'}
           </span>
           <span
             className={cn(
-              "text-xs font-medium",
+              'text-xs font-medium',
               item.fuel_pct >= 60
-                ? "text-green-600 dark:text-green-400"
+                ? 'text-green-600 dark:text-green-400'
                 : item.fuel_pct >= 30
-                  ? "text-yellow-600 dark:text-yellow-400"
-                  : "text-red-600 dark:text-red-400"
+                  ? 'text-yellow-600 dark:text-yellow-400'
+                  : 'text-red-600 dark:text-red-400'
             )}
           >
             {item.fuel_pct}%
@@ -570,7 +671,7 @@ function FleetCard({ item, isSelected, onClick }: FleetCardProps) {
         </div>
         <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
           <div
-            className={cn("h-full rounded-full transition-all", fuelColor)}
+            className={cn('h-full rounded-full transition-all', fuelColor)}
             style={{ width: `${item.fuel_pct}%` }}
           />
         </div>
@@ -599,12 +700,19 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
       {/* Panel header */}
       <div className="flex items-start justify-between p-4 border-b border-gray-100 dark:border-gray-700">
         <div className="flex items-center gap-3">
-          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0", colors.iconBg)}>
-            {getTypeIcon(item.type, "w-6 h-6")}
+          <div
+            className={cn(
+              'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0',
+              colors.iconBg
+            )}
+          >
+            {getTypeIcon(item.type, 'w-6 h-6')}
           </div>
           <div>
             <h3 className="font-bold text-gray-900 dark:text-gray-100">{item.nameAr}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{item.id} · {item.name}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {item.id} · {item.name}
+            </p>
           </div>
         </div>
         <button
@@ -622,7 +730,12 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">الحالة</p>
-            <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium", status.badgeClass)}>
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
+                status.badgeClass
+              )}
+            >
               {status.icon}
               {status.label}
             </span>
@@ -630,7 +743,7 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">المهمة الحالية</p>
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              {item.currentTaskAr ?? "لا توجد مهمة"}
+              {item.currentTaskAr ?? 'لا توجد مهمة'}
             </p>
           </div>
         </div>
@@ -650,7 +763,9 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
               </div>
               <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 {item.speed_kmh}
-                <span className="text-xs font-normal text-gray-500 dark:text-gray-400 mr-1">كم/س</span>
+                <span className="text-xs font-normal text-gray-500 dark:text-gray-400 mr-1">
+                  كم/س
+                </span>
               </p>
             </div>
             {/* Engine temp */}
@@ -660,12 +775,18 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
                   <Thermometer className="w-3 h-3" />
                   <span className="text-xs">حرارة المحرك</span>
                 </div>
-                <p className={cn(
-                  "text-lg font-bold",
-                  item.engineTemp > 100 ? "text-red-600 dark:text-red-400" : "text-gray-900 dark:text-gray-100"
-                )}>
+                <p
+                  className={cn(
+                    'text-lg font-bold',
+                    item.engineTemp > 100
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-gray-900 dark:text-gray-100'
+                  )}
+                >
                   {item.engineTemp}
-                  <span className="text-xs font-normal text-gray-500 dark:text-gray-400 mr-1">°م</span>
+                  <span className="text-xs font-normal text-gray-500 dark:text-gray-400 mr-1">
+                    °م
+                  </span>
                 </p>
               </div>
             )}
@@ -676,7 +797,7 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
                 <span className="text-xs">ساعات التشغيل</span>
               </div>
               <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {item.engineHours.toLocaleString("ar-SA")}
+                {item.engineHours.toLocaleString('ar-SA')}
                 <span className="text-xs font-normal text-gray-500 dark:text-gray-400 mr-1">س</span>
               </p>
             </div>
@@ -686,7 +807,9 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
                 <Navigation className="w-3 h-3" />
                 <span className="text-xs">آخر تحديث</span>
               </div>
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.lastUpdate}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {item.lastUpdate}
+              </p>
             </div>
           </div>
 
@@ -694,23 +817,23 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
           <div className="mt-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                {item.fuelType === "electric" ? (
+                {item.fuelType === 'electric' ? (
                   <Battery className="w-3 h-3" />
                 ) : (
                   <Fuel className="w-3 h-3" />
                 )}
                 <span className="text-xs">
-                  {item.fuelType === "electric" ? "مستوى الشحن" : "مستوى الوقود"}
+                  {item.fuelType === 'electric' ? 'مستوى الشحن' : 'مستوى الوقود'}
                 </span>
               </div>
               <span
                 className={cn(
-                  "text-sm font-bold",
+                  'text-sm font-bold',
                   item.fuel_pct >= 60
-                    ? "text-green-600 dark:text-green-400"
+                    ? 'text-green-600 dark:text-green-400'
                     : item.fuel_pct >= 30
-                      ? "text-yellow-600 dark:text-yellow-400"
-                      : "text-red-600 dark:text-red-400"
+                      ? 'text-yellow-600 dark:text-yellow-400'
+                      : 'text-red-600 dark:text-red-400'
                 )}
               >
                 {item.fuel_pct}%
@@ -718,7 +841,7 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
             </div>
             <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
               <div
-                className={cn("h-full rounded-full transition-all", fuelColor)}
+                className={cn('h-full rounded-full transition-all', fuelColor)}
                 style={{ width: `${item.fuel_pct}%` }}
               />
             </div>
@@ -736,19 +859,19 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
               <div
                 key={idx}
                 className={cn(
-                  "flex items-center justify-between rounded-lg px-3 py-2 text-xs",
+                  'flex items-center justify-between rounded-lg px-3 py-2 text-xs',
                   idx === item.locationHistory.length - 1
-                    ? "bg-sahool-50 dark:bg-sahool-900/20 border border-sahool-200 dark:border-sahool-700"
-                    : "bg-gray-50 dark:bg-gray-700/40"
+                    ? 'bg-sahool-50 dark:bg-sahool-900/20 border border-sahool-200 dark:border-sahool-700'
+                    : 'bg-gray-50 dark:bg-gray-700/40'
                 )}
               >
                 <div className="flex items-center gap-2">
                   <span
                     className={cn(
-                      "w-2 h-2 rounded-full flex-shrink-0",
+                      'w-2 h-2 rounded-full flex-shrink-0',
                       idx === item.locationHistory.length - 1
-                        ? "bg-sahool-500"
-                        : "bg-gray-300 dark:bg-gray-600"
+                        ? 'bg-sahool-500'
+                        : 'bg-gray-300 dark:bg-gray-600'
                     )}
                   />
                   <span className="text-gray-600 dark:text-gray-400">{pos.timestamp}</span>
@@ -783,11 +906,17 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <Wrench className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate">{task.taskAr}</span>
+                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate">
+                        {task.taskAr}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">{task.dueDate}</span>
-                      <span className={cn("px-1.5 py-0.5 rounded text-xs font-medium", priority.class)}>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {task.dueDate}
+                      </span>
+                      <span
+                        className={cn('px-1.5 py-0.5 rounded text-xs font-medium', priority.class)}
+                      >
                         {priority.label}
                       </span>
                     </div>
@@ -814,33 +943,33 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
                 <div
                   key={alert.id}
                   className={cn(
-                    "flex items-start justify-between rounded-lg px-3 py-2 text-xs",
-                    alert.type === "speed"
-                      ? "bg-orange-50 dark:bg-orange-900/20"
-                      : "bg-blue-50 dark:bg-blue-900/20"
+                    'flex items-start justify-between rounded-lg px-3 py-2 text-xs',
+                    alert.type === 'speed'
+                      ? 'bg-orange-50 dark:bg-orange-900/20'
+                      : 'bg-blue-50 dark:bg-blue-900/20'
                   )}
                 >
                   <div className="flex items-start gap-2 min-w-0">
                     <AlertTriangle
                       className={cn(
-                        "w-3 h-3 mt-0.5 flex-shrink-0",
-                        alert.type === "speed"
-                          ? "text-orange-500"
-                          : "text-blue-500"
+                        'w-3 h-3 mt-0.5 flex-shrink-0',
+                        alert.type === 'speed' ? 'text-orange-500' : 'text-blue-500'
                       )}
                     />
                     <span
                       className={cn(
-                        "truncate",
-                        alert.type === "speed"
-                          ? "text-orange-700 dark:text-orange-300"
-                          : "text-blue-700 dark:text-blue-300"
+                        'truncate',
+                        alert.type === 'speed'
+                          ? 'text-orange-700 dark:text-orange-300'
+                          : 'text-blue-700 dark:text-blue-300'
                       )}
                     >
                       {alert.messageAr}
                     </span>
                   </div>
-                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0 mr-2">{alert.timestamp}</span>
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0 mr-2">
+                    {alert.timestamp}
+                  </span>
                 </div>
               ))}
             </div>
@@ -858,17 +987,17 @@ function DetailPanel({ item, onClose }: DetailPanelProps) {
 
 export default function FleetTrackingPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Derived data
   const stats = useMemo(() => {
     const total = MOCK_FLEET.length;
-    const active = MOCK_FLEET.filter((e) => e.status === "active").length;
-    const maintenance = MOCK_FLEET.filter((e) => e.status === "maintenance").length;
+    const active = MOCK_FLEET.filter((e) => e.status === 'active').length;
+    const maintenance = MOCK_FLEET.filter((e) => e.status === 'maintenance').length;
     const avgUtil = Math.round(
-      (MOCK_FLEET.filter((e) => e.status === "active").length / MOCK_FLEET.length) * 100
+      (MOCK_FLEET.filter((e) => e.status === 'active').length / MOCK_FLEET.length) * 100
     );
     return { total, active, maintenance, avgUtil };
   }, []);
@@ -896,19 +1025,19 @@ export default function FleetTrackingPage() {
   }, []);
 
   const EQUIPMENT_TYPES: { value: EquipmentType; label: string }[] = [
-    { value: "tractor", label: "جرار" },
-    { value: "drone", label: "طائرة مسيّرة" },
-    { value: "harvester", label: "حصّادة" },
-    { value: "sprayer", label: "رشاش" },
-    { value: "pump", label: "مضخة" },
-    { value: "vehicle", label: "مركبة" },
+    { value: 'tractor', label: 'جرار' },
+    { value: 'drone', label: 'طائرة مسيّرة' },
+    { value: 'harvester', label: 'حصّادة' },
+    { value: 'sprayer', label: 'رشاش' },
+    { value: 'pump', label: 'مضخة' },
+    { value: 'vehicle', label: 'مركبة' },
   ];
 
   const STATUS_OPTIONS: { value: FleetStatus; label: string }[] = [
-    { value: "active", label: "نشط" },
-    { value: "idle", label: "خامل" },
-    { value: "maintenance", label: "صيانة" },
-    { value: "offline", label: "غير متصل" },
+    { value: 'active', label: 'نشط' },
+    { value: 'idle', label: 'خامل' },
+    { value: 'maintenance', label: 'صيانة' },
+    { value: 'offline', label: 'غير متصل' },
   ];
 
   return (
@@ -919,7 +1048,6 @@ export default function FleetTrackingPage() {
       />
 
       <div className="p-6 space-y-6">
-
         {/* Stats Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
@@ -995,15 +1123,15 @@ export default function FleetTrackingPage() {
                 <button
                   key={s.value}
                   type="button"
-                  onClick={() => setStatusFilter((prev) => (prev === s.value ? "" : s.value))}
+                  onClick={() => setStatusFilter((prev) => (prev === s.value ? '' : s.value))}
                   className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all",
+                    'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
                     statusFilter === s.value
-                      ? cn(cfg.badgeClass, "border-current")
-                      : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      ? cn(cfg.badgeClass, 'border-current')
+                      : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   )}
                 >
-                  <span className={cn("w-2 h-2 rounded-full", cfg.dotClass)} />
+                  <span className={cn('w-2 h-2 rounded-full', cfg.dotClass)} />
                   {s.label}
                   <span className="text-gray-400 dark:text-gray-500">({count})</span>
                 </button>
@@ -1018,30 +1146,40 @@ export default function FleetTrackingPage() {
               title="تحديث"
             >
               <RefreshCw
-                className={cn("w-4 h-4 text-gray-500 dark:text-gray-400", isRefreshing && "animate-spin")}
+                className={cn(
+                  'w-4 h-4 text-gray-500 dark:text-gray-400',
+                  isRefreshing && 'animate-spin'
+                )}
               />
             </button>
           </div>
         </div>
 
         {/* Main Content: List + Detail Panel */}
-        <div className={cn("grid gap-6", selectedItem ? "grid-cols-1 lg:grid-cols-5" : "grid-cols-1")}>
-
+        <div
+          className={cn('grid gap-6', selectedItem ? 'grid-cols-1 lg:grid-cols-5' : 'grid-cols-1')}
+        >
           {/* Fleet List */}
-          <div className={cn(selectedItem ? "lg:col-span-3" : "col-span-1")}>
+          <div className={cn(selectedItem ? 'lg:col-span-3' : 'col-span-1')}>
             {/* Results count */}
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-              يُعرض{" "}
-              <span className="font-semibold text-gray-700 dark:text-gray-200">{filteredFleet.length}</span>
-              {" "}من{" "}
-              <span className="font-semibold text-gray-700 dark:text-gray-200">{MOCK_FLEET.length}</span>
-              {" "}معدة
+              يُعرض{' '}
+              <span className="font-semibold text-gray-700 dark:text-gray-200">
+                {filteredFleet.length}
+              </span>{' '}
+              من{' '}
+              <span className="font-semibold text-gray-700 dark:text-gray-200">
+                {MOCK_FLEET.length}
+              </span>{' '}
+              معدة
             </p>
 
             {filteredFleet.length === 0 ? (
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-12 text-center">
                 <MapPin className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                <p className="text-gray-500 dark:text-gray-400">لا توجد معدات تطابق المعايير المحددة</p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  لا توجد معدات تطابق المعايير المحددة
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

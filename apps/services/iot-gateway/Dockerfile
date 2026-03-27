@@ -32,13 +32,13 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools with multi-mirror fallback
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip "setuptools>=68.0" wheel build || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip "setuptools>=68.0" wheel build
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Configure pip for network resilience
 RUN mkdir -p /root/.pip && \

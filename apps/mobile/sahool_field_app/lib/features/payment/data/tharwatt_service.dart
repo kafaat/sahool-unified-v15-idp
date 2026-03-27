@@ -3,6 +3,7 @@
 ///
 /// بوابة المدفوعات المحلية اليمنية
 /// https://developers-test.tharwatt.com:5253/
+library;
 
 import 'package:dio/dio.dart';
 import '../../../core/network/api_result.dart';

@@ -277,7 +277,7 @@ void main() {
       final controller = PaginatedListController<String>(
         fetchPage: (page, limit) async {
           if (shouldFail) throw Exception('Refresh failed');
-          return PageResult<String>(
+          return const PageResult<String>(
             items: ['item'],
             hasMore: false,
           );

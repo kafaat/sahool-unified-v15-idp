@@ -183,6 +183,10 @@ class Alert(Base):
         Index("ix_alerts_field_status", "field_id", "status", "created_at"),
         # Tenant-wide queries
         Index("ix_alerts_tenant_created", "tenant_id", "created_at"),
+        # Tenant + status for active alert dashboards
+        Index("ix_alerts_tenant_status", "tenant_id", "status", "created_at"),
+        # Tenant + severity for priority filtering
+        Index("ix_alerts_tenant_severity", "tenant_id", "severity", "created_at"),
         # Type and severity filtering
         Index("ix_alerts_type_severity", "type", "severity"),
         # Active alerts query

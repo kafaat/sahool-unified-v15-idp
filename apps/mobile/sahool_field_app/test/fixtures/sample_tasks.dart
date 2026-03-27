@@ -1,5 +1,6 @@
 /// Sample Tasks Data for Testing
 /// بيانات المهام النموذجية للاختبارات
+library;
 
 import 'package:sahool_field_app/core/storage/database.dart';
 import 'package:drift/drift.dart';

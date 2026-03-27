@@ -116,7 +116,7 @@ async def auto_purchase(
             optimize_for="price",
         )
         if best_supplier:
-            supplier_id = best_supplier["id"]
+            supplier_id = best_supplier["supplier_id"]
         else:
             raise HTTPException(
                 status_code=404,

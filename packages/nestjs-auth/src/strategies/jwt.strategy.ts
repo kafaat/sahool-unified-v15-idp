@@ -9,11 +9,11 @@
  * - Failed authentication logging
  */
 
-import { Injectable, UnauthorizedException, Logger } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { ExtractJwt, Strategy } from "passport-jwt";
-import { JWTConfig, AuthErrors } from "../config/jwt.config";
-import { UserValidationService } from "../services/user-validation.service";
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { JWTConfig, AuthErrors } from '../config/jwt.config';
+import { UserValidationService } from '../services/user-validation.service';
 
 /**
  * JWT Token Payload Interface
@@ -23,8 +23,8 @@ export interface JwtPayload {
   roles: string[];
   exp: number;
   iat: number;
-  tid?: string; // tenant_id (legacy short name)
-  tenant_id?: string; // tenant_id (canonical name from Python services)
+  tid: string; // tenant_id (standard claim name across all services)
+  tenant_id?: string; // @deprecated Use tid instead. Kept for backward compatibility.
   jti?: string; // token_id
   type?: string; // access or refresh
   permissions?: string[];
@@ -79,9 +79,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
 
     if (!userValidationService) {
-      this.logger.warn(
-        "UserValidationService not provided - database validation disabled",
-      );
+      this.logger.warn('UserValidationService not provided - database validation disabled');
     }
   }
 
@@ -101,7 +99,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     // Ensure required fields exist
     if (!payload.sub) {
-      this.logger.warn("JWT validation failed: Missing subject (user ID)");
+      this.logger.warn('JWT validation failed: Missing subject (user ID)');
       throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
     }
 
@@ -112,47 +110,38 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       if (this.userValidationService) {
         const userData = await this.userValidationService.validateUser(userId);
 
-        this.logger.debug(
-          `JWT validated successfully for user ${userId} (${userData.email})`,
-        );
+        this.logger.debug(`JWT validated successfully for user ${userId} (${userData.email})`);
 
         // Return user object with database data
         return {
           id: userId,
           roles: userData.roles || payload.roles || [],
-          tenantId: userData.tenantId || payload.tenant_id || payload.tid,
+          tenantId: userData.tenantId || payload.tid || payload.tenant_id,
           permissions: payload.permissions || [],
           tokenId: payload.jti,
         };
       }
 
       // No validation service - return user from token only
-      this.logger.debug(
-        `JWT validated successfully for user ${userId} (token only)`,
-      );
+      this.logger.debug(`JWT validated successfully for user ${userId} (token only)`);
 
       return {
         id: userId,
         roles: payload.roles || [],
-        tenantId: payload.tenant_id || payload.tid,
+        tenantId: payload.tid || payload.tenant_id,
         permissions: payload.permissions || [],
         tokenId: payload.jti,
       };
     } catch (error) {
       // Log the error and re-throw
       if (error instanceof UnauthorizedException) {
-        this.logger.warn(
-          `JWT validation failed for user ${userId}: ${error.message}`,
-        );
+        this.logger.warn(`JWT validation failed for user ${userId}: ${error.message}`);
         throw error;
       }
 
       const errMsg = error instanceof Error ? error.message : String(error);
       const errStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(
-        `JWT validation error for user ${userId}: ${errMsg}`,
-        errStack,
-      );
+      this.logger.error(`JWT validation error for user ${userId}: ${errMsg}`, errStack);
       throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
     }
   }

@@ -18,7 +18,7 @@
 // API Version - إصدار الـ API
 // ---------------------------------------------------------------------------
 
-export const API_VERSION = "v1" as const;
+export const API_VERSION = 'v1' as const;
 export const API_PREFIX = `/api/${API_VERSION}` as const;
 
 // ---------------------------------------------------------------------------
@@ -26,10 +26,10 @@ export const API_PREFIX = `/api/${API_VERSION}` as const;
 // ---------------------------------------------------------------------------
 
 export const HEALTH_ENDPOINTS = {
-  LIVENESS: "/healthz",
-  READINESS: "/readyz",
-  HEALTH: "/health",
-  METRICS: "/metrics",
+  LIVENESS: '/healthz',
+  READINESS: '/readyz',
+  HEALTH: '/health',
+  METRICS: '/metrics',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -699,10 +699,7 @@ export const PUBLIC_ENDPOINTS: readonly string[] = [
  * buildUrl(FIELD_ENDPOINTS.GET, { fieldId: "abc-123" })
  * // => "/api/v1/fields/abc-123"
  */
-export function buildUrl(
-  template: string,
-  params: Record<string, string>,
-): string {
+export function buildUrl(template: string, params: Record<string, string>): string {
   let url = template;
   for (const [key, value] of Object.entries(params)) {
     url = url.replace(`{${key}}`, encodeURIComponent(value));

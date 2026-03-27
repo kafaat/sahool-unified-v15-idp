@@ -24,13 +24,24 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+# Cost limits per tenant per hour/day (USD)
+DEFAULT_HOURLY_COST_LIMIT = float(os.environ.get("AI_HOURLY_COST_LIMIT", "50.0"))
+DEFAULT_DAILY_COST_LIMIT = float(os.environ.get("AI_DAILY_COST_LIMIT", "500.0"))
+
+# Warning threshold as a fraction of the limit (e.g., warn at 80%)
+COST_WARNING_THRESHOLD = float(os.environ.get("AI_COST_WARNING_THRESHOLD", "0.8"))
 
 
 class AuditEventType(StrEnum):
@@ -228,6 +239,168 @@ def hash_content(content: str | dict | None) -> str | None:
     return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
+class CostLimitExceeded(Exception):
+    """Raised when a tenant exceeds their AI cost limit.
+
+    يُطرح عندما يتجاوز المستأجر حد تكلفة الذكاء الاصطناعي
+    """
+
+    def __init__(self, tenant_id: str, window: str, current_cost: float, limit: float):
+        self.tenant_id = tenant_id
+        self.window = window
+        self.current_cost = current_cost
+        self.limit = limit
+        super().__init__(
+            f"AI cost limit exceeded for tenant '{tenant_id}': {window} cost ${current_cost:.4f} >= limit ${limit:.2f}"
+        )
+
+
+class CostTracker:
+    """In-memory cost tracker per tenant with hourly and daily windows.
+
+    متتبع التكلفة في الذاكرة لكل مستأجر مع نوافذ بالساعة واليوم
+    """
+
+    def __init__(
+        self,
+        hourly_limit: float = DEFAULT_HOURLY_COST_LIMIT,
+        daily_limit: float = DEFAULT_DAILY_COST_LIMIT,
+    ):
+        self.hourly_limit = hourly_limit
+        self.daily_limit = daily_limit
+        # {tenant_id: {"hourly_cost": float, "hourly_reset": datetime,
+        #              "daily_cost": float, "daily_reset": datetime}}
+        self._tenant_costs: dict[str, dict[str, Any]] = {}
+
+    def _get_or_create(self, tenant_id: str) -> dict[str, Any]:
+        """Get or initialize cost tracking entry for a tenant."""
+        now = datetime.now(UTC)
+        if tenant_id not in self._tenant_costs:
+            self._tenant_costs[tenant_id] = {
+                "hourly_cost": 0.0,
+                "hourly_reset": now,
+                "daily_cost": 0.0,
+                "daily_reset": now,
+            }
+        entry = self._tenant_costs[tenant_id]
+
+        # Reset hourly window if more than 1 hour has passed
+        hourly_elapsed = (now - entry["hourly_reset"]).total_seconds()
+        if hourly_elapsed >= 3600:
+            entry["hourly_cost"] = 0.0
+            entry["hourly_reset"] = now
+
+        # Reset daily window if more than 24 hours have passed
+        daily_elapsed = (now - entry["daily_reset"]).total_seconds()
+        if daily_elapsed >= 86400:
+            entry["daily_cost"] = 0.0
+            entry["daily_reset"] = now
+
+        return entry
+
+    def check_cost_limit(self, tenant_id: str, additional_cost: float = 0.0) -> bool:
+        """Check if a tenant is within cost limits.
+
+        Args:
+            tenant_id: Tenant identifier
+            additional_cost: Prospective cost to add (for pre-check)
+
+        Returns:
+            True if within limits, False if limit would be exceeded.
+
+        Raises:
+            CostLimitExceeded: When the limit is exceeded and additional_cost > 0.
+        """
+        entry = self._get_or_create(tenant_id)
+        projected_hourly = entry["hourly_cost"] + additional_cost
+        projected_daily = entry["daily_cost"] + additional_cost
+
+        # Check hourly limit
+        if projected_hourly >= self.hourly_limit:
+            logger.warning(
+                "AI hourly cost limit exceeded for tenant %s: $%.4f >= $%.2f",
+                tenant_id,
+                projected_hourly,
+                self.hourly_limit,
+            )
+            if additional_cost > 0:
+                raise CostLimitExceeded(
+                    tenant_id,
+                    "hourly",
+                    projected_hourly,
+                    self.hourly_limit,
+                )
+            return False
+
+        # Check daily limit
+        if projected_daily >= self.daily_limit:
+            logger.warning(
+                "AI daily cost limit exceeded for tenant %s: $%.4f >= $%.2f",
+                tenant_id,
+                projected_daily,
+                self.daily_limit,
+            )
+            if additional_cost > 0:
+                raise CostLimitExceeded(
+                    tenant_id,
+                    "daily",
+                    projected_daily,
+                    self.daily_limit,
+                )
+            return False
+
+        # Warn when approaching limits
+        if projected_hourly >= self.hourly_limit * COST_WARNING_THRESHOLD:
+            logger.warning(
+                "AI hourly cost approaching limit for tenant %s: $%.4f / $%.2f (%.0f%%)",
+                tenant_id,
+                projected_hourly,
+                self.hourly_limit,
+                (projected_hourly / self.hourly_limit) * 100,
+            )
+        if projected_daily >= self.daily_limit * COST_WARNING_THRESHOLD:
+            logger.warning(
+                "AI daily cost approaching limit for tenant %s: $%.4f / $%.2f (%.0f%%)",
+                tenant_id,
+                projected_daily,
+                self.daily_limit,
+                (projected_daily / self.daily_limit) * 100,
+            )
+
+        return True
+
+    def record_cost(self, tenant_id: str, cost: float) -> None:
+        """Record a cost for a tenant."""
+        entry = self._get_or_create(tenant_id)
+        entry["hourly_cost"] += cost
+        entry["daily_cost"] += cost
+
+    def get_tenant_usage(self, tenant_id: str) -> dict[str, Any]:
+        """Get current cost usage for a tenant."""
+        entry = self._get_or_create(tenant_id)
+        return {
+            "tenant_id": tenant_id,
+            "hourly_cost": round(entry["hourly_cost"], 4),
+            "hourly_limit": self.hourly_limit,
+            "hourly_remaining": round(max(0, self.hourly_limit - entry["hourly_cost"]), 4),
+            "daily_cost": round(entry["daily_cost"], 4),
+            "daily_limit": self.daily_limit,
+            "daily_remaining": round(max(0, self.daily_limit - entry["daily_cost"]), 4),
+        }
+
+
+# Global cost tracker instance
+_cost_tracker: CostTracker | None = None
+
+
+def get_cost_tracker() -> CostTracker:
+    """Get or create the global cost tracker."""
+    global _cost_tracker
+    if _cost_tracker is None:
+        _cost_tracker = CostTracker()
+    return _cost_tracker
+
+
 class AIAuditLogger:
     """
     Centralized audit logger for AI operations.
@@ -384,6 +557,21 @@ class AIAuditLogger:
         if llm_provider and model_name and token_count_input and token_count_output:
             cost_usd = calculate_cost(llm_provider, model_name, token_count_input, token_count_output)
 
+        # Enforce cost limits
+        if cost_usd > 0:
+            tracker = get_cost_tracker()
+            # Check limit (logs warning when approaching, raises on exceed)
+            try:
+                tracker.check_cost_limit(self.tenant_id, additional_cost=cost_usd)
+            except CostLimitExceeded:
+                logger.error(
+                    "Cost limit exceeded for tenant %s, cost=$%.4f blocked",
+                    self.tenant_id,
+                    cost_usd,
+                )
+                raise
+            tracker.record_cost(self.tenant_id, cost_usd)
+
         # Determine safety level from score
         safety_level = SafetyLevel.SAFE
         if safety_score is not None:
@@ -480,6 +668,20 @@ class AIAuditLogger:
         تسجيل استجابة LLM
         """
         cost_usd = calculate_cost(llm_provider, model_name, token_count_input, token_count_output)
+
+        # Enforce cost limits
+        if cost_usd > 0:
+            tracker = get_cost_tracker()
+            try:
+                tracker.check_cost_limit(self.tenant_id, additional_cost=cost_usd)
+            except CostLimitExceeded:
+                logger.error(
+                    "Cost limit exceeded for tenant %s, cost=$%.4f blocked",
+                    self.tenant_id,
+                    cost_usd,
+                )
+                raise
+            tracker.record_cost(self.tenant_id, cost_usd)
 
         return self._create_event(
             event_type=AuditEventType.LLM_RESPONSE,

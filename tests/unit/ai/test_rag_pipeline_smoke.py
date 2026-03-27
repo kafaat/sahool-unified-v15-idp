@@ -3,9 +3,7 @@ SAHOOL RAG Pipeline Smoke Tests
 Sprint 9: Integration smoke tests without external dependencies
 """
 
-import sys
-
-sys.path.insert(0, "packages")
+import pytest
 
 from advisor.ai.llm_client import LlmClient, LlmResponse
 from advisor.ai.rag_models import RagRequest, RetrievedChunk
@@ -23,6 +21,7 @@ class FakeLLM(LlmClient):
         return LlmResponse(text=self._response)
 
 
+@pytest.mark.unit
 class TestRagPipeline:
     """Test RAG pipeline end-to-end"""
 
@@ -104,6 +103,7 @@ class TestRagPipeline:
         assert resp.confidence > 0
 
 
+@pytest.mark.unit
 class TestChunksToText:
     """Test chunk formatting"""
 

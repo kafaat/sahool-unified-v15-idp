@@ -26,8 +26,8 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -c constraints.txt -r requirements.txt
 
 # Copy Python source files
-COPY apps/services/field-management-service/src/profitability_analyzer.py ./
-COPY apps/services/field-management-service/src/main.py ./
+COPY apps/services/field-management-service/legacy/profitability_analyzer.py ./
+COPY apps/services/field-management-service/legacy/main.py ./
 COPY apps/services/field-management-service/src/__init__.py ./
 
 # Create non-root user for security
@@ -45,8 +45,8 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3000/healthz')" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz')" || exit 1
 
 # Run application
 CMD ["python", "main.py"]

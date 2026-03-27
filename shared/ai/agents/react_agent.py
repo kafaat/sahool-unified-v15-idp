@@ -19,10 +19,11 @@ Updated: January 2026
 
 import uuid
 from abc import abstractmethod
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, AsyncIterator
+from typing import Any
 
 import structlog
 

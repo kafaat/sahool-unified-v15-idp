@@ -27,6 +27,7 @@ export default defineConfig({
       "@sahool/api-client": path.resolve(__dirname, "../../packages/api-client/src"),
       "@sahool/api": path.resolve(__dirname, "../../packages/api-client/src"),
       "@sahool/i18n": path.resolve(__dirname, "../../packages/i18n/src"),
+      "@sahool/design-system": path.resolve(__dirname, "../../packages/design-system/src"),
       "@sahool/shared-types/contracts": path.resolve(__dirname, "../../packages/shared-types/src/contracts"),
       "@sahool/shared-types": path.resolve(__dirname, "../../packages/shared-types/src"),
     },

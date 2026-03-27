@@ -19,6 +19,11 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 from pathlib import Path as PathLib
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import FastAPI
 
 # Shared middleware imports
@@ -34,7 +39,10 @@ if not SHARED_PATH.exists():
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
 
-_logger = logging.getLogger(__name__)
+if structlog is not None:
+    _logger = structlog.get_logger(__name__)
+else:
+    _logger = logging.getLogger(__name__)
 
 try:
     from config.cors_config import setup_cors_middleware
@@ -58,7 +66,6 @@ except ImportError:
 
 
 from shared.middleware.tenant_context import TenantContextMiddleware
-
 
 # Security headers middleware
 try:
@@ -102,7 +109,10 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

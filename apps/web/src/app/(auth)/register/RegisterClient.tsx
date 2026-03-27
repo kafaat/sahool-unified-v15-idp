@@ -1,19 +1,13 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Mail, Lock, User, Phone, Smartphone } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { useAuth } from "@/stores/auth.store";
-import { useToast } from "@/components/ui/toast";
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Mail, Lock, User, Phone, Smartphone } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/stores/auth.store';
+import { useToast } from '@/components/ui/toast';
 
 /**
  * Yemen mobile phone number validation
@@ -24,27 +18,27 @@ import { useToast } from "@/components/ui/toast";
  * - Y (واي): 70x
  */
 const YEMEN_PHONE_REGEX = /^(?:\+?967|00967|0)?(?:7[01378]\d{7})$/;
-const YEMEN_COUNTRY_CODE = "+967";
+const YEMEN_COUNTRY_CODE = '+967';
 
 /** Recognized Yemen mobile operators with prefix info */
 const YEMEN_OPERATORS = [
-  { name: "Yemen Mobile", nameAr: "يمن موبايل", prefixes: ["77", "78"] },
-  { name: "SabaFone", nameAr: "سبأفون", prefixes: ["71"] },
-  { name: "YOU", nameAr: "يو", prefixes: ["73"] },
-  { name: "Y Telecom", nameAr: "واي", prefixes: ["70"] },
+  { name: 'Yemen Mobile', nameAr: 'يمن موبايل', prefixes: ['77', '78'] },
+  { name: 'SabaFone', nameAr: 'سبأفون', prefixes: ['71'] },
+  { name: 'YOU', nameAr: 'يو', prefixes: ['73'] },
+  { name: 'Y Telecom', nameAr: 'واي', prefixes: ['70'] },
 ] as const;
 
 /**
  * Detect Yemen mobile operator from phone number
  */
 function detectYemenOperator(phone: string): string | null {
-  const cleaned = phone.replace(/[\s\-+]/g, "");
+  const cleaned = phone.replace(/[\s\-+]/g, '');
   // Extract the 2-digit prefix after country code
-  let prefix = "";
-  if (cleaned.startsWith("00967")) prefix = cleaned.slice(5, 7);
-  else if (cleaned.startsWith("967")) prefix = cleaned.slice(3, 5);
-  else if (cleaned.startsWith("0")) prefix = cleaned.slice(1, 3);
-  else if (cleaned.startsWith("7")) prefix = cleaned.slice(0, 2);
+  let prefix = '';
+  if (cleaned.startsWith('00967')) prefix = cleaned.slice(5, 7);
+  else if (cleaned.startsWith('967')) prefix = cleaned.slice(3, 5);
+  else if (cleaned.startsWith('0')) prefix = cleaned.slice(1, 3);
+  else if (cleaned.startsWith('7')) prefix = cleaned.slice(0, 2);
 
   for (const op of YEMEN_OPERATORS) {
     if ((op.prefixes as readonly string[]).includes(prefix)) return `${op.nameAr} (${op.name})`;
@@ -56,18 +50,18 @@ function detectYemenOperator(phone: string): string | null {
  * Validate Yemen phone number
  */
 function validateYemenPhone(phone: string): { valid: boolean; error?: string } {
-  if (!phone) return { valid: false, error: "رقم الهاتف مطلوب | Phone number is required" };
-  const cleaned = phone.replace(/[\s-]/g, "");
+  if (!phone) return { valid: false, error: 'رقم الهاتف مطلوب | Phone number is required' };
+  const cleaned = phone.replace(/[\s-]/g, '');
   if (!YEMEN_PHONE_REGEX.test(cleaned)) {
     return {
       valid: false,
-      error: "رقم هاتف يمني غير صالح | Invalid Yemen phone number (e.g. +967 77X XXX XXX)",
+      error: 'رقم هاتف يمني غير صالح | Invalid Yemen phone number (e.g. +967 77X XXX XXX)',
     };
   }
   return { valid: true };
 }
 
-type RegisterMethod = "email" | "phone";
+type RegisterMethod = 'email' | 'phone';
 
 interface RegisterFormData {
   email: string;
@@ -100,7 +94,7 @@ function getErrorMessage(error: unknown): string {
     }
     return error.message;
   }
-  return "Registration failed. Please try again.";
+  return 'Registration failed. Please try again.';
 }
 
 /**
@@ -113,49 +107,49 @@ function validateForm(data: RegisterFormData): RegisterError[] {
 
   // Email validation
   if (!data.email) {
-    errors.push({ field: "email", message: "Email is required" });
+    errors.push({ field: 'email', message: 'Email is required' });
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    errors.push({ field: "email", message: "Invalid email format" });
+    errors.push({ field: 'email', message: 'Invalid email format' });
   }
 
   // First name validation
   if (!data.firstName.trim()) {
-    errors.push({ field: "firstName", message: "First name is required" });
+    errors.push({ field: 'firstName', message: 'First name is required' });
   } else if (data.firstName.trim().length < 2) {
-    errors.push({ field: "firstName", message: "First name must be at least 2 characters" });
+    errors.push({ field: 'firstName', message: 'First name must be at least 2 characters' });
   }
 
   // Last name validation
   if (!data.lastName.trim()) {
-    errors.push({ field: "lastName", message: "Last name is required" });
+    errors.push({ field: 'lastName', message: 'Last name is required' });
   } else if (data.lastName.trim().length < 2) {
-    errors.push({ field: "lastName", message: "Last name must be at least 2 characters" });
+    errors.push({ field: 'lastName', message: 'Last name must be at least 2 characters' });
   }
 
   // Password validation
   if (!data.password) {
-    errors.push({ field: "password", message: "Password is required" });
+    errors.push({ field: 'password', message: 'Password is required' });
   } else if (data.password.length < 8) {
-    errors.push({ field: "password", message: "Password must be at least 8 characters" });
+    errors.push({ field: 'password', message: 'Password must be at least 8 characters' });
   } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password)) {
     errors.push({
-      field: "password",
-      message: "Password must contain uppercase, lowercase, and number",
+      field: 'password',
+      message: 'Password must contain uppercase, lowercase, and number',
     });
   }
 
   // Confirm password validation
   if (!data.confirmPassword) {
-    errors.push({ field: "confirmPassword", message: "Please confirm your password" });
+    errors.push({ field: 'confirmPassword', message: 'Please confirm your password' });
   } else if (data.password !== data.confirmPassword) {
-    errors.push({ field: "confirmPassword", message: "Passwords do not match" });
+    errors.push({ field: 'confirmPassword', message: 'Passwords do not match' });
   }
 
   // Phone validation (required for phone method, must be valid Yemen number if provided)
   if (data.phone) {
     const phoneResult = validateYemenPhone(data.phone);
     if (!phoneResult.valid) {
-      errors.push({ field: "phone", message: phoneResult.error || "Invalid phone number" });
+      errors.push({ field: 'phone', message: phoneResult.error || 'Invalid phone number' });
     }
   }
 
@@ -168,57 +162,56 @@ export default function RegisterClient() {
   useAuth();
   const { showToast } = useToast();
 
-  const [registerMethod, setRegisterMethod] = useState<RegisterMethod>("phone");
+  const [registerMethod, setRegisterMethod] = useState<RegisterMethod>('phone');
   const [formData, setFormData] = useState<RegisterFormData>({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
+    email: '',
+    password: '',
+    confirmPassword: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [detectedOperator, setDetectedOperator] = useState<string | null>(null);
 
-  const handleChange = (field: keyof RegisterFormData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear field error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-    // Detect Yemen operator when typing phone
-    if (field === "phone") {
-      setDetectedOperator(detectYemenOperator(value));
-    }
-  };
+  const handleChange =
+    (field: keyof RegisterFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      // Clear field error when user starts typing
+      if (errors[field]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+      // Detect Yemen operator when typing phone
+      if (field === 'phone') {
+        setDetectedOperator(detectYemenOperator(value));
+      }
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Add method-specific required field validation
-    if (registerMethod === "phone" && !formData.phone) {
-      setErrors({ phone: "رقم الهاتف مطلوب | Phone number is required" });
+    if (registerMethod === 'phone' && !formData.phone) {
+      setErrors({ phone: 'رقم الهاتف مطلوب | Phone number is required' });
       showToast({
-        type: "error",
-        messageAr: "يرجى إدخال رقم الهاتف",
-        message: "Please enter your phone number",
+        type: 'error',
+        messageAr: 'يرجى إدخال رقم الهاتف',
+        message: 'Please enter your phone number',
       });
       return;
     }
-    if (registerMethod === "email" && !formData.email) {
-      setErrors({ email: "البريد الإلكتروني مطلوب | Email is required" });
+    if (registerMethod === 'email' && !formData.email) {
+      setErrors({ email: 'البريد الإلكتروني مطلوب | Email is required' });
       showToast({
-        type: "error",
-        messageAr: "يرجى إدخال البريد الإلكتروني",
-        message: "Please enter your email",
+        type: 'error',
+        messageAr: 'يرجى إدخال البريد الإلكتروني',
+        message: 'Please enter your email',
       });
       return;
     }
@@ -237,9 +230,9 @@ export default function RegisterClient() {
       // Show first error as toast
       const firstError = validationErrors[0];
       showToast({
-        type: "error",
-        messageAr: "يرجى تصحيح الأخطاء في النموذج",
-        message: firstError ? firstError.message : "Please fix the form errors",
+        type: 'error',
+        messageAr: 'يرجى تصحيح الأخطاء في النموذج',
+        message: firstError ? firstError.message : 'Please fix the form errors',
       });
       return;
     }
@@ -250,8 +243,8 @@ export default function RegisterClient() {
     try {
       // Normalize phone to international format
       let normalizedPhone = formData.phone.trim();
-      if (normalizedPhone && !normalizedPhone.startsWith("+")) {
-        normalizedPhone = normalizedPhone.replace(/^(00967|967|0)/, "");
+      if (normalizedPhone && !normalizedPhone.startsWith('+')) {
+        normalizedPhone = normalizedPhone.replace(/^(00967|967|0)/, '');
         normalizedPhone = `${YEMEN_COUNTRY_CODE}${normalizedPhone}`;
       }
 
@@ -261,53 +254,55 @@ export default function RegisterClient() {
 
       let response: Response;
       try {
-        response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || ""}/api/v1/auth/register`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: formData.email ? formData.email.toLowerCase().trim() : undefined,
-              password: formData.password,
-              firstName: formData.firstName.trim(),
-              lastName: formData.lastName.trim(),
-              phone: normalizedPhone || undefined,
-              registerMethod,
-            }),
-            credentials: "include",
-            signal: controller.signal,
-          }
-        );
+        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email ? formData.email.toLowerCase().trim() : undefined,
+            password: formData.password,
+            firstName: formData.firstName.trim(),
+            lastName: formData.lastName.trim(),
+            phone: normalizedPhone || undefined,
+            registerMethod,
+          }),
+          credentials: 'include',
+          signal: controller.signal,
+        });
       } finally {
         clearTimeout(timeoutId);
       }
 
-      const contentType = response.headers.get("content-type");
-      if (!contentType?.includes("application/json")) {
-        throw new Error("Invalid response from server");
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('application/json')) {
+        throw new Error('Invalid response from server');
       }
 
-      const data: { message?: string; detail?: string; access_token?: string; refresh_token?: string } = await response.json();
+      const data: {
+        message?: string;
+        detail?: string;
+        access_token?: string;
+        refresh_token?: string;
+      } = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.detail || "Registration failed");
+        throw new Error(data.message || data.detail || 'Registration failed');
       }
 
       showToast({
-        type: "success",
-        messageAr: "تم إنشاء الحساب بنجاح",
-        message: "Account created successfully",
+        type: 'success',
+        messageAr: 'تم إنشاء الحساب بنجاح',
+        message: 'Account created successfully',
       });
 
       // Auto-login after successful registration if tokens are returned
       if (data.access_token) {
         // Set session via API
-        const sessionResponse = await fetch("/api/auth/session", {
-          method: "POST",
+        const sessionResponse = await fetch('/api/auth/session', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             access_token: data.access_token,
@@ -316,29 +311,29 @@ export default function RegisterClient() {
         });
 
         if (sessionResponse.ok) {
-          router.push("/dashboard");
+          router.push('/dashboard');
           return;
         }
       }
 
       // If no auto-login, redirect to login page
       showToast({
-        type: "info",
-        messageAr: "يرجى تسجيل الدخول للمتابعة",
-        message: "Please login to continue",
+        type: 'info',
+        messageAr: 'يرجى تسجيل الدخول للمتابعة',
+        message: 'Please login to continue',
       });
-      router.push("/login");
+      router.push('/login');
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 
       showToast({
-        type: "error",
-        messageAr: "فشل إنشاء الحساب",
+        type: 'error',
+        messageAr: 'فشل إنشاء الحساب',
         message: errorMessage,
       });
 
       // Set specific field error if the API returns field info
-      if (errorMessage.toLowerCase().includes("email")) {
+      if (errorMessage.toLowerCase().includes('email')) {
         setErrors({ email: errorMessage });
       }
     } finally {
@@ -359,9 +354,7 @@ export default function RegisterClient() {
           </CardTitle>
           <CardDescription>
             <div className="text-gray-600">انضم إلى منصة سهول الزراعية المتكاملة</div>
-            <div className="text-xs text-gray-500">
-              Join SAHOOL Smart Agricultural Platform
-            </div>
+            <div className="text-xs text-gray-500">Join SAHOOL Smart Agricultural Platform</div>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -370,11 +363,11 @@ export default function RegisterClient() {
             <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
               <button
                 type="button"
-                onClick={() => setRegisterMethod("phone")}
+                onClick={() => setRegisterMethod('phone')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
-                  registerMethod === "phone"
-                    ? "bg-sahool-green-600 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-800"
+                  registerMethod === 'phone'
+                    ? 'bg-sahool-green-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 <Smartphone className="w-4 h-4" />
@@ -383,11 +376,11 @@ export default function RegisterClient() {
               </button>
               <button
                 type="button"
-                onClick={() => setRegisterMethod("email")}
+                onClick={() => setRegisterMethod('email')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
-                  registerMethod === "email"
-                    ? "bg-sahool-green-600 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-800"
+                  registerMethod === 'email'
+                    ? 'bg-sahool-green-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 <Mail className="w-4 h-4" />
@@ -403,7 +396,7 @@ export default function RegisterClient() {
                 labelAr="الاسم الأول"
                 placeholder="محمد"
                 value={formData.firstName}
-                onChange={handleChange("firstName")}
+                onChange={handleChange('firstName')}
                 leftIcon={<User className="w-4 h-4" />}
                 error={errors.firstName}
                 required
@@ -415,7 +408,7 @@ export default function RegisterClient() {
                 labelAr="اسم العائلة"
                 placeholder="الأحمد"
                 value={formData.lastName}
-                onChange={handleChange("lastName")}
+                onChange={handleChange('lastName')}
                 error={errors.lastName}
                 required
                 autoComplete="family-name"
@@ -426,22 +419,20 @@ export default function RegisterClient() {
             <div>
               <Input
                 type="tel"
-                label={registerMethod === "phone" ? "Phone Number" : "Phone (Optional)"}
-                labelAr={registerMethod === "phone" ? "رقم الهاتف" : "رقم الهاتف (اختياري)"}
+                label={registerMethod === 'phone' ? 'Phone Number' : 'Phone (Optional)'}
+                labelAr={registerMethod === 'phone' ? 'رقم الهاتف' : 'رقم الهاتف (اختياري)'}
                 placeholder="+967 7X XXX XXXX"
                 value={formData.phone}
-                onChange={handleChange("phone")}
+                onChange={handleChange('phone')}
                 leftIcon={<Phone className="w-4 h-4" />}
                 error={errors.phone}
-                required={registerMethod === "phone"}
+                required={registerMethod === 'phone'}
                 autoComplete="tel"
               />
               {detectedOperator && (
-                <p className="mt-1 text-xs text-sahool-green-600 font-medium">
-                  {detectedOperator}
-                </p>
+                <p className="mt-1 text-xs text-sahool-green-600 font-medium">{detectedOperator}</p>
               )}
-              {registerMethod === "phone" && !formData.phone && (
+              {registerMethod === 'phone' && !formData.phone && (
                 <p className="mt-1 text-xs text-gray-500">
                   يمن موبايل (77, 78) • سبأفون (71) • يو (73) • واي (70)
                 </p>
@@ -451,14 +442,16 @@ export default function RegisterClient() {
             {/* Email field - primary for email method */}
             <Input
               type="email"
-              label={registerMethod === "email" ? "Email" : "Email (Optional)"}
-              labelAr={registerMethod === "email" ? "البريد الإلكتروني" : "البريد الإلكتروني (اختياري)"}
+              label={registerMethod === 'email' ? 'Email' : 'Email (Optional)'}
+              labelAr={
+                registerMethod === 'email' ? 'البريد الإلكتروني' : 'البريد الإلكتروني (اختياري)'
+              }
               placeholder="example@sahool.ye"
               value={formData.email}
-              onChange={handleChange("email")}
+              onChange={handleChange('email')}
               leftIcon={<Mail className="w-4 h-4" />}
               error={errors.email}
-              required={registerMethod === "email"}
+              required={registerMethod === 'email'}
               autoComplete="email"
             />
             <Input
@@ -467,7 +460,7 @@ export default function RegisterClient() {
               labelAr="كلمة المرور"
               placeholder="••••••••"
               value={formData.password}
-              onChange={handleChange("password")}
+              onChange={handleChange('password')}
               leftIcon={<Lock className="w-4 h-4" />}
               error={errors.password}
               helperText="At least 8 characters with uppercase, lowercase, and number"
@@ -480,7 +473,7 @@ export default function RegisterClient() {
               labelAr="تأكيد كلمة المرور"
               placeholder="••••••••"
               value={formData.confirmPassword}
-              onChange={handleChange("confirmPassword")}
+              onChange={handleChange('confirmPassword')}
               leftIcon={<Lock className="w-4 h-4" />}
               error={errors.confirmPassword}
               required

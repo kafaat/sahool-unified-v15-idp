@@ -1,11 +1,12 @@
 """Tests for enhanced marketplace module."""
 
 import pytest
+
 from shared.marketplace_enhanced import (
-    MarketplaceEngine,
-    QualityGrade,
-    OrderType,
     ListingStatus,
+    MarketplaceEngine,
+    OrderType,
+    QualityGrade,
 )
 
 

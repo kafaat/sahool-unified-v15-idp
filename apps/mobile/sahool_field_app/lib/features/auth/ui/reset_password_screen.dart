@@ -480,10 +480,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: SahoolColors.success.withOpacity(0.1),
+                  color: SahoolColors.success.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: SahoolColors.success.withOpacity(0.3),
+                    color: SahoolColors.success.withValues(alpha: 0.3),
                     width: 3,
                   ),
                 ),
@@ -511,7 +511,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
               Text(
                 'تم تغيير كلمة المرور بنجاح',
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.8),
+                  color: colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -521,7 +521,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
               Text(
                 'سيتم توجيهك لتسجيل الدخول...',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -537,7 +537,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                   builder: (context, value, child) {
                     return LinearProgressIndicator(
                       value: value,
-                      backgroundColor: colorScheme.outline.withOpacity(0.2),
+                      backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
                       color: SahoolColors.success,
                       borderRadius: BorderRadius.circular(4),
                     );
@@ -641,7 +641,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -668,7 +668,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
           Text(
             'ادخل كلمة مرور قوية وجديدة',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface.withOpacity(0.7),
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -735,17 +735,17 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
           ),
           decoration: InputDecoration(
             hintText: 'ادخل كلمة المرور',
-            hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.4)),
+            hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.4)),
             prefixIcon: Icon(
               Icons.lock_outline,
-              color: colorScheme.primary.withOpacity(0.7),
+              color: colorScheme.primary.withValues(alpha: 0.7),
             ),
             suffixIcon: IconButton(
               icon: Icon(
                 _state.obscurePassword
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: colorScheme.onSurface.withOpacity(0.5),
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               onPressed: _togglePasswordVisibility,
             ),
@@ -754,12 +754,12 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide:
-                  BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+                  BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide:
-                  BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+                  BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -797,13 +797,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
             Text(
               'قوة كلمة المرور',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: strengthColor.withOpacity(0.1),
+                color: strengthColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -824,7 +824,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
             Container(
               height: 6,
               decoration: BoxDecoration(
-                color: colorScheme.outline.withOpacity(0.2),
+                color: colorScheme.outline.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -840,7 +840,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                 borderRadius: BorderRadius.circular(3),
                 boxShadow: [
                   BoxShadow(
-                    color: strengthColor.withOpacity(0.4),
+                    color: strengthColor.withValues(alpha: 0.4),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -861,8 +861,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                 margin: EdgeInsets.only(right: index < 4 ? 4 : 0),
                 decoration: BoxDecoration(
                   color: isActive
-                      ? strengthColor.withOpacity(0.6)
-                      : colorScheme.outline.withOpacity(0.2),
+                      ? strengthColor.withValues(alpha: 0.6)
+                      : colorScheme.outline.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(1.5),
                 ),
               ),
@@ -878,10 +878,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withOpacity(0.03),
+        color: colorScheme.primary.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: colorScheme.primary.withOpacity(0.1),
+          color: colorScheme.primary.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -917,8 +917,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                     height: 20,
                     decoration: BoxDecoration(
                       color: requirement.isMet
-                          ? SahoolColors.success.withOpacity(0.1)
-                          : colorScheme.outline.withOpacity(0.1),
+                          ? SahoolColors.success.withValues(alpha: 0.1)
+                          : colorScheme.outline.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -936,7 +936,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: requirement.isMet
                             ? SahoolColors.success
-                            : colorScheme.onSurface.withOpacity(0.6),
+                            : colorScheme.onSurface.withValues(alpha: 0.6),
                         fontWeight: requirement.isMet
                             ? FontWeight.w500
                             : FontWeight.normal,
@@ -980,17 +980,17 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
           ),
           decoration: InputDecoration(
             hintText: 'اعد ادخال كلمة المرور',
-            hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.4)),
+            hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.4)),
             prefixIcon: Icon(
               Icons.lock_outline,
-              color: colorScheme.primary.withOpacity(0.7),
+              color: colorScheme.primary.withValues(alpha: 0.7),
             ),
             suffixIcon: IconButton(
               icon: Icon(
                 _state.obscureConfirmPassword
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: colorScheme.onSurface.withOpacity(0.5),
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               onPressed: _toggleConfirmPasswordVisibility,
             ),
@@ -999,7 +999,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide:
-                  BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+                  BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1008,7 +1008,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                     ? (_state.passwordsMatch
                         ? SahoolColors.success
                         : colorScheme.error)
-                    : colorScheme.outline.withOpacity(0.3),
+                    : colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -1061,7 +1061,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.error.withOpacity(0.1),
+        color: colorScheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -1097,13 +1097,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: colorScheme.onSurface.withOpacity(0.1),
-          disabledForegroundColor: colorScheme.onSurface.withOpacity(0.4),
+          disabledBackgroundColor: colorScheme.onSurface.withValues(alpha: 0.1),
+          disabledForegroundColor: colorScheme.onSurface.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: canSubmit ? 4 : 0,
-          shadowColor: colorScheme.primary.withOpacity(0.4),
+          shadowColor: colorScheme.primary.withValues(alpha: 0.4),
         ),
         child: _state.isLoading
             ? const SizedBox(
@@ -1141,7 +1141,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
         child: Text(
           'الغاء',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurface.withOpacity(0.6),
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: FontWeight.w500,
           ),
         ),

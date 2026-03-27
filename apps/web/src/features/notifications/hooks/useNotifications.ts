@@ -3,24 +3,23 @@
  * خطافات React لميزة الإشعارات
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { notificationsApi } from "../api";
-import type { NotificationFilters, NotificationPreferences } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { notificationsApi } from '../api';
+import type { NotificationFilters, NotificationPreferences } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const notificationKeys = {
-  all: ["notifications"] as const,
-  lists: () => [...notificationKeys.all, "list"] as const,
-  list: (filters?: NotificationFilters) =>
-    [...notificationKeys.lists(), filters] as const,
-  detail: (id: string) => [...notificationKeys.all, "detail", id] as const,
-  unreadCount: () => [...notificationKeys.all, "unread-count"] as const,
-  preferences: () => [...notificationKeys.all, "preferences"] as const,
+  all: ['notifications'] as const,
+  lists: () => [...notificationKeys.all, 'list'] as const,
+  list: (filters?: NotificationFilters) => [...notificationKeys.lists(), filters] as const,
+  detail: (id: string) => [...notificationKeys.all, 'detail', id] as const,
+  unreadCount: () => [...notificationKeys.all, 'unread-count'] as const,
+  preferences: () => [...notificationKeys.all, 'preferences'] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -134,10 +133,7 @@ export function useUpdatePreferences() {
     mutationFn: (prefs: Partial<NotificationPreferences>) =>
       notificationsApi.updatePreferences(prefs),
     onSuccess: (updatedPrefs: NotificationPreferences) => {
-      queryClient.setQueryData(
-        notificationKeys.preferences(),
-        updatedPrefs,
-      );
+      queryClient.setQueryData(notificationKeys.preferences(), updatedPrefs);
     },
   });
 }

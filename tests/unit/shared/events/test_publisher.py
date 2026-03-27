@@ -13,21 +13,20 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
 
+from shared.events.contracts import BaseEvent, FieldCreatedEvent
 from shared.events.publisher import (
-    PublisherConfig,
     EventPublisher,
-    get_publisher,
+    PublisherConfig,
     close_publisher,
+    get_publisher,
     publish_event,
 )
-from shared.events.contracts import BaseEvent, FieldCreatedEvent
-
 
 # =============================================================================
 # Test Fixtures
@@ -239,10 +238,11 @@ class TestEventPublisherPublishing:
 
     @pytest.mark.asyncio
     async def test_publish_event_not_connected(self, publisher, sample_field_event):
-        """Test publishing when not connected."""
+        """Test publishing when not connected buffers the message."""
         result = await publisher.publish_event("test.subject", sample_field_event)
 
-        assert result is False
+        # When not connected, messages are buffered for retry (returns True if buffered)
+        assert result is True
 
     @pytest.mark.asyncio
     async def test_publish_event_success(self, publisher, sample_field_event, mock_nats_client):
@@ -310,7 +310,7 @@ class TestEventPublisherPublishing:
         publisher._connected = True
         publisher._nc = mock_nc
 
-        data = {"key": "value", "number": 42}
+        data = {"key": "value", "number": 42, "tenant_id": "test-tenant"}
         result = await publisher.publish_json("test.subject", data)
 
         assert result is True

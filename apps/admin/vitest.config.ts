@@ -14,10 +14,10 @@ export default defineConfig({
       reporter: ["text", "json", "html"],
       exclude: ["node_modules/", "src/__tests__/setup.ts"],
       thresholds: {
-        statements: 3,
-        branches: 3,
-        functions: 3,
-        lines: 3,
+        statements: 15,
+        branches: 15,
+        functions: 15,
+        lines: 15,
       },
     },
   },
@@ -34,6 +34,10 @@ export default defineConfig({
       "@sahool/api-client": path.resolve(
         __dirname,
         "../../packages/api-client/src",
+      ),
+      "@sahool/shared-ui": path.resolve(
+        __dirname,
+        "../../packages/shared-ui/src",
       ),
       "@": path.resolve(__dirname, "./src"),
     },

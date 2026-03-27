@@ -29,7 +29,6 @@ import pytest
 pytest.importorskip("PIL", reason="Pillow required for vision tests")
 from PIL import Image  # noqa: E402
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================

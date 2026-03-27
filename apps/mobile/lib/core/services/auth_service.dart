@@ -2,9 +2,11 @@
 /// خدمة التوثيق والمصادقة
 ///
 /// Handles user authentication, token storage, and logout
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../storage/secure_storage.dart';
 
 /// مفاتيح التخزين
 class AuthKeys {
@@ -59,6 +61,8 @@ class AuthState {
 
 /// مزود حالة المصادقة
 class AuthNotifier extends StateNotifier<AuthState> {
+  final SecureStorage _secureStorage = SecureStorage();
+
   AuthNotifier() : super(AuthState.initial) {
     _loadStoredAuth();
   }
@@ -70,13 +74,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final isLoggedIn = prefs.getBool(AuthKeys.isLoggedIn) ?? false;
 
     if (isLoggedIn) {
+      // Load sensitive tokens from SecureStorage
+      final accessToken = await _secureStorage.getAccessToken();
+      final tenantId = await _secureStorage.getTenantId();
+
       state = AuthState(
         isLoggedIn: true,
         userId: prefs.getString(AuthKeys.userId),
         userName: prefs.getString(AuthKeys.userName),
         userEmail: prefs.getString(AuthKeys.userEmail),
-        accessToken: prefs.getString(AuthKeys.accessToken),
-        tenantId: prefs.getString(AuthKeys.tenantId),
+        accessToken: accessToken,
+        tenantId: tenantId,
       );
     }
   }
@@ -92,17 +100,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     final prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString(AuthKeys.accessToken, accessToken);
+    // Store sensitive tokens in SecureStorage (encrypted)
+    await _secureStorage.setAccessToken(accessToken);
     if (refreshToken != null) {
-      await prefs.setString(AuthKeys.refreshToken, refreshToken);
+      await _secureStorage.setRefreshToken(refreshToken);
     }
+    if (tenantId != null) {
+      await _secureStorage.setTenantId(tenantId);
+    }
+
+    // Store non-sensitive user info in SharedPreferences
     await prefs.setString(AuthKeys.userId, userId);
     await prefs.setString(AuthKeys.userName, userName);
     if (userEmail != null) {
       await prefs.setString(AuthKeys.userEmail, userEmail);
-    }
-    if (tenantId != null) {
-      await prefs.setString(AuthKeys.tenantId, tenantId);
     }
     await prefs.setBool(AuthKeys.isLoggedIn, true);
 
@@ -120,14 +131,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // مسح جميع بيانات المصادقة
-    await prefs.remove(AuthKeys.accessToken);
-    await prefs.remove(AuthKeys.refreshToken);
+    // Clear sensitive tokens from SecureStorage
+    await _secureStorage.clearTokens();
+
+    // Clear non-sensitive data from SharedPreferences
     await prefs.remove(AuthKeys.userId);
     await prefs.remove(AuthKeys.userName);
     await prefs.remove(AuthKeys.userEmail);
     await prefs.remove(AuthKeys.userRole);
-    await prefs.remove(AuthKeys.tenantId);
     await prefs.setBool(AuthKeys.isLoggedIn, false);
 
     state = AuthState.initial;

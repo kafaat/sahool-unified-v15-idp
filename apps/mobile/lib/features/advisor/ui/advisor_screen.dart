@@ -1,6 +1,10 @@
+import 'dart:async' show unawaited;
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/config/api_config.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/utils/app_logger.dart';
 
 /// AI Advisor Chat Screen - المستشار الذكي
 /// واجهة محادثة بسيطة مع دعم الصوت والكاميرا
@@ -17,6 +21,14 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
   bool _isRecording = false;
   bool _isTyping = false;
 
+  /// Dio client for advisory-service
+  final Dio _advisoryDio = Dio(BaseOptions(
+    baseUrl: ApiConfig.effectiveBaseUrl,
+    connectTimeout: ApiConfig.connectTimeout,
+    receiveTimeout: ApiConfig.longOperationTimeout,
+    headers: ApiConfig.defaultHeaders,
+  ));
+
   final List<_ChatMessage> _messages = [
     _ChatMessage(
       text: 'مرحباً! أنا المستشار الزراعي الذكي.\nكيف يمكنني مساعدتك اليوم؟',
@@ -27,6 +39,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
 
   @override
   void dispose() {
+    _advisoryDio.close(force: true);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -47,34 +60,65 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
 
     _scrollToBottom();
 
-    // Simulate AI response
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _isTyping = false;
-          _messages.add(_ChatMessage(
-            text: _generateResponse(text),
-            isUser: false,
-            time: DateTime.now(),
-            hasAction: text.contains('آفة') || text.contains('مرض'),
-          ));
-        });
-        _scrollToBottom();
-      }
-    });
+    unawaited(_fetchAdvisorResponse(text));
   }
 
-  String _generateResponse(String query) {
-    if (query.contains('ري') || query.contains('مياه')) {
-      return 'بناءً على بيانات رطوبة التربة الحالية (35%) وتوقعات الطقس، أنصح بالري غداً صباحاً لمدة ساعتين.\n\nدرجة الحرارة المتوقعة: 28°C\nنسبة الرطوبة: 45%';
+  /// Fetch response from advisory service API.
+  /// Falls back to offline message when API is unreachable.
+  Future<void> _fetchAdvisorResponse(String query) async {
+    try {
+      final response = await _advisoryDio.post(
+        '/api/v1/advisory/chat',
+        data: {
+          'message': query,
+          'locale': 'ar',
+        },
+      );
+
+      if (!mounted) return;
+
+      final responseData = response.data as Map<String, dynamic>;
+      final responseText = responseData['response'] as String? ??
+          responseData['answer'] as String? ??
+          'لم أتمكن من معالجة طلبك.';
+      final hasAction = responseData['has_action'] as bool? ?? false;
+
+      setState(() {
+        _isTyping = false;
+        _messages.add(_ChatMessage(
+          text: responseText,
+          isUser: false,
+          time: DateTime.now(),
+          hasAction: hasAction,
+        ));
+      });
+      _scrollToBottom();
+    } on DioException catch (e) {
+      AppLogger.w('Advisory API unavailable (${e.type.name}), showing offline message', tag: 'ADVISOR');
+      if (!mounted) return;
+      setState(() {
+        _isTyping = false;
+        _messages.add(_ChatMessage(
+          text: 'خدمة المستشار الذكي غير متاحة حالياً.\n'
+              'يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.',
+          isUser: false,
+          time: DateTime.now(),
+        ));
+      });
+      _scrollToBottom();
+    } catch (e) {
+      AppLogger.e('Advisory chat error: $e', tag: 'ADVISOR');
+      if (!mounted) return;
+      setState(() {
+        _isTyping = false;
+        _messages.add(_ChatMessage(
+          text: 'حدث خطأ في الاتصال بالمستشار الذكي. يرجى المحاولة لاحقاً.',
+          isUser: false,
+          time: DateTime.now(),
+        ));
+      });
+      _scrollToBottom();
     }
-    if (query.contains('سماد') || query.contains('تسميد')) {
-      return 'يحتاج حقل القمح إلى تسميد نيتروجيني. أنصح بإضافة:\n\n• يوريا: 50 كجم/هكتار\n• الوقت الأفضل: الصباح الباكر\n\nهل تريد إضافة هذه المهمة إلى قائمتك؟';
-    }
-    if (query.contains('آفة') || query.contains('مرض') || query.contains('حشرة')) {
-      return '🔬 بناءً على وصفك، قد يكون هذا:\n\n**صدأ القمح**\nالاحتمالية: 85%\n\n**العلاج المقترح:**\n• رش مبيد فطري (مانكوزيب)\n• الجرعة: 2.5 كجم/هكتار\n\n⚠️ يُنصح بالتصوير للتأكد';
-    }
-    return 'شكراً لسؤالك. يمكنني مساعدتك في:\n\n• توصيات الري والتسميد\n• تشخيص الآفات والأمراض\n• متابعة صحة المحاصيل\n\nما الذي تحتاج مساعدة فيه؟';
   }
 
   void _scrollToBottom() {
@@ -103,7 +147,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: SahoolColors.primaryGradient,
                 shape: BoxShape.circle,
               ),
@@ -180,7 +224,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 label: Text(suggestion),
                 onPressed: () => _sendMessage(suggestion),
                 backgroundColor: Colors.white,
-                side: BorderSide(color: SahoolColors.primary.withOpacity(0.3)),
+                side: BorderSide(color: SahoolColors.primary.withValues(alpha: 0.3)),
               ),
             );
           }).toList(),
@@ -223,7 +267,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: SahoolColors.primary.withOpacity(0.3 + (value * 0.7)),
+            color: SahoolColors.primary.withValues(alpha: 0.3 + (value * 0.7)),
             shape: BoxShape.circle,
           ),
         );
@@ -238,7 +282,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -259,7 +303,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: _isRecording ? SahoolColors.danger : SahoolColors.primary.withOpacity(0.1),
+                  color: _isRecording ? SahoolColors.danger : SahoolColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -361,12 +405,26 @@ class _ChatBubble extends StatelessWidget {
             ),
             if (message.hasAction) ...[
               const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.add_task, size: 18),
-                label: const Text('إضافة كمهمة'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              Builder(
+                builder: (innerContext) => OutlinedButton.icon(
+                  onPressed: () {
+                    GoRouter.of(innerContext).push('/tasks', extra: {
+                      'prefillTitle': 'علاج: ${message.text.split('\n').first}',
+                      'prefillDescription': message.text,
+                      'createNew': true,
+                    });
+                    ScaffoldMessenger.of(innerContext).showSnackBar(
+                      const SnackBar(
+                        content: Text('تمت إضافة التوصية كمهمة'),
+                        backgroundColor: SahoolColors.success,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add_task, size: 18),
+                  label: const Text('إضافة كمهمة'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                 ),
               ),
             ],

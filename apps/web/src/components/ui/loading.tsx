@@ -1,43 +1,40 @@
-import * as React from "react";
-import { clsx } from "clsx";
+import * as React from 'react';
+import { clsx } from 'clsx';
 
 export interface LoadingProps extends React.HTMLAttributes<HTMLDivElement> {
-  size?: "sm" | "md" | "lg" | "xl";
-  variant?: "spinner" | "dots" | "pulse";
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'spinner' | 'dots' | 'pulse';
   text?: string;
   textAr?: string;
 }
 
 export const Loading = React.memo<LoadingProps>(function Loading({
-  size = "md",
-  variant = "spinner",
+  size = 'md',
+  variant = 'spinner',
   text,
   textAr,
   className,
   ...props
 }) {
   const sizes = {
-    sm: "w-4 h-4",
-    md: "w-8 h-8",
-    lg: "w-12 h-12",
-    xl: "w-16 h-16",
+    sm: 'w-4 h-4',
+    md: 'w-8 h-8',
+    lg: 'w-12 h-12',
+    xl: 'w-16 h-16',
   };
 
-  if (variant === "spinner") {
+  if (variant === 'spinner') {
     return (
       <div
-        className={clsx(
-          "flex flex-col items-center justify-center gap-3",
-          className,
-        )}
+        className={clsx('flex flex-col items-center justify-center gap-3', className)}
         role="status"
         aria-live="polite"
         aria-busy="true"
-        aria-label={textAr || text || "جاري التحميل"}
+        aria-label={textAr || text || 'جاري التحميل'}
         {...props}
       >
         <svg
-          className={clsx("animate-spin text-sahool-green-600", sizes[size])}
+          className={clsx('animate-spin text-sahool-green-600', sizes[size])}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -68,47 +65,35 @@ export const Loading = React.memo<LoadingProps>(function Loading({
     );
   }
 
-  if (variant === "dots") {
+  if (variant === 'dots') {
     const dotSize = {
-      sm: "w-1.5 h-1.5",
-      md: "w-2 h-2",
-      lg: "w-3 h-3",
-      xl: "w-4 h-4",
+      sm: 'w-1.5 h-1.5',
+      md: 'w-2 h-2',
+      lg: 'w-3 h-3',
+      xl: 'w-4 h-4',
     };
 
     return (
       <div
-        className={clsx(
-          "flex flex-col items-center justify-center gap-3",
-          className,
-        )}
+        className={clsx('flex flex-col items-center justify-center gap-3', className)}
         role="status"
         aria-live="polite"
         aria-busy="true"
-        aria-label={textAr || text || "جاري التحميل"}
+        aria-label={textAr || text || 'جاري التحميل'}
         {...props}
       >
         <div className="flex gap-1.5" aria-hidden="true">
           <div
-            className={clsx(
-              "bg-sahool-green-600 rounded-full animate-bounce",
-              dotSize[size],
-            )}
-            style={{ animationDelay: "0ms" }}
+            className={clsx('bg-sahool-green-600 rounded-full animate-bounce', dotSize[size])}
+            style={{ animationDelay: '0ms' }}
           />
           <div
-            className={clsx(
-              "bg-sahool-green-600 rounded-full animate-bounce",
-              dotSize[size],
-            )}
-            style={{ animationDelay: "150ms" }}
+            className={clsx('bg-sahool-green-600 rounded-full animate-bounce', dotSize[size])}
+            style={{ animationDelay: '150ms' }}
           />
           <div
-            className={clsx(
-              "bg-sahool-green-600 rounded-full animate-bounce",
-              dotSize[size],
-            )}
-            style={{ animationDelay: "300ms" }}
+            className={clsx('bg-sahool-green-600 rounded-full animate-bounce', dotSize[size])}
+            style={{ animationDelay: '300ms' }}
           />
         </div>
         {(text || textAr) && (
@@ -125,21 +110,15 @@ export const Loading = React.memo<LoadingProps>(function Loading({
   // pulse variant
   return (
     <div
-      className={clsx(
-        "flex flex-col items-center justify-center gap-3",
-        className,
-      )}
+      className={clsx('flex flex-col items-center justify-center gap-3', className)}
       role="status"
       aria-live="polite"
       aria-busy="true"
-      aria-label={textAr || text || "جاري التحميل"}
+      aria-label={textAr || text || 'جاري التحميل'}
       {...props}
     >
       <div
-        className={clsx(
-          "bg-sahool-green-600 rounded-full animate-pulse",
-          sizes[size],
-        )}
+        className={clsx('bg-sahool-green-600 rounded-full animate-pulse', sizes[size])}
         aria-hidden="true"
       />
       {(text || textAr) && (

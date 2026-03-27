@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 /**
  * Field Details Client Component
  * مكون تفاصيل الحقل
  */
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   ArrowRight,
   MapPin,
@@ -27,21 +27,19 @@ import {
   BarChart3,
   Loader2,
   RefreshCw,
-} from "lucide-react";
-import { useField, useDeleteField, useUpdateField } from "@/features/fields/hooks/useFields";
-import { useToast } from "@/components/ui/toast";
-import { FieldForm } from "@/features/fields/components/FieldForm";
-import { Modal } from "@/components/ui/modal";
-import type { FieldFormData } from "@/features/fields/types";
-import { logger } from "@/lib/logger";
+} from 'lucide-react';
+import { useField, useDeleteField, useUpdateField } from '@/features/fields/hooks/useFields';
+import { useToast } from '@/components/ui/toast';
+import { FieldForm } from '@/features/fields/components/FieldForm';
+import { Modal } from '@/components/ui/modal';
+import type { FieldFormData } from '@/features/fields/types';
+import { logger } from '@/lib/logger';
 
 interface FieldDetailsClientProps {
   fieldId: string;
 }
 
-export default function FieldDetailsClient({
-  fieldId,
-}: FieldDetailsClientProps) {
+export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps) {
   const router = useRouter();
   const { data: field, isLoading, error, refetch } = useField(fieldId);
   const deleteField = useDeleteField();
@@ -53,9 +51,9 @@ export default function FieldDetailsClient({
   const handleDelete = async () => {
     try {
       await deleteField.mutateAsync(fieldId);
-      router.push("/fields");
+      router.push('/fields');
     } catch (err) {
-      logger.error("Failed to delete field:", err);
+      logger.error('Failed to delete field:', err);
     }
   };
 
@@ -64,16 +62,16 @@ export default function FieldDetailsClient({
       await updateField.mutateAsync({ id: fieldId, data });
       setShowEditModal(false);
       showToast({
-        type: "success",
-        message: "Field updated successfully",
-        messageAr: "تم تحديث الحقل بنجاح",
+        type: 'success',
+        message: 'Field updated successfully',
+        messageAr: 'تم تحديث الحقل بنجاح',
       });
     } catch (err) {
-      logger.error("Failed to update field:", err);
+      logger.error('Failed to update field:', err);
       showToast({
-        type: "error",
-        message: "Failed to update field",
-        messageAr: "فشل تحديث الحقل",
+        type: 'error',
+        message: 'Failed to update field',
+        messageAr: 'فشل تحديث الحقل',
       });
     }
   };
@@ -95,12 +93,8 @@ export default function FieldDetailsClient({
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center bg-white rounded-xl border-2 border-red-200 p-8 max-w-md">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            لم يتم العثور على الحقل
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Field not found or an error occurred
-          </p>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">لم يتم العثور على الحقل</h2>
+          <p className="text-gray-600 mb-6">Field not found or an error occurred</p>
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => refetch()}
@@ -126,39 +120,39 @@ export default function FieldDetailsClient({
   const healthScore = field.healthScore ?? field.ndviValue ?? 0;
   const healthStatus =
     healthScore >= 0.7
-      ? "excellent"
+      ? 'excellent'
       : healthScore >= 0.5
-        ? "good"
+        ? 'good'
         : healthScore >= 0.3
-          ? "fair"
-          : "poor";
+          ? 'fair'
+          : 'poor';
   const healthConfig = {
     excellent: {
-      label: "ممتاز",
-      labelEn: "Excellent",
-      color: "text-green-600",
-      bg: "bg-green-100",
+      label: 'ممتاز',
+      labelEn: 'Excellent',
+      color: 'text-green-600',
+      bg: 'bg-green-100',
       icon: CheckCircle,
     },
     good: {
-      label: "جيد",
-      labelEn: "Good",
-      color: "text-blue-600",
-      bg: "bg-blue-100",
+      label: 'جيد',
+      labelEn: 'Good',
+      color: 'text-blue-600',
+      bg: 'bg-blue-100',
       icon: CheckCircle,
     },
     fair: {
-      label: "متوسط",
-      labelEn: "Fair",
-      color: "text-yellow-600",
-      bg: "bg-yellow-100",
+      label: 'متوسط',
+      labelEn: 'Fair',
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-100',
       icon: AlertTriangle,
     },
     poor: {
-      label: "ضعيف",
-      labelEn: "Poor",
-      color: "text-red-600",
-      bg: "bg-red-100",
+      label: 'ضعيف',
+      labelEn: 'Poor',
+      color: 'text-red-600',
+      bg: 'bg-red-100',
       icon: AlertTriangle,
     },
   };
@@ -175,9 +169,7 @@ export default function FieldDetailsClient({
               الحقول
             </Link>
             <span className="text-gray-400">/</span>
-            <span className="text-gray-900 font-medium">
-              {field.nameAr || field.name}
-            </span>
+            <span className="text-gray-900 font-medium">{field.nameAr || field.name}</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -202,21 +194,13 @@ export default function FieldDetailsClient({
       <div className="bg-gradient-to-l from-green-50 to-blue-50 rounded-xl border-2 border-gray-200 p-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {field.nameAr || field.name}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{field.nameAr || field.name}</h1>
             <p className="text-gray-600 text-lg">{field.name}</p>
-            {field.descriptionAr && (
-              <p className="text-gray-500 mt-2">{field.descriptionAr}</p>
-            )}
+            {field.descriptionAr && <p className="text-gray-500 mt-2">{field.descriptionAr}</p>}
           </div>
-          <div
-            className={`flex items-center gap-2 px-4 py-2 rounded-full ${currentHealth.bg}`}
-          >
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${currentHealth.bg}`}>
             <HealthIcon className={`w-5 h-5 ${currentHealth.color}`} />
-            <span className={`font-semibold ${currentHealth.color}`}>
-              {currentHealth.label}
-            </span>
+            <span className={`font-semibold ${currentHealth.color}`}>{currentHealth.label}</span>
           </div>
         </div>
       </div>
@@ -245,7 +229,7 @@ export default function FieldDetailsClient({
             <div>
               <p className="text-sm text-gray-500">المحصول</p>
               <p className="text-xl font-bold text-gray-900">
-                {field.cropAr || field.crop || "غير محدد"}
+                {field.cropAr || field.crop || 'غير محدد'}
               </p>
             </div>
           </div>
@@ -259,7 +243,7 @@ export default function FieldDetailsClient({
             <div>
               <p className="text-sm text-gray-500">مؤشر NDVI</p>
               <p className="text-xl font-bold text-gray-900">
-                {field.ndviValue?.toFixed(2) || "N/A"}
+                {field.ndviValue?.toFixed(2) || 'N/A'}
               </p>
             </div>
           </div>
@@ -273,7 +257,7 @@ export default function FieldDetailsClient({
             <div>
               <p className="text-sm text-gray-500">الموقع</p>
               <p className="text-xl font-bold text-gray-900">
-                {field.polygon ? "محدد" : "غير محدد"}
+                {field.polygon ? 'محدد' : 'غير محدد'}
               </p>
             </div>
           </div>
@@ -325,14 +309,7 @@ export default function FieldDetailsClient({
                 <div className="text-center">
                   <div className="relative w-24 h-24 mx-auto mb-3">
                     <svg className="w-24 h-24 transform -rotate-90">
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        fill="none"
-                        stroke="#e5e7eb"
-                        strokeWidth="8"
-                      />
+                      <circle cx="48" cy="48" r="40" fill="none" stroke="#e5e7eb" strokeWidth="8" />
                       <circle
                         cx="48"
                         cy="48"
@@ -358,14 +335,7 @@ export default function FieldDetailsClient({
                 <div className="text-center">
                   <div className="relative w-24 h-24 mx-auto mb-3">
                     <svg className="w-24 h-24 transform -rotate-90">
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        fill="none"
-                        stroke="#e5e7eb"
-                        strokeWidth="8"
-                      />
+                      <circle cx="48" cy="48" r="40" fill="none" stroke="#e5e7eb" strokeWidth="8" />
                       <circle
                         cx="48"
                         cy="48"
@@ -383,9 +353,7 @@ export default function FieldDetailsClient({
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm font-medium text-gray-900">
-                    صحة المحصول
-                  </p>
+                  <p className="text-sm font-medium text-gray-900">صحة المحصول</p>
                   <p className="text-xs text-gray-500">Crop Health</p>
                 </div>
 
@@ -394,9 +362,7 @@ export default function FieldDetailsClient({
                   <div className="w-24 h-24 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
                     <Sprout className="w-10 h-10 text-green-600" />
                   </div>
-                  <p className="text-sm font-medium text-gray-900">
-                    مرحلة النمو
-                  </p>
+                  <p className="text-sm font-medium text-gray-900">مرحلة النمو</p>
                   <p className="text-xs text-gray-500">Growing Stage</p>
                 </div>
               </div>
@@ -418,8 +384,8 @@ export default function FieldDetailsClient({
                   <p className="text-xs text-gray-500">تاريخ الإنشاء</p>
                   <p className="text-sm font-medium">
                     {field.createdAt
-                      ? new Date(field.createdAt).toLocaleDateString("ar-SA")
-                      : "N/A"}
+                      ? new Date(field.createdAt).toLocaleDateString('ar-SA')
+                      : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -430,7 +396,7 @@ export default function FieldDetailsClient({
                   <div>
                     <p className="text-xs text-gray-500">تاريخ الزراعة</p>
                     <p className="text-sm font-medium">
-                      {new Date(field.plantingDate).toLocaleDateString("ar-SA")}
+                      {new Date(field.plantingDate).toLocaleDateString('ar-SA')}
                     </p>
                   </div>
                 </div>
@@ -442,9 +408,7 @@ export default function FieldDetailsClient({
                   <div>
                     <p className="text-xs text-gray-500">موعد الحصاد المتوقع</p>
                     <p className="text-sm font-medium">
-                      {new Date(field.expectedHarvest).toLocaleDateString(
-                        "ar-SA",
-                      )}
+                      {new Date(field.expectedHarvest).toLocaleDateString('ar-SA')}
                     </p>
                   </div>
                 </div>
@@ -465,9 +429,7 @@ export default function FieldDetailsClient({
                   <Droplets className="w-5 h-5 text-gray-400" />
                   <div>
                     <p className="text-xs text-gray-500">نظام الري</p>
-                    <p className="text-sm font-medium">
-                      {field.irrigationType}
-                    </p>
+                    <p className="text-sm font-medium">{field.irrigationType}</p>
                   </div>
                 </div>
               )}
@@ -514,18 +476,27 @@ export default function FieldDetailsClient({
               <h2 className="text-lg font-bold text-gray-900">إجراءات سريعة</h2>
             </div>
             <div className="p-4 space-y-2">
-              <button className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
+              <Link
+                href="/crop-health"
+                className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors"
+              >
                 <Activity className="w-5 h-5 text-green-600" />
                 <span className="text-sm font-medium">تحليل صحة المحصول</span>
-              </button>
-              <button className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
+              </Link>
+              <Link
+                href="/irrigation"
+                className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors"
+              >
                 <Droplets className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-medium">جدولة الري</span>
-              </button>
-              <button className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors">
+              </Link>
+              <Link
+                href="/yield"
+                className="w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 rounded-lg transition-colors"
+              >
                 <BarChart3 className="w-5 h-5 text-purple-600" />
                 <span className="text-sm font-medium">تقرير الإنتاجية</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -557,12 +528,9 @@ export default function FieldDetailsClient({
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Trash2 className="w-8 h-8 text-red-600" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            هل أنت متأكد من حذف هذا الحقل؟
-          </h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">هل أنت متأكد من حذف هذا الحقل؟</h3>
           <p className="text-gray-600 mb-6">
-            سيتم حذف جميع البيانات المرتبطة بهذا الحقل ولا يمكن التراجع عن هذا
-            الإجراء.
+            سيتم حذف جميع البيانات المرتبطة بهذا الحقل ولا يمكن التراجع عن هذا الإجراء.
           </p>
           <div className="flex gap-3 justify-center">
             <button
@@ -576,9 +544,7 @@ export default function FieldDetailsClient({
               disabled={deleteField.isPending}
               className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
             >
-              {deleteField.isPending && (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              )}
+              {deleteField.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
               حذف الحقل
             </button>
           </div>

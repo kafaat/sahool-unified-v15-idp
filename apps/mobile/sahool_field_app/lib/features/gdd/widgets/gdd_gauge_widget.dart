@@ -78,7 +78,7 @@ class GDDGaugeWidget extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: _getProgressColor(progress).withOpacity(0.2),
+                            color: _getProgressColor(progress).withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(

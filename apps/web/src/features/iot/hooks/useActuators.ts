@@ -3,29 +3,25 @@
  * خطافات React للمُشغلات
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { actuatorsApi, alertRulesApi } from "../api";
-import type {
-  Actuator,
-  ActuatorControlData,
-  AlertRuleFormData,
-} from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { actuatorsApi, alertRulesApi } from '../api';
+import type { Actuator, ActuatorControlData, AlertRuleFormData } from '../types';
 
 // Query Keys
 export const actuatorKeys = {
-  all: ["actuators"] as const,
-  lists: () => [...actuatorKeys.all, "list"] as const,
+  all: ['actuators'] as const,
+  lists: () => [...actuatorKeys.all, 'list'] as const,
   list: (fieldId?: string) => [...actuatorKeys.lists(), fieldId] as const,
-  detail: (id: string) => [...actuatorKeys.all, "detail", id] as const,
+  detail: (id: string) => [...actuatorKeys.all, 'detail', id] as const,
 };
 
 export const alertRuleKeys = {
-  all: ["alertRules"] as const,
-  lists: () => [...alertRuleKeys.all, "list"] as const,
+  all: ['alertRules'] as const,
+  lists: () => [...alertRuleKeys.all, 'list'] as const,
   list: (sensorId?: string) => [...alertRuleKeys.lists(), sensorId] as const,
-  detail: (id: string) => [...alertRuleKeys.all, "detail", id] as const,
+  detail: (id: string) => [...alertRuleKeys.all, 'detail', id] as const,
 };
 
 /**
@@ -58,14 +54,10 @@ export function useControlActuator() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ActuatorControlData) =>
-      actuatorsApi.controlActuator(data),
+    mutationFn: (data: ActuatorControlData) => actuatorsApi.controlActuator(data),
     onSuccess: (updatedActuator) => {
       queryClient.invalidateQueries({ queryKey: actuatorKeys.lists() });
-      queryClient.setQueryData(
-        actuatorKeys.detail(updatedActuator.id),
-        updatedActuator,
-      );
+      queryClient.setQueryData(actuatorKeys.detail(updatedActuator.id), updatedActuator);
     },
   });
 }
@@ -82,14 +74,11 @@ export function useSetActuatorMode() {
       mode,
     }: {
       actuatorId: string;
-      mode: "manual" | "automatic" | "scheduled";
+      mode: 'manual' | 'automatic' | 'scheduled';
     }) => actuatorsApi.setMode(actuatorId, mode),
     onSuccess: (updatedActuator) => {
       queryClient.invalidateQueries({ queryKey: actuatorKeys.lists() });
-      queryClient.setQueryData(
-        actuatorKeys.detail(updatedActuator.id),
-        updatedActuator,
-      );
+      queryClient.setQueryData(actuatorKeys.detail(updatedActuator.id), updatedActuator);
     },
   });
 }
@@ -102,7 +91,7 @@ export function useCreateActuator() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Omit<Actuator, "id" | "createdAt" | "updatedAt">) =>
+    mutationFn: (data: Omit<Actuator, 'id' | 'createdAt' | 'updatedAt'>) =>
       actuatorsApi.createActuator(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: actuatorKeys.lists() });
@@ -122,10 +111,7 @@ export function useUpdateActuator() {
       actuatorsApi.updateActuator(id, data),
     onSuccess: (updatedActuator) => {
       queryClient.invalidateQueries({ queryKey: actuatorKeys.lists() });
-      queryClient.setQueryData(
-        actuatorKeys.detail(updatedActuator.id),
-        updatedActuator,
-      );
+      queryClient.setQueryData(actuatorKeys.detail(updatedActuator.id), updatedActuator);
     },
   });
 }
@@ -175,8 +161,7 @@ export function useCreateAlertRule() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: AlertRuleFormData) =>
-      alertRulesApi.createAlertRule(data),
+    mutationFn: (data: AlertRuleFormData) => alertRulesApi.createAlertRule(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: alertRuleKeys.lists() });
     },
@@ -190,19 +175,11 @@ export function useUpdateAlertRule() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: Partial<AlertRuleFormData>;
-    }) => alertRulesApi.updateAlertRule(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<AlertRuleFormData> }) =>
+      alertRulesApi.updateAlertRule(id, data),
     onSuccess: (updatedRule) => {
       queryClient.invalidateQueries({ queryKey: alertRuleKeys.lists() });
-      queryClient.setQueryData(
-        alertRuleKeys.detail(updatedRule.id),
-        updatedRule,
-      );
+      queryClient.setQueryData(alertRuleKeys.detail(updatedRule.id), updatedRule);
     },
   });
 }
@@ -233,10 +210,7 @@ export function useToggleAlertRule() {
       alertRulesApi.toggleAlertRule(id, enabled),
     onSuccess: (updatedRule) => {
       queryClient.invalidateQueries({ queryKey: alertRuleKeys.lists() });
-      queryClient.setQueryData(
-        alertRuleKeys.detail(updatedRule.id),
-        updatedRule,
-      );
+      queryClient.setQueryData(alertRuleKeys.detail(updatedRule.id), updatedRule);
     },
   });
 }

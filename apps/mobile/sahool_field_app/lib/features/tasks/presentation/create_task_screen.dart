@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
-import '../../field/domain/entities/field.dart' as domain;
 import '../domain/entities/task.dart';
 import '../providers/tasks_provider.dart';
 import '../services/task_reminder_service.dart';
@@ -294,7 +293,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? _getPriorityColor(priority).withOpacity(0.2)
+                      ? _getPriorityColor(priority).withValues(alpha: 0.2)
                       : Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(

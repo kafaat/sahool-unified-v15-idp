@@ -1,10 +1,11 @@
 """Tests for digital twin simulation module."""
 
 import pytest
+
 from shared.digital_twin.simulator import (
     DigitalTwinSimulator,
-    ScenarioType,
     ImpactLevel,
+    ScenarioType,
 )
 
 

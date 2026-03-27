@@ -7,7 +7,11 @@
 
 export default function IrrigationLoading() {
   return (
-    <div className="p-6 space-y-6 animate-pulse" role="status" aria-label="جاري تحميل الري - Loading irrigation">
+    <div
+      className="p-6 space-y-6 animate-pulse"
+      role="status"
+      aria-label="جاري تحميل الري - Loading irrigation"
+    >
       <span className="sr-only">جاري تحميل الري - Loading irrigation</span>
       {/* Header skeleton */}
       <div>
@@ -37,7 +41,7 @@ export default function IrrigationLoading() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className={`h-10 w-32 rounded-md ${i === 0 ? "bg-white dark:bg-gray-700 shadow-sm" : "bg-transparent"}`}
+            className={`h-10 w-32 rounded-md ${i === 0 ? 'bg-white dark:bg-gray-700 shadow-sm' : 'bg-transparent'}`}
           />
         ))}
       </div>

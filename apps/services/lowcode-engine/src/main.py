@@ -358,16 +358,17 @@ async def db_create_page(
         return False
 
 
-async def db_get_page(page_id: str) -> InternalPage | None:
-    """Get a page from the database by ID."""
+async def db_get_page(page_id: str, tenant_id: str) -> InternalPage | None:
+    """Get a page from the database by ID with mandatory tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return None
     try:
         async with pool.acquire() as conn:
             row = await conn.fetchrow(
-                "SELECT * FROM lowcode_pages WHERE id = $1",
+                "SELECT * FROM lowcode_pages WHERE id = $1 AND tenant_id = $2",
                 page_id,
+                tenant_id,
             )
             if row:
                 return _row_to_page(row)
@@ -378,19 +379,19 @@ async def db_get_page(page_id: str) -> InternalPage | None:
 
 
 async def db_list_pages(
-    tenant_id: str | None = None,
+    tenant_id: str,
     is_published: bool | None = None,
     limit: int = 50,
 ) -> list[InternalPage]:
-    """List pages from the database using safe parameterized queries."""
+    """List pages from the database using safe parameterized queries with mandatory tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return []
     try:
         async with pool.acquire() as conn:
             # Build query with explicit parameter handling to avoid SQL injection
-            # Use conditional query selection based on filter combinations
-            if tenant_id and is_published is not None:
+            # tenant_id is always required for tenant isolation
+            if is_published is not None:
                 rows = await conn.fetch(
                     """SELECT * FROM lowcode_pages
                        WHERE tenant_id = $1 AND is_published = $2
@@ -399,26 +400,12 @@ async def db_list_pages(
                     is_published,
                     limit,
                 )
-            elif tenant_id:
+            else:
                 rows = await conn.fetch(
                     """SELECT * FROM lowcode_pages
                        WHERE tenant_id = $1
                        ORDER BY created_at DESC LIMIT $2""",
                     tenant_id,
-                    limit,
-                )
-            elif is_published is not None:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_pages
-                       WHERE is_published = $1
-                       ORDER BY created_at DESC LIMIT $2""",
-                    is_published,
-                    limit,
-                )
-            else:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_pages
-                       ORDER BY created_at DESC LIMIT $1""",
                     limit,
                 )
             return [_row_to_page(row) for row in rows]
@@ -429,10 +416,11 @@ async def db_list_pages(
 
 async def db_update_page(
     page_id: str,
+    tenant_id: str,
     is_published: bool | None = None,
     updated_at: datetime | None = None,
 ) -> bool:
-    """Update a page in the database using safe parameterized queries."""
+    """Update a page in the database with tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return False
@@ -444,26 +432,29 @@ async def db_update_page(
                 await conn.execute(
                     """UPDATE lowcode_pages
                        SET is_published = $1, updated_at = $2
-                       WHERE id = $3""",
+                       WHERE id = $3 AND tenant_id = $4""",
                     is_published,
                     updated_at,
                     page_id,
+                    tenant_id,
                 )
             elif is_published is not None:
                 await conn.execute(
                     """UPDATE lowcode_pages
                        SET is_published = $1
-                       WHERE id = $2""",
+                       WHERE id = $2 AND tenant_id = $3""",
                     is_published,
                     page_id,
+                    tenant_id,
                 )
             elif updated_at is not None:
                 await conn.execute(
                     """UPDATE lowcode_pages
                        SET updated_at = $1
-                       WHERE id = $2""",
+                       WHERE id = $2 AND tenant_id = $3""",
                     updated_at,
                     page_id,
+                    tenant_id,
                 )
             # If no updates specified, nothing to do
         return True
@@ -546,16 +537,17 @@ async def db_create_model(
         return False
 
 
-async def db_get_model(model_id: str) -> InternalDataModel | None:
-    """Get a data model from the database by ID."""
+async def db_get_model(model_id: str, tenant_id: str) -> InternalDataModel | None:
+    """Get a data model from the database by ID with mandatory tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return None
     try:
         async with pool.acquire() as conn:
             row = await conn.fetchrow(
-                "SELECT * FROM lowcode_models WHERE id = $1",
+                "SELECT * FROM lowcode_models WHERE id = $1 AND tenant_id = $2",
                 model_id,
+                tenant_id,
             )
             if row:
                 return _row_to_model(row)
@@ -566,31 +558,22 @@ async def db_get_model(model_id: str) -> InternalDataModel | None:
 
 
 async def db_list_models(
-    tenant_id: str | None = None,
+    tenant_id: str,
     limit: int = 50,
 ) -> list[InternalDataModel]:
-    """List data models from the database using safe parameterized queries."""
+    """List data models from the database using safe parameterized queries with mandatory tenant isolation."""
     pool = get_db_pool()
     if not pool:
         return []
     try:
         async with pool.acquire() as conn:
-            # Use explicit queries based on filter combinations
-            # This avoids dynamic SQL construction and SQL injection risks
-            if tenant_id:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_models
-                       WHERE tenant_id = $1
-                       ORDER BY created_at DESC LIMIT $2""",
-                    tenant_id,
-                    limit,
-                )
-            else:
-                rows = await conn.fetch(
-                    """SELECT * FROM lowcode_models
-                       ORDER BY created_at DESC LIMIT $1""",
-                    limit,
-                )
+            rows = await conn.fetch(
+                """SELECT * FROM lowcode_models
+                   WHERE tenant_id = $1
+                   ORDER BY created_at DESC LIMIT $2""",
+                tenant_id,
+                limit,
+            )
             return [_row_to_model(row) for row in rows]
     except Exception as e:
         logger.error("db_list_models_error", error=str(e))
@@ -1038,7 +1021,9 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # CORS middleware - Get allowed origins from environment
-cors_origins = [o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")]
+cors_origins = [
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -1367,10 +1352,10 @@ async def list_data_models(
 
 
 @app.get("/api/v1/models/{model_id}", response_model=DataModelResponse, tags=["Data Models"])
-async def get_data_model(model_id: str):
+async def get_data_model(model_id: str, user: User = Depends(get_current_user)):
     """Get data model by ID | الحصول على نموذج بيانات بالمعرف"""
     # Try to get from database first
-    m = await db_get_model(model_id)
+    m = await db_get_model(model_id, user.tenant_id)
 
     # Fallback to in-memory storage
     if not m:
@@ -1544,7 +1529,7 @@ async def list_pages(
 
 
 @app.get("/api/v1/pages/{page_id}", response_model=PageResponse, tags=["Pages"])
-async def get_page(page_id: str):
+async def get_page(page_id: str, user: User = Depends(get_current_user)):
     """Get page by ID | الحصول على صفحة بالمعرف"""
     cache_key = f"lowcode:page:{page_id}"
 
@@ -1554,7 +1539,7 @@ async def get_page(page_id: str):
         return PageResponse(**cached)
 
     # Try to get from database first
-    p = await db_get_page(page_id)
+    p = await db_get_page(page_id, user.tenant_id)
 
     # Fallback to in-memory storage
     if not p:
@@ -1599,7 +1584,7 @@ async def publish_page(page_id: str, tenant_id: str = Query(None), user: User = 
     now = datetime.now(UTC)
 
     # Try to get from database first
-    p = await db_get_page(page_id)
+    p = await db_get_page(page_id, tenant_id or user.tenant_id)
 
     # Fallback to in-memory storage
     if not p:
@@ -1610,7 +1595,9 @@ async def publish_page(page_id: str, tenant_id: str = Query(None), user: User = 
         p.updated_at = now
     else:
         # Update in database
-        db_updated = await db_update_page(page_id, is_published=True, updated_at=now)
+        db_updated = await db_update_page(
+            page_id, tenant_id=tenant_id or user.tenant_id, is_published=True, updated_at=now
+        )
         if db_updated:
             p.is_published = True
             p.updated_at = now
@@ -1662,14 +1649,14 @@ async def publish_page(page_id: str, tenant_id: str = Query(None), user: User = 
 
 
 @app.get("/api/v1/pages/{page_id}/render", response_model=PageRenderResponse, tags=["Pages"])
-async def render_page(page_id: str, data: str | None = Query(None)):
+async def render_page(page_id: str, data: str | None = Query(None), user: User = Depends(get_current_user)):
     """
     Render a page with data
 
     عرض صفحة مع البيانات
     """
     # Try to get from database first
-    p = await db_get_page(page_id)
+    p = await db_get_page(page_id, user.tenant_id)
 
     # Fallback to in-memory storage
     if not p:

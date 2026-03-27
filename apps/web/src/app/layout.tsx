@@ -1,44 +1,31 @@
-import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getLocale } from "next-intl/server";
-import "./globals.css";
-import { Providers } from "./providers";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import { AsyncStylesheet } from "@/components/common/AsyncStylesheet";
-import { getDirection, type Locale } from "@sahool/i18n";
+import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, getLocale } from 'next-intl/server';
+import './globals.css';
+import { Providers } from './providers';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { AsyncStylesheet } from '@/components/common/AsyncStylesheet';
+import { getDirection, type Locale } from '@sahool/i18n';
 
 // Use CSS variable for font family — Tajawal loaded non-blocking via <link> in <head>
-const tajawal = { variable: "--font-tajawal" };
+const tajawal = { variable: '--font-tajawal' };
 
 export const metadata: Metadata = {
-  title: "سهول | SAHOOL - Smart Agriculture Platform",
-  description:
-    "منصة سهول الزراعية الذكية - SAHOOL Smart Agricultural Platform for Yemen",
-  keywords: [
-    "سهول",
-    "زراعة",
-    "اليمن",
-    "sahool",
-    "agriculture",
-    "yemen",
-    "smart farming",
-  ],
+  title: 'سهول | SAHOOL - Smart Agriculture Platform',
+  description: 'منصة سهول الزراعية الذكية - SAHOOL Smart Agricultural Platform for Yemen',
+  keywords: ['سهول', 'زراعة', 'اليمن', 'sahool', 'agriculture', 'yemen', 'smart farming'],
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
-  manifest: "/manifest.json",
+  manifest: '/manifest.json',
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Get locale from next-intl (configured in i18n.ts)
   const locale = (await getLocale()) as Locale;
   const messages = await getMessages();
@@ -76,9 +63,7 @@ export default async function RootLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg"
         >
-          {direction === "rtl"
-            ? "انتقل إلى المحتوى الرئيسي"
-            : "Skip to main content"}
+          {direction === 'rtl' ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'}
         </a>
         <ErrorBoundary>
           <NextIntlClientProvider messages={messages} locale={locale}>

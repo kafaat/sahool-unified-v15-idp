@@ -136,7 +136,7 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
                 phenology.currentStage.colorHex.replaceFirst('#', '0xFF'))),
             Color(int.parse(
                     phenology.currentStage.colorHex.replaceFirst('#', '0xFF')))
-                .withOpacity(0.7),
+                .withValues(alpha: 0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -144,7 +144,7 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -222,7 +222,7 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
           const SizedBox(height: 16),
           LinearProgressIndicator(
             value: progress / 100,
-            backgroundColor: Colors.white.withOpacity(0.3),
+            backgroundColor: Colors.white.withValues(alpha: 0.3),
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
             minHeight: 8,
           ),
@@ -298,7 +298,7 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -358,7 +358,7 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

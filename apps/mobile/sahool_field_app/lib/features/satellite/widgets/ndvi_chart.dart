@@ -33,23 +33,23 @@ class NdviChart extends StatelessWidget {
           verticalInterval: 1,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(alpha: 0.2),
               strokeWidth: 1,
             );
           },
           getDrawingVerticalLine: (value) {
             return FlLine(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(alpha: 0.2),
               strokeWidth: 1,
             );
           },
         ),
         titlesData: FlTitlesData(
           show: true,
-          rightTitles: AxisTitles(
+          rightTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
-          topTitles: AxisTitles(
+          topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
           bottomTitles: AxisTitles(
@@ -94,7 +94,7 @@ class NdviChart extends StatelessWidget {
         ),
         borderData: FlBorderData(
           show: true,
-          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         ),
         minX: 0,
         maxX: (data.length - 1).toDouble(),
@@ -134,8 +134,8 @@ class NdviChart extends StatelessWidget {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF367C2B).withOpacity(0.3),
-                  const Color(0xFF367C2B).withOpacity(0.0),
+                  const Color(0xFF367C2B).withValues(alpha: 0.3),
+                  const Color(0xFF367C2B).withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -166,28 +166,28 @@ class NdviChart extends StatelessWidget {
             // Excellent threshold (0.8)
             HorizontalLine(
               y: 0.8,
-              color: Colors.green.withOpacity(0.3),
+              color: Colors.green.withValues(alpha: 0.3),
               strokeWidth: 1,
               dashArray: [5, 5],
             ),
             // Good threshold (0.6)
             HorizontalLine(
               y: 0.6,
-              color: Colors.lightGreen.withOpacity(0.3),
+              color: Colors.lightGreen.withValues(alpha: 0.3),
               strokeWidth: 1,
               dashArray: [5, 5],
             ),
             // Fair threshold (0.4)
             HorizontalLine(
               y: 0.4,
-              color: Colors.orange.withOpacity(0.3),
+              color: Colors.orange.withValues(alpha: 0.3),
               strokeWidth: 1,
               dashArray: [5, 5],
             ),
             // Poor threshold (0.2)
             HorizontalLine(
               y: 0.2,
-              color: Colors.red.withOpacity(0.3),
+              color: Colors.red.withValues(alpha: 0.3),
               strokeWidth: 1,
               dashArray: [5, 5],
             ),

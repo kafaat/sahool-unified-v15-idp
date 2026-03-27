@@ -3,32 +3,23 @@
  * خطافات ميزة الكشافة الحقلية
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { scoutingApi } from "../api/scouting-api";
-import type {
-  Observation,
-  ObservationFormData,
-  ScoutingHistoryFilter,
-} from "../types/scouting";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { scoutingApi } from '../api/scouting-api';
+import type { Observation, ObservationFormData, ScoutingHistoryFilter } from '../types/scouting';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const scoutingKeys = {
-  all: ["scouting"] as const,
-  sessions: () => [...scoutingKeys.all, "sessions"] as const,
+  all: ['scouting'] as const,
+  sessions: () => [...scoutingKeys.all, 'sessions'] as const,
   session: (id: string) => [...scoutingKeys.sessions(), id] as const,
-  activeSession: (fieldId: string) =>
-    [...scoutingKeys.sessions(), "active", fieldId] as const,
-  sessionSummary: (id: string) =>
-    [...scoutingKeys.session(id), "summary"] as const,
-  observations: (sessionId: string) =>
-    [...scoutingKeys.all, "observations", sessionId] as const,
-  history: (filters?: ScoutingHistoryFilter) =>
-    [...scoutingKeys.all, "history", filters] as const,
-  statistics: (fieldId?: string) =>
-    [...scoutingKeys.all, "statistics", fieldId] as const,
+  activeSession: (fieldId: string) => [...scoutingKeys.sessions(), 'active', fieldId] as const,
+  sessionSummary: (id: string) => [...scoutingKeys.session(id), 'summary'] as const,
+  observations: (sessionId: string) => [...scoutingKeys.all, 'observations', sessionId] as const,
+  history: (filters?: ScoutingHistoryFilter) => [...scoutingKeys.all, 'history', filters] as const,
+  statistics: (fieldId?: string) => [...scoutingKeys.all, 'statistics', fieldId] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -147,13 +138,8 @@ export function useSaveObservation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      sessionId,
-      data,
-    }: {
-      sessionId: string;
-      data: ObservationFormData;
-    }) => scoutingApi.addObservation(sessionId, data),
+    mutationFn: ({ sessionId, data }: { sessionId: string; data: ObservationFormData }) =>
+      scoutingApi.addObservation(sessionId, data),
     onMutate: async ({ sessionId }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
@@ -162,17 +148,17 @@ export function useSaveObservation() {
 
       // Snapshot the previous value
       const previousObservations = queryClient.getQueryData<Observation[]>(
-        scoutingKeys.observations(sessionId),
+        scoutingKeys.observations(sessionId)
       );
 
       return { previousObservations, sessionId };
     },
     onSuccess: (newObservation, { sessionId }) => {
       // Update observations cache
-      queryClient.setQueryData<Observation[]>(
-        scoutingKeys.observations(sessionId),
-        (old) => [...(old || []), newObservation],
-      );
+      queryClient.setQueryData<Observation[]>(scoutingKeys.observations(sessionId), (old) => [
+        ...(old || []),
+        newObservation,
+      ]);
 
       // Invalidate session to update counts
       queryClient.invalidateQueries({
@@ -187,7 +173,7 @@ export function useSaveObservation() {
       if (context?.previousObservations) {
         queryClient.setQueryData(
           scoutingKeys.observations(sessionId),
-          context.previousObservations,
+          context.previousObservations
         );
       }
     },
@@ -216,9 +202,7 @@ export function useUpdateObservation() {
       queryClient.setQueryData<Observation[]>(
         scoutingKeys.observations(sessionId),
         (old) =>
-          old?.map((obs) =>
-            obs.id === updatedObservation.id ? updatedObservation : obs,
-          ) || [],
+          old?.map((obs) => (obs.id === updatedObservation.id ? updatedObservation : obs)) || []
       );
 
       // Invalidate session summary
@@ -248,7 +232,7 @@ export function useDeleteObservation() {
       // Update observations cache
       queryClient.setQueryData<Observation[]>(
         scoutingKeys.observations(sessionId),
-        (old) => old?.filter((obs) => obs.id !== observationId) || [],
+        (old) => old?.filter((obs) => obs.id !== observationId) || []
       );
 
       // Invalidate session to update counts
@@ -310,8 +294,8 @@ export function useGenerateReport() {
       config?: {
         includePhotos?: boolean;
         includeMap?: boolean;
-        language?: "en" | "ar" | "both";
-        format?: "pdf" | "excel";
+        language?: 'en' | 'ar' | 'both';
+        format?: 'pdf' | 'excel';
       };
     }) => scoutingApi.generateReport(sessionId, config),
   });
@@ -346,11 +330,11 @@ export function useSyncOfflineData() {
  * خطاف مركب لإدارة جلسة كشافة كاملة
  */
 export function useScoutingSessionManager(fieldId: string) {
-  const { data: activeSession, isLoading: loadingActive } =
-    useActiveSession(fieldId);
-  const { data: observations, isLoading: loadingObservations } =
-    useObservations(activeSession?.id || "");
-  const { data: summary } = useSessionSummary(activeSession?.id || "");
+  const { data: activeSession, isLoading: loadingActive } = useActiveSession(fieldId);
+  const { data: observations, isLoading: loadingObservations } = useObservations(
+    activeSession?.id || ''
+  );
+  const { data: summary } = useSessionSummary(activeSession?.id || '');
 
   const startSession = useStartSession();
   const endSession = useEndSession();
@@ -366,8 +350,7 @@ export function useScoutingSessionManager(fieldId: string) {
     isLoading: loadingActive || loadingObservations,
 
     // Session actions
-    startSession: (notes?: string) =>
-      startSession.mutateAsync({ fieldId, notes }),
+    startSession: (notes?: string) => startSession.mutateAsync({ fieldId, notes }),
     endSession: (notes?: string) =>
       activeSession
         ? endSession.mutateAsync({ sessionId: activeSession.id, notes })
@@ -378,10 +361,7 @@ export function useScoutingSessionManager(fieldId: string) {
       activeSession
         ? saveObservation.mutateAsync({ sessionId: activeSession.id, data })
         : Promise.reject(),
-    updateObservation: (
-      observationId: string,
-      data: Partial<ObservationFormData>,
-    ) =>
+    updateObservation: (observationId: string, data: Partial<ObservationFormData>) =>
       activeSession
         ? updateObservation.mutateAsync({
             observationId,

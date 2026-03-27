@@ -20,7 +20,7 @@ except ImportError:
 def mock_db():
     """Mock database connection"""
     with (
-        patch("src.database.init_db", new=AsyncMock()),
+        patch("src.database.init_notification_db", new=AsyncMock()),
         patch(
             "src.database.check_db_health",
             new=AsyncMock(return_value={"status": "healthy", "connected": True}),
@@ -116,7 +116,7 @@ def app_client(mock_db, mock_notification_repo, mock_preferences_service, mock_f
         except ImportError:
             pass
 
-    client = TestClient(app, headers={"X-Tenant-ID": "test-tenant-1"})
+    client = TestClient(app, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"})
     yield client
 
     app.dependency_overrides.clear()
@@ -428,12 +428,15 @@ class TestErrorHandling:
         # exception handlers instead of propagating to the test client
         try:
             from shared.auth.dependencies import get_current_user
+
             app.dependency_overrides[get_current_user] = lambda: None
         except ImportError:
             pass
 
         try:
-            with TestClient(app, raise_server_exceptions=False, headers={"X-Tenant-ID": "test-tenant-1"}) as client:
+            with TestClient(
+                app, raise_server_exceptions=False, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"}
+            ) as client:
                 with patch("src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")):
                     response = client.get("/farmer/farmer-123")
                     # Service should handle DB errors gracefully and return a server error

@@ -41,6 +41,20 @@ from src.models.yolo26_manager import (
     get_model_manager,
 )
 
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
+
 logger = structlog.get_logger(__name__)
 
 
@@ -335,6 +349,7 @@ async def count_plants(
     count_per_unit_area: bool = True,
     gsd_meters: Annotated[float | None, Query(gt=0.0, description="Ground sampling distance in meters/pixel")] = None,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> PlantCountResponse:
     """
     Count plants in agricultural images.
@@ -468,6 +483,7 @@ async def classify_ripeness(
     return_stage_distribution: bool = True,
     return_visualization: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> RipenessClassificationResponse:
     """
     Classify fruit ripeness in agricultural images.
@@ -668,6 +684,7 @@ async def segment_leaves(
     ] = None,
     return_visualization: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> LeafSegmentationResponse:
     """
     Segment leaves in agricultural images for area measurement.
@@ -924,6 +941,7 @@ async def track_objects(
     frame_number: Annotated[int, Query(ge=0)] = 0,
     return_visualization: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> ObjectTrackingResponse:
     """
     Track objects across video frames with persistent IDs.
@@ -1108,6 +1126,7 @@ async def track_objects(
 async def reset_tracker(
     tracker_id: str,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
     """Reset tracker state for a given session."""
     manager.reset_tracker(tracker_id)

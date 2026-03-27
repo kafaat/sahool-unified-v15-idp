@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../../../../core/http/api_client.dart';
 import '../../../../core/config/api_config.dart';
 
 /// NDVI/Satellite Service API Integration

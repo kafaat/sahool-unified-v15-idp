@@ -224,4 +224,4 @@ class TestRequestLoggingMiddleware:
         """Test that the EXCLUDE_PATHS set contains expected paths"""
         expected = {"/health", "/healthz", "/health/live", "/health/ready",
                     "/readyz", "/livez", "/metrics", "/docs", "/redoc", "/openapi.json"}
-        assert RequestLoggingMiddleware.EXCLUDE_PATHS == expected
+        assert expected == RequestLoggingMiddleware.EXCLUDE_PATHS

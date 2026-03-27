@@ -3,6 +3,7 @@
 ///
 /// Provides test data for irrigation feature unit tests.
 /// يوفر بيانات اختبار لوحدة اختبارات ميزة الري
+library;
 
 import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart'
     hide IrrigationEvent, IrrigationCalculation, IrrigationSchedule; // Hide to avoid conflict with irrigation_api
@@ -588,7 +589,7 @@ class PivotFixtures {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static List<VRIZone> get sampleVRIZones => [
-        VRIZone(
+        const VRIZone(
           id: 'vri_001',
           name: 'High Need Zone',
           nameAr: 'منطقة احتياج عالي',
@@ -604,7 +605,7 @@ class PivotFixtures {
           color: '#2196F3',
           isActive: true,
         ),
-        VRIZone(
+        const VRIZone(
           id: 'vri_002',
           name: 'Normal Zone',
           nameAr: 'منطقة عادية',
@@ -620,7 +621,7 @@ class PivotFixtures {
           color: '#4CAF50',
           isActive: true,
         ),
-        VRIZone(
+        const VRIZone(
           id: 'vri_003',
           name: 'Low Need Zone',
           nameAr: 'منطقة احتياج منخفض',
@@ -899,7 +900,7 @@ class SpanZoneFixtures {
 
   static List<SpanConfiguration> get allSpanConfigs => [
         sampleSpanConfig,
-        SpanConfiguration(
+        const SpanConfiguration(
           id: 'span_002',
           spanNumber: 2,
           distanceFromCenter: 115.0,
@@ -909,7 +910,7 @@ class SpanZoneFixtures {
           baseApplicationRateMmHr: 6.5,
           isOperational: true,
         ),
-        SpanConfiguration(
+        const SpanConfiguration(
           id: 'span_003',
           spanNumber: 3,
           distanceFromCenter: 170.0,
@@ -919,7 +920,7 @@ class SpanZoneFixtures {
           baseApplicationRateMmHr: 7.0,
           isOperational: true,
         ),
-        SpanConfiguration(
+        const SpanConfiguration(
           id: 'span_004',
           spanNumber: 4,
           distanceFromCenter: 225.0,

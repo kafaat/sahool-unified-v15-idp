@@ -10,13 +10,13 @@ Routes notifications to appropriate channels based on priority:
 
 from __future__ import annotations
 
-import os
 import json
 import logging
+import os
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
-from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 

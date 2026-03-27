@@ -32,6 +32,7 @@ jobs:
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       python: ${{ steps.filter.outputs.python }}
@@ -72,6 +73,7 @@ jobs:
   frontend-tests:
     name: Frontend Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: changes
     if: needs.changes.outputs.frontend == 'true' || github.event_name == 'push'
     steps:
@@ -126,6 +128,7 @@ jobs:
   python-tests:
     name: Python Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: changes
     if: needs.changes.outputs.python == 'true' || github.event_name == 'push'
     steps:
@@ -146,21 +149,21 @@ jobs:
             --trusted-host pypi.org \
             --trusted-host files.pythonhosted.org \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.aliyun.com/pypi/simple/ \
             --trusted-host mirrors.aliyun.com \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.cloud.tencent.com/pypi/simple \
             --trusted-host mirrors.cloud.tencent.com \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings pyjwt jsonschema sqlalchemy nats-py structlog \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg
 
@@ -242,6 +245,7 @@ jobs:
   flutter-tests:
     name: Flutter Mobile Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: changes
     if: needs.changes.outputs.mobile == 'true' || github.event_name == 'push'
     defaults:
@@ -310,6 +314,7 @@ jobs:
   schema-validation:
     name: Event Schema Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: changes
     if: needs.changes.outputs.shared == 'true' || github.event_name == 'push'
     steps:
@@ -377,6 +382,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [frontend-tests, python-tests, flutter-tests, schema-validation]
     if: always()
     steps:

@@ -376,8 +376,9 @@ class TasksRepo {
 
     return allTasks.where((t) {
       if (t.dueDate == null) return false;
-      if (t.status == TaskStatus.done || t.status == TaskStatus.cancelled)
+      if (t.status == TaskStatus.done || t.status == TaskStatus.cancelled) {
         return false;
+      }
       return t.dueDate!.isAfter(now) && t.dueDate!.isBefore(deadline);
     }).toList();
   }

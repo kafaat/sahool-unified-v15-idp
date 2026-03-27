@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from "react";
-import { createRoot } from "react-dom/client";
-import maplibregl, { type MapLayerMouseEvent } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-import { apiClient } from "@/lib/api";
-import type { Field } from "@/lib/api/types";
-import { logger } from "@/lib/logger";
+import React, { useEffect, useRef, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import maplibregl, { type MapLayerMouseEvent } from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { apiClient } from '@/lib/api';
+import type { Field } from '@/lib/api/types';
+import { logger } from '@/lib/logger';
 
 interface MapViewProps {
   tenantId?: string;
@@ -19,57 +19,47 @@ interface PopupData {
   crop: string;
   area: number | string;
   ndvi: number | null;
-  status: "healthy" | "warning" | "critical";
+  status: 'healthy' | 'warning' | 'critical';
 }
 
 // Status colors for NDVI/health
 const STATUS_COLORS = {
-  healthy: "#10b981",
-  warning: "#f59e0b",
-  critical: "#ef4444",
+  healthy: '#10b981',
+  warning: '#f59e0b',
+  critical: '#ef4444',
 } as const;
 
-function getFieldStatus(
-  ndviValue?: number,
-): "healthy" | "warning" | "critical" {
-  if (!ndviValue) return "warning";
-  if (ndviValue >= 0.6) return "healthy";
-  if (ndviValue >= 0.4) return "warning";
-  return "critical";
+function getFieldStatus(ndviValue?: number): 'healthy' | 'warning' | 'critical' {
+  if (!ndviValue) return 'warning';
+  if (ndviValue >= 0.6) return 'healthy';
+  if (ndviValue >= 0.4) return 'warning';
+  return 'critical';
 }
 
 // Secure popup content component using React instead of raw HTML
-const PopupContent: React.FC<PopupData> = ({
-  name,
-  crop,
-  area,
-  ndvi,
-  status,
-}) => {
+const PopupContent: React.FC<PopupData> = ({ name, crop, area, ndvi, status }) => {
   const statusClasses = {
-    healthy: "bg-green-100 text-green-800",
-    warning: "bg-yellow-100 text-yellow-800",
-    critical: "bg-red-100 text-red-800",
+    healthy: 'bg-green-100 text-green-800',
+    warning: 'bg-yellow-100 text-yellow-800',
+    critical: 'bg-red-100 text-red-800',
   };
 
   const statusLabels = {
-    healthy: "صحي",
-    warning: "تحذير",
-    critical: "حرج",
+    healthy: 'صحي',
+    warning: 'تحذير',
+    critical: 'حرج',
   };
 
   return (
     <div className="p-2 text-right">
-      <h4 className="font-bold text-sm">{name || "حقل"}</h4>
-      <p className="text-xs text-gray-600">المحصول: {crop || "-"}</p>
-      <p className="text-xs text-gray-600">المساحة: {area || "0"} هكتار</p>
+      <h4 className="font-bold text-sm">{name || 'حقل'}</h4>
+      <p className="text-xs text-gray-600">المحصول: {crop || '-'}</p>
+      <p className="text-xs text-gray-600">المساحة: {area || '0'} هكتار</p>
       <p className="text-xs text-gray-600">
-        NDVI: {ndvi !== null && ndvi !== undefined ? ndvi.toFixed(2) : "N/A"}
+        NDVI: {ndvi !== null && ndvi !== undefined ? ndvi.toFixed(2) : 'N/A'}
       </p>
       <div className="mt-2">
-        <span
-          className={`text-xs px-2 py-0.5 rounded-full ${statusClasses[status]}`}
-        >
+        <span className={`text-xs px-2 py-0.5 rounded-full ${statusClasses[status]}`}>
           {statusLabels[status]}
         </span>
       </div>
@@ -89,7 +79,7 @@ const MapView = React.memo<MapViewProps>(function MapView({
   const [, setSelectedField] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fields, setFields] = useState<Field[]>(propFields || []);
-  const [activeBaseLayer, setActiveBaseLayer] = useState<"osm" | "satellite">("osm");
+  const [activeBaseLayer, setActiveBaseLayer] = useState<'osm' | 'satellite'>('osm');
 
   // Fetch fields if not provided
   useEffect(() => {
@@ -120,32 +110,32 @@ const MapView = React.memo<MapViewProps>(function MapView({
         version: 8,
         sources: {
           osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
             tileSize: 256,
-            attribution: "&copy; OpenStreetMap contributors",
+            attribution: '&copy; OpenStreetMap contributors',
           },
           satellite: {
-            type: "raster",
+            type: 'raster',
             tiles: [
-              "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
             ],
             tileSize: 256,
-            attribution: "&copy; Esri, Maxar, Earthstar Geographics",
+            attribution: '&copy; Esri, Maxar, Earthstar Geographics',
           },
         },
         layers: [
           {
-            id: "osm",
-            type: "raster",
-            source: "osm",
+            id: 'osm',
+            type: 'raster',
+            source: 'osm',
           },
           {
-            id: "satellite",
-            type: "raster",
-            source: "satellite",
+            id: 'satellite',
+            type: 'raster',
+            source: 'satellite',
             layout: {
-              visibility: "none",
+              visibility: 'none',
             },
           },
         ],
@@ -154,9 +144,9 @@ const MapView = React.memo<MapViewProps>(function MapView({
       zoom: 6,
     });
 
-    map.current.addControl(new maplibregl.NavigationControl(), "top-left");
+    map.current.addControl(new maplibregl.NavigationControl(), 'top-left');
 
-    map.current.on("load", () => {
+    map.current.on('load', () => {
       setMapLoaded(true);
     });
 
@@ -183,12 +173,12 @@ const MapView = React.memo<MapViewProps>(function MapView({
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
 
-    if (activeBaseLayer === "satellite") {
-      map.current.setLayoutProperty("osm", "visibility", "none");
-      map.current.setLayoutProperty("satellite", "visibility", "visible");
+    if (activeBaseLayer === 'satellite') {
+      map.current.setLayoutProperty('osm', 'visibility', 'none');
+      map.current.setLayoutProperty('satellite', 'visibility', 'visible');
     } else {
-      map.current.setLayoutProperty("osm", "visibility", "visible");
-      map.current.setLayoutProperty("satellite", "visibility", "none");
+      map.current.setLayoutProperty('osm', 'visibility', 'visible');
+      map.current.setLayoutProperty('satellite', 'visibility', 'none');
     }
   }, [activeBaseLayer, mapLoaded]);
 
@@ -197,11 +187,11 @@ const MapView = React.memo<MapViewProps>(function MapView({
     if (!map.current || !mapLoaded || fields.length === 0) return;
 
     const geojsonData: GeoJSON.FeatureCollection = {
-      type: "FeatureCollection",
+      type: 'FeatureCollection',
       features: fields
         .filter((field) => field.boundary)
         .map((field) => ({
-          type: "Feature" as const,
+          type: 'Feature' as const,
           id: field.id,
           properties: {
             id: field.id,
@@ -216,80 +206,80 @@ const MapView = React.memo<MapViewProps>(function MapView({
     };
 
     // Remove existing layers and source
-    if (map.current.getSource("fields")) {
-      map.current.removeLayer("fields-label");
-      map.current.removeLayer("fields-outline");
-      map.current.removeLayer("fields-fill");
-      map.current.removeSource("fields");
+    if (map.current.getSource('fields')) {
+      map.current.removeLayer('fields-label');
+      map.current.removeLayer('fields-outline');
+      map.current.removeLayer('fields-fill');
+      map.current.removeSource('fields');
     }
 
     // Add fields source
-    map.current.addSource("fields", {
-      type: "geojson",
+    map.current.addSource('fields', {
+      type: 'geojson',
       data: geojsonData,
     });
 
     // Add fields fill layer
     map.current.addLayer({
-      id: "fields-fill",
-      type: "fill",
-      source: "fields",
+      id: 'fields-fill',
+      type: 'fill',
+      source: 'fields',
       paint: {
-        "fill-color": [
-          "match",
-          ["get", "status"],
-          "healthy",
+        'fill-color': [
+          'match',
+          ['get', 'status'],
+          'healthy',
           STATUS_COLORS.healthy,
-          "warning",
+          'warning',
           STATUS_COLORS.warning,
-          "critical",
+          'critical',
           STATUS_COLORS.critical,
-          "#9ca3af",
+          '#9ca3af',
         ],
-        "fill-opacity": 0.6,
+        'fill-opacity': 0.6,
       },
     });
 
     // Add fields outline layer
     map.current.addLayer({
-      id: "fields-outline",
-      type: "line",
-      source: "fields",
+      id: 'fields-outline',
+      type: 'line',
+      source: 'fields',
       paint: {
-        "line-color": [
-          "match",
-          ["get", "status"],
-          "healthy",
+        'line-color': [
+          'match',
+          ['get', 'status'],
+          'healthy',
           STATUS_COLORS.healthy,
-          "warning",
+          'warning',
           STATUS_COLORS.warning,
-          "critical",
+          'critical',
           STATUS_COLORS.critical,
-          "#6b7280",
+          '#6b7280',
         ],
-        "line-width": 2,
+        'line-width': 2,
       },
     });
 
     // Add labels
     map.current.addLayer({
-      id: "fields-label",
-      type: "symbol",
-      source: "fields",
+      id: 'fields-label',
+      type: 'symbol',
+      source: 'fields',
       layout: {
-        "text-field": ["get", "name"],
-        "text-size": 12,
-        "text-anchor": "center",
+        'text-field': ['get', 'name'],
+        'text-size': 12,
+        'text-anchor': 'center',
       },
       paint: {
-        "text-color": "#1f2937",
-        "text-halo-color": "#ffffff",
-        "text-halo-width": 1,
+        'text-color': '#1f2937',
+        'text-halo-color': '#ffffff',
+        'text-halo-width': 1,
       },
     });
 
     // Click handler - using React createRoot for secure popup rendering
-    map.current.on("click", "fields-fill", (e: MapLayerMouseEvent) => {
+    map.current.on('click', 'fields-fill', (e: MapLayerMouseEvent) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
         const props = feature.properties;
@@ -324,12 +314,12 @@ const MapView = React.memo<MapViewProps>(function MapView({
             popupRootRef.current = createRoot(popupContainer);
             popupRootRef.current.render(
               <PopupContent
-                name={props?.name || "حقل"}
-                crop={props?.crop || "-"}
-                area={props?.area || "0"}
+                name={props?.name || 'حقل'}
+                crop={props?.crop || '-'}
+                area={props?.area || '0'}
                 ndvi={props?.ndvi ?? null}
-                status={props?.status || "warning"}
-              />,
+                status={props?.status || 'warning'}
+              />
             );
           }
         });
@@ -340,15 +330,15 @@ const MapView = React.memo<MapViewProps>(function MapView({
     });
 
     // Hover effect
-    map.current.on("mouseenter", "fields-fill", () => {
+    map.current.on('mouseenter', 'fields-fill', () => {
       if (map.current) {
-        map.current.getCanvas().style.cursor = "pointer";
+        map.current.getCanvas().style.cursor = 'pointer';
       }
     });
 
-    map.current.on("mouseleave", "fields-fill", () => {
+    map.current.on('mouseleave', 'fields-fill', () => {
       if (map.current) {
-        map.current.getCanvas().style.cursor = "";
+        map.current.getCanvas().style.cursor = '';
       }
     });
 
@@ -356,10 +346,7 @@ const MapView = React.memo<MapViewProps>(function MapView({
     if (geojsonData.features.length > 0) {
       const bounds = new maplibregl.LngLatBounds();
       geojsonData.features.forEach((feature) => {
-        if (
-          feature.geometry.type === "Polygon" &&
-          feature.geometry.coordinates
-        ) {
+        if (feature.geometry.type === 'Polygon' && feature.geometry.coordinates) {
           const outerRing = feature.geometry.coordinates[0];
           if (outerRing) {
             outerRing.forEach((coord) => {
@@ -379,22 +366,28 @@ const MapView = React.memo<MapViewProps>(function MapView({
       {/* Base Layer Toggle */}
       <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-1.5 flex gap-1">
         <button
-          onClick={() => setActiveBaseLayer("osm")}
+          type="button"
+          onClick={() => setActiveBaseLayer('osm')}
           className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
-            activeBaseLayer === "osm"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            activeBaseLayer === 'osm'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
+          aria-label="عرض خريطة الشوارع"
+          aria-pressed={activeBaseLayer === 'osm'}
         >
           خريطة
         </button>
         <button
-          onClick={() => setActiveBaseLayer("satellite")}
+          type="button"
+          onClick={() => setActiveBaseLayer('satellite')}
           className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
-            activeBaseLayer === "satellite"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            activeBaseLayer === 'satellite'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
+          aria-label="عرض صور القمر الصناعي"
+          aria-pressed={activeBaseLayer === 'satellite'}
         >
           قمر صناعي
         </button>

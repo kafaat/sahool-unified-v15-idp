@@ -106,14 +106,15 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-
-    async def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+    from fastapi import HTTPException as _HTTPException
 
     class User:  # type: ignore[no-redef]
         id: str = ""
-        tenant_id: str = ""
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        """Placeholder when auth not available"""
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 @asynccontextmanager

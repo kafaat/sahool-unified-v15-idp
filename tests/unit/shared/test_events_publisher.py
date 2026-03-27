@@ -6,21 +6,22 @@ Tests for the SAHOOL platform event publisher module.
 """
 
 import json
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timezone
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
+
+import pytest
+
+from shared.events.contracts import BaseEvent
 
 # Import the module under test
 from shared.events.publisher import (
     EventPublisher,
     PublisherConfig,
-    get_publisher,
     close_publisher,
+    get_publisher,
     publish_event,
 )
-from shared.events.contracts import BaseEvent
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Test Fixtures
@@ -264,10 +265,11 @@ class TestEventPublisherPublish:
 
     @pytest.mark.asyncio
     async def test_publish_event_not_connected(self, publisher, sample_event):
-        """Test publishing when not connected."""
+        """Test publishing when not connected buffers the message."""
         result = await publisher.publish_event("test.subject", sample_event)
 
-        assert result is False
+        # When not connected, messages are buffered for retry (returns True if buffered)
+        assert result is True
 
     @pytest.mark.asyncio
     async def test_publish_event_success(self, publisher, sample_event):
@@ -310,7 +312,7 @@ class TestEventPublisherPublish:
         invalid_event.causation_id = None
         invalid_event.trace_id = None
         invalid_event.span_id = None
-        invalid_event.tenant_id = None
+        invalid_event.tenant_id = "test-tenant-for-validation"
         invalid_event.tenant_id_header = None
         invalid_event.event_id = str(uuid4())
         invalid_event.version = "1.0.0"

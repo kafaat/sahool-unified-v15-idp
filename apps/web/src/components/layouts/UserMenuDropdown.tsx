@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * User Menu Dropdown for Web Dashboard
@@ -7,7 +7,7 @@
  * Lazy-loaded: Only rendered when the user clicks on their profile button.
  */
 
-import { User, LogOut, Settings } from "lucide-react";
+import { User, LogOut, Settings } from 'lucide-react';
 
 interface UserMenuDropdownProps {
   userName?: string;
@@ -35,11 +35,7 @@ export default function UserMenuDropdown({
   return (
     <>
       {/* Overlay */}
-      <div
-        className="fixed inset-0 z-10"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      <div className="fixed inset-0 z-10" onClick={onClose} aria-hidden="true" />
 
       {/* Menu */}
       <div
@@ -48,9 +44,7 @@ export default function UserMenuDropdown({
         aria-label="قائمة خيارات المستخدم"
       >
         <div className="px-4 py-3 border-b border-gray-200">
-          <div className="font-medium text-gray-900">
-            {userName}
-          </div>
+          <div className="font-medium text-gray-900">{userName}</div>
           <div className="text-sm text-gray-500">{userEmail}</div>
         </div>
 

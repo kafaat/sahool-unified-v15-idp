@@ -208,6 +208,16 @@ class FileValidator:
                 error_code="EXECUTABLE_NOT_ALLOWED",
             )
 
+        # Check for double extension attacks (e.g., "photo.exe.jpg", "doc.php.png").
+        # Path.suffix only returns the last extension, so check all parts.
+        filename_parts = filename.lower().split(".")
+        for part in filename_parts[1:-1]:  # skip basename and final extension (already checked)
+            if f".{part}" in executable_extensions:
+                raise FileValidationError(
+                    "ملف يحتوي على امتداد تنفيذي مخفي / File contains hidden executable extension",
+                    error_code="EXECUTABLE_NOT_ALLOWED",
+                )
+
         # Check magic bytes for common executables
         executable_signatures = [
             b"MZ",  # Windows PE

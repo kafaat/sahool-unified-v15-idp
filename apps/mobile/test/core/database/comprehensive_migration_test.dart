@@ -12,6 +12,7 @@
 /// - Migration checksum verification
 ///
 /// Run with: flutter test test/core/database/comprehensive_migration_test.dart
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/database/schema_version.dart';
@@ -651,7 +652,7 @@ void main() {
     test('counts errors correctly by severity', () {
       final report = DatabaseVerificationReport(
         passed: false,
-        schemaVersion: 5,
+        schemaVersion: 6,
         verificationTime: const Duration(milliseconds: 100),
         issues: [
           VerificationIssue(
@@ -687,21 +688,21 @@ void main() {
     test('toDetailedReport generates formatted output', () {
       final passedReport = DatabaseVerificationReport(
         passed: true,
-        schemaVersion: 5,
+        schemaVersion: 6,
         verificationTime: const Duration(milliseconds: 50),
         issues: [],
       );
 
       final detailed = passedReport.toDetailedReport();
       expect(detailed, contains('PASSED'));
-      expect(detailed, contains('Schema Version: 5'));
+      expect(detailed, contains('Schema Version: 6'));
       expect(detailed, contains('No issues found'));
     });
 
     test('toDetailedReport includes issues when failed', () {
       final failedReport = DatabaseVerificationReport(
         passed: false,
-        schemaVersion: 5,
+        schemaVersion: 6,
         verificationTime: const Duration(milliseconds: 100),
         issues: [
           VerificationIssue(

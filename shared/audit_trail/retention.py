@@ -19,9 +19,10 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
 import structlog

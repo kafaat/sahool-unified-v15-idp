@@ -91,8 +91,9 @@ class TestBaseEventEnvelope:
 
     @_SKIP_PYDANTIC
     def test_child_event_inherits_envelope_fields(self):
-        from shared.events.contracts import FieldCreatedEvent
         from uuid import uuid4
+
+        from shared.events.contracts import FieldCreatedEvent
 
         evt = FieldCreatedEvent(
             field_id=uuid4(),

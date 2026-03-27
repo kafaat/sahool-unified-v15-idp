@@ -7,13 +7,13 @@
  * - BroadcastChannel logout notification
  * - AbortController timeout on session DELETE calls
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Module Mocks
 // ═══════════════════════════════════════════════════════════════════════════
 
-vi.mock("js-cookie", () => ({
+vi.mock('js-cookie', () => ({
   default: {
     get: vi.fn(),
     set: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock("js-cookie", () => ({
   },
 }));
 
-vi.mock("@/lib/logger", () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -30,7 +30,7 @@ vi.mock("@/lib/logger", () => ({
   },
 }));
 
-vi.mock("@/lib/api/auth-client", () => ({
+vi.mock('@/lib/api/auth-client', () => ({
   authApiClient: {
     login: vi.fn(),
     getCurrentUser: vi.fn(),
@@ -51,9 +51,9 @@ vi.mock("@/lib/api/auth-client", () => ({
  * so that each test picks up fresh module state.
  */
 async function setupAuthProvider() {
-  const React = await import("react");
-  const { render, act, waitFor } = await import("@testing-library/react");
-  const { AuthProvider, useAuth } = await import("../../stores/auth.store");
+  const React = await import('react');
+  const { render, act, waitFor } = await import('@testing-library/react');
+  const { AuthProvider, useAuth } = await import('../../stores/auth.store');
 
   // Use a mutable ref so the test always reads the latest auth state
   // (after re-renders from login/logout/checkAuth)
@@ -66,9 +66,7 @@ async function setupAuthProvider() {
 
   // Suppress React.act warnings from auto-running checkAuth on mount
   await act(async () => {
-    render(
-      React.createElement(AuthProvider, null, React.createElement(Consumer)),
-    );
+    render(React.createElement(AuthProvider, null, React.createElement(Consumer)));
   });
 
   // Wait for initial checkAuth to settle (isLoading -> false)
@@ -83,14 +81,14 @@ async function setupAuthProvider() {
     waitFor: typeof waitFor;
     authState: ReturnType<typeof useAuth>;
   };
-  Object.defineProperty(result, "authState", {
+  Object.defineProperty(result, 'authState', {
     get: () => latestState!,
     enumerable: true,
   });
   return result;
 }
 
-describe("Auth Store Security", () => {
+describe('Auth Store Security', () => {
   const originalEnv = process.env;
   let originalFetch: typeof global.fetch;
   let originalBroadcastChannel: typeof globalThis.BroadcastChannel;
@@ -104,7 +102,7 @@ describe("Auth Store Security", () => {
 
     // Default fetch mock: session check returns no session, other calls succeed
     global.fetch = vi.fn().mockImplementation((url: string) => {
-      if (typeof url === "string" && url.includes("/api/auth/session")) {
+      if (typeof url === 'string' && url.includes('/api/auth/session')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve({ hasSession: false }),
@@ -124,7 +122,7 @@ describe("Auth Store Security", () => {
   // sanitizeUser UUID validation
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe("sanitizeUser UUID validation", () => {
+  describe('sanitizeUser UUID validation', () => {
     /**
      * Helper: sets up checkAuth to return a user with the given tenant_id.
      * sanitizeUser is called internally by checkAuth (and login), so we
@@ -132,10 +130,10 @@ describe("Auth Store Security", () => {
      */
     function mockCheckAuthWithTenantId(tenantId?: string) {
       const userPayload: Record<string, unknown> = {
-        id: "user-1",
-        email: "farmer@sahool.com",
-        name: "Farmer",
-        role: "user",
+        id: 'user-1',
+        email: 'farmer@sahool.com',
+        name: 'Farmer',
+        role: 'user',
       };
       if (tenantId !== undefined) {
         userPayload.tenant_id = tenantId;
@@ -144,12 +142,12 @@ describe("Auth Store Security", () => {
     }
 
     async function setupWithTenantId(tenantId?: string) {
-      const { authApiClient } = await import("@/lib/api/auth-client");
+      const { authApiClient } = await import('@/lib/api/auth-client');
       const userPayload = mockCheckAuthWithTenantId(tenantId);
 
       // checkAuth: session exists → getCurrentUser returns user with tenant_id
       global.fetch = vi.fn().mockImplementation((url: string) => {
-        if (typeof url === "string" && url.includes("/api/auth/session")) {
+        if (typeof url === 'string' && url.includes('/api/auth/session')) {
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ hasSession: true }),
@@ -160,14 +158,20 @@ describe("Auth Store Security", () => {
 
       vi.mocked(authApiClient.getCurrentUser).mockResolvedValue({
         success: true,
-        data: userPayload as { id: string; email: string; name: string; role: string; tenant_id?: string },
+        data: userPayload as {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+          tenant_id?: string;
+        },
       });
 
       return setupAuthProvider();
     }
 
-    it("should keep a valid UUID v4 tenant_id", async () => {
-      const validUUID = "550e8400-e29b-41d4-a716-446655440000";
+    it('should keep a valid UUID v4 tenant_id', async () => {
+      const validUUID = '550e8400-e29b-41d4-a716-446655440000';
       const { authState, waitFor } = await setupWithTenantId(validUUID);
 
       await waitFor(() => {
@@ -176,8 +180,8 @@ describe("Auth Store Security", () => {
       });
     });
 
-    it("should clear invalid tenant_id (malicious-input)", async () => {
-      const { authState, waitFor } = await setupWithTenantId("malicious-input");
+    it('should clear invalid tenant_id (malicious-input)', async () => {
+      const { authState, waitFor } = await setupWithTenantId('malicious-input');
 
       await waitFor(() => {
         expect(authState.user).not.toBeNull();
@@ -185,7 +189,7 @@ describe("Auth Store Security", () => {
       });
     });
 
-    it("should clear SQL injection attempt in tenant_id", async () => {
+    it('should clear SQL injection attempt in tenant_id', async () => {
       const { authState, waitFor } = await setupWithTenantId("'; DROP TABLE users;--");
 
       await waitFor(() => {
@@ -194,17 +198,17 @@ describe("Auth Store Security", () => {
       });
     });
 
-    it("should keep empty string tenant_id as-is (falsy, skips UUID check)", async () => {
-      const { authState, waitFor } = await setupWithTenantId("");
+    it('should keep empty string tenant_id as-is (falsy, skips UUID check)', async () => {
+      const { authState, waitFor } = await setupWithTenantId('');
 
       await waitFor(() => {
         expect(authState.user).not.toBeNull();
         // Empty string is falsy, so the UUID check is skipped and value preserved
-        expect(authState.user!.tenant_id).toBe("");
+        expect(authState.user!.tenant_id).toBe('');
       });
     });
 
-    it("should leave tenant_id undefined when not provided by API", async () => {
+    it('should leave tenant_id undefined when not provided by API', async () => {
       // Pass undefined to omit tenant_id from the user payload
       const { authState, waitFor } = await setupWithTenantId(undefined);
 
@@ -214,12 +218,12 @@ describe("Auth Store Security", () => {
       });
     });
 
-    it("should also sanitize tenant_id during checkAuth", async () => {
-      const { authState, waitFor } = await setupWithTenantId("not-a-uuid-at-all");
+    it('should also sanitize tenant_id during checkAuth', async () => {
+      const { authState, waitFor } = await setupWithTenantId('not-a-uuid-at-all');
 
       await waitFor(() => {
         expect(authState.user).not.toBeNull();
-        expect(authState.user!.id).toBe("user-1");
+        expect(authState.user!.id).toBe('user-1');
         expect(authState.user!.tenant_id).toBeUndefined();
       });
     });
@@ -229,7 +233,7 @@ describe("Auth Store Security", () => {
   // BroadcastChannel logout
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe("BroadcastChannel logout notification", () => {
+  describe('BroadcastChannel logout notification', () => {
     it("should send broadcast message with { type: 'logout' } on logout", async () => {
       const postMessageSpy = vi.fn();
       const closeSpy = vi.fn();
@@ -243,7 +247,7 @@ describe("Auth Store Security", () => {
       })) as unknown as typeof BroadcastChannel;
 
       global.fetch = vi.fn().mockImplementation((url: string) => {
-        if (typeof url === "string" && url.includes("/api/auth/session")) {
+        if (typeof url === 'string' && url.includes('/api/auth/session')) {
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ hasSession: false }),
@@ -259,21 +263,21 @@ describe("Auth Store Security", () => {
       });
 
       // Verify BroadcastChannel was created with correct channel name
-      expect(globalThis.BroadcastChannel).toHaveBeenCalledWith("sahool_auth");
+      expect(globalThis.BroadcastChannel).toHaveBeenCalledWith('sahool_auth');
 
       // Verify postMessage was called with logout type
-      expect(postMessageSpy).toHaveBeenCalledWith({ type: "logout" });
+      expect(postMessageSpy).toHaveBeenCalledWith({ type: 'logout' });
 
       // Verify channel was closed after sending
       expect(closeSpy).toHaveBeenCalled();
     });
 
-    it("should handle gracefully when BroadcastChannel is undefined", async () => {
+    it('should handle gracefully when BroadcastChannel is undefined', async () => {
       // Remove BroadcastChannel from global scope
       delete (globalThis as Record<string, unknown>).BroadcastChannel;
 
       global.fetch = vi.fn().mockImplementation((url: string) => {
-        if (typeof url === "string" && url.includes("/api/auth/session")) {
+        if (typeof url === 'string' && url.includes('/api/auth/session')) {
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ hasSession: false }),
@@ -288,7 +292,7 @@ describe("Auth Store Security", () => {
       await expect(
         act(async () => {
           await authState.logout();
-        }),
+        })
       ).resolves.not.toThrow();
     });
   });
@@ -297,10 +301,10 @@ describe("Auth Store Security", () => {
   // AbortController timeout on session DELETE
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe("Timeout on session DELETE calls", () => {
-    it("should call fetch with an AbortSignal during logout", async () => {
+  describe('Timeout on session DELETE calls', () => {
+    it('should call fetch with an AbortSignal during logout', async () => {
       const fetchSpy = vi.fn().mockImplementation((url: string) => {
-        if (typeof url === "string" && url.includes("/api/auth/session")) {
+        if (typeof url === 'string' && url.includes('/api/auth/session')) {
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ hasSession: false }),
@@ -322,28 +326,28 @@ describe("Auth Store Security", () => {
       // Find the DELETE call to /api/auth/session
       const deleteCall = fetchSpy.mock.calls.find(
         (call: unknown[]) =>
-          typeof call[0] === "string" &&
-          call[0].includes("/api/auth/session") &&
-          call[1]?.method === "DELETE",
+          typeof call[0] === 'string' &&
+          call[0].includes('/api/auth/session') &&
+          call[1]?.method === 'DELETE'
       );
 
       expect(deleteCall).toBeDefined();
       // The second argument should contain a signal property (AbortController.signal)
-      expect(deleteCall![1]).toHaveProperty("signal");
+      expect(deleteCall![1]).toHaveProperty('signal');
       expect(deleteCall![1].signal).toBeInstanceOf(AbortSignal);
     });
 
-    it("should continue logout even if session DELETE is aborted", async () => {
+    it('should continue logout even if session DELETE is aborted', async () => {
       const fetchSpy = vi.fn().mockImplementation((url: string, opts?: RequestInit) => {
         if (
-          typeof url === "string" &&
-          url.includes("/api/auth/session") &&
-          opts?.method === "DELETE"
+          typeof url === 'string' &&
+          url.includes('/api/auth/session') &&
+          opts?.method === 'DELETE'
         ) {
           // Simulate abort error
-          return Promise.reject(new DOMException("Aborted", "AbortError"));
+          return Promise.reject(new DOMException('Aborted', 'AbortError'));
         }
-        if (typeof url === "string" && url.includes("/api/auth/session")) {
+        if (typeof url === 'string' && url.includes('/api/auth/session')) {
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ hasSession: false }),
@@ -356,7 +360,7 @@ describe("Auth Store Security", () => {
       // Remove BroadcastChannel to simplify
       delete (globalThis as Record<string, unknown>).BroadcastChannel;
 
-      const { authApiClient } = await import("@/lib/api/auth-client");
+      const { authApiClient } = await import('@/lib/api/auth-client');
       const { authState, act, waitFor } = await setupAuthProvider();
 
       await act(async () => {

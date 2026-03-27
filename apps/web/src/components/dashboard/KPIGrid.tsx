@@ -3,9 +3,9 @@
  * شبكة مؤشرات الأداء الرئيسية
  */
 
-import React from "react";
-import { KPI } from "../../types";
-import { KPICard } from "./KPICard";
+import React from 'react';
+import { KPI } from '../../types';
+import { KPICard } from './KPICard';
 
 interface KPIGridProps {
   kpis: KPI[];
@@ -13,11 +13,7 @@ interface KPIGridProps {
   isLoading?: boolean;
 }
 
-export const KPIGrid = React.memo<KPIGridProps>(function KPIGrid({
-  kpis,
-  onKPIClick,
-  isLoading,
-}) {
+export const KPIGrid = React.memo<KPIGridProps>(function KPIGrid({ kpis, onKPIClick, isLoading }) {
   if (isLoading) {
     return (
       <div

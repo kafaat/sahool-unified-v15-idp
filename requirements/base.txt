@@ -16,5 +16,11 @@ httpx==0.28.1
 # File Uploads (required by FastAPI for multipart form data)
 python-multipart>=0.0.12  # Constrained to ==0.0.22 by constraints.txt
 
+# Event Contract Validation (shared.contracts.events)
+jsonschema>=4.20.0
+
+# Redis Client (shared.cache)
+redis>=7.1.0,<8.0.0
+
 # Environment & Configuration
 python-dotenv==1.2.2

@@ -17,13 +17,12 @@ Provides:
 
 from __future__ import annotations
 
-import warnings
-
 import logging
 import math
+import warnings
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 

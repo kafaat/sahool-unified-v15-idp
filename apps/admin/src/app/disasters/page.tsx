@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Disaster Reports Page
 // صفحة تقارير الكوارث
 
-import { useEffect, useState, useMemo } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
+import { useEffect, useState, useMemo } from 'react';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
 import {
   AlertTriangle,
   Search,
@@ -20,19 +20,19 @@ import {
   Wind,
   MapPin,
   DollarSign,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { MOCK_REPORTS } from "./disasters.mock";
-import type { DisasterReport } from "./disasters.mock";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { MOCK_REPORTS } from './disasters.mock';
+import type { DisasterReport } from './disasters.mock';
 
-type DisasterType = DisasterReport["type"];
+type DisasterType = DisasterReport['type'];
 
 export default function DisastersPage() {
   const [reports, setReports] = useState<DisasterReport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     loadReports();
@@ -44,7 +44,7 @@ export default function DisastersPage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setReports(MOCK_REPORTS);
     } catch (error) {
-      logger.error("Failed to load disaster reports:", error);
+      logger.error('Failed to load disaster reports:', error);
     } finally {
       setIsLoading(false);
     }
@@ -67,12 +67,17 @@ export default function DisastersPage() {
     });
   }, [reports, searchQuery, typeFilter, statusFilter]);
 
-  const stats = useMemo(() => ({
-    total: reports.length,
-    active: reports.filter((r) => r.status === "active").length,
-    totalDamage: reports.reduce((acc, r) => acc + r.damageEstimate, 0),
-    affectedFarms: reports.filter(r => r.status === "active").reduce((acc, r) => acc + r.affectedFarms, 0),
-  }), [reports]);
+  const stats = useMemo(
+    () => ({
+      total: reports.length,
+      active: reports.filter((r) => r.status === 'active').length,
+      totalDamage: reports.reduce((acc, r) => acc + r.damageEstimate, 0),
+      affectedFarms: reports
+        .filter((r) => r.status === 'active')
+        .reduce((acc, r) => acc + r.affectedFarms, 0),
+    }),
+    [reports]
+  );
 
   const getTypeIcon = (type: DisasterType) => {
     const icons: Record<DisasterType, React.ReactNode> = {
@@ -87,50 +92,50 @@ export default function DisastersPage() {
     return icons[type];
   };
 
-  const getSeverityLabel = (severity: DisasterReport["severity"]) => {
-    const labels: Record<DisasterReport["severity"], string> = {
-      minor: "طفيف",
-      moderate: "متوسط",
-      severe: "شديد",
-      catastrophic: "كارثي",
+  const getSeverityLabel = (severity: DisasterReport['severity']) => {
+    const labels: Record<DisasterReport['severity'], string> = {
+      minor: 'طفيف',
+      moderate: 'متوسط',
+      severe: 'شديد',
+      catastrophic: 'كارثي',
     };
     return labels[severity];
   };
 
-  const getSeverityColor = (severity: DisasterReport["severity"]) => {
-    const colors: Record<DisasterReport["severity"], string> = {
-      minor: "bg-yellow-100 text-yellow-800",
-      moderate: "bg-orange-100 text-orange-800",
-      severe: "bg-red-100 text-red-800",
-      catastrophic: "bg-purple-100 text-purple-800",
+  const getSeverityColor = (severity: DisasterReport['severity']) => {
+    const colors: Record<DisasterReport['severity'], string> = {
+      minor: 'bg-yellow-100 text-yellow-800',
+      moderate: 'bg-orange-100 text-orange-800',
+      severe: 'bg-red-100 text-red-800',
+      catastrophic: 'bg-purple-100 text-purple-800',
     };
     return colors[severity];
   };
 
-  const getStatusLabel = (status: DisasterReport["status"]) => {
-    const labels: Record<DisasterReport["status"], string> = {
-      active: "نشط",
-      monitoring: "قيد المراقبة",
-      resolved: "تم الحل",
-      closed: "مغلق",
+  const getStatusLabel = (status: DisasterReport['status']) => {
+    const labels: Record<DisasterReport['status'], string> = {
+      active: 'نشط',
+      monitoring: 'قيد المراقبة',
+      resolved: 'تم الحل',
+      closed: 'مغلق',
     };
     return labels[status];
   };
 
-  const getStatusColor = (status: DisasterReport["status"]) => {
-    const colors: Record<DisasterReport["status"], string> = {
-      active: "bg-red-100 text-red-800",
-      monitoring: "bg-blue-100 text-blue-800",
-      resolved: "bg-green-100 text-green-800",
-      closed: "bg-gray-100 text-gray-800",
+  const getStatusColor = (status: DisasterReport['status']) => {
+    const colors: Record<DisasterReport['status'], string> = {
+      active: 'bg-red-100 text-red-800',
+      monitoring: 'bg-blue-100 text-blue-800',
+      resolved: 'bg-green-100 text-green-800',
+      closed: 'bg-gray-100 text-gray-800',
     };
     return colors[status];
   };
 
   const columns = [
     {
-      key: "type",
-      header: "النوع",
+      key: 'type',
+      header: 'النوع',
       render: (report: DisasterReport) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center text-red-600">
@@ -141,8 +146,8 @@ export default function DisastersPage() {
       ),
     },
     {
-      key: "location",
-      header: "الموقع",
+      key: 'location',
+      header: 'الموقع',
       render: (report: DisasterReport) => (
         <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
           <MapPin className="w-4 h-4 text-gray-400" />
@@ -151,8 +156,8 @@ export default function DisastersPage() {
       ),
     },
     {
-      key: "impact",
-      header: "التأثير",
+      key: 'impact',
+      header: 'التأثير',
       render: (report: DisasterReport) => (
         <div className="text-sm">
           <p className="text-gray-900 dark:text-gray-100">{report.affectedFarms} مزرعة</p>
@@ -161,8 +166,8 @@ export default function DisastersPage() {
       ),
     },
     {
-      key: "damage",
-      header: "الأضرار",
+      key: 'damage',
+      header: 'الأضرار',
       render: (report: DisasterReport) => (
         <span className="font-medium text-red-600">
           {report.damageEstimate.toLocaleString()} {report.currency}
@@ -170,39 +175,55 @@ export default function DisastersPage() {
       ),
     },
     {
-      key: "severity",
-      header: "الشدة",
+      key: 'severity',
+      header: 'الشدة',
       render: (report: DisasterReport) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getSeverityColor(report.severity))}>
+        <span
+          className={cn(
+            'px-2 py-1 rounded-full text-xs font-medium',
+            getSeverityColor(report.severity)
+          )}
+        >
           {getSeverityLabel(report.severity)}
         </span>
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (report: DisasterReport) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(report.status))}>
+        <span
+          className={cn(
+            'px-2 py-1 rounded-full text-xs font-medium',
+            getStatusColor(report.status)
+          )}
+        >
           {getStatusLabel(report.status)}
         </span>
       ),
     },
     {
-      key: "date",
-      header: "التاريخ",
+      key: 'date',
+      header: 'التاريخ',
       render: (report: DisasterReport) => (
-        <span className="text-gray-500 dark:text-gray-400 text-sm">{formatDate(report.reportedAt)}</span>
+        <span className="text-gray-500 dark:text-gray-400 text-sm">
+          {formatDate(report.reportedAt)}
+        </span>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (_report: DisasterReport) => (
-        <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="عرض (قريبًا)">
+        <button
+          disabled
+          className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          title="عرض (قريبًا)"
+        >
           <Eye className="w-4 h-4 text-gray-500" />
         </button>
       ),
-      className: "w-16",
+      className: 'w-16',
     },
   ];
 
@@ -240,7 +261,9 @@ export default function DisastersPage() {
               <DollarSign className="w-5 h-5 text-orange-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{(stats.totalDamage / 1000000).toFixed(1)}M</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {(stats.totalDamage / 1000000).toFixed(1)}M
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي الأضرار (SAR)</p>
             </div>
           </div>
@@ -251,7 +274,9 @@ export default function DisastersPage() {
               <MapPin className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.affectedFarms}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.affectedFarms}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">مزارع متأثرة (نشط)</p>
             </div>
           </div>
@@ -303,7 +328,12 @@ export default function DisastersPage() {
             onClick={loadReports}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-300", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-300',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
           <button
             disabled

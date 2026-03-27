@@ -6,11 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from shared.drift_detection.detectors.config_drift import ConfigDriftDetector
-from shared.drift_detection.detectors.schema_drift import SchemaDriftDetector
 from shared.drift_detection.detectors.api_drift import APIDriftDetector
-from shared.drift_detection.detectors.event_drift import EventDriftDetector
+from shared.drift_detection.detectors.config_drift import ConfigDriftDetector
 from shared.drift_detection.detectors.data_drift import DataDriftDetector
+from shared.drift_detection.detectors.event_drift import EventDriftDetector
+from shared.drift_detection.detectors.schema_drift import SchemaDriftDetector
 from shared.drift_detection.detectors.security_drift import SecurityDriftDetector
 from shared.drift_detection.models import DriftCategory, DriftSeverity
 

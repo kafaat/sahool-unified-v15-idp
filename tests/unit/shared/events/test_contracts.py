@@ -12,28 +12,27 @@ Updated: January 2026
 from __future__ import annotations
 
 import json
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
 
 from shared.events.contracts import (
-    BaseEvent,
-    FieldCreatedEvent,
-    FieldUpdatedEvent,
-    FieldDeletedEvent,
-    WeatherForecastEvent,
-    WeatherAlertEvent,
-    SatelliteDataReadyEvent,
-    DiseaseDetectedEvent,
-    CropStressEvent,
-    SubscriptionCreatedEvent,
-    PaymentCompletedEvent,
-    AgentExecutionStartedEvent,
     AgentExecutionCompletedEvent,
+    AgentExecutionStartedEvent,
+    BaseEvent,
+    CropStressEvent,
+    DiseaseDetectedEvent,
     FarmerCreatedEvent,
+    FieldCreatedEvent,
+    FieldDeletedEvent,
+    FieldUpdatedEvent,
+    PaymentCompletedEvent,
+    SatelliteDataReadyEvent,
+    SubscriptionCreatedEvent,
+    WeatherAlertEvent,
+    WeatherForecastEvent,
 )
-
 
 # =============================================================================
 # Test BaseEvent

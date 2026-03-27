@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 /// SAHOOL Optimized List Widgets
 /// قوائم محسّنة للأداء
@@ -96,7 +95,7 @@ class _SahoolOptimizedListViewState<T>
     widget.onLoadMore?.call();
 
     // Reset after a short delay to prevent rapid calls
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
     if (mounted) {
       setState(() => _isLoadingMore = false);
     }

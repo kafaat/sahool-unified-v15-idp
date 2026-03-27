@@ -801,10 +801,11 @@ class TestModelsRouter:
 
     def _get_client(self):
         import importlib.util
-        import sys
         import os
-        from fastapi.testclient import TestClient
+        import sys
+
         from fastapi import FastAPI
+        from fastapi.testclient import TestClient
 
         # The service directory contains a hyphen so we use importlib
         router_path = os.path.join(

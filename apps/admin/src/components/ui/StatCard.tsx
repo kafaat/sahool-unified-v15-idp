@@ -1,8 +1,8 @@
 // Statistics Card Component
 // بطاقة الإحصائيات
 
-import { cn, formatNumber } from "@/lib/utils";
-import { LucideIcon } from "lucide-react";
+import { cn, formatNumber } from '@/lib/utils';
+import { LucideIcon } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
@@ -22,17 +22,17 @@ export default function StatCard({
   value,
   icon: Icon,
   trend,
-  suffix = "",
-  className = "",
-  iconColor = "text-sahool-600",
+  suffix = '',
+  className = '',
+  iconColor = 'text-sahool-600',
 }: StatCardProps) {
-  const displayValue = typeof value === "number" ? formatNumber(value) : value;
+  const displayValue = typeof value === 'number' ? formatNumber(value) : value;
 
   return (
     <div
       className={cn(
-        "bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md",
-        className,
+        'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md',
+        className
       )}
     >
       <div className="flex items-start justify-between">
@@ -47,24 +47,21 @@ export default function StatCard({
           {trend && (
             <p
               className={cn(
-                "text-sm mt-2 flex items-center gap-1",
-                trend.isPositive ? "text-green-600" : "text-red-600",
+                'text-sm mt-2 flex items-center gap-1',
+                trend.isPositive ? 'text-green-600' : 'text-red-600'
               )}
             >
-              <span>{trend.isPositive ? "↑" : "↓"}</span>
+              <span>{trend.isPositive ? '↑' : '↓'}</span>
               <span>{Math.abs(trend.value)}%</span>
               <span className="text-gray-500 dark:text-gray-400">من الأسبوع الماضي</span>
             </p>
           )}
         </div>
         <div
-          className={cn(
-            "p-3 rounded-xl bg-opacity-10",
-            iconColor.replace("text-", "bg-"),
-          )}
+          className={cn('p-3 rounded-xl bg-opacity-10', iconColor.replace('text-', 'bg-'))}
           suppressHydrationWarning
         >
-          <Icon className={cn("w-6 h-6", iconColor)} />
+          <Icon className={cn('w-6 h-6', iconColor)} />
         </div>
       </div>
     </div>

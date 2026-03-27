@@ -1,24 +1,33 @@
 """Tests for digital-twin-engine health and core endpoints."""
 
 import os
+
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+os.environ.setdefault("JWT_ALGORITHM", "HS256")
+os.environ.setdefault("DATABASE_URL", "")
+os.environ.setdefault("NATS_URL", "")
 import sys
 
 import pytest
 
-try:
-    from fastapi.testclient import TestClient
-except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-from src.main import app
+try:
+    from fastapi.testclient import TestClient
+    from src.main import app
+except ImportError:
+    pytest.skip("digital-twin-engine dependencies not installed", allow_module_level=True)
+
+# Valid UUID for tenant context middleware
+VALID_TENANT = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+TENANT_HEADER = {"X-Tenant-ID": VALID_TENANT}
 
 
 @pytest.fixture
 def client():
-    return TestClient(app)
+    return TestClient(app, headers=TENANT_HEADER)
 
 
 @pytest.mark.unit
@@ -37,7 +46,7 @@ class TestHealthEndpoints:
         assert data["dt_level"] == "l3_prediction"
 
     def test_dt_info(self, client):
-        response = client.get("/api/v1/digital-twin/info")
+        response = client.get("/api/v1/digital-twin/info", headers=TENANT_HEADER)
         assert response.status_code == 200
         data = response.json()
         assert "capabilities" in data
@@ -49,6 +58,7 @@ class TestSimulation:
     def test_basic_simulation(self, client):
         response = client.post(
             "/api/v1/digital-twin/simulate",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {
                     "field_id": "FIELD-001",
@@ -78,6 +88,7 @@ class TestSimulation:
     def test_simulation_with_climate_zone(self, client):
         response = client.post(
             "/api/v1/digital-twin/simulate",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {
                     "field_id": "FIELD-002",
@@ -99,6 +110,7 @@ class TestScenarios:
     def test_scenario_comparison(self, client):
         response = client.post(
             "/api/v1/digital-twin/scenarios",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {
                     "field_id": "FIELD-001",
@@ -140,6 +152,7 @@ class TestScenarios:
         """Need at least 2 scenarios."""
         response = client.post(
             "/api/v1/digital-twin/scenarios",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {"field_id": "F1", "crop": "wheat"},
                 "days": 10,
@@ -154,6 +167,7 @@ class TestOptimization:
     def test_balanced_optimization(self, client):
         response = client.post(
             "/api/v1/digital-twin/optimize",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {
                     "field_id": "FIELD-001",
@@ -180,6 +194,7 @@ class TestOptimization:
     def test_minimize_water_optimization(self, client):
         response = client.post(
             "/api/v1/digital-twin/optimize",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {
                     "field_id": "FIELD-001",
@@ -198,6 +213,7 @@ class TestStateUpdate:
     def test_update_state(self, client):
         response = client.post(
             "/api/v1/digital-twin/state/update",
+            headers=TENANT_HEADER,
             json={
                 "field_id": "FIELD-001",
                 "soil_moisture_pct": 42.0,
@@ -216,6 +232,7 @@ class TestStateUpdate:
         for val in [40.0, 42.0, 41.0, 41.5, 41.2]:
             response = client.post(
                 "/api/v1/digital-twin/state/update",
+                headers=TENANT_HEADER,
                 json={
                     "field_id": "FIELD-KALMAN",
                     "soil_moisture_pct": val,
@@ -236,6 +253,7 @@ class TestSimulationEdgeCases:
         """Test simulation under high salinity stress."""
         response = client.post(
             "/api/v1/digital-twin/simulate",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {
                     "field_id": "FIELD-SAL",
@@ -257,6 +275,7 @@ class TestSimulationEdgeCases:
         """Test simulation without any irrigation events."""
         response = client.post(
             "/api/v1/digital-twin/simulate",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {
                     "field_id": "FIELD-DRY",
@@ -278,6 +297,7 @@ class TestSimulationEdgeCases:
         """Verify each daily state has required fields."""
         response = client.post(
             "/api/v1/digital-twin/simulate",
+            headers=TENANT_HEADER,
             json={
                 "field_state": {
                     "field_id": "FIELD-STRUCT",

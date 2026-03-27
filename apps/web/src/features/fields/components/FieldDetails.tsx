@@ -1,21 +1,13 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Field Details Component
  * مكون تفاصيل الحقل
  */
 
-import React from "react";
-import {
-  X,
-  MapPin,
-  Sprout,
-  Maximize2,
-  Calendar,
-  Edit2,
-  Trash2,
-} from "lucide-react";
-import type { Field } from "../types";
+import React from 'react';
+import { X, MapPin, Sprout, Maximize2, Calendar, Edit2, Trash2 } from 'lucide-react';
+import type { Field } from '../types';
 
 interface FieldDetailsProps {
   field: Field;
@@ -24,28 +16,18 @@ interface FieldDetailsProps {
   onDelete?: () => void;
 }
 
-export const FieldDetails: React.FC<FieldDetailsProps> = ({
-  field,
-  onClose,
-  onEdit,
-  onDelete,
-}) => {
+export const FieldDetails: React.FC<FieldDetailsProps> = ({ field, onClose, onEdit, onDelete }) => {
   return (
     <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 border-b-2 border-gray-200">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              {field.nameAr || field.name}
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">{field.nameAr || field.name}</h2>
             <p className="text-gray-600">{field.name}</p>
           </div>
           {onClose && (
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white rounded-lg transition-colors"
-            >
+            <button onClick={onClose} className="p-2 hover:bg-white rounded-lg transition-colors">
               <X className="w-6 h-6" />
             </button>
           )}
@@ -73,9 +55,7 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
               </div>
               <div>
                 <p className="text-sm text-gray-600">المحصول</p>
-                <p className="font-semibold text-gray-900">
-                  {field.cropAr || field.crop}
-                </p>
+                <p className="font-semibold text-gray-900">{field.cropAr || field.crop}</p>
               </div>
             </div>
           )}
@@ -87,9 +67,7 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
             <div>
               <p className="text-sm text-gray-600">تاريخ الإضافة</p>
               <p className="font-semibold text-gray-900">
-                {field.createdAt
-                  ? new Date(field.createdAt).toLocaleDateString("ar-EG")
-                  : "N/A"}
+                {field.createdAt ? new Date(field.createdAt).toLocaleDateString('ar-EG') : 'N/A'}
               </p>
             </div>
           </div>
@@ -101,7 +79,7 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
             <div>
               <p className="text-sm text-gray-600">الموقع</p>
               <p className="font-semibold text-gray-900">
-                {field.polygon ? "تم تحديد الموقع" : "لم يتم التحديد"}
+                {field.polygon ? 'تم تحديد الموقع' : 'لم يتم التحديد'}
               </p>
             </div>
           </div>

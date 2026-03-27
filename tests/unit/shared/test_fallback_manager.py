@@ -3,15 +3,14 @@ Unit tests for fallback_manager module
 اختبارات وحدة لمدير الاحتياطي
 """
 
-import time
-from unittest.mock import Mock
-
-import pytest
-
 # Import the modules to test - use importlib to avoid namespace collision
 # between repo root shared/ and apps/services/shared/
 import importlib.util
+import time
 from pathlib import Path
+from unittest.mock import Mock
+
+import pytest
 
 _repo_root = Path(__file__).parent.parent.parent.parent
 _module_path = _repo_root / "apps" / "services" / "shared" / "utils" / "fallback_manager.py"

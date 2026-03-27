@@ -13,6 +13,11 @@ spec:
     server: https://kubernetes.default.svc
     namespace: sahool
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    # automated sync disabled for production safety - use manual sync
+    # automated:
+    #   prune: true
+    #   selfHeal: true

@@ -6,6 +6,7 @@
 /// - Push notifications integration
 /// - Personalized alerts based on farmer profile
 /// - Unread count badge
+library;
 
 import 'dart:async';
 import 'dart:convert';

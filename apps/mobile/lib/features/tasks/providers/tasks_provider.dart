@@ -1,20 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/di/providers.dart' show apiClientProvider, databaseProvider;
 import '../../../core/http/api_client.dart';
-import '../../../core/storage/database.dart';
 import '../data/remote/tasks_api.dart';
 import '../data/repo/tasks_repo.dart';
 import '../domain/entities/task.dart';
-
-/// Database provider
-final databaseProvider = Provider<AppDatabase>((ref) {
-  return AppDatabase();
-});
-
-/// API Client provider
-final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient();
-});
 
 /// Tasks API provider
 final tasksApiProvider = Provider<TasksApi>((ref) {

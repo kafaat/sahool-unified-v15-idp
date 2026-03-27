@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 // Activity Feed Component
 // تدفق النشاطات
 
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, memo } from 'react';
 import {
   Activity,
   Bug,
@@ -15,21 +15,21 @@ import {
   AlertTriangle,
   Calendar,
   Filter,
-} from "lucide-react";
-import { formatDate } from "@/lib/utils";
-import Link from "next/link";
+} from 'lucide-react';
+import { formatDate } from '@/lib/utils';
+import Link from 'next/link';
 
 export interface ActivityItem {
   id: string;
   type:
-    | "diagnosis"
-    | "irrigation"
-    | "task"
-    | "alert"
-    | "farm"
-    | "prescription"
-    | "sensor"
-    | "general";
+    | 'diagnosis'
+    | 'irrigation'
+    | 'task'
+    | 'alert'
+    | 'farm'
+    | 'prescription'
+    | 'sensor'
+    | 'general';
   action: string;
   actionAr: string;
   description: string;
@@ -56,17 +56,17 @@ function ActivityFeed({
   maxItems = 20,
   showFilters = true,
   showTimestamps = true,
-  className = "",
+  className = '',
 }: ActivityFeedProps) {
-  const [filter, setFilter] = useState<
-    "all" | "diagnosis" | "irrigation" | "task" | "alert"
-  >("all");
+  const [filter, setFilter] = useState<'all' | 'diagnosis' | 'irrigation' | 'task' | 'alert'>(
+    'all'
+  );
   const [visibleItems, setVisibleItems] = useState(maxItems);
 
   // Memoized filtered activities to prevent recalculation on every render
   const filteredActivities = useMemo(() => {
     let filtered = activities;
-    if (filter !== "all") {
+    if (filter !== 'all') {
       filtered = activities.filter((a) => a.type === filter);
     }
     return filtered.slice(0, visibleItems);
@@ -77,57 +77,73 @@ function ActivityFeed({
   }, []);
 
   // Memoized icon map - defined once, not recreated on each call
-  const activityIcons = useMemo<Record<string, typeof Activity>>(() => ({
-    diagnosis: Bug,
-    irrigation: Droplets,
-    task: FileText,
-    alert: AlertTriangle,
-    farm: MapPin,
-    prescription: Sprout,
-    sensor: Activity,
-    general: Activity,
-  }), []);
+  const activityIcons = useMemo<Record<string, typeof Activity>>(
+    () => ({
+      diagnosis: Bug,
+      irrigation: Droplets,
+      task: FileText,
+      alert: AlertTriangle,
+      farm: MapPin,
+      prescription: Sprout,
+      sensor: Activity,
+      general: Activity,
+    }),
+    []
+  );
 
   // Memoized color map
-  const activityColors = useMemo<Record<string, string>>(() => ({
-    diagnosis: "bg-purple-100 text-purple-600",
-    irrigation: "bg-blue-100 text-blue-600",
-    task: "bg-yellow-100 text-yellow-600",
-    alert: "bg-red-100 text-red-600",
-    farm: "bg-green-100 text-green-600",
-    prescription: "bg-emerald-100 text-emerald-600",
-    sensor: "bg-cyan-100 text-cyan-600",
-    general: "bg-gray-100 text-gray-600",
-  }), []);
+  const activityColors = useMemo<Record<string, string>>(
+    () => ({
+      diagnosis: 'bg-purple-100 text-purple-600',
+      irrigation: 'bg-blue-100 text-blue-600',
+      task: 'bg-yellow-100 text-yellow-600',
+      alert: 'bg-red-100 text-red-600',
+      farm: 'bg-green-100 text-green-600',
+      prescription: 'bg-emerald-100 text-emerald-600',
+      sensor: 'bg-cyan-100 text-cyan-600',
+      general: 'bg-gray-100 text-gray-600',
+    }),
+    []
+  );
 
   // Memoized label map
-  const activityLabels = useMemo<Record<string, string>>(() => ({
-    diagnosis: "تشخيص",
-    irrigation: "ري",
-    task: "مهمة",
-    alert: "تنبيه",
-    farm: "مزرعة",
-    prescription: "وصفة",
-    sensor: "مستشعر",
-    general: "عام",
-  }), []);
+  const activityLabels = useMemo<Record<string, string>>(
+    () => ({
+      diagnosis: 'تشخيص',
+      irrigation: 'ري',
+      task: 'مهمة',
+      alert: 'تنبيه',
+      farm: 'مزرعة',
+      prescription: 'وصفة',
+      sensor: 'مستشعر',
+      general: 'عام',
+    }),
+    []
+  );
 
-  const getActivityIcon = useCallback((type: string) => {
-    return activityIcons[type] || Activity;
-  }, [activityIcons]);
+  const getActivityIcon = useCallback(
+    (type: string) => {
+      return activityIcons[type] || Activity;
+    },
+    [activityIcons]
+  );
 
-  const getActivityColor = useCallback((type: string) => {
-    return activityColors[type] || "bg-gray-100 text-gray-600";
-  }, [activityColors]);
+  const getActivityColor = useCallback(
+    (type: string) => {
+      return activityColors[type] || 'bg-gray-100 text-gray-600';
+    },
+    [activityColors]
+  );
 
-  const getActivityTypeLabel = useCallback((type: string) => {
-    return activityLabels[type] || type;
-  }, [activityLabels]);
+  const getActivityTypeLabel = useCallback(
+    (type: string) => {
+      return activityLabels[type] || type;
+    },
+    [activityLabels]
+  );
 
   return (
-    <div
-      className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}
-    >
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
@@ -140,9 +156,7 @@ function ActivityFeed({
               <Filter className="w-4 h-4 text-gray-400" />
               <select
                 value={filter}
-                onChange={(e) =>
-                  handleFilterChange(e.target.value as typeof filter)
-                }
+                onChange={(e) => handleFilterChange(e.target.value as typeof filter)}
                 className="px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
                 aria-label="تصفية النشاطات حسب النوع"
               >
@@ -170,10 +184,7 @@ function ActivityFeed({
             const colorClass = getActivityColor(activity.type);
 
             return (
-              <div
-                key={activity.id}
-                className="p-4 hover:bg-gray-50 transition-colors"
-              >
+              <div key={activity.id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start gap-3">
                   {/* Icon */}
                   <div className={`p-2 rounded-lg ${colorClass} flex-shrink-0`}>
@@ -184,12 +195,8 @@ function ActivityFeed({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 text-sm">
-                          {activity.actionAr}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-0.5">
-                          {activity.descriptionAr}
-                        </p>
+                        <h3 className="font-medium text-gray-900 text-sm">{activity.actionAr}</h3>
+                        <p className="text-sm text-gray-600 mt-0.5">{activity.descriptionAr}</p>
                       </div>
                       <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full flex-shrink-0">
                         {getActivityTypeLabel(activity.type)}
@@ -235,7 +242,8 @@ function ActivityFeed({
 
       {/* Footer */}
       {filteredActivities.length > 0 &&
-        filteredActivities.length < (filter === "all" ? activities : activities.filter((a) => a.type === filter)).length && (
+        filteredActivities.length <
+          (filter === 'all' ? activities : activities.filter((a) => a.type === filter)).length && (
           <div className="p-3 border-t border-gray-100 text-center">
             <button
               onClick={() => setVisibleItems((prev) => prev + 10)}

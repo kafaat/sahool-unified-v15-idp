@@ -34,16 +34,15 @@ import structlog
 
 logger = structlog.get_logger()
 
+# Authentication imports
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.errors_py import (
     ExternalServiceException,
     InternalServerException,
     add_request_id_middleware,
     setup_exception_handlers,
 )
-
-# Authentication imports
-from shared.auth.dependencies import get_current_user
-from shared.auth.models import User
 
 # Security headers middleware
 try:
@@ -130,6 +129,29 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# CORS - Secure configuration
+try:
+    from starlette.middleware.cors import CORSMiddleware
+
+    try:
+        from shared.cors_config import CORS_SETTINGS
+
+        app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
+    except ImportError:
+        ALLOWED_ORIGINS = os.getenv(
+            "CORS_ORIGINS",
+            "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+        ).split(",")
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=ALLOWED_ORIGINS,
+            allow_credentials=True,
+            allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
+        )
+except ImportError:
+    pass
 
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
@@ -261,7 +283,7 @@ async def assess(req: WeatherAssessRequest, user: User = Depends(get_current_use
                 )
                 event_ids.append(event_id)
             except Exception as e:
-                logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "field_id": req.field_id,
@@ -329,7 +351,7 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
                     )
                     event_ids.append(event_id)
                 except Exception as e:
-                    logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
+                    logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
         return {
             "field_id": req.field_id,
@@ -400,9 +422,7 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
                     correlation_id=req.correlation_id,
                 )
             except Exception as pub_err:
-                import logging
-
-                logging.getLogger(__name__).warning("nats_publish_failed: %s", pub_err)
+                logger.warning("nats_publish_failed", error=str(pub_err), exc_info=True)
 
         return {
             "field_id": req.field_id,
@@ -464,7 +484,7 @@ async def irrigation_adjustment(req: IrrigationRequest, user: User = Depends(get
                 correlation_id=req.correlation_id,
             )
         except Exception as e:
-            logger.error("nats_publish_failed", subject="irrigation_adjustment", error=str(e))
+            logger.error("nats_publish_failed", subject="irrigation_adjustment", error=str(e), exc_info=True)
 
     return {
         "field_id": req.field_id,
@@ -715,8 +735,8 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                     correlation_id=req.correlation_id,
                 )
                 event_ids.append(event_id)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "tenant_id": req.tenant_id,
@@ -812,8 +832,8 @@ async def assess_frost_risk(req: FrostRiskRequest, user: User = Depends(get_curr
                     title_ar=result.get("recommendation_ar", "خطر صقيع"),
                     title_en=result.get("recommendation_en", "Frost risk"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "tenant_id": req.tenant_id,
@@ -856,8 +876,8 @@ async def assess_heat_stress(req: HeatStressRequest, user: User = Depends(get_cu
                     title_ar=result.get("recommendation_ar", "إجهاد حراري"),
                     title_en=result.get("recommendation_en", "Heat stress"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "tenant_id": req.tenant_id,
@@ -927,8 +947,8 @@ async def calculate_drought(req: DroughtIndexRequest, user: User = Depends(get_c
                     title_ar=result.get("recommendation_ar", "جفاف"),
                     title_en=result.get("recommendation_en", "Drought"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "tenant_id": req.tenant_id,

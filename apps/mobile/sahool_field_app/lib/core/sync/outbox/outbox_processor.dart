@@ -7,7 +7,6 @@ import '../../http/api_client.dart';
 import '../../error_handling/app_exceptions.dart';
 import '../../utils/app_logger.dart';
 import '../network_status.dart';
-import 'outbox_entry.dart';
 import 'outbox_service.dart';
 
 /// SAHOOL Outbox Processor
@@ -32,7 +31,6 @@ class OutboxProcessor {
   bool _isProcessing = false;
   bool _isPaused = false;
   int _consecutiveFailures = 0;
-  DateTime? _lastProcessTime;
   Timer? _processTimer;
   Timer? _retryTimer;
   StreamSubscription<bool>? _connectivitySubscription;
@@ -157,7 +155,7 @@ class OutboxProcessor {
   /// Process all pending outbox entries
   Future<ProcessingResult> _processOutbox({bool force = false}) async {
     if (_isProcessing && !force) {
-      return ProcessingResult(
+      return const ProcessingResult(
         success: false,
         message: 'Processing already in progress',
       );
@@ -180,7 +178,7 @@ class OutboxProcessor {
       if (entries.isEmpty) {
         _updateState(ProcessorState.idle);
         _isProcessing = false;
-        return ProcessingResult(
+        return const ProcessingResult(
           success: true,
           message: 'No pending entries',
         );
@@ -221,7 +219,7 @@ class OutboxProcessor {
 
         // Add delay between items to respect rate limits
         if (processed > 0) {
-          await Future.delayed(config.itemDelay);
+          await Future<void>.delayed(config.itemDelay);
         }
 
         final result = await _processEntry(entry);
@@ -254,13 +252,11 @@ class OutboxProcessor {
           case ProcessEntryStatus.rateLimited:
             // Stop processing and wait
             AppLogger.w('Rate limited, pausing processing', tag: 'PROCESSOR');
-            await Future.delayed(config.rateLimitDelay);
+            await Future<void>.delayed(config.rateLimitDelay);
             skipped++;
             break;
         }
       }
-
-      _lastProcessTime = DateTime.now();
 
       final success = failed == 0;
       final state =
@@ -320,37 +316,36 @@ class OutboxProcessor {
       }
 
       // Make API request
-      dynamic response;
       switch (entry.method.toUpperCase()) {
         case 'POST':
-          response = await _apiClient.post(
+          await _apiClient.post(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'PUT':
-          response = await _apiClient.put(
+          await _apiClient.put(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'PATCH':
-          response = await _apiClient.put(
+          await _apiClient.put(
             entry.apiEndpoint,
             payload,
             headers: headers,
           );
           break;
         case 'DELETE':
-          response = await _apiClient.delete(
+          await _apiClient.delete(
             entry.apiEndpoint,
             headers: headers,
           );
           break;
         default:
-          response = await _apiClient.post(
+          await _apiClient.post(
             entry.apiEndpoint,
             payload,
             headers: headers,
@@ -367,12 +362,12 @@ class OutboxProcessor {
         message: '${entry.entityType}/${entry.entityId} synced successfully',
       );
 
-      return ProcessEntryResult(
+      return const ProcessEntryResult(
         status: ProcessEntryStatus.success,
         message: 'Synced successfully',
       );
     } on AppException catch (e) {
-      return await _handleAppError(entry, e);
+      return _handleAppError(entry, e);
     } catch (e) {
       await _outboxService.markFailed(entry.id, e.toString());
 
@@ -402,7 +397,7 @@ class OutboxProcessor {
       await _handleConflict(entry, null);
       await _outboxService.markConflict(entry.id, 'Conflict with server');
 
-      return ProcessEntryResult(
+      return const ProcessEntryResult(
         status: ProcessEntryStatus.conflict,
         message: 'Conflict detected',
       );
@@ -410,7 +405,7 @@ class OutboxProcessor {
 
     // Handle 429 Rate Limit
     if (statusCode == 429) {
-      return ProcessEntryResult(
+      return const ProcessEntryResult(
         status: ProcessEntryStatus.rateLimited,
         message: 'Rate limited',
       );

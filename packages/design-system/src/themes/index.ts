@@ -32,25 +32,16 @@ export type {
   CropHealthLevel,
   NDVILevel,
   MoistureLevel,
-} from "./types";
+} from './types';
 
 // Theme exports
-export { lightTheme, lightThemeCSSVariables } from "./light";
-export { darkTheme, darkThemeCSSVariables } from "./dark";
+export { lightTheme, lightThemeCSSVariables } from './light';
+export { darkTheme, darkThemeCSSVariables } from './dark';
 
 // Re-export defaults
-import { lightTheme, lightThemeCSSVariables } from "./light";
-import { darkTheme, darkThemeCSSVariables } from "./dark";
-import type {
-  ThemeConfig,
-  ThemeMode,
-  Direction,
-  LayoutConfig,
-  ColorCategory,
-  CropHealthLevel,
-  NDVILevel,
-  MoistureLevel,
-} from "./types";
+import { lightTheme, lightThemeCSSVariables } from './light';
+import { darkTheme, darkThemeCSSVariables } from './dark';
+import type { ThemeConfig, ThemeMode, Direction, LayoutConfig, ColorCategory } from './types';
 
 /**
  * Available themes registry
@@ -76,35 +67,31 @@ export const defaultTheme = lightTheme;
 /**
  * Get theme by mode
  */
-export function getTheme(mode: "light" | "dark"): ThemeConfig {
+export function getTheme(mode: 'light' | 'dark'): ThemeConfig {
   return themes[mode];
 }
 
 /**
  * Get CSS variables for a theme
  */
-export function getThemeCSSVariables(
-  mode: "light" | "dark"
-): Record<string, string> {
+export function getThemeCSSVariables(mode: 'light' | 'dark'): Record<string, string> {
   return themeCSSVariables[mode];
 }
 
 /**
  * Generate CSS variable string for injection into :root
  */
-export function generateCSSVariableString(mode: "light" | "dark"): string {
+export function generateCSSVariableString(mode: 'light' | 'dark'): string {
   const variables = getThemeCSSVariables(mode);
   const keys = Object.keys(variables) as Array<keyof typeof variables>;
-  return keys
-    .map((key) => `${key}: ${variables[key]};`)
-    .join("\n  ");
+  return keys.map((key) => `${key}: ${variables[key]};`).join('\n  ');
 }
 
 /**
  * Generate CSS class rules for theme
  */
-export function generateThemeCSS(mode: "light" | "dark"): string {
-  const selector = mode === "dark" ? ".dark, [data-theme='dark']" : ":root";
+export function generateThemeCSS(mode: 'light' | 'dark'): string {
+  const selector = mode === 'dark' ? ".dark, [data-theme='dark']" : ':root';
   const variables = generateCSSVariableString(mode);
   return `${selector} {\n  ${variables}\n}`;
 }
@@ -113,40 +100,40 @@ export function generateThemeCSS(mode: "light" | "dark"): string {
  * Generate complete CSS for both themes
  */
 export function generateAllThemesCSS(): string {
-  return `/* Light Theme (Default) */\n${generateThemeCSS("light")}\n\n/* Dark Theme */\n${generateThemeCSS("dark")}`;
+  return `/* Light Theme (Default) */\n${generateThemeCSS('light')}\n\n/* Dark Theme */\n${generateThemeCSS('dark')}`;
 }
 
 /**
  * Layout configuration for LTR (English)
  */
 export const ltrLayout: LayoutConfig = {
-  direction: "ltr",
-  start: "left",
-  end: "right",
+  direction: 'ltr',
+  start: 'left',
+  end: 'right',
   fontFamily: '"Tajawal", system-ui, sans-serif',
-  baseFontSize: "16px",
-  lineHeight: "1.5",
-  letterSpacing: "0",
+  baseFontSize: '16px',
+  lineHeight: '1.5',
+  letterSpacing: '0',
 };
 
 /**
  * Layout configuration for RTL (Arabic)
  */
 export const rtlLayout: LayoutConfig = {
-  direction: "rtl",
-  start: "right",
-  end: "left",
+  direction: 'rtl',
+  start: 'right',
+  end: 'left',
   fontFamily: '"Tajawal", system-ui, sans-serif',
-  baseFontSize: "16px",
-  lineHeight: "1.7",
-  letterSpacing: "0.02em",
+  baseFontSize: '16px',
+  lineHeight: '1.7',
+  letterSpacing: '0.02em',
 };
 
 /**
  * Get layout configuration by direction
  */
 export function getLayout(direction: Direction): LayoutConfig {
-  return direction === "rtl" ? rtlLayout : ltrLayout;
+  return direction === 'rtl' ? rtlLayout : ltrLayout;
 }
 
 /**
@@ -168,14 +155,12 @@ export function generateLayoutCSS(direction: Direction): string {
 /**
  * Resolve system theme preference
  */
-export function resolveThemeMode(mode: ThemeMode): "light" | "dark" {
-  if (mode === "system") {
-    if (typeof window !== "undefined" && window.matchMedia) {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
+export function resolveThemeMode(mode: ThemeMode): 'light' | 'dark' {
+  if (mode === 'system') {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-    return "light";
+    return 'light';
   }
   return mode;
 }
@@ -189,18 +174,18 @@ export function getThemeColor(
   shade: string | number
 ): string {
   const colorGroup = theme.colors[category];
-  if ("light" in colorGroup && typeof shade === "string") {
+  if ('light' in colorGroup && typeof shade === 'string') {
     const semanticColor = colorGroup as { light: string; main: string; dark: string };
-    if (shade === "light" || shade === "main" || shade === "dark") {
+    if (shade === 'light' || shade === 'main' || shade === 'dark') {
       return semanticColor[shade];
     }
   }
   // Access as indexed type for shade values
   const shadeKey = String(shade);
   if (shadeKey in colorGroup) {
-    return (colorGroup as unknown as Record<string, string>)[shadeKey] || "";
+    return (colorGroup as unknown as Record<string, string>)[shadeKey] || '';
   }
-  return "";
+  return '';
 }
 
 /**
@@ -208,11 +193,11 @@ export function getThemeColor(
  */
 export function getAgriculturalColor(
   theme: ThemeConfig,
-  category: keyof ThemeConfig["agricultural"],
+  category: keyof ThemeConfig['agricultural'],
   level: string
 ): string {
   const colorGroup = theme.agricultural[category];
-  return (colorGroup as Record<string, string>)[level] || "";
+  return (colorGroup as Record<string, string>)[level] || '';
 }
 
 /**
@@ -246,10 +231,7 @@ export function getNDVIGradient(theme: ThemeConfig): string[] {
  * Moisture level color mapping
  * Maps moisture percentage (0-100) to colors
  */
-export function getMoistureColor(
-  theme: ThemeConfig,
-  moisturePercent: number
-): string {
+export function getMoistureColor(theme: ThemeConfig, moisturePercent: number): string {
   if (moisturePercent < 20) return theme.agricultural.moisture.critical;
   if (moisturePercent < 40) return theme.agricultural.moisture.dry;
   if (moisturePercent < 60) return theme.agricultural.moisture.adequate;
@@ -273,10 +255,7 @@ export function getMoistureGradient(theme: ThemeConfig): string[] {
 /**
  * Crop health color mapping
  */
-export function getCropHealthColor(
-  theme: ThemeConfig,
-  healthScore: number
-): string {
+export function getCropHealthColor(theme: ThemeConfig, healthScore: number): string {
   if (healthScore < 20) return theme.agricultural.cropHealth.critical;
   if (healthScore < 40) return theme.agricultural.cropHealth.stressed;
   if (healthScore < 60) return theme.agricultural.cropHealth.moderate;
@@ -301,10 +280,7 @@ export function getCropHealthGradient(theme: ThemeConfig): string[] {
  * Theme-aware class generator
  * Returns appropriate Tailwind classes based on theme mode
  */
-export function themeClass(
-  lightClass: string,
-  darkClass: string
-): string {
+export function themeClass(lightClass: string, darkClass: string): string {
   return `${lightClass} dark:${darkClass}`;
 }
 
@@ -312,24 +288,21 @@ export function themeClass(
  * Direction-aware class generator
  * Returns appropriate Tailwind classes based on direction
  */
-export function directionClass(
-  ltrClass: string,
-  rtlClass: string
-): string {
+export function directionClass(ltrClass: string, rtlClass: string): string {
   return `ltr:${ltrClass} rtl:${rtlClass}`;
 }
 
 /**
  * Storage keys for theme persistence
  */
-export const THEME_STORAGE_KEY = "sahool-theme-mode";
-export const DIRECTION_STORAGE_KEY = "sahool-direction";
+export const THEME_STORAGE_KEY = 'sahool-theme-mode';
+export const DIRECTION_STORAGE_KEY = 'sahool-direction';
 
 /**
  * Save theme preference to storage
  */
 export function saveThemePreference(mode: ThemeMode): void {
-  if (typeof localStorage !== "undefined") {
+  if (typeof localStorage !== 'undefined') {
     localStorage.setItem(THEME_STORAGE_KEY, mode);
   }
 }
@@ -338,20 +311,20 @@ export function saveThemePreference(mode: ThemeMode): void {
  * Load theme preference from storage
  */
 export function loadThemePreference(): ThemeMode {
-  if (typeof localStorage !== "undefined") {
+  if (typeof localStorage !== 'undefined') {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === "light" || stored === "dark" || stored === "system") {
+    if (stored === 'light' || stored === 'dark' || stored === 'system') {
       return stored;
     }
   }
-  return "system";
+  return 'system';
 }
 
 /**
  * Save direction preference to storage
  */
 export function saveDirectionPreference(direction: Direction): void {
-  if (typeof localStorage !== "undefined") {
+  if (typeof localStorage !== 'undefined') {
     localStorage.setItem(DIRECTION_STORAGE_KEY, direction);
   }
 }
@@ -360,31 +333,31 @@ export function saveDirectionPreference(direction: Direction): void {
  * Load direction preference from storage
  */
 export function loadDirectionPreference(): Direction {
-  if (typeof localStorage !== "undefined") {
+  if (typeof localStorage !== 'undefined') {
     const stored = localStorage.getItem(DIRECTION_STORAGE_KEY);
-    if (stored === "ltr" || stored === "rtl") {
+    if (stored === 'ltr' || stored === 'rtl') {
       return stored;
     }
   }
-  return "ltr";
+  return 'ltr';
 }
 
 /**
  * Apply theme to document
  */
-export function applyTheme(mode: "light" | "dark"): void {
-  if (typeof document !== "undefined") {
+export function applyTheme(mode: 'light' | 'dark'): void {
+  if (typeof document !== 'undefined') {
     const root = document.documentElement;
 
     // Update class for Tailwind dark mode
-    if (mode === "dark") {
-      root.classList.add("dark");
+    if (mode === 'dark') {
+      root.classList.add('dark');
     } else {
-      root.classList.remove("dark");
+      root.classList.remove('dark');
     }
 
     // Update data attribute
-    root.setAttribute("data-theme", mode);
+    root.setAttribute('data-theme', mode);
 
     // Update color-scheme for native elements
     root.style.colorScheme = mode;
@@ -393,7 +366,7 @@ export function applyTheme(mode: "light" | "dark"): void {
     const cssVariables = getThemeCSSVariables(mode);
     const varKeys = Object.keys(cssVariables) as Array<keyof typeof cssVariables>;
     varKeys.forEach((key) => {
-      root.style.setProperty(key, cssVariables[key]);
+      root.style.setProperty(key, cssVariables[key] ?? null);
     });
   }
 }
@@ -402,20 +375,20 @@ export function applyTheme(mode: "light" | "dark"): void {
  * Apply direction to document
  */
 export function applyDirection(direction: Direction): void {
-  if (typeof document !== "undefined") {
+  if (typeof document !== 'undefined') {
     const root = document.documentElement;
 
     // Set dir attribute
-    root.setAttribute("dir", direction);
+    root.setAttribute('dir', direction);
 
     // Update layout CSS variables
     const layout = getLayout(direction);
-    root.style.setProperty("--direction", layout.direction);
-    root.style.setProperty("--text-start", layout.start);
-    root.style.setProperty("--text-end", layout.end);
-    root.style.setProperty("--font-family", layout.fontFamily);
-    root.style.setProperty("--line-height", layout.lineHeight);
-    root.style.setProperty("--letter-spacing", layout.letterSpacing);
+    root.style.setProperty('--direction', layout.direction);
+    root.style.setProperty('--text-start', layout.start);
+    root.style.setProperty('--text-end', layout.end);
+    root.style.setProperty('--font-family', layout.fontFamily);
+    root.style.setProperty('--line-height', layout.lineHeight);
+    root.style.setProperty('--letter-spacing', layout.letterSpacing);
   }
 }
 
@@ -424,7 +397,7 @@ export function applyDirection(direction: Direction): void {
  * Call this on app startup
  */
 export function initializeTheme(): {
-  mode: "light" | "dark";
+  mode: 'light' | 'dark';
   direction: Direction;
 } {
   const storedMode = loadThemePreference();
@@ -440,20 +413,18 @@ export function initializeTheme(): {
 /**
  * Listen for system theme changes
  */
-export function watchSystemTheme(
-  callback: (mode: "light" | "dark") => void
-): () => void {
-  if (typeof window !== "undefined" && window.matchMedia) {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+export function watchSystemTheme(callback: (mode: 'light' | 'dark') => void): () => void {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     const handler = (e: MediaQueryListEvent) => {
-      callback(e.matches ? "dark" : "light");
+      callback(e.matches ? 'dark' : 'light');
     };
 
-    mediaQuery.addEventListener("change", handler);
+    mediaQuery.addEventListener('change', handler);
 
     return () => {
-      mediaQuery.removeEventListener("change", handler);
+      mediaQuery.removeEventListener('change', handler);
     };
   }
 
@@ -469,17 +440,17 @@ export const baseThemeStyles = `
 
 :root {
   color-scheme: light dark;
-  ${generateCSSVariableString("light")}
-  ${generateLayoutCSS("ltr")}
+  ${generateCSSVariableString('light')}
+  ${generateLayoutCSS('ltr')}
 }
 
 .dark,
 [data-theme="dark"] {
-  ${generateCSSVariableString("dark")}
+  ${generateCSSVariableString('dark')}
 }
 
 [dir="rtl"] {
-  ${generateLayoutCSS("rtl")}
+  ${generateLayoutCSS('rtl')}
 }
 
 /* Base element styles using CSS variables */

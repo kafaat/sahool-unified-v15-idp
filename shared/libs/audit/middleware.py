@@ -138,16 +138,27 @@ class AuditContextMiddleware(BaseHTTPMiddleware):
             _audit_context.reset(token)
 
     def _get_client_ip(self, request: Request) -> str | None:
-        """Extract client IP, handling proxies"""
+        """Extract client IP, handling proxies with validation."""
+        import ipaddress
+
+        def _is_valid_ip(ip: str) -> bool:
+            try:
+                ipaddress.ip_address(ip)
+                return True
+            except ValueError:
+                return False
+
         # Check X-Forwarded-For first (for proxied requests)
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
-            # Take the first IP in the chain
-            return forwarded_for.split(",")[0].strip()
+            # SECURITY: Validate IP format to prevent header spoofing
+            first_ip = forwarded_for.split(",")[0].strip()
+            if _is_valid_ip(first_ip):
+                return first_ip
 
         # Check X-Real-IP
         real_ip = request.headers.get("X-Real-IP")
-        if real_ip:
+        if real_ip and _is_valid_ip(real_ip.strip()):
             return real_ip.strip()
 
         # Fall back to direct client

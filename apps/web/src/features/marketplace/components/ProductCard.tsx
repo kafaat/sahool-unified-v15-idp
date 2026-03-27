@@ -8,23 +8,20 @@
  * - ARIA labels for screen readers
  */
 
-"use client";
+'use client';
 
-import React, { useCallback, useMemo } from "react";
-import Image from "next/image";
-import { ShoppingCart, Star, MapPin, Tag } from "lucide-react";
-import type { Product } from "../types";
-import { useCart } from "../hooks/useCart";
+import React, { useCallback, useMemo } from 'react';
+import Image from 'next/image';
+import { ShoppingCart, Star, MapPin, Tag } from 'lucide-react';
+import type { Product } from '../types';
+import { useCart } from '../hooks/useCart';
 
 interface ProductCardProps {
   product: Product;
   onClick?: () => void;
 }
 
-const ProductCardComponent: React.FC<ProductCardProps> = ({
-  product,
-  onClick,
-}) => {
+const ProductCardComponent: React.FC<ProductCardProps> = ({ product, onClick }) => {
   const { addItem } = useCart();
 
   const handleAddToCart = useCallback(
@@ -32,42 +29,36 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
       e.stopPropagation();
       addItem(product, 1);
     },
-    [addItem, product],
+    [addItem, product]
   );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (onClick && (e.key === "Enter" || e.key === " ")) {
+      if (onClick && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
         onClick();
       }
     },
-    [onClick],
+    [onClick]
   );
 
   const discountedPrice = product.discount
     ? product.price * (1 - product.discount.percentage / 100)
     : null;
 
-  const isOutOfStock = product.status === "out_of_stock";
+  const isOutOfStock = product.status === 'out_of_stock';
 
   // Memoize ARIA label
   const ariaLabel = useMemo(() => {
     const price = discountedPrice || product.price;
     return `${product.nameAr}, السعر ${price.toFixed(2)} ${product.currency}, ${getCategoryLabel(product.category)}`;
-  }, [
-    product.nameAr,
-    product.price,
-    product.currency,
-    product.category,
-    discountedPrice,
-  ]);
+  }, [product.nameAr, product.price, product.currency, product.category, discountedPrice]);
 
   return (
     <div
       onClick={onClick}
       onKeyDown={handleKeyDown}
-      role={onClick ? "button" : undefined}
+      role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       aria-label={ariaLabel}
       className="bg-white rounded-xl border-2 border-gray-200 hover:border-blue-400 transition-all cursor-pointer overflow-hidden group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -115,9 +106,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
 
         {/* Name */}
         <div>
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
-            {product.nameAr}
-          </h3>
+          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{product.nameAr}</h3>
           <p className="text-sm text-gray-600 line-clamp-1">{product.name}</p>
         </div>
 
@@ -130,9 +119,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
         {product.sellerRating && (
           <div className="flex items-center gap-1">
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-semibold">
-              {product.sellerRating}
-            </span>
+            <span className="text-sm font-semibold">{product.sellerRating}</span>
           </div>
         )}
 
@@ -162,10 +149,11 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
           <button
             onClick={handleAddToCart}
             disabled={isOutOfStock}
+            aria-label={isOutOfStock ? 'نفذت الكمية' : `أضف ${product.nameAr} إلى السلة`}
             className={`p-3 rounded-lg transition-all ${
               isOutOfStock
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
             }`}
           >
             <ShoppingCart className="w-5 h-5" />
@@ -186,22 +174,22 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
 /**
  * Get category label in Arabic
  */
-function getCategoryLabel(category: Product["category"]): string {
+function getCategoryLabel(category: Product['category']): string {
   const labels: Record<typeof category, string> = {
-    seeds: "بذور",
-    fertilizers: "أسمدة",
-    pesticides: "مبيدات",
-    equipment: "معدات",
-    tools: "أدوات",
-    irrigation: "ري",
-    produce: "منتجات",
-    other: "أخرى",
+    seeds: 'بذور',
+    fertilizers: 'أسمدة',
+    pesticides: 'مبيدات',
+    equipment: 'معدات',
+    tools: 'أدوات',
+    irrigation: 'ري',
+    produce: 'منتجات',
+    other: 'أخرى',
   };
   return labels[category] || category;
 }
 
 // Memoize component for performance
 export const ProductCard = React.memo(ProductCardComponent);
-ProductCard.displayName = "ProductCard";
+ProductCard.displayName = 'ProductCard';
 
 export default ProductCard;

@@ -7,17 +7,13 @@
  * (sidebar, header, dashboard context) to keep the auth bundle small and fast.
  */
 
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "SAHOOL - Authentication",
-  description: "Sign in to the SAHOOL Agricultural Intelligence Platform admin portal",
+  title: 'SAHOOL - Authentication',
+  description: 'Sign in to the SAHOOL Agricultural Intelligence Platform admin portal',
 };
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

@@ -7,9 +7,9 @@
  * This file only contains domain method wrappers.
  */
 
-import axios from "axios";
-import { sanitizers, validators, validationErrors } from "../validation";
-import { unifiedApiClient } from "./unified-client";
+import axios from 'axios';
+import { sanitizers, validators, validationErrors } from '../validation';
+import { unifiedApiClient } from './unified-client';
 import type {
   AgriculturalRisk,
   ApiResponse,
@@ -23,6 +23,8 @@ import type {
   Sensor,
   SensorReading,
   IrrigationRecommendation,
+  IrrigationSchedule,
+  IrrigationScheduleCreate,
   ET0Calculation,
   FertilizerRecommendation,
   CropHealthAnalysis,
@@ -34,7 +36,7 @@ import type {
   Subscription,
   Invoice,
   User,
-} from "./types";
+} from './types';
 
 // Note: tenant_id is extracted server-side from the JWT in the httpOnly cookie.
 // The access_token cookie cannot be read by client-side JS (httpOnly).
@@ -72,12 +74,12 @@ class SahoolApiClient {
       params?: Record<string, string>;
       headers?: Record<string, string>;
       timeout?: number;
-    } = {},
+    } = {}
   ): Promise<ApiResponse<T>> {
     try {
       const response = await unifiedApiClient.request({
         url: endpoint,
-        method: (options.method as any) || "GET",
+        method: (options.method as any) || 'GET',
         data: options.body ? JSON.parse(options.body) : undefined,
         params: options.params,
         headers: options.headers,
@@ -85,27 +87,19 @@ class SahoolApiClient {
       });
 
       const data = response.data;
-      return typeof data === "object" && data !== null
-        ? data
-        : { success: true, data: data as T };
+      return typeof data === 'object' && data !== null ? data : { success: true, data: data as T };
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const data = error.response?.data;
         return {
           success: false,
-          error:
-            data?.error ||
-            data?.message ||
-            error.message ||
-            "Request failed",
+          error: data?.error || data?.message || error.message || 'Request failed',
         };
       }
       return {
         success: false,
         error:
-          error instanceof Error
-            ? error.message
-            : "Network error - please check your connection",
+          error instanceof Error ? error.message : 'Network error - please check your connection',
       };
     }
   }
@@ -130,20 +124,20 @@ class SahoolApiClient {
       access_token: string;
       refresh_token?: string;
       user: User;
-    }>("/api/v1/auth/login", {
-      method: "POST",
+    }>('/api/v1/auth/login', {
+      method: 'POST',
       body: JSON.stringify({ email: sanitizedEmail, password }),
       // Auth requests don't need retry (handled by unified client's interceptors)
     });
   }
 
   async getCurrentUser() {
-    return this.request<User>("/api/v1/auth/me");
+    return this.request<User>('/api/v1/auth/me');
   }
 
   async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>("/api/v1/auth/refresh", {
-      method: "POST",
+    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
+      method: 'POST',
       body: JSON.stringify({ refresh_token: refreshToken }),
     });
   }
@@ -152,11 +146,8 @@ class SahoolApiClient {
   // Field Operations API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getFields(
-    tenantId: string,
-    options?: { limit?: number; offset?: number },
-  ) {
-    return this.request<Field[]>("/api/v1/fields", {
+  async getFields(tenantId: string, options?: { limit?: number; offset?: number }) {
+    return this.request<Field[]>('/api/v1/fields', {
       params: {
         tenantId,
         limit: String(options?.limit || 100),
@@ -170,8 +161,8 @@ class SahoolApiClient {
   }
 
   async createField(data: FieldCreateRequest) {
-    return this.request<Field>("/api/v1/fields", {
-      method: "POST",
+    return this.request<Field>('/api/v1/fields', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
@@ -179,10 +170,10 @@ class SahoolApiClient {
   async updateField(fieldId: string, data: FieldUpdateRequest, etag?: string) {
     const headers: Record<string, string> = {};
     if (etag) {
-      headers["If-Match"] = etag;
+      headers['If-Match'] = etag;
     }
     return this.request<Field>(`/api/v1/fields/${fieldId}`, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(data),
       headers,
     });
@@ -190,12 +181,12 @@ class SahoolApiClient {
 
   async deleteField(fieldId: string) {
     return this.request<void>(`/api/v1/fields/${fieldId}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
   }
 
   async getNearbyFields(lat: number, lng: number, radius: number = 5000) {
-    return this.request<Field[]>("/api/v1/fields/nearby", {
+    return this.request<Field[]>('/api/v1/fields/nearby', {
       params: {
         lat: String(lat),
         lng: String(lng),
@@ -213,7 +204,7 @@ class SahoolApiClient {
   }
 
   async getNdviSummary(tenantId: string) {
-    return this.request<NdviSummary>("/api/v1/ndvi/summary", {
+    return this.request<NdviSummary>('/api/v1/ndvi/summary', {
       params: { tenantId },
     });
   }
@@ -223,9 +214,9 @@ class SahoolApiClient {
   // Kong route: /api/v1/weather → strips to / → service has /weather/* endpoints
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getWeather(lat: number, lng: number, fieldId: string = "default") {
-    return this.request<WeatherData>("/api/v1/weather/weather/current", {
-      method: "POST",
+  async getWeather(lat: number, lng: number, fieldId: string = 'default') {
+    return this.request<WeatherData>('/api/v1/weather/weather/current', {
+      method: 'POST',
       body: JSON.stringify({
         field_id: fieldId,
         lat,
@@ -234,9 +225,14 @@ class SahoolApiClient {
     });
   }
 
-  async getWeatherForecast(lat: number, lng: number, days: number = 7, fieldId: string = "default") {
-    return this.request<WeatherForecast>("/api/v1/weather/weather/forecast", {
-      method: "POST",
+  async getWeatherForecast(
+    lat: number,
+    lng: number,
+    days: number = 7,
+    fieldId: string = 'default'
+  ) {
+    return this.request<WeatherForecast>('/api/v1/weather/weather/forecast', {
+      method: 'POST',
       body: JSON.stringify({
         field_id: fieldId,
         lat,
@@ -246,9 +242,9 @@ class SahoolApiClient {
     });
   }
 
-  async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    return this.request<AgriculturalRisk[]>("/api/v1/weather/weather/agricultural-report", {
-      method: "POST",
+  async getAgriculturalRisks(lat: number, lng: number, fieldId: string = 'default') {
+    return this.request<AgriculturalRisk[]>('/api/v1/weather/weather/agricultural-report', {
+      method: 'POST',
       body: JSON.stringify({
         field_id: fieldId,
         lat,
@@ -268,22 +264,20 @@ class SahoolApiClient {
   }
 
   async getWeatherLocations(): Promise<ApiResponse<unknown>> {
-    return this.request("/api/v1/weather/v1/locations");
+    return this.request('/api/v1/weather/v1/locations');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Crop Health AI API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async analyzeCropHealth(
-    imageFile: File,
-  ): Promise<ApiResponse<CropHealthAnalysis>> {
+  async analyzeCropHealth(imageFile: File): Promise<ApiResponse<CropHealthAnalysis>> {
     // Validate file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(imageFile.type)) {
       return {
         success: false,
-        error: "Invalid file type. Please upload a JPEG, PNG, or WebP image.",
+        error: 'Invalid file type. Please upload a JPEG, PNG, or WebP image.',
       };
     }
 
@@ -292,41 +286,37 @@ class SahoolApiClient {
     if (imageFile.size > maxSize) {
       return {
         success: false,
-        error: "File size exceeds 10MB limit.",
+        error: 'File size exceeds 10MB limit.',
       };
     }
 
     const formData = new FormData();
-    formData.append("image", imageFile);
+    formData.append('image', imageFile);
 
     try {
-      const response = await unifiedApiClient.post(
-        "/api/v1/crop-health/analyze",
-        formData,
-        {
-          timeout: 60000, // 60 second timeout for image upload
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
+      const response = await unifiedApiClient.post('/api/v1/crop-intelligence/analyze', formData, {
+        timeout: 60000, // 60 second timeout for image upload
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
       return response.data as ApiResponse<CropHealthAnalysis>;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const data = error.response?.data;
-        if (error.code === "ECONNABORTED") {
+        if (error.code === 'ECONNABORTED') {
           return {
             success: false,
-            error: "Upload timeout - please try again with a smaller image",
+            error: 'Upload timeout - please try again with a smaller image',
           };
         }
         return {
           success: false,
-          error: data?.error || data?.message || "Failed to analyze image",
+          error: data?.error || data?.message || 'Failed to analyze image',
         };
       }
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Network error",
+        error: error instanceof Error ? error.message : 'Network error',
       };
     }
   }
@@ -340,24 +330,59 @@ class SahoolApiClient {
   }
 
   async getSensorHistory(sensorId: string, from: Date, to: Date) {
-    return this.request<SensorReading[]>(
-      `/api/v1/iot/sensors/${sensorId}/history`,
-      {
-        params: {
-          from: from.toISOString(),
-          to: to.toISOString(),
-        },
+    return this.request<SensorReading[]>(`/api/v1/iot/sensors/${sensorId}/history`, {
+      params: {
+        from: from.toISOString(),
+        to: to.toISOString(),
       },
-    );
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Irrigation API
   // ═══════════════════════════════════════════════════════════════════════════
 
+  async getIrrigationSchedules() {
+    return this.request<IrrigationSchedule[]>('/api/v1/irrigation/schedules');
+  }
+
+  async createIrrigationSchedule(data: IrrigationScheduleCreate) {
+    return this.request<IrrigationSchedule>('/api/v1/irrigation/schedules', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateIrrigationSchedule(id: string, data: Partial<IrrigationScheduleCreate>) {
+    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteIrrigationSchedule(id: string) {
+    return this.request<void>(`/api/v1/irrigation/schedules/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async startIrrigationSchedule(id: string) {
+    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'active' }),
+    });
+  }
+
+  async stopIrrigationSchedule(id: string) {
+    return this.request<IrrigationSchedule>(`/api/v1/irrigation/schedules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'paused' }),
+    });
+  }
+
   async getIrrigationRecommendation(fieldId: string) {
     return this.request<IrrigationRecommendation>(
-      `/api/v1/irrigation/fields/${fieldId}/recommendation`,
+      `/api/v1/irrigation/fields/${fieldId}/recommendation`
     );
   }
 
@@ -367,8 +392,8 @@ class SahoolApiClient {
     windSpeed: number;
     solarRadiation: number;
   }) {
-    return this.request<ET0Calculation>("/api/v1/irrigation/et0", {
-      method: "POST",
+    return this.request<ET0Calculation>('/api/v1/irrigation/et0', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
@@ -388,13 +413,10 @@ class SahoolApiClient {
       ph: number;
     };
   }) {
-    return this.request<FertilizerRecommendation>(
-      "/api/v1/fertilizer/recommend",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-    );
+    return this.request<FertilizerRecommendation>('/api/v1/fertilizer/recommend', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -405,17 +427,12 @@ class SahoolApiClient {
     const params: Record<string, string> = { tenantId };
     if (since) params.since = since;
 
-    return this.request<any>("/api/v1/fields/sync", { params });
+    return this.request<any>('/api/v1/fields/sync', { params });
   }
 
-  async batchSync(data: {
-    deviceId: string;
-    userId: string;
-    tenantId: string;
-    fields: any[];
-  }) {
-    return this.request<any>("/api/v1/fields/sync/batch", {
-      method: "POST",
+  async batchSync(data: { deviceId: string; userId: string; tenantId: string; fields: any[] }) {
+    return this.request<any>('/api/v1/fields/sync/batch', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
@@ -434,15 +451,15 @@ class SahoolApiClient {
       soilMoisture?: number;
     };
   }) {
-    return this.request<any>("/api/v1/advisory/advice", {
-      method: "POST",
+    return this.request<any>('/api/v1/advisory/advice', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getDiseaseDetection(cropType: string, symptoms: string[]) {
-    return this.request<any>("/api/v1/advisory/disease", {
-      method: "POST",
+    return this.request<any>('/api/v1/advisory/disease', {
+      method: 'POST',
       body: JSON.stringify({ cropType, symptoms }),
     });
   }
@@ -452,8 +469,8 @@ class SahoolApiClient {
     growthStage: string;
     soilAnalysis: any;
   }) {
-    return this.request<any>("/api/v1/advisory/nutrients", {
-      method: "POST",
+    return this.request<any>('/api/v1/advisory/nutrients', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
@@ -472,15 +489,15 @@ class SahoolApiClient {
     action: string;
     threshold: number;
   }) {
-    return this.request<any>("/api/v1/agro-rules/rules", {
-      method: "POST",
+    return this.request<any>('/api/v1/agro-rules/rules', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async triggerRule(ruleId: string) {
     return this.request<any>(`/api/v1/agro-rules/rules/${ruleId}/trigger`, {
-      method: "POST",
+      method: 'POST',
     });
   }
 
@@ -489,19 +506,13 @@ class SahoolApiClient {
   // Kong route: /api/v1/chat → chat-service:8115
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getFieldMessages(
-    fieldId: string,
-    options?: { limit?: number; offset?: number },
-  ) {
-    return this.request<any[]>(
-      `/api/v1/chat/fields/${fieldId}/messages`,
-      {
-        params: {
-          limit: String(options?.limit || 50),
-          offset: String(options?.offset || 0),
-        },
+  async getFieldMessages(fieldId: string, options?: { limit?: number; offset?: number }) {
+    return this.request<any[]>(`/api/v1/chat/fields/${fieldId}/messages`, {
+      params: {
+        limit: String(options?.limit || 50),
+        offset: String(options?.offset || 0),
       },
-    );
+    });
   }
 
   async sendFieldMessage(fieldId: string, message: string) {
@@ -509,7 +520,7 @@ class SahoolApiClient {
     const sanitizedMessage = sanitizers.html(message);
 
     // Validate message is safe text
-    if (!validators.safeText(message)) {
+    if (!validators.safeText(sanitizedMessage)) {
       return {
         success: false,
         error: validationErrors.unsafeText,
@@ -532,15 +543,13 @@ class SahoolApiClient {
     }
 
     return this.request<any>(`/api/v1/chat/fields/${fieldId}/messages`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ message: sanitizedMessage }),
     });
   }
 
   async getFieldChatParticipants(fieldId: string) {
-    return this.request<any[]>(
-      `/api/v1/chat/fields/${fieldId}/participants`,
-    );
+    return this.request<any[]>(`/api/v1/chat/fields/${fieldId}/participants`);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -554,33 +563,24 @@ class SahoolApiClient {
 
   async updateFieldBoundary(fieldId: string, boundary: any, etag?: string) {
     const headers: Record<string, string> = {};
-    if (etag) headers["If-Match"] = etag;
+    if (etag) headers['If-Match'] = etag;
 
     return this.request<any>(`/api/v1/fields/${fieldId}/boundary`, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify({ boundary }),
       headers,
     });
   }
 
   async getFieldBoundaryHistory(fieldId: string) {
-    return this.request<any[]>(
-      `/api/v1/fields/${fieldId}/boundary-history`,
-    );
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/boundary-history`);
   }
 
-  async rollbackFieldBoundary(
-    fieldId: string,
-    historyId: string,
-    reason?: string,
-  ) {
-    return this.request<any>(
-      `/api/v1/fields/${fieldId}/boundary-history/rollback`,
-      {
-        method: "POST",
-        body: JSON.stringify({ historyId, reason }),
-      },
-    );
+  async rollbackFieldBoundary(fieldId: string, historyId: string, reason?: string) {
+    return this.request<any>(`/api/v1/fields/${fieldId}/boundary-history/rollback`, {
+      method: 'POST',
+      body: JSON.stringify({ historyId, reason }),
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -588,7 +588,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getEquipment(tenantId: string) {
-    return this.request<Equipment[]>("/api/v1/equipment", {
+    return this.request<Equipment[]>('/api/v1/equipment', {
       params: { tenantId },
     });
   }
@@ -603,23 +603,21 @@ class SahoolApiClient {
     tenantId: string;
     specifications?: any;
   }) {
-    return this.request<Equipment>("/api/v1/equipment", {
-      method: "POST",
+    return this.request<Equipment>('/api/v1/equipment', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateEquipmentStatus(equipmentId: string, status: string) {
     return this.request<Equipment>(`/api/v1/equipment/${equipmentId}/status`, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify({ status }),
     });
   }
 
   async getEquipmentMaintenanceSchedule(equipmentId: string) {
-    return this.request<MaintenanceSchedule[]>(
-      `/api/v1/equipment/${equipmentId}/maintenance`,
-    );
+    return this.request<MaintenanceSchedule[]>(`/api/v1/equipment/${equipmentId}/maintenance`);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -642,7 +640,7 @@ class SahoolApiClient {
     if (options.limit) params.limit = String(options.limit);
     if (options.offset) params.offset = String(options.offset);
 
-    return this.request<Task[]>("/api/v1/tasks", { params });
+    return this.request<Task[]>('/api/v1/tasks', { params });
   }
 
   async getTask(taskId: string) {
@@ -651,41 +649,41 @@ class SahoolApiClient {
 
   async updateTask(
     taskId: string,
-    data: { status?: string; title?: string; description?: string },
+    data: { status?: string; title?: string; description?: string }
   ) {
     return this.request<Task>(`/api/v1/tasks/${taskId}`, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async createTask(data: TaskCreateRequest) {
-    return this.request<Task>("/api/v1/tasks", {
-      method: "POST",
+    return this.request<Task>('/api/v1/tasks', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateTaskStatus(
     taskId: string,
-    status: "pending" | "in_progress" | "completed" | "cancelled",
+    status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
   ) {
     return this.request<Task>(`/api/v1/tasks/${taskId}/status`, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify({ status }),
     });
   }
 
   async completeTask(taskId: string, notes?: string) {
     return this.request<Task>(`/api/v1/tasks/${taskId}/complete`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ notes }),
     });
   }
 
   async deleteTask(taskId: string) {
     return this.request<void>(`/api/v1/tasks/${taskId}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
   }
 
@@ -693,22 +691,18 @@ class SahoolApiClient {
   // Alerts API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getAlerts(options: {
-    tenantId?: string;
-    status?: string;
-    fieldId?: string;
-  }) {
+  async getAlerts(options: { tenantId?: string; status?: string; fieldId?: string }) {
     const params: Record<string, string> = {};
     if (options.tenantId) params.tenantId = options.tenantId;
     if (options.status) params.status = options.status;
     if (options.fieldId) params.fieldId = options.fieldId;
 
-    return this.request<any[]>("/api/v1/alerts", { params });
+    return this.request<any[]>('/api/v1/alerts', { params });
   }
 
   async acknowledgeAlert(alertId: string) {
     return this.request<any>(`/api/v1/alerts/${alertId}/acknowledge`, {
-      method: "POST",
+      method: 'POST',
     });
   }
 
@@ -717,9 +711,9 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   getWebSocketUrl(): string {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
-    const wsProtocol = baseUrl.startsWith("https") ? "wss" : "ws";
-    const wsHost = baseUrl.replace(/^https?:\/\//, "");
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const wsProtocol = baseUrl.startsWith('https') ? 'wss' : 'ws';
+    const wsHost = baseUrl.replace(/^https?:\/\//, '');
     return `${wsProtocol}://${wsHost}/ws`;
   }
 
@@ -728,7 +722,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getProviders() {
-    return this.request<any[]>("/api/v1/providers");
+    return this.request<any[]>('/api/v1/providers');
   }
 
   async getProviderConfig(providerId: string) {
@@ -737,13 +731,13 @@ class SahoolApiClient {
 
   async updateProviderConfig(providerId: string, config: any) {
     return this.request<any>(`/api/v1/providers/${providerId}/config`, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(config),
     });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Crop Health API (خدمة مسترجعة من kernel - مع OpenAPI)
+  // Crop Intelligence API (خدمة ذكاء المحاصيل - مع OpenAPI)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getCropHealthDecision(data: {
@@ -752,19 +746,16 @@ class SahoolApiClient {
     weatherConditions: any;
     soilMoisture?: number;
   }) {
-    return this.request<any>("/api/v1/crop-health/decision", {
-      method: "POST",
+    return this.request<any>('/api/v1/crop-intelligence/decision', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getCropHealthHistory(fieldId: string, days: number = 30) {
-    return this.request<any[]>(
-      `/api/v1/crop-health/fields/${fieldId}/history`,
-      {
-        params: { days: String(days) },
-      },
-    );
+    return this.request<any[]>(`/api/v1/crop-intelligence/fields/${fieldId}/history`, {
+      params: { days: String(days) },
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -772,10 +763,7 @@ class SahoolApiClient {
   // Kong route: /api/v1/satellite → strips to / → service has /v1/* endpoints
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getSatelliteImagery(
-    fieldId: string,
-    options?: { from?: string; to?: string },
-  ) {
+  async getSatelliteImagery(fieldId: string, options?: { from?: string; to?: string }) {
     // Maps to vegetation-analysis-service /v1/timeseries/{field_id}
     // Filter out undefined values to prevent "undefined" string in query params
     const params = options
@@ -786,13 +774,10 @@ class SahoolApiClient {
     });
   }
 
-  async requestSatelliteAnalysis(
-    fieldId: string,
-    analysisType: "ndvi" | "moisture" | "thermal",
-  ) {
+  async requestSatelliteAnalysis(fieldId: string, analysisType: 'ndvi' | 'moisture' | 'thermal') {
     // Maps to vegetation-analysis-service /v1/analyze (POST)
     return this.request<any>(`/api/v1/satellite/v1/analyze`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ field_id: fieldId, analysis_type: analysisType }),
     });
   }
@@ -811,14 +796,11 @@ class SahoolApiClient {
   // Marketplace API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getMarketplaceListings(options?: {
-    category?: string;
-    region?: string;
-  }) {
+  async getMarketplaceListings(options?: { category?: string; region?: string }) {
     const params = options
       ? Object.fromEntries(Object.entries(options).filter(([, v]) => v != null))
       : undefined;
-    return this.request<MarketplaceListing[]>("/api/v1/marketplace/listings", {
+    return this.request<MarketplaceListing[]>('/api/v1/marketplace/listings', {
       params: params as Record<string, string>,
     });
   }
@@ -831,8 +813,8 @@ class SahoolApiClient {
     quantity: number;
     unit: string;
   }) {
-    return this.request<MarketplaceListing>("/api/v1/marketplace/listings", {
-      method: "POST",
+    return this.request<MarketplaceListing>('/api/v1/marketplace/listings', {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
@@ -842,15 +824,11 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSubscription(tenantId: string) {
-    return this.request<Subscription>(
-      `/api/v1/billing/tenants/${tenantId}/subscription`,
-    );
+    return this.request<Subscription>(`/api/v1/billing/tenants/${tenantId}/subscription`);
   }
 
   async getInvoices(tenantId: string) {
-    return this.request<Invoice[]>(
-      `/api/v1/billing/tenants/${tenantId}/invoices`,
-    );
+    return this.request<Invoice[]>(`/api/v1/billing/tenants/${tenantId}/invoices`);
   }
 
   async getUsageStats(tenantId: string) {
@@ -874,14 +852,14 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async assessDisaster(fieldId: string, disasterType: string) {
-    return this.request<any>("/api/v1/disasters/assess", {
-      method: "POST",
+    return this.request<any>('/api/v1/disasters/assess', {
+      method: 'POST',
       body: JSON.stringify({ fieldId, disasterType }),
     });
   }
 
   async getDisasterAlerts(region: string) {
-    return this.request<any[]>("/api/v1/disasters/alerts", {
+    return this.request<any[]>('/api/v1/disasters/alerts', {
       params: { region },
     });
   }
@@ -899,12 +877,9 @@ class SahoolApiClient {
   }
 
   async getFieldIntelligenceAlerts(fieldId: string) {
-    return this.request<any[]>(
-      `/api/v1/fields/${fieldId}/intelligence/alerts`,
-      {
-        params: { status: "active" },
-      },
-    );
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/alerts`, {
+      params: { status: 'active' },
+    });
   }
 
   async createTaskFromAlert(
@@ -914,22 +889,19 @@ class SahoolApiClient {
       titleAr: string;
       description?: string;
       descriptionAr?: string;
-      priority: "urgent" | "high" | "medium" | "low";
+      priority: 'urgent' | 'high' | 'medium' | 'low';
       dueDate?: string;
       assigneeId?: string;
-    },
+    }
   ) {
-    return this.request<any>(
-      `/api/v1/intelligence/alerts/${alertId}/create-task`,
-      {
-        method: "POST",
-        body: JSON.stringify(taskData),
-      },
-    );
+    return this.request<any>(`/api/v1/intelligence/alerts/${alertId}/create-task`, {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
   }
 
   async getBestDaysForActivity(activity: string, days: number = 14) {
-    return this.request<any[]>("/api/v1/intelligence/best-days", {
+    return this.request<any[]>('/api/v1/intelligence/best-days', {
       params: {
         activity: activity.toLowerCase(),
         days: String(Math.max(1, Math.min(days, 30))),
@@ -938,8 +910,8 @@ class SahoolApiClient {
   }
 
   async validateTaskDate(date: string, activity: string) {
-    return this.request<any>("/api/v1/intelligence/validate-date", {
-      method: "POST",
+    return this.request<any>('/api/v1/intelligence/validate-date', {
+      method: 'POST',
       body: JSON.stringify({
         date: new Date(date).toISOString(),
         activity: activity.toLowerCase(),
@@ -948,9 +920,7 @@ class SahoolApiClient {
   }
 
   async getFieldRecommendations(fieldId: string) {
-    return this.request<any[]>(
-      `/api/v1/fields/${fieldId}/intelligence/recommendations`,
-    );
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/recommendations`);
   }
 }
 

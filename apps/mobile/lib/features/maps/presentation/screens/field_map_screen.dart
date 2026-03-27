@@ -72,10 +72,10 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   void _loadFieldBoundary() {
     // Try to extract boundary from initialCenter if provided as GeoJSON
     if (widget.initialCenter != null) {
-      final geometry = widget.initialCenter!['geometry'];
+      final geometry = widget.initialCenter!['geometry'] as Map<String, dynamic>?;
       if (geometry != null && geometry['type'] == 'Polygon') {
         try {
-          _fieldBoundary = GeoJson.parsePolygon(geometry as Map<String, dynamic>);
+          _fieldBoundary = GeoJson.parsePolygon(geometry);
         } catch (_) {
           // Fallback: use center point to create a small bounding area
           _createBoundaryFromCenter();
@@ -220,8 +220,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               Polygon(
                 points: _fieldBoundary,
                 color: _showNdvi
-                    ? Colors.green.withOpacity(0.3)
-                    : const Color(0xFF367C2B).withOpacity(0.15),
+                    ? Colors.green.withValues(alpha: 0.3)
+                    : const Color(0xFF367C2B).withValues(alpha: 0.15),
                 borderColor: const Color(0xFF367C2B),
                 borderStrokeWidth: 3,
               ),
@@ -259,8 +259,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.blue.withOpacity(0.15),
-                    border: Border.all(color: Colors.blue.withOpacity(0.4), width: 2),
+                    color: Colors.blue.withValues(alpha: 0.15),
+                    border: Border.all(color: Colors.blue.withValues(alpha: 0.4), width: 2),
                   ),
                 ),
               ),
@@ -293,7 +293,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           polygons: [
             Polygon(
               points: _fieldBoundary,
-              color: color.withOpacity(0.35),
+              color: color.withValues(alpha: 0.35),
               borderColor: color,
               borderStrokeWidth: 2,
               label: '${idx.code}: ${value.toStringAsFixed(2)}',
@@ -418,7 +418,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
         ),
         onPressed: onPressed,
         style: IconButton.styleFrom(
-          backgroundColor: isActive ? color.withOpacity(0.1) : Colors.transparent,
+          backgroundColor: isActive ? color.withValues(alpha: 0.1) : Colors.transparent,
         ),
       ),
     );
@@ -439,7 +439,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF367C2B).withOpacity(0.1),
+                    color: const Color(0xFF367C2B).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -501,7 +501,11 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/satellite/${widget.fieldId}', extra: {
+                        'fieldName': widget.fieldName,
+                      });
+                    },
                     icon: const Icon(Icons.timeline),
                     label: const Text('السلسلة الزمنية'),
                   ),
@@ -509,7 +513,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/crop-health', extra: {
+                        'fieldId': widget.fieldId,
+                        'fieldName': widget.fieldName,
+                      });
+                    },
                     icon: const Icon(Icons.medical_services),
                     label: const Text('تشخيص'),
                     style: ElevatedButton.styleFrom(

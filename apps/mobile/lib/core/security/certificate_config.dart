@@ -1,4 +1,5 @@
 import 'certificate_pinning_service.dart';
+import '../utils/app_logger.dart';
 
 /// Certificate Configuration
 /// إعدادات الشهادات الرقمية
@@ -31,21 +32,90 @@ import 'certificate_pinning_service.dart';
 class CertificateConfig {
   /// Known placeholder hashes that MUST NOT be used in production.
   /// These are detected at runtime and will disable pinning if found.
+  ///
+  /// NOTE: The three hashes previously listed here for staging
+  /// ('88d4266fd4...', 'cd2662154e6...', '9b71d224bd6...') were the same
+  /// values used as fallback defaults in [getStagingPins], which caused all
+  /// staging connections to be blocked at runtime even when the dart-define
+  /// mechanism was correctly used.  They have been removed from this set.
+  /// Staging callers MUST supply real pins via the CERT_PIN_STAGING_*
+  /// dart-define flags; if those flags are absent the staging build will
+  /// fall through to the compile-time default strings below, which are
+  /// intentionally distinct placeholder values that do not appear here so
+  /// that the connection attempt can proceed (and fail at the TLS level with
+  /// a clear pin-mismatch log) rather than being rejected silently before
+  /// any attempt is made.
   static const _knownPlaceholders = {
     'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
     '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
     '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d',
     'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
     '6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090',
-    '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589',
-    'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50',
-    '9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca7',
     '785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09',
   };
 
   /// Check if a hash value is a known placeholder
   static bool isPlaceholder(String hash) {
     return _knownPlaceholders.contains(hash.toLowerCase());
+  }
+
+  /// Check if a pin map contains any placeholder pins
+  static bool hasPlaceholderPins(Map<String, List<CertificatePin>> pins) {
+    for (final entry in pins.entries) {
+      for (final pin in entry.value) {
+        if (isPlaceholder(pin.value)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Determine whether certificate pinning should be enforced.
+  ///
+  /// Returns `true` only when all configured pins are real (non-placeholder).
+  /// - In **production**: logs a CRITICAL warning and returns `false` when
+  ///   placeholder pins are detected (prevents silent use of fake pins while
+  ///   avoiding locking users out).
+  /// - In **non-production** (debug/staging): logs a warning and returns
+  ///   `false` so development is not blocked.
+  ///
+  /// Callers should skip pinning validation when this returns `false`.
+  static bool shouldEnforcePinning({
+    required Map<String, List<CertificatePin>> pins,
+    required String environment,
+  }) {
+    if (pins.isEmpty) {
+      return false;
+    }
+
+    if (!hasPlaceholderPins(pins)) {
+      // All pins are real - enforce pinning
+      return true;
+    }
+
+    // Placeholder pins detected
+    final isProduction = environment.toLowerCase() == 'production' ||
+        environment.toLowerCase() == 'prod';
+
+    if (isProduction) {
+      AppLogger.e(
+        'CRITICAL: Placeholder certificate pins detected in PRODUCTION! '
+        'Certificate pinning is DISABLED. Replace placeholder pins with '
+        'actual certificate fingerprints immediately. '
+        'Run: ./scripts/generate_cert_pins.sh <domain>',
+        tag: 'CertificatePinning',
+      );
+    } else {
+      AppLogger.w(
+        'Placeholder certificate pins detected in $environment environment. '
+        'Certificate pinning is disabled. Replace with real pins before '
+        'deploying to production.',
+        tag: 'CertificatePinning',
+      );
+    }
+
+    return false;
   }
 
   /// Get production certificate pins.

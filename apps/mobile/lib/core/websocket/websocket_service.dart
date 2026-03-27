@@ -63,6 +63,7 @@ class WebSocketService {
   final String Function() getTenantId;
 
   WebSocketChannel? _channel;
+  WebSocket? _rawSocket;
   final StreamController<WebSocketEvent> _eventController =
       StreamController<WebSocketEvent>.broadcast();
   final StreamController<ConnectionState> _stateController =
@@ -76,6 +77,7 @@ class WebSocketService {
   static const Duration _reconnectDelay = Duration(seconds: 3);
   static const Duration _pingInterval = Duration(seconds: 30);
 
+  StreamSubscription? _streamSubscription;
   final Set<String> _subscribedRooms = {};
 
   WebSocketService({
@@ -101,7 +103,7 @@ class WebSocketService {
   Future<void> connect() async {
     if (_state == ConnectionState.connected ||
         _state == ConnectionState.connecting) {
-      AppLogger.info('Already connected or connecting');
+      AppLogger.i('Already connected or connecting');
       return;
     }
 
@@ -119,20 +121,21 @@ class WebSocketService {
       final wsUrl = baseUrl.replaceFirst('http', 'ws');
       final uri = Uri.parse('$wsUrl/ws?tenant_id=$tenantId');
 
-      AppLogger.info('Connecting to WebSocket: $uri');
+      AppLogger.i('Connecting to WebSocket: $uri');
 
       // Connect with Authorization header for security
-      final socket = await WebSocket.connect(
+      _rawSocket = await WebSocket.connect(
         uri.toString(),
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
 
-      _channel = IOWebSocketChannel(socket);
+      _channel = IOWebSocketChannel(_rawSocket!);
 
-      // Listen to messages
-      _channel!.stream.listen(
+      // Listen to messages - store subscription for proper disposal
+      _streamSubscription?.cancel();
+      _streamSubscription = _channel!.stream.listen(
         _handleMessage,
         onError: _handleError,
         onDone: _handleDisconnect,
@@ -147,9 +150,9 @@ class WebSocketService {
       // Resubscribe to rooms
       await _resubscribeToRooms();
 
-      AppLogger.info('WebSocket connected successfully');
+      AppLogger.i('WebSocket connected successfully');
     } catch (e) {
-      AppLogger.error('WebSocket connection failed', e);
+      AppLogger.e('WebSocket connection failed', error: e);
       _updateState(ConnectionState.error);
       _scheduleReconnect();
     }
@@ -160,6 +163,8 @@ class WebSocketService {
   Future<void> disconnect() async {
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
+    await _streamSubscription?.cancel();
+    _streamSubscription = null;
 
     if (_channel != null) {
       await _channel!.sink.close(status.goingAway);
@@ -168,14 +173,14 @@ class WebSocketService {
 
     _subscribedRooms.clear();
     _updateState(ConnectionState.disconnected);
-    AppLogger.info('WebSocket disconnected');
+    AppLogger.i('WebSocket disconnected');
   }
 
   /// Subscribe to a room
   /// الاشتراك في غرفة
   Future<void> subscribeToRoom(String roomId) async {
     if (!isConnected) {
-      AppLogger.warning('Cannot subscribe to room: not connected');
+      AppLogger.w('Cannot subscribe to room: not connected');
       return;
     }
 
@@ -186,7 +191,7 @@ class WebSocketService {
       'room': roomId,
     });
 
-    AppLogger.info('Subscribed to room: $roomId');
+    AppLogger.i('Subscribed to room: $roomId');
   }
 
   /// Unsubscribe from a room
@@ -203,14 +208,14 @@ class WebSocketService {
       'room': roomId,
     });
 
-    AppLogger.info('Unsubscribed from room: $roomId');
+    AppLogger.i('Unsubscribed from room: $roomId');
   }
 
   /// Subscribe to multiple topics
   /// الاشتراك في عدة مواضيع
   Future<void> subscribe(List<String> topics) async {
     if (!isConnected) {
-      AppLogger.warning('Cannot subscribe: not connected');
+      AppLogger.w('Cannot subscribe: not connected');
       return;
     }
 
@@ -221,7 +226,7 @@ class WebSocketService {
       'topics': topics,
     });
 
-    AppLogger.info('Subscribed to topics: $topics');
+    AppLogger.i('Subscribed to topics: $topics');
   }
 
   /// Unsubscribe from topics
@@ -238,7 +243,7 @@ class WebSocketService {
       'topics': topics,
     });
 
-    AppLogger.info('Unsubscribed from topics: $topics');
+    AppLogger.i('Unsubscribed from topics: $topics');
   }
 
   /// Broadcast message to a room
@@ -289,23 +294,23 @@ class WebSocketService {
 
       // Log important events
       if (event.priority == 'high' || event.priority == 'critical') {
-        AppLogger.info('WebSocket event: ${event.eventType ?? event.type}');
+        AppLogger.i('WebSocket event: ${event.eventType ?? event.type}');
       }
     } catch (e) {
-      AppLogger.error('Error parsing WebSocket message', e);
+      AppLogger.e('Error parsing WebSocket message', error: e);
     }
   }
 
   /// Handle connection error
   void _handleError(dynamic error) {
-    AppLogger.error('WebSocket error', error);
+    AppLogger.e('WebSocket error', error: error);
     _updateState(ConnectionState.error);
     _scheduleReconnect();
   }
 
   /// Handle disconnection
   void _handleDisconnect() {
-    AppLogger.warning('WebSocket disconnected');
+    AppLogger.w('WebSocket disconnected');
     _pingTimer?.cancel();
 
     if (_state != ConnectionState.disconnected) {
@@ -335,7 +340,7 @@ class WebSocketService {
   /// Schedule reconnection
   void _scheduleReconnect() {
     if (_reconnectAttempts >= _maxReconnectAttempts) {
-      AppLogger.error('Max reconnection attempts reached');
+      AppLogger.e('Max reconnection attempts reached');
       _updateState(ConnectionState.error);
       return;
     }
@@ -344,7 +349,7 @@ class WebSocketService {
     _reconnectAttempts++;
 
     final delay = _reconnectDelay * _reconnectAttempts;
-    AppLogger.info('Scheduling reconnect in ${delay.inSeconds}s (attempt $_reconnectAttempts)');
+    AppLogger.i('Scheduling reconnect in ${delay.inSeconds}s (attempt $_reconnectAttempts)');
 
     _updateState(ConnectionState.reconnecting);
 
@@ -357,7 +362,7 @@ class WebSocketService {
   Future<void> _resubscribeToRooms() async {
     if (_subscribedRooms.isEmpty) return;
 
-    AppLogger.info('Resubscribing to ${_subscribedRooms.length} rooms');
+    AppLogger.i('Resubscribing to ${_subscribedRooms.length} rooms');
 
     await subscribe(_subscribedRooms.toList());
   }
@@ -368,7 +373,12 @@ class WebSocketService {
 
     _pingTimer = Timer.periodic(_pingInterval, (timer) {
       if (isConnected) {
-        _sendMessage({'type': 'ping'});
+        try {
+          _sendMessage({'type': 'ping'});
+        } catch (e) {
+          AppLogger.w('Ping failed, channel may have closed', error: e);
+          timer.cancel();
+        }
       } else {
         timer.cancel();
       }
@@ -379,7 +389,11 @@ class WebSocketService {
   void dispose() {
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
     _channel?.sink.close();
+    _rawSocket?.close();
+    _rawSocket = null;
     _eventController.close();
     _stateController.close();
   }

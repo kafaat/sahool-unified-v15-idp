@@ -5,21 +5,21 @@ Input Guardrails Tests
 Tests for the SAHOOL platform AI safety guardrails module.
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Import the modules under test
 from shared.guardrails.input_filter import (
     InputFilter,
     InputFilterResult,
-    PromptInjectionDetector,
     PIIDetector,
+    PromptInjectionDetector,
     ToxicityFilter,
-    sanitize_input,
     compute_input_hash,
+    sanitize_input,
 )
 from shared.guardrails.policies import ContentSafetyLevel, TrustLevel
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PromptInjectionDetector Tests

@@ -15,12 +15,11 @@ import uuid
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 
+import structlog
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-
-import structlog
 
 logger = structlog.get_logger()
 
@@ -65,13 +64,12 @@ except ImportError:
     setup_exception_handlers = None
     add_request_id_middleware = None
 
-    class User(BaseModel):  # type: ignore[no-redef]
-        id: str = ""
-        tenant_id: str = ""
+    class User:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
     async def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Configuration
@@ -439,11 +437,16 @@ def seed_demo_data(db: Session):
 
 
 def get_tenant_id(user: User | None = Depends(get_current_user)) -> str:
-    """Extract tenant ID from authenticated user or header (fallback)"""
+    """Extract tenant ID from authenticated user.
+    SECURITY: Never fall back to a shared tenant - this would bypass tenant isolation."""
     if AUTH_AVAILABLE and user:
         return user.tenant_id
-    # Fallback to demo tenant for backward compatibility
-    return "tenant_demo"
+    # SECURITY FIX: Reject requests without valid tenant context instead of falling back
+    # to a shared "tenant_demo" namespace which bypasses tenant isolation.
+    raise HTTPException(
+        status_code=401,
+        detail="Authentication required - cannot determine tenant context",
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -457,8 +460,8 @@ async def health_check(db: Session = Depends(get_db)):
     # Seed demo data if needed
     try:
         seed_demo_data(db)
-    except Exception:
-        pass  # Ignore seeding errors during health check
+    except Exception as exc:
+        logger.debug("Demo data seeding skipped during health check: %s", exc)
 
     return {
         "status": "ok",
@@ -762,6 +765,7 @@ async def create_equipment(
 async def update_equipment(
     equipment_id: str,
     data: EquipmentUpdate,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -815,6 +819,7 @@ async def update_equipment(
 async def update_equipment_status(
     equipment_id: str,
     status: EquipmentStatus,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -862,6 +867,7 @@ async def update_equipment_location(
     lat: float = Query(...),
     lon: float = Query(...),
     location_name: str | None = None,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -914,6 +920,7 @@ async def update_equipment_telemetry(
     hours: float | None = None,
     lat: float | None = None,
     lon: float | None = None,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -1019,6 +1026,7 @@ async def add_maintenance_record(
     cost: float | None = None,
     notes: str | None = None,
     parts_replaced: list[str] | None = None,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -1065,6 +1073,7 @@ async def add_maintenance_record(
 @app.delete("/api/v1/equipment/{equipment_id}", status_code=204)
 async def delete_equipment(
     equipment_id: str,
+    current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -1081,4 +1090,5 @@ async def delete_equipment(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker
+    uvicorn.run(app, host=host, port=SERVICE_PORT)

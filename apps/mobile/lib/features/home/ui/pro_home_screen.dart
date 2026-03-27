@@ -4,7 +4,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/theme/sahool_pro_theme.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/iam/iam_providers.dart';
 import '../../shared/widgets/sahool_metrics_card.dart';
+import '../../weather/presentation/providers/weather_provider.dart';
 import '../../field/ui/logic/drawing_provider.dart';
 import '../../polygon_editor/polygon_editor.dart';
 import '../logic/sync_provider.dart';
@@ -24,10 +26,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
   String? _selectedFieldId;
   int _selectedLayerIndex = 0;
-  bool _isDrawingMode = false;
-
-  // Tenant ID (في التطبيق الحقيقي يأتي من Auth)
-  static const String _tenantId = 'tenant_001';
+  final bool _isDrawingMode = false;
 
   final List<_MapLayer> _layers = [
     _MapLayer('القمر الصناعي', Icons.satellite_alt,
@@ -45,7 +44,9 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fieldsAsync = ref.watch(fieldsStreamProvider(_tenantId));
+    final tenant = ref.watch(currentTenantProvider);
+    final tenantId = tenant?.id ?? 'default';
+    final fieldsAsync = ref.watch(fieldsStreamProvider(tenantId));
     final syncStatus = ref.watch(syncStatusUiProvider);
     final pendingCount = ref.watch(pendingOperationsProvider).valueOrNull ?? 0;
     final drawingState = ref.watch(drawingProvider);
@@ -85,7 +86,6 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                   TileLayer(
                     urlTemplate: 'https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.kafaat.sahool',
-                    backgroundColor: Colors.transparent,
                   ),
 
                 // طبقة الحقول من قاعدة البيانات
@@ -98,17 +98,17 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                       return Polygon(
                         points: f.boundary,
                         color: isSelected
-                            ? SahoolProColors.tractorYellow.withOpacity(0.4)
+                            ? SahoolProColors.tractorYellow.withValues(alpha: 0.4)
                             : (isSynced
-                                ? SahoolProColors.johnGreen.withOpacity(0.3)
-                                : SahoolProColors.warningOrange.withOpacity(0.3)),
+                                ? SahoolProColors.johnGreen.withValues(alpha: 0.3)
+                                : SahoolProColors.warningOrange.withValues(alpha: 0.3)),
                         borderColor: isSelected
                             ? Colors.white
                             : (isSynced
                                 ? SahoolProColors.johnGreen
                                 : SahoolProColors.warningOrange),
                         borderStrokeWidth: isSelected ? 4 : 2,
-                        isDotted: !isSynced,
+                        pattern: !isSynced ? const StrokePattern.dotted() : const StrokePattern.solid(),
                         label: f.name,
                         labelStyle: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -121,8 +121,8 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                       );
                     }).toList(),
                   ),
-                  loading: () => const PolygonLayer(polygons: []),
-                  error: (_, __) => const PolygonLayer(polygons: []),
+                  loading: () => const MarkerLayer(markers: []),
+                  error: (_, __) => const MarkerLayer(markers: []),
                 ),
 
                 // طبقة الرسم الحالي (عند تفعيل وضع الرسم)
@@ -139,7 +139,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                           ],
                           color: SahoolProColors.tractorYellow,
                           strokeWidth: 3,
-                          isDotted: true,
+                          pattern: const StrokePattern.dotted(),
                         ),
                     ],
                   ),
@@ -152,7 +152,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                         point: point,
                         width: 24,
                         height: 24,
-                        child: Container(
+                        child: DecoratedBox(
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -162,7 +162,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 4,
                               ),
                             ],
@@ -284,12 +284,17 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                 children: [
                   const Icon(Icons.wb_sunny, size: 18, color: Colors.orange),
                   const SizedBox(width: 4),
-                  Text(
-                    '32°C',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
+                  Builder(builder: (context) {
+                    final weatherState = ref.watch(weatherProvider);
+                    final temp = weatherState.data?.current.temperature;
+                    final tempText = temp != null ? '${temp.round()}°C' : '--°C';
+                    return Text(
+                      tempText,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    );
+                  }),
                 ],
               ),
               Text(
@@ -304,7 +309,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
           const Spacer(),
 
           // شعار التطبيق
-          Text(
+          const Text(
             'SAHOOL OPS',
             style: TextStyle(
               color: SahoolProColors.textLight,
@@ -345,9 +350,9 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -406,7 +411,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
   Widget _buildMapTool(IconData icon, String tooltip, VoidCallback onPressed,
       {bool highlight = false}) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: highlight ? SahoolProColors.johnGreen : Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -453,7 +458,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? SahoolProColors.johnGreen.withOpacity(0.1)
+                      ? SahoolProColors.johnGreen.withValues(alpha: 0.1)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -477,7 +482,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
     return Row(
       children: [
-        Expanded(
+        const Expanded(
           child: SahoolMetricsCard(
             label: 'المهام',
             value: '3',
@@ -486,7 +491,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
           ),
         ),
         const SizedBox(width: 10),
-        Expanded(
+        const Expanded(
           child: SahoolMetricsCard(
             label: 'تنبيهات',
             value: '1',
@@ -594,7 +599,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
             drawingState.isValid
                 ? 'اضغط حفظ لإنشاء الحقل'
                 : 'انقر على الخريطة لإضافة ${3 - drawingState.pointCount} نقاط',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: SahoolProColors.textLight,
             ),
@@ -612,7 +617,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -652,7 +657,7 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
             Container(
               padding: EdgeInsets.all(isPrimary ? 14 : 10),
               decoration: BoxDecoration(
-                color: isPrimary && isEnabled ? color : color.withOpacity(0.1),
+                color: isPrimary && isEnabled ? color : color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -686,8 +691,10 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
     try {
       final repo = ref.read(fieldsRepoProvider);
+      final saveTenant = ref.read(currentTenantProvider);
+      final saveTenantId = saveTenant?.id ?? 'default';
       await repo.createField(
-        tenantId: _tenantId,
+        tenantId: saveTenantId,
         name: fieldName,
         boundary: points,
       );
@@ -757,11 +764,11 @@ class _FieldNameDialogState extends State<_FieldNameDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Row(
+      title: const Row(
         children: [
           Icon(Icons.grass, color: SahoolProColors.johnGreen),
-          const SizedBox(width: 8),
-          const Text('اسم الحقل'),
+          SizedBox(width: 8),
+          Text('اسم الحقل'),
         ],
       ),
       content: TextField(

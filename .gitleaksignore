@@ -1,0 +1,15 @@
+# Gitleaks False Positive Allowlist
+# These are NOT real secrets - they are development-only placeholder values
+
+# Dev-only JWT fallback in auth config (not a real secret, contains "insecure" and "must-not-use-in-prod")
+35cfc637aa2a526f40c5f56c97376904df827b40:shared/auth/config.py:generic-secret:47
+
+# _resolve_jwt_secret() reads env vars - no actual secret in code, just os.getenv() calls
+e0d17aec80cd47a0ce21116a2a1136820dd30101:shared/auth/config.py:generic-secret:46
+
+# Container test files check for env var NAMES (not values) - false positives
+# test_bug_detection.py: CRITICAL_ENV_VARS dict keys (DATABASE_URL, JWT_SECRET_KEY, etc.)
+34b073c74364636825087ed21fca5e15543016eb:tests/container/test_bug_detection.py:generic-secret:351
+# test_infra_providers_group.py: checks env var names (REDIS_PASSWORD, NATS_PASSWORD) exist in compose
+c7b3d6424474e2bf2291e13da9f93f3aa2cef7e9:tests/container/test_infra_providers_group.py:generic-secret:328
+c7b3d6424474e2bf2291e13da9f93f3aa2cef7e9:tests/container/test_infra_providers_group.py:generic-secret:348

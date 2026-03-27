@@ -3,7 +3,7 @@
  * PostGIS-powered geospatial operations for fields and farms
  */
 
-import { AppDataSource } from "../data-source";
+import { AppDataSource } from '../data-source';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Type Definitions
@@ -81,18 +81,13 @@ export class GeoService {
     lat: number,
     lng: number,
     radiusKm: number,
-    tenantId?: string,
+    tenantId?: string
   ): Promise<FieldInRadius[]> {
     const query = `
             SELECT * FROM find_fields_in_radius($1, $2, $3, $4)
         `;
 
-    const result = await AppDataSource.query(query, [
-      lat,
-      lng,
-      radiusKm,
-      tenantId || null,
-    ]);
+    const result = await AppDataSource.query(query, [lat, lng, radiusKm, tenantId || null]);
 
     return result;
   }
@@ -109,18 +104,13 @@ export class GeoService {
     lat: number,
     lng: number,
     limit: number = 10,
-    tenantId?: string,
+    tenantId?: string
   ): Promise<NearbyFarm[]> {
     const query = `
             SELECT * FROM find_nearby_farms($1, $2, $3, $4)
         `;
 
-    const result = await AppDataSource.query(query, [
-      lat,
-      lng,
-      limit,
-      tenantId || null,
-    ]);
+    const result = await AppDataSource.query(query, [lat, lng, limit, tenantId || null]);
 
     return result;
   }
@@ -155,11 +145,7 @@ export class GeoService {
    * @param fieldId - UUID of the field
    * @returns Boolean indicating if the point is inside the field
    */
-  async checkPointInField(
-    lat: number,
-    lng: number,
-    fieldId: string,
-  ): Promise<PointInFieldResult> {
+  async checkPointInField(lat: number, lng: number, fieldId: string): Promise<PointInFieldResult> {
     const query = `
             SELECT check_point_in_field($1, $2, $3) as is_inside
         `;
@@ -187,7 +173,7 @@ export class GeoService {
     minLng: number,
     maxLat: number,
     maxLng: number,
-    tenantId?: string,
+    tenantId?: string
   ): Promise<FieldInBBox[]> {
     const query = `
             SELECT * FROM find_fields_in_bbox($1, $2, $3, $4, $5)
@@ -210,10 +196,7 @@ export class GeoService {
    * @param fieldId2 - UUID of the second field
    * @returns Distance in kilometers
    */
-  async calculateFieldsDistance(
-    fieldId1: string,
-    fieldId2: string,
-  ): Promise<FieldsDistanceResult> {
+  async calculateFieldsDistance(fieldId1: string, fieldId2: string): Promise<FieldsDistanceResult> {
     const query = `
             SELECT calculate_fields_distance($1, $2) as distance_km
         `;
@@ -246,7 +229,7 @@ export class GeoService {
     minLng: number,
     maxLat: number,
     maxLng: number,
-    tenantId?: string,
+    tenantId?: string
   ): Promise<RegionStats> {
     const query = `
             SELECT * FROM get_region_field_stats($1, $2, $3, $4, $5)
@@ -262,7 +245,7 @@ export class GeoService {
 
     if (!result || result.length === 0) {
       return {
-        total_fields: "0",
+        total_fields: '0',
         total_area_ha: 0,
         avg_field_size_ha: 0,
         crop_distribution: {},
@@ -402,10 +385,7 @@ export class GeoService {
    * @param boundaryGeoJSON - New boundary as GeoJSON
    * @returns Updated field
    */
-  async updateFieldBoundary(
-    fieldId: string,
-    boundaryGeoJSON: any,
-  ): Promise<any> {
+  async updateFieldBoundary(fieldId: string, boundaryGeoJSON: any): Promise<any> {
     const query = `
             UPDATE fields
             SET boundary = ST_SetSRID(ST_GeomFromGeoJSON($1), 4326)
@@ -415,10 +395,7 @@ export class GeoService {
                 ST_AsGeoJSON(centroid)::jsonb as centroid_geojson
         `;
 
-    const result = await AppDataSource.query(query, [
-      JSON.stringify(boundaryGeoJSON),
-      fieldId,
-    ]);
+    const result = await AppDataSource.query(query, [JSON.stringify(boundaryGeoJSON), fieldId]);
 
     if (!result || result.length === 0) {
       throw new Error(`Field with ID ${fieldId} not found`);
@@ -456,12 +433,12 @@ export class GeoService {
             ) VALUES (
                 $1, $2, $3,
                 ST_SetSRID(ST_MakePoint($4, $5), 4326),
-                ${farmData.boundary_geojson ? "ST_SetSRID(ST_GeomFromGeoJSON($6), 4326)" : "NULL"},
+                ${farmData.boundary_geojson ? 'ST_SetSRID(ST_GeomFromGeoJSON($6), 4326)' : 'NULL'},
                 $7, $8, $9
             )
             RETURNING id, name,
                 ST_AsGeoJSON(location)::jsonb as location_geojson,
-                ${farmData.boundary_geojson ? "ST_AsGeoJSON(boundary)::jsonb as boundary_geojson," : ""}
+                ${farmData.boundary_geojson ? 'ST_AsGeoJSON(boundary)::jsonb as boundary_geojson,' : ''}
                 total_area_hectares
         `;
 
@@ -477,16 +454,9 @@ export class GeoService {
       params.push(JSON.stringify(farmData.boundary_geojson));
     }
 
-    params.push(
-      farmData.address ?? null,
-      farmData.phone ?? null,
-      farmData.email ?? null,
-    );
+    params.push(farmData.address ?? null, farmData.phone ?? null, farmData.email ?? null);
 
-    const result = await AppDataSource.query(
-      query,
-      params as (string | number)[],
-    );
+    const result = await AppDataSource.query(query, params as (string | number)[]);
     return result[0];
   }
 }

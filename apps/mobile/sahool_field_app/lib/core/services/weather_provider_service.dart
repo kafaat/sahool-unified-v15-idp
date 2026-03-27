@@ -390,7 +390,7 @@ class WeatherProviderService {
         tempMin: temps.reduce((a, b) => a < b ? a : b),
         precipitation: precips.reduce((a, b) => a + b),
         precipitationProbability:
-            ((dayItems.first['pop'] as num?) ?? 0 * 100).toInt(),
+            (((dayItems.first['pop'] as num?)?.toDouble() ?? 0.0) * 100).toInt(),
         windSpeed: (dayItems.first['wind']['speed'] as num).toDouble() * 3.6,
         condition: dayItems.first['weather'][0]['main'],
         conditionAr: _owmConditionToAr(dayItems.first['weather'][0]['main']),

@@ -54,7 +54,7 @@ services:
   # موصى به للإنتاج - أداء عالي، بدون حمل قاعدة البيانات
   # ============================================================================
   kong-dbless:
-    image: kong:3.5-alpine
+    image: kong:3.9.0
     container_name: kong-gateway-dbless
     profiles: ["dbless", "full"]
     restart: unless-stopped
@@ -226,7 +226,7 @@ services:
 
   # Kong Migrations - ترحيلات Kong
   kong-migrations:
-    image: kong:3.5-alpine
+    image: kong:3.9.0
     container_name: kong-migrations
     profiles: ["db", "full"]
     command: kong migrations bootstrap
@@ -246,7 +246,7 @@ services:
 
   # Kong DB Mode Instance - نسخة Kong مع قاعدة البيانات
   kong:
-    image: kong:3.5-alpine
+    image: kong:3.9.0
     container_name: kong-gateway
     profiles: ["db", "full"]
     restart: unless-stopped

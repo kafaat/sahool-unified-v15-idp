@@ -2,6 +2,7 @@
 /// اختبارات خدمة مفاتيح التوقيع
 ///
 /// Tests for secure signing key generation, rotation, and management
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

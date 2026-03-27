@@ -5,8 +5,9 @@ This service connects farmers to agricultural suppliers for auto-purchasing.
 """
 
 import os
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any
 
 import structlog
 from fastapi import FastAPI, Request

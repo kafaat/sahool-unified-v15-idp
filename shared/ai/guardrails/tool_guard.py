@@ -14,9 +14,10 @@ import fnmatch
 import json
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Callable
+from typing import Any
 
 import structlog
 

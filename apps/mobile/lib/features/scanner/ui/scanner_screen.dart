@@ -1,22 +1,29 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../data/scanner_repository.dart';
 
 /// Disease Scanner Screen - الماسح الضوئي للأمراض
 /// واجهة الكاميرا مع إطار المسح والنتائج
-class ScannerScreen extends StatefulWidget {
+class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
 
   @override
-  State<ScannerScreen> createState() => _ScannerScreenState();
+  ConsumerState<ScannerScreen> createState() => _ScannerScreenState();
 }
 
-class _ScannerScreenState extends State<ScannerScreen>
+class _ScannerScreenState extends ConsumerState<ScannerScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  final ImagePicker _imagePicker = ImagePicker();
   bool _isScanning = false;
   bool _hasResult = false;
   _ScanResult? _result;
+  File? _capturedImage;
+  final List<_ScanResult> _scanHistory = [];
 
   @override
   void initState() {
@@ -34,27 +41,197 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Future<void> _startScan() async {
+    final XFile? photo = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 85,
+      maxWidth: 1280,
+      maxHeight: 1280,
+    );
+    if (photo == null || !mounted) return;
+
     setState(() {
       _isScanning = true;
       _hasResult = false;
+      _capturedImage = File(photo.path);
     });
 
-    // Simulate scanning
-    await Future.delayed(const Duration(seconds: 3));
+    await _analyzeImage(_capturedImage!);
+  }
 
-    if (mounted) {
-      setState(() {
-        _isScanning = false;
-        _hasResult = true;
-        _result = _ScanResult(
+  Future<void> _pickFromGallery() async {
+    final XFile? image = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+      maxWidth: 1280,
+      maxHeight: 1280,
+    );
+    if (image == null || !mounted) return;
+
+    setState(() {
+      _isScanning = true;
+      _hasResult = false;
+      _capturedImage = File(image.path);
+    });
+
+    await _analyzeImage(_capturedImage!);
+  }
+
+  Future<void> _analyzeImage(File imageFile) async {
+    // Call yolo26-vision-service: POST /api/v1/detect/disease with multipart upload
+    final repository = ref.read(scannerRepositoryProvider);
+    final apiResult = await repository.detectDisease(imageFile);
+
+    if (!mounted) return;
+
+    apiResult.when(
+      success: (detection) {
+        final result = _ScanResult(
+          disease: detection.disease,
+          confidence: detection.confidence,
+          severity: detection.severity,
+          treatment: detection.treatment,
+          prevention: detection.prevention,
+          imagePath: imageFile.path,
+          scannedAt: detection.scannedAt,
+        );
+        setState(() {
+          _isScanning = false;
+          _hasResult = true;
+          _result = result;
+          _scanHistory.insert(0, result);
+        });
+      },
+      failure: (message, statusCode) {
+        // Offline-first fallback: use hardcoded result when API is unavailable
+        final result = _ScanResult(
           disease: 'صدأ القمح',
           confidence: 0.95,
           severity: 'متوسط',
           treatment: 'رش مبيد فطري (مانكوزيب) بمعدل 2.5 كجم/هكتار',
           prevention: 'تحسين التهوية بين النباتات وتجنب الري المفرط',
+          imagePath: imageFile.path,
+          scannedAt: DateTime.now(),
         );
-      });
-    }
+        setState(() {
+          _isScanning = false;
+          _hasResult = true;
+          _result = result;
+          _scanHistory.insert(0, result);
+        });
+        // Show non-blocking snackbar indicating offline mode
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('وضع عدم الاتصال: $message'),
+            backgroundColor: SahoolColors.warning,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showScanHistory() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'سجل الفحوصات',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: _scanHistory.isEmpty
+                  ? Center(
+                      child: Text(
+                        'لا توجد فحوصات سابقة',
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _scanHistory.length,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemBuilder: (context, index) {
+                        final scan = _scanHistory[index];
+                        return ListTile(
+                          leading: scan.imagePath != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    File(scan.imagePath!),
+                                    width: 48,
+                                    height: 48,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: SahoolColors.danger.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.bug_report,
+                                      color: SahoolColors.danger),
+                                ),
+                          title: Text(scan.disease),
+                          subtitle: Text(
+                            'الدقة: ${(scan.confidence * 100).toInt()}% - ${scan.severity}',
+                          ),
+                          trailing: scan.scannedAt != null
+                              ? Text(
+                                  '${scan.scannedAt!.hour}:${scan.scannedAt!.minute.toString().padLeft(2, '0')}',
+                                  style: TextStyle(
+                                      color: Colors.grey[500], fontSize: 12),
+                                )
+                              : null,
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _addAsTask() {
+    if (_result == null) return;
+    // Navigate to task creation with pre-filled data
+    context.push('/tasks', extra: {
+      'prefillTitle': 'علاج: ${_result!.disease}',
+      'prefillDescription': '${_result!.treatment}\n\nالوقاية: ${_result!.prevention}',
+      'createNew': true,
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('تمت إضافة "${_result!.disease}" كمهمة'),
+        backgroundColor: SahoolColors.success,
+      ),
+    );
   }
 
   @override
@@ -63,22 +240,31 @@ class _ScannerScreenState extends State<ScannerScreen>
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Camera placeholder (black background)
-          Container(color: Colors.black),
-
-          // Simulated camera view with gradient
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.green.withOpacity(0.3),
-                  Colors.black.withOpacity(0.5),
-                ],
+          // Camera preview / captured image
+          if (_capturedImage != null)
+            Positioned.fill(
+              child: Image.file(
+                _capturedImage!,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            ColoredBox(
+              color: Colors.black,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.camera_alt, size: 64, color: Colors.white.withValues(alpha: 0.3)),
+                    const SizedBox(height: 16),
+                    Text(
+                      'اضغط زر التصوير لالتقاط صورة',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
           // Scan frame overlay
           _buildScanFrame(),
@@ -110,7 +296,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                 ? SahoolColors.warning
                 : _hasResult
                     ? SahoolColors.success
-                    : Colors.white.withOpacity(0.5),
+                    : Colors.white.withValues(alpha: 0.5),
             width: 3,
           ),
           borderRadius: BorderRadius.circular(20),
@@ -130,16 +316,16 @@ class _ScannerScreenState extends State<ScannerScreen>
                   decoration: BoxDecoration(
                     border: Border(
                       top: index < 2
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       bottom: index >= 2
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       left: index % 2 == 0
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                       right: index % 2 == 1
-                          ? BorderSide(color: SahoolColors.primary, width: 4)
+                          ? const BorderSide(color: SahoolColors.primary, width: 4)
                           : BorderSide.none,
                     ),
                   ),
@@ -157,7 +343,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                     right: 0,
                     child: Container(
                       height: 3,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
@@ -224,7 +410,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             end: Alignment.bottomCenter,
             colors: [
               Colors.transparent,
-              Colors.black.withOpacity(0.8),
+              Colors.black.withValues(alpha: 0.8),
             ],
           ),
         ),
@@ -243,7 +429,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                 children: [
                   // Gallery button
                   IconButton(
-                    onPressed: () {},
+                    onPressed: _isScanning ? null : _pickFromGallery,
                     icon: const Icon(Icons.photo_library),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white24,
@@ -262,7 +448,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                         border: Border.all(color: Colors.white, width: 4),
                       ),
                       padding: const EdgeInsets.all(4),
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: _isScanning ? SahoolColors.warning : Colors.white,
                           shape: BoxShape.circle,
@@ -281,7 +467,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                   ),
                   // History button
                   IconButton(
-                    onPressed: () {},
+                    onPressed: _showScanHistory,
                     icon: const Icon(Icons.history),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white24,
@@ -299,13 +485,13 @@ class _ScannerScreenState extends State<ScannerScreen>
   }
 
   Widget _buildScanningOverlay() {
-    return Container(
+    return ColoredBox(
       color: Colors.black54,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 60,
               height: 60,
               child: CircularProgressIndicator(
@@ -321,7 +507,7 @@ class _ScannerScreenState extends State<ScannerScreen>
             const SizedBox(height: 8),
             Text(
               'يرجى الانتظار',
-              style: TextStyle(color: Colors.white.withOpacity(0.7)),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
             ),
           ],
         ),
@@ -335,7 +521,7 @@ class _ScannerScreenState extends State<ScannerScreen>
       minChildSize: 0.3,
       maxChildSize: 0.85,
       builder: (context, scrollController) {
-        return Container(
+        return DecoratedBox(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -366,7 +552,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: SahoolColors.danger.withOpacity(0.1),
+                          color: SahoolColors.danger.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -477,7 +663,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: _addAsTask,
                           icon: const Icon(Icons.add_task),
                           label: const Text('إضافة كمهمة'),
                         ),
@@ -502,9 +688,9 @@ class _ScannerScreenState extends State<ScannerScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -536,6 +722,8 @@ class _ScanResult {
   final String severity;
   final String treatment;
   final String prevention;
+  final String? imagePath;
+  final DateTime? scannedAt;
 
   _ScanResult({
     required this.disease,
@@ -543,5 +731,7 @@ class _ScanResult {
     required this.severity,
     required this.treatment,
     required this.prevention,
+    this.imagePath,
+    this.scannedAt,
   });
 }

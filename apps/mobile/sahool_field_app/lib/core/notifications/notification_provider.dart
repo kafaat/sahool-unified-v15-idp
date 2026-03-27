@@ -3,6 +3,7 @@
 ///
 /// Provides notification services and state management for the app.
 /// يوفر خدمات الإشعارات وإدارة الحالة للتطبيق.
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -97,7 +98,7 @@ final unreadNotificationCountProvider = Provider<int>((ref) {
 /// مزود للتحقق من تفعيل الإشعارات
 final notificationsEnabledProvider = FutureProvider<bool>((ref) async {
   final manager = ref.watch(notificationManagerProvider);
-  return await manager.areNotificationsEnabled();
+  return manager.areNotificationsEnabled();
 });
 
 /// Provider for subscribed topics

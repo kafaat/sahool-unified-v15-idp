@@ -21,6 +21,20 @@ from typing import Any
 import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 # ==============================================================================
 # Security: Input Validation
 # ==============================================================================
@@ -237,7 +251,9 @@ def generate_mock_analysis_data(field_id: str, resolution_m: float = 30.0) -> tu
 
 @router.post("/analyze", response_model=HydrologyAnalysisResponse)
 async def analyze_hydrology(
-    request: HydrologyAnalysisRequest, tenant_id: str = Depends(get_tenant_id)
+    request: HydrologyAnalysisRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> HydrologyAnalysisResponse:
     """
     Full hydrology analysis for a field.

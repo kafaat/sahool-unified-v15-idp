@@ -174,7 +174,7 @@ class SecurityConfig {
     this.requireBiometricAfterBackground = true,
     this.showSessionExpiryWarning = true,
     // Screenshot prevention
-    this.screenshotPolicy = ScreenshotPolicy.disabled,
+    this.screenshotPolicy = ScreenshotPolicy.sensitiveOnly,
     this.blurOnBackground = true,
     this.backgroundBlurSigma = 20.0,
     // Secure input

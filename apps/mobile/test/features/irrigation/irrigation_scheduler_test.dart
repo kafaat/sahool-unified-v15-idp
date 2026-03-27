@@ -7,12 +7,12 @@
 /// - ET-based scheduling recommendations
 /// - Sensor-triggered scheduling
 /// - Schedule conflict resolution
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/features/irrigation/data/remote/irrigation_api.dart';
-import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart'
-    hide IrrigationEvent, IrrigationCalculation, IrrigationSchedule; // Hide to avoid conflict with irrigation_api
+// Hide to avoid conflict with irrigation_api
 import 'package:sahool_field_app/features/pivot_irrigation/domain/models/pivot_models.dart';
 
 import 'irrigation_fixtures.dart';
@@ -523,7 +523,7 @@ void main() {
       const kc = 1.15; // Wheat mid-season Kc
 
       // Act
-      final etc = et0 * kc;
+      const etc = et0 * kc;
 
       // Assert
       expect(etc, closeTo(7.475, 0.001));
@@ -536,8 +536,8 @@ void main() {
       const efficiency = 0.85;
 
       // Act
-      final etc = et0 * kc;
-      final waterNeed = etc / efficiency;
+      const etc = et0 * kc;
+      const waterNeed = etc / efficiency;
 
       // Assert
       expect(waterNeed, greaterThan(10)); // mm/day
@@ -550,8 +550,8 @@ void main() {
       const efficiency = 0.90;
 
       // Act
-      final etc = et0 * kc;
-      final waterNeed = etc / efficiency;
+      const etc = et0 * kc;
+      const waterNeed = etc / efficiency;
 
       // Assert
       expect(waterNeed, lessThan(3)); // mm/day

@@ -3,12 +3,12 @@
  * خطافات إدارة المهام
  */
 
-"use client";
+'use client';
 
-import { useApiQuery, useApiMutation } from "./use-api-query";
-import { fetchTasks, updateTaskStatus } from "@/lib/api";
-import { apiClient } from "@/lib/api";
-import { API_URLS } from "@/config/api";
+import { useApiQuery, useApiMutation } from './use-api-query';
+import { fetchTasks, updateTaskStatus } from '@/lib/api';
+import { apiClient } from '@/lib/api';
+import { API_URLS } from '@/config/api';
 
 /**
  * List tasks
@@ -19,11 +19,9 @@ export function useTasks(params?: {
   assignedTo?: string;
   limit?: number;
 }) {
-  return useApiQuery(
-    ["tasks", JSON.stringify(params ?? {})],
-    () => fetchTasks(params),
-    { staleTime: 30000 },
-  );
+  return useApiQuery(['tasks', JSON.stringify(params ?? {})], () => fetchTasks(params), {
+    staleTime: 30000,
+  });
 }
 
 /**
@@ -33,7 +31,7 @@ export function useUpdateTaskStatus() {
   return useApiMutation(
     ({ id, status }: { id: string; status: string }) =>
       updateTaskStatus(id, status).then(() => ({ success: true })),
-    { invalidateKeys: ["tasks"] },
+    { invalidateKeys: ['tasks'] }
   );
 }
 
@@ -51,12 +49,9 @@ export function useCreateTask() {
       fieldId?: string;
       dueDate?: string;
     }) => {
-      const response = await apiClient.post(
-        API_URLS.taskEndpoints.create,
-        data,
-      );
+      const response = await apiClient.post(API_URLS.taskEndpoints.create, data);
       return response.data;
     },
-    { invalidateKeys: ["tasks"] },
+    { invalidateKeys: ['tasks'] }
   );
 }

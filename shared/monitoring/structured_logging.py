@@ -17,12 +17,13 @@ import json
 import logging
 import sys
 import traceback
+from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from functools import wraps
-from typing import Any, Callable
+from typing import Any
 
 # Context variables for distributed tracing
 trace_id_var: ContextVar[str] = ContextVar("trace_id", default="")

@@ -14,5 +14,4 @@
  * In production: Uses NEXT_PUBLIC_API_URL
  * In development: Falls back to localhost:8000 (Kong gateway port)
  */
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';

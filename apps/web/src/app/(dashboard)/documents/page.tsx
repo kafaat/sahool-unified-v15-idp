@@ -3,13 +3,13 @@
  * صفحة الوثائق
  */
 
-import { Metadata } from "next";
-import DocumentsClient from "./DocumentsClient";
+import { Metadata } from 'next';
+import DocumentsClient from './DocumentsClient';
 
 export const metadata: Metadata = {
-  title: "Documents | SAHOOL",
-  description: "الوثائق - Manage farm documents, licenses, and compliance records",
-  keywords: ["documents", "الوثائق", "compliance", "الامتثال", "sahool"],
+  title: 'Documents | SAHOOL',
+  description: 'الوثائق - Manage farm documents, licenses, and compliance records',
+  keywords: ['documents', 'الوثائق', 'compliance', 'الامتثال', 'sahool'],
 };
 
 export default function DocumentsPage() {

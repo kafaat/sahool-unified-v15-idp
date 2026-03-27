@@ -107,7 +107,7 @@ class _ZoneTimelineScreenState extends ConsumerState<ZoneTimelineScreen> {
       label: Text(label),
       selected: isSelected,
       onSelected: (_) => setState(() => _selectedIndex = value),
-      selectedColor: color.withOpacity(0.2),
+      selectedColor: color.withValues(alpha: 0.2),
       checkmarkColor: color,
       labelStyle: TextStyle(
         color: isSelected ? color : Colors.grey[700],
@@ -220,7 +220,7 @@ class _ChartPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final fillPaint = Paint()
-      ..color = color.withOpacity(0.1)
+      ..color = color.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     final dotPaint = Paint()
@@ -246,8 +246,8 @@ class _ChartPainter extends CustomPainter {
     }).toList();
 
     // حساب الحدود
-    double minValue = -1;
-    double maxValue = 1;
+    const double minValue = -1;
+    const double maxValue = 1;
 
     // تحويل إلى نقاط
     final points = <Offset>[];

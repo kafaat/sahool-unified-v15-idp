@@ -10,10 +10,11 @@ import asyncio
 import json
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
 logger = logging.getLogger("sahool-notifications.queue")

@@ -18,6 +18,11 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 import aiohttp
 import uvicorn
 from config.settings import Settings
@@ -58,7 +63,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler()],
 )
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -825,7 +833,9 @@ async def review_file_endpoint(request: FileReviewRequest, user: User = Depends(
 
 
 @app.post("/review/pr")
-async def review_pr_endpoint(request: PRReviewRequest, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
+async def review_pr_endpoint(
+    request: PRReviewRequest, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)
+):
     """Review a GitHub Pull Request"""
     service = get_service()
 

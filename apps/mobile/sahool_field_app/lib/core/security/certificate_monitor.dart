@@ -13,9 +13,9 @@ class CertificateMonitorWidget extends StatefulWidget {
   final CertificatePinningService? pinningService;
 
   const CertificateMonitorWidget({
-    Key? key,
+    super.key,
     this.pinningService,
-  }) : super(key: key);
+  });
 
   @override
   State<CertificateMonitorWidget> createState() =>
@@ -235,7 +235,7 @@ class _CertificateMonitorWidgetState extends State<CertificateMonitorWidget> {
     _loadCertificateStatus();
   }
 
-  void _testCertificates() async {
+  Future<void> _testCertificates() async {
     // Show loading dialog
     showDialog(
       context: context,

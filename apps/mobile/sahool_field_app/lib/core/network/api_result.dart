@@ -4,6 +4,7 @@
 /// يضمن معالجة كل حالات الاستجابة:
 /// - Success: البيانات وصلت بنجاح
 /// - Failure: حدث خطأ مع رسالة واضحة
+library;
 
 // Sealed class لإجبار معالجة كل الحالات
 sealed class ApiResult<T> {

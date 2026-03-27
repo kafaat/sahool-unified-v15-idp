@@ -13,7 +13,7 @@
   "source_service": null,
   "span_id": null,
   "temperature": 28.0,
-  "tenant_id_header": null,
+  "tenant_id": "00000000-0000-0000-0000-000000000003",
   "timestamp": "<VOLATILE>",
   "trace_id": null,
   "version": "1.0",

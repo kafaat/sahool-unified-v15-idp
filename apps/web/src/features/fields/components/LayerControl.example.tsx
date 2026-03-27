@@ -1,16 +1,16 @@
 // @ts-nocheck - Example file for demonstration purposes
-"use client";
+'use client';
 
 /**
  * LayerControl Component Usage Examples
  * أمثلة استخدام مكون التحكم في الطبقات
  */
 
-import React, { useRef, useEffect } from "react";
-import { LayerControl, useLayerControl } from "./LayerControl";
-import type { LayerSettings, NDVISettings } from "./LayerControl";
-import { MapContainer, TileLayer } from "react-leaflet";
-import type { Map as LeafletMap } from "leaflet";
+import React, { useRef, useEffect } from 'react';
+import { LayerControl, useLayerControl } from './LayerControl';
+import type { LayerSettings, NDVISettings } from './LayerControl';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import type { Map as LeafletMap } from 'leaflet';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Example 1: Basic Usage / الاستخدام الأساسي
@@ -18,20 +18,16 @@ import type { Map as LeafletMap } from "leaflet";
 
 export function BasicLayerControlExample() {
   const handleLayersChange = (layers: LayerSettings) => {
-    console.log("Layers changed:", layers);
+    console.log('Layers changed:', layers);
   };
 
   const handleNDVIChange = (settings: NDVISettings) => {
-    console.log("NDVI settings changed:", settings);
+    console.log('NDVI settings changed:', settings);
   };
 
   return (
     <div className="relative h-[600px] w-full">
-      <MapContainer
-        center={[15.5527, 48.5164]}
-        zoom={13}
-        className="h-full w-full rounded-xl"
-      >
+      <MapContainer center={[15.5527, 48.5164]} zoom={13} className="h-full w-full rounded-xl">
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
@@ -55,11 +51,7 @@ export function BasicLayerControlExample() {
 export function LayerControlWithInitialSettings() {
   return (
     <div className="relative h-[600px] w-full">
-      <MapContainer
-        center={[15.5527, 48.5164]}
-        zoom={13}
-        className="h-full w-full rounded-xl"
-      >
+      <MapContainer center={[15.5527, 48.5164]} zoom={13} className="h-full w-full rounded-xl">
         <TileLayer
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           attribution="&copy; Esri"
@@ -77,7 +69,7 @@ export function LayerControlWithInitialSettings() {
         }}
         initialNDVI={{
           opacity: 0.5,
-          historicalDate: new Date("2025-01-01"),
+          historicalDate: new Date('2025-01-01'),
         }}
       />
     </div>
@@ -104,17 +96,13 @@ export function LayerControlWithHook() {
   });
 
   useEffect(() => {
-    console.log("Current layer state:", state);
+    console.log('Current layer state:', state);
   }, [state]);
 
   return (
     <div className="space-y-4">
       <div className="relative h-[600px] w-full">
-        <MapContainer
-          center={[15.5527, 48.5164]}
-          zoom={13}
-          className="h-full w-full rounded-xl"
-        >
+        <MapContainer center={[15.5527, 48.5164]} zoom={13} className="h-full w-full rounded-xl">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
@@ -125,10 +113,10 @@ export function LayerControlWithHook() {
           position="top-right"
           onLayersChange={(layers) => {
             // You can use controls to update state programmatically
-            console.log("Layers updated:", layers);
+            console.log('Layers updated:', layers);
           }}
           onNDVIChange={(ndvi) => {
-            console.log("NDVI updated:", ndvi);
+            console.log('NDVI updated:', ndvi);
           }}
         />
       </div>
@@ -136,7 +124,7 @@ export function LayerControlWithHook() {
       {/* External controls / عناصر تحكم خارجية */}
       <div className="flex gap-2 flex-wrap">
         <button
-          onClick={() => controls.toggleLayer("ndvi")}
+          onClick={() => controls.toggleLayer('ndvi')}
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
           Toggle NDVI
@@ -164,9 +152,7 @@ export function LayerControlWithHook() {
       {/* State display / عرض الحالة */}
       <div className="p-4 bg-gray-100 rounded-lg">
         <h3 className="font-bold mb-2">Current State:</h3>
-        <pre className="text-sm overflow-auto">
-          {JSON.stringify(state, null, 2)}
-        </pre>
+        <pre className="text-sm overflow-auto">{JSON.stringify(state, null, 2)}</pre>
       </div>
     </div>
   );
@@ -179,32 +165,30 @@ export function LayerControlWithHook() {
 export function LayerControlPositionsExample() {
   return (
     <div className="grid grid-cols-2 gap-4">
-      {(["top-left", "top-right", "bottom-left", "bottom-right"] as const).map(
-        (position) => (
-          <div
-            key={position}
-            className="relative h-[400px] w-full border-2 border-gray-200 rounded-xl"
+      {(['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const).map((position) => (
+        <div
+          key={position}
+          className="relative h-[400px] w-full border-2 border-gray-200 rounded-xl"
+        >
+          <MapContainer
+            center={[15.5527, 48.5164]}
+            zoom={10}
+            className="h-full w-full rounded-xl"
+            zoomControl={false}
           >
-            <MapContainer
-              center={[15.5527, 48.5164]}
-              zoom={10}
-              className="h-full w-full rounded-xl"
-              zoomControl={false}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution="&copy; OpenStreetMap"
-              />
-            </MapContainer>
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution="&copy; OpenStreetMap"
+            />
+          </MapContainer>
 
-            <LayerControl position={position} />
+          <LayerControl position={position} />
 
-            <div className="absolute bottom-2 left-2 bg-white/90 px-3 py-1 rounded-lg text-sm font-semibold">
-              {position}
-            </div>
+          <div className="absolute bottom-2 left-2 bg-white/90 px-3 py-1 rounded-lg text-sm font-semibold">
+            {position}
           </div>
-        ),
-      )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -221,7 +205,7 @@ export function IntegratedMapExample() {
   useEffect(() => {
     if (!mapRef.current) return;
 
-    console.log("Update map layers based on:", layerState);
+    console.log('Update map layers based on:', layerState);
     // Here you would actually control your map layers
     // For example, toggle NDVI layer visibility:
     // if (layerState.layers.ndvi) {
@@ -273,18 +257,16 @@ export function IntegratedMapExample() {
           </div>
         )}
 
-        {layerState.layers.irrigationZones && (
-          <div>{/* Your irrigation zones here */}</div>
-        )}
+        {layerState.layers.irrigationZones && <div>{/* Your irrigation zones here */}</div>}
       </MapContainer>
 
       <LayerControl
         position="top-right"
         onLayersChange={(layers) => {
-          console.log("Layers changed:", layers);
+          console.log('Layers changed:', layers);
         }}
         onNDVIChange={(ndvi) => {
-          console.log("NDVI changed:", ndvi);
+          console.log('NDVI changed:', ndvi);
         }}
         persistPreferences={true}
         storageKey="sahool-field-map-layers"
@@ -315,11 +297,7 @@ export function IntegratedMapExample() {
 export function LayerControlWithoutPersistence() {
   return (
     <div className="relative h-[600px] w-full">
-      <MapContainer
-        center={[15.5527, 48.5164]}
-        zoom={13}
-        className="h-full w-full rounded-xl"
-      >
+      <MapContainer center={[15.5527, 48.5164]} zoom={13} className="h-full w-full rounded-xl">
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
@@ -331,7 +309,7 @@ export function LayerControlWithoutPersistence() {
         persistPreferences={false}
         onLayersChange={(layers) => {
           // Handle layer changes without localStorage
-          console.log("Layers (not persisted):", layers);
+          console.log('Layers (not persisted):', layers);
         }}
       />
     </div>
@@ -346,15 +324,15 @@ export default function LayerControlDemo() {
   const [activeExample, setActiveExample] = React.useState(0);
 
   const examples = [
-    { name: "Basic Usage", component: BasicLayerControlExample },
+    { name: 'Basic Usage', component: BasicLayerControlExample },
     {
-      name: "With Initial Settings",
+      name: 'With Initial Settings',
       component: LayerControlWithInitialSettings,
     },
-    { name: "Using Hook", component: LayerControlWithHook },
-    { name: "All Positions", component: LayerControlPositionsExample },
-    { name: "Integrated Map", component: IntegratedMapExample },
-    { name: "Without Persistence", component: LayerControlWithoutPersistence },
+    { name: 'Using Hook', component: LayerControlWithHook },
+    { name: 'All Positions', component: LayerControlPositionsExample },
+    { name: 'Integrated Map', component: IntegratedMapExample },
+    { name: 'Without Persistence', component: LayerControlWithoutPersistence },
   ];
 
   const ActiveComponent = examples[activeExample].component;
@@ -363,12 +341,8 @@ export default function LayerControlDemo() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            LayerControl Component Examples
-          </h1>
-          <p className="text-gray-600 mb-4">
-            أمثلة مكون التحكم في طبقات الخريطة
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">LayerControl Component Examples</h1>
+          <p className="text-gray-600 mb-4">أمثلة مكون التحكم في طبقات الخريطة</p>
 
           {/* Example selector */}
           <div className="flex gap-2 flex-wrap">
@@ -378,8 +352,8 @@ export default function LayerControlDemo() {
                 onClick={() => setActiveExample(index)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   activeExample === index
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 {example.name}
@@ -389,9 +363,7 @@ export default function LayerControlDemo() {
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {examples[activeExample].name}
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">{examples[activeExample].name}</h2>
           <ActiveComponent />
         </div>
       </div>

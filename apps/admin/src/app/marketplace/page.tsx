@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Marketplace Management Page
 // صفحة إدارة السوق
 
-import { useEffect, useState, useMemo } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { cn } from "@/lib/utils";
+import { useEffect, useState, useMemo } from 'react';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { cn } from '@/lib/utils';
 import {
   Search,
   RefreshCw,
@@ -17,17 +17,17 @@ import {
   Package,
   TrendingUp,
   Filter,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { MOCK_PRODUCTS } from "./marketplace.mock";
-import type { Product } from "./marketplace.mock";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { MOCK_PRODUCTS } from './marketplace.mock';
+import type { Product } from './marketplace.mock';
 
 export default function MarketplacePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     loadProducts();
@@ -39,7 +39,7 @@ export default function MarketplacePage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setProducts(MOCK_PRODUCTS);
     } catch (error) {
-      logger.error("Failed to load products:", error);
+      logger.error('Failed to load products:', error);
     } finally {
       setIsLoading(false);
     }
@@ -63,37 +63,40 @@ export default function MarketplacePage() {
     });
   }, [products, searchQuery, categoryFilter, statusFilter]);
 
-  const stats = useMemo(() => ({
-    total: products.length,
-    active: products.filter((p) => p.status === "active").length,
-    pending: products.filter((p) => p.status === "pending").length,
-    totalOrders: products.reduce((acc, p) => acc + p.orders, 0),
-  }), [products]);
+  const stats = useMemo(
+    () => ({
+      total: products.length,
+      active: products.filter((p) => p.status === 'active').length,
+      pending: products.filter((p) => p.status === 'pending').length,
+      totalOrders: products.reduce((acc, p) => acc + p.orders, 0),
+    }),
+    [products]
+  );
 
-  const getStatusLabel = (status: Product["status"]) => {
-    const labels: Record<Product["status"], string> = {
-      active: "نشط",
-      pending: "قيد المراجعة",
-      rejected: "مرفوض",
-      sold_out: "نفذ",
+  const getStatusLabel = (status: Product['status']) => {
+    const labels: Record<Product['status'], string> = {
+      active: 'نشط',
+      pending: 'قيد المراجعة',
+      rejected: 'مرفوض',
+      sold_out: 'نفذ',
     };
     return labels[status];
   };
 
-  const getStatusColor = (status: Product["status"]) => {
-    const colors: Record<Product["status"], string> = {
-      active: "bg-green-100 text-green-800",
-      pending: "bg-yellow-100 text-yellow-800",
-      rejected: "bg-red-100 text-red-800",
-      sold_out: "bg-gray-100 text-gray-800",
+  const getStatusColor = (status: Product['status']) => {
+    const colors: Record<Product['status'], string> = {
+      active: 'bg-green-100 text-green-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      rejected: 'bg-red-100 text-red-800',
+      sold_out: 'bg-gray-100 text-gray-800',
     };
     return colors[status];
   };
 
   const columns = [
     {
-      key: "name",
-      header: "المنتج",
+      key: 'name',
+      header: 'المنتج',
       render: (product: Product) => (
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
@@ -107,15 +110,15 @@ export default function MarketplacePage() {
       ),
     },
     {
-      key: "seller",
-      header: "البائع",
+      key: 'seller',
+      header: 'البائع',
       render: (product: Product) => (
         <span className="text-gray-700 dark:text-gray-300">{product.sellerAr}</span>
       ),
     },
     {
-      key: "price",
-      header: "السعر",
+      key: 'price',
+      header: 'السعر',
       render: (product: Product) => (
         <span className="font-medium text-gray-900 dark:text-gray-100">
           {product.price} {product.currency} / {product.unit}
@@ -123,17 +126,22 @@ export default function MarketplacePage() {
       ),
     },
     {
-      key: "quantity",
-      header: "الكمية",
+      key: 'quantity',
+      header: 'الكمية',
       render: (product: Product) => (
-        <span className={cn("text-gray-700 dark:text-gray-300", product.quantity === 0 && "text-red-600")}>
+        <span
+          className={cn(
+            'text-gray-700 dark:text-gray-300',
+            product.quantity === 0 && 'text-red-600'
+          )}
+        >
           {product.quantity}
         </span>
       ),
     },
     {
-      key: "stats",
-      header: "الإحصائيات",
+      key: 'stats',
+      header: 'الإحصائيات',
       render: (product: Product) => (
         <div className="text-sm">
           <span className="text-gray-500 dark:text-gray-400">{product.views} مشاهدة</span>
@@ -143,35 +151,52 @@ export default function MarketplacePage() {
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (product: Product) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(product.status))}>
+        <span
+          className={cn(
+            'px-2 py-1 rounded-full text-xs font-medium',
+            getStatusColor(product.status)
+          )}
+        >
           {getStatusLabel(product.status)}
         </span>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (product: Product) => (
         <div className="flex items-center gap-1">
-          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="عرض (قريبًا)">
+          <button
+            disabled
+            className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="عرض (قريبًا)"
+          >
             <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
-          {product.status === "pending" && (
+          {product.status === 'pending' && (
             <>
-              <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="قبول (قريبًا)">
+              <button
+                disabled
+                className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="قبول (قريبًا)"
+              >
                 <CheckCircle className="w-4 h-4 text-green-500" />
               </button>
-              <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="رفض (قريبًا)">
+              <button
+                disabled
+                className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="رفض (قريبًا)"
+              >
                 <XCircle className="w-4 h-4 text-red-500" />
               </button>
             </>
           )}
         </div>
       ),
-      className: "w-32",
+      className: 'w-32',
     },
   ];
 
@@ -220,7 +245,9 @@ export default function MarketplacePage() {
               <TrendingUp className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalOrders}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.totalOrders}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">إجمالي الطلبات</p>
             </div>
           </div>
@@ -269,7 +296,12 @@ export default function MarketplacePage() {
             onClick={loadProducts}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-400',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
           <button
             disabled

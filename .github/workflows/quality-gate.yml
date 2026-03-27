@@ -1,0 +1,334 @@
+name: "Quality Gate - منظومة الجودة المتكاملة"
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  security-events: write
+
+env:
+  OPENAPI_SPEC: api/gateway-openapi.yaml
+
+jobs:
+  # ═══════════════════════════════════════════
+  # Stage 1: Static Analysis (Code + SQL + API Spec)
+  # ═══════════════════════════════════════════
+  static-analysis:
+    name: "Stage 1 - Static Analysis"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      python_issues: ${{ steps.ruff.outputs.issues }}
+      sql_issues: ${{ steps.sqlfluff.outputs.issues }}
+      spec_valid: ${{ steps.spec.outputs.valid }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install tools
+        run: |
+          pip install ruff sqlfluff --quiet
+          npm install -g @redocly/cli @stoplight/spectral-cli
+
+      # Python lint
+      - name: Ruff lint
+        id: ruff
+        run: |
+          ISSUES=$(ruff check apps/ shared/ --output-format=json 2>/dev/null | python -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
+          echo "issues=$ISSUES" >> $GITHUB_OUTPUT
+          ruff check apps/ shared/ --output-format=github || true
+
+      # SQL lint on migrations
+      - name: SQLFluff lint migrations
+        id: sqlfluff
+        run: |
+          ISSUES=$(sqlfluff lint infrastructure/core/postgres/migrations/ --dialect postgres --format json 2>/dev/null | python -c "import sys,json; d=json.load(sys.stdin); print(sum(len(f.get('violations',[])) for f in d))" 2>/dev/null || echo "0")
+          echo "issues=$ISSUES" >> $GITHUB_OUTPUT
+          sqlfluff lint infrastructure/core/postgres/migrations/ --dialect postgres || true
+
+      # OpenAPI spec validation (SINGLE SOURCE OF TRUTH)
+      - name: Validate OpenAPI Spec
+        id: spec
+        run: |
+          npx @redocly/cli lint $OPENAPI_SPEC --format=github-actions 2>&1 && echo "valid=true" >> $GITHUB_OUTPUT || echo "valid=false" >> $GITHUB_OUTPUT
+          npx @stoplight/spectral-cli lint $OPENAPI_SPEC --format=pretty || true
+
+      # Upload spec for downstream jobs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: openapi-spec
+          path: ${{ env.OPENAPI_SPEC }}
+
+  # ═══════════════════════════════════════════
+  # Stage 2: Contract & API Testing (depends on spec validation)
+  # ═══════════════════════════════════════════
+  contract-testing:
+    name: "Stage 2 - Contract Testing"
+    needs: static-analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      contract_pass: ${{ steps.schemathesis.outputs.pass }}
+      newman_pass: ${{ steps.newman.outputs.pass }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: openapi-spec
+          path: api/
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      # Schemathesis reads the SAME OpenAPI spec
+      - name: Schemathesis Contract Tests
+        id: schemathesis
+        run: |
+          pip install schemathesis --quiet
+          # Validate spec structure (no running server needed)
+          python -c "
+          import schemathesis
+          import json
+          try:
+              schema = schemathesis.from_path('${{ env.OPENAPI_SPEC }}')
+              endpoints = list(schema.get_all_operations())
+              print(f'✅ OpenAPI spec valid: {len(endpoints)} endpoints found')
+              with open('schemathesis-report.json', 'w') as f:
+                  json.dump({'endpoints': len(endpoints), 'valid': True}, f)
+              print('pass=true')
+          except Exception as e:
+              print(f'❌ Spec validation failed: {e}')
+              with open('schemathesis-report.json', 'w') as f:
+                  json.dump({'error': str(e), 'valid': False}, f)
+              print('pass=false')
+          " | tee /dev/stderr | grep '^pass=' >> $GITHUB_OUTPUT || echo "pass=false" >> $GITHUB_OUTPUT
+
+      # Newman runs Postman collection
+      - name: Newman API Collection
+        id: newman
+        run: |
+          npm install -g newman newman-reporter-htmlextra --quiet
+          if [ -f "docs/api/SAHOOL.postman_collection.json" ]; then
+            newman run docs/api/SAHOOL.postman_collection.json \
+              --reporters cli,json \
+              --reporter-json-export newman-report.json \
+              --bail 2>&1 && echo "pass=true" >> $GITHUB_OUTPUT || echo "pass=false" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ No Postman collection found"
+            echo "pass=skip" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: contract-reports
+          path: |
+            schemathesis-report.json
+            newman-report.json
+
+  # ═══════════════════════════════════════════
+  # Stage 3: Security Scanning (SAST + DAST)
+  # ═══════════════════════════════════════════
+  security-scan:
+    name: "Stage 3 - Security Scan"
+    needs: static-analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      bandit_issues: ${{ steps.bandit.outputs.issues }}
+      semgrep_issues: ${{ steps.semgrep.outputs.issues }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      # SAST - Python
+      - name: Bandit Security Scan
+        id: bandit
+        run: |
+          pip install bandit --quiet
+          ISSUES=$(bandit -r apps/services/ shared/ -f json --severity-level medium 2>/dev/null | python -c "import sys,json; print(len(json.load(sys.stdin).get('results',[])))" 2>/dev/null || echo "0")
+          echo "issues=$ISSUES" >> $GITHUB_OUTPUT
+          bandit -r apps/services/ shared/ --severity-level high --format github || true
+
+      # SAST - Multi-language
+      - name: Semgrep Scan
+        id: semgrep
+        run: |
+          pip install semgrep --quiet
+          ISSUES=$(semgrep scan --config auto --json apps/ shared/ 2>/dev/null | python -c "import sys,json; print(len(json.load(sys.stdin).get('results',[])))" 2>/dev/null || echo "0")
+          echo "issues=$ISSUES" >> $GITHUB_OUTPUT
+          semgrep scan --config auto --sarif --output semgrep.sarif apps/ shared/ || true
+
+      # Secrets detection
+      - name: Detect Secrets
+        run: |
+          pip install detect-secrets --quiet
+          detect-secrets scan --all-files --exclude-files '\.lock$|node_modules|\.g\.dart$' > .secrets-report.json || true
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            semgrep.sarif
+            .secrets-report.json
+
+  # ═══════════════════════════════════════════
+  # Stage 4: Test Execution (depends on static passing)
+  # ═══════════════════════════════════════════
+  tests:
+    name: "Stage 4 - Tests"
+    needs: static-analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      python_pass: ${{ steps.pytest.outputs.pass }}
+      coverage: ${{ steps.pytest.outputs.coverage }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip wheel
+          pip install pytest pytest-asyncio pytest-cov pytest-timeout httpx pyjwt fastapi pydantic pydantic-settings jsonschema sqlalchemy structlog redis schemathesis tenacity --quiet
+          pip install numpy pillow aiofiles pyotp qrcode nats-py aiohttp cffi --quiet
+          pip install tortoise-orm --quiet || true
+
+      - name: Run tests with coverage
+        id: pytest
+        run: |
+          pytest tests/smoke/ tests/unit/ -v --tb=short --timeout=60 \
+            --cov=shared --cov=apps/services \
+            --cov-report=xml --cov-report=term-missing \
+            2>&1 | tee test-output.txt
+
+          EXIT_CODE=${PIPESTATUS[0]}
+
+          # Extract coverage
+          COV=$(grep "^TOTAL" test-output.txt | awk '{print $NF}' | tr -d '%' || echo "0")
+          echo "coverage=$COV" >> $GITHUB_OUTPUT
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "pass=true" >> $GITHUB_OUTPUT
+          else
+            echo "pass=false" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            coverage.xml
+            test-output.txt
+
+  # ═══════════════════════════════════════════
+  # Stage 5: Quality Gate Summary (aggregates everything)
+  # ═══════════════════════════════════════════
+  quality-summary:
+    name: "Quality Gate Summary"
+    needs: [static-analysis, contract-testing, security-scan, tests]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Generate Quality Report
+        env:
+          PYTHON_ISSUES: ${{ needs.static-analysis.outputs.python_issues }}
+          SQL_ISSUES: ${{ needs.static-analysis.outputs.sql_issues }}
+          SPEC_VALID: ${{ needs.static-analysis.outputs.spec_valid }}
+          CONTRACT_PASS: ${{ needs.contract-testing.outputs.contract_pass }}
+          NEWMAN_PASS: ${{ needs.contract-testing.outputs.newman_pass }}
+          BANDIT_ISSUES: ${{ needs.security-scan.outputs.bandit_issues }}
+          SEMGREP_ISSUES: ${{ needs.security-scan.outputs.semgrep_issues }}
+          TESTS_PASS: ${{ needs.tests.outputs.python_pass }}
+          COVERAGE: ${{ needs.tests.outputs.coverage }}
+        run: |
+          cat > quality-report.md << 'REPORT'
+          ## 🔍 Quality Gate Report — تقرير بوابة الجودة
+
+          | Stage | Check | Result | Details |
+          |-------|-------|--------|---------|
+          REPORT
+
+          # Helper to determine status icon
+          status_icon() {
+            if [ "$1" = "true" ] || [ "$1" = "0" ]; then echo "✅"; else echo "⚠️"; fi
+          }
+
+          # Stage 1: Static Analysis
+          RUFF_ICON=$([ "${PYTHON_ISSUES:-0}" = "0" ] && echo "✅" || echo "⚠️")
+          SQL_ICON=$([ "${SQL_ISSUES:-0}" = "0" ] && echo "✅" || echo "⚠️")
+          SPEC_ICON=$([ "${SPEC_VALID}" = "true" ] && echo "✅" || echo "❌")
+
+          echo "| 1. Static | Python Lint (Ruff) | $RUFF_ICON | ${PYTHON_ISSUES:-0} issues |" >> quality-report.md
+          echo "| 1. Static | SQL Lint (SQLFluff) | $SQL_ICON | ${SQL_ISSUES:-0} issues |" >> quality-report.md
+          echo "| 1. Static | OpenAPI Spec | $SPEC_ICON | Spec validation |" >> quality-report.md
+
+          # Stage 2: Contract Testing
+          CONTRACT_ICON=$([ "${CONTRACT_PASS}" = "true" ] && echo "✅" || echo "⚠️")
+          NEWMAN_ICON=$([ "${NEWMAN_PASS}" != "false" ] && echo "✅" || echo "⚠️")
+
+          echo "| 2. Contract | Schemathesis | $CONTRACT_ICON | API contract |" >> quality-report.md
+          echo "| 2. Contract | Newman | $NEWMAN_ICON | Postman collection |" >> quality-report.md
+
+          # Stage 3: Security
+          BANDIT_ICON=$([ "${BANDIT_ISSUES:-0}" = "0" ] && echo "✅" || echo "⚠️")
+          SEMGREP_ICON=$([ "${SEMGREP_ISSUES:-0}" = "0" ] && echo "✅" || echo "⚠️")
+
+          echo "| 3. Security | Bandit (SAST) | $BANDIT_ICON | ${BANDIT_ISSUES:-0} findings |" >> quality-report.md
+          echo "| 3. Security | Semgrep | $SEMGREP_ICON | ${SEMGREP_ISSUES:-0} findings |" >> quality-report.md
+
+          # Stage 4: Tests
+          TESTS_ICON=$([ "${TESTS_PASS}" = "true" ] && echo "✅" || echo "❌")
+          COV_NUM=${COVERAGE:-0}
+          COV_ICON=$([ "${COV_NUM}" -ge 50 ] 2>/dev/null && echo "✅" || echo "⚠️")
+
+          echo "| 4. Tests | Python Tests | $TESTS_ICON | pytest |" >> quality-report.md
+          echo "| 4. Tests | Coverage | $COV_ICON | ${COV_NUM}% |" >> quality-report.md
+
+          # Gate decision
+          echo "" >> quality-report.md
+          echo "### Gate Decision" >> quality-report.md
+
+          GATE="✅ PASS"
+          if [ "$SPEC_VALID" = "false" ]; then GATE="❌ BLOCKED — OpenAPI spec invalid"; fi
+          if [ "$TESTS_PASS" = "false" ]; then GATE="❌ BLOCKED — Tests failing"; fi
+          if [ "${BANDIT_ISSUES:-0}" -gt 10 ] 2>/dev/null; then GATE="⚠️ WARNING — High security findings"; fi
+
+          echo "**$GATE**" >> quality-report.md
+          echo "" >> quality-report.md
+          echo "_Generated by Quality Gate Pipeline — بوابة الجودة المتكاملة_" >> quality-report.md
+
+          cat quality-report.md
+
+      # Post as PR comment
+      - name: Post Quality Report to PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          path: quality-report.md

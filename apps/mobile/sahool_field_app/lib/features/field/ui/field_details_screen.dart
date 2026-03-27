@@ -38,17 +38,17 @@ class FieldDetailsScreen extends StatelessWidget {
               onPressed: () => _showOptionsMenu(context),
             ),
           ],
-          bottom: TabBar(
+          bottom: const TabBar(
             indicatorSize: TabBarIndicatorSize.label,
             indicatorColor: SahoolColors.forestGreen,
             indicatorWeight: 3,
             labelColor: SahoolColors.forestGreen,
             unselectedLabelColor: Colors.grey,
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-            tabs: const [
-              Tab(text: "نظرة عامة"),
-              Tab(text: "الصحة (NDVI)"),
-              Tab(text: "السجل"),
+            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            tabs: [
+              Tab(text: 'نظرة عامة'),
+              Tab(text: 'الصحة (NDVI)'),
+              Tab(text: 'السجل'),
             ],
           ),
         ),
@@ -66,7 +66,7 @@ class FieldDetailsScreen extends StatelessWidget {
           backgroundColor: SahoolColors.harvestGold,
           icon: const Icon(Icons.add_a_photo, color: Colors.white),
           label: const Text(
-            "كشف ميداني",
+            'كشف ميداني',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ),
@@ -87,19 +87,19 @@ class FieldDetailsScreen extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.share, color: SahoolColors.forestGreen),
-              title: const Text("مشاركة التقرير"),
+              title: const Text('مشاركة التقرير'),
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading:
                   const Icon(Icons.download, color: SahoolColors.forestGreen),
-              title: const Text("تصدير البيانات"),
+              title: const Text('تصدير البيانات'),
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading:
                   const Icon(Icons.delete_outline, color: SahoolColors.danger),
-              title: const Text("حذف الحقل",
+              title: const Text('حذف الحقل',
                   style: TextStyle(color: SahoolColors.danger)),
               onTap: () => Navigator.pop(context),
             ),
@@ -129,13 +129,13 @@ class FieldDetailsScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const StatusBadge(
-                          label: "مرحلة النمو",
+                          label: 'مرحلة النمو',
                           color: Colors.white,
                           icon: Icons.grass,
                         ),
                         const Spacer(),
                         const Text(
-                          "قمح شتوي",
+                          'قمح شتوي',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -143,9 +143,9 @@ class FieldDetailsScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "متبقي 45 يوم للحصاد",
+                          'متبقي 45 يوم للحصاد',
                           style:
-                              TextStyle(color: Colors.white.withOpacity(0.8)),
+                              TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                         ),
                         const Spacer(),
                         // شريط التقدم
@@ -173,7 +173,7 @@ class FieldDetailsScreen extends StatelessWidget {
                   const SizedBox(width: 16),
                   // دائرة إحصائية
                   Expanded(
-                    child: Container(
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white24, width: 4),
@@ -184,7 +184,7 @@ class FieldDetailsScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              "78%",
+                              '78%',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -192,7 +192,7 @@ class FieldDetailsScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "اكتمال",
+                              'اكتمال',
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 10,
@@ -211,29 +211,29 @@ class FieldDetailsScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 2. شبكة الخصائص (Grid)
-          Row(
+          const Row(
             children: [
               Expanded(
                 child: _DetailItem(
                   icon: Icons.aspect_ratio,
-                  label: "المساحة",
-                  value: "2.5 هكتار",
+                  label: 'المساحة',
+                  value: '2.5 هكتار',
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _DetailItem(
                   icon: Icons.water_drop,
-                  label: "الري",
-                  value: "تنقيط",
+                  label: 'الري',
+                  value: 'تنقيط',
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _DetailItem(
                   icon: Icons.calendar_today,
-                  label: "الزراعة",
-                  value: "15 أكتوبر",
+                  label: 'الزراعة',
+                  value: '15 أكتوبر',
                 ),
               ),
             ],
@@ -242,22 +242,22 @@ class FieldDetailsScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 3. إحصائيات سريعة
-          Row(
+          const Row(
             children: [
               Expanded(
                 child: _StatCard(
                   icon: Icons.thermostat,
-                  label: "درجة الحرارة",
-                  value: "24°C",
+                  label: 'درجة الحرارة',
+                  value: '24°C',
                   color: SahoolColors.harvestGold,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _StatCard(
                   icon: Icons.water_drop,
-                  label: "رطوبة التربة",
-                  value: "45%",
+                  label: 'رطوبة التربة',
+                  value: '45%',
                   color: Colors.blue,
                 ),
               ),
@@ -274,7 +274,7 @@ class FieldDetailsScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: Colors.blue.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.smart_toy, color: Colors.blue),
@@ -285,7 +285,7 @@ class FieldDetailsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "توصية الذكاء الاصطناعي",
+                        'توصية الذكاء الاصطناعي',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.blue,
@@ -293,7 +293,7 @@ class FieldDetailsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "الرطوبة منخفضة في القطاع الجنوبي. يُنصح بزيادة الري 20% الليلة.",
+                        'الرطوبة منخفضة في القطاع الجنوبي. يُنصح بزيادة الري 20% الليلة.',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.blue.shade800,
@@ -317,25 +317,25 @@ class FieldDetailsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      "المهام القادمة",
+                      'المهام القادمة',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextButton(
                       onPressed: () {},
-                      child: const Text("عرض الكل"),
+                      child: const Text('عرض الكل'),
                     ),
                   ],
                 ),
                 const Divider(),
-                _TaskItem(
-                  title: "ري القطاع الشمالي",
-                  time: "اليوم 6:00 م",
+                const _TaskItem(
+                  title: 'ري القطاع الشمالي',
+                  time: 'اليوم 6:00 م',
                   icon: Icons.water_drop,
                   color: Colors.blue,
                 ),
-                _TaskItem(
-                  title: "رش المبيدات",
-                  time: "غداً 7:00 ص",
+                const _TaskItem(
+                  title: 'رش المبيدات',
+                  time: 'غداً 7:00 ص',
                   icon: Icons.bug_report,
                   color: SahoolColors.danger,
                 ),
@@ -362,11 +362,11 @@ class FieldDetailsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "مؤشر NDVI",
+                        'مؤشر NDVI',
                         style: TextStyle(color: Colors.grey),
                       ),
                       Text(
-                        "0.72",
+                        '0.72',
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
@@ -381,7 +381,7 @@ class FieldDetailsScreen extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: SahoolColors.sageGreen.withOpacity(0.2),
+                      color: SahoolColors.sageGreen.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Row(
@@ -390,7 +390,7 @@ class FieldDetailsScreen extends StatelessWidget {
                             color: SahoolColors.sageGreen, size: 16),
                         SizedBox(width: 4),
                         Text(
-                          "+5%",
+                          '+5%',
                           style: TextStyle(
                             color: SahoolColors.sageGreen,
                             fontWeight: FontWeight.bold,
@@ -422,9 +422,9 @@ class FieldDetailsScreen extends StatelessWidget {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("ضعيف",
+                  Text('ضعيف',
                       style: TextStyle(fontSize: 10, color: Colors.grey)),
-                  Text("ممتاز",
+                  Text('ممتاز',
                       style: TextStyle(fontSize: 10, color: Colors.grey)),
                 ],
               ),
@@ -448,11 +448,11 @@ class FieldDetailsScreen extends StatelessWidget {
                       size: 48, color: SahoolColors.sageGreen),
                   SizedBox(height: 8),
                   Text(
-                    "صورة NDVI القمر الصناعي",
+                    'صورة NDVI القمر الصناعي',
                     style: TextStyle(color: SahoolColors.forestGreen),
                   ),
                   Text(
-                    "آخر تحديث: منذ 3 أيام",
+                    'آخر تحديث: منذ 3 أيام',
                     style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
@@ -464,28 +464,28 @@ class FieldDetailsScreen extends StatelessWidget {
         const SizedBox(height: 16),
 
         const Text(
-          "تحليل الصحة النباتية",
+          'تحليل الصحة النباتية',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: 8),
 
         // تفاصيل المناطق
-        _ZoneHealthCard(
-          zoneName: "القطاع الشمالي",
+        const _ZoneHealthCard(
+          zoneName: 'القطاع الشمالي',
           ndvi: 0.78,
-          status: "ممتاز",
+          status: 'ممتاز',
           color: SahoolColors.sageGreen,
         ),
-        _ZoneHealthCard(
-          zoneName: "القطاع الجنوبي",
+        const _ZoneHealthCard(
+          zoneName: 'القطاع الجنوبي',
           ndvi: 0.52,
-          status: "يحتاج مراقبة",
+          status: 'يحتاج مراقبة',
           color: SahoolColors.harvestGold,
         ),
-        _ZoneHealthCard(
-          zoneName: "القطاع الغربي",
+        const _ZoneHealthCard(
+          zoneName: 'القطاع الغربي',
           ndvi: 0.35,
-          status: "إجهاد مائي",
+          status: 'إجهاد مائي',
           color: SahoolColors.danger,
         ),
       ],
@@ -495,37 +495,37 @@ class FieldDetailsScreen extends StatelessWidget {
   Widget _buildHistoryTab(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(20),
-      children: [
-        const Text(
-          "سجل العمليات",
+      children: const [
+        Text(
+          'سجل العمليات',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         _HistoryItem(
-          date: "اليوم",
-          title: "ري - القطاع الشمالي",
-          subtitle: "30 دقيقة • 500 لتر",
+          date: 'اليوم',
+          title: 'ري - القطاع الشمالي',
+          subtitle: '30 دقيقة • 500 لتر',
           icon: Icons.water_drop,
           color: Colors.blue,
         ),
         _HistoryItem(
-          date: "أمس",
-          title: "كشف ميداني",
-          subtitle: "تم تسجيل 2 ملاحظات",
+          date: 'أمس',
+          title: 'كشف ميداني',
+          subtitle: 'تم تسجيل 2 ملاحظات',
           icon: Icons.search,
           color: SahoolColors.forestGreen,
         ),
         _HistoryItem(
-          date: "منذ 3 أيام",
-          title: "رش مبيدات",
-          subtitle: "مبيد فطري • 2 لتر/هكتار",
+          date: 'منذ 3 أيام',
+          title: 'رش مبيدات',
+          subtitle: 'مبيد فطري • 2 لتر/هكتار',
           icon: Icons.bug_report,
           color: SahoolColors.harvestGold,
         ),
         _HistoryItem(
-          date: "منذ أسبوع",
-          title: "تسميد",
-          subtitle: "NPK 20-20-20 • 50 كجم",
+          date: 'منذ أسبوع',
+          title: 'تسميد',
+          subtitle: 'NPK 20-20-20 • 50 كجم',
           icon: Icons.science,
           color: Colors.purple,
         ),
@@ -552,7 +552,7 @@ class _DetailItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -590,7 +590,7 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -640,7 +640,7 @@ class _TaskItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 18),
@@ -687,7 +687,7 @@ class _ZoneHealthCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -751,7 +751,7 @@ class _HistoryItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: color, size: 20),
@@ -759,7 +759,7 @@ class _HistoryItem extends StatelessWidget {
               Container(
                 width: 2,
                 height: 40,
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withValues(alpha: 0.2),
               ),
             ],
           ),

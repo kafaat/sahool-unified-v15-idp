@@ -1,4 +1,4 @@
-import { Cockpit } from "@/components/dashboard";
+import { Cockpit } from '@/components/dashboard';
 
 export default function HomeClient() {
   return (

@@ -355,9 +355,9 @@ async def health_check() -> HealthStatus:
     response_model=ReadinessStatus,
     tags=["health"],
     summary="Readiness probe",
-    description="Returns service readiness status including component health.",
+    description="Returns service readiness status including component health and agricultural model availability.",
 )
-@app.get("/health/ready", response_model=ReadinessStatus, include_in_schema=False)
+@app.get("/health/ready", include_in_schema=False)
 async def readiness_check(request: Request) -> ReadinessStatus:
     """Readiness probe endpoint."""
     models_loaded = getattr(request.app.state, "models_loaded", False)
@@ -372,10 +372,34 @@ async def readiness_check(request: Request) -> ReadinessStatus:
         for model_key in manager.get_loaded_models():
             model_status[model_key] = True
 
+    # Check if model manager is running in degraded mode (generic fallback models)
+    model_manager = getattr(request.app.state, "model_manager", None)
+    degraded = getattr(model_manager, "_degraded_mode", False) if model_manager else False
+    degraded_tasks = getattr(model_manager, "_degraded_tasks", []) if model_manager else []
+
     # Determine overall status
     overall_status = "ok"
     if not models_loaded:
         overall_status = "degraded"
+    elif degraded:
+        overall_status = "degraded"
+        logger.warning(
+            "readiness_degraded_mode",
+            message="Agricultural models not loaded, using generic fallback models",
+            degraded_tasks=degraded_tasks,
+        )
+
+    degraded_message = None
+    degraded_message_ar = None
+    if degraded:
+        degraded_message = (
+            "Service is using generic YOLO models instead of agricultural-trained models. "
+            "Detection accuracy for pest/disease/weed classes will be significantly reduced."
+        )
+        degraded_message_ar = (
+            "الخدمة تستخدم نماذج YOLO عامة بدلاً من النماذج المدربة زراعياً. "
+            "دقة الكشف عن الآفات/الأمراض/الأعشاب ستكون منخفضة بشكل ملحوظ."
+        )
 
     return ReadinessStatus(
         status=overall_status,
@@ -385,6 +409,10 @@ async def readiness_check(request: Request) -> ReadinessStatus:
         models_loaded=models_loaded,
         gpu_available=gpu_available,
         models=model_status,
+        agricultural_models_loaded=not degraded,
+        degraded_tasks=degraded_tasks,
+        degraded_message=degraded_message,
+        degraded_message_ar=degraded_message_ar,
     )
 
 
@@ -397,18 +425,27 @@ async def readiness_check(request: Request) -> ReadinessStatus:
 async def combined_health(request: Request) -> dict:
     """Combined health check with detailed status."""
     gpu_info = None
-    if hasattr(request.app.state, "model_manager"):
-        manager = request.app.state.model_manager
-        gpu_info = manager.gpu_memory_info
+    model_manager = getattr(request.app.state, "model_manager", None)
+    if model_manager:
+        gpu_info = model_manager.gpu_memory_info
+
+    degraded = getattr(model_manager, "_degraded_mode", False) if model_manager else False
+    degraded_tasks = getattr(model_manager, "_degraded_tasks", []) if model_manager else []
+
+    overall_status = "ok"
+    if degraded or not getattr(request.app.state, "models_loaded", False):
+        overall_status = "degraded"
 
     return {
-        "status": "ok",
+        "status": overall_status,
         "service": settings.service_name,
         "version": settings.service_version,
         "environment": settings.environment,
         "database": getattr(request.app.state, "db_connected", False),
         "nats": getattr(request.app.state, "nats_connected", False),
         "models_loaded": getattr(request.app.state, "models_loaded", False),
+        "agricultural_models_loaded": not degraded,
+        "degraded_tasks": degraded_tasks,
         "gpu": {
             "available": torch.cuda.is_available(),
             "device": settings.device,

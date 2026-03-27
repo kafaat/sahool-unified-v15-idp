@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
 /**
  * Meta tags configuration for pages
@@ -19,9 +19,9 @@ export interface MetaTagsProps {
   /** Open Graph image URL */
   ogImage?: string;
   /** Open Graph type (default: website) */
-  ogType?: "website" | "article";
+  ogType?: 'website' | 'article';
   /** Twitter card type */
-  twitterCard?: "summary" | "summary_large_image";
+  twitterCard?: 'summary' | 'summary_large_image';
   /** Robots directive */
   robots?: string;
   /** Alternative language URLs */
@@ -62,28 +62,24 @@ export function generateMetadata(props: MetaTagsProps): Metadata {
     descriptionAr,
     keywords,
     canonicalUrl,
-    ogImage = "/icon-512.png",
-    ogType = "website",
-    twitterCard = "summary_large_image",
-    robots = "index, follow",
+    ogImage = '/icon-512.png',
+    ogType = 'website',
+    twitterCard = 'summary_large_image',
+    robots = 'index, follow',
     alternates,
     publishedTime,
     modifiedTime,
     author,
   } = props;
 
-  const fullTitle = titleAr
-    ? `${titleAr} | ${title} - SAHOOL`
-    : `${title} - SAHOOL`;
+  const fullTitle = titleAr ? `${titleAr} | ${title} - SAHOOL` : `${title} - SAHOOL`;
 
-  const fullDescription = descriptionAr
-    ? `${descriptionAr} - ${description}`
-    : description;
+  const fullDescription = descriptionAr ? `${descriptionAr} - ${description}` : description;
 
   const metadata: Metadata = {
     title: fullTitle,
     description: fullDescription,
-    keywords: keywords?.join(", "),
+    keywords: keywords?.join(', '),
     robots,
     authors: author ? [{ name: author }] : undefined,
     alternates: {
@@ -94,9 +90,9 @@ export function generateMetadata(props: MetaTagsProps): Metadata {
       title: fullTitle,
       description: fullDescription,
       type: ogType,
-      siteName: "SAHOOL",
-      locale: "ar_YE",
-      alternateLocale: ["en_US"],
+      siteName: 'SAHOOL',
+      locale: 'ar_YE',
+      alternateLocale: ['en_US'],
       images: ogImage
         ? [
             {
@@ -116,7 +112,7 @@ export function generateMetadata(props: MetaTagsProps): Metadata {
       title: fullTitle,
       description: fullDescription,
       images: ogImage ? [ogImage] : undefined,
-      site: "@sahoolplatform",
+      site: '@sahoolplatform',
       creator: author ? `@${author}` : undefined,
     },
   };
@@ -133,14 +129,10 @@ export function MetaTags({
   titleAr,
   description,
   descriptionAr,
-}: Pick<MetaTagsProps, "title" | "titleAr" | "description" | "descriptionAr">) {
-  const fullTitle = titleAr
-    ? `${titleAr} | ${title} - SAHOOL`
-    : `${title} - SAHOOL`;
+}: Pick<MetaTagsProps, 'title' | 'titleAr' | 'description' | 'descriptionAr'>) {
+  const fullTitle = titleAr ? `${titleAr} | ${title} - SAHOOL` : `${title} - SAHOOL`;
 
-  const fullDescription = descriptionAr
-    ? `${descriptionAr} - ${description}`
-    : description;
+  const fullDescription = descriptionAr ? `${descriptionAr} - ${description}` : description;
 
   // Note: In Next.js 15, prefer using the generateMetadata function in server components
   // This component is for edge cases where dynamic client-side meta is needed
@@ -161,74 +153,74 @@ export function MetaTags({
  */
 export const sahoolPageMetadata = {
   dashboard: generateMetadata({
-    title: "Dashboard",
-    titleAr: "لوحة المعلومات",
-    description: "View your farm dashboard with real-time KPIs, alerts, and field status",
-    descriptionAr: "عرض لوحة معلومات مزرعتك مع مؤشرات الأداء والتنبيهات وحالة الحقول",
-    keywords: ["farm dashboard", "agricultural analytics", "لوحة معلومات المزرعة"],
+    title: 'Dashboard',
+    titleAr: 'لوحة المعلومات',
+    description: 'View your farm dashboard with real-time KPIs, alerts, and field status',
+    descriptionAr: 'عرض لوحة معلومات مزرعتك مع مؤشرات الأداء والتنبيهات وحالة الحقول',
+    keywords: ['farm dashboard', 'agricultural analytics', 'لوحة معلومات المزرعة'],
   }),
 
   fields: generateMetadata({
-    title: "Fields",
-    titleAr: "الحقول",
-    description: "Manage and monitor all your agricultural fields",
-    descriptionAr: "إدارة ومراقبة جميع حقولك الزراعية",
-    keywords: ["field management", "crop fields", "إدارة الحقول"],
+    title: 'Fields',
+    titleAr: 'الحقول',
+    description: 'Manage and monitor all your agricultural fields',
+    descriptionAr: 'إدارة ومراقبة جميع حقولك الزراعية',
+    keywords: ['field management', 'crop fields', 'إدارة الحقول'],
   }),
 
   irrigation: generateMetadata({
-    title: "Irrigation",
-    titleAr: "الري",
-    description: "Smart irrigation management and scheduling",
-    descriptionAr: "إدارة الري الذكي وجدولة المياه",
-    keywords: ["irrigation management", "smart watering", "إدارة الري"],
+    title: 'Irrigation',
+    titleAr: 'الري',
+    description: 'Smart irrigation management and scheduling',
+    descriptionAr: 'إدارة الري الذكي وجدولة المياه',
+    keywords: ['irrigation management', 'smart watering', 'إدارة الري'],
   }),
 
   weather: generateMetadata({
-    title: "Weather",
-    titleAr: "الطقس",
-    description: "Weather forecasts and agricultural advisories",
-    descriptionAr: "توقعات الطقس والاستشارات الزراعية",
-    keywords: ["weather forecast", "agricultural weather", "توقعات الطقس"],
+    title: 'Weather',
+    titleAr: 'الطقس',
+    description: 'Weather forecasts and agricultural advisories',
+    descriptionAr: 'توقعات الطقس والاستشارات الزراعية',
+    keywords: ['weather forecast', 'agricultural weather', 'توقعات الطقس'],
   }),
 
   crops: generateMetadata({
-    title: "Crop Health",
-    titleAr: "صحة المحاصيل",
-    description: "Monitor crop health with NDVI analysis and disease detection",
-    descriptionAr: "مراقبة صحة المحاصيل بتحليل NDVI واكتشاف الأمراض",
-    keywords: ["crop health", "NDVI", "disease detection", "صحة المحاصيل"],
+    title: 'Crop Health',
+    titleAr: 'صحة المحاصيل',
+    description: 'Monitor crop health with NDVI analysis and disease detection',
+    descriptionAr: 'مراقبة صحة المحاصيل بتحليل NDVI واكتشاف الأمراض',
+    keywords: ['crop health', 'NDVI', 'disease detection', 'صحة المحاصيل'],
   }),
 
   marketplace: generateMetadata({
-    title: "Marketplace",
-    titleAr: "السوق",
-    description: "Agricultural marketplace for buying and selling crops and equipment",
-    descriptionAr: "سوق زراعي لبيع وشراء المحاصيل والمعدات",
-    keywords: ["agricultural marketplace", "farm products", "السوق الزراعي"],
+    title: 'Marketplace',
+    titleAr: 'السوق',
+    description: 'Agricultural marketplace for buying and selling crops and equipment',
+    descriptionAr: 'سوق زراعي لبيع وشراء المحاصيل والمعدات',
+    keywords: ['agricultural marketplace', 'farm products', 'السوق الزراعي'],
   }),
 
   settings: generateMetadata({
-    title: "Settings",
-    titleAr: "الإعدادات",
-    description: "Manage your account settings and preferences",
-    descriptionAr: "إدارة إعدادات حسابك وتفضيلاتك",
-    keywords: ["settings", "account settings", "الإعدادات"],
+    title: 'Settings',
+    titleAr: 'الإعدادات',
+    description: 'Manage your account settings and preferences',
+    descriptionAr: 'إدارة إعدادات حسابك وتفضيلاتك',
+    keywords: ['settings', 'account settings', 'الإعدادات'],
   }),
 
   login: generateMetadata({
-    title: "Login",
-    titleAr: "تسجيل الدخول",
-    description: "Sign in to your SAHOOL account",
-    descriptionAr: "تسجيل الدخول إلى حسابك في سهول",
-    robots: "noindex, nofollow",
+    title: 'Login',
+    titleAr: 'تسجيل الدخول',
+    description: 'Sign in to your SAHOOL account',
+    descriptionAr: 'تسجيل الدخول إلى حسابك في سهول',
+    robots: 'noindex, nofollow',
   }),
 
   register: generateMetadata({
-    title: "Register",
-    titleAr: "إنشاء حساب",
-    description: "Create a new SAHOOL account to start managing your farm",
-    descriptionAr: "إنشاء حساب جديد في سهول لبدء إدارة مزرعتك",
+    title: 'Register',
+    titleAr: 'إنشاء حساب',
+    description: 'Create a new SAHOOL account to start managing your farm',
+    descriptionAr: 'إنشاء حساب جديد في سهول لبدء إدارة مزرعتك',
   }),
 };
 

@@ -1,5 +1,6 @@
 /// Unit Tests for Configuration Classes
 /// اختبارات وحدات التكوين
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/config/api_config.dart';
 import 'package:sahool_field_app/core/config/security_config.dart';

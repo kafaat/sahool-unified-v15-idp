@@ -3,10 +3,10 @@
 ///
 /// Provides mock implementations for authentication unit tests.
 /// يوفر تطبيقات وهمية لاختبارات وحدة المصادقة
+library;
 
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:mocktail/mocktail.dart';

@@ -1,0 +1,19 @@
+{
+  "*.{ts,tsx,js,jsx,mjs}": [
+    "eslint --fix --max-warnings 0",
+    "prettier --write"
+  ],
+  "*.{json,yml,yaml}": [
+    "prettier --write"
+  ],
+  "*.{css,scss}": [
+    "prettier --write"
+  ],
+  "*.py": [
+    "ruff check --fix",
+    "ruff format"
+  ],
+  "*.dart": [
+    "dart format"
+  ]
+}

@@ -16,11 +16,11 @@ import 'package:sahool_field_app/features/map_home/ui/map_screen.dart';
 
 void main() {
   Widget createTestWidget() {
-    return ProviderScope(
+    return const ProviderScope(
       child: MaterialApp(
         home: Directionality(
           textDirection: TextDirection.rtl,
-          child: const MapScreen(),
+          child: MapScreen(),
         ),
       ),
     );
@@ -97,8 +97,8 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
-      // Sync indicator should be present (cloud_upload when pendingSync > 0)
-      expect(find.byIcon(Icons.cloud_upload), findsWidgets);
+      // Sync indicator shows cloud_done by default (no pending sync items)
+      expect(find.byIcon(Icons.cloud_done), findsWidgets);
     });
   });
 }

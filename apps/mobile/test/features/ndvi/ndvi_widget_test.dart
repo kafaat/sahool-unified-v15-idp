@@ -27,7 +27,7 @@ void main() {
     testWidgets('should render with healthy NDVI value', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: NdviFixtures.healthyNdvi,
         ),
       );
@@ -43,7 +43,7 @@ void main() {
     testWidgets('should display NDVI value when showValue is true', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: 0.72,
           showValue: true,
         ),
@@ -59,7 +59,7 @@ void main() {
     testWidgets('should not display value when showValue is false', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: 0.72,
           showValue: false,
         ),
@@ -75,7 +75,7 @@ void main() {
     testWidgets('should display label when showLabel is true', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: NdviFixtures.healthyNdvi,
           showLabel: true,
         ),
@@ -91,7 +91,7 @@ void main() {
     testWidgets('should not display label when showLabel is false', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: NdviFixtures.healthyNdvi,
           showLabel: false,
         ),
@@ -107,7 +107,7 @@ void main() {
     testWidgets('should display correct icon for category', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: NdviFixtures.healthyNdvi,
         ),
       );
@@ -122,7 +122,7 @@ void main() {
     testWidgets('should display stressed icon for stressed vegetation', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: NdviFixtures.stressedNdvi,
         ),
       );
@@ -137,7 +137,7 @@ void main() {
     testWidgets('should display water icon for non-vegetation', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: NdviFixtures.waterNdvi,
         ),
       );
@@ -153,7 +153,7 @@ void main() {
       // Arrange
       const customSize = 120.0;
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: NdviFixtures.healthyNdvi,
           size: customSize,
         ),
@@ -172,7 +172,7 @@ void main() {
     testWidgets('should handle minimum NDVI value (-1.0)', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: -1.0,
           showValue: true,
         ),
@@ -188,7 +188,7 @@ void main() {
     testWidgets('should handle maximum NDVI value (1.0)', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: 1.0,
           showValue: true,
         ),
@@ -210,7 +210,7 @@ void main() {
     testWidgets('should render with NDVI value', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviBadge(ndviValue: 0.72),
+        const NdviBadge(ndviValue: 0.72),
       );
 
       // Act
@@ -225,7 +225,7 @@ void main() {
     testWidgets('should display correct icon for category', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviBadge(ndviValue: NdviFixtures.healthyNdvi),
+        const NdviBadge(ndviValue: NdviFixtures.healthyNdvi),
       );
 
       // Act
@@ -238,7 +238,7 @@ void main() {
     testWidgets('should show trend indicator when showTrend is true', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviBadge(
+        const NdviBadge(
           ndviValue: NdviFixtures.healthyNdvi,
           showTrend: true,
           trend: TrendDirection.improving,
@@ -255,7 +255,7 @@ void main() {
     testWidgets('should show declining trend icon', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviBadge(
+        const NdviBadge(
           ndviValue: NdviFixtures.stressedNdvi,
           showTrend: true,
           trend: TrendDirection.declining,
@@ -272,7 +272,7 @@ void main() {
     testWidgets('should show stable trend icon', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviBadge(
+        const NdviBadge(
           ndviValue: NdviFixtures.moderateNdvi,
           showTrend: true,
           trend: TrendDirection.stable,
@@ -289,7 +289,7 @@ void main() {
     testWidgets('should not show trend when showTrend is false', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviBadge(
+        const NdviBadge(
           ndviValue: NdviFixtures.healthyNdvi,
           showTrend: false,
           trend: TrendDirection.improving,
@@ -636,7 +636,7 @@ void main() {
     testWidgets('should show critical indicator for very low NDVI', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: 0.15, // Critical
           showLabel: true,
         ),
@@ -652,7 +652,7 @@ void main() {
     testWidgets('should show eco icon for very healthy NDVI', (tester) async {
       // Arrange
       final widget = createSimpleTestableWidget(
-        NdviHealthIndicator(
+        const NdviHealthIndicator(
           ndviValue: 0.85, // Very healthy
           showLabel: true,
         ),

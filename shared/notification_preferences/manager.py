@@ -40,20 +40,20 @@ class PreferencesStorage(Protocol):
     بروتوكول لتخزين التفضيلات
     """
 
-    async def get(self, user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences | None:
-        """Get preferences for a user"""
+    async def get(self, user_id: str, tenant_id: str) -> UserNotificationPreferences | None:
+        """Get preferences for a user. tenant_id required for isolation."""
         ...
 
     async def save(self, preferences: UserNotificationPreferences) -> None:
         """Save preferences"""
         ...
 
-    async def delete(self, user_id: str, tenant_id: str | None = None) -> bool:
-        """Delete preferences"""
+    async def delete(self, user_id: str, tenant_id: str) -> bool:
+        """Delete preferences. tenant_id required for isolation."""
         ...
 
-    async def list_all(self, tenant_id: str | None = None) -> list[UserNotificationPreferences]:
-        """List all preferences, optionally filtered by tenant"""
+    async def list_all(self, tenant_id: str) -> list[UserNotificationPreferences]:
+        """List all preferences filtered by tenant."""
         ...
 
 
@@ -66,12 +66,14 @@ class InMemoryStorage:
     def __init__(self):
         self._storage: dict[str, UserNotificationPreferences] = {}
 
-    def _key(self, user_id: str, tenant_id: str | None = None) -> str:
-        """Generate storage key"""
-        return f"{tenant_id or 'default'}:{user_id}"
+    def _key(self, user_id: str, tenant_id: str) -> str:
+        """Generate storage key. SECURITY: tenant_id is required for isolation."""
+        if not tenant_id:
+            raise ValueError("tenant_id is required for storage key to ensure tenant isolation")
+        return f"{tenant_id}:{user_id}"
 
-    async def get(self, user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences | None:
-        """Get preferences for a user"""
+    async def get(self, user_id: str, tenant_id: str) -> UserNotificationPreferences | None:
+        """Get preferences for a user. SECURITY: tenant_id required for isolation."""
         key = self._key(user_id, tenant_id)
         return self._storage.get(key)
 
@@ -82,19 +84,19 @@ class InMemoryStorage:
         preferences.version += 1
         self._storage[key] = preferences
 
-    async def delete(self, user_id: str, tenant_id: str | None = None) -> bool:
-        """Delete preferences"""
+    async def delete(self, user_id: str, tenant_id: str) -> bool:
+        """Delete preferences. SECURITY: tenant_id required for isolation."""
         key = self._key(user_id, tenant_id)
         if key in self._storage:
             del self._storage[key]
             return True
         return False
 
-    async def list_all(self, tenant_id: str | None = None) -> list[UserNotificationPreferences]:
-        """List all preferences, optionally filtered by tenant"""
-        if tenant_id:
-            return [p for p in self._storage.values() if p.tenant_id == tenant_id]
-        return list(self._storage.values())
+    async def list_all(self, tenant_id: str) -> list[UserNotificationPreferences]:
+        """List all preferences filtered by tenant. SECURITY: tenant_id required."""
+        if not tenant_id:
+            raise ValueError("tenant_id is required to ensure tenant isolation")
+        return [p for p in self._storage.values() if p.tenant_id == tenant_id]
 
 
 class NotificationPreferencesManager:
@@ -137,11 +139,13 @@ class NotificationPreferencesManager:
         Returns:
             User notification preferences
         """
-        preferences = await self.storage.get(user_id, tenant_id)
+        # Use default tenant for internal lookups when tenant_id not provided
+        effective_tenant = tenant_id or "default"
+        preferences = await self.storage.get(user_id, effective_tenant)
 
         if preferences is None and create_if_missing:
             logger.info(f"Creating default preferences for user {user_id}")
-            preferences = create_default_preferences(user_id, tenant_id)
+            preferences = create_default_preferences(user_id, effective_tenant)
             await self.storage.save(preferences)
 
         return preferences
@@ -185,7 +189,8 @@ class NotificationPreferencesManager:
         Returns:
             True if deleted, False if not found
         """
-        result = await self.storage.delete(user_id, tenant_id)
+        effective_tenant = tenant_id or "default"
+        result = await self.storage.delete(user_id, effective_tenant)
         if result:
             logger.info(f"Deleted preferences for user {user_id}")
         return result
@@ -206,7 +211,8 @@ class NotificationPreferencesManager:
         Returns:
             New default preferences
         """
-        preferences = create_default_preferences(user_id, tenant_id)
+        effective_tenant = tenant_id or "default"
+        preferences = create_default_preferences(user_id, effective_tenant)
         await self.storage.save(preferences)
         logger.info(f"Reset preferences to defaults for user {user_id}")
         return preferences

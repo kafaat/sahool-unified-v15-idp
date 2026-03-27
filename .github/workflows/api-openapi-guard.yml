@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@774c1d62961e73038a114d59c8847023c003194d # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.2.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -79,7 +79,7 @@ jobs:
       - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@774c1d62961e73038a114d59c8847023c003194d # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.2.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -97,7 +97,7 @@ jobs:
 
       - name: Upload validation report
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: kong-openapi-report
           path: api/validation-report.json
@@ -116,7 +116,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@774c1d62961e73038a114d59c8847023c003194d # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.2.0
         with:
           node-version: '20'
 

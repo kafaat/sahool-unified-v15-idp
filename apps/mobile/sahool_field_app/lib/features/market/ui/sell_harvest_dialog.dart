@@ -6,6 +6,7 @@
 /// - AI yield prediction display
 /// - Animated loading state
 /// - Integration with MarketNotifier
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -97,7 +98,7 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Container(
+      child: DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
@@ -130,8 +131,8 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            SahoolColors.forestGreen.withOpacity(0.1),
-                            SahoolColors.harvestGold.withOpacity(0.1),
+                            SahoolColors.forestGreen.withValues(alpha: 0.1),
+                            SahoolColors.harvestGold.withValues(alpha: 0.1),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -244,13 +245,13 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        SahoolColors.forestGreen.withOpacity(0.1),
-                        SahoolColors.harvestGold.withOpacity(0.1),
+                        SahoolColors.forestGreen.withValues(alpha: 0.1),
+                        SahoolColors.harvestGold.withValues(alpha: 0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: SahoolColors.forestGreen.withOpacity(0.3),
+                      color: SahoolColors.forestGreen.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -293,9 +294,9 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.05),
+                    color: Colors.blue.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                    border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
                   ),
                   child: const Row(
                     children: [
@@ -418,13 +419,13 @@ class _AIConfidenceBadge extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            SahoolColors.forestGreen.withOpacity(0.05),
-            SahoolColors.harvestGold.withOpacity(0.05),
+            SahoolColors.forestGreen.withValues(alpha: 0.05),
+            SahoolColors.harvestGold.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolColors.forestGreen.withOpacity(0.2),
+          color: SahoolColors.forestGreen.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -432,7 +433,7 @@ class _AIConfidenceBadge extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: SahoolColors.forestGreen.withOpacity(0.1),
+              color: SahoolColors.forestGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(

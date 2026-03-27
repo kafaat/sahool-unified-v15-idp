@@ -13,10 +13,11 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
-import tempfile
 import json
+import tempfile
 from pathlib import Path
+
+import pytest
 
 # Test markers
 pytestmark = [pytest.mark.unit, pytest.mark.guardrails]
@@ -85,7 +86,7 @@ class TestToolGuard:
 
     def test_guard_allows_safe_tool(self):
         """Test guard allows safe tools."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 
@@ -101,7 +102,7 @@ class TestToolGuard:
 
     def test_guard_blocks_dangerous_tool(self):
         """Test guard blocks tools not in allowlist."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 
@@ -117,7 +118,7 @@ class TestToolGuard:
 
     def test_guard_blocks_large_output(self):
         """Test guard blocks excessively large arguments."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 
@@ -136,7 +137,7 @@ class TestToolGuard:
 
     def test_guard_blocks_secret_patterns(self):
         """Test guard blocks content with secret patterns."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 
@@ -154,7 +155,7 @@ class TestToolGuard:
 
     def test_guard_blocks_external_domain(self):
         """Test guard blocks external domains."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 
@@ -170,7 +171,7 @@ class TestToolGuard:
 
     def test_guard_allows_internal_domain(self):
         """Test guard allows internal domains."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 
@@ -186,7 +187,7 @@ class TestToolGuard:
 
     def test_guard_decision_includes_metadata(self):
         """Test guard decision includes proper metadata."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 
@@ -253,8 +254,8 @@ class TestPolicy:
         from shared.ai.guardrails.policy import (
             GuardPolicy,
             PolicyRule,
-            save_policy,
             load_policy,
+            save_policy,
         )
 
         rules = [
@@ -292,7 +293,7 @@ class TestSecurityValidations:
 
     def test_sql_injection_blocked(self):
         """Test SQL injection patterns are blocked via dangerous commands."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 
@@ -308,7 +309,7 @@ class TestSecurityValidations:
 
     def test_path_traversal_blocked(self):
         """Test path traversal to /etc/passwd is blocked."""
-        from shared.ai.guardrails.tool_guard import ToolGuard, ToolCallContext
+        from shared.ai.guardrails.tool_guard import ToolCallContext, ToolGuard
 
         guard = ToolGuard()
 

@@ -3,15 +3,16 @@ Tests for SAHOOL Drift Detection System
 ==========================================
 """
 
-import pytest
 import tempfile
 from pathlib import Path
+
+import pytest
 
 from shared.stability.drift_detector import (
     DriftDetector,
     DriftReport,
-    DriftType,
     DriftSeverity,
+    DriftType,
 )
 
 

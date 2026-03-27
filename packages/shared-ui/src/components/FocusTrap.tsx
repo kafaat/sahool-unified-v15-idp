@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from 'react';
 
 export interface FocusTrapProps {
   children: React.ReactNode;
@@ -12,11 +12,7 @@ export interface FocusTrapProps {
  * Focus Trap Component for Modal Accessibility
  * مكون حصر التركيز لإمكانية الوصول في النوافذ المنبثقة
  */
-export function FocusTrap({
-  children,
-  active = true,
-  className = "",
-}: FocusTrapProps) {
+export function FocusTrap({ children, active = true, className = '' }: FocusTrapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,14 +22,14 @@ export function FocusTrap({
     if (!container) return;
 
     const focusableElements = container.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
 
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
+      if (e.key !== 'Tab') return;
 
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
@@ -51,8 +47,8 @@ export function FocusTrap({
     // Focus first element on mount
     firstElement?.focus();
 
-    container.addEventListener("keydown", handleKeyDown);
-    return () => container.removeEventListener("keydown", handleKeyDown);
+    container.addEventListener('keydown', handleKeyDown);
+    return () => container.removeEventListener('keydown', handleKeyDown);
   }, [active]);
 
   return (

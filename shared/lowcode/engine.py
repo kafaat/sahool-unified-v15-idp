@@ -21,10 +21,11 @@ from __future__ import annotations
 import json
 import uuid
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Callable
+from typing import Any
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Core Types & Enums
@@ -176,6 +177,27 @@ class ComponentMaterial:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+_MAX_REGEX_LENGTH = 500
+
+
+def _validate_regex_pattern(pattern: str) -> str:
+    """Validate regex pattern to mitigate ReDoS attacks.
+
+    Enforces length limits and syntax validation. For Python < 3.12,
+    time-bounded matching is not natively supported, so we rely on
+    pattern length restriction as the primary defense.
+    """
+    import re
+
+    if len(pattern) > _MAX_REGEX_LENGTH:
+        raise ValueError(f"Regex pattern exceeds maximum length of {_MAX_REGEX_LENGTH}")
+    try:
+        re.compile(pattern)
+    except re.error as e:
+        raise ValueError(f"Invalid regex pattern: {e}") from e
+    return pattern
+
+
 @dataclass
 class FieldDefinition:
     """Field definition in a data model."""
@@ -194,7 +216,7 @@ class FieldDefinition:
     max_value: float | None = None
     min_length: int | None = None
     max_length: int | None = None
-    pattern: str | None = None  # Regex
+    pattern: str | None = None  # Regex (validated to prevent ReDoS)
 
     # Relations
     relation_model: str | None = None
@@ -204,6 +226,10 @@ class FieldDefinition:
     display_format: str | None = None
     hidden: bool = False
     read_only: bool = False
+
+    def __post_init__(self):
+        if self.pattern is not None:
+            _validate_regex_pattern(self.pattern)
 
 
 @dataclass

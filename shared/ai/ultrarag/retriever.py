@@ -179,7 +179,7 @@ class DenseRetriever(Retriever):
             return self._cache[cache_key]
 
         result = await self.embedding_service.embed(text)
-        vector = result.vector
+        vector = result.embedding
 
         # Cache management
         if len(self._cache) >= self._cache_max_size:
@@ -194,7 +194,7 @@ class DenseRetriever(Retriever):
     async def _get_embeddings_batch(self, texts: list[str]) -> list[list[float]]:
         """Get embeddings for multiple texts"""
         results = await self.embedding_service.embed_batch(texts)
-        return [r.vector for r in results]
+        return [r.embedding for r in results]
 
 
 class SparseRetriever(Retriever):
@@ -639,8 +639,8 @@ class KnowledgeGraphRetriever(Retriever):
 
                     # Compute embedding for entity matching
                     if self.embedding_service:
-                        embedding = await self.embedding_service.embed(entity["name"])
-                        self._entity_embeddings[entity["id"]] = embedding
+                        result = await self.embedding_service.embed(entity["name"])
+                        self._entity_embeddings[entity["id"]] = result.embedding
 
                 # Extract relations (simplified - can be enhanced with NER/RE models)
                 relations = await self._extract_relations_from_text(chunk.text, entities)
@@ -666,8 +666,8 @@ class KnowledgeGraphRetriever(Retriever):
         try:
             self._entities[entity["id"]] = entity
             if self.embedding_service and "name" in entity:
-                embedding = await self.embedding_service.embed(entity["name"])
-                self._entity_embeddings[entity["id"]] = embedding
+                result = await self.embedding_service.embed(entity["name"])
+                self._entity_embeddings[entity["id"]] = result.embedding
             return True
         except Exception as e:
             logger.error("kg_add_entity_error", error=str(e))

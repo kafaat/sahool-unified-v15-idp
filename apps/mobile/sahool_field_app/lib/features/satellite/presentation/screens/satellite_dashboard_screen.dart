@@ -149,12 +149,12 @@ class _SatelliteDashboardScreenState
 
         // Health Score Card
         if (state.fieldHealth != null)
-          _buildHealthScoreCard(state.fieldHealth!, context, isArabic),
+          _buildHealthScoreCard(state.fieldHealth, context, isArabic),
         const SizedBox(height: 16),
 
         // NDVI Card
         if (state.ndviAnalysis != null)
-          _buildNdviCard(state.ndviAnalysis!, context, isArabic),
+          _buildNdviCard(state.ndviAnalysis, context, isArabic),
         const SizedBox(height: 16),
 
         // Weather Card
@@ -167,7 +167,7 @@ class _SatelliteDashboardScreenState
 
         // Growth Stage Card
         if (state.phenologyData != null)
-          _buildGrowthStageCard(state.phenologyData!, context, isArabic),
+          _buildGrowthStageCard(state.phenologyData, context, isArabic),
         const SizedBox(height: 16),
 
         // Alerts Section
@@ -195,7 +195,7 @@ class _SatelliteDashboardScreenState
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -206,7 +206,7 @@ class _SatelliteDashboardScreenState
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF367C2B).withOpacity(0.1),
+              color: const Color(0xFF367C2B).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -258,7 +258,7 @@ class _SatelliteDashboardScreenState
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -295,7 +295,7 @@ class _SatelliteDashboardScreenState
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -382,7 +382,7 @@ class _SatelliteDashboardScreenState
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),

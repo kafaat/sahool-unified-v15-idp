@@ -5,7 +5,21 @@
 -- TRUNCATE TABLE users CASCADE;
 
 -- Insert Admin User
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'a1111111-1111-1111-1111-111111111111',
@@ -26,7 +40,21 @@ VALUES
 -- Insert Farmer Users from Different Yemen Regions
 
 -- Farmer 1: Sana'a (صنعاء)
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'f1111111-1111-1111-1111-111111111111',
@@ -45,7 +73,21 @@ VALUES
 );
 
 -- Farmer 2: Ta'izz (تعز)
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'f2222222-2222-2222-2222-222222222222',
@@ -64,7 +106,21 @@ VALUES
 );
 
 -- Farmer 3: Hadramout (حضرموت)
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'f3333333-3333-3333-3333-333333333333',
@@ -83,7 +139,21 @@ VALUES
 );
 
 -- Farmer 4: Ibb (إب)
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'f4444444-4444-4444-4444-444444444444',
@@ -102,7 +172,21 @@ VALUES
 );
 
 -- Farmer 5: Al-Hudaydah (الحديدة)
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'f5555555-5555-5555-5555-555555555555',
@@ -123,7 +207,21 @@ VALUES
 -- Insert Agronomist Users
 
 -- Agronomist 1
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'g1111111-1111-1111-1111-111111111111',
@@ -142,7 +240,21 @@ VALUES
 );
 
 -- Agronomist 2
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'g2222222-2222-2222-2222-222222222222',
@@ -161,7 +273,21 @@ VALUES
 );
 
 -- Insert Research User
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'r1111111-1111-1111-1111-111111111111',
@@ -180,7 +306,21 @@ VALUES
 );
 
 -- Add some demo/test users
-INSERT INTO users (id, tenant_id, email, name, name_ar, phone, language, roles, is_active, is_verified, password_hash, created_at, updated_at)
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    name,
+    name_ar,
+    phone,
+    language,
+    roles,
+    is_active,
+    is_verified,
+    password_hash,
+    created_at,
+    updated_at
+)
 VALUES
 (
     'd1111111-1111-1111-1111-111111111111',
@@ -203,8 +343,8 @@ SELECT
     email,
     name,
     name_ar,
-    array_to_string(roles, ', ') as roles,
     is_active,
-    created_at
+    created_at,
+    ARRAY_TO_STRING(roles, ', ') AS roles
 FROM users
 ORDER BY created_at;

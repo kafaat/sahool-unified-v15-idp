@@ -18,11 +18,12 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import structlog
 
@@ -320,7 +321,7 @@ class FixOpsScheduler:
         Run a scheduled check.
         تشغيل فحص مجدول
         """
-        from .orchestrator import FixOpsOrchestrator, FixOpsConfig
+        from .orchestrator import FixOpsConfig, FixOpsOrchestrator
 
         started_at = datetime.now(UTC)
 

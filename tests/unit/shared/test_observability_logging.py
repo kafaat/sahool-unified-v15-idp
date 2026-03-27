@@ -3,13 +3,14 @@ Tests for shared/observability/logging.py module
 اختبارات وحدة التسجيل للمراقبة
 """
 
-import pytest
+import importlib.util
 import json
 import logging
 import sys
-import importlib.util
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Direct import to avoid FastAPI dependency in __init__.py
 spec = importlib.util.spec_from_file_location(

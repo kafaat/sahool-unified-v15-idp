@@ -34,13 +34,10 @@ class ApiConfig {
   /// Check if running in release mode
   static bool get isProduction => EnvConfig.isProduction;
 
-  /// Get protocol (https for production, http for development)
-  static String get _protocol => EnvConfig.apiProtocol;
-
   /// Get host based on environment
   static String get host => EnvConfig.apiHost;
 
-  /// Base URL for field-core service (legacy)
+  /// Base URL for field-management-service
   static String get baseUrl => EnvConfig.fieldCoreUrl;
 
   /// Gateway URL (production-like routing)
@@ -247,7 +244,7 @@ class ApiConfig {
   static String get cropHealthHealthz => '$_cropHealthBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Virtual Sensors Engine Endpoints (port 8096)
+  // Virtual Sensors Engine Endpoints (port 8119)
   // محرك المستشعرات الافتراضية
   // Kong route: /api/v1/sensors/virtual
   // ─────────────────────────────────────────────────────────────────────────────
@@ -383,8 +380,8 @@ class ApiConfig {
       };
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Community Chat Service Endpoints (port 8097)
-  // خدمة الدردشة المجتمعية
+  // Community Chat Endpoints (via chat-service port 8115)
+  // خدمة الدردشة المجتمعية (عبر chat-service)
   // Kong route: /api/v1/community/chat
   // ─────────────────────────────────────────────────────────────────────────────
 
@@ -465,7 +462,7 @@ class ApiConfig {
   static String get marketplaceHealthz => '$_marketplaceBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Chat/Messaging Service Endpoints (port 3011)
+  // Chat/Messaging Service Endpoints (port 8115)
   // خدمة المحادثات والرسائل
   // Kong route: /api/v1/chat
   // ─────────────────────────────────────────────────────────────────────────────
@@ -554,7 +551,7 @@ class ApiConfig {
   static String get inventoryHealthz => '$_inventoryBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Spray Service Endpoints (port 8098)
+  // Spray Service Endpoints (via yield-prediction-service port 8152)
   // خدمة عمليات الرش
   // Kong route: /api/v1/spray
   // ─────────────────────────────────────────────────────────────────────────────

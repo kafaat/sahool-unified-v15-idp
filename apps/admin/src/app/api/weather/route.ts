@@ -7,14 +7,13 @@
  * This solves the issue where client-side code cannot read httpOnly cookies.
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { getUserFromToken } from "@/lib/auth/jwt-verify";
-import { logger } from "@/lib/logger";
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { getUserFromToken } from '@/lib/auth/jwt-verify';
+import { logger } from '@/lib/logger';
 
 // Weather service URL from environment, fallback to docker service name
-const WEATHER_SERVICE_URL =
-  process.env.WEATHER_SERVICE_URL || "http://weather-service:8092";
+const WEATHER_SERVICE_URL = process.env.WEATHER_SERVICE_URL || 'http://weather-service:8092';
 
 /**
  * Validate UUID format for tenant_id injection prevention
@@ -30,7 +29,7 @@ function isValidUUID(str: string): boolean {
 async function getTenantId(): Promise<string | null> {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("sahool_admin_token")?.value;
+    const token = cookieStore.get('sahool_admin_token')?.value;
     if (!token) return null;
 
     const user = await getUserFromToken(token);
@@ -55,60 +54,77 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, lat, lon, field_id, days } = body;
 
-    if (!action || !["current", "forecast", "agricultural"].includes(action)) {
+    if (!action || !['current', 'forecast', 'agricultural'].includes(action)) {
       return NextResponse.json(
-        { error: "Invalid action. Must be: current, forecast, or agricultural" },
-        { status: 400 },
+        { error: 'Invalid action. Must be: current, forecast, or agricultural' },
+        { status: 400 }
       );
     }
 
-    if (typeof lat !== "number" || typeof lon !== "number") {
+    if (
+      typeof lat !== 'number' ||
+      typeof lon !== 'number' ||
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lon) ||
+      lat < -90 ||
+      lat > 90 ||
+      lon < -180 ||
+      lon > 180
+    ) {
       return NextResponse.json(
-        { error: "lat and lon are required numeric parameters" },
-        { status: 400 },
+        { error: 'lat must be between -90 and 90, lon between -180 and 180' },
+        { status: 400 }
       );
     }
 
     const tenantId = await getTenantId();
     if (!tenantId) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
     // Build path based on action
     const pathMap: Record<string, string> = {
-      current: "/weather/current",
-      forecast: "/weather/forecast",
-      agricultural: "/weather/agricultural-report",
+      current: '/weather/current',
+      forecast: '/weather/forecast',
+      agricultural: '/weather/agricultural-report',
     };
+
+    // Validate field_id if provided — must be UUID to prevent injection
+    if (field_id !== undefined && field_id !== null && field_id !== 'default') {
+      if (typeof field_id !== 'string' || !isValidUUID(field_id)) {
+        return NextResponse.json({ error: 'field_id must be a valid UUID' }, { status: 400 });
+      }
+    }
 
     const payload: Record<string, unknown> = {
       tenant_id: tenantId,
-      field_id: field_id || "default",
+      field_id: field_id && isValidUUID(field_id) ? field_id : 'default',
       lat,
       lon,
     };
 
-    if (action === "forecast" && typeof days === "number" && Number.isFinite(days)) {
-      payload.days = days;
+    if (action === 'forecast' && typeof days === 'number' && Number.isFinite(days)) {
+      payload.days = Math.max(1, Math.min(30, Math.floor(days)));
     }
 
     const response = await fetch(`${WEATHER_SERVICE_URL}${pathMap[action]}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(15000),
     });
 
-    const contentType = response.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
       const text = await response.text();
-      logger.error("Weather service returned non-JSON response:", { status: response.status, contentType, body: text.slice(0, 200) });
+      logger.error('Weather service returned non-JSON response:', {
+        status: response.status,
+        contentType,
+        body: text.slice(0, 200),
+      });
       return NextResponse.json(
-        { error: "Weather service returned an unexpected response" },
-        { status: 502 },
+        { error: 'Weather service returned an unexpected response' },
+        { status: 502 }
       );
     }
 
@@ -116,19 +132,13 @@ export async function POST(request: NextRequest) {
     try {
       data = await response.json();
     } catch {
-      logger.error("Failed to parse weather service JSON response");
-      return NextResponse.json(
-        { error: "Weather service returned invalid JSON" },
-        { status: 502 },
-      );
+      logger.error('Failed to parse weather service JSON response');
+      return NextResponse.json({ error: 'Weather service returned invalid JSON' }, { status: 502 });
     }
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    logger.error("Weather API proxy error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch weather data" },
-      { status: 502 },
-    );
+    logger.error('Weather API proxy error:', error);
+    return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 502 });
   }
 }

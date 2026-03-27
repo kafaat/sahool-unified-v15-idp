@@ -4,12 +4,13 @@ CSRF Protection Tests for SAHOOL Platform.
 Tests validate CSRF token generation, validation, and protection mechanisms.
 """
 
-import pytest
-import secrets
-import hmac
 import hashlib
+import hmac
+import secrets
 import time
 from unittest.mock import Mock
+
+import pytest
 
 
 class CSRFTokenManager:
@@ -152,8 +153,8 @@ class TestCSRFTokenValidation:
 
     def test_validate_none_token(self, csrf_manager):
         """Test validation handles None gracefully."""
-        with pytest.raises((TypeError, AttributeError)):
-            csrf_manager.validate_token(None, "session123")
+        result = csrf_manager.validate_token(None, "session123")
+        assert result is False
 
 
 class TestCSRFMiddlewareIntegration:

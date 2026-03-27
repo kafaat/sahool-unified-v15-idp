@@ -39,7 +39,7 @@ class AdvisorRepository {
   Map<String, String> get _headers => {
         ...ApiConfig.defaultHeaders,
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
-        if (_tenantId != null) 'X-Tenant-Id': _tenantId!,
+        if (_tenantId != null) 'X-Tenant-Id': _tenantId,
       };
 
   // ═══════════════════════════════════════════════════════════════════════════

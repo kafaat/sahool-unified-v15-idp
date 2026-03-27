@@ -8,16 +8,27 @@ Centralized audit logging service for security compliance and operational tracea
 Provides hash chain integrity validation, field-level change tracking, and compliance reporting.
 """
 
+import json
 import logging
 import os
 import sys
+import uuid
 from contextlib import asynccontextmanager
+
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path as PathLib
 from typing import Literal
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
+try:
+    import asyncpg
+except ImportError:
+    asyncpg = None  # type: ignore[assignment]
+from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query, Request
 from pydantic import BaseModel, Field
 
 # Add path to shared modules
@@ -44,7 +55,10 @@ from shared.middleware.tenant_context import TenantContextMiddleware
 # ═══════════════════════════════════════════════════════════════════════════════
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 def sanitize_log_input(value: str) -> str:
@@ -181,16 +195,23 @@ async def lifespan(app: FastAPI):
     environment = os.getenv("ENVIRONMENT", "development").lower()
     is_ci_or_test = environment in ("test", "ci", "testing")
 
-    # Check database connection (via shared audit module)
+    # Database connection pool
+    app.state.db_pool = None
     try:
-        # In production, the shared audit module handles DB connections
-        # For CI/testing, we use in-memory storage
-        if is_ci_or_test:
+        db_url = os.getenv("DATABASE_URL")
+        if db_url and asyncpg:
+            # Enforce SSL for non-test environments
+            if not is_ci_or_test and "sslmode" not in db_url:
+                db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode=require"
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+            app.state.db_available = True
+            logger.info("Database connection pool created")
+        elif is_ci_or_test:
             logger.info("Running in CI/test mode - using in-memory storage")
             app.state.db_available = False
         else:
-            app.state.db_available = True
-            logger.info("Database connection configured")
+            logger.warning("DATABASE_URL not configured - using in-memory storage")
+            app.state.db_available = False
     except Exception as e:
         if is_ci_or_test:
             logger.warning(f"Database not available in CI/test: {e}")
@@ -215,12 +236,55 @@ async def lifespan(app: FastAPI):
         logger.warning(f"NATS connection failed: {e}")
         app.state.nc = None
 
+    # Subscribe to platform events for audit logging
+    if app.state.nc:
+
+        async def handle_event(msg):
+            data = json.loads(msg.data.decode())
+            tenant_id = data.get("tenant_id", "system")
+            if tenant_id not in _audit_logs:
+                _audit_logs[tenant_id] = []
+            _audit_logs[tenant_id].append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "subject": msg.subject,
+                    "action": msg.subject.split(".")[-1] if "." in msg.subject else msg.subject,
+                    "category": msg.subject.split(".")[1] if len(msg.subject.split(".")) > 1 else "system",
+                    "severity": data.get("severity", "info"),
+                    "user_id": data.get("user_id", "system"),
+                    "resource_type": data.get("resource_type"),
+                    "resource_id": data.get("resource_id"),
+                    "tenant_id": tenant_id,
+                    "success": data.get("success", True),
+                    "details": data,
+                    "data": data,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
+                }
+            )
+            logger.info(f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}")
+
+        audit_subjects = [
+            "sahool.user.authenticated",
+            "sahool.field.created",
+            "sahool.field.updated",
+            "sahool.field.deleted",
+            "sahool.alert.triggered",
+            "sahool.task.created",
+            "sahool.task.completed",
+        ]
+        for subject in audit_subjects:
+            await app.state.nc.subscribe(subject, cb=handle_event)
+            logger.info(f"Subscribed to NATS subject: {subject}")
+
     logger.info("Audit Service ready on port 8114")
     yield
 
     # Cleanup
     if getattr(app.state, "nc", None):
         await app.state.nc.close()
+    if getattr(app.state, "db_pool", None):
+        await app.state.db_pool.close()
     logger.info("Audit Service shutting down")
 
 
@@ -356,6 +420,53 @@ async def get_audit_logs(
         "limit": limit,
         "has_more": skip + limit < total,
     }
+
+
+@app.post("/api/v1/audit/logs", tags=["Audit Logs"])
+async def create_audit_log(
+    request: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    user: object = Depends(get_current_user),
+):
+    """
+    Create a new audit log entry
+
+    إنشاء سجل تدقيق جديد
+    """
+    body = await request.json()
+
+    user_id = getattr(user, "id", None) or getattr(user, "sub", None) or str(user)
+    log_tenant_id = getattr(user, "tenant_id", None) or getattr(user, "tid", None) or tenant_id
+
+    log_entry = {
+        "id": str(uuid.uuid4()),
+        "tenant_id": log_tenant_id,
+        "user_id": body.get("user_id", user_id),
+        "action": body.get("action", "unknown"),
+        "category": body.get("category", "general"),
+        "severity": body.get("severity", "info"),
+        "resource_type": body.get("resource_type"),
+        "resource_id": body.get("resource_id"),
+        "correlation_id": body.get("correlation_id"),
+        "ip_address": body.get("ip_address", request.client.host if request.client else None),
+        "success": body.get("success", True),
+        "error_code": body.get("error_code"),
+        "error_message": body.get("error_message"),
+        "details": body.get("details"),
+        "old_value": body.get("old_value"),
+        "new_value": body.get("new_value"),
+        "created_at": datetime.now(UTC).isoformat(),
+    }
+
+    logs = _get_logs_for_tenant(log_tenant_id)
+    logs.append(log_entry)
+
+    logger.info(
+        f"Audit log created: action={sanitize_log_input(log_entry['action'])} "
+        f"tenant={sanitize_log_input(log_tenant_id)}"
+    )
+
+    return log_entry
 
 
 @app.get("/api/v1/audit/logs/{log_id}", response_model=AuditLogResponse, tags=["Audit Logs"])

@@ -3,65 +3,52 @@
  * لوحة معلومات صحة المحصول
  */
 
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  TrendingDown,
-  Leaf,
-  Search,
-} from "lucide-react";
-import {
-  useHealthSummary,
-  useHealthRecords,
-  useDiseaseAlerts,
-} from "../hooks/useCropHealth";
-import type { HealthFilters } from "../types";
+import React, { useState } from 'react';
+import { Activity, AlertTriangle, CheckCircle2, TrendingDown, Leaf, Search } from 'lucide-react';
+import { useHealthSummary, useHealthRecords, useDiseaseAlerts } from '../hooks/useCropHealth';
+import type { HealthFilters } from '../types';
 
 export const HealthDashboard: React.FC = () => {
   const [filters] = useState<HealthFilters>({});
 
-  const { data: summary, isLoading: summaryLoading } =
-    useHealthSummary(filters);
-  const { data: records, isLoading: recordsLoading } =
-    useHealthRecords(filters);
+  const { data: summary, isLoading: summaryLoading } = useHealthSummary(filters);
+  const { data: records, isLoading: recordsLoading } = useHealthRecords(filters);
   const { data: alerts } = useDiseaseAlerts();
 
   const statusConfig = {
     healthy: {
-      label: "صحية",
-      labelEn: "Healthy",
+      label: 'صحية',
+      labelEn: 'Healthy',
       icon: CheckCircle2,
-      color: "text-green-600",
-      bg: "bg-green-50",
-      border: "border-green-200",
+      color: 'text-green-600',
+      bg: 'bg-green-50',
+      border: 'border-green-200',
     },
     at_risk: {
-      label: "معرضة للخطر",
-      labelEn: "At Risk",
+      label: 'معرضة للخطر',
+      labelEn: 'At Risk',
       icon: AlertTriangle,
-      color: "text-yellow-600",
-      bg: "bg-yellow-50",
-      border: "border-yellow-200",
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-50',
+      border: 'border-yellow-200',
     },
     diseased: {
-      label: "مصابة",
-      labelEn: "Diseased",
+      label: 'مصابة',
+      labelEn: 'Diseased',
       icon: TrendingDown,
-      color: "text-orange-600",
-      bg: "bg-orange-50",
-      border: "border-orange-200",
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+      border: 'border-orange-200',
     },
     critical: {
-      label: "حرجة",
-      labelEn: "Critical",
+      label: 'حرجة',
+      labelEn: 'Critical',
       icon: AlertTriangle,
-      color: "text-red-600",
-      bg: "bg-red-50",
-      border: "border-red-200",
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+      border: 'border-red-200',
     },
   };
 
@@ -76,9 +63,7 @@ export const HealthDashboard: React.FC = () => {
                 <Leaf className="w-8 h-8 text-green-500" />
                 صحة المحصول والتشخيص
               </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Crop Health & Diagnosis
-              </p>
+              <p className="mt-1 text-sm text-gray-500">Crop Health & Diagnosis</p>
             </div>
 
             {/* Search */}
@@ -87,6 +72,7 @@ export const HealthDashboard: React.FC = () => {
               <input
                 type="text"
                 placeholder="ابحث في الحقول..."
+                aria-label="ابحث في الحقول | Search fields"
                 className="pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-64"
               />
             </div>
@@ -100,32 +86,24 @@ export const HealthDashboard: React.FC = () => {
         {alerts && alerts.length > 0 && (
           <div className="mb-6 space-y-3">
             {alerts.map((alert) => (
-              <div
-                key={alert.id}
-                className="bg-red-50 border-r-4 border-red-500 p-4 rounded-lg"
-              >
+              <div key={alert.id} className="bg-red-50 border-r-4 border-red-500 p-4 rounded-lg">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-red-900">
-                      {alert.disease.nameAr}
-                    </h4>
-                    <p className="text-sm text-red-800 mt-1">
-                      {alert.messageAr}
-                    </p>
-                    {alert.recommendationsAr &&
-                      alert.recommendationsAr.length > 0 && (
-                        <ul className="mt-2 space-y-1">
-                          {alert.recommendationsAr.map((rec, idx) => (
-                            <li key={idx} className="text-sm text-red-700">
-                              • {rec}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                    <h4 className="font-semibold text-red-900">{alert.disease.nameAr}</h4>
+                    <p className="text-sm text-red-800 mt-1">{alert.messageAr}</p>
+                    {alert.recommendationsAr && alert.recommendationsAr.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {alert.recommendationsAr.map((rec, idx) => (
+                          <li key={idx} className="text-sm text-red-700">
+                            • {rec}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                   <span className="text-xs text-red-600">
-                    {new Date(alert.issuedAt).toLocaleDateString("ar-SA")}
+                    {new Date(alert.issuedAt).toLocaleDateString('ar-SA')}
                   </span>
                 </div>
               </div>
@@ -151,10 +129,9 @@ export const HealthDashboard: React.FC = () => {
                       {summary.healthyFields}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {(
-                        (summary.healthyFields / summary.totalFields) *
-                        100
-                      ).toFixed(1)}
+                      {summary.totalFields > 0
+                        ? ((summary.healthyFields / summary.totalFields) * 100).toFixed(1)
+                        : '0.0'}
                       %
                     </p>
                   </div>
@@ -171,10 +148,9 @@ export const HealthDashboard: React.FC = () => {
                       {summary.atRiskFields}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {(
-                        (summary.atRiskFields / summary.totalFields) *
-                        100
-                      ).toFixed(1)}
+                      {summary.totalFields > 0
+                        ? ((summary.atRiskFields / summary.totalFields) * 100).toFixed(1)
+                        : '0.0'}
                       %
                     </p>
                   </div>
@@ -191,10 +167,9 @@ export const HealthDashboard: React.FC = () => {
                       {summary.diseasedFields}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {(
-                        (summary.diseasedFields / summary.totalFields) *
-                        100
-                      ).toFixed(1)}
+                      {summary.totalFields > 0
+                        ? ((summary.diseasedFields / summary.totalFields) * 100).toFixed(1)
+                        : '0.0'}
                       %
                     </p>
                   </div>
@@ -234,18 +209,12 @@ export const HealthDashboard: React.FC = () => {
                           {idx + 1}
                         </span>
                         <div>
-                          <p className="font-medium text-gray-900">
-                            {item.disease.nameAr}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {item.disease.name}
-                          </p>
+                          <p className="font-medium text-gray-900">{item.disease.nameAr}</p>
+                          <p className="text-sm text-gray-600">{item.disease.name}</p>
                         </div>
                       </div>
                       <div className="text-left">
-                        <p className="text-lg font-bold text-red-600">
-                          {item.affectedFields}
-                        </p>
+                        <p className="text-lg font-bold text-red-600">{item.affectedFields}</p>
                         <p className="text-xs text-gray-500">حقول متأثرة</p>
                       </div>
                     </div>
@@ -276,12 +245,8 @@ export const HealthDashboard: React.FC = () => {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h4 className="font-semibold text-gray-900">
-                          {record.fieldNameAr}
-                        </h4>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {record.cropTypeAr}
-                        </p>
+                        <h4 className="font-semibold text-gray-900">{record.fieldNameAr}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{record.cropTypeAr}</p>
                       </div>
                       <StatusIcon className={`w-6 h-6 ${config.color}`} />
                     </div>
@@ -290,12 +255,8 @@ export const HealthDashboard: React.FC = () => {
                       {/* Health Score */}
                       <div>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-gray-600">
-                            درجة الصحة
-                          </span>
-                          <span
-                            className={`text-sm font-semibold ${config.color}`}
-                          >
+                          <span className="text-sm text-gray-600">درجة الصحة</span>
+                          <span className={`text-sm font-semibold ${config.color}`}>
                             {record.healthScore}/100
                           </span>
                         </div>
@@ -303,12 +264,12 @@ export const HealthDashboard: React.FC = () => {
                           <div
                             className={`h-2 rounded-full ${
                               record.healthScore >= 80
-                                ? "bg-green-500"
+                                ? 'bg-green-500'
                                 : record.healthScore >= 60
-                                  ? "bg-yellow-500"
+                                  ? 'bg-yellow-500'
                                   : record.healthScore >= 40
-                                    ? "bg-orange-500"
-                                    : "bg-red-500"
+                                    ? 'bg-orange-500'
+                                    : 'bg-red-500'
                             }`}
                             style={{ width: `${record.healthScore}%` }}
                           />
@@ -326,15 +287,12 @@ export const HealthDashboard: React.FC = () => {
                       {/* Date */}
                       <div className="pt-3 border-t border-gray-200">
                         <p className="text-xs text-gray-500">
-                          آخر فحص:{" "}
-                          {new Date(record.date).toLocaleDateString("ar-SA")}
+                          آخر فحص: {new Date(record.date).toLocaleDateString('ar-SA')}
                         </p>
                         {record.nextCheckDate && (
                           <p className="text-xs text-gray-500 mt-1">
-                            الفحص القادم:{" "}
-                            {new Date(record.nextCheckDate).toLocaleDateString(
-                              "ar-SA",
-                            )}
+                            الفحص القادم:{' '}
+                            {new Date(record.nextCheckDate).toLocaleDateString('ar-SA')}
                           </p>
                         )}
                       </div>
@@ -348,9 +306,7 @@ export const HealthDashboard: React.FC = () => {
           <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
             <Leaf className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600">لا توجد سجلات صحة متاحة</p>
-            <p className="text-sm text-gray-500 mt-1">
-              No health records available
-            </p>
+            <p className="text-sm text-gray-500 mt-1">No health records available</p>
           </div>
         )}
       </div>

@@ -77,12 +77,12 @@ class TestCanonicalHeaders:
             assert field_name in fields, f"BaseEvent missing envelope field: {field_name}"
 
     @_SKIP_PYDANTIC
-    def test_base_event_has_tenant_id_header(self):
+    def test_base_event_has_tenant_id_field(self):
         from shared.events.contracts import BaseEvent
 
-        # tenant_id_header is aliased as tenant_id_meta
+        # tenant_id field is used for multi-tenant event routing and NATS header propagation
         fields = BaseEvent.model_fields
-        assert "tenant_id_header" in fields, "BaseEvent must have tenant_id_header for NATS header propagation"
+        assert "tenant_id" in fields, "BaseEvent must have tenant_id for NATS header propagation"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

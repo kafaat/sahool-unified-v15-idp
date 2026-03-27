@@ -457,7 +457,7 @@ void main() {
     });
 
     test('should create with only required fields', () {
-      final analysis = TerrainAnalysis(
+      const analysis = TerrainAnalysis(
         fieldId: 'field-002',
         averageElevationM: 800.0,
         minElevationM: 790.0,
@@ -512,7 +512,7 @@ void main() {
     });
 
     test('should serialize to JSON correctly', () {
-      final analysis = TerrainAnalysis(
+      const analysis = TerrainAnalysis(
         fieldId: 'field-004',
         averageElevationM: 500.0,
         minElevationM: 480.0,
@@ -539,7 +539,7 @@ void main() {
     });
 
     test('should roundtrip through JSON', () {
-      final original = TerrainAnalysis(
+      const original = TerrainAnalysis(
         fieldId: 'field-005',
         averageElevationM: 1200.0,
         minElevationM: 1150.0,
@@ -572,7 +572,7 @@ void main() {
     });
 
     test('should support copyWith', () {
-      final original = TerrainAnalysis(
+      const original = TerrainAnalysis(
         fieldId: 'field-006',
         averageElevationM: 600.0,
         minElevationM: 590.0,
@@ -596,7 +596,7 @@ void main() {
     });
 
     test('should support equality comparison', () {
-      final a = TerrainAnalysis(
+      const a = TerrainAnalysis(
         fieldId: 'field-007',
         averageElevationM: 100.0,
         minElevationM: 90.0,
@@ -608,7 +608,7 @@ void main() {
         dominantAspectAr: 'شمال',
       );
 
-      final b = TerrainAnalysis(
+      const b = TerrainAnalysis(
         fieldId: 'field-007',
         averageElevationM: 100.0,
         minElevationM: 90.0,
@@ -631,9 +631,9 @@ void main() {
 
   group('ElevationProfile', () {
     test('should create instance with points', () {
-      final profile = ElevationProfile(
+      const profile = ElevationProfile(
         fieldId: 'field-001',
-        points: const [
+        points: [
           ElevationPoint(distanceM: 0.0, elevationM: 100.0),
           ElevationPoint(distanceM: 50.0, elevationM: 110.0),
           ElevationPoint(distanceM: 100.0, elevationM: 105.0),
@@ -655,9 +655,9 @@ void main() {
     });
 
     test('should create with only required fields', () {
-      final profile = ElevationProfile(
+      const profile = ElevationProfile(
         fieldId: 'field-002',
-        points: const [],
+        points: [],
         totalDistanceM: 0.0,
         totalGainM: 0.0,
         totalLossM: 0.0,
@@ -699,9 +699,9 @@ void main() {
     });
 
     test('should roundtrip through JSON', () {
-      final original = ElevationProfile(
+      const original = ElevationProfile(
         fieldId: 'field-004',
-        points: const [
+        points: [
           ElevationPoint(
             distanceM: 0.0,
             elevationM: 500.0,
@@ -736,9 +736,9 @@ void main() {
     });
 
     test('should support equality comparison', () {
-      final a = ElevationProfile(
+      const a = ElevationProfile(
         fieldId: 'field-005',
-        points: const [
+        points: [
           ElevationPoint(distanceM: 0.0, elevationM: 100.0),
         ],
         totalDistanceM: 50.0,
@@ -746,9 +746,9 @@ void main() {
         totalLossM: 0.0,
       );
 
-      final b = ElevationProfile(
+      const b = ElevationProfile(
         fieldId: 'field-005',
-        points: const [
+        points: [
           ElevationPoint(distanceM: 0.0, elevationM: 100.0),
         ],
         totalDistanceM: 50.0,
@@ -864,9 +864,9 @@ void main() {
 
   group('SlopeAnalysis', () {
     test('should create instance with all fields', () {
-      final slope = SlopeAnalysis(
+      const slope = SlopeAnalysis(
         fieldId: 'field-001',
-        slopeDistribution: const {
+        slopeDistribution: {
           'flat_0_2': 20.0,
           'gentle_2_5': 40.0,
           'moderate_5_10': 30.0,
@@ -876,8 +876,8 @@ void main() {
         dominantSlopeClassAr: 'لطيف',
         erosionRisk: 'low',
         erosionRiskAr: 'منخفض',
-        recommendations: const ['Use contour farming', 'Plant cover crops'],
-        recommendationsAr: const [
+        recommendations: ['Use contour farming', 'Plant cover crops'],
+        recommendationsAr: [
           'استخدام الزراعة الكنتورية',
           'زراعة محاصيل تغطية'
         ],
@@ -898,9 +898,9 @@ void main() {
     });
 
     test('should create with default empty recommendations', () {
-      final slope = SlopeAnalysis(
+      const slope = SlopeAnalysis(
         fieldId: 'field-002',
-        slopeDistribution: const {'flat': 100.0},
+        slopeDistribution: {'flat': 100.0},
         dominantSlopeClass: 'flat',
         dominantSlopeClassAr: 'مسطح',
         erosionRisk: 'minimal',
@@ -940,9 +940,9 @@ void main() {
     });
 
     test('should roundtrip through JSON', () {
-      final original = SlopeAnalysis(
+      const original = SlopeAnalysis(
         fieldId: 'field-004',
-        slopeDistribution: const {
+        slopeDistribution: {
           'flat': 30.0,
           'gentle': 50.0,
           'moderate': 20.0,
@@ -951,8 +951,8 @@ void main() {
         dominantSlopeClassAr: 'لطيف',
         erosionRisk: 'moderate',
         erosionRiskAr: 'متوسط',
-        recommendations: const ['Contour farming'],
-        recommendationsAr: const ['زراعة كنتورية'],
+        recommendations: ['Contour farming'],
+        recommendationsAr: ['زراعة كنتورية'],
       );
 
       final json = original.toJson();
@@ -966,9 +966,9 @@ void main() {
     });
 
     test('should support copyWith', () {
-      final original = SlopeAnalysis(
+      const original = SlopeAnalysis(
         fieldId: 'field-005',
-        slopeDistribution: const {'flat': 100.0},
+        slopeDistribution: {'flat': 100.0},
         dominantSlopeClass: 'flat',
         dominantSlopeClassAr: 'مسطح',
         erosionRisk: 'minimal',
@@ -988,18 +988,18 @@ void main() {
     });
 
     test('should support equality comparison', () {
-      final a = SlopeAnalysis(
+      const a = SlopeAnalysis(
         fieldId: 'field-006',
-        slopeDistribution: const {'flat': 100.0},
+        slopeDistribution: {'flat': 100.0},
         dominantSlopeClass: 'flat',
         dominantSlopeClassAr: 'مسطح',
         erosionRisk: 'minimal',
         erosionRiskAr: 'ضئيل',
       );
 
-      final b = SlopeAnalysis(
+      const b = SlopeAnalysis(
         fieldId: 'field-006',
-        slopeDistribution: const {'flat': 100.0},
+        slopeDistribution: {'flat': 100.0},
         dominantSlopeClass: 'flat',
         dominantSlopeClassAr: 'مسطح',
         erosionRisk: 'minimal',

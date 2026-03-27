@@ -265,7 +265,7 @@ jobs:
 
       - name: Generate SBOM
         if: steps.build.outputs.build_success == 'true'
-        uses: anchore/sbom-action@v0.23.1
+        uses: anchore/sbom-action@v0.24.0
         continue-on-error: true
         with:
           image: ${{ matrix.service }}:scan

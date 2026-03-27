@@ -9,6 +9,7 @@
 /// - Schedule management
 /// - Sensor data integration
 /// - Error handling
+library;
 
 import 'dart:convert';
 

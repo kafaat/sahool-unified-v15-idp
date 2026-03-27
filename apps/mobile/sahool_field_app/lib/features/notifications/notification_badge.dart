@@ -7,6 +7,7 @@
 ///   child: Icon(Icons.notifications),
 /// )
 /// ```
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -112,7 +113,7 @@ class NotificationCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: _getTypeColor(notification.type).withOpacity(0.1),
+                    color: _getTypeColor(notification.type).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(

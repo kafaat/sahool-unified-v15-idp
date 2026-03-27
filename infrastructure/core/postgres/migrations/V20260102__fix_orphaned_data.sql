@@ -313,10 +313,11 @@ SELECT
         WHEN f.location_updated_at < NOW() - INTERVAL '7 days' THEN 'WARNING'
         ELSE 'OK'
     END AS staleness_level
-FROM fields f
-WHERE f.latitude IS NOT NULL
-  AND f.longitude IS NOT NULL
-  AND f.location_updated_at IS NOT NULL;
+FROM fields AS f
+WHERE
+    f.latitude IS NOT NULL
+    AND f.longitude IS NOT NULL
+    AND f.location_updated_at IS NOT NULL;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Step 9: Create deadlock prevention advisory lock wrapper
@@ -330,6 +331,15 @@ DECLARE
     v_lock_key BIGINT;
     v_result BOOLEAN := FALSE;
 BEGIN
+    -- Validate table name against allowed set (prevent SQL injection via dynamic SQL)
+    IF p_table_name NOT IN (
+        'fields', 'field_operations', 'sensor_readings',
+        'irrigation_schedules', 'tasks', 'task_assignments',
+        'field_notes', 'field_boundaries', 'crop_records'
+    ) THEN
+        RAISE EXCEPTION 'safe_delete_with_lock: invalid table name: %', p_table_name;
+    END IF;
+
     -- Generate consistent lock key from table name and ID
     v_lock_key := hashtext(p_table_name || p_id::TEXT);
 
@@ -348,7 +358,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION safe_delete_with_lock IS
+COMMENT ON FUNCTION SAFE_DELETE_WITH_LOCK IS
 'Safely deletes a row with advisory locking to prevent deadlocks during migrations.
 Usage: SELECT safe_delete_with_lock(''fields'', ''uuid-here'');
 Returns TRUE if deleted, FALSE if lock could not be acquired.';

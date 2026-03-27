@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 /**
  * Bulk Actions Component
  * مكون العمليات الجماعية
  */
 
-import { useState, useCallback } from "react";
-import { cn } from "@/lib/utils";
+import { useState, useCallback } from 'react';
+import { cn } from '@/lib/utils';
 import {
   Trash2,
   Download,
@@ -18,14 +18,14 @@ import {
   CheckCircle,
   AlertTriangle,
   Loader2,
-} from "lucide-react";
+} from 'lucide-react';
 
 export interface BulkAction {
   id: string;
   label: string;
   labelAr: string;
   icon: React.ElementType;
-  variant?: "default" | "primary" | "danger" | "warning";
+  variant?: 'default' | 'primary' | 'danger' | 'warning';
   confirmMessage?: string;
   confirmMessageAr?: string;
   requireConfirmation?: boolean;
@@ -45,35 +45,35 @@ interface BulkActionsProps {
 
 const defaultActions: BulkAction[] = [
   {
-    id: "export",
-    label: "Export",
-    labelAr: "تصدير",
+    id: 'export',
+    label: 'Export',
+    labelAr: 'تصدير',
     icon: Download,
-    variant: "default",
+    variant: 'default',
   },
   {
-    id: "archive",
-    label: "Archive",
-    labelAr: "أرشفة",
+    id: 'archive',
+    label: 'Archive',
+    labelAr: 'أرشفة',
     icon: Archive,
-    variant: "default",
+    variant: 'default',
   },
   {
-    id: "tag",
-    label: "Add Tag",
-    labelAr: "إضافة وسم",
+    id: 'tag',
+    label: 'Add Tag',
+    labelAr: 'إضافة وسم',
     icon: Tag,
-    variant: "default",
+    variant: 'default',
   },
   {
-    id: "delete",
-    label: "Delete",
-    labelAr: "حذف",
+    id: 'delete',
+    label: 'Delete',
+    labelAr: 'حذف',
     icon: Trash2,
-    variant: "danger",
+    variant: 'danger',
     requireConfirmation: true,
-    confirmMessageAr: "هل أنت متأكد من حذف العناصر المحددة؟",
-    confirmMessage: "Are you sure you want to delete the selected items?",
+    confirmMessageAr: 'هل أنت متأكد من حذف العناصر المحددة؟',
+    confirmMessage: 'Are you sure you want to delete the selected items?',
   },
 ];
 
@@ -84,14 +84,14 @@ export default function BulkActions({
   onDeselectAll,
   actions = defaultActions,
   onAction,
-  className = "",
+  className = '',
   isLoading = false,
   loadingAction,
 }: BulkActionsProps) {
   const [showMore, setShowMore] = useState(false);
   const [confirmAction, setConfirmAction] = useState<BulkAction | null>(null);
   const [actionResult, setActionResult] = useState<{
-    type: "success" | "error";
+    type: 'success' | 'error';
     message: string;
   } | null>(null);
 
@@ -108,13 +108,13 @@ export default function BulkActions({
       try {
         await onAction?.(action.id);
         setActionResult({
-          type: "success",
+          type: 'success',
           message: `تم تنفيذ "${action.labelAr}" بنجاح`,
         });
         setTimeout(() => setActionResult(null), 3000);
       } catch {
         setActionResult({
-          type: "error",
+          type: 'error',
           message: `فشل تنفيذ "${action.labelAr}"`,
         });
         setTimeout(() => setActionResult(null), 5000);
@@ -123,16 +123,16 @@ export default function BulkActions({
     [confirmAction, onAction]
   );
 
-  const getVariantClasses = (variant: BulkAction["variant"]) => {
+  const getVariantClasses = (variant: BulkAction['variant']) => {
     switch (variant) {
-      case "primary":
-        return "bg-sahool-600 hover:bg-sahool-700 text-white";
-      case "danger":
-        return "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20";
-      case "warning":
-        return "text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20";
+      case 'primary':
+        return 'bg-sahool-600 hover:bg-sahool-700 text-white';
+      case 'danger':
+        return 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20';
+      case 'warning':
+        return 'text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20';
       default:
-        return "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+        return 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700';
     }
   };
 
@@ -149,7 +149,7 @@ export default function BulkActions({
       {/* Bulk Actions Bar */}
       <div
         className={cn(
-          "sticky top-0 z-20 flex items-center justify-between px-6 py-3 bg-sahool-50 dark:bg-sahool-900/30 border border-sahool-200 dark:border-sahool-700 rounded-xl",
+          'sticky top-0 z-20 flex items-center justify-between px-6 py-3 bg-sahool-50 dark:bg-sahool-900/30 border border-sahool-200 dark:border-sahool-700 rounded-xl',
           className
         )}
       >
@@ -190,13 +190,13 @@ export default function BulkActions({
           {actionResult && (
             <div
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm animate-in slide-in-from-right",
-                actionResult.type === "success"
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-                  : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                'flex items-center gap-2 px-3 py-2 rounded-lg text-sm animate-in slide-in-from-right',
+                actionResult.type === 'success'
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
               )}
             >
-              {actionResult.type === "success" ? (
+              {actionResult.type === 'success' ? (
                 <CheckCircle className="w-4 h-4" />
               ) : (
                 <AlertTriangle className="w-4 h-4" />
@@ -216,7 +216,7 @@ export default function BulkActions({
                 onClick={() => handleAction(action)}
                 disabled={isLoading}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                  'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
                   getVariantClasses(action.variant)
                 )}
                 title={action.labelAr}
@@ -253,7 +253,7 @@ export default function BulkActions({
                           setShowMore(false);
                         }}
                         className={cn(
-                          "w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors",
+                          'w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors',
                           getVariantClasses(action.variant)
                         )}
                       >
@@ -313,66 +313,66 @@ export default function BulkActions({
 export const presetActions = {
   crud: [
     {
-      id: "edit",
-      label: "Edit",
-      labelAr: "تعديل",
+      id: 'edit',
+      label: 'Edit',
+      labelAr: 'تعديل',
       icon: Edit2,
-      variant: "default" as const,
+      variant: 'default' as const,
     },
     {
-      id: "archive",
-      label: "Archive",
-      labelAr: "أرشفة",
+      id: 'archive',
+      label: 'Archive',
+      labelAr: 'أرشفة',
       icon: Archive,
-      variant: "default" as const,
+      variant: 'default' as const,
     },
     {
-      id: "delete",
-      label: "Delete",
-      labelAr: "حذف",
+      id: 'delete',
+      label: 'Delete',
+      labelAr: 'حذف',
       icon: Trash2,
-      variant: "danger" as const,
+      variant: 'danger' as const,
       requireConfirmation: true,
-      confirmMessageAr: "هل أنت متأكد من حذف العناصر المحددة؟",
+      confirmMessageAr: 'هل أنت متأكد من حذف العناصر المحددة؟',
     },
   ],
   export: [
     {
-      id: "export-csv",
-      label: "Export CSV",
-      labelAr: "تصدير CSV",
+      id: 'export-csv',
+      label: 'Export CSV',
+      labelAr: 'تصدير CSV',
       icon: Download,
-      variant: "default" as const,
+      variant: 'default' as const,
     },
     {
-      id: "export-pdf",
-      label: "Export PDF",
-      labelAr: "تصدير PDF",
+      id: 'export-pdf',
+      label: 'Export PDF',
+      labelAr: 'تصدير PDF',
       icon: Download,
-      variant: "default" as const,
+      variant: 'default' as const,
     },
     {
-      id: "export-excel",
-      label: "Export Excel",
-      labelAr: "تصدير Excel",
+      id: 'export-excel',
+      label: 'Export Excel',
+      labelAr: 'تصدير Excel',
       icon: Download,
-      variant: "default" as const,
+      variant: 'default' as const,
     },
   ],
   communication: [
     {
-      id: "send-notification",
-      label: "Send Notification",
-      labelAr: "إرسال إشعار",
+      id: 'send-notification',
+      label: 'Send Notification',
+      labelAr: 'إرسال إشعار',
       icon: Send,
-      variant: "primary" as const,
+      variant: 'primary' as const,
     },
     {
-      id: "send-email",
-      label: "Send Email",
-      labelAr: "إرسال بريد",
+      id: 'send-email',
+      label: 'Send Email',
+      labelAr: 'إرسال بريد',
       icon: Send,
-      variant: "default" as const,
+      variant: 'default' as const,
     },
   ],
 };

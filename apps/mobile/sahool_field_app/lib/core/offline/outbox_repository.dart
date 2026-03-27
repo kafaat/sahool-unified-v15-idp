@@ -14,7 +14,6 @@ import 'offline_sync_engine.dart';
 
 class OutboxRepository {
   static const String _storageKey = 'sahool_outbox';
-  static const String _statsKey = 'sahool_outbox_stats';
   static const int _maxCompletedItems = 100;
 
   SharedPreferences? _prefs;
@@ -47,8 +46,9 @@ class OutboxRepository {
           .map((e) => OutboxEntry.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      AppLogger.e('Failed to load outbox', tag: 'OUTBOX', error: e);
+      AppLogger.e('Failed to load outbox, clearing corrupted data', tag: 'OUTBOX', error: e);
       _entries = [];
+      await _prefs?.remove(_storageKey);
     }
   }
 
@@ -276,7 +276,7 @@ class OutboxRepository {
     if (pending.length <= 1) return;
 
     // Merge all updates into one
-    Map<String, dynamic> mergedData = {};
+    final Map<String, dynamic> mergedData = {};
     for (final entry in pending) {
       mergedData.addAll(entry.data);
     }

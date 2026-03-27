@@ -14,14 +14,13 @@ from shared.events.dlq_config import (
     DLQMessageMetadata,
     StreamConfig,
     get_dlq_stream_config,
-    should_retry,
     is_retriable_error,
+    should_retry,
 )
 from shared.events.subscriber import (
     EventSubscriber,
     SubscriberConfig,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # DLQ Config Tests

@@ -2,7 +2,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../data/inventory_models.dart';
 import 'stock_level_indicator.dart';
@@ -243,7 +242,7 @@ class InventoryCard extends StatelessWidget {
       child: Icon(
         _getCategoryIcon(item.category),
         size: isGridView ? 48 : 40,
-        color: Theme.of(context).primaryColor.withOpacity(0.3),
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
       ),
     );
   }
@@ -290,9 +289,9 @@ class InventoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         label,

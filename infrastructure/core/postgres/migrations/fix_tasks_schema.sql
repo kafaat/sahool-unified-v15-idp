@@ -20,14 +20,14 @@ END $$;
 ALTER TABLE tasks DROP CONSTRAINT IF EXISTS tasks_parent_task_id_fkey;
 
 -- Step 3: Convert task_id from UUID to VARCHAR(50)
-ALTER TABLE tasks ALTER COLUMN task_id TYPE VARCHAR(50) USING task_id::text;
+ALTER TABLE tasks ALTER COLUMN task_id TYPE VARCHAR(50) USING task_id::TEXT;
 
 -- Step 4: Convert parent_task_id from UUID to VARCHAR(50)
-ALTER TABLE tasks ALTER COLUMN parent_task_id TYPE VARCHAR(50) USING parent_task_id::text;
+ALTER TABLE tasks ALTER COLUMN parent_task_id TYPE VARCHAR(50) USING parent_task_id::TEXT;
 
 -- Step 5: Recreate parent_task_id foreign key (NOT VALID to avoid full table scan)
 ALTER TABLE tasks ADD CONSTRAINT tasks_parent_task_id_fkey
-    FOREIGN KEY (parent_task_id) REFERENCES tasks(task_id) NOT VALID;
+FOREIGN KEY (parent_task_id) REFERENCES tasks (task_id) NOT VALID;
 ALTER TABLE tasks VALIDATE CONSTRAINT tasks_parent_task_id_fkey;
 
 -- Step 6: Recreate any other foreign keys that referenced tasks (if they exist)
@@ -35,7 +35,10 @@ ALTER TABLE tasks VALIDATE CONSTRAINT tasks_parent_task_id_fkey;
 
 -- Verification
 SELECT 'Tasks table schema fixed!' AS status;
-SELECT column_name, data_type, is_nullable
+SELECT
+    column_name,
+    data_type,
+    is_nullable
 FROM information_schema.columns
 WHERE table_name = 'tasks' AND column_name LIKE '%task_id%'
 ORDER BY ordinal_position;

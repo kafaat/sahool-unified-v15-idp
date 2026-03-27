@@ -3,6 +3,7 @@
 ///
 /// Tests for offline map tile caching, download management,
 /// and cache statistics functionality.
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/map/map_downloader.dart';
@@ -475,7 +476,7 @@ void main() {
   group('OfflineMapManager - Predefined Regions', () {
     test('should have predefined regions', () {
       // Act
-      final regions = OfflineMapManager.predefinedRegions;
+      const regions = OfflineMapManager.predefinedRegions;
 
       // Assert
       expect(regions, isNotEmpty);
@@ -664,7 +665,7 @@ void main() {
       const downloadedSoFar = 50;
 
       // Act
-      final progress = downloadedSoFar / totalTiles;
+      const progress = downloadedSoFar / totalTiles;
 
       // Assert
       expect(progress, equals(0.5));

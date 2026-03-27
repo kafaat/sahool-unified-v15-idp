@@ -10,7 +10,7 @@ from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect, status
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
 
 from .agent import A2AAgent, AgentCard
@@ -21,6 +21,42 @@ from .protocol import (
     TaskResultMessage,
     TaskState,
 )
+
+# Authentication imports - optional for environments without auth module
+# استيراد المصادقة - اختياري للبيئات بدون وحدة المصادقة
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    _auth_available = True
+except ImportError:
+    _auth_available = False
+
+
+async def require_auth(request: Request):
+    """
+    Require authentication for A2A endpoints.
+    طلب المصادقة لنقاط نهاية A2A.
+
+    Falls back to no-op if auth module is not available (test environments).
+    يعود إلى عدم التشغيل إذا لم تكن وحدة المصادقة متاحة (بيئات الاختبار).
+    """
+    if not _auth_available:
+        return None
+    auth_header = request.headers.get("authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing or invalid authorization header",
+        )
+    try:
+        return await get_current_user(request)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
+
 
 logger = structlog.get_logger()
 
@@ -211,7 +247,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         summary="Submit Task",
         description="Submit a task to the agent for execution",
     )
-    async def submit_task(task: TaskMessage) -> TaskResultMessage:
+    async def submit_task(task: TaskMessage, user=Depends(require_auth)) -> TaskResultMessage:
         """
         Task submission endpoint
         نقطة نهاية إرسال المهام
@@ -269,7 +305,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         summary="Get Task Status",
         description="Query the status of a submitted task",
     )
-    async def get_task_status(task_id: str) -> TaskResultMessage:
+    async def get_task_status(task_id: str, user=Depends(require_auth)) -> TaskResultMessage:
         """
         Task status query endpoint
         نقطة نهاية الاستعلام عن حالة المهمة
@@ -314,7 +350,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         summary="Get Agent Statistics",
         description="Returns agent performance statistics",
     )
-    async def get_stats() -> dict[str, Any]:
+    async def get_stats(user=Depends(require_auth)) -> dict[str, Any]:
         """
         Agent statistics endpoint
         نقطة نهاية إحصائيات الوكيل
@@ -339,7 +375,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         summary="Get Conversation",
         description="Returns conversation history and summary",
     )
-    async def get_conversation(conversation_id: str) -> dict[str, Any]:
+    async def get_conversation(conversation_id: str, user=Depends(require_auth)) -> dict[str, Any]:
         """
         Conversation query endpoint
         نقطة نهاية الاستعلام عن المحادثة
@@ -379,7 +415,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         summary="Cancel Task",
         description="Cancel a pending or in-progress task",
     )
-    async def cancel_task(task_id: str) -> JSONResponse:
+    async def cancel_task(task_id: str, user=Depends(require_auth)) -> JSONResponse:
         """
         Task cancellation endpoint
         نقطة نهاية إلغاء المهمة
@@ -439,6 +475,15 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         Provides real-time streaming of task results.
         يوفر بثاً في الوقت الفعلي لنتائج المهام.
         """
+        # Authenticate WebSocket connection before accepting
+        # مصادقة اتصال WebSocket قبل القبول
+        if _auth_available:
+            auth_header = websocket.headers.get("authorization", "")
+            token = websocket.query_params.get("token", "")
+            if not auth_header.startswith("Bearer ") and not token:
+                await websocket.close(code=4001, reason="Authentication required")
+                return
+
         await server.handle_websocket_connection(websocket, client_id)
 
     @router.get("/health", summary="Health Check", description="Agent health check endpoint")

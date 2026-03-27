@@ -324,7 +324,7 @@ class GeoJsonUtils {
     // 1 degree lat = ~111km, 1 degree lon varies by latitude
     final avgLat =
         closed.map((p) => p.latitude).reduce((a, b) => a + b) / closed.length;
-    final latFactor = 111320.0; // meters per degree latitude
+    const latFactor = 111320.0; // meters per degree latitude
     final lonFactor =
         111320.0 * cos(avgLat * pi / 180); // meters per degree longitude
 

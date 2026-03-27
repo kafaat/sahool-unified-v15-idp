@@ -3,30 +3,23 @@
  * خطافات React للمستشعرات
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useCallback, useState, useRef } from "react";
-import { sensorsApi } from "../api";
-import type {
-  Sensor,
-  SensorFilters,
-  SensorReadingsQuery,
-  SensorReading,
-} from "../types";
-import { logger } from "@/lib/logger";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useCallback, useState, useRef } from 'react';
+import { sensorsApi } from '../api';
+import type { Sensor, SensorFilters, SensorReadingsQuery, SensorReading } from '../types';
+import { logger } from '@/lib/logger';
 
 // Query Keys
 export const sensorKeys = {
-  all: ["sensors"] as const,
-  lists: () => [...sensorKeys.all, "list"] as const,
+  all: ['sensors'] as const,
+  lists: () => [...sensorKeys.all, 'list'] as const,
   list: (filters?: SensorFilters) => [...sensorKeys.lists(), filters] as const,
-  detail: (id: string) => [...sensorKeys.all, "detail", id] as const,
-  readings: (query: SensorReadingsQuery) =>
-    [...sensorKeys.all, "readings", query] as const,
-  latest: (sensorId: string) =>
-    [...sensorKeys.all, "latest", sensorId] as const,
-  stats: () => [...sensorKeys.all, "stats"] as const,
+  detail: (id: string) => [...sensorKeys.all, 'detail', id] as const,
+  readings: (query: SensorReadingsQuery) => [...sensorKeys.all, 'readings', query] as const,
+  latest: (sensorId: string) => [...sensorKeys.all, 'latest', sensorId] as const,
+  stats: () => [...sensorKeys.all, 'stats'] as const,
 };
 
 /**
@@ -93,15 +86,13 @@ export function useSensorStats() {
  */
 export function useSensorStream(
   sensorId: string | undefined,
-  onReading: (reading: SensorReading) => void,
+  onReading: (reading: SensorReading) => void
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const queryClient = useQueryClient();
   const eventSourceRef = useRef<EventSource | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const connect = useCallback(() => {
     if (!sensorId) return;
@@ -137,13 +128,13 @@ export function useSensorStream(
           queryKey: sensorKeys.detail(sensorId),
         });
       } catch (e) {
-        logger.error("Failed to parse sensor reading:", e);
+        logger.error('Failed to parse sensor reading:', e);
       }
     };
 
     eventSource.onerror = () => {
       setIsConnected(false);
-      setError(new Error("Connection lost"));
+      setError(new Error('Connection lost'));
       eventSource.close();
       // Reconnect after 5 seconds
       reconnectTimeoutRef.current = setTimeout(connect, 5000);
@@ -180,7 +171,7 @@ export function useCreateSensor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Omit<Sensor, "id" | "createdAt" | "updatedAt">) =>
+    mutationFn: (data: Omit<Sensor, 'id' | 'createdAt' | 'updatedAt'>) =>
       sensorsApi.createSensor(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: sensorKeys.lists() });
@@ -201,10 +192,7 @@ export function useUpdateSensor() {
       sensorsApi.updateSensor(id, data),
     onSuccess: (updatedSensor) => {
       queryClient.invalidateQueries({ queryKey: sensorKeys.lists() });
-      queryClient.setQueryData(
-        sensorKeys.detail(updatedSensor.id),
-        updatedSensor,
-      );
+      queryClient.setQueryData(sensorKeys.detail(updatedSensor.id), updatedSensor);
     },
   });
 }

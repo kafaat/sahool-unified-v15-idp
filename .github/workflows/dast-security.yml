@@ -1,0 +1,24 @@
+name: DAST Security Scan
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly Monday 2 AM
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  zap-scan:
+    name: OWASP ZAP API Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - name: ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.10.0
+        with:
+          target: 'api/gateway-openapi.yaml'
+          format: openapi
+          fail_action: false
+          cmd_options: '-a'

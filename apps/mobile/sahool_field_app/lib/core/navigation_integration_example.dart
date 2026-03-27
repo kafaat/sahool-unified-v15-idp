@@ -3,6 +3,7 @@
 ///
 /// This file provides examples of how to use the new navigation system
 /// in your Flutter app.
+library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -112,7 +113,7 @@ class HomeScreenExample extends StatelessWidget {
             'لديك 5 مهام اليوم',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
             ),
           ),
         ],
@@ -195,7 +196,7 @@ class NavigationExample extends StatelessWidget {
 
   void _navigateWithParameters(BuildContext context) {
     // Navigate with path parameters
-    final fieldId = '123';
+    const fieldId = '123';
 
     // GDD for specific field
     context.push('/gdd/$fieldId');
@@ -228,7 +229,7 @@ class BadgeExample extends ConsumerWidget {
     // Update notification count from your data source
     Future<void> updateNotificationCount() async {
       // Fetch from API or local database
-      final count = 5; // Example count
+      const count = 5; // Example count
       ref.read(notificationCountProvider.notifier).state = count;
     }
 

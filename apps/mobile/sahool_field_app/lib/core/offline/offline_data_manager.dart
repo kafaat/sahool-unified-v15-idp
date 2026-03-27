@@ -6,8 +6,9 @@
 /// - Automatic sync when connection restored
 /// - Conflict resolution with user notification
 /// - Pending changes indicator
+library;
 
-import 'dart:async';
+import 'dart:async' show StreamController, StreamSubscription, Timer, unawaited;
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -95,7 +96,6 @@ class LocalDataItem {
 class OfflineDataManager {
   static const String _storageKey = 'sahool_offline_data';
   static const int _maxRetries = 5;
-  static const Duration _retryDelay = Duration(seconds: 30);
 
   final _pendingChangesController = StreamController<int>.broadcast();
   final _syncStatusController = StreamController<OfflineSyncStatus>.broadcast();
@@ -107,7 +107,7 @@ class OfflineDataManager {
   bool _isSyncing = false;
   late SharedPreferences _prefs;
   late Connectivity _connectivity;
-  StreamSubscription? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   /// تهيئة المدير
   Future<void> initialize() async {
@@ -128,7 +128,7 @@ class OfflineDataManager {
     _startPeriodicSync();
 
     // تحديث عداد التغييرات المعلقة
-    _updatePendingCount();
+    await _updatePendingCount();
   }
 
   /// حفظ بيانات محلياً
@@ -158,10 +158,10 @@ class OfflineDataManager {
     }
 
     await _saveLocalItems(items);
-    _updatePendingCount();
+    await _updatePendingCount();
 
     // محاولة المزامنة الفورية إذا متصل
-    _trySyncNow();
+    unawaited(_trySyncNow());
   }
 
   /// الحصول على البيانات المحلية
@@ -199,7 +199,7 @@ class OfflineDataManager {
       (item) => item.id == id && item.entityType == entityType,
     );
     await _saveLocalItems(items);
-    _updatePendingCount();
+    await _updatePendingCount();
   }
 
   /// تحديث حالة عنصر
@@ -221,14 +221,14 @@ class OfflineDataManager {
         syncedAt: status == LocalDataStatus.synced ? DateTime.now() : null,
       );
       await _saveLocalItems(items);
-      _updatePendingCount();
+      await _updatePendingCount();
     }
   }
 
   /// مزامنة الآن
   Future<OfflineSyncResult> syncNow() async {
     if (_isSyncing) {
-      return OfflineSyncResult(
+      return const OfflineSyncResult(
         success: false,
         message: 'المزامنة جارية بالفعل',
       );
@@ -238,7 +238,7 @@ class OfflineDataManager {
     final isOffline = connectivityResults.isEmpty ||
         connectivityResults.every((r) => r == ConnectivityResult.none);
     if (isOffline) {
-      return OfflineSyncResult(
+      return const OfflineSyncResult(
         success: false,
         message: 'لا يوجد اتصال بالإنترنت',
       );
@@ -289,7 +289,7 @@ class OfflineDataManager {
 
       _isSyncing = false;
       _syncStatusController.add(OfflineSyncStatus.idle);
-      _updatePendingCount();
+      await _updatePendingCount();
 
       return OfflineSyncResult(
         success: failed == 0,
@@ -317,12 +317,12 @@ class OfflineDataManager {
   }
 
   /// محاولة المزامنة الفورية
-  void _trySyncNow() async {
+  Future<void> _trySyncNow() async {
     final connectivityResults = await _connectivity.checkConnectivity();
     final isOnline = connectivityResults.isNotEmpty &&
         !connectivityResults.every((r) => r == ConnectivityResult.none);
     if (isOnline && !_isSyncing) {
-      syncNow();
+      unawaited(syncNow());
     }
   }
 
@@ -336,7 +336,7 @@ class OfflineDataManager {
   }
 
   /// تحديث عداد التغييرات المعلقة
-  void _updatePendingCount() async {
+  Future<void> _updatePendingCount() async {
     final count = await getPendingCount();
     _pendingChangesController.add(count);
   }
@@ -350,6 +350,8 @@ class OfflineDataManager {
       final List<dynamic> jsonList = jsonDecode(jsonString);
       return jsonList.map((json) => LocalDataItem.fromJson(json)).toList();
     } catch (_) {
+      // Corrupted JSON — remove the bad entry to prevent repeated parse overhead
+      await _prefs.remove(_storageKey);
       return [];
     }
   }

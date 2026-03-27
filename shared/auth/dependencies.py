@@ -4,6 +4,7 @@ Dependency injection for authentication and authorization
 """
 
 import logging
+import threading
 import time
 from collections import defaultdict
 from collections.abc import Callable
@@ -184,7 +185,7 @@ async def get_current_user(
             logger.warning("No user repository available - using token data only")
             user = User(
                 id=user_id,
-                email="",
+                email=payload.email or f"{user_id}@sahool.local",
                 roles=payload.roles,
                 tenant_id=payload.tenant_id,
                 permissions=payload.permissions,
@@ -286,10 +287,11 @@ def enforce_tenant(user: User, requested_tenant_id: str | None = None) -> str:
         )
 
     if requested_tenant_id:
-        # Admin users can access any tenant
-        if "admin" in (user.roles or []):
+        # Only super_admin can access cross-tenant resources
+        # يمكن فقط للمسؤول الأعلى الوصول إلى موارد المستأجرين الآخرين
+        if "super_admin" in (user.roles or []):
             return requested_tenant_id
-        # Non-admin users must match their own tenant
+        # Non-super_admin users must match their own tenant
         if user_tenant and user_tenant != requested_tenant_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -441,6 +443,7 @@ class RateLimiter:
     ):
         self.requests = requests
         self.window_seconds = window_seconds
+        self._lock = threading.Lock()
         self.storage: dict = defaultdict(list)
         self.violation_count: dict = defaultdict(int)
 
@@ -457,34 +460,37 @@ class RateLimiter:
         now = time.time()
         window_start = now - self.window_seconds
 
-        # Clean old requests
-        self.storage[key] = [timestamp for timestamp in self.storage[key] if timestamp > window_start]
+        with self._lock:
+            # Clean old requests
+            self.storage[key] = [timestamp for timestamp in self.storage[key] if timestamp > window_start]
 
-        current_count = len(self.storage[key])
-        remaining = max(0, self.requests - current_count)
+            current_count = len(self.storage[key])
+            remaining = max(0, self.requests - current_count)
 
-        # Check limit
-        if current_count >= self.requests:
-            self.violation_count[key] += 1
-            logger.warning(
-                f"Rate limit exceeded for {key}: "
-                f"{current_count}/{self.requests} requests in {self.window_seconds}s "
-                f"(violation #{self.violation_count[key]})"
-            )
-            return False, 0
+            # Check limit
+            if current_count >= self.requests:
+                self.violation_count[key] += 1
+                logger.warning(
+                    f"Rate limit exceeded for {key}: "
+                    f"{current_count}/{self.requests} requests in {self.window_seconds}s "
+                    f"(violation #{self.violation_count[key]})"
+                )
+                return False, 0
 
-        # Add current request
-        self.storage[key].append(now)
-        return True, remaining - 1
+            # Add current request
+            self.storage[key].append(now)
+            return True, remaining - 1
 
     def get_violation_count(self, key: str) -> int:
         """Get number of rate limit violations for a key"""
-        return self.violation_count.get(key, 0)
+        with self._lock:
+            return self.violation_count.get(key, 0)
 
     def reset_violations(self, key: str) -> None:
         """Reset violation count for a key"""
-        if key in self.violation_count:
-            del self.violation_count[key]
+        with self._lock:
+            if key in self.violation_count:
+                del self.violation_count[key]
 
 
 # Global rate limiter instance
@@ -581,7 +587,7 @@ def get_optional_user(
 
         return User(
             id=payload.user_id,
-            email="",
+            email=payload.email or f"{payload.user_id}@sahool.local",
             roles=payload.roles,
             tenant_id=payload.tenant_id,
             permissions=payload.permissions,

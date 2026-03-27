@@ -3,8 +3,8 @@
  * طبقة API لميزة تقييم الكوارث
  */
 
-import { DISASTER_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
-import { createApiClient, logger } from "@/lib/api/factory";
+import { DISASTER_ENDPOINTS, API_PREFIX } from '@sahool/shared-types/contracts';
+import { createApiClient, logger } from '@/lib/api/factory';
 import type {
   RiskAssessment,
   DisasterEvent,
@@ -12,36 +12,36 @@ import type {
   DisasterFormData,
   DisasterStats,
   WeatherAlert,
-} from "./types";
+} from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using cached data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المخزنة.",
+    en: 'Network error. Using cached data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المخزنة.',
   },
   FETCH_FAILED: {
-    en: "Failed to fetch disaster assessment data.",
-    ar: "فشل في جلب بيانات تقييم الكوارث.",
+    en: 'Failed to fetch disaster assessment data.',
+    ar: 'فشل في جلب بيانات تقييم الكوارث.',
   },
   CREATE_FAILED: {
-    en: "Failed to create disaster event.",
-    ar: "فشل في إنشاء حدث الكارثة.",
+    en: 'Failed to create disaster event.',
+    ar: 'فشل في إنشاء حدث الكارثة.',
   },
 };
 
 // Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_RISKS, MOCK_EVENTS, MOCK_STATS } from "./api.mock";
+import { MOCK_RISKS, MOCK_EVENTS, MOCK_STATS } from './api.mock';
 
 export const disasterApi = {
   getRisks: async (filters?: DisasterFilters): Promise<RiskAssessment[]> => {
     try {
       const params = new URLSearchParams();
-      if (filters?.type) params.set("type", filters.type);
-      if (filters?.riskLevel) params.set("risk_level", filters.riskLevel);
-      if (filters?.search) params.set("search", filters.search);
+      if (filters?.type) params.set('type', filters.type);
+      if (filters?.riskLevel) params.set('risk_level', filters.riskLevel);
+      if (filters?.search) params.set('search', filters.search);
 
       const response = await api.get(`${DISASTER_ENDPOINTS.ASSESS}/risks?${params.toString()}`);
       const data = response.data.data || response.data;
@@ -50,10 +50,10 @@ export const disasterApi = {
         return data;
       }
 
-      logger.warn("API returned unexpected format, using mock data");
+      logger.warn('API returned unexpected format, using mock data');
       return MOCK_RISKS;
     } catch (error) {
-      logger.warn("Failed to fetch risks, using mock data:", error);
+      logger.warn('Failed to fetch risks, using mock data:', error);
       return MOCK_RISKS;
     }
   },
@@ -73,10 +73,10 @@ export const disasterApi = {
   getEvents: async (filters?: DisasterFilters): Promise<DisasterEvent[]> => {
     try {
       const params = new URLSearchParams();
-      if (filters?.type) params.set("type", filters.type);
-      if (filters?.status) params.set("status", filters.status);
-      if (filters?.dateFrom) params.set("date_from", filters.dateFrom);
-      if (filters?.dateTo) params.set("date_to", filters.dateTo);
+      if (filters?.type) params.set('type', filters.type);
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.dateFrom) params.set('date_from', filters.dateFrom);
+      if (filters?.dateTo) params.set('date_to', filters.dateTo);
 
       const response = await api.get(`${API_PREFIX}/disaster/events?${params.toString()}`);
       const data = response.data.data || response.data;
@@ -87,7 +87,7 @@ export const disasterApi = {
 
       return MOCK_EVENTS;
     } catch (error) {
-      logger.warn("Failed to fetch events, using mock data:", error);
+      logger.warn('Failed to fetch events, using mock data:', error);
       return MOCK_EVENTS;
     }
   },
@@ -109,7 +109,7 @@ export const disasterApi = {
       const response = await api.post(`${API_PREFIX}/disaster/events`, data);
       return response.data.data || response.data;
     } catch (error) {
-      logger.error("Failed to create disaster event:", error);
+      logger.error('Failed to create disaster event:', error);
       throw error;
     }
   },
@@ -139,7 +139,7 @@ export const disasterApi = {
       const response = await api.get(DISASTER_ENDPOINTS.ALERTS);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Failed to fetch weather alerts:", error);
+      logger.warn('Failed to fetch weather alerts:', error);
       return [];
     }
   },
@@ -149,7 +149,7 @@ export const disasterApi = {
       const response = await api.get(`${API_PREFIX}/disaster/stats`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn("Failed to fetch disaster stats, using mock data:", error);
+      logger.warn('Failed to fetch disaster stats, using mock data:', error);
       return MOCK_STATS;
     }
   },

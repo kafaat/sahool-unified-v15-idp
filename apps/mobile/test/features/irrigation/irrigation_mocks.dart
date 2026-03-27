@@ -3,6 +3,7 @@
 ///
 /// Provides mock implementations for irrigation feature unit tests.
 /// يوفر تطبيقات وهمية لاختبارات وحدة ميزة الري
+library;
 
 import 'dart:convert';
 

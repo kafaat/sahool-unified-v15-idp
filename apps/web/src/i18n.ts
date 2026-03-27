@@ -3,8 +3,8 @@
  * Using next-intl with App Router
  */
 
-import { getRequestConfig } from "next-intl/server";
-import { locales, defaultLocale, messages, type Locale } from "@sahool/i18n";
+import { getRequestConfig } from 'next-intl/server';
+import { locales, defaultLocale, messages, type Locale } from '@sahool/i18n';
 
 export default getRequestConfig(async ({ requestLocale }) => {
   // Await the requestLocale (new API in next-intl 3.22+)
@@ -18,7 +18,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   return {
     locale: validLocale,
     messages: messages[validLocale],
-    timeZone: "Asia/Aden",
+    timeZone: 'Asia/Aden',
     now: new Date(),
   };
 });

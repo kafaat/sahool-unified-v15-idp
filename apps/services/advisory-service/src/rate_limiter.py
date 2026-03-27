@@ -15,9 +15,10 @@ from __future__ import annotations
 import logging
 import time
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Callable
+from typing import Any
 
 from fastapi import HTTPException, Request, status
 
@@ -89,15 +90,33 @@ class AdvisoryRateLimiter:
         self._burst_tokens: dict[str, tuple[int, float]] = {}
 
     def _get_client_key(self, request: Request, tier: str) -> str:
-        """Get client identifier from request."""
-        tenant_id = request.headers.get("X-Tenant-ID", "default")
+        """Get client identifier from request.
+
+        SECURITY: Prefer tenant_id from verified JWT (request.state) over
+        untrusted X-Tenant-ID header to prevent rate limit evasion.
+        """
+        # Try verified JWT context first (set by auth middleware)
+        tenant_id = "default"
+        if hasattr(request.state, "tenant_id") and request.state.tenant_id:
+            tenant_id = request.state.tenant_id
+        elif (
+            hasattr(request.state, "user") and hasattr(request.state.user, "tenant_id") and request.state.user.tenant_id
+        ):
+            tenant_id = request.state.user.tenant_id
+        else:
+            # Fallback to header only for unauthenticated routes;
+            # rate limit by IP will still apply
+            tenant_id = request.headers.get("X-Tenant-ID", "default")
         client_ip = request.client.host if request.client else "unknown"
         return f"{tier}:{tenant_id}:{client_ip}"
 
     def _is_internal_request(self, request: Request) -> bool:
-        """Check if request is from an internal service."""
-        internal_header = request.headers.get("X-Internal-Service")
-        return internal_header is not None
+        """Check if request is from an internal service.
+
+        SECURITY: Uses request.state.is_service_request set by
+        ServiceAuthMiddleware (validated service token), not raw headers.
+        """
+        return getattr(request.state, "is_service_request", False)
 
     def _clean_window(self, window: list[float], max_age: float) -> list[float]:
         """Remove entries older than max_age seconds."""

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Map,
   Layers,
@@ -11,10 +11,10 @@ import {
   Droplets,
   Wheat,
   Settings,
-} from "lucide-react";
+} from 'lucide-react';
 
-type VRAType = "fertilizer" | "seeding" | "irrigation" | "pesticide";
-type VRAStatus = "draft" | "ready" | "applied" | "archived";
+type VRAType = 'fertilizer' | 'seeding' | 'irrigation' | 'pesticide';
+type VRAStatus = 'draft' | 'ready' | 'applied' | 'archived';
 
 interface VRAMap {
   id: string;
@@ -35,97 +35,120 @@ interface VRAMap {
 
 const mockVRAMaps: VRAMap[] = [
   {
-    id: "1",
-    name: "Nitrogen VRA - North Field",
-    nameAr: "خريطة نيتروجين - الحقل الشمالي",
-    fieldId: "field-1",
-    fieldName: "الحقل الشمالي",
-    type: "fertilizer",
-    status: "ready",
+    id: '1',
+    name: 'Nitrogen VRA - North Field',
+    nameAr: 'خريطة نيتروجين - الحقل الشمالي',
+    fieldId: 'field-1',
+    fieldName: 'الحقل الشمالي',
+    type: 'fertilizer',
+    status: 'ready',
     zones: 5,
     totalArea: 25.5,
-    createdAt: "2025-01-20T10:00:00Z",
+    createdAt: '2025-01-20T10:00:00Z',
     minRate: 80,
     maxRate: 150,
-    unit: "كجم/هكتار",
+    unit: 'كجم/هكتار',
   },
   {
-    id: "2",
-    name: "Seeding Rate - South Field",
-    nameAr: "معدل البذر - الحقل الجنوبي",
-    fieldId: "field-2",
-    fieldName: "الحقل الجنوبي",
-    type: "seeding",
-    status: "applied",
+    id: '2',
+    name: 'Seeding Rate - South Field',
+    nameAr: 'معدل البذر - الحقل الجنوبي',
+    fieldId: 'field-2',
+    fieldName: 'الحقل الجنوبي',
+    type: 'seeding',
+    status: 'applied',
     zones: 4,
     totalArea: 18.2,
-    createdAt: "2024-11-15T08:00:00Z",
-    appliedAt: "2024-11-20T06:00:00Z",
+    createdAt: '2024-11-15T08:00:00Z',
+    appliedAt: '2024-11-20T06:00:00Z',
     minRate: 120,
     maxRate: 180,
-    unit: "كجم/هكتار",
+    unit: 'كجم/هكتار',
   },
   {
-    id: "3",
-    name: "Irrigation Zones - Wheat Field",
-    nameAr: "مناطق الري - حقل القمح",
-    fieldId: "field-3",
-    fieldName: "حقل القمح",
-    type: "irrigation",
-    status: "ready",
+    id: '3',
+    name: 'Irrigation Zones - Wheat Field',
+    nameAr: 'مناطق الري - حقل القمح',
+    fieldId: 'field-3',
+    fieldName: 'حقل القمح',
+    type: 'irrigation',
+    status: 'ready',
     zones: 6,
     totalArea: 32.0,
-    createdAt: "2025-01-18T14:00:00Z",
+    createdAt: '2025-01-18T14:00:00Z',
     minRate: 15,
     maxRate: 35,
-    unit: "مم",
+    unit: 'مم',
   },
   {
-    id: "4",
-    name: "Phosphorus Application - Palm Grove",
-    nameAr: "تطبيق الفوسفور - بستان النخيل",
-    fieldId: "field-4",
-    fieldName: "بستان النخيل",
-    type: "fertilizer",
-    status: "draft",
+    id: '4',
+    name: 'Phosphorus Application - Palm Grove',
+    nameAr: 'تطبيق الفوسفور - بستان النخيل',
+    fieldId: 'field-4',
+    fieldName: 'بستان النخيل',
+    type: 'fertilizer',
+    status: 'draft',
     zones: 3,
     totalArea: 12.5,
-    createdAt: "2025-01-24T09:00:00Z",
+    createdAt: '2025-01-24T09:00:00Z',
     minRate: 40,
     maxRate: 80,
-    unit: "كجم/هكتار",
+    unit: 'كجم/هكتار',
   },
 ];
 
-const vraTypes: Record<VRAType, { icon: React.ReactNode; label: string; labelAr: string; color: string }> = {
-  fertilizer: { icon: <Wheat className="w-5 h-5" />, label: "Fertilizer", labelAr: "سماد", color: "bg-green-100 text-green-800" },
-  seeding: { icon: <Target className="w-5 h-5" />, label: "Seeding", labelAr: "بذر", color: "bg-amber-100 text-amber-800" },
-  irrigation: { icon: <Droplets className="w-5 h-5" />, label: "Irrigation", labelAr: "ري", color: "bg-blue-100 text-blue-800" },
-  pesticide: { icon: <Settings className="w-5 h-5" />, label: "Pesticide", labelAr: "مبيد", color: "bg-red-100 text-red-800" },
+const vraTypes: Record<
+  VRAType,
+  { icon: React.ReactNode; label: string; labelAr: string; color: string }
+> = {
+  fertilizer: {
+    icon: <Wheat className="w-5 h-5" />,
+    label: 'Fertilizer',
+    labelAr: 'سماد',
+    color: 'bg-green-100 text-green-800',
+  },
+  seeding: {
+    icon: <Target className="w-5 h-5" />,
+    label: 'Seeding',
+    labelAr: 'بذر',
+    color: 'bg-amber-100 text-amber-800',
+  },
+  irrigation: {
+    icon: <Droplets className="w-5 h-5" />,
+    label: 'Irrigation',
+    labelAr: 'ري',
+    color: 'bg-blue-100 text-blue-800',
+  },
+  pesticide: {
+    icon: <Settings className="w-5 h-5" />,
+    label: 'Pesticide',
+    labelAr: 'مبيد',
+    color: 'bg-red-100 text-red-800',
+  },
 };
 
 export default function VRAClient() {
-  const [typeFilter, setTypeFilter] = useState<VRAType | "all">("all");
-  const [statusFilter, setStatusFilter] = useState<VRAStatus | "all">("all");
+  const [typeFilter, setTypeFilter] = useState<VRAType | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<VRAStatus | 'all'>('all');
 
   const filteredMaps = mockVRAMaps.filter((map) => {
-    const matchesType = typeFilter === "all" || map.type === typeFilter;
-    const matchesStatus = statusFilter === "all" || map.status === statusFilter;
+    const matchesType = typeFilter === 'all' || map.type === typeFilter;
+    const matchesStatus = statusFilter === 'all' || map.status === statusFilter;
     return matchesType && matchesStatus;
   });
 
   const getStatusBadge = (status: VRAStatus) => {
     const styles = {
-      draft: "bg-gray-100 text-gray-800",
-      ready: "bg-blue-100 text-blue-800",
-      applied: "bg-green-100 text-green-800",
-      archived: "bg-yellow-100 text-yellow-800",
+      draft: 'bg-gray-100 text-gray-800',
+      ready: 'bg-blue-100 text-blue-800',
+      applied: 'bg-green-100 text-green-800',
+      archived: 'bg-yellow-100 text-yellow-800',
     };
     const labels = {
-      draft: "مسودة",
-      ready: "جاهز",
-      applied: "مُطبق",
-      archived: "مؤرشف",
+      draft: 'مسودة',
+      ready: 'جاهز',
+      applied: 'مُطبق',
+      archived: 'مؤرشف',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -134,8 +157,8 @@ export default function VRAClient() {
     );
   };
 
-  const readyCount = mockVRAMaps.filter((m) => m.status === "ready").length;
-  const appliedCount = mockVRAMaps.filter((m) => m.status === "applied").length;
+  const readyCount = mockVRAMaps.filter((m) => m.status === 'ready').length;
+  const appliedCount = mockVRAMaps.filter((m) => m.status === 'applied').length;
 
   return (
     <div className="space-y-6">
@@ -211,7 +234,7 @@ export default function VRAClient() {
       <div className="flex flex-col sm:flex-row gap-4">
         <select
           value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as VRAType | "all")}
+          onChange={(e) => setTypeFilter(e.target.value as VRAType | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           <option value="all">جميع الأنواع</option>
@@ -222,7 +245,7 @@ export default function VRAClient() {
         </select>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as VRAStatus | "all")}
+          onChange={(e) => setStatusFilter(e.target.value as VRAStatus | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           <option value="all">جميع الحالات</option>
@@ -236,7 +259,10 @@ export default function VRAClient() {
       {/* VRA Map Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredMaps.map((map) => (
-          <div key={map.id} className="bg-white rounded-lg border overflow-hidden hover:shadow-md transition-shadow">
+          <div
+            key={map.id}
+            className="bg-white rounded-lg border overflow-hidden hover:shadow-md transition-shadow"
+          >
             {/* Map Preview Placeholder */}
             <div className="h-40 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
               <div className="text-center">
@@ -252,7 +278,9 @@ export default function VRAClient() {
                   <p className="text-sm text-gray-500">{map.fieldName}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${vraTypes[map.type].color}`}>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${vraTypes[map.type].color}`}
+                  >
                     {vraTypes[map.type].labelAr}
                   </span>
                   {getStatusBadge(map.status)}
@@ -278,7 +306,7 @@ export default function VRAClient() {
 
               <div className="flex items-center justify-between pt-3 border-t">
                 <span className="text-xs text-gray-400">
-                  {new Date(map.createdAt).toLocaleDateString("ar-SA")}
+                  {new Date(map.createdAt).toLocaleDateString('ar-SA')}
                 </span>
                 <div className="flex gap-2">
                   <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">

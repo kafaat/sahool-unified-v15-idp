@@ -246,7 +246,7 @@ void showSecurityWarningSnackbar({
   final snackBar = SnackBar(
     content: Row(
       children: [
-        Icon(
+        const Icon(
           Icons.warning_rounded,
           color: Colors.white,
         ),

@@ -16,40 +16,40 @@ Tests cover:
 
 import json
 import math
-import pytest
 from datetime import UTC, datetime, timedelta
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from shared.soil_sensors.models import (
-    SensorType,
-    SensorProtocol,
-    SensorStatus,
-    AlertSeverity,
-    SensorReading,
-    SoilSensor,
-    SensorCalibration,
-    SensorAlert,
-    FieldMoistureMap,
-    SensorAggregation,
-)
+import pytest
+
 from shared.soil_sensors.adapters import (
     AdapterConfig,
-    SensorAdapter,
-    MQTTAdapter,
-    LoRaWANAdapter,
     HTTPAdapter,
+    LoRaWANAdapter,
+    MQTTAdapter,
     NBIoTAdapter,
-    get_adapter,
+    SensorAdapter,
     SensorManager,
+    get_adapter,
+)
+from shared.soil_sensors.models import (
+    AlertSeverity,
+    FieldMoistureMap,
+    SensorAggregation,
+    SensorAlert,
+    SensorCalibration,
+    SensorProtocol,
+    SensorReading,
+    SensorStatus,
+    SensorType,
+    SoilSensor,
 )
 from shared.soil_sensors.processor import (
     SensorDataProcessor,
     aggregate_readings,
     detect_anomalies,
-    interpolate_field_moisture,
     generate_moisture_alert,
+    interpolate_field_moisture,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -2293,14 +2293,15 @@ class TestErrorHandling:
 
     @pytest.mark.unit
     def test_processor_handles_none_sensor(self, sample_reading):
-        """Test processor handles reading from unregistered sensor"""
+        """Test processor rejects reading from unregistered sensor (tenant isolation)"""
         processor = SensorDataProcessor("field_456", "tenant_123")
         # Don't register any sensor
 
         alerts = processor.add_reading(sample_reading)
 
-        # Should still store reading (no threshold alerts possible)
-        assert sample_reading.sensor_id in processor._readings
+        # SECURITY: Readings from unregistered sensors are rejected for tenant isolation
+        assert sample_reading.sensor_id not in processor._readings
+        assert len(alerts) == 0
 
     @pytest.mark.unit
     def test_aggregation_handles_empty_periods(self, sample_sensor):

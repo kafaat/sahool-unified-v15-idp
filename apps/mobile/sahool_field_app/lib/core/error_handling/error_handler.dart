@@ -6,6 +6,7 @@
 /// - Error recovery mechanisms
 /// - User-facing error display helpers
 /// - Error reporting integration
+library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -135,7 +136,7 @@ class ErrorHandler {
         );
 
         // Wait before retrying (exponential backoff)
-        await Future.delayed(delay);
+        await Future<void>.delayed(delay);
         delay = Duration(
             milliseconds:
                 (delay.inMilliseconds * 2).clamp(0, maxDelay.inMilliseconds));

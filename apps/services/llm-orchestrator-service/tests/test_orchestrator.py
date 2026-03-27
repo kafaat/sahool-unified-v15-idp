@@ -11,14 +11,17 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
-from src.agents.registry import AgentCapability, AgentCategory, AgentRegistry
-from src.api.schemas import IntentType, UserIntent
-from src.utils.intent_classifier import (
-    IntentClassifier,
-    calculate_intent_score,
-    detect_language,
-    extract_entities,
-)
+try:
+    from src.agents.registry import AgentCapability, AgentCategory, AgentRegistry
+    from src.api.schemas import IntentType, UserIntent
+    from src.utils.intent_classifier import (
+        IntentClassifier,
+        calculate_intent_score,
+        detect_language,
+        extract_entities,
+    )
+except ImportError:
+    pytest.skip("llm-orchestrator-service dependencies not installed", allow_module_level=True)
 
 
 class TestHealthEndpoints:

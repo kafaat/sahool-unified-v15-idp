@@ -27,6 +27,7 @@ jobs:
   bandit-python-sast:
     name: Bandit Python SAST
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -111,6 +112,7 @@ jobs:
   semgrep-scan:
     name: Semgrep Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     container:
       image: semgrep/semgrep
     steps:
@@ -150,6 +152,7 @@ jobs:
   safety-check:
     name: Python Dependency Safety Check
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

@@ -3,19 +3,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'l10n.dart';
+import 'l10n.dart' hide AppLocalizations;
 
 // ============================================================================
 // EXAMPLE 1: Basic Text Localization
 // ============================================================================
 
 class BasicLocalizationExample extends StatelessWidget {
-  const BasicLocalizationExample({Key? key}) : super(key: key);
+  const BasicLocalizationExample({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Get localization instance
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -38,11 +38,11 @@ class BasicLocalizationExample extends StatelessWidget {
 // ============================================================================
 
 class LocalizedNavigationMenu extends StatelessWidget {
-  const LocalizedNavigationMenu({Key? key}) : super(key: key);
+  const LocalizedNavigationMenu({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Drawer(
       child: ListView(
@@ -115,11 +115,11 @@ class LocalizedNavigationMenu extends StatelessWidget {
 // ============================================================================
 
 class RTLAwareLayout extends StatelessWidget {
-  const RTLAwareLayout({Key? key}) : super(key: key);
+  const RTLAwareLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final layout = LocalizedLayout(context);
 
     return Container(
@@ -142,7 +142,7 @@ class RTLAwareLayout extends StatelessWidget {
           // Row with directional icon
           Row(
             children: [
-              DirectionalIcon(
+              const DirectionalIcon(
                 Icons.arrow_forward, // Flips in RTL
                 color: Colors.blue,
               ),
@@ -161,11 +161,11 @@ class RTLAwareLayout extends StatelessWidget {
 // ============================================================================
 
 class NumberFormattingExample extends StatelessWidget {
-  const NumberFormattingExample({Key? key}) : super(key: key);
+  const NumberFormattingExample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final numberFormat = LocalizedNumberFormat(Localizations.localeOf(context));
 
     return Column(
@@ -200,7 +200,7 @@ class NumberFormattingExample extends StatelessWidget {
 // ============================================================================
 
 class LanguageSwitcher extends StatefulWidget {
-  const LanguageSwitcher({Key? key}) : super(key: key);
+  const LanguageSwitcher({super.key});
 
   @override
   State<LanguageSwitcher> createState() => _LanguageSwitcherState();
@@ -217,7 +217,7 @@ class _LanguageSwitcherState extends State<LanguageSwitcher> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return PopupMenuButton<Locale>(
       icon: const Icon(Icons.language),
@@ -262,7 +262,7 @@ class _LanguageSwitcherState extends State<LanguageSwitcher> {
 // ============================================================================
 
 class LocalizedForm extends StatefulWidget {
-  const LocalizedForm({Key? key}) : super(key: key);
+  const LocalizedForm({super.key});
 
   @override
   State<LocalizedForm> createState() => _LocalizedFormState();
@@ -275,7 +275,7 @@ class _LocalizedFormState extends State<LocalizedForm> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Form(
       key: _formKey,
@@ -343,9 +343,9 @@ class _LocalizedFormState extends State<LocalizedForm> {
 // ============================================================================
 
 void showLocalizedDialog(BuildContext context) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
 
-  showDialog(
+  showDialog<void>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
@@ -398,16 +398,16 @@ class WeatherWidget extends StatelessWidget {
   final String condition;
 
   const WeatherWidget({
-    Key? key,
+    super.key,
     required this.temperature,
     required this.humidity,
     required this.windSpeed,
     required this.condition,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final numberFormat = LocalizedNumberFormat(Localizations.localeOf(context));
 
     return Card(
@@ -475,11 +475,11 @@ class WeatherWidget extends StatelessWidget {
 // ============================================================================
 
 class YemenCropsList extends StatelessWidget {
-  const YemenCropsList({Key? key}) : super(key: key);
+  const YemenCropsList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final crops = [
       l10n.wheat,
@@ -520,10 +520,10 @@ class YemenCropsList extends StatelessWidget {
 // ============================================================================
 
 class ErrorHandlingExample extends StatelessWidget {
-  const ErrorHandlingExample({Key? key}) : super(key: key);
+  const ErrorHandlingExample({super.key});
 
   void handleError(BuildContext context, Exception error) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     String message;
 
     if (error is NetworkException) {

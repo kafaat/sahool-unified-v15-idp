@@ -53,6 +53,7 @@ import {
   Bot,
   HelpCircle,
   Bug,
+  Radar,
 } from 'lucide-react';
 
 interface NavItem {
@@ -105,6 +106,7 @@ const navGroups: NavGroup[] = [
       { labelKey: 'diseases', href: '/diseases', icon: Bug },
       { labelKey: 'weather', href: '/weather', icon: CloudSun },
       { labelKey: 'satellite', href: '/satellite', icon: Satellite },
+      { labelKey: 'farmonaut', href: '/farmonaut', icon: Radar },
       { labelKey: 'yield', href: '/yield', icon: BarChart3 },
       { labelKey: 'precisionAgriculture', href: '/precision-agriculture/gdd', icon: Crosshair },
     ],

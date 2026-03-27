@@ -270,10 +270,20 @@ class EventPublisher:
         self._buffered_count = 0
         self._buffer_overflow_count = 0
 
+        # DLQ buffer for events rejected due to missing tenant_id
+        self._rejected_events: list[dict] = []
+        self._rejected_events_max: int = 100
+        self._rejected_count: int = 0
+
     @property
     def is_connected(self) -> bool:
         """Check if connected to NATS."""
         return self._connected and self._nc is not None
+
+    @property
+    def rejected_events(self) -> list[dict]:
+        """Return a copy of the rejected-events DLQ buffer (missing tenant_id)."""
+        return list(self._rejected_events)
 
     @property
     def stats(self) -> dict[str, Any]:
@@ -285,6 +295,8 @@ class EventPublisher:
             "buffered_count": self._buffered_count,
             "pending_buffer_size": len(self._pending_buffer),
             "buffer_overflow_count": self._buffer_overflow_count,
+            "rejected_count": self._rejected_count,
+            "rejected_buffer_size": len(self._rejected_events),
             "service_name": self.service_name,
             "service_version": self.service_version,
         }
@@ -389,11 +401,7 @@ class EventPublisher:
         Returns:
             True if published successfully, False otherwise
         """
-        if not self.is_connected:
-            # Buffer the message for retry when reconnected instead of dropping
-            return self._buffer_message(subject, event, timeout, use_jetstream)
-
-        # ── Metadata enrichment ──────────────────────────────────────────
+        # ── Metadata enrichment (must happen before buffering) ────────────
         if not event.source_service:
             event.source_service = self.service_name
 
@@ -410,6 +418,7 @@ class EventPublisher:
                 event.tenant_id = ctx_tenant
 
         # Reject if tenant_id is still missing (critical for multi-tenant isolation)
+        # This guard runs BEFORE buffering so cross-tenant events are never queued.
         if not event.tenant_id:
             logger.error(
                 "event_rejected_missing_tenant_id: subject=%s event_id=%s service=%s",
@@ -417,8 +426,12 @@ class EventPublisher:
                 event.event_id,
                 event.source_service,
             )
-            self._stats["errors"] = self._stats.get("errors", 0) + 1
+            self._error_count += 1
             return False
+
+        if not self.is_connected:
+            # Buffer the message for retry when reconnected instead of dropping
+            return self._buffer_message(subject, event, timeout, use_jetstream)
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)
         if not event.trace_id:
@@ -511,12 +524,25 @@ class EventPublisher:
         Returns:
             True if published successfully
         """
+        # Normalize camelCase tenantId → tenant_id
+        if isinstance(data, dict) and "tenantId" in data and "tenant_id" not in data:
+            data["tenant_id"] = data["tenantId"]
+
+        # Enforce tenant_id — reject and record in DLQ if missing
+        if isinstance(data, dict) and not data.get("tenant_id"):
+            logger.error("publish_json rejected missing tenant_id: subject=%s service=%s", subject, self.service_name)
+            self._error_count += 1
+            self._rejected_count += 1
+            self._rejected_events.append(
+                {"subject": subject, "reason": "missing_tenant_id", "service": self.service_name}
+            )
+            if len(self._rejected_events) > self._rejected_events_max:
+                self._rejected_events = self._rejected_events[-self._rejected_events_max :]
+            return False
+
         if not self.is_connected:
             logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
             return False
-
-        if isinstance(data, dict) and not data.get("tenant_id"):
-            logger.warning("publish_json called without tenant_id: subject=%s", subject)
 
         try:
             payload = json.dumps(data, default=str).encode("utf-8")

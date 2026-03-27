@@ -1,7 +1,7 @@
 ---
 title: "Date Palm & Sesame Q&A: Yemen & Southern Saudi Arabia"
 title_ar: "أسئلة وأجوبة النخيل والسمسم: اليمن وجنوب السعودية"
-description: Q&A guide for date palm and sesame cultivation in Hadhramaut, Najran, and Tihama
+description: Comprehensive Q&A guide for date palm and sesame cultivation in Hadhramaut, Najran, and Tihama
 category: crops
 tags:
   - date_palm
@@ -15,7 +15,7 @@ tags:
 regions:
   - yemen
   - saudi_arabia
-version: "1.0.0"
+version: "1.1.0"
 last_updated: "2026-03-27"
 ---
 
@@ -759,6 +759,7 @@ Najran farmers practice traditional flood-basin irrigation supplemented by moder
 | **الخسارة الاقتصادية لكل حدث** | فقدان محصول موسم واحد | فقدان شجرة كاملة (قيمتها 5,000-15,000 ريال) |
 | **جدول إعادة الزراعة** | الموسم التالي | 4-5 سنوات حتى أول إثمار |
 
+I now have comprehensive data from the codebase. Let me compose the Q&A content.
 
 ### Q1: What are the main date palm varieties grown in Yemen, particularly in Hadhramaut?
 **EN:** Hadhramaut is Yemen's premier date-growing region with over 40 documented local varieties. The valley's unique microclimate -- hot days, cool nights, and low humidity -- produces dates of exceptional quality. Key varieties include:

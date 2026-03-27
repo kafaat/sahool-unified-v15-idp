@@ -36,7 +36,7 @@ import {
   useSatelliteMonitorDirectionGrid,
 } from '@/features/farmonaut';
 import { MAP_LAYERS, HYBRID_COLORS } from '@/features/farmonaut/api';
-import type { SatelliteField, MapLayerType, CropHealthStatus, TimePeriod } from '@/features/farmonaut';
+import type { SatelliteField, SatelliteAlert, MapLayerType, CropHealthStatus, TimePeriod } from '@/features/farmonaut';
 
 // ---------------------------------------------------------------------------
 // Health status helpers
@@ -94,14 +94,14 @@ export default function SatelliteMonitorClient() {
 
   const activeLayer = MAP_LAYERS.find((l) => l.type === selectedLayer) ?? MAP_LAYERS[0]!;
 
-  const unresolvedAlerts = useMemo(() => alerts.filter((a) => !a.isResolved), [alerts]);
+  const unresolvedAlerts = useMemo(() => alerts.filter((a: SatelliteAlert) => !a.isResolved), [alerts]);
 
   // Search-filtered fields
   const filteredFields = useMemo(() => {
     if (!searchQuery.trim()) return fields;
     const q = searchQuery.toLowerCase();
     return fields.filter(
-      (f) =>
+      (f: SatelliteField) =>
         f.name.toLowerCase().includes(q) ||
         f.nameAr.includes(q) ||
         f.cropType.toLowerCase().includes(q) ||
@@ -111,8 +111,8 @@ export default function SatelliteMonitorClient() {
 
   // Health distribution for summary
   const healthDistribution = useMemo(() => {
-    const dist = { healthy: 0, moderate: 0, stressed: 0, critical: 0 };
-    fields.forEach((f) => { dist[f.healthStatus]++; });
+    const dist: Record<string, number> = { healthy: 0, moderate: 0, stressed: 0, critical: 0 };
+    fields.forEach((f: SatelliteField) => { dist[f.healthStatus]++; });
     return dist;
   }, [fields]);
 

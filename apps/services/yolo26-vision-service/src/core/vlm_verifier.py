@@ -346,6 +346,8 @@ class VLMVerifier:
         if isinstance(image, bytes):
             img = Image.open(io.BytesIO(image)).convert("RGB")
         else:
+            # Convert non-RGB modes (e.g. RGBA, P) to RGB so that
+            # crop.save(..., format="JPEG") does not raise OSError.
             img = image.convert("RGB") if image.mode != "RGB" else image
         x1, y1, x2, y2 = (int(v) for v in bbox)
 

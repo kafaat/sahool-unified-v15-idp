@@ -207,7 +207,7 @@ async def _run_vlm_pass(
     image_bytes: bytes,
     detections: list,
     detection_class: type,
-) -> tuple[list, dict[str, int]]:
+) -> tuple[list, dict[str, int] | None]:
     """
     Run VLM secondary verification on a list of YOLO detections.
 
@@ -223,7 +223,10 @@ async def _run_vlm_pass(
             with the VLM result attached (e.g. ``PestDetection``).
 
     Returns:
-        Tuple of (filtered detections with VLM results, vlm_stats dict).
+        Tuple of (filtered detections with VLM results, vlm_stats).
+        ``vlm_stats`` is ``None`` when VLM is not configured (provider is
+        ``disabled``), so callers can distinguish "VLM ran but dismissed
+        everything" from "VLM was never invoked".
     """
     verifier = build_vlm_verifier_from_settings(settings)
     if not verifier.is_enabled:

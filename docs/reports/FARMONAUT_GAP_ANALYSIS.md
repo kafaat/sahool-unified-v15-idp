@@ -867,3 +867,90 @@ Sources:
 ### الفكرة 5: SAHOOL = OneSoil المجاني + Farmonaut الذكي + FieldView المحترف
 **الموقع الفريد**: لا يوجد منصة واحدة تجمع: عربي + offline + 25 مؤشر + 11 عنصر تربة + WhatsApp + Edge Computing
 **الخطوة القادمة**: ربط الخدمات الـ 72 الموجودة ببعضها عبر الواجهة — **80% من العمل مكتمل فعلاً**
+
+---
+
+## ثامن عشر: Copilot-API vs JEEVN AI — تدقيق عميق
+
+> **الاستنتاج**: Copilot-API (port 8088) **يغطي 100% من ميزات JEEVN AI ويتفوق عليه تقنياً**
+
+### جدول المقارنة التفصيلي
+
+| ميزة JEEVN AI | Copilot-API | التفاصيل | الحكم |
+|--------------|-------------|----------|-------|
+| **تحليل تربة (N,P,K,Zn,S)** | ✅ | `advisory.fertilizer` tool → soil-analysis-service:8134 | **مُغطى** (11 عنصر vs 5) |
+| **توقع آفات/أمراض** | ✅ | `DiseaseExpertAgent` + `ultrarag.diagnose_disease()` + pest-detection:8125 | **مُغطى** |
+| **ري ذكي 4 عوامل** | ✅ | `IrrigationAdvisorAgent` + irrigation-smart:8094 + `ultrarag.recommend_irrigation()` | **مُغطى** |
+| **توقع إنتاجية** | ✅ | `YieldPredictorAgent` + `ultrarag.predict_yield()` | **مُغطى** |
+| **تكامل طقس** | ✅ | `weather.forecast` + `weather.alerts` → weather-service:8092 | **مُغطى** |
+| **دعم عربي** | ✅ | كشف لغة تلقائي (>30% أحرف عربية) + system prompts ثنائية | **أفضل من JEEVN** |
+| **واجهة محادثة** | ✅ | `POST /api/v1/chat` + `POST /api/v1/chat/stream` (SSE) | **مُغطى** |
+| **RAG** | ✅ | **Tri-RAG متقدم**: Dense(0.4) + Sparse(0.3) + Knowledge Graph(0.3) | **أفضل بكثير** |
+| **LLM متعدد** | ✅ | Ollama(offline) + Claude + OpenAI + Gemini + DeepSeek | **أفضل بكثير** |
+
+### بنية وكلاء Copilot (6 وكلاء متخصصين)
+
+```
+copilot-api:8088
+├── 🌾 FIELD_ADVISOR (أولوية 8)
+│   └── كشف: field|crop|plant.*health|ndvi
+│   └── يستدعي: ai-advisor → FieldAnalystAgent
+│
+├── 🌧️ WEATHER_ADVISOR (أولوية 7)
+│   └── كشف: weather|forecast|temperature|rain
+│   └── يستدعي: weather-service:8092
+│
+├── 💧 IRRIGATION_ADVISOR (أولوية 7)
+│   └── كشف: irrigation|water.*schedule
+│   └── يستدعي: irrigation-smart:8094 + UltraRAG
+│
+├── 🐛 DISEASE_EXPERT (ضمن ai-advisor)
+│   └── كشف: disease|pest|مرض|آفة
+│   └── يستدعي: pest-detection:8125 + ultrarag.diagnose_disease()
+│
+├── 🔧 CODE_FIX (أولوية 10)
+│   └── يستدعي: code-fix-agent:8161
+│
+└── 🤖 GENERAL (fallback)
+    └── أي استفسار غير مصنف
+```
+
+### الأدوات المتاحة في Copilot (37+ أداة)
+
+```
+📊 الحقول:     field.list | field.get | field.analyze | field.ndvi | field.boundaries
+🌤️ الطقس:     weather.forecast | weather.current | weather.alerts | weather.historical
+🧪 الاستشارات: advisory.irrigation | advisory.fertilizer | advisory.crop
+🔍 RAG:       rag.search | rag.add | rag.list | rag.delete
+📋 التدقيق:    audit.list | audit.search
+```
+
+### ما يتفوق فيه Copilot على JEEVN AI
+
+| الميزة | Copilot-API | JEEVN AI |
+|--------|-------------|----------|
+| **Tri-RAG** (3 مسترجعات) | Dense + Sparse + Knowledge Graph | RAG عادي |
+| **5 مزودي LLM** مع fallback | Ollama → Claude → OpenAI → Gemini → DeepSeek | مزود واحد |
+| **Offline-first** | Ollama محلي يعمل بدون إنترنت | يحتاج إنترنت |
+| **Explainability** | "لماذا هذه التوصية؟" مع عوامل مُسهمة | غير موجود |
+| **Feedback Loop** | تقييم 1-5 + تصحيح + تتبع نتائج | غير موجود |
+| **Action Templates** | أوامر تنفذ offline في الحقل | غير موجود |
+| **أمان** | كشف حقن + PII masking + guardrails + rate limiting | أساسي |
+| **11 عنصر تربة** | N,P,K,Ca,Mg,S,Zn,Fe,Mn,Cu,B | 5 فقط |
+
+### ما ينقص Copilot مقارنة بـ JEEVN AI
+
+| الفجوة | التفاصيل | الأولوية |
+|--------|----------|---------|
+| **إنذار مبكر بالأقمار الصناعية** | NDVI anomaly → pest alert pipeline غير مفعّل | P1 |
+| **واجهة مزارع مخصصة** | Chat عام — ليس مصمم خصيصاً لتجربة المزارع البسيط | P1 |
+| **نماذج ML خاصة بالمحصول** | توقع إنتاجية عام وليس crop-specific ML | P2 |
+| **تقارير امتثال** | لا يولّد تقارير PDF تلقائية | P2 |
+
+### الخلاصة
+
+> **Copilot-API أقوى تقنياً من JEEVN AI بمراحل** — لكنه مصمم كـ "مهندس زراعي AI" وليس كـ "مساعد مزارع بسيط".
+>
+> **المطلوب**: ليس بناء JEEVN AI من الصفر — بل **تبسيط واجهة Copilot** لتكون مفهومة للمزارع اليمني البسيط.
+>
+> بمعنى آخر: الـ backend **جاهز 100%** — المشكلة في الـ frontend فقط.

@@ -1,6 +1,6 @@
 /**
  * Satellite Monitoring - React Hooks
- * خطافات React لمراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
+ * خطافات React لمراقبة الأقمار الصناعية
  */
 
 'use client';
@@ -10,7 +10,7 @@ import { satelliteMonitorApi } from '../api';
 import type { FarmonautFilters, TimePeriod, ReportFormat, MapLayerType, FieldSetupData } from '../types';
 
 export const satelliteMonitorKeys = {
-  all: ['farmonaut'] as const,
+  all: ['satellite-monitor'] as const,
   fields: () => [...satelliteMonitorKeys.all, 'fields'] as const,
   fieldList: (filters?: FarmonautFilters) => [...satelliteMonitorKeys.fields(), filters] as const,
   fieldDetail: (id: string) => [...satelliteMonitorKeys.all, 'field', id] as const,
@@ -81,7 +81,7 @@ export function useSatelliteMonitorWeather(fieldId: string) {
   });
 }
 
-export function useFarmonautZones(fieldId: string) {
+export function useSatelliteMonitorZones(fieldId: string) {
   return useQuery({
     queryKey: satelliteMonitorKeys.zones(fieldId),
     queryFn: () => satelliteMonitorApi.getFieldZones(fieldId),

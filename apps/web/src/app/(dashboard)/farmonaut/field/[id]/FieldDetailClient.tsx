@@ -26,10 +26,10 @@ import {
   FileText,
 } from 'lucide-react';
 import {
-  useFarmonautField,
+  useSatelliteMonitorField,
   useSatelliteMonitorTimeSeries,
-  useFarmonautWeather,
-  useFarmonautZones,
+  useSatelliteMonitorWeather,
+  useSatelliteMonitorZones,
   useSatelliteMonitorDirectionGrid,
   useSatelliteMonitorSoilAnalysis,
   useSatelliteMonitorPestPredictions,
@@ -64,10 +64,10 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
   const [historicalStartDate, setHistoricalStartDate] = useState('2017-01-01');
   const [historicalEndDate, setHistoricalEndDate] = useState('2026-03-27');
 
-  const { data: field, isLoading } = useFarmonautField(fieldId);
+  const { data: field, isLoading } = useSatelliteMonitorField(fieldId);
   const { data: timeSeries = [] } = useSatelliteMonitorTimeSeries(fieldId, timeSeriesPeriod);
-  const { data: weather = [] } = useFarmonautWeather(fieldId);
-  const { data: zones = [] } = useFarmonautZones(fieldId);
+  const { data: weather = [] } = useSatelliteMonitorWeather(fieldId);
+  const { data: zones = [] } = useSatelliteMonitorZones(fieldId);
   const { data: directionGrid } = useSatelliteMonitorDirectionGrid(fieldId, 'ndvi');
   const { data: soilAnalysis } = useSatelliteMonitorSoilAnalysis(fieldId);
   const { data: pestPredictions = [] } = useSatelliteMonitorPestPredictions(fieldId);

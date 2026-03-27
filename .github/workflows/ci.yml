@@ -296,7 +296,7 @@ jobs:
         run: |
           pip install --upgrade pip wheel
           # Core test framework and dependencies
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout schemathesis --quiet
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout schemathesis allure-pytest --quiet
           pip install httpx pyjwt fastapi pydantic pydantic-settings jsonschema sqlalchemy structlog redis --quiet
           # ORM and optional deps (may fail on some platforms)
           pip install tortoise-orm --quiet || echo "::warning::tortoise-orm install failed, some tests may skip"

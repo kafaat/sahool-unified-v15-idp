@@ -27,6 +27,12 @@ import {
   ArrowDownRight,
   Minus,
   Eye,
+  Search,
+  RefreshCw,
+  Download,
+  Wifi,
+  WifiOff,
+  Bot,
 } from 'lucide-react';
 import {
   useFarmonautFields,
@@ -82,6 +88,7 @@ export default function FarmonautClient() {
   const [selectedLayer, setSelectedLayer] = useState<MapLayerType>('hybrid');
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [timeSeriesPeriod, setTimeSeriesPeriod] = useState<TimePeriod>('90d');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Data hooks
   const { data: fields = [], isLoading, error } = useFarmonautFields();
@@ -95,6 +102,26 @@ export default function FarmonautClient() {
   const activeLayer = MAP_LAYERS.find((l) => l.type === selectedLayer) ?? MAP_LAYERS[0];
 
   const unresolvedAlerts = useMemo(() => alerts.filter((a) => !a.isResolved), [alerts]);
+
+  // Search-filtered fields
+  const filteredFields = useMemo(() => {
+    if (!searchQuery.trim()) return fields;
+    const q = searchQuery.toLowerCase();
+    return fields.filter(
+      (f) =>
+        f.name.toLowerCase().includes(q) ||
+        f.nameAr.includes(q) ||
+        f.cropType.toLowerCase().includes(q) ||
+        f.cropTypeAr.includes(q)
+    );
+  }, [fields, searchQuery]);
+
+  // Health distribution for summary
+  const healthDistribution = useMemo(() => {
+    const dist = { healthy: 0, moderate: 0, stressed: 0, critical: 0 };
+    fields.forEach((f) => { dist[f.healthStatus]++; });
+    return dist;
+  }, [fields]);
 
   // Loading
   if (isLoading) {
@@ -199,6 +226,80 @@ export default function FarmonautClient() {
           value={`${stats?.totalArea?.toFixed(1) ?? '0'} هـ`}
           sub={`${stats?.totalFields ?? fields.length} حقول`}
         />
+      </div>
+
+      {/* ================================================================= */}
+      {/* B2. Health Distribution + JEEVN AI Quick Insights */}
+      {/* ================================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Health Distribution */}
+        <div className="bg-white rounded-lg border p-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">توزيع صحة الحقول | Health Distribution</h3>
+          <div className="flex gap-1 h-4 rounded-full overflow-hidden bg-gray-100">
+            {fields.length > 0 && (
+              <>
+                {healthDistribution.healthy > 0 && (
+                  <div className="bg-green-500 transition-all" style={{ width: `${(healthDistribution.healthy / fields.length) * 100}%` }} title={`صحي: ${healthDistribution.healthy}`} />
+                )}
+                {healthDistribution.moderate > 0 && (
+                  <div className="bg-yellow-500 transition-all" style={{ width: `${(healthDistribution.moderate / fields.length) * 100}%` }} title={`متوسط: ${healthDistribution.moderate}`} />
+                )}
+                {healthDistribution.stressed > 0 && (
+                  <div className="bg-orange-500 transition-all" style={{ width: `${(healthDistribution.stressed / fields.length) * 100}%` }} title={`مجهد: ${healthDistribution.stressed}`} />
+                )}
+                {healthDistribution.critical > 0 && (
+                  <div className="bg-red-500 transition-all" style={{ width: `${(healthDistribution.critical / fields.length) * 100}%` }} title={`حرج: ${healthDistribution.critical}`} />
+                )}
+              </>
+            )}
+          </div>
+          <div className="flex justify-between mt-2 text-xs">
+            <span className="text-green-600">صحي: {healthDistribution.healthy}</span>
+            <span className="text-yellow-600">متوسط: {healthDistribution.moderate}</span>
+            <span className="text-orange-600">مجهد: {healthDistribution.stressed}</span>
+            <span className="text-red-600">حرج: {healthDistribution.critical}</span>
+          </div>
+        </div>
+
+        {/* JEEVN AI Quick Insights */}
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Bot className="w-5 h-5 text-indigo-600" />
+            <h3 className="text-sm font-semibold text-indigo-900">JEEVN AI - رؤى سريعة</h3>
+          </div>
+          <div className="space-y-2 text-sm">
+            {healthDistribution.critical > 0 && (
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                <span className="text-gray-700">
+                  <strong className="text-red-600">{healthDistribution.critical} حقل حرج</strong> - يحتاج تدخل فوري (ري / تسميد)
+                </span>
+              </div>
+            )}
+            {unresolvedAlerts.filter((a) => a.type === 'water_stress').length > 0 && (
+              <div className="flex items-start gap-2">
+                <Droplets className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                <span className="text-gray-700">
+                  {unresolvedAlerts.filter((a) => a.type === 'water_stress').length} تنبيه إجهاد مائي - يُوصى بزيادة الري
+                </span>
+              </div>
+            )}
+            {unresolvedAlerts.filter((a) => a.type === 'pest' || a.type === 'disease').length > 0 && (
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5 shrink-0" />
+                <span className="text-gray-700">
+                  {unresolvedAlerts.filter((a) => a.type === 'pest' || a.type === 'disease').length} خطر آفات/أمراض - استكشف الحقول المتأثرة
+                </span>
+              </div>
+            )}
+            {healthDistribution.critical === 0 && unresolvedAlerts.length === 0 && (
+              <div className="flex items-start gap-2">
+                <TrendingUp className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                <span className="text-gray-700">جميع الحقول في حالة جيدة. استمر في المراقبة الدورية.</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ================================================================= */}
@@ -515,9 +616,21 @@ export default function FarmonautClient() {
       {/* E. Field List (All Farms) */}
       {/* ================================================================= */}
       <div className="bg-white rounded-lg border overflow-hidden">
-        <div className="p-4 border-b flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900">جميع المزارع</h2>
-          <span className="text-sm text-gray-500">{fields.length} حقول | {stats?.totalArea?.toFixed(1) ?? '0'} هكتار</span>
+        <div className="p-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 className="font-semibold text-gray-900">جميع المزارع | Show All Farms</h2>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="بحث عن حقل..."
+                className="pl-3 pr-9 py-1.5 border rounded-lg text-sm w-48 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              />
+            </div>
+            <span className="text-sm text-gray-500">{filteredFields.length} حقول | {stats?.totalArea?.toFixed(1) ?? '0'} هكتار</span>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -535,7 +648,7 @@ export default function FarmonautClient() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {fields.map((field) => {
+              {filteredFields.map((field) => {
                 const health = HEALTH_CONFIG[field.healthStatus];
                 return (
                   <tr

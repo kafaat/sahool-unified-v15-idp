@@ -304,3 +304,100 @@ export interface FarmonautFilters {
   sortBy?: 'name' | 'ndvi' | 'healthScore' | 'area' | 'lastUpdate';
   sortOrder?: 'asc' | 'desc';
 }
+
+// ---------------------------------------------------------------------------
+// Error Handling & API Response Types
+// ---------------------------------------------------------------------------
+
+export type FarmonautErrorCode =
+  | 'NETWORK_ERROR'
+  | 'AUTH_REQUIRED'
+  | 'FIELD_NOT_FOUND'
+  | 'SATELLITE_UNAVAILABLE'
+  | 'WEATHER_SERVICE_DOWN'
+  | 'AI_SERVICE_TIMEOUT'
+  | 'RATE_LIMITED'
+  | 'VALIDATION_ERROR'
+  | 'CLOUD_COVERAGE_HIGH'
+  | 'NO_SATELLITE_DATA'
+  | 'PROCESSING_IN_PROGRESS';
+
+export interface FarmonautError {
+  code: FarmonautErrorCode;
+  message: string;
+  messageAr: string;
+  retryable: boolean;
+  retryAfterMs?: number;
+}
+
+export const FARMONAUT_ERRORS: Record<FarmonautErrorCode, FarmonautError> = {
+  NETWORK_ERROR: { code: 'NETWORK_ERROR', message: 'Network error. Using cached data.', messageAr: 'خطأ في الاتصال. استخدام البيانات المخزنة.', retryable: true, retryAfterMs: 5000 },
+  AUTH_REQUIRED: { code: 'AUTH_REQUIRED', message: 'Authentication required.', messageAr: 'يلزم تسجيل الدخول.', retryable: false },
+  FIELD_NOT_FOUND: { code: 'FIELD_NOT_FOUND', message: 'Field not found.', messageAr: 'الحقل غير موجود.', retryable: false },
+  SATELLITE_UNAVAILABLE: { code: 'SATELLITE_UNAVAILABLE', message: 'Satellite data temporarily unavailable.', messageAr: 'بيانات الأقمار الصناعية غير متاحة مؤقتاً.', retryable: true, retryAfterMs: 30000 },
+  WEATHER_SERVICE_DOWN: { code: 'WEATHER_SERVICE_DOWN', message: 'Weather service is unavailable.', messageAr: 'خدمة الطقس غير متاحة.', retryable: true, retryAfterMs: 10000 },
+  AI_SERVICE_TIMEOUT: { code: 'AI_SERVICE_TIMEOUT', message: 'AI analysis timed out. Retrying...', messageAr: 'انتهت مهلة تحليل الذكاء الاصطناعي. جاري إعادة المحاولة...', retryable: true, retryAfterMs: 15000 },
+  RATE_LIMITED: { code: 'RATE_LIMITED', message: 'Too many requests. Please wait.', messageAr: 'طلبات كثيرة. يرجى الانتظار.', retryable: true, retryAfterMs: 60000 },
+  VALIDATION_ERROR: { code: 'VALIDATION_ERROR', message: 'Invalid input data.', messageAr: 'بيانات إدخال غير صالحة.', retryable: false },
+  CLOUD_COVERAGE_HIGH: { code: 'CLOUD_COVERAGE_HIGH', message: 'High cloud coverage. Using SAR radar data instead.', messageAr: 'غطاء سحابي كثيف. استخدام بيانات الرادار بدلاً.', retryable: false },
+  NO_SATELLITE_DATA: { code: 'NO_SATELLITE_DATA', message: 'No satellite data available for this date.', messageAr: 'لا توجد بيانات أقمار صناعية لهذا التاريخ.', retryable: false },
+  PROCESSING_IN_PROGRESS: { code: 'PROCESSING_IN_PROGRESS', message: 'Image processing in progress. Check back in 1-2 hours.', messageAr: 'جاري معالجة الصور. تحقق بعد 1-2 ساعة.', retryable: true, retryAfterMs: 3600000 },
+};
+
+// ---------------------------------------------------------------------------
+// Service Integration Mapping
+// ---------------------------------------------------------------------------
+
+/** Maps Farmonaut features to SAHOOL backend microservices */
+export interface ServiceEndpoint {
+  service: string;
+  serviceAr: string;
+  port: number;
+  basePath: string;
+  healthCheck: string;
+}
+
+export const FARMONAUT_SERVICE_MAP: Record<string, ServiceEndpoint> = {
+  satellite: { service: 'vegetation-analysis-service', serviceAr: 'خدمة تحليل الغطاء النباتي', port: 8090, basePath: '/api/v1/vegetation', healthCheck: '/healthz' },
+  weather: { service: 'weather-service', serviceAr: 'خدمة الطقس', port: 8092, basePath: '/api/v1/weather', healthCheck: '/healthz' },
+  advisory: { service: 'advisory-service', serviceAr: 'خدمة الاستشارات', port: 8093, basePath: '/api/v1/advisory', healthCheck: '/healthz' },
+  irrigation: { service: 'irrigation-smart', serviceAr: 'خدمة الري الذكي', port: 8094, basePath: '/api/v1/irrigation', healthCheck: '/healthz' },
+  soil: { service: 'soil-analysis-service', serviceAr: 'خدمة تحليل التربة', port: 8134, basePath: '/api/v1/soil', healthCheck: '/healthz' },
+  pests: { service: 'pest-detection-service', serviceAr: 'خدمة اكتشاف الآفات', port: 8125, basePath: '/api/v1/pest', healthCheck: '/healthz' },
+  alerts: { service: 'alert-service', serviceAr: 'خدمة التنبيهات', port: 8113, basePath: '/api/v1/alerts', healthCheck: '/healthz' },
+  yield: { service: 'yield-prediction-service', serviceAr: 'خدمة توقع الإنتاجية', port: 8152, basePath: '/api/v1/yield', healthCheck: '/healthz' },
+  terrain: { service: 'terrain-core-service', serviceAr: 'خدمة التضاريس', port: 8185, basePath: '/api/v1/terrain', healthCheck: '/healthz' },
+  vision: { service: 'yolo26-vision-service', serviceAr: 'خدمة الرؤية الحاسوبية', port: 8150, basePath: '/api/v1/vision', healthCheck: '/healthz' },
+  cropIntelligence: { service: 'crop-intelligence-service', serviceAr: 'خدمة ذكاء المحاصيل', port: 8095, basePath: '/api/v1/crop-intelligence', healthCheck: '/healthz' },
+};
+
+// ---------------------------------------------------------------------------
+// Data Source & Quality Tracking
+// ---------------------------------------------------------------------------
+
+export type DataSource = 'live' | 'cache' | 'mock' | 'sar_fallback';
+
+export interface DataMeta {
+  source: DataSource;
+  fetchedAt: string;
+  staleAfterMs: number;
+  serviceHealth: 'healthy' | 'degraded' | 'offline';
+}
+
+export interface WeatherHourly {
+  hour: string;
+  temp: number;
+  humidity: number;
+  windSpeed: number;
+  precipitation: number;
+  condition: WeatherCondition;
+}
+
+export interface WeatherForecastExtended extends WeatherForecast {
+  hourly?: WeatherHourly[];
+  uvIndex?: number;
+  dewPoint?: number;
+  pressure?: number;
+  sunrise?: string;
+  sunset?: string;
+}

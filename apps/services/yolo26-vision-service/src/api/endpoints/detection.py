@@ -231,7 +231,7 @@ async def _run_vlm_pass(
             "vlm_not_configured",
             message="use_vlm=True requested but VLM_PROVIDER is 'disabled'; skipping VLM pass",
         )
-        return detections, {}
+        return detections, None
 
     vlm_stats: dict[str, int] = {
         VLMVerificationStatus.CONFIRMED.value: 0,

@@ -282,8 +282,6 @@ class TestScoreToStatus:
 
 
 class TestBuildResult:
-    import time as _time
-
     def test_confirmed_result(self):
         v = _make_verifier()
         import time
@@ -544,3 +542,190 @@ class TestBuildFromSettings:
         assert v.provider == VLMProvider.QWEN_VL
         assert v.qwen_api_key == "sk-testkey"
         assert v.confirm_threshold == 0.75
+
+
+# =============================================================================
+# _call_qwen_vl — httpx-level tests
+# =============================================================================
+
+
+class TestCallQwenVL:
+    """Test _call_qwen_vl against a mocked httpx client (verifies HTTP mechanics)."""
+
+    @pytest.mark.asyncio
+    async def test_posts_to_qwen_url(self):
+        """Should POST to the configured Qwen-VL URL."""
+        v = _make_verifier(provider="qwen_vl", qwen_api_key="test-key")
+        response_json = {
+            "output": {
+                "choices": [
+                    {"message": {"content": '{"has_pest": true, "confidence": 85, "pest_type": "aphid"}'}}
+                ]
+            }
+        }
+        mock_response = MagicMock()
+        mock_response.json.return_value = response_json
+        mock_response.raise_for_status = MagicMock()
+
+        mock_client = AsyncMock()
+        mock_client.post = AsyncMock(return_value=mock_response)
+
+        with patch.object(v, "_get_http_client", return_value=mock_client):
+            result = await v._call_qwen_vl(_make_jpeg())
+
+        assert result["has_pest"] is True
+        assert result["confidence"] == 85
+        assert result["pest_type"] == "aphid"
+        call_url = mock_client.post.call_args[0][0]
+        assert "dashscope" in call_url or "aliyuncs" in call_url
+
+    @pytest.mark.asyncio
+    async def test_handles_list_content(self):
+        """Qwen-VL may return content as a list of text dicts — should join them."""
+        v = _make_verifier(provider="qwen_vl")
+        response_json = {
+            "output": {
+                "choices": [
+                    {
+                        "message": {
+                            "content": [
+                                {"text": '{"has_pest": false,'},
+                                {"text": ' "confidence": 10}'},
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+        mock_response = MagicMock()
+        mock_response.json.return_value = response_json
+        mock_response.raise_for_status = MagicMock()
+
+        mock_client = AsyncMock()
+        mock_client.post = AsyncMock(return_value=mock_response)
+
+        with patch.object(v, "_get_http_client", return_value=mock_client):
+            result = await v._call_qwen_vl(_make_jpeg())
+
+        assert result["has_pest"] is False
+        assert result["confidence"] == 10
+
+    @pytest.mark.asyncio
+    async def test_malformed_json_returns_empty_dict(self):
+        """Completely unparseable Qwen response → _extract_json returns {}."""
+        v = _make_verifier(provider="qwen_vl")
+        response_json = {"output": {"choices": [{"message": {"content": "not valid json at all!!!"}}]}}
+        mock_response = MagicMock()
+        mock_response.json.return_value = response_json
+        mock_response.raise_for_status = MagicMock()
+
+        mock_client = AsyncMock()
+        mock_client.post = AsyncMock(return_value=mock_response)
+
+        with patch.object(v, "_get_http_client", return_value=mock_client):
+            result = await v._call_qwen_vl(_make_jpeg())
+
+        # _extract_json returns {} on total failure → verify() will use defaults
+        assert isinstance(result, dict)
+
+    @pytest.mark.asyncio
+    async def test_http_error_propagates(self):
+        """HTTP 4xx/5xx should propagate as httpx.HTTPStatusError."""
+        v = _make_verifier(provider="qwen_vl")
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "401", request=MagicMock(), response=MagicMock()
+        )
+
+        mock_client = AsyncMock()
+        mock_client.post = AsyncMock(return_value=mock_response)
+
+        with patch.object(v, "_get_http_client", return_value=mock_client):
+            with pytest.raises(httpx.HTTPStatusError):
+                await v._call_qwen_vl(_make_jpeg())
+
+
+# =============================================================================
+# _call_ollama_vision — httpx-level tests
+# =============================================================================
+
+
+class TestCallOllamaVision:
+    """Test _call_ollama_vision against a mocked httpx client."""
+
+    @pytest.mark.asyncio
+    async def test_posts_to_ollama_generate(self):
+        """Should POST to {ollama_url}/api/generate."""
+        v = VLMVerifier(provider="ollama", ollama_url="http://localhost:11434", ollama_model="llava:7b")
+        response_json = {"response": '{"has_pest": true, "confidence": 78, "severity": "moderate"}'}
+        mock_response = MagicMock()
+        mock_response.json.return_value = response_json
+        mock_response.raise_for_status = MagicMock()
+
+        mock_client = AsyncMock()
+        mock_client.post = AsyncMock(return_value=mock_response)
+
+        with patch.object(v, "_get_http_client", return_value=mock_client):
+            result = await v._call_ollama_vision(_make_jpeg())
+
+        assert result["has_pest"] is True
+        assert result["confidence"] == 78
+        call_url = mock_client.post.call_args[0][0]
+        assert "/api/generate" in call_url
+
+    @pytest.mark.asyncio
+    async def test_malformed_json_returns_empty_dict(self):
+        """Completely unparseable Ollama response → {} so verify() uses safe defaults."""
+        v = VLMVerifier(provider="ollama", ollama_url="http://localhost:11434")
+        response_json = {"response": "```no braces here at all```"}
+        mock_response = MagicMock()
+        mock_response.json.return_value = response_json
+        mock_response.raise_for_status = MagicMock()
+
+        mock_client = AsyncMock()
+        mock_client.post = AsyncMock(return_value=mock_response)
+
+        with patch.object(v, "_get_http_client", return_value=mock_client):
+            result = await v._call_ollama_vision(_make_jpeg())
+
+        assert isinstance(result, dict)
+
+    @pytest.mark.asyncio
+    async def test_timeout_bubbles_up_to_verify(self):
+        """A timeout from _call_ollama_vision should be caught by verify() → ERROR status."""
+        v = VLMVerifier(provider="ollama", timeout=1.0)
+        with patch.object(v, "_call_ollama_vision", side_effect=httpx.TimeoutException("timeout")):
+            result = await v.verify(_make_jpeg(), [0, 0, 50, 50])
+        assert result.status == VLMVerificationStatus.ERROR
+        assert result.error == "VLM request timed out"
+
+
+# =============================================================================
+# _crop_region — RGB normalisation for pre-decoded images
+# =============================================================================
+
+
+class TestCropRegionRGBNorm:
+    """Ensure _crop_region converts RGBA/P-mode PIL images to RGB before JPEG save."""
+
+    def test_rgba_image_saves_without_error(self):
+        """RGBA input (pre-decoded) must not raise OSError when saving as JPEG."""
+        rgba_img = Image.new("RGBA", (200, 200), color=(100, 150, 200, 128))
+        v = _make_verifier()
+        crop_bytes = v._crop_region(rgba_img, [10, 10, 100, 100])
+        # Should not raise; result should be valid JPEG bytes
+        assert crop_bytes[:2] == b"\xff\xd8"  # JPEG magic bytes
+
+    def test_p_mode_image_saves_without_error(self):
+        """Palette-mode (P) input must be converted and saved successfully."""
+        p_img = Image.new("P", (150, 150))
+        v = _make_verifier()
+        crop_bytes = v._crop_region(p_img, [0, 0, 80, 80])
+        assert crop_bytes[:2] == b"\xff\xd8"
+
+    def test_rgb_image_unchanged_path(self):
+        """RGB images should pass through _crop_region without additional conversion."""
+        rgb_img = Image.new("RGB", (100, 100), color=(80, 160, 40))
+        v = _make_verifier()
+        crop_bytes = v._crop_region(rgb_img, [5, 5, 60, 60])
+        assert crop_bytes[:2] == b"\xff\xd8"

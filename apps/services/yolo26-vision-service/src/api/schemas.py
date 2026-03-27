@@ -13,6 +13,8 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from src.core.vlm_verifier import VLMProvider, VLMVerificationStatus
+
 # =============================================================================
 # Enums
 # =============================================================================
@@ -56,22 +58,8 @@ class SeverityLevel(StrEnum):
     CRITICAL = "critical"
 
 
-class VLMVerificationStatus(StrEnum):
-    """VLM secondary verification verdict.
-
-    Returned per-detection when ``use_vlm=True`` is passed to a detection endpoint.
-
-    - ``confirmed``:  VLM agrees with YOLO (confidence ≥ confirm_threshold).
-    - ``suspicious``: VLM is uncertain — flag for manual agronomist review.
-    - ``dismissed``:  VLM rejects YOLO detection — likely false positive (filtered out).
-    - ``error``:      VLM call failed — YOLO detection kept unverified.
-    """
-
-    CONFIRMED = "confirmed"
-    SUSPICIOUS = "suspicious"
-    DISMISSED = "dismissed"
-    ERROR = "error"
-
+# VLMVerificationStatus and VLMProvider are imported from src.core.vlm_verifier
+# (single source of truth — no duplicate definition here).
 
 # =============================================================================
 # Bilingual Class Definitions
@@ -476,7 +464,10 @@ class VLMVerification(BaseModel):
     pest_type_ar: str | None = Field(default=None, description="VLM-identified pest/disease name (Arabic)")
     severity: str | None = Field(default=None, description="VLM-assessed severity (mild/moderate/severe)")
     diagnosis_en: str | None = Field(default=None, description="One-sentence VLM diagnosis (English)")
-    provider: str = Field(default="disabled", description="VLM provider used (qwen_vl, vllm, ollama, disabled)")
+    provider: VLMProvider = Field(
+        default=VLMProvider.DISABLED,
+        description="VLM provider used (qwen_vl, vllm, ollama, disabled)",
+    )
     latency_ms: float = Field(default=0.0, ge=0.0, description="VLM API call latency in ms")
     error: str | None = Field(default=None, description="Error message when status is 'error'")
 
@@ -568,7 +559,7 @@ class PestDetectionRequest(DetectionRequest):
         default=False,
         description=(
             "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
-            "Reduces false positives ~40%%. Requires vlm_provider to be configured."
+            "Requires vlm_provider to be configured."
         ),
     )
 
@@ -582,7 +573,7 @@ class DiseaseDetectionRequest(DetectionRequest):
         default=False,
         description=(
             "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
-            "Reduces false positives ~40%%. Requires vlm_provider to be configured."
+            "Requires vlm_provider to be configured."
         ),
     )
 
@@ -595,7 +586,7 @@ class WeedDetectionRequest(DetectionRequest):
         default=False,
         description=(
             "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
-            "Reduces false positives ~40%%. Requires vlm_provider to be configured."
+            "Requires vlm_provider to be configured."
         ),
     )
 

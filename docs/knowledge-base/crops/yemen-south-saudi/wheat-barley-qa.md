@@ -1,7 +1,7 @@
 ---
 title: "Wheat & Barley Q&A: Yemen & Southern Saudi Arabia"
 title_ar: "أسئلة وأجوبة القمح والشعير: اليمن وجنوب السعودية"
-description: Q&A guide for wheat and barley cultivation in Yemen highlands and southern Saudi Arabia
+description: Comprehensive Q&A guide for wheat and barley cultivation in Yemen highlands, Tihama spate irrigation, and southern Saudi Arabia
 category: crops
 tags:
   - wheat
@@ -9,16 +9,21 @@ tags:
   - cereals
   - yemen
   - saudi_arabia
-  - qa_guide
   - terraced_agriculture
+  - spate_irrigation
+  - matameer
+  - traditional_foods
+  - qa_guide
 regions:
   - yemen
   - saudi_arabia
-version: "1.0.0"
+version: "1.1.0"
 last_updated: "2026-03-27"
 ---
 
 # Wheat & Barley Q&A: Yemen & Southern Saudi Arabia | أسئلة وأجوبة القمح والشعير: اليمن وجنوب السعودية
+
+---
 
 ### Q1: What are the main wheat varieties grown in the Yemen highlands (Dhamar, Sana'a) and the southern Saudi regions (Asir, Najran)?
 
@@ -612,6 +617,7 @@ The most effective approach preserves and digitizes indigenous knowledge rather 
 - عمر البطارية والشحن الشمسي حاسمان في مناطق بلا شبكة كهرباء
 - واجهة عربية أولاً مع دعم صوتي للمزارعين محدودي القراءة والكتابة
 - يجب ألا تخلق التقنية تبعيات جديدة — يجب أن يحتفظ المزارعون بقدرتهم على العمل بدونها
+
 
 
 ### Q1: What are the main wheat varieties grown in the Yemen highlands (Dhamar, Sana'a) and the southern Saudi regions (Asir, Najran)?

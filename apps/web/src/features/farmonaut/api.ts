@@ -345,7 +345,7 @@ const MOCK_ZONES: FieldZone[] = [
 // API Functions
 // ---------------------------------------------------------------------------
 
-export const farmonautApi = {
+export const satelliteMonitorApi = {
   getFields: async (filters?: SatelliteFilters): Promise<SatelliteField[]> => {
     try {
       const params = new URLSearchParams();
@@ -359,10 +359,10 @@ export const farmonautApi = {
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
 
-      logger.warn('Farmonaut API returned unexpected format, using mock data');
+      logger.warn('Satellite Monitor API returned unexpected format, using mock data');
       return MOCK_FIELDS;
     } catch (error) {
-      logger.warn('Failed to fetch farmonaut fields, using mock data:', error);
+      logger.warn('Failed to fetch satellite monitoring fields, using mock data:', error);
       return MOCK_FIELDS;
     }
   },
@@ -372,7 +372,7 @@ export const farmonautApi = {
       const response = await api.get(`${API_PREFIX}/farmonaut/fields/${id}`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn(`Failed to fetch farmonaut field ${id}, using mock data:`, error);
+      logger.warn(`Failed to fetch satellite monitoring field ${id}, using mock data:`, error);
       const mock = MOCK_FIELDS.find((f) => f.id === id || f.fieldId === id);
       if (mock) return mock;
       return MOCK_FIELDS[0];
@@ -384,7 +384,7 @@ export const farmonautApi = {
       const response = await api.get(`${API_PREFIX}/farmonaut/stats`);
       return response.data.data || response.data;
     } catch (error) {
-      logger.warn('Failed to fetch farmonaut stats, using mock data:', error);
+      logger.warn('Failed to fetch satellite monitoring stats, using mock data:', error);
       return MOCK_STATS;
     }
   },

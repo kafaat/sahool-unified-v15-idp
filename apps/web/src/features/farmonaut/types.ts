@@ -10,7 +10,7 @@ export type ReportFormat = 'pdf' | 'csv' | 'json';
 export type TimePeriod = '7d' | '30d' | '90d' | '6m' | '1y';
 
 // ---------------------------------------------------------------------------
-// Map Layer Types (10 indices from Farmonaut)
+// Map Layer Types (16 satellite monitoring indices)
 // ---------------------------------------------------------------------------
 export type MapLayerType =
   | 'hybrid'            // Hybrid Index - combined crop health + irrigation

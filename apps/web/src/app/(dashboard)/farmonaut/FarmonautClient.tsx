@@ -35,15 +35,15 @@ import {
   Bot,
 } from 'lucide-react';
 import {
-  useFarmonautFields,
-  useFarmonautStats,
-  useFarmonautAlerts,
+  useSatelliteMonitorFields,
+  useSatelliteMonitorStats,
+  useSatelliteMonitorAlerts,
   useSatelliteMonitorTimeSeries,
-  useFarmonautWeather,
+  useSatelliteMonitorWeather,
   useSatelliteMonitorDirectionGrid,
 } from '@/features/farmonaut';
 import { MAP_LAYERS, HYBRID_COLORS } from '@/features/farmonaut/api';
-import type { FarmonautField, MapLayerType, CropHealthStatus, TimePeriod } from '@/features/farmonaut';
+import type { SatelliteField, MapLayerType, CropHealthStatus, TimePeriod } from '@/features/farmonaut';
 
 // ---------------------------------------------------------------------------
 // Health status helpers
@@ -71,7 +71,7 @@ const WEATHER_ICONS: Record<string, string> = {
   windy: '💨',
 };
 
-// Layer groups for the map control panel (matching Farmonaut UI)
+// Layer groups for the map control panel
 const LAYER_GROUPS = [
   { key: 'Basic Analysis', keyAr: 'التحليل الأساسي', icon: Eye, types: ['hybrid', 'colorblind'] },
   { key: 'Satellite Image', keyAr: 'صورة القمر الصناعي', icon: Satellite, types: ['tci', 'etci'] },
@@ -84,19 +84,19 @@ const LAYER_GROUPS = [
   { key: 'Radar (SAR)', keyAr: 'الرادار', icon: Radio, types: ['sar_rvi', 'sar_rsm'] },
 ];
 
-export default function FarmonautClient() {
+export default function SatelliteMonitorClient() {
   const [selectedLayer, setSelectedLayer] = useState<MapLayerType>('hybrid');
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [timeSeriesPeriod, setTimeSeriesPeriod] = useState<TimePeriod>('90d');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Data hooks
-  const { data: fields = [], isLoading, error } = useFarmonautFields();
-  const { data: stats } = useFarmonautStats();
-  const { data: alerts = [] } = useFarmonautAlerts();
+  const { data: fields = [], isLoading, error } = useSatelliteMonitorFields();
+  const { data: stats } = useSatelliteMonitorStats();
+  const { data: alerts = [] } = useSatelliteMonitorAlerts();
   const selectedField = selectedFieldId || (fields.length > 0 ? fields[0].id : '');
   const { data: timeSeries = [] } = useSatelliteMonitorTimeSeries(selectedField, timeSeriesPeriod);
-  const { data: weather = [] } = useFarmonautWeather(selectedField);
+  const { data: weather = [] } = useSatelliteMonitorWeather(selectedField);
   const { data: directionGrid } = useSatelliteMonitorDirectionGrid(selectedField, selectedLayer);
 
   const activeLayer = MAP_LAYERS.find((l) => l.type === selectedLayer) ?? MAP_LAYERS[0];
@@ -808,7 +808,7 @@ function StatCard({
 // Map Color Helpers
 // ---------------------------------------------------------------------------
 
-function getFieldMapColor(field: FarmonautField, layer: MapLayerType): string {
+function getFieldMapColor(field: SatelliteField, layer: MapLayerType): string {
   if (layer === 'hybrid') {
     if (field.healthStatus === 'healthy' && field.waterStressLevel < 20) return 'rgba(34,197,94,0.6)';
     if (field.healthStatus === 'moderate') return 'rgba(249,115,22,0.6)';

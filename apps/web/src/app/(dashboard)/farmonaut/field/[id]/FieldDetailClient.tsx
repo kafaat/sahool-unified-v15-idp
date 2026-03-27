@@ -27,15 +27,15 @@ import {
 } from 'lucide-react';
 import {
   useFarmonautField,
-  useFarmonautTimeSeries,
+  useSatelliteMonitorTimeSeries,
   useFarmonautWeather,
   useFarmonautZones,
-  useFarmonautDirectionGrid,
-  useFarmonautSoilAnalysis,
-  useFarmonautPestPredictions,
-  useFarmonautIrrigationSchedule,
-  useFarmonautYieldPrediction,
-  useFarmonautHistorical,
+  useSatelliteMonitorDirectionGrid,
+  useSatelliteMonitorSoilAnalysis,
+  useSatelliteMonitorPestPredictions,
+  useSatelliteMonitorIrrigationSchedule,
+  useSatelliteMonitorYieldPrediction,
+  useSatelliteMonitorHistorical,
 } from '@/features/farmonaut';
 import { MAP_LAYERS } from '@/features/farmonaut/api';
 import type { MapLayerType, TimePeriod, CropHealthStatus, NutrientLevel } from '@/features/farmonaut';
@@ -65,15 +65,15 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
   const [historicalEndDate, setHistoricalEndDate] = useState('2026-03-27');
 
   const { data: field, isLoading } = useFarmonautField(fieldId);
-  const { data: timeSeries = [] } = useFarmonautTimeSeries(fieldId, timeSeriesPeriod);
+  const { data: timeSeries = [] } = useSatelliteMonitorTimeSeries(fieldId, timeSeriesPeriod);
   const { data: weather = [] } = useFarmonautWeather(fieldId);
   const { data: zones = [] } = useFarmonautZones(fieldId);
-  const { data: directionGrid } = useFarmonautDirectionGrid(fieldId, 'ndvi');
-  const { data: soilAnalysis } = useFarmonautSoilAnalysis(fieldId);
-  const { data: pestPredictions = [] } = useFarmonautPestPredictions(fieldId);
-  const { data: irrigationSchedule } = useFarmonautIrrigationSchedule(fieldId);
-  const { data: yieldPrediction } = useFarmonautYieldPrediction(fieldId);
-  const { data: historicalData = [] } = useFarmonautHistorical(fieldId, historicalLayer, historicalStartDate, historicalEndDate);
+  const { data: directionGrid } = useSatelliteMonitorDirectionGrid(fieldId, 'ndvi');
+  const { data: soilAnalysis } = useSatelliteMonitorSoilAnalysis(fieldId);
+  const { data: pestPredictions = [] } = useSatelliteMonitorPestPredictions(fieldId);
+  const { data: irrigationSchedule } = useSatelliteMonitorIrrigationSchedule(fieldId);
+  const { data: yieldPrediction } = useSatelliteMonitorYieldPrediction(fieldId);
+  const { data: historicalData = [] } = useSatelliteMonitorHistorical(fieldId, historicalLayer, historicalStartDate, historicalEndDate);
 
   if (isLoading || !field) {
     return (

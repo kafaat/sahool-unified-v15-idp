@@ -119,16 +119,15 @@ class AgriContextAggregator:
         return tests[0] if tests else {}
 
     async def _search_rag(self, query: str) -> list[dict]:
-        try:
-            # TODO: real embeddings should come from the RAG pipeline
-            resp = await self.client.post(
-                "http://qdrant:6333/collections/sahool_knowledge/points/search",
-                json={"vector": [0.0] * 384, "limit": 3, "with_payload": True},
-            )
-            resp.raise_for_status()
-            return [{"content": r.get("payload", {}).get("content", "")} for r in resp.json().get("result", [])]
-        except Exception:
-            return []
+        """
+        RAG vector search placeholder.
+
+        Real embeddings are not yet integrated, so calling Qdrant with a
+        zero vector would return random/unrelated results. Skip the search
+        and return empty list until the RAG embedding pipeline is connected.
+        """
+        logger.info("rag_search_skipped_no_embeddings", query=query[:100])
+        return []
 
     async def close(self):
         await self.client.aclose()

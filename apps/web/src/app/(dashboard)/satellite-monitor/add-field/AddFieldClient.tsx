@@ -44,7 +44,7 @@ const BOUNDARY_METHODS: Array<{ method: BoundaryInputMethod; label: string; labe
 export default function AddFieldClient() {
   const createField = useCreateField();
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [boundaryMethod, setBoundaryMethod] = useState<BoundaryInputMethod>('draw');
+  const [boundaryMethod, setBoundaryMethod] = useState<BoundaryInputMethod>('coordinates');
   const [boundaryPoints, setBoundaryPoints] = useState<FieldBoundary[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);

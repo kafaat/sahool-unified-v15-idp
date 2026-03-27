@@ -25,8 +25,10 @@ class AgriIntent(StrEnum):
     HELP = "help"
 
 
-# Service ports mirror from packages/shared-types/src/contracts/service-ports.ts
-# IMPORTANT: Keep in sync with TypeScript contract SERVICE_PORTS.
+# Service ports derived from packages/shared-types/src/contracts/service-ports.ts
+# and apps/services/shared/versions.py:SERVICE_PORTS (Python mirror).
+# TODO: Import from shared.versions.SERVICE_PORTS once available as a package
+# to eliminate this third copy and prevent drift.
 INTENT_SERVICE_MAP = {
     AgriIntent.CROP_DISEASE: {
         "service": "pest-detection-service",

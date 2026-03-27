@@ -80,6 +80,8 @@ logger = structlog.get_logger("sahool-billing")
 
 # Python mirror of DEFAULT_FREE_TIER from packages/shared-types/src/contracts/api-responses.ts
 # IMPORTANT: Keep in sync with TypeScript contract. Any changes must update both files.
+# Note: Python uses snake_case keys; TS contract uses camelCase (dailyQueries, imageDetection, etc.)
+# API serialization layer handles the mapping between conventions.
 FREE_TIER_LIMITS = {
     "daily_queries": 20,
     "image_detection": 3,

@@ -100,10 +100,12 @@ class AgriContextAggregator:
         resp.raise_for_status()
         return resp.json().get("data", resp.json())
 
-    async def _get_weather(self, field_id: str, tenant_id: str) -> dict:
+    async def _get_weather(
+        self, field_id: str, tenant_id: str, lat: float = 15.37, lon: float = 44.19
+    ) -> dict:
         resp = await self.client.post(
             "http://weather-service:8092/weather/forecast",
-            json={"tenant_id": tenant_id, "field_id": field_id, "lat": 15.37, "lon": 44.19},
+            json={"tenant_id": tenant_id, "field_id": field_id, "lat": lat, "lon": lon},
             params={"days": 3},
         )
         resp.raise_for_status()
@@ -120,8 +122,9 @@ class AgriContextAggregator:
 
     async def _search_rag(self, query: str) -> list[dict]:
         try:
+            # TODO: real embeddings should come from the RAG pipeline
             resp = await self.client.post(
-                "http://localhost:6333/collections/sahool_knowledge/points/search",
+                "http://qdrant:6333/collections/sahool_knowledge/points/search",
                 json={"vector": [0.0] * 384, "limit": 3, "with_payload": True},
             )
             resp.raise_for_status()

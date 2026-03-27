@@ -48,4 +48,4 @@ class ChannelResponse:
             if self.sources:
                 sections.append(f"\n📋 المصادر: {', '.join(s.get('name', '') for s in self.sources[:3])}")
             return "\n".join(sections)
-        return self.text_ar
+        return self.text

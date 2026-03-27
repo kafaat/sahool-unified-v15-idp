@@ -151,6 +151,6 @@ async def recommend_services(req: ServiceRecommendRequest = Body(...)):
     recommendations.sort(key=lambda r: r.relevance, reverse=True)
     return {
         "query": req.query,
-        "recommendations": [r.dict() for r in recommendations[:5]],
+        "recommendations": [r.model_dump() for r in recommendations[:5]],
         "count": len(recommendations),
     }

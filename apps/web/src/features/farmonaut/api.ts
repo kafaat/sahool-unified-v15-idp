@@ -375,7 +375,7 @@ export const satelliteMonitorApi = {
       logger.warn(`Failed to fetch satellite monitoring field ${id}, using mock data:`, error);
       const mock = MOCK_FIELDS.find((f) => f.id === id || f.fieldId === id);
       if (mock) return mock;
-      return MOCK_FIELDS[0];
+      throw new Error('Satellite field not found: ' + id);
     }
   },
 

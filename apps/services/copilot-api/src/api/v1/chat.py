@@ -166,11 +166,16 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
     try:
         intent_result = await _intent_classifier.classify(user_query)
         if intent_result.confidence >= 0.7 and intent_result.intent != AgriIntent.GENERAL_ADVISORY:
+            field_id = getattr(request, "field_id", None)
+            if field_id is None:
+                request_context = getattr(request, "context", None)
+                if isinstance(request_context, dict):
+                    field_id = request_context.get("field_id")
             intent_router_result = await _intent_router.route(
                 intent_result,
                 user_query,
                 {
-                    "field_id": request.field_id if hasattr(request, "field_id") else None,
+                    "field_id": field_id,
                     "tenant_id": user.get("tenant_id"),
                 },
             )

@@ -98,8 +98,8 @@ class IntentRouter:
                 {
                     "tenant_id": tenant_id,
                     "field_id": field_id,
-                    "lat": 15.37,
-                    "lon": 44.19,
+                    "lat": (context or {}).get("lat", 15.37),
+                    "lon": (context or {}).get("lon", 44.19),
                 },
             ),
             AgriIntent.MARKET_PRICE: (

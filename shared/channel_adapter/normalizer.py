@@ -6,11 +6,12 @@ from .models import ChannelMessage, ChannelType
 class ChannelNormalizer:
     @staticmethod
     def normalize_whatsapp(raw: dict) -> ChannelMessage:
+        text = raw.get("text", raw.get("body", ""))
         return ChannelMessage(
-            text=raw.get("text", raw.get("body", "")),
+            text=text,
             channel=ChannelType.WHATSAPP,
             sender_id=raw.get("from", raw.get("sender", "")),
-            language="ar" if any("\u0600" <= c <= "\u06ff" for c in raw.get("text", "")) else "en",
+            language="ar" if any("\u0600" <= c <= "\u06ff" for c in text) else "en",
             image=raw.get("image"),
             location=raw.get("location"),
             metadata={"message_id": raw.get("id", ""), "profile_name": raw.get("profile", {}).get("name", "")},

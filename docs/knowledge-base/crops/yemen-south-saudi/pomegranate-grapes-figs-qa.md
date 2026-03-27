@@ -29,7 +29,7 @@ last_updated: "2026-03-27"
 
 ### Q1: What makes Al-Baha region the center of pomegranate production in Saudi Arabia?
 
-**EN:** Al-Baha region in southern Saudi Arabia is the kingdom's premier pomegranate-producing area, with approximately **700,000 pomegranate trees** spread across **5,550 farms** in the region's wadis and mountain terraces. Annual production reaches approximately **30,000 tons**. The region's success with pomegranates is due to several factors:
+**EN:** Al-Baha region in southern Saudi Arabia is the kingdom's premier pomegranate-producing area. Estimates of tree numbers vary by source and year: a Saudi Press Agency report cites around **200,000 pomegranate trees**, while more recent local agricultural estimates that include newer orchards put the total at up to approximately **700,000 trees** spread across about **5,550 farms** in the region's wadis and mountain terraces. Annual production reaches approximately **30,000 tons**. The region's success with pomegranates is due to several factors:
 
 | Factor | Details |
 |--------|---------|

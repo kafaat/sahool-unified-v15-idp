@@ -337,31 +337,31 @@ Step 6: Decision Support | دعم القرار
 
 | Service | Port | Usage | الاستخدام |
 |---------|------|-------|-----------|
-| [[../../../apps/services-docs/vegetation-analysis-service\|vegetation-analysis-service]] | 8090 | NDVI/EVI computation | حساب مؤشرات الغطاء النباتي |
-| [[../../../apps/services-docs/crop-intelligence-service\|crop-intelligence-service]] | 8095 | Crop health AI classification | تصنيف صحة المحاصيل بالذكاء الاصطناعي |
-| [[../../../apps/services-docs/indicators-service\|indicators-service]] | 8091 | Field indicators from imagery | مؤشرات الحقل من الصور |
-| [[../../../apps/services-docs/field-intelligence\|field-intelligence]] | 8120 | Field analytics & mapping | تحليلات الحقل والخرائط |
-| [[../../../apps/services-docs/yolo26-vision-service\|yolo26-vision-service]] | 8150 | Computer vision detection | الكشف بالرؤية الحاسوبية |
-| [[../../../apps/services-docs/terrain-core-service\|terrain-core-service]] | 8185 | DEM and terrain analysis | تحليل التضاريس |
+| [vegetation-analysis-service](../../apps/services-docs/vegetation-analysis-service.md) | 8090 | NDVI/EVI computation | حساب مؤشرات الغطاء النباتي |
+| [crop-intelligence-service](../../apps/services-docs/crop-intelligence-service.md) | 8095 | Crop health AI classification | تصنيف صحة المحاصيل بالذكاء الاصطناعي |
+| [indicators-service](../../apps/services-docs/indicators-service.md) | 8091 | Field indicators from imagery | مؤشرات الحقل من الصور |
+| [field-intelligence](../../apps/services-docs/field-intelligence.md) | 8120 | Field analytics & mapping | تحليلات الحقل والخرائط |
+| [yolo26-vision-service](../../apps/services-docs/yolo26-vision-service.md) | 8150 | Computer vision detection | الكشف بالرؤية الحاسوبية |
+| [terrain-core-service](../../apps/services-docs/terrain-core-service.md) | 8185 | DEM and terrain analysis | تحليل التضاريس |
 
 ### NATS Events | أحداث NATS
 
 ```
-sahool.satellite.ndvi_computed       # NDVI analysis complete
-sahool.satellite.anomaly_detected    # Vegetation anomaly found
-sahool.satellite.classification_done # Crop type classification done
-sahool.vision.disease_detected       # Disease detected from imagery
-sahool.field.health_updated          # Field health status updated
+sahool.satellite.ndvi.computed       # NDVI analysis complete
+sahool.satellite.anomaly.detected    # Vegetation anomaly found
+sahool.satellite.classification.done # Crop type classification done
+sahool.vision.disease.detected       # Disease detected from imagery
+sahool.field.health.updated          # Field health status updated
 ```
 
 ### API Endpoints | نقاط النهاية
 
 ```
-POST /api/v1/integrations/satellite/ndvi       # Get field NDVI
-POST /api/v1/integrations/satellite/crop-health # Analyze crop health
-GET  /api/v1/integrations/satellite/timeseries  # Historical NDVI
-POST /api/v1/detect/disease                     # Disease detection from image
-POST /api/v1/terrain/dem                        # DEM processing
+POST /api/v1/satellite/ndvi       # Get field NDVI
+POST /api/v1/satellite/crop-health # Analyze crop health
+GET  /api/v1/satellite/timeseries  # Historical NDVI
+POST /api/v1/detect/disease        # Disease detection from image
+POST /api/v1/terrain/dem           # DEM processing
 ```
 
 ---

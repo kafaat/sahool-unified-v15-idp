@@ -25,7 +25,7 @@ last_updated: "2026-03-27"
 
 ---
 
-## Agriculture in Jazan (Jizan) Region — جزر جازان الزراعية
+## Agriculture in Jazan (Jizan) Region — الزراعة في منطقة جازان
 
 ### Q1: Why is Jazan considered the most important fruit-producing region in Saudi Arabia?
 

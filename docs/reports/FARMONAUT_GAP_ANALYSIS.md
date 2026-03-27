@@ -469,3 +469,112 @@ For Topography:           [DEM]
 | 14 | Colorblind accessibility mode | 3 أيام |
 | 15 | Owner field display | يوم |
 | 16 | Delete This Field | يوم + confirmation dialog |
+
+---
+
+## ثاني عشر: مقارنة شاملة مع المنصات المنافسة
+
+### جدول المقارنة الرئيسي
+
+| الميزة | Farmonaut | OneSoil | EOSDA | Planet Labs | Cropio | Trimble Ag | John Deere | **SAHOOL** |
+|--------|----------|---------|-------|-------------|--------|------------|------------|-----------|
+| **عربي أولاً** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **✅ ثنائي** |
+| **يعمل بدون إنترنت** | ❌ | ❌ | ❌ | ❌ | ❌ | جزئي | جزئي | **✅ Offline-first** |
+| **مؤشرات نباتية** | ~10 | NDVI, MSAVI | 5+ | NDVI, NDRE, NDWI, EVI, SAVI | NDVI, MSAVI, ReCI, NDRE | NDVI, NDRE, CCCI | NDVI | **25+ مؤشر** |
+| **Hybrid Index** | **✅ فكرة أصيلة** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ **فجوة P0** |
+| **SAR Radar Fallback** | **✅ تلقائي** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ **فجوة P1** |
+| **تقرير 9 اتجاهات** | **✅ فكرة أصيلة** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ **فجوة P0** |
+| **دقة الصور** | Sentinel (10m) | Sentinel (10m) | Sentinel+Landsat | **3m يومياً** | Sentinel (10m) | Sentinel+تجاري | Sentinel | Sentinel (10m) |
+| **تكرار الزيارة** | 3-5 أيام | 5 أيام | 5 أيام | **يومياً** | 5 أيام | 5 أيام | 5 أيام | 5 أيام |
+| **ذكاء اصطناعي** | JEEVN AI | أساسي | كشف شذوذ + تصنيف | custom ML pipelines | كشف شذوذ + محصول | VRA prescriptions | تنبؤ محصول | **شامل (11 وكيل AI)** |
+| **تحليل تربة** | 5 عناصر | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **11 عنصر + RothC** |
+| **DEM/تضاريس** | أساسي | ❌ | ❌ | ❌ | ❌ | RTK GPS | ❌ | **7 مؤشرات + 4 مصادر** |
+| **تكامل آلات** | ❌ | ❌ | ❌ | ❌ | ❌ | **✅ الأفضل** | **✅ الأفضل** | IoT + Jetson Orin |
+| **WhatsApp Bot** | تقارير فقط | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **✅ محادثة ذكية + AI** |
+| **API مفتوح** | محدود | محدود | REST | **REST/GraphQL/STAC** | REST | CNH integration | ISO-XML | **105 route** |
+| **تطبيق جوال** | ✅ | ✅ | أساسي | ❌ | ❌ | in-cab | ✅ | **✅ Flutter كامل** |
+| **Edge Computing** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | **✅ Jetson Orin** |
+| **شرق أوسط** | ❌ | ❌ | ❌ | شراكات خليجية | ❌ | ❌ | ❌ | **✅ معاير لليمن** |
+| **السعر** | per field | **مجاني** | freemium | per km² | per hectare | مع الأجهزة | freemium | proprietary |
+
+### التمركز التنافسي لـ SAHOOL
+
+```
+                    بسيط ←──────────────────────────→ متقدم
+                         │                          │
+  للمزارع البسيط         │    Farmonaut             │
+  (Hybrid Index)         │    OneSoil               │
+                         │                          │
+                         │              SAHOOL ◄──── │  الموقع المستهدف
+                         │              EOSDA        │
+  للمحترف               │              Cropio       │
+  (25+ مؤشر)            │                          │
+                         │         Planet Labs       │
+  للمطور               │         Trimble           │
+  (API + ML)            │         John Deere        │
+                         │                          │
+                    محلي ←──────────────────────────→ عالمي
+```
+
+**موقع SAHOOL الفريد**: الوحيد الذي يجمع:
+1. **عربي + offline-first** — لا يوجد منافس بهذا المزيج
+2. **25+ مؤشر نباتي** — أكثر من أي منصة مقارنة
+3. **11 عنصر تربة** — لا يوجد منافس يقدم هذا
+4. **WhatsApp Bot ذكي** — تقارير + محادثة + كشف أمراض بالصور
+5. **Edge Computing (Jetson Orin)** — لا يوجد منافس
+
+**ما ينقص SAHOOL مقارنة بالمنافسين**:
+1. **Hybrid Index** (من Farmonaut) — أهم فجوة
+2. **SAR Fallback التلقائي** (من Farmonaut) — أهم للبيئة الغائمة
+3. **صور يومية 3m** (من Planet) — تحتاج شراكة/ميزانية
+4. **تكامل آلات حقيقي** (من Trimble/Deere) — طويل المدى
+5. **OneSoil مجاني** — ضغط سعري
+
+---
+
+## ثالث عشر: خطة التحسين الشاملة النهائية
+
+### المرحلة 0: أساسيات (أسبوعان) — بدون بيانات أقمار صناعية
+
+| # | المهمة | يعتمد على | النتيجة |
+|---|--------|----------|---------|
+| 0.1 | **خريطة Leaflet حقيقية** بدلاً من placeholder | Leaflet 1.9.4 (مثبت) | خريطة تفاعلية مع OSM/Satellite tiles |
+| 0.2 | **Hybrid Index Algorithm** | NDVI + NDWI mock data → 5 ألوان | أول بناء للمؤشر الهجين |
+| 0.3 | **Field Analysis Panel** بنص 9 اتجاهات عربي | ST_Azimuth + PostGIS | "اذهب شمال غرب وافحص المحصول" |
+| 0.4 | **ربط weather-service** بالواجهة | POST weather:8092/weather/forecast | طقس حقيقي 8 أيام + spray windows |
+| 0.5 | **إكمال AddFieldClient** | useCreateField + file upload | نموذج إضافة حقل يعمل |
+
+### المرحلة 1: بيانات حقيقية (شهر)
+
+| # | المهمة | يعتمد على | النتيجة |
+|---|--------|----------|---------|
+| 1.1 | **تفعيل Sentinel Hub** | sentinelhub في requirements + credentials | بيانات NDVI/NDRE/NDWI/NDMI حقيقية |
+| 1.2 | **ربط crop-intelligence** | POST crop-intelligence:8095/comprehensive-analysis | تشخيص شامل (أمراض + مغذيات + آفات + محصول) |
+| 1.3 | **ربط soil-analysis** | POST soil-analysis:8134/interpret | تحليل تربة حقيقي 11 عنصر |
+| 1.4 | **ربط irrigation-smart** | POST irrigation:8094/v1/calculate | جدول ري ذكي مع ET |
+| 1.5 | **SAR Fallback** | cloud-cover > 30% → SAR data | تحول تلقائي للرادار |
+| 1.6 | **KML/Shapefile parser** | ogr2ogr أو turf.js | استيراد حدود حقول |
+
+### المرحلة 2: ميزات متقدمة (3 أشهر)
+
+| # | المهمة | النتيجة |
+|---|--------|---------|
+| 2.1 | تقرير 9 أقسام عبر WhatsApp | تقرير تلقائي كل 3-5 أيام |
+| 2.2 | Historical data من 2017 | أرشيف Sentinel-2 |
+| 2.3 | Time Lapse + Side-by-Side | مقارنة زمنية بصرية |
+| 2.4 | PDF Reports ثنائية اللغة | تصدير تقارير احترافية |
+| 2.5 | نموذج ML آفات (NDVI anomaly → pest) | تنبؤ مبكر بالآفات |
+| 2.6 | Add Polygon within Field | مناطق فرعية داخل حقل |
+| 2.7 | Pause/Resume Monitoring | business logic |
+| 2.8 | Batch Farm Operations | تجديد/تصدير جماعي |
+
+### المرحلة 3: تمييز تنافسي (6 أشهر)
+
+| # | المهمة | النتيجة |
+|---|--------|---------|
+| 3.1 | **VRA Maps** — خرائط تطبيق متغير | وصفات سماد/مبيد حسب المنطقة |
+| 3.2 | **Erosion Index** | تقييم مخاطر تآكل التربة |
+| 3.3 | **Colorblind Mode** | إمكانية وصول |
+| 3.4 | **Multi-field Survey View** | تقرير واحد لعدة حقول |
+| 3.5 | **Partner Fields** | رؤية حقول الموزعين/الشركاء |
+| 3.6 | **Video Tutorials** | محتوى تعليمي مدمج |

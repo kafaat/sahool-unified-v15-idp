@@ -573,7 +573,7 @@ export default function SatelliteMonitorClient() {
           </div>
           <div className="divide-y">
             {unresolvedAlerts.map((alert) => {
-              const sev = SEVERITY_CONFIG[alert.severity] ?? SEVERITY_CONFIG.info;
+              const sev = SEVERITY_CONFIG[alert.severity] ?? SEVERITY_CONFIG['info']!;
               return (
                 <div key={alert.id} className={`p-4 ${sev.bg}`}>
                   <div className="flex items-start justify-between">
@@ -768,7 +768,6 @@ function StatCard({
   icon,
   iconBg,
   label,
-  labelEn,
   value,
   sub,
   valueColor = 'text-gray-900',
@@ -776,7 +775,7 @@ function StatCard({
   icon: React.ReactNode;
   iconBg: string;
   label: string;
-  labelEn: string;
+  labelEn?: string;
   value: string;
   sub?: string;
   valueColor?: string;

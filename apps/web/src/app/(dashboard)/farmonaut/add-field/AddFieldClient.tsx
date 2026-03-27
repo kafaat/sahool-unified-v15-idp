@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   MapPin,
@@ -12,8 +11,6 @@ import {
   FileUp,
   Pencil,
   Save,
-  Leaf,
-  Calendar,
   Check,
   Loader2,
   AlertTriangle,
@@ -45,7 +42,6 @@ const BOUNDARY_METHODS: Array<{ method: BoundaryInputMethod; label: string; labe
 ];
 
 export default function AddFieldClient() {
-  const router = useRouter();
   const createField = useCreateField();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [boundaryMethod, setBoundaryMethod] = useState<BoundaryInputMethod>('draw');
@@ -101,9 +97,10 @@ export default function AddFieldClient() {
   const removeBoundaryPoint = (index: number) => {
     setBoundaryPoints(boundaryPoints.filter((_, i) => i !== index));
   };
-  const updateBoundaryPoint = (index: number, field: 'lat' | 'lng', value: string) => {
+  const updateBoundaryPoint = (index: number, key: 'lat' | 'lng', value: string) => {
     const updated = [...boundaryPoints];
-    updated[index] = { ...updated[index], [field]: parseFloat(value) || 0 };
+    const point = updated[index]!;
+    updated[index] = { lat: key === 'lat' ? (parseFloat(value) || 0) : point.lat, lng: key === 'lng' ? (parseFloat(value) || 0) : point.lng };
     setBoundaryPoints(updated);
   };
 

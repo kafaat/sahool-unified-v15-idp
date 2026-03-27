@@ -9,7 +9,6 @@ import {
   Droplets,
   FlaskConical,
   Bug,
-  TrendingUp,
   Calendar,
   AlertTriangle,
   Thermometer,

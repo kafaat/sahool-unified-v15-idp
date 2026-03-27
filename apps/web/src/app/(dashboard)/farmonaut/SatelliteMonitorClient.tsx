@@ -4,13 +4,10 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Satellite,
-  MapPin,
   TrendingUp,
   AlertTriangle,
   Droplets,
   Plus,
-  ChevronDown,
-  CloudSun,
   Thermometer,
   Wind,
   CloudRain,
@@ -28,10 +25,6 @@ import {
   Minus,
   Eye,
   Search,
-  RefreshCw,
-  Download,
-  Wifi,
-  WifiOff,
   Bot,
 } from 'lucide-react';
 import {
@@ -94,12 +87,12 @@ export default function SatelliteMonitorClient() {
   const { data: fields = [], isLoading, error } = useSatelliteMonitorFields();
   const { data: stats } = useSatelliteMonitorStats();
   const { data: alerts = [] } = useSatelliteMonitorAlerts();
-  const selectedField = selectedFieldId || (fields.length > 0 ? fields[0].id : '');
+  const selectedField = selectedFieldId || (fields.length > 0 ? fields[0]!.id : '');
   const { data: timeSeries = [] } = useSatelliteMonitorTimeSeries(selectedField, timeSeriesPeriod);
   const { data: weather = [] } = useSatelliteMonitorWeather(selectedField);
   const { data: directionGrid } = useSatelliteMonitorDirectionGrid(selectedField, selectedLayer);
 
-  const activeLayer = MAP_LAYERS.find((l) => l.type === selectedLayer) ?? MAP_LAYERS[0];
+  const activeLayer = MAP_LAYERS.find((l) => l.type === selectedLayer) ?? MAP_LAYERS[0]!;
 
   const unresolvedAlerts = useMemo(() => alerts.filter((a) => !a.isResolved), [alerts]);
 

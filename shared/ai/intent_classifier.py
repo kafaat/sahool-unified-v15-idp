@@ -8,10 +8,10 @@ Phase 1 of Component Unification Plan (PR #1344)
 
 import re
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 
-class AgriIntent(str, Enum):
+class AgriIntent(StrEnum):
     CROP_DISEASE = "crop_disease"
     IRRIGATION = "irrigation"
     FERTILIZER = "fertilizer"

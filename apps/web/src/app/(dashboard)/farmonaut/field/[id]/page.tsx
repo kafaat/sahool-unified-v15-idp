@@ -7,7 +7,7 @@ import { Metadata } from 'next';
 import FieldDetailClient from './FieldDetailClient';
 
 export const metadata: Metadata = {
-  title: 'Field Detail | Farmonaut | SAHOOL',
+  title: 'Field Detail | Satellite Monitoring | SAHOOL',
   description: 'Detailed satellite analysis, JEEVN AI advisory, and field intelligence',
 };
 

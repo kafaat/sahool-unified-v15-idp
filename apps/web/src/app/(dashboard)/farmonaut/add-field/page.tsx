@@ -7,7 +7,7 @@ import { Metadata } from 'next';
 import AddFieldClient from './AddFieldClient';
 
 export const metadata: Metadata = {
-  title: 'Add Field | Farmonaut | SAHOOL',
+  title: 'Add Field | Satellite Monitoring | SAHOOL',
   description: 'Add a new field for satellite monitoring',
 };
 

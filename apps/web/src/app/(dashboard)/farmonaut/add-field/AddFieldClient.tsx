@@ -160,7 +160,7 @@ export default function AddFieldClient() {
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/farmonaut" className="hover:text-green-600">مراقبة فارمونوت</Link>
+        <Link href="/farmonaut" className="hover:text-green-600">مراقبة الأقمار الصناعية</Link>
         <ArrowRight className="w-3 h-3" />
         <span className="text-gray-900 font-medium">إضافة حقل جديد</span>
       </div>

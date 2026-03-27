@@ -153,7 +153,7 @@ export default function FarmonautClient() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">مراقبة الأقمار الصناعية</h1>
-          <p className="text-gray-500 mt-1">Farmonaut Satellite Monitoring</p>
+          <p className="text-gray-500 mt-1">Satellite Crop Health Monitoring</p>
         </div>
         <div className="flex gap-2">
           <select

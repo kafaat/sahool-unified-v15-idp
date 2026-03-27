@@ -714,23 +714,55 @@ export default function FarmonautClient() {
       </div>
 
       {/* ================================================================= */}
-      {/* H. Historical Data Link */}
+      {/* H. Historical Data + Copilot AI Link */}
       {/* ================================================================= */}
-      <div className="bg-white rounded-lg border p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Calendar className="w-5 h-5 text-indigo-600" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg border p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-indigo-600" />
+            <div>
+              <h3 className="font-medium text-gray-900">البيانات التاريخية والفاصل الزمني</h3>
+              <p className="text-xs text-gray-500">Historical data from 2017 - Timelapse & Side by side</p>
+            </div>
+          </div>
+          <Link
+            href={selectedField ? `/farmonaut/field/${selectedField}` : '#'}
+            className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 text-sm font-medium"
+          >
+            عرض
+          </Link>
+        </div>
+
+        {/* Copilot AI — links to copilot-api:8088 (Component Unification Plan PR #1344) */}
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200 p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Bot className="w-5 h-5 text-purple-600" />
+            <div>
+              <h3 className="font-medium text-gray-900">اسأل المستشار الزراعي</h3>
+              <p className="text-xs text-gray-500">Copilot AI — Tri-RAG + 6 وكلاء متخصصين</p>
+            </div>
+          </div>
+          <Link
+            href="/copilot"
+            className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 text-sm font-medium"
+          >
+            محادثة
+          </Link>
+        </div>
+      </div>
+
+      {/* SAR Radar Fallback Indicator */}
+      {fields.some((f) => f.cloudCoverage > 30) && (
+        <div className="bg-blue-50 rounded-lg border border-blue-200 p-4 flex items-center gap-3">
+          <Radar className="w-5 h-5 text-blue-600 shrink-0" />
           <div>
-            <h3 className="font-medium text-gray-900">البيانات التاريخية والفاصل الزمني</h3>
-            <p className="text-xs text-gray-500">Historical data from 2017 - Side by side comparison & Timelapse</p>
+            <p className="font-medium text-blue-900 text-sm">
+              تحول تلقائي للرادار (SAR) — {fields.filter((f) => f.cloudCoverage > 30).length} حقول بغطاء سحابي &gt;30%
+            </p>
+            <p className="text-xs text-blue-600">يتم استخدام RVI/RSM تلقائياً | Automatic SAR fallback for cloudy fields</p>
           </div>
         </div>
-        <Link
-          href={selectedField ? `/farmonaut/field/${selectedField}` : '#'}
-          className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 text-sm font-medium"
-        >
-          عرض البيانات التاريخية
-        </Link>
-      </div>
+      )}
     </div>
   );
 }

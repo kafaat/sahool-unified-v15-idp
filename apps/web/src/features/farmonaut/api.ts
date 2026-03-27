@@ -1,6 +1,27 @@
 /**
  * Farmonaut Satellite Monitoring - API Layer
  * طبقة API لمراقبة الأقمار الصناعية فارمونوت
+ *
+ * Backend Service Integration Map (from Component Unification Plan PR #1344):
+ * ──────────────────────────────────────────────────────────────────────────
+ * getFields/Stats      → copilot-api:8088 → field-management-service:3000
+ * getTimeSeries        → vegetation-analysis-service:8090 /v1/timeseries/{fieldId}
+ * getWeatherForecast   → weather-service:8092 POST /weather/forecast (days=8)
+ * getSoilAnalysis      → soil-analysis-service:8134 POST /interpret
+ * getPestPredictions   → crop-intelligence-service:8095 POST /api/v1/pests/assess
+ * getIrrigationSchedule→ irrigation-smart:8094 POST /v1/calculate
+ * getYieldPrediction   → crop-intelligence-service:8095 POST /api/v1/yield/predict
+ * getDirectionGrid     → crop-intelligence-service:8095 GET /api/v1/fields/{id}/diagnosis
+ * getHistoricalData    → vegetation-analysis-service:8090 /v1/ndvi-timeseries/analyze/{id}
+ * getFieldZones        → terrain-core-service:8185 POST /api/v1/terrain/analyze
+ *
+ * SAR Fallback Logic (TODO — P1):
+ * if cloudCoverage > 30% → GET vegetation-analysis:8090/v1/soil-moisture/{fieldId}
+ * Uses Water Cloud Model calibrated for Yemen (A=15.0, B=8.5, C=-0.3)
+ *
+ * Copilot Integration (PR #1344):
+ * All queries can also go through copilot-api:8088 POST /api/v1/chat
+ * IntentRouter automatically routes to the correct expert service
  */
 
 import { createApiClient, logger } from '@/lib/api/factory';

@@ -60,7 +60,9 @@ type Tab = 'overview' | 'soil' | 'irrigation' | 'pests' | 'yield' | 'historical'
 export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [timeSeriesPeriod] = useState<TimePeriod>('90d');
-  const [historicalLayer] = useState<MapLayerType>('ndvi');
+  const [historicalLayer, setHistoricalLayer] = useState<MapLayerType>('ndvi');
+  const [historicalStartDate, setHistoricalStartDate] = useState('2017-01-01');
+  const [historicalEndDate, setHistoricalEndDate] = useState('2026-03-27');
 
   const { data: field, isLoading } = useFarmonautField(fieldId);
   const { data: timeSeries = [] } = useFarmonautTimeSeries(fieldId, timeSeriesPeriod);
@@ -71,7 +73,7 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
   const { data: pestPredictions = [] } = useFarmonautPestPredictions(fieldId);
   const { data: irrigationSchedule } = useFarmonautIrrigationSchedule(fieldId);
   const { data: yieldPrediction } = useFarmonautYieldPrediction(fieldId);
-  const { data: historicalData = [] } = useFarmonautHistorical(fieldId, historicalLayer, '2025-01-01', '2026-03-27');
+  const { data: historicalData = [] } = useFarmonautHistorical(fieldId, historicalLayer, historicalStartDate, historicalEndDate);
 
   if (isLoading || !field) {
     return (
@@ -559,9 +561,69 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
           {/* ========= HISTORICAL TAB ========= */}
           {activeTab === 'historical' && (
             <div className="space-y-6">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-5 h-5 text-indigo-600" />
-                <h3 className="font-semibold text-gray-900">البيانات التاريخية منذ 2017</h3>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-indigo-600" />
+                  <h3 className="font-semibold text-gray-900">البيانات التاريخية منذ 2017</h3>
+                </div>
+                <p className="text-xs text-gray-400">Historical Data & Timelapse</p>
+              </div>
+
+              {/* Date Range + Layer Selector */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">من تاريخ (From)</label>
+                  <input
+                    type="date"
+                    value={historicalStartDate}
+                    min="2017-01-01"
+                    onChange={(e) => setHistoricalStartDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border rounded text-sm focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">إلى تاريخ (To)</label>
+                  <input
+                    type="date"
+                    value={historicalEndDate}
+                    onChange={(e) => setHistoricalEndDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border rounded text-sm focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">المؤشر (Index)</label>
+                  <select
+                    value={historicalLayer}
+                    onChange={(e) => setHistoricalLayer(e.target.value as MapLayerType)}
+                    className="w-full px-3 py-1.5 border rounded text-sm focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="ndvi">NDVI - مؤشر الغطاء النباتي</option>
+                    <option value="ndre">NDRE - الحافة الحمراء</option>
+                    <option value="ndwi">NDWI - نقص المياه</option>
+                    <option value="evi">EVI - الغطاء المحسن</option>
+                    <option value="savi">SAVI - معدل للتربة</option>
+                    <option value="ndmi">NDMI - رطوبة التربة</option>
+                    <option value="sar_rvi">SAR RVI - رادار (عبر السحب)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Quick Date Presets */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: 'هذا الموسم', from: '2025-10-01', to: '2026-03-27' },
+                  { label: 'الموسم الماضي', from: '2024-10-01', to: '2025-06-01' },
+                  { label: 'سنة كاملة', from: '2025-03-27', to: '2026-03-27' },
+                  { label: 'منذ 2017', from: '2017-01-01', to: '2026-03-27' },
+                ].map((preset) => (
+                  <button
+                    key={preset.label}
+                    onClick={() => { setHistoricalStartDate(preset.from); setHistoricalEndDate(preset.to); }}
+                    className="px-3 py-1 text-xs rounded-full border border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
 
               {historicalData.length > 0 ? (

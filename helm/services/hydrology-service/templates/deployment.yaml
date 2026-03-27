@@ -90,6 +90,15 @@ spec:
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          {{- if .Values.probes.startup }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.startup.path | default "/healthz" }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds | default 10 }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold | default 30 }}
+          {{- end }}
           lifecycle:
             preStop:
               exec:

@@ -312,7 +312,7 @@ class TestEventPublisherPublish:
         invalid_event.causation_id = None
         invalid_event.trace_id = None
         invalid_event.span_id = None
-        invalid_event.tenant_id = None
+        invalid_event.tenant_id = "test-tenant-for-validation"
         invalid_event.tenant_id_header = None
         invalid_event.event_id = str(uuid4())
         invalid_event.version = "1.0.0"

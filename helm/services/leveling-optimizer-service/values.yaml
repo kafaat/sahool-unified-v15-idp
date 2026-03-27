@@ -120,4 +120,4 @@ securityContext:
 
 # Network Policy
 networkPolicy:
-  enabled: true
+  enabled: false

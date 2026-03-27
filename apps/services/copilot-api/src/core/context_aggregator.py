@@ -100,9 +100,7 @@ class AgriContextAggregator:
         resp.raise_for_status()
         return resp.json().get("data", resp.json())
 
-    async def _get_weather(
-        self, field_id: str, tenant_id: str, lat: float = 15.37, lon: float = 44.19
-    ) -> dict:
+    async def _get_weather(self, field_id: str, tenant_id: str, lat: float = 15.37, lon: float = 44.19) -> dict:
         resp = await self.client.post(
             "http://weather-service:8092/weather/forecast",
             json={"tenant_id": tenant_id, "field_id": field_id, "lat": lat, "lon": lon},

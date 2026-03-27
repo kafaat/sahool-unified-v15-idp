@@ -1,6 +1,6 @@
 /**
- * Farmonaut Add Field Page
- * صفحة إضافة حقل جديد - فارمونوت
+ * Add Field Page
+ * صفحة إضافة حقل جديد - مراقبة الأقمار الصناعية
  */
 
 import { Metadata } from 'next';

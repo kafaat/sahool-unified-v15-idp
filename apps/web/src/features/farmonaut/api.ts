@@ -1,6 +1,6 @@
 /**
- * Farmonaut Satellite Monitoring - API Layer
- * طبقة API لمراقبة الأقمار الصناعية فارمونوت
+ * Satellite Monitoring - API Layer
+ * طبقة API لمراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
  *
  * Backend Service Integration Map (from Component Unification Plan PR #1344):
  * ──────────────────────────────────────────────────────────────────────────
@@ -27,14 +27,14 @@
 import { createApiClient, logger } from '@/lib/api/factory';
 import { API_PREFIX } from '@sahool/shared-types/contracts';
 import type {
-  FarmonautField,
-  FarmonautDashboardStats,
-  FarmonautAlert,
+  SatelliteField,
+  SatelliteDashboardStats,
+  SatelliteAlert,
   NDVITimeSeriesPoint,
   WeatherForecast,
   FieldZone,
   FieldReport,
-  FarmonautFilters,
+  SatelliteFilters,
   ReportFormat,
   TimePeriod,
   DirectionGridAnalysis,
@@ -55,7 +55,7 @@ const api = createApiClient({ timeout: 15000 });
 // Mock Data - used when API is unavailable (offline-first)
 // ---------------------------------------------------------------------------
 
-const MOCK_FIELDS: FarmonautField[] = [
+const MOCK_FIELDS: SatelliteField[] = [
   {
     id: 'fm-001',
     fieldId: 'field-001',
@@ -298,7 +298,7 @@ const MOCK_FIELDS: FarmonautField[] = [
   },
 ];
 
-const MOCK_STATS: FarmonautDashboardStats = {
+const MOCK_STATS: SatelliteDashboardStats = {
   totalFields: 5,
   totalArea: 63.7,
   averageNdvi: 0.56,
@@ -346,7 +346,7 @@ const MOCK_ZONES: FieldZone[] = [
 // ---------------------------------------------------------------------------
 
 export const farmonautApi = {
-  getFields: async (filters?: FarmonautFilters): Promise<FarmonautField[]> => {
+  getFields: async (filters?: SatelliteFilters): Promise<SatelliteField[]> => {
     try {
       const params = new URLSearchParams();
       if (filters?.cropType) params.set('crop_type', filters.cropType);
@@ -367,7 +367,7 @@ export const farmonautApi = {
     }
   },
 
-  getFieldById: async (id: string): Promise<FarmonautField> => {
+  getFieldById: async (id: string): Promise<SatelliteField> => {
     try {
       const response = await api.get(`${API_PREFIX}/farmonaut/fields/${id}`);
       return response.data.data || response.data;
@@ -379,7 +379,7 @@ export const farmonautApi = {
     }
   },
 
-  getStats: async (): Promise<FarmonautDashboardStats> => {
+  getStats: async (): Promise<SatelliteDashboardStats> => {
     try {
       const response = await api.get(`${API_PREFIX}/farmonaut/stats`);
       return response.data.data || response.data;
@@ -389,7 +389,7 @@ export const farmonautApi = {
     }
   },
 
-  getAlerts: async (fieldId?: string): Promise<FarmonautAlert[]> => {
+  getAlerts: async (fieldId?: string): Promise<SatelliteAlert[]> => {
     try {
       const params = fieldId ? `?field_id=${fieldId}` : '';
       const response = await api.get(`${API_PREFIX}/farmonaut/alerts${params}`);
@@ -532,12 +532,12 @@ export const farmonautApi = {
     }
   },
 
-  createField: async (data: FieldSetupData): Promise<FarmonautField> => {
+  createField: async (data: FieldSetupData): Promise<SatelliteField> => {
     const response = await api.post(`${API_PREFIX}/farmonaut/fields`, data);
     return response.data.data || response.data;
   },
 
-  updateField: async (fieldId: string, data: Partial<FieldSetupData>): Promise<FarmonautField> => {
+  updateField: async (fieldId: string, data: Partial<FieldSetupData>): Promise<SatelliteField> => {
     const response = await api.patch(`${API_PREFIX}/farmonaut/fields/${fieldId}`, data);
     return response.data.data || response.data;
   },

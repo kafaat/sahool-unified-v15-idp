@@ -1,6 +1,6 @@
 /**
- * Farmonaut Satellite Monitoring - React Hooks
- * خطافات React لمراقبة الأقمار الصناعية فارمونوت
+ * Satellite Monitoring - React Hooks
+ * خطافات React لمراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
  */
 
 'use client';
@@ -63,7 +63,7 @@ export function useFarmonautAlerts(fieldId?: string) {
   });
 }
 
-export function useFarmonautTimeSeries(fieldId: string, period: TimePeriod) {
+export function useSatelliteMonitorTimeSeries(fieldId: string, period: TimePeriod) {
   return useQuery({
     queryKey: farmonautKeys.timeSeries(fieldId, period),
     queryFn: () => farmonautApi.getTimeSeries(fieldId, period),
@@ -90,7 +90,7 @@ export function useFarmonautZones(fieldId: string) {
   });
 }
 
-export function useFarmonautDirectionGrid(fieldId: string, layerType: MapLayerType) {
+export function useSatelliteMonitorDirectionGrid(fieldId: string, layerType: MapLayerType) {
   return useQuery({
     queryKey: farmonautKeys.directionGrid(fieldId, layerType),
     queryFn: () => farmonautApi.getDirectionGrid(fieldId, layerType),
@@ -99,7 +99,7 @@ export function useFarmonautDirectionGrid(fieldId: string, layerType: MapLayerTy
   });
 }
 
-export function useFarmonautSoilAnalysis(fieldId: string) {
+export function useSatelliteMonitorSoilAnalysis(fieldId: string) {
   return useQuery({
     queryKey: farmonautKeys.soil(fieldId),
     queryFn: () => farmonautApi.getSoilAnalysis(fieldId),
@@ -108,7 +108,7 @@ export function useFarmonautSoilAnalysis(fieldId: string) {
   });
 }
 
-export function useFarmonautPestPredictions(fieldId: string) {
+export function useSatelliteMonitorPestPredictions(fieldId: string) {
   return useQuery({
     queryKey: farmonautKeys.pestPredictions(fieldId),
     queryFn: () => farmonautApi.getPestPredictions(fieldId),
@@ -117,7 +117,7 @@ export function useFarmonautPestPredictions(fieldId: string) {
   });
 }
 
-export function useFarmonautIrrigationSchedule(fieldId: string) {
+export function useSatelliteMonitorIrrigationSchedule(fieldId: string) {
   return useQuery({
     queryKey: farmonautKeys.irrigationSchedule(fieldId),
     queryFn: () => farmonautApi.getIrrigationSchedule(fieldId),
@@ -126,7 +126,7 @@ export function useFarmonautIrrigationSchedule(fieldId: string) {
   });
 }
 
-export function useFarmonautYieldPrediction(fieldId: string) {
+export function useSatelliteMonitorYieldPrediction(fieldId: string) {
   return useQuery({
     queryKey: farmonautKeys.yieldPrediction(fieldId),
     queryFn: () => farmonautApi.getYieldPrediction(fieldId),
@@ -135,7 +135,7 @@ export function useFarmonautYieldPrediction(fieldId: string) {
   });
 }
 
-export function useFarmonautHistorical(fieldId: string, layerType: MapLayerType, startDate: string, endDate: string) {
+export function useSatelliteMonitorHistorical(fieldId: string, layerType: MapLayerType, startDate: string, endDate: string) {
   return useQuery({
     queryKey: [...farmonautKeys.historical(fieldId, layerType), startDate, endDate],
     queryFn: () => farmonautApi.getHistoricalData(fieldId, startDate, endDate, layerType),

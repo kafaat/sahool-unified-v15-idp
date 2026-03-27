@@ -38,9 +38,9 @@ import {
   useFarmonautFields,
   useFarmonautStats,
   useFarmonautAlerts,
-  useFarmonautTimeSeries,
+  useSatelliteMonitorTimeSeries,
   useFarmonautWeather,
-  useFarmonautDirectionGrid,
+  useSatelliteMonitorDirectionGrid,
 } from '@/features/farmonaut';
 import { MAP_LAYERS, HYBRID_COLORS } from '@/features/farmonaut/api';
 import type { FarmonautField, MapLayerType, CropHealthStatus, TimePeriod } from '@/features/farmonaut';
@@ -95,9 +95,9 @@ export default function FarmonautClient() {
   const { data: stats } = useFarmonautStats();
   const { data: alerts = [] } = useFarmonautAlerts();
   const selectedField = selectedFieldId || (fields.length > 0 ? fields[0].id : '');
-  const { data: timeSeries = [] } = useFarmonautTimeSeries(selectedField, timeSeriesPeriod);
+  const { data: timeSeries = [] } = useSatelliteMonitorTimeSeries(selectedField, timeSeriesPeriod);
   const { data: weather = [] } = useFarmonautWeather(selectedField);
-  const { data: directionGrid } = useFarmonautDirectionGrid(selectedField, selectedLayer);
+  const { data: directionGrid } = useSatelliteMonitorDirectionGrid(selectedField, selectedLayer);
 
   const activeLayer = MAP_LAYERS.find((l) => l.type === selectedLayer) ?? MAP_LAYERS[0];
 

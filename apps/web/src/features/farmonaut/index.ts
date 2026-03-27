@@ -1,6 +1,6 @@
 /**
- * Farmonaut Satellite Monitoring - Public API
- * واجهة مراقبة الأقمار الصناعية فارمونوت
+ * Satellite Monitoring - Public API
+ * واجهة مراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
  */
 
 export * from './types';

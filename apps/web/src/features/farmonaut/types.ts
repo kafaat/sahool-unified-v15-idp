@@ -1,6 +1,6 @@
 /**
- * Farmonaut Satellite Monitoring - Types
- * أنواع بيانات مراقبة الأقمار الصناعية فارمونوت
+ * Satellite Monitoring - Types
+ * أنواع بيانات مراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
  */
 
 export type CropHealthStatus = 'healthy' | 'moderate' | 'stressed' | 'critical';
@@ -181,7 +181,7 @@ export interface FieldBoundary {
   lng: number;
 }
 
-export interface FarmonautField {
+export interface SatelliteField {
   id: string;
   fieldId: string;
   name: string;
@@ -205,13 +205,13 @@ export interface FarmonautField {
   healthStatus: CropHealthStatus;
   healthScore: number;
   waterStressLevel: number;
-  alerts: FarmonautAlert[];
+  alerts: SatelliteAlert[];
   metadata: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface FarmonautAlert {
+export interface SatelliteAlert {
   id: string;
   fieldId: string;
   fieldName: string;
@@ -262,7 +262,7 @@ export interface FieldZone {
   color: string;
 }
 
-export interface FarmonautDashboardStats {
+export interface SatelliteDashboardStats {
   totalFields: number;
   totalArea: number;
   averageNdvi: number;
@@ -293,11 +293,11 @@ export interface FieldReport {
     trend: 'up' | 'down' | 'stable';
   };
   healthHistory: Array<{ date: string; score: number; status: CropHealthStatus }>;
-  alerts: FarmonautAlert[];
+  alerts: SatelliteAlert[];
   recommendations: Array<{ text: string; textAr: string; priority: AlertSeverity }>;
 }
 
-export interface FarmonautFilters {
+export interface SatelliteFilters {
   cropType?: string;
   healthStatus?: CropHealthStatus;
   search?: string;
@@ -309,7 +309,7 @@ export interface FarmonautFilters {
 // Error Handling & API Response Types
 // ---------------------------------------------------------------------------
 
-export type FarmonautErrorCode =
+export type SatelliteErrorCode =
   | 'NETWORK_ERROR'
   | 'AUTH_REQUIRED'
   | 'FIELD_NOT_FOUND'
@@ -322,15 +322,15 @@ export type FarmonautErrorCode =
   | 'NO_SATELLITE_DATA'
   | 'PROCESSING_IN_PROGRESS';
 
-export interface FarmonautError {
-  code: FarmonautErrorCode;
+export interface SatelliteError {
+  code: SatelliteErrorCode;
   message: string;
   messageAr: string;
   retryable: boolean;
   retryAfterMs?: number;
 }
 
-export const FARMONAUT_ERRORS: Record<FarmonautErrorCode, FarmonautError> = {
+export const SATELLITE_ERRORS: Record<SatelliteErrorCode, SatelliteError> = {
   NETWORK_ERROR: { code: 'NETWORK_ERROR', message: 'Network error. Using cached data.', messageAr: 'خطأ في الاتصال. استخدام البيانات المخزنة.', retryable: true, retryAfterMs: 5000 },
   AUTH_REQUIRED: { code: 'AUTH_REQUIRED', message: 'Authentication required.', messageAr: 'يلزم تسجيل الدخول.', retryable: false },
   FIELD_NOT_FOUND: { code: 'FIELD_NOT_FOUND', message: 'Field not found.', messageAr: 'الحقل غير موجود.', retryable: false },
@@ -348,7 +348,7 @@ export const FARMONAUT_ERRORS: Record<FarmonautErrorCode, FarmonautError> = {
 // Service Integration Mapping
 // ---------------------------------------------------------------------------
 
-/** Maps Farmonaut features to SAHOOL backend microservices */
+/** Maps satellite monitoring features to SAHOOL backend microservices */
 export interface ServiceEndpoint {
   service: string;
   serviceAr: string;
@@ -357,7 +357,7 @@ export interface ServiceEndpoint {
   healthCheck: string;
 }
 
-export const FARMONAUT_SERVICE_MAP: Record<string, ServiceEndpoint> = {
+export const SATELLITE_SERVICE_MAP: Record<string, ServiceEndpoint> = {
   satellite: { service: 'vegetation-analysis-service', serviceAr: 'خدمة تحليل الغطاء النباتي', port: 8090, basePath: '/api/v1/vegetation', healthCheck: '/healthz' },
   weather: { service: 'weather-service', serviceAr: 'خدمة الطقس', port: 8092, basePath: '/api/v1/weather', healthCheck: '/healthz' },
   advisory: { service: 'advisory-service', serviceAr: 'خدمة الاستشارات', port: 8093, basePath: '/api/v1/advisory', healthCheck: '/healthz' },

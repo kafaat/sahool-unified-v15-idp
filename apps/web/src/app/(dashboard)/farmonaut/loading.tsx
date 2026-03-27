@@ -1,6 +1,6 @@
 /**
- * Farmonaut Satellite Monitoring - Loading Skeleton
- * هيكل تحميل مراقبة الأقمار الصناعية فارمونوت
+ * Satellite Monitoring - Loading Skeleton
+ * هيكل تحميل مراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
  */
 
 export default function Loading() {

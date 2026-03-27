@@ -305,3 +305,167 @@ FieldDetailClient.tsx
    → if cloud > 30%:
      GET vegetation-analysis:8090/v1/soil-moisture/{field_id} (SAR)
 ```
+
+---
+
+## عاشراً: هندسة عكسية كاملة لواجهة Farmonaut — مقارنة UI
+
+> تحليل مبني على لقطات الشاشة والفيديو — كل مكون واجهة مع مقابله في SAHOOL
+
+### 1. Header Bar (الشريط العلوي)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [F Logo] Farmonaut®          [Download Index Results]       │
+│ Satellite Based Crop Health  [VIDEO TUTORIALS]              │
+│                              [Search: demo@farmona 🔍]      │
+│                              [My Profile] [My Fields] [Log Out]│
+└─────────────────────────────────────────────────────────────┘
+```
+
+| مكون | Farmonaut | SAHOOL | الفجوة |
+|------|----------|--------|--------|
+| Logo + Tagline | ✅ "Satellite Based Crop Health" | ✅ موجود في sidebar | — |
+| Download Index Results (تصدير جماعي) | ✅ تصدير كل الحقول دفعة واحدة | ❌ غائب | P1 — يحتاج batch export endpoint |
+| VIDEO TUTORIALS | ✅ onboarding مدمج | ❌ غائب | P2 — محتوى تعليمي |
+| Search بالبريد الإلكتروني | ✅ بحث سريع عن حقل | ✅ **أضفنا بحث** في FarmonautClient | مكتمل |
+| My Profile / My Fields | ✅ | ✅ sidebar navigation | — |
+
+### 2. Field Info Bar (شريط معلومات الحقل)
+
+```
+[Map] [Satellite]  | Owner: undefined | Area: .83 Ha, 207 acres |
+                     Date: 24-10-2023 | Image Type: HYBRID |
+                     [Pause Monitoring 🟢] [Delete This Field 🔴]
+```
+
+| مكون | Farmonaut | SAHOOL | الفجوة | الأولوية |
+|------|----------|--------|--------|---------|
+| Map / Satellite toggle | ✅ تبديل خلفية الخريطة | ❌ غائب — خريطة placeholder | P1 — يحتاج Leaflet + tile layers |
+| Owner field | ✅ | ❌ — لا يُعرض المالك | P2 |
+| Area بوحدتين (Ha + acres) | ✅ | ⚠️ هكتار فقط | إضافة تحويل dunams/acres |
+| Date آخر صورة | ✅ | ✅ موجود في الجدول | — |
+| Image Type (المؤشر النشط) | ✅ يُعرض في شريط المعلومات | ✅ يُعرض في عنوان الخريطة | — |
+| **Pause Monitoring** | ✅ إيقاف مؤقت للاشتراك | ❌ **غائب تماماً** | P1 — business logic |
+| **Delete This Field** | ✅ حذف نهائي | ❌ غائب في واجهة Farmonaut | P2 |
+
+### 3. Left Sidebar — Map Controls (القائمة الجانبية)
+
+```
+For Basic Analysis:       [Hybrid]
+For Colorblind:           [Colorblind Visualization]
+For Satellite Image:      [TCI] [ETCI]
+For Crop Health (Early):  [NDVI] [EVI] [SAVI]
+For Crop Health (Late):   [NDRE]
+For Irrigation:           [NDWI] [Evapotranspiration] [NDMI]
+For Soil Health:          [SOC]
+For Advanced:             [Erosion]
+For Topography:           [DEM]
+```
+
+| مكون | Farmonaut | SAHOOL | الفجوة |
+|------|----------|--------|--------|
+| 9 مجموعات مؤشرات | ✅ | ✅ **مطابق** — LAYER_GROUPS في FarmonautClient | — |
+| 16 مؤشر | ✅ (+ SAR RVI/RSM) | ✅ **مطابق** — MAP_LAYERS في api.ts | — |
+| "Use This When Vegetation is Small" نص تعليمي | ✅ | ❌ غائب | P2 — tooltips تعليمية |
+| Analysis Scale Bar في الأعلى | ✅ شريط متدرج | ❌ غائب | P1 — مقياس بصري |
+
+### 4. Field Analysis Panel (البطاقة التحليلية)
+
+```
+┌──────────────────────────────────────────┐
+│ Field Analysis ⚙️                        │
+│ Crop inspection required in NW direction │
+│ Irrigation inspection required in        │
+│ NW, NE, SW directions                   │
+└──────────────────────────────────────────┘
+```
+
+| مكون | Farmonaut | SAHOOL | الفجوة | الأولوية |
+|------|----------|--------|--------|---------|
+| **9-Direction Text Analysis** | ✅ "اذهب شمال غرب وافحص" | ❌ **غائب** | **P0 — أهم ميزة مفقودة** |
+| تمييز بين مشكلة صحة ومشكلة ري | ✅ | ❌ | يحتاج خوارزمية NDVI + NDWI → اتجاه |
+| Crop / Irrigation toggle | ✅ زران منفصلان | ❌ | P1 |
+| Field Directions button | ✅ يعرض شبكة 9 أقسام | ✅ **موجود** في FarmonautClient | — |
+
+### 5. Analysis Scale (HYBRID) — مفتاح الألوان
+
+```
+🟢 Good Crop Health & Irrigation
+⬜ No Crop / Clouds
+🟠 Requires Crop Health Attention
+🟣 Requires Irrigation Attention
+🔴 Requires Both / No Crop / Cloud
+```
+
+| مكون | Farmonaut | SAHOOL | الفجوة |
+|------|----------|--------|--------|
+| 5 ألوان Hybrid | ✅ | ✅ **مطابق** — HYBRID_COLORS في api.ts | — |
+| مفتاح ألوان ديناميكي يتغير حسب المؤشر | ✅ | ✅ **مطابق** — colorStops لكل layer | — |
+
+### 6. Main Map (الخريطة الرئيسية)
+
+| مكون | Farmonaut | SAHOOL | الفجوة | الأولوية |
+|------|----------|--------|--------|---------|
+| خريطة تفاعلية Mapbox/Leaflet | ✅ حقيقية | ❌ **placeholder فقط** | **P0** — يحتاج Leaflet/MapLibre |
+| حدود الحقل بنقاط خضراء | ✅ | ❌ | مع تفعيل الخريطة |
+| تلوين الحقل حسب المؤشر | ✅ GeoTIFF overlay | ❌ | يحتاج tile server أو COG |
+| بقع بيضاء = غيوم | ✅ | ❌ | مع cloud masking |
+| [Crop] [Irrigation] toggle على الخريطة | ✅ | ❌ | P1 |
+
+### 7. Bottom Field Tags (شريط التنقل السفلي)
+
+```
+[Chennai] [Unavailable] [Vikas] [Bhirari] [India] [India]
+```
+
+| مكون | Farmonaut | SAHOOL | الفجوة |
+|------|----------|--------|--------|
+| Quick Navigation Tags | ✅ نقرة واحدة للتنقل بين الحقول | ❌ غائب — dropdown فقط | P2 — tag chips |
+
+### 8. Right Side Actions (أزرار يمين)
+
+```
+[Partner Fields] [KML/SHP file] [Add Polygon within Field]
+```
+
+| مكون | Farmonaut | SAHOOL | الفجوة | الأولوية |
+|------|----------|--------|--------|---------|
+| Partner Fields | ✅ حقول الشركاء/الموزعين | ❌ غائب | P3 — multi-tenant |
+| KML/SHP Upload | ✅ | ⚠️ UI موجود لكن **بدون file handler** | P1 — إكمال AddFieldClient |
+| Add Polygon within Field | ✅ مناطق فرعية داخل الحقل | ✅ **PostGIS قادر** — `ST_Subdivide` | P1 — يحتاج UI |
+
+---
+
+## حادي عشر: ملخص فجوات الواجهة — مرتّب بالأولوية
+
+### P0 — حرج (يجب فوراً)
+
+| # | المكون | الوصف | الجهد |
+|---|--------|-------|-------|
+| 1 | **خريطة تفاعلية حقيقية** | Leaflet/MapLibre بدلاً من placeholder | أسبوع |
+| 2 | **Field Analysis Panel** | بطاقة تحليل 9 اتجاهات بنص عربي بسيط | 3 أيام |
+| 3 | **Crop / Irrigation Toggle** | زران على الخريطة لتبديل عرض المشكلة | يوم |
+
+### P1 — عالي (خلال شهر)
+
+| # | المكون | الوصف | الجهد |
+|---|--------|-------|-------|
+| 4 | Map/Satellite toggle | تبديل خلفية الخريطة (OSM vs Satellite tiles) | يومان |
+| 5 | Analysis Scale Bar | شريط تدرج لوني أعلى القائمة الجانبية | يوم |
+| 6 | Pause Monitoring | زر إيقاف/تشغيل المراقبة (subscription logic) | 3 أيام |
+| 7 | Download Index Results | تصدير جماعي لكل الحقول (CSV/PDF) | 3 أيام |
+| 8 | KML/SHP Upload Handler | إكمال رفع الملفات في AddFieldClient | 3 أيام |
+| 9 | Add Polygon within Field | رسم مناطق فرعية داخل حقل موجود | أسبوع |
+| 10 | Area بوحدات متعددة | Ha + acres + dunams + feddan | يوم |
+
+### P2 — متوسط
+
+| # | المكون | الجهد |
+|---|--------|-------|
+| 11 | Bottom Field Tags (quick navigation) | يومان |
+| 12 | VIDEO TUTORIALS section | أسبوع (محتوى) |
+| 13 | Tooltips تعليمية على المؤشرات | يومان |
+| 14 | Colorblind accessibility mode | 3 أيام |
+| 15 | Owner field display | يوم |
+| 16 | Delete This Field | يوم + confirmation dialog |

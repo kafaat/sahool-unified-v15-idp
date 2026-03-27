@@ -61,9 +61,12 @@ jobs:
       - name: Deploy to Surge.sh
         id: surge
         working-directory: apps/web
+        env:
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           npm install -g surge
-          DEPLOY_DOMAIN="sahool-pr-${{ github.event.pull_request.number }}.surge.sh"
+          DEPLOY_DOMAIN="sahool-pr-${PR_NUMBER}.surge.sh"
 
           # Find build output directory
           if [ -d "out" ]; then
@@ -81,7 +84,7 @@ jobs:
             exit 1
           fi
 
-          surge --project $BUILD_DIR --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }} || echo "Surge deployment skipped - no token"
+          surge --project $BUILD_DIR --domain $DEPLOY_DOMAIN --token "$SURGE_TOKEN" || echo "Surge deployment skipped - no token"
           echo "url=https://$DEPLOY_DOMAIN" >> $GITHUB_OUTPUT
         continue-on-error: true
 
@@ -236,9 +239,12 @@ jobs:
 
     steps:
       - name: Delete Surge preview
+        env:
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           npm install -g surge
-          surge teardown sahool-pr-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }} || true
+          surge teardown "sahool-pr-${PR_NUMBER}.surge.sh" --token "$SURGE_TOKEN" || true
         continue-on-error: true
 
       - name: Comment cleanup

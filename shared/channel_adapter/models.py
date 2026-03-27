@@ -46,8 +46,6 @@ class ChannelResponse:
         if channel == ChannelType.WHATSAPP:
             sections = [self.text_ar]
             if self.sources:
-                sections.append(
-                    f"\n📋 المصادر: {', '.join(s.get('name', '') for s in self.sources[:3])}"
-                )
+                sections.append(f"\n📋 المصادر: {', '.join(s.get('name', '') for s in self.sources[:3])}")
             return "\n".join(sections)
         return self.text_ar

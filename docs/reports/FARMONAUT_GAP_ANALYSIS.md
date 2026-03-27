@@ -159,3 +159,149 @@ SAR/Radar:                         ██░░░░░░░░░░░░░
 3. **لا تبسيط للمزارع** (Hybrid Index + 9 أقسام)
 
 **إذا تم حل هذه الثلاث نقاط، SAHOOL يتفوق على Farmonaut تقنياً.**
+
+---
+
+## ثامناً: خريطة التكامل — الـ Endpoints الدقيقة لربط الواجهة بالخدمات
+
+> هذا القسم يوضح **بالضبط** أي endpoint يُستدعى لكل ميزة في واجهة Farmonaut.
+> مبني على تدقيق الكود الفعلي وليس الوثائق.
+
+### خدمة تحليل الغطاء النباتي (vegetation-analysis-service — port 8090)
+
+| ميزة Farmonaut | Endpoint الحقيقي | الحالة | ملاحظات |
+|----------------|-----------------|--------|---------|
+| **NDVI / EVI / SAVI / NDRE / NDWI / NDMI** | `GET /v1/indices/{field_id}` | ✅ يعمل (mock) | يُرجع 18+ مؤشر دفعة واحدة |
+| **مؤشر محدد** | `GET /v1/indices/{field_id}/{index_name}` | ✅ يعمل (mock) | مع تفسير حسب المحصول |
+| **السلسلة الزمنية** | `GET /v1/timeseries/{field_id}` | ✅ يعمل (mock) | NDVI عبر الزمن |
+| **تحليل زمني شامل** | `POST /v1/ndvi-timeseries/analyze/{field_id}` | ✅ حقيقي | كشف شذوذ + اتجاهات + فينولوجيا |
+| **رطوبة التربة SAR** | `GET /v1/soil-moisture/{field_id}` | ⚠️ محاكاة | Water Cloud Model يمني جاهز |
+| **سلسلة SAR الزمنية** | `GET /v1/sar-timeseries/{field_id}` | ⚠️ محاكاة | |
+| **كشف أحداث الري** | `GET /v1/irrigation-events/{field_id}` | ⚠️ محاكاة | |
+| **غطاء السحب** | `GET /v1/cloud-cover/{field_id}` | ✅ | يُستخدم لتقرير SAR fallback |
+| **كشف حدود الحقل** | `POST /v1/boundaries/detect` | ✅ | |
+| **تصدير تحليل** | `GET /v1/export/analysis/{field_id}` | ✅ | GeoJSON/CSV/KML |
+| **VRA (تطبيق متغير)** | `POST /v1/vra/generate` | ✅ | خرائط وصفات |
+| **مرحلة النمو** | `GET /v1/phenology/{field_id}` | ✅ | كشف مرحلة المحصول |
+| **نافذة الرش** | `GET /v1/spray/forecast` | ✅ | أفضل وقت للرش |
+| **توقع المحصول** | `POST /v1/yield-prediction` | ✅ | NDVI-based |
+
+### خدمة الطقس (weather-service — port 8092)
+
+| ميزة Farmonaut | Endpoint | الحالة | ملاحظات |
+|----------------|---------|--------|---------|
+| **توقعات يومية 8 أيام** | `POST /weather/forecast` (body: lat, lon; query: days=8) | ✅ حقيقي | Open-Meteo + OpenWeatherMap |
+| **توقعات ساعية 48 ساعة** | `POST /weather/forecast` (days=2) | ⚠️ يومي فقط | الخدمة لا تدعم ساعي — يحتاج إضافة |
+| **تقييم نافذة الرش** | `POST /weather/spray-window` | ✅ حقيقي | |
+| **النتح التبخري** | `POST /weather/evapotranspiration` | ✅ حقيقي | Hargreaves ET0 |
+| **خطر الصقيع** | `POST /weather/frost-risk` | ✅ حقيقي | |
+| **إجهاد حراري** | `POST /weather/heat-stress` | ✅ حقيقي | |
+| **GDD (أيام نمو حراري)** | `POST /weather/gdd` | ✅ حقيقي | |
+| **تقرير زراعي شامل** | `POST /weather/agricultural-report` | ✅ حقيقي | يجمع كل التحليلات |
+
+### خدمة الري الذكي (irrigation-smart — port 8094)
+
+| ميزة Farmonaut | Endpoint | الحالة | ملاحظات |
+|----------------|---------|--------|---------|
+| **حساب خطة الري** | `POST /v1/calculate` | ✅ حقيقي | ET + رطوبة + طقس + محصول |
+| **ميزان المياه** | `GET /v1/water-balance/{field_id}` | ✅ حقيقي | |
+| **قراءة مستشعر** | `POST /v1/sensor-reading` | ✅ حقيقي | رطوبة التربة |
+| **تقرير كفاءة** | `GET /v1/efficiency-report/{field_id}` | ✅ حقيقي | |
+| **لا يقبل NDVI/NDWI** | — | ❌ فجوة | يعتمد على رطوبة التربة فقط، ليس الأقمار الصناعية |
+
+### خدمة تحليل التربة (soil-analysis-service — port 8134)
+
+| ميزة Farmonaut | Endpoint | الحالة | ملاحظات |
+|----------------|---------|--------|---------|
+| **تفسير فحص التربة** | `POST /interpret` | ✅ حقيقي | 11 عنصر مع عتبات حسب المحصول |
+| **خطة تعديل التربة** | `POST /recommendations/amendment-plan` | ✅ حقيقي | توصيات أسمدة بالكمية |
+| **حالة عنصر غذائي** | `POST /interpretation/nutrient-status` | ✅ حقيقي | N, P, K, etc. |
+| **حالة pH** | `POST /interpretation/ph-status` | ✅ حقيقي | |
+| **حالة EC (ملوحة)** | `POST /interpretation/ec-status` | ✅ حقيقي | |
+| **اتجاهات العناصر** | `POST /trends/nutrient` | ✅ حقيقي | تحليل زمني |
+| **حساب معدل سماد** | `POST /recommendations/calculate-rate` | ✅ حقيقي | كجم/هكتار |
+
+### خدمة ذكاء المحاصيل (crop-intelligence-service — port 8095)
+
+| ميزة Farmonaut | Endpoint | الحالة | ملاحظات |
+|----------------|---------|--------|---------|
+| **تشخيص شامل** | `GET /api/v1/fields/{field_id}/diagnosis` | ✅ حقيقي | أمراض + مغذيات + آفات + محصول |
+| **كشف أمراض** | `POST /api/v1/disease/detect` | ✅ حقيقي | يقبل NDVI, EVI, NDRE, NDWI |
+| **كشف نقص مغذيات** | `POST /api/v1/nutrients/detect` | ✅ حقيقي | |
+| **تقييم آفات** | `POST /api/v1/pests/assess` | ✅ حقيقي | يقبل مؤشرات + طقس + موقع |
+| **توقع محصول** | `POST /api/v1/yield/predict` | ✅ حقيقي | 14 محصول |
+| **خط زمني للمنطقة** | `GET /api/v1/fields/{field_id}/zones/{zone_id}/timeline` | ✅ حقيقي | |
+| **تحليل شامل مدمج** | `POST /api/v1/comprehensive-analysis` | ✅ حقيقي | **الأهم** — كل شيء دفعة واحدة |
+
+### خدمة التضاريس (terrain-core-service — port 8185)
+
+| ميزة Farmonaut | Endpoint | الحالة | ملاحظات |
+|----------------|---------|--------|---------|
+| **تحليل تضاريس كامل** | `POST /api/v1/terrain/analyze` | ✅ حقيقي | 7 مؤشرات + 4 مصادر DEM |
+| **الانحدار** | `GET /api/v1/terrain/slope/{field_id}` | ✅ حقيقي | |
+| **التدفق** | `GET /api/v1/terrain/flow/{field_id}` | ✅ حقيقي | كشف مجاري المياه |
+| **TWI (رطوبة طوبوغرافية)** | `GET /api/v1/terrain/twi/{field_id}` | ✅ حقيقي | **يحدد مناطق تجمع المياه** |
+| **خطوط الكنتور** | `GET /api/v1/terrain/contours/{field_id}` | ✅ حقيقي | |
+
+### خدمة الآفات (pest-detection-service — port 8125)
+
+| ميزة Farmonaut | Endpoint | الحالة | ملاحظات |
+|----------------|---------|--------|---------|
+| **تنبؤ موسمي** | `GET /api/v1/pests/seasonal?crop=wheat&month=3` | ✅ حقيقي | 10+ آفات شرق أوسطية |
+| **تعريف بالصورة** | `POST /api/v1/pests/identify` (upload image) | ✅ حقيقي | YOLO26 vision |
+| **تعريف بالأعراض** | `POST /api/v1/pests/identify/symptoms` | ✅ حقيقي | |
+| **تقييم عتبة اقتصادية** | `POST /api/v1/thresholds/assess` | ✅ حقيقي | هل يستحق العلاج اقتصادياً؟ |
+| **توصيات علاج** | `POST /api/v1/treatments/recommend` | ✅ حقيقي | IPM متكامل |
+| **تقويم IPM** | `GET /api/v1/treatments/ipm-calendar?crop=wheat` | ✅ حقيقي | |
+
+### خدمة WhatsApp (whatsapp-bot-service — port 8240)
+
+| ميزة Farmonaut | Endpoint | الحالة | ملاحظات |
+|----------------|---------|--------|---------|
+| **إرسال تقرير** | `POST /api/v1/send` | ✅ حقيقي | نص + صور + موقع |
+| **إرسال قالب** | `POST /api/v1/send-template` | ✅ حقيقي | قوالب WhatsApp Business |
+| **استقبال رسائل** | `POST /webhook` | ✅ حقيقي | محادثة ذكية + AI |
+
+---
+
+## تاسعاً: خطة التنفيذ التقنية — ربط الواجهة بالخدمات
+
+### المرحلة 1: الربط الفوري (أسبوع واحد)
+
+**الهدف**: ربط واجهة Farmonaut بـ 4 خدمات جاهزة بدون mock data
+
+```
+FarmonautClient.tsx
+  ├── Weather Section ──→ POST weather-service:8092/weather/forecast (days=8)
+  ├── Spray Windows ──→ POST weather-service:8092/weather/spray-window
+  ├── Alerts ──→ GET alert-service:8113/api/v1/alerts
+  └── Field Stats ──→ GET crop-intelligence:8095/api/v1/fields/{id}/diagnosis
+
+FieldDetailClient.tsx
+  ├── Soil Tab ──→ POST soil-analysis:8134/interpret
+  ├── Irrigation Tab ──→ POST irrigation-smart:8094/v1/calculate
+  ├── Pests Tab ──→ POST crop-intelligence:8095/api/v1/pests/assess
+  ├── Yield Tab ──→ POST crop-intelligence:8095/api/v1/yield/predict
+  └── Overview ──→ POST crop-intelligence:8095/api/v1/comprehensive-analysis
+```
+
+### المرحلة 2: تفعيل الأقمار الصناعية (أسبوعان)
+
+```
+1. إضافة sentinelhub>=3.10.0 لـ requirements.txt
+2. تكوين SENTINEL_HUB_CLIENT_ID + SECRET
+3. تفعيل GET vegetation-analysis:8090/v1/indices/{field_id}
+4. تفعيل GET vegetation-analysis:8090/v1/timeseries/{field_id}
+5. بناء Hybrid Index = f(NDVI, NDWI) → 4 ألوان
+```
+
+### المرحلة 3: SAR Fallback (أسبوعان)
+
+```
+1. تفعيل Sentinel-1 SAR download في sar_processor.py
+2. حساب RVI + RSM من بيانات SAR حقيقية
+3. كشف cloud_cover > 30% → تحول تلقائي لـ SAR
+4. GET vegetation-analysis:8090/v1/cloud-cover/{field_id}
+   → if cloud > 30%:
+     GET vegetation-analysis:8090/v1/soil-moisture/{field_id} (SAR)
+```

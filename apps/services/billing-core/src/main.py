@@ -78,6 +78,17 @@ logging.basicConfig(
 logging.getLogger("uvicorn.access").propagate = False
 logger = structlog.get_logger("sahool-billing")
 
+# Free tier limits (Phase 3 of Component Unification Plan PR #1344)
+FREE_TIER_LIMITS = {
+    "daily_queries": 20,
+    "image_detection": 3,
+    "weather_alerts": True,
+    "market_prices": True,
+    "field_count": 1,
+    "advanced_ndvi": False,
+    "ai_advisor_full": False,
+}
+
 
 def _sanitize_log(value: Any) -> str:
     """Sanitize user-provided values before logging to prevent log injection."""

@@ -84,6 +84,10 @@ class ChatResponse(BaseModel):
     rag_context: list[dict[str, Any]] | None = None
     tool_calls: list[dict[str, Any]] | None = None
     usage: dict[str, int] | None = None
+    intent: str | None = None
+    sources: list[dict] = Field(default_factory=list)
+    services_used: list[str] = Field(default_factory=list)
+    confidence: float | None = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {
@@ -93,6 +97,29 @@ class ChatResponse(BaseModel):
                 "mode": "offline",
                 "message": {"role": "assistant", "content": "مرحباً! أنا مساعد سهول الذكي..."},
                 "timestamp": "2026-01-29T10:30:00Z",
+            }
+        }
+    }
+
+
+class UnifiedQueryRequest(BaseModel):
+    """Unified query from any channel (Phase 2) | استعلام موحد من أي قناة"""
+
+    message: str
+    channel: str = "web"  # whatsapp | ussd | wechat | web | mobile
+    field_id: str | None = None
+    tenant_id: str | None = None
+    language: str = "ar"
+    image_base64: str | None = None
+    location: dict | None = None
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "message": "ما حالة حقل القمح؟",
+                "channel": "mobile",
+                "field_id": "FIELD-003",
+                "language": "ar",
             }
         }
     }

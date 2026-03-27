@@ -1,7 +1,7 @@
 ---
 title: "Vegetables Q&A: Yemen & Southern Saudi Arabia"
 title_ar: "أسئلة وأجوبة الخضروات: اليمن وجنوب السعودية"
-description: Q&A guide for vegetable cultivation including tomato, potato, onion, okra
+description: Comprehensive Q&A guide for vegetable cultivation including tomato, potato, onion, okra, watermelon, and protected agriculture
 category: crops
 tags:
   - vegetables
@@ -10,13 +10,17 @@ tags:
   - onion
   - okra
   - watermelon
+  - TYLCV
+  - tuta_absoluta
+  - IPM
+  - greenhouse
   - yemen
   - saudi_arabia
   - qa_guide
 regions:
   - yemen
   - saudi_arabia
-version: "1.0.0"
+version: "1.1.0"
 last_updated: "2026-03-27"
 ---
 
@@ -644,6 +648,7 @@ Tuta absoluta, first detected in Yemen around 2015 and now established across th
 4. **رش Bt:** تطبيق Btk بمعدل 1–1.5 ل/هـ كل 7 أيام عندما يتجاوز عدد اليرقات 1 يرقة/5 أوراق.
 5. **تناوب كيميائي:** كلورانترانيليبرول → سبينوساد → إيمامكتين بنزوات → إندوكساكارب. عدم تطبيق نفس مجموعة آلية العمل أكثر من مرتين متتاليتين.
 6. **نظافة حقلية:** إزالة وتدمير (حرق أو دفن عميق) جميع المواد النباتية المصابة. عدم تسميدها.
+
 
 
 ### Q1: What are the most important vegetable crops in Yemen and southern Saudi Arabia, and how are they ranked by production volume?

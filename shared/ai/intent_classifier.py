@@ -50,7 +50,7 @@ INTENT_SERVICE_MAP = {
 class IntentResult:
     intent: AgriIntent
     confidence: float  # 0.0 - 1.0
-    method: str  # "pattern" | "llm" | "vision"
+    method: str  # "pattern" | "llm" | "vision" | "fallback"
     language: str  # "ar" | "en"
     entities: dict = field(default_factory=dict)  # extracted entities like crop_type, field_id
 
@@ -73,7 +73,7 @@ class AgriIntentClassifier:
         AgriIntent.CROP_DISEASE: [r"مرض", r"اصفرار", r"ذبول", r"بقع", r"آفة.*ورق", r"تعفن"],
         AgriIntent.IRRIGATION: [r"ري", r"سقي", r"ماء", r"عطش", r"جفاف", r"رطوبة"],
         AgriIntent.FERTILIZER: [r"سماد", r"تسميد", r"يوريا", r"نيتروجين", r"فوسف", r"بوتاس"],
-        AgriIntent.PEST_DETECTION: [r"حشر", r"دود", r"من\b", r"جراد", r"سوسة", r"آفة"],
+        AgriIntent.PEST_DETECTION: [r"حشر", r"دود", r"حشرة المن", r"جراد", r"سوسة", r"آفة"],
         AgriIntent.WEATHER: [r"طقس", r"حرارة", r"مطر", r"رياح", r"رطوبة.*جو", r"صقيع"],
         AgriIntent.MARKET_PRICE: [r"سعر", r"سوق", r"بيع", r"شراء", r"تسويق"],
         AgriIntent.NDVI_ANALYSIS: [r"ndvi", r"قمر.*صناعي", r"صور.*فضائ", r"غطاء.*نبات"],

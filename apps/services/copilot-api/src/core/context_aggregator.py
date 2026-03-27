@@ -10,7 +10,6 @@ Phase 4 of Component Unification Plan (PR #1344)
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import Any
 
 import httpx
 import structlog
@@ -111,7 +110,7 @@ class AgriContextAggregator:
 
     async def _get_soil_data(self, field_id: str, tenant_id: str) -> dict:
         resp = await self.client.get(
-            f"http://soil-analysis-service:8134/tests/field/{field_id}", headers={"X-Tenant-Id": tenant_id}
+            f"http://soil-analysis-service:8134/api/v1/soil/tests/field/{field_id}", headers={"X-Tenant-Id": tenant_id}
         )
         resp.raise_for_status()
         data = resp.json()

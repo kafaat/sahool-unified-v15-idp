@@ -89,6 +89,14 @@ export default function AddFieldClient() {
         errors.push('يرجى رفع ملف الحدود');
       }
     }
+    if (currentStep === 3) {
+      if (!formData.nameAr.trim()) {
+        errors.push('يرجى إدخال اسم الحقل بالعربية');
+      }
+      if (!formData.cropType) {
+        errors.push('يرجى اختيار نوع المحصول');
+      }
+    }
     setValidationErrors(errors);
     return errors.length === 0;
   };

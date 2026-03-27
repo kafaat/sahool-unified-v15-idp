@@ -558,9 +558,7 @@ class TestCallQwenVL:
         v = _make_verifier(provider="qwen_vl", qwen_api_key="test-key")
         response_json = {
             "output": {
-                "choices": [
-                    {"message": {"content": '{"has_pest": true, "confidence": 85, "pest_type": "aphid"}'}}
-                ]
+                "choices": [{"message": {"content": '{"has_pest": true, "confidence": 85, "pest_type": "aphid"}'}}]
             }
         }
         mock_response = MagicMock()

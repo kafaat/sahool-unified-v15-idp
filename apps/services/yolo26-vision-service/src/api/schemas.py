@@ -558,8 +558,7 @@ class PestDetectionRequest(DetectionRequest):
     use_vlm: bool = Field(
         default=False,
         description=(
-            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
-            "Requires vlm_provider to be configured."
+            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). Requires vlm_provider to be configured."
         ),
     )
 
@@ -572,8 +571,7 @@ class DiseaseDetectionRequest(DetectionRequest):
     use_vlm: bool = Field(
         default=False,
         description=(
-            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
-            "Requires vlm_provider to be configured."
+            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). Requires vlm_provider to be configured."
         ),
     )
 
@@ -585,8 +583,7 @@ class WeedDetectionRequest(DetectionRequest):
     use_vlm: bool = Field(
         default=False,
         description=(
-            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). "
-            "Requires vlm_provider to be configured."
+            "Enable VLM secondary verification (Qwen-VL / vLLM / Ollama). Requires vlm_provider to be configured."
         ),
     )
 

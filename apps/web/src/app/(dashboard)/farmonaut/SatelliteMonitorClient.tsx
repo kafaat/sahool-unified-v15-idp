@@ -110,9 +110,13 @@ export default function SatelliteMonitorClient() {
   }, [fields, searchQuery]);
 
   // Health distribution for summary
-  const healthDistribution = useMemo(() => {
-    const dist: Record<string, number> = { healthy: 0, moderate: 0, stressed: 0, critical: 0 };
-    fields.forEach((f: SatelliteField) => { dist[f.healthStatus]++; });
+  const healthDistribution = useMemo((): { healthy: number; moderate: number; stressed: number; critical: number } => {
+    const dist = { healthy: 0, moderate: 0, stressed: 0, critical: 0 };
+    fields.forEach((f: SatelliteField) => {
+      if (f.healthStatus in dist) {
+        dist[f.healthStatus as keyof typeof dist]++;
+      }
+    });
     return dist;
   }, [fields]);
 

@@ -134,6 +134,7 @@ Farmer Notification
 - [[water-stress-index]] - Water stress detection
 - [[sentinel-guide]] - Sentinel-2 data access and processing
 - [[hyperspectral-disease-detection]] - Hyperspectral imaging for disease detection
+- [[precision-agriculture-remote-sensing]] - Comprehensive remote sensing applications in precision agriculture | تطبيقات الاستشعار عن بعد في الزراعة الدقيقة
 
 ## Sources | المصادر
 

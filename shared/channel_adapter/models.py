@@ -1,7 +1,9 @@
 """Channel message models — نماذج رسائل القنوات"""
+
 from dataclasses import dataclass, field
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+
 
 class ChannelType(str, Enum):
     WHATSAPP = "whatsapp"
@@ -9,6 +11,7 @@ class ChannelType(str, Enum):
     WECHAT = "wechat"
     WEB = "web"
     MOBILE = "mobile"
+
 
 @dataclass
 class ChannelMessage:
@@ -22,6 +25,7 @@ class ChannelMessage:
     location: dict | None = None  # {lat, lng}
     timestamp: datetime = field(default_factory=datetime.utcnow)
     metadata: dict = field(default_factory=dict)
+
 
 @dataclass
 class ChannelResponse:

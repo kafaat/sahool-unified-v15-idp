@@ -93,7 +93,7 @@ class AgriIntentClassifier:
 
     def detect_language(self, text: str) -> str:
         """Detect whether text is Arabic or English based on character ratio."""
-        arabic_chars = sum(1 for c in text if "\u0600" <= c <= "\u06FF")
+        arabic_chars = sum(1 for c in text if "\u0600" <= c <= "\u06ff")
         return "ar" if arabic_chars / max(len(text), 1) > 0.3 else "en"
 
     async def classify(self, text: str, image: bytes | None = None) -> IntentResult:

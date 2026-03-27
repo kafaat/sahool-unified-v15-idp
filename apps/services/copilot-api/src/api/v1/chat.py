@@ -20,7 +20,8 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
-from shared.ai.intent_classifier import AgriIntentClassifier, AgriIntent
+from shared.ai.intent_classifier import AgriIntent, AgriIntentClassifier
+
 from ...core.agents import get_agent_router
 from ...core.config import get_settings
 from ...core.intent_router import IntentRouter
@@ -168,8 +169,10 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
             intent_router_result = await _intent_router.route(
                 intent_result,
                 user_query,
-                {"field_id": request.field_id if hasattr(request, "field_id") else None,
-                 "tenant_id": user.get("tenant_id")},
+                {
+                    "field_id": request.field_id if hasattr(request, "field_id") else None,
+                    "tenant_id": user.get("tenant_id"),
+                },
             )
             if intent_router_result and intent_router_result.response:
                 intent_context_text = json.dumps(intent_router_result.response, ensure_ascii=False)
@@ -205,7 +208,9 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
 
     # Prepend intent-routed service context to RAG context if available
     if intent_context_text:
-        rag_context_text = f"[Service context for {intent_result.intent.value}]:\n{intent_context_text}\n\n{rag_context_text}"
+        rag_context_text = (
+            f"[Service context for {intent_result.intent.value}]:\n{intent_context_text}\n\n{rag_context_text}"
+        )
 
     # Route to appropriate agent
     agent_router = get_agent_router()

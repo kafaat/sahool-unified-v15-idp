@@ -1,5 +1,7 @@
 """Channel Normalizer — تطبيع رسائل القنوات"""
+
 from .models import ChannelMessage, ChannelType
+
 
 class ChannelNormalizer:
     @staticmethod
@@ -8,7 +10,7 @@ class ChannelNormalizer:
             text=raw.get("text", raw.get("body", "")),
             channel=ChannelType.WHATSAPP,
             sender_id=raw.get("from", raw.get("sender", "")),
-            language="ar" if any('\u0600' <= c <= '\u06FF' for c in raw.get("text", "")) else "en",
+            language="ar" if any("\u0600" <= c <= "\u06ff" for c in raw.get("text", "")) else "en",
             image=raw.get("image"),
             location=raw.get("location"),
             metadata={"message_id": raw.get("id", ""), "profile_name": raw.get("profile", {}).get("name", "")},

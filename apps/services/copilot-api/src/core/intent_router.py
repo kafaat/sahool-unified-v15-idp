@@ -5,11 +5,12 @@ Intent Router - Routes agricultural queries to expert microservices
 Phase 1 of Component Unification Plan (PR #1344)
 """
 
-import httpx
-import structlog
 from dataclasses import dataclass
 
-from shared.ai.intent_classifier import AgriIntent, IntentResult, INTENT_SERVICE_MAP
+import httpx
+import structlog
+
+from shared.ai.intent_classifier import INTENT_SERVICE_MAP, AgriIntent, IntentResult
 
 logger = structlog.get_logger()
 

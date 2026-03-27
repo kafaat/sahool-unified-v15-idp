@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   description: 'Detailed satellite analysis, AI advisory, and field intelligence',
 };
 
-export default function FieldDetailPage({ params }: { params: { id: string } }) {
-  return <FieldDetailClient fieldId={params.id} />;
+export default async function FieldDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <FieldDetailClient fieldId={id} />;
 }

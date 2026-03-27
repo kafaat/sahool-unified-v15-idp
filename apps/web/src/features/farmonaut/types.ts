@@ -1,6 +1,6 @@
 /**
  * Satellite Monitoring - Types
- * أنواع بيانات مراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
+ * أنواع بيانات مراقبة الأقمار الصناعية
  */
 
 export type CropHealthStatus = 'healthy' | 'moderate' | 'stressed' | 'critical';

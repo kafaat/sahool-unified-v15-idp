@@ -7,12 +7,12 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { satelliteMonitorApi } from '../api';
-import type { FarmonautFilters, TimePeriod, ReportFormat, MapLayerType, FieldSetupData } from '../types';
+import type { SatelliteFilters, TimePeriod, ReportFormat, MapLayerType, FieldSetupData } from '../types';
 
 export const satelliteMonitorKeys = {
   all: ['satellite-monitor'] as const,
   fields: () => [...satelliteMonitorKeys.all, 'fields'] as const,
-  fieldList: (filters?: FarmonautFilters) => [...satelliteMonitorKeys.fields(), filters] as const,
+  fieldList: (filters?: SatelliteFilters) => [...satelliteMonitorKeys.fields(), filters] as const,
   fieldDetail: (id: string) => [...satelliteMonitorKeys.all, 'field', id] as const,
   stats: () => [...satelliteMonitorKeys.all, 'stats'] as const,
   alerts: (fieldId?: string) => [...satelliteMonitorKeys.all, 'alerts', fieldId] as const,
@@ -30,7 +30,7 @@ export const satelliteMonitorKeys = {
     [...satelliteMonitorKeys.all, 'historical', fieldId, layer] as const,
 };
 
-export function useSatelliteMonitorFields(filters?: FarmonautFilters) {
+export function useSatelliteMonitorFields(filters?: SatelliteFilters) {
   return useQuery({
     queryKey: satelliteMonitorKeys.fieldList(filters),
     queryFn: () => satelliteMonitorApi.getFields(filters),

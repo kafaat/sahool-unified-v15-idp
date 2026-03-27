@@ -1,6 +1,6 @@
 /**
  * Satellite Monitoring - Loading Skeleton
- * هيكل تحميل مراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
+ * هيكل تحميل مراقبة الأقمار الصناعية
  */
 
 export default function Loading() {

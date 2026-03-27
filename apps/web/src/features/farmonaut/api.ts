@@ -1,6 +1,6 @@
 /**
  * Satellite Monitoring - API Layer
- * طبقة API لمراقبة الأقمار الصناعية مراقبة الأقمار الصناعية
+ * طبقة API لمراقبة الأقمار الصناعية
  *
  * Backend Service Integration Map (from Component Unification Plan PR #1344):
  * ──────────────────────────────────────────────────────────────────────────

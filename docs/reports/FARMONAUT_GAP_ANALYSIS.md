@@ -578,3 +578,198 @@ For Topography:           [DEM]
 | 3.4 | **Multi-field Survey View** | تقرير واحد لعدة حقول |
 | 3.5 | **Partner Fields** | رؤية حقول الموزعين/الشركاء |
 | 3.6 | **Video Tutorials** | محتوى تعليمي مدمج |
+
+---
+
+## رابع عشر: هندسة عكسية لواجهات المنافسين — FieldView, OneSoil, EOSDA
+
+### A. Climate FieldView (Bayer) — 250+ مليون فدان
+
+**هيكل الواجهة:**
+
+```
+┌──────────────────────────────────────────────────┐
+│ HEADER: [Radar] [Rainfall] [Field Health] [Yield]│
+│         [Reports] [Notifications] [Activities]    │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│   ┌──────────────────────────────────────┐      │
+│   │         MAIN MAP VIEW                │      │
+│   │  (Full-screen interactive map)       │      │
+│   │                                      │      │
+│   │  ┌─────┐  Field colored by           │      │
+│   │  │COLOR│  Climate Crop Index         │      │
+│   │  └─────┘                             │      │
+│   │                                      │      │
+│   │  📍 Scouting Pins (color-coded)     │      │
+│   │  ✏️ Region Drawing Tools            │      │
+│   └──────────────────────────────────────┘      │
+│                                                  │
+│ FIELD HEALTH: [Scouting] [Vegetation] [TrueColor]│
+│                                                  │
+│ SIDE-BY-SIDE: Compare yield vs hybrid/population │
+├──────────────────────────────────────────────────┤
+│ BOTTOM: Reports | Yield Analysis | Seed Scripts  │
+└──────────────────────────────────────────────────┘
+```
+
+**الميزات الفريدة لـ FieldView:**
+
+| الميزة | الوصف | موجود في SAHOOL؟ |
+|--------|-------|-----------------|
+| **FieldView Drive** | جهاز in-cab يتصل بـ 60+ معدة مختلفة | ❌ — SAHOOL يعتمد IoT + Jetson Orin |
+| **Scouting Pins** | دبابيس ملونة على الخريطة مع صور + ملاحظات + GPS | ❌ — يحتاج بناء |
+| **Region Drawing** | رسم دائرة/حر/مضلع/مستطيل على الخريطة | ❌ — placeholder |
+| **Climate Crop Index** | مؤشر خاص بـ Bayer (ليس NDVI القياسي) | SAHOOL: 25+ مؤشر (أقوى) |
+| **Seed Scripts** | وصفات بذور مبنية على بيانات تاريخية + صور | ❌ — ليس في النطاق |
+| **Side-by-Side (Cab)** | مقارنة yield vs planting أثناء القيادة | ❌ — يحتاج تطبيق cab |
+| **Spray Insights** | توصيات رش مبنية على الطقس | ✅ — weather-service جاهز |
+| **3 Image Types** | Scouting + Vegetation + True Color | ⚠️ — TCI/ETCI موجود، Scouting لا |
+| **Profit Analysis** | ربط إنفاق المدخلات بالعائد | ❌ — P3 |
+
+**ما يستحق النسخ من FieldView:**
+1. **Scouting Pins** — نظام دبابيس ملونة مع صور وملاحظات وGPS
+2. **Region Drawing** — 4 أدوات رسم (دائرة، حر، مضلع، مستطيل)
+3. **3 أنواع صور** — فصل Scouting عن Vegetation عن True Color
+
+---
+
+### B. OneSoil — مجاني + أوسع انتشار
+
+**هيكل الواجهة:**
+
+```
+┌──────────────────────────────────────────────────┐
+│ HEADER: [Fields ▼] [Upload Data] [Profile]       │
+├──────────┬───────────────────────────────────────┤
+│ LEFT     │                                       │
+│ SIDEBAR  │        MAIN MAP (Google/MapBox)        │
+│          │                                       │
+│ Fields   │  ┌─────────────────────────────────┐  │
+│ List     │  │ Field colored by selected index │  │
+│          │  │                                 │  │
+│ [Sort]   │  │ NDVI | Contrasted | Average     │  │
+│ [Filter] │  │ Heterogeneous                    │  │
+│ [Group]  │  │                                 │  │
+│          │  │        [Split View 📐]          │  │
+│          │  └─────────────────────────────────┘  │
+├──────────┴───────────────────────────────────────┤
+│ STATUS TAB:                                      │
+│ [NDVI Chart 📈] [Weather 7d ☁️] [Precipitation]│
+│ [GDD 🌡️] [Productivity Zones]                  │
+├──────────────────────────────────────────────────┤
+│ TOOLS: [VRA Maps] [Crop Rotation] [Yield Report] │
+└──────────────────────────────────────────────────┘
+```
+
+**مؤشرات OneSoil (محدّثة أبريل 2025):**
+
+| الفئة | المؤشرات | الوصف |
+|-------|---------|-------|
+| نمو مبكر | **MSAVI**, SMI | تقليل تأثير التربة العارية |
+| موسم متوسط→متأخر | **NDRE**, RECI | أدق من NDVI في الكثافة العالية |
+| كشف إجهاد مبكر | **PRI** | يكشف الإجهاد قبل ظهوره على NDVI |
+| تتبع رطوبة | **NDMI**, NDWI | قبل وبعد الري/المطر |
+| أساسي | **NDVI** (4 أوضاع: Basic, Contrasted, Average, Heterogeneous) | |
+
+**أوضاع NDVI الأربعة (ميزة فريدة):**
+
+| الوضع | الوصف | موجود في SAHOOL؟ |
+|-------|-------|-----------------|
+| **Basic NDVI** | تدرج بني→أخضر (0→1) | ✅ |
+| **Contrasted NDVI** | ألوان زاهية بين min/max الحقل الفعلي | ❌ **فجوة مهمة** |
+| **Average NDVI** | يُظهر المتوسط فقط | ❌ |
+| **Heterogeneous** | يُظهر تباين الحقل الداخلي | ❌ |
+
+**ما يستحق النسخ من OneSoil:**
+1. **Contrasted NDVI** — تدرج ألوان بين min/max الحقل (ليس 0-1 العام)
+2. **Productivity Zones** — مناطق إنتاجية مبنية على 6 سنوات NDVI تاريخي
+3. **Split View** — مقارنة مؤشرين أو تاريخين جنباً لجنب
+4. **NDVI CSV Download** — تصدير قيم NDVI مع min/max/avg لكل تاريخ
+5. **Auto Field Detection** — كشف حدود الحقل تلقائياً من الصور
+
+---
+
+### C. EOSDA Crop Monitoring — 10 مؤشرات + PlanetScope 3m
+
+**هيكل الواجهة:**
+
+```
+┌──────────────────────────────────────────────────┐
+│ HEADER: [Search 🔍] [Fields] [Scouting] [Team]  │
+├──────┬───────────────────────────────────────────┤
+│ LEFT │                                           │
+│      │           MAIN MAP                        │
+│ 📏   │   ┌────────────────────────────────┐     │
+│ Dist │   │ Field with vegetation overlay  │     │
+│      │   │                                │     │
+│ 📐   │   │  [Standard ◉] [Contrast ○]   │     │
+│ Draw │   │                                │     │
+│      │   │  🔲 Split View (2 panels)     │     │
+│ ✂️   │   │                                │     │
+│ Cut  │   │  Timeline: ◀ ●──────● ▶       │     │
+│      │   └────────────────────────────────┘     │
+├──────┤                                           │
+│INDEX │  [NDVI] [NDRE] [MSAVI] [ReCI] [Meta]     │
+│SELECT│  [GNDVI] [EVI] [ARVI] [PSI]   (add-ons) │
+├──────┴───────────────────────────────────────────┤
+│ BOTTOM PANEL:                                    │
+│ [Growth Stages] [Weather] [Soil Moisture]        │
+│ [Field Activities] [Crop Rotation] [Elevation]   │
+└──────────────────────────────────────────────────┘
+```
+
+**الميزات الفريدة لـ EOSDA:**
+
+| الميزة | الوصف | موجود في SAHOOL؟ |
+|--------|-------|-----------------|
+| **Vegetation Meta Index** | RGB مركب: R=MSAVI, G=NDRE, B=NDVI | ❌ — فكرة ذكية جداً |
+| **Disease Risk** (2025) | خوارزمية تنبؤ مخاطر الأمراض | ⚠️ SAHOOL لديه pest-detection لكن ليس disease risk model |
+| **Field Cutting Tool** | قص جزء من حدود الحقل | ❌ |
+| **Team Account** | مالك + كشّاف + مؤمّن + استشاري + مورد | ❌ — RBAC موجود لكن ليس بهذا التقسيم |
+| **Scouting App + Web Sync** | تطبيق جوال GPS مع مزامنة تلقائية | ✅ Flutter app مع sync |
+| **Upload .shp/.kml/.kmz/.geojson** | 4 تنسيقات لاستيراد الحقول | ❌ — parser غير موجود |
+| **Latest Image Layer** | آخر صورة أقمار صناعية كخلفية | ❌ |
+| **PlanetScope 3m يومي** | صور عالية الدقة | ❌ — Sentinel فقط (10m) |
+| **10 مؤشرات جاهزة** | NDVI, NDRE, MSAVI, ReCI, Meta + 5 add-ons | ✅ SAHOOL 25+ (أقوى) |
+
+**ما يستحق النسخ من EOSDA:**
+1. **Vegetation Meta Index** — صورة واحدة تجمع 3 مؤشرات بألوان RGB
+2. **Disease Risk Algorithm** — تنبؤ مخاطر الأمراض
+3. **Field Cutting Tool** — قص حدود الحقل
+4. **4 تنسيقات استيراد** — .shp + .kml + .kmz + .geojson
+5. **Standard vs Contrast toggle** — تبديل سريع
+
+---
+
+## خامس عشر: ملخص الميزات المستحقة النسخ من كل منصة
+
+| الأولوية | الميزة | المصدر | التأثير على SAHOOL |
+|---------|--------|--------|-------------------|
+| **P0** | Hybrid Index (5 ألوان) | Farmonaut | تبسيط جذري للمزارع البسيط |
+| **P0** | 9-Direction Analysis | Farmonaut | "اذهب شمال غرب وافحص" — أقوى من GPS |
+| **P0** | خريطة تفاعلية حقيقية | الكل | بدونها لا معنى للتطبيق |
+| **P1** | Contrasted NDVI | OneSoil | كشف التباين الداخلي بوضوح |
+| **P1** | Split View | OneSoil + EOSDA | مقارنة تاريخين/مؤشرين |
+| **P1** | Scouting Pins + صور | FieldView | نظام استكشاف ميداني |
+| **P1** | Region Drawing (4 أدوات) | FieldView | رسم مناطق على الخريطة |
+| **P1** | SAR Fallback التلقائي | Farmonaut | حاسم لليمن والمرتفعات |
+| **P1** | Disease Risk Model | EOSDA | تنبؤ مخاطر الأمراض |
+| **P1** | 4 تنسيقات استيراد | EOSDA | .shp + .kml + .kmz + .geojson |
+| **P2** | Vegetation Meta Index (RGB) | EOSDA | صورة واحدة = 3 مؤشرات |
+| **P2** | Productivity Zones (6 سنوات) | OneSoil | مناطق إنتاجية تاريخية |
+| **P2** | NDVI CSV Download | OneSoil | تصدير بيانات خام |
+| **P2** | Profit Analysis | FieldView | ربط إنفاق بعائد |
+| **P2** | Team Account (5 أدوار) | EOSDA | مالك/كشاف/مؤمن/استشاري/مورد |
+| **P3** | PlanetScope 3m | EOSDA/OneSoil | صور يومية عالية الدقة (مكلف) |
+| **P3** | Equipment Integration | FieldView | تكامل معدات (60+ شريك) |
+
+Sources:
+- [Climate FieldView](https://climate.com/en-us.html)
+- [OneSoil Help Center - Vegetation Indices](https://help.onesoil.ai/en/articles/5237493-how-to-monitor-vegetation-indexes-ndvi-msavi-ndre-etc)
+- [OneSoil - Contrasted NDVI](https://blog.onesoil.ai/en/how-we-added-contrasted-ndvi)
+- [EOSDA Crop Monitoring User Guide](https://eos.com/user-guide/crop-monitoring/)
+- [EOSDA Crop Monitoring Features](https://eos.com/products/crop-monitoring/)
+- [FieldView Scouting Tools](https://climatefieldview.ca/blog/Work-smarter-with-Field-Health-Imagery-and-scouting-tools)
+- [OneSoil Web vs Mobile](https://help.onesoil.ai/en/articles/5237584-how-the-onesoil-web-and-mobile-apps-differ)
+- [EOSDA Disease Risk](https://eos.com/blog/eosda-crop-monitoring-gets-disease-risk-analytics/)

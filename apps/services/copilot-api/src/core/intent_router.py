@@ -81,10 +81,10 @@ class IntentRouter:
 
         routes = {
             AgriIntent.CROP_DISEASE: (
-                f"{base}/api/v1/disease/detect",
+                f"{base}/api/v1/pests/identify/symptoms",
                 {
-                    "crop_type": context.get("crop_type", "wheat") if context else "wheat",
-                    "description": query,
+                    "crop": context.get("crop_type", "wheat") if context else "wheat",
+                    "symptoms": [query],
                 },
             ),
             AgriIntent.IRRIGATION: (

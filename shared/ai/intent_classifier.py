@@ -31,10 +31,10 @@ class AgriIntent(StrEnum):
 # to eliminate this third copy and prevent drift.
 INTENT_SERVICE_MAP = {
     AgriIntent.CROP_DISEASE: {
-        "service": "pest-detection-service",
-        "port": 8125,
-        "fallback": "yolo26-vision-service",
-        "fallback_port": 8150,
+        "service": "crop-intelligence-service",
+        "port": 8095,
+        "fallback": "pest-detection-service",
+        "fallback_port": 8125,
     },
     AgriIntent.IRRIGATION: {"service": "irrigation-smart", "port": 8094},
     AgriIntent.FERTILIZER: {"service": "advisory-service", "port": 8093},
@@ -117,10 +117,10 @@ class AgriIntentClassifier:
 
         # 1. Fast pattern matching (offline, <1ms)
         result = self._classify_by_pattern(text, lang)
-        if result and result.confidence >= 0.7:
+        if result and result.confidence > 0:
             return result
 
-        # 2. Fallback to general advisory
+        # 2. Fallback to general advisory (no pattern matched at all)
         return IntentResult(
             intent=AgriIntent.GENERAL_ADVISORY,
             confidence=0.5,

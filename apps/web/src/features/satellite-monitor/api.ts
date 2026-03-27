@@ -52,6 +52,8 @@ const api = createApiClient({ timeout: 15000 });
 
 // ---------------------------------------------------------------------------
 // Mock Data - used when API is unavailable (offline-first)
+// TODO: Extract to api.mock.ts (like features/fields/api.ts pattern)
+// to reduce client bundle size in production builds.
 // ---------------------------------------------------------------------------
 
 const MOCK_FIELDS: SatelliteField[] = [

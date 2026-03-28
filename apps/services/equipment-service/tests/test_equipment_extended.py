@@ -61,13 +61,13 @@ class TestEquipmentDataModels:
             brand="John Deere",
             model="5075E",
             serial_number="JD123456",
-            year_manufactured=2022,
+            year=2022,
         )
 
         assert equipment.name == "John Deere Tractor"
         assert equipment.equipment_type == EquipmentType.TRACTOR
         assert equipment.brand == "John Deere"
-        assert equipment.year_manufactured == 2022
+        assert equipment.year == 2022
 
     def test_equipment_create_minimal(self):
         """Test EquipmentCreate with minimal required fields"""

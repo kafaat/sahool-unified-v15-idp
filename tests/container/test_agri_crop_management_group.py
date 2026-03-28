@@ -467,14 +467,14 @@ class TestCropMgmtCompose:
     def test_healthcheck_in_dockerfile(self, svc: str) -> None:
         content = _read_dockerfile(svc)
         if not content:
-            pytest.skip(f"No Dockerfile")
+            pytest.skip("No Dockerfile")
         assert "HEALTHCHECK" in content, f"{svc} missing HEALTHCHECK"
 
     @pytest.mark.parametrize("svc", sorted(CROP_MGMT_SERVICES))
     def test_non_root_user(self, svc: str) -> None:
         content = _read_dockerfile(svc)
         if not content:
-            pytest.skip(f"No Dockerfile")
+            pytest.skip("No Dockerfile")
         user_lines = re.findall(r"^USER\s+(\S+)", content, re.MULTILINE)
         non_root = [u for u in user_lines if u.lower() not in ("root", "0")]
         assert non_root, f"{svc} must run as non-root user"
@@ -483,7 +483,7 @@ class TestCropMgmtCompose:
     def test_shared_copy(self, svc: str) -> None:
         content = _read_dockerfile(svc)
         if not content:
-            pytest.skip(f"No Dockerfile")
+            pytest.skip("No Dockerfile")
         assert re.search(r"COPY.*shared", content, re.IGNORECASE), (
             f"{svc} must COPY shared/ for agricultural domain modules"
         )

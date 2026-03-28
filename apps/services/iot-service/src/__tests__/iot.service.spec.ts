@@ -13,6 +13,16 @@ import {
   SensorReading,
   DeviceStatus,
 } from "../iot/iot.service";
+import { PrismaService } from "../prisma/prisma.service";
+
+// Mock PrismaService
+const mockPrismaService = {
+  $queryRaw: jest.fn().mockRejectedValue(new Error("No DB in test")),
+  device: { upsert: jest.fn(), findFirst: jest.fn() },
+  sensor: { upsert: jest.fn() },
+  sensorReading: { create: jest.fn(), findMany: jest.fn() },
+  deviceAlert: { create: jest.fn() },
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock Redis
@@ -24,26 +34,30 @@ const mockRedis = {
   get: jest.fn(),
   setex: jest.fn().mockResolvedValue("OK"),
   scan: jest.fn(),
+  on: jest.fn(),
 };
 
 jest.mock("ioredis", () => {
-  return jest.fn().mockImplementation(() => mockRedis);
+  const MockRedis = jest.fn().mockImplementation(() => mockRedis);
+  return { __esModule: true, default: MockRedis };
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock MQTT
 // ─────────────────────────────────────────────────────────────────────────────
 
-const mockMqttClient = {
-  on: jest.fn(),
-  subscribe: jest.fn(),
-  publish: jest.fn(),
-  end: jest.fn(),
-};
+// eslint-disable-next-line no-var
+var mockMqttClient: any;
 
-jest.mock("mqtt", () => ({
-  connect: jest.fn().mockReturnValue(mockMqttClient),
-}));
+jest.mock("mqtt", () => {
+  mockMqttClient = {
+    on: jest.fn(),
+    subscribe: jest.fn(),
+    publish: jest.fn(),
+    end: jest.fn(),
+  };
+  return { connect: jest.fn().mockReturnValue(mockMqttClient) };
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Test Suite
@@ -57,7 +71,10 @@ describe("IotService", () => {
     jest.clearAllMocks();
 
     module = await Test.createTestingModule({
-      providers: [IotService],
+      providers: [
+        IotService,
+        { provide: PrismaService, useValue: mockPrismaService },
+      ],
     }).compile();
 
     service = module.get<IotService>(IotService);

@@ -79,8 +79,13 @@ export class AppController {
     }
 
     // Check NATS connection
-    const eventsConnected = this.eventsService?.isConnected?.() ?? false;
-    checks.nats = eventsConnected ? "connected" : "not_configured";
+    const natsConfigured = !!process.env.NATS_URL;
+    if (!natsConfigured) {
+      checks.nats = "not_configured";
+    } else {
+      const eventsConnected = this.eventsService?.isConnected?.() ?? false;
+      checks.nats = eventsConnected ? "connected" : "disconnected";
+    }
 
     const allReady = Object.values(checks).every(v => v === "connected" || v === "not_configured");
 
@@ -88,6 +93,7 @@ export class AppController {
       status: allReady ? "ready" : "degraded",
       service: "marketplace-service",
       version: "16.0.0",
+      timestamp: new Date().toISOString(),
       checks,
     };
   }
@@ -277,7 +283,7 @@ export class AppController {
     @Param("walletId") walletId: string,
     @Query("limit") limit?: string,
   ) {
-    const parsedLimit = Math.min(parseInt(limit) || 20, 100);
+    const parsedLimit = Math.min(parseInt(limit ?? "20") || 20, 100);
     return this.fintechService.getTransactions(
       walletId,
       parsedLimit,

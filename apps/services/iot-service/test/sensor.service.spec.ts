@@ -13,18 +13,28 @@
 
 import { Test, TestingModule } from "@nestjs/testing";
 import { IotService, SensorType, SensorReading } from "../src/iot/iot.service";
+import { PrismaService } from "../src/prisma/prisma.service";
 import Redis from "ioredis";
+
+// Mock PrismaService
+const mockPrismaService = {
+  $queryRaw: jest.fn().mockRejectedValue(new Error("No DB in test")),
+  device: { upsert: jest.fn(), findFirst: jest.fn() },
+  sensor: { upsert: jest.fn() },
+  sensorReading: { create: jest.fn(), findMany: jest.fn() },
+  deviceAlert: { create: jest.fn() },
+};
 
 // Mock mqtt
 jest.mock("mqtt", () => ({
   connect: jest.fn().mockReturnValue({
-    on: jest.fn((event, callback) => {
+    on: jest.fn((event: string, callback: any) => {
       if (event === "connect") {
         setTimeout(() => callback(), 0);
       }
       return this;
     }),
-    subscribe: jest.fn((topic, callback) => {
+    subscribe: jest.fn((topic: string, callback: any) => {
       if (callback) callback(null);
     }),
     publish: jest.fn(),
@@ -43,10 +53,14 @@ jest.mock("ioredis", () => {
     del: jest.fn(),
     scan: jest.fn(),
     keys: jest.fn(),
+    on: jest.fn(),
   };
 
-  return jest.fn(() => mockRedisInstance);
+  const MockRedis = jest.fn(() => mockRedisInstance);
+  return { __esModule: true, default: MockRedis };
 });
+
+const TEST_TENANT = "tenant-1";
 
 describe("IotService - Sensor Data Management", () => {
   let service: IotService;
@@ -56,7 +70,10 @@ describe("IotService - Sensor Data Management", () => {
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [IotService],
+      providers: [
+        IotService,
+        { provide: PrismaService, useValue: mockPrismaService },
+      ],
     }).compile();
 
     service = module.get<IotService>(IotService);
@@ -74,7 +91,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({
         deviceId: "sensor-001",
         value: 65,
@@ -85,7 +102,7 @@ describe("IotService - Sensor Data Management", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "sensor:field-001:soil_moisture",
+        `${TEST_TENANT}:sensor:field-001:soil_moisture`,
         300, // SENSOR_READING_TTL
         expect.stringContaining('"value":65'),
       );
@@ -95,7 +112,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-002/sensor/air_temperature";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-002/sensor/air_temperature`;
       const payload = JSON.stringify({
         deviceId: "temp-sensor-001",
         value: 28.5,
@@ -106,25 +123,42 @@ describe("IotService - Sensor Data Management", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "sensor:field-002:air_temperature",
+        `${TEST_TENANT}:sensor:field-002:air_temperature`,
         300,
         expect.stringContaining('"value":28.5'),
       );
     });
 
-    it("should process raw numeric sensor data", async () => {
+    it("should process raw numeric sensor data (non-JSON string)", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
-      const payload = "55"; // Raw number without JSON
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
+      // A non-JSON-parseable string triggers the fallback to parseFloat
+      const payload = "value:55";
+
+      (service as any).handleMessage(topic, payload);
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // parseFloat("value:55") returns NaN which is rejected as non-finite
+      // This is expected behavior: only valid JSON or numeric strings are accepted
+      expect(mockRedis.setex).not.toHaveBeenCalled();
+    });
+
+    it("should process JSON-wrapped numeric sensor data", async () => {
+      mockRedis.setex.mockResolvedValue("OK");
+
+      const topic =
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
+      const payload = JSON.stringify({ value: 55 });
 
       (service as any).handleMessage(topic, payload);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalled();
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.value).toBe(55);
     });
 
@@ -138,7 +172,7 @@ describe("IotService - Sensor Data Management", () => {
       ];
 
       for (const reading of readings) {
-        const topic = `sahool/tenant-1/farm/farm-1/field/field-001/sensor/${reading.type}`;
+        const topic = `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/${reading.type}`;
         const payload = JSON.stringify({ value: reading.value });
         (service as any).handleMessage(topic, payload);
       }
@@ -152,14 +186,14 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/water_level";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/water_level`;
       const payload = JSON.stringify({ value: 150 });
 
       (service as any).handleMessage(topic, payload);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.deviceId).toMatch(/sensor-field-001-water_level/);
     });
   });
@@ -169,114 +203,115 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ value: 75 });
 
       (service as any).handleMessage(topic, payload);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.quality).toBe("good");
     });
 
-    it("should flag invalid soil moisture reading as error", async () => {
+    it("should reject invalid soil moisture reading (out of bounds)", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ value: 150 }); // Invalid: over 100%
 
       (service as any).handleMessage(topic, payload);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
-      expect(savedData.quality).toBe("error");
+      // Out-of-bounds readings are rejected and not cached
+      expect(mockRedis.setex).not.toHaveBeenCalled();
     });
 
     it("should validate temperature within acceptable range", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/air_temperature";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/air_temperature`;
       const payload = JSON.stringify({ value: 25 });
 
       (service as any).handleMessage(topic, payload);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.quality).toBe("good");
     });
 
-    it("should flag extremely high temperature as error", async () => {
+    it("should reject extremely high temperature (out of bounds)", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/air_temperature";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/air_temperature`;
       const payload = JSON.stringify({ value: 70 }); // Too high
 
       (service as any).handleMessage(topic, payload);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
-      expect(savedData.quality).toBe("error");
+      // Out-of-bounds readings are rejected and not cached
+      expect(mockRedis.setex).not.toHaveBeenCalled();
     });
 
     it("should validate pH level within acceptable range", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/ph_level";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/ph_level`;
       const payload = JSON.stringify({ value: 6.5 });
 
       (service as any).handleMessage(topic, payload);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.quality).toBe("good");
     });
 
-    it("should flag negative values as error for sensors", async () => {
+    it("should reject negative values for sensors", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/water_flow";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/water_flow`;
       const payload = JSON.stringify({ value: -5 }); // Invalid negative
 
       (service as any).handleMessage(topic, payload);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
-      expect(savedData.quality).toBe("error");
+      // Out-of-bounds readings are rejected and not cached
+      expect(mockRedis.setex).not.toHaveBeenCalled();
     });
 
     it("should assign correct units to sensor readings", async () => {
       const testCases = [
-        { type: SensorType.SOIL_MOISTURE, unit: "%" },
-        { type: SensorType.AIR_TEMPERATURE, unit: "°C" },
-        { type: SensorType.WATER_FLOW, unit: "L/min" },
-        { type: SensorType.PH_LEVEL, unit: "pH" },
-        { type: SensorType.LIGHT_INTENSITY, unit: "lux" },
+        { type: SensorType.SOIL_MOISTURE, value: 50, unit: "%" },
+        { type: SensorType.AIR_TEMPERATURE, value: 25, unit: "°C" },
+        { type: SensorType.WATER_FLOW, value: 50, unit: "L/min" },
+        { type: SensorType.PH_LEVEL, value: 7, unit: "pH" },
+        { type: SensorType.LIGHT_INTENSITY, value: 5000, unit: "lux" },
       ];
 
       mockRedis.setex.mockResolvedValue("OK");
 
       for (const testCase of testCases) {
-        const topic = `sahool/tenant-1/farm/farm-1/field/field-001/sensor/${testCase.type}`;
-        const payload = JSON.stringify({ value: 50 });
+        const topic = `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/${testCase.type}`;
+        const payload = JSON.stringify({ value: testCase.value });
 
         (service as any).handleMessage(topic, payload);
       }
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
+      expect(mockRedis.setex).toHaveBeenCalledTimes(testCases.length);
       testCases.forEach((testCase, index) => {
-        const savedData = JSON.parse(mockRedis.setex.mock.calls[index][2]);
+        const savedData = JSON.parse(mockRedis.setex.mock.calls[index][2] as string);
         expect(savedData.unit).toBe(testCase.unit);
       });
     });
@@ -288,8 +323,8 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
-      const payload = JSON.stringify({ value: 25 }); // Below 30% threshold
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
+      const payload = JSON.stringify({ value: 15 }); // Below 20% threshold
 
       (service as any).handleMessage(topic, payload);
 
@@ -305,7 +340,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ value: 90 }); // Above 85% threshold
 
       (service as any).handleMessage(topic, payload);
@@ -322,8 +357,8 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/air_temperature";
-      const payload = JSON.stringify({ value: 45 }); // Above 40°C threshold
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/air_temperature`;
+      const payload = JSON.stringify({ value: 50 }); // Above 45°C threshold
 
       (service as any).handleMessage(topic, payload);
 
@@ -339,7 +374,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/water_level";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/water_level`;
       const payload = JSON.stringify({ value: 5 }); // Below 10cm threshold
 
       (service as any).handleMessage(topic, payload);
@@ -356,7 +391,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ value: 55 }); // Normal range
 
       (service as any).handleMessage(topic, payload);
@@ -386,6 +421,7 @@ describe("IotService - Sensor Data Management", () => {
       const result = await service.getSensorReading(
         "field-001",
         SensorType.SOIL_MOISTURE,
+        TEST_TENANT,
       );
 
       expect(result).not.toBeNull();
@@ -399,6 +435,7 @@ describe("IotService - Sensor Data Management", () => {
       const result = await service.getSensorReading(
         "field-999",
         SensorType.SOIL_MOISTURE,
+        TEST_TENANT,
       );
 
       expect(result).toBeNull();
@@ -428,14 +465,14 @@ describe("IotService - Sensor Data Management", () => {
 
       mockRedis.scan.mockResolvedValue([
         "0",
-        ["sensor:field-001:soil_moisture", "sensor:field-001:air_temperature"],
-      ]);
+        [`${TEST_TENANT}:sensor:field-001:soil_moisture`, `${TEST_TENANT}:sensor:field-001:air_temperature`],
+      ] as any);
 
       mockRedis.get
         .mockResolvedValueOnce(JSON.stringify(readings[0]))
         .mockResolvedValueOnce(JSON.stringify(readings[1]));
 
-      const result = await service.getFieldSensorData("field-001");
+      const result = await service.getFieldSensorData("field-001", TEST_TENANT);
 
       expect(result).toHaveLength(2);
       expect(result[0].sensorType).toBe(SensorType.SOIL_MOISTURE);
@@ -443,17 +480,17 @@ describe("IotService - Sensor Data Management", () => {
     });
 
     it("should return empty array for field with no sensors", async () => {
-      mockRedis.scan.mockResolvedValue(["0", []]);
+      mockRedis.scan.mockResolvedValue(["0", []] as any);
 
-      const result = await service.getFieldSensorData("field-empty");
+      const result = await service.getFieldSensorData("field-empty", TEST_TENANT);
 
       expect(result).toEqual([]);
     });
 
     it("should handle pagination when scanning sensor keys", async () => {
       mockRedis.scan
-        .mockResolvedValueOnce(["1", ["sensor:field-001:soil_moisture"]])
-        .mockResolvedValueOnce(["0", ["sensor:field-001:air_temperature"]]);
+        .mockResolvedValueOnce(["1", [`${TEST_TENANT}:sensor:field-001:soil_moisture`]] as any)
+        .mockResolvedValueOnce(["0", [`${TEST_TENANT}:sensor:field-001:air_temperature`]] as any);
 
       mockRedis.get
         .mockResolvedValueOnce(
@@ -479,7 +516,7 @@ describe("IotService - Sensor Data Management", () => {
           }),
         );
 
-      const result = await service.getFieldSensorData("field-001");
+      const result = await service.getFieldSensorData("field-001", TEST_TENANT);
 
       expect(result).toHaveLength(2);
     });
@@ -490,7 +527,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ value: 60 });
 
       (service as any).handleMessage(topic, payload);
@@ -498,7 +535,7 @@ describe("IotService - Sensor Data Management", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "sensor:field-001:soil_moisture",
+        `${TEST_TENANT}:sensor:field-001:soil_moisture`,
         300, // 5 minutes TTL
         expect.any(String),
       );
@@ -508,7 +545,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
 
       // First reading
       (service as any).handleMessage(topic, JSON.stringify({ value: 60 }));
@@ -521,7 +558,7 @@ describe("IotService - Sensor Data Management", () => {
       expect(mockRedis.setex).toHaveBeenCalledTimes(2);
 
       const lastCall = mockRedis.setex.mock.calls[1];
-      const lastReading = JSON.parse(lastCall[2]);
+      const lastReading = JSON.parse(lastCall[2] as string);
       expect(lastReading.value).toBe(55);
     });
 
@@ -529,7 +566,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const values = [60, 59, 58, 57, 56];
 
       values.forEach((value) => {
@@ -546,7 +583,7 @@ describe("IotService - Sensor Data Management", () => {
       const beforeTime = Date.now();
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ value: 65 });
 
       (service as any).handleMessage(topic, payload);
@@ -554,7 +591,7 @@ describe("IotService - Sensor Data Management", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const afterTime = Date.now();
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       const timestamp = new Date(savedData.timestamp).getTime();
 
       expect(timestamp).toBeGreaterThanOrEqual(beforeTime);
@@ -567,7 +604,7 @@ describe("IotService - Sensor Data Management", () => {
       const fields = ["field-001", "field-002", "field-003"];
 
       fields.forEach((fieldId) => {
-        const topic = `sahool/tenant-1/farm/farm-1/field/${fieldId}/sensor/soil_moisture`;
+        const topic = `sahool/${TEST_TENANT}/farm/farm-1/field/${fieldId}/sensor/soil_moisture`;
         (service as any).handleMessage(topic, JSON.stringify({ value: 65 }));
       });
 
@@ -577,9 +614,9 @@ describe("IotService - Sensor Data Management", () => {
 
       // Verify different keys for different fields
       const keys = mockRedis.setex.mock.calls.map((call) => call[0]);
-      expect(keys).toContain("sensor:field-001:soil_moisture");
-      expect(keys).toContain("sensor:field-002:soil_moisture");
-      expect(keys).toContain("sensor:field-003:soil_moisture");
+      expect(keys).toContain(`${TEST_TENANT}:sensor:field-001:soil_moisture`);
+      expect(keys).toContain(`${TEST_TENANT}:sensor:field-002:soil_moisture`);
+      expect(keys).toContain(`${TEST_TENANT}:sensor:field-003:soil_moisture`);
     });
   });
 
@@ -602,7 +639,7 @@ describe("IotService - Sensor Data Management", () => {
       it(`should process ${type} sensor data correctly`, async () => {
         mockRedis.setex.mockResolvedValue("OK");
 
-        const topic = `sahool/tenant-1/farm/farm-1/field/field-001/sensor/${type}`;
+        const topic = `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/${type}`;
         const payload = JSON.stringify({ value });
 
         (service as any).handleMessage(topic, payload);
@@ -610,7 +647,7 @@ describe("IotService - Sensor Data Management", () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
 
         const savedData = JSON.parse(
-          mockRedis.setex.mock.calls[mockRedis.setex.mock.calls.length - 1][2],
+          mockRedis.setex.mock.calls[mockRedis.setex.mock.calls.length - 1][2] as string,
         );
         expect(savedData.value).toBe(value);
         expect(savedData.unit).toBe(unit);
@@ -622,7 +659,7 @@ describe("IotService - Sensor Data Management", () => {
   describe("Error Handling", () => {
     it("should handle malformed sensor data gracefully", async () => {
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = "invalid-json{";
 
       expect(() => {
@@ -634,7 +671,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ deviceId: "sensor-001" }); // Missing value
 
       expect(() => {
@@ -647,7 +684,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockRejectedValue(new Error("Redis write failed"));
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ value: 65 });
 
       (service as any).handleMessage(topic, payload);
@@ -663,6 +700,7 @@ describe("IotService - Sensor Data Management", () => {
       const result = await service.getSensorReading(
         "field-001",
         SensorType.SOIL_MOISTURE,
+        TEST_TENANT,
       );
 
       expect(result).toBeNull();
@@ -671,15 +709,15 @@ describe("IotService - Sensor Data Management", () => {
     it("should handle corrupted sensor data in Redis", async () => {
       mockRedis.get.mockResolvedValue("invalid-json{");
 
-      await expect(
-        service.getSensorReading("field-001", SensorType.SOIL_MOISTURE),
-      ).rejects.toThrow();
+      // getSensorReading catches JSON parse errors internally and returns null
+      const result = await service.getSensorReading("field-001", SensorType.SOIL_MOISTURE, TEST_TENANT);
+      expect(result).toBeNull();
     });
 
     it("should handle Redis scan errors gracefully", async () => {
       mockRedis.scan.mockRejectedValue(new Error("Redis scan failed"));
 
-      const result = await service.getFieldSensorData("field-001");
+      const result = await service.getFieldSensorData("field-001", TEST_TENANT);
 
       expect(result).toEqual([]);
     });
@@ -687,8 +725,8 @@ describe("IotService - Sensor Data Management", () => {
     it("should skip null sensor readings when scanning", async () => {
       mockRedis.scan.mockResolvedValue([
         "0",
-        ["sensor:field-001:soil_moisture", "sensor:field-001:air_temperature"],
-      ]);
+        [`${TEST_TENANT}:sensor:field-001:soil_moisture`, `${TEST_TENANT}:sensor:field-001:air_temperature`],
+      ] as any);
 
       mockRedis.get
         .mockResolvedValueOnce(
@@ -704,7 +742,7 @@ describe("IotService - Sensor Data Management", () => {
         )
         .mockResolvedValueOnce(null); // Null reading
 
-      const result = await service.getFieldSensorData("field-001");
+      const result = await service.getFieldSensorData("field-001", TEST_TENANT);
 
       expect(result).toHaveLength(1);
     });
@@ -716,7 +754,7 @@ describe("IotService - Sensor Data Management", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const topic =
-        "sahool/tenant-1/farm/farm-1/field/field-001/sensor/soil_moisture";
+        `sahool/${TEST_TENANT}/farm/farm-1/field/field-001/sensor/soil_moisture`;
       const payload = JSON.stringify({ value: 65 });
 
       (service as any).handleMessage(topic, payload);

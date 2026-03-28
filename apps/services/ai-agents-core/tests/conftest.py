@@ -108,17 +108,48 @@ def coordinator_agent() -> MasterCoordinatorAgent:
 # API Fixtures
 # ============================================================================
 
+# Valid UUID for tenant context middleware
+_VALID_TENANT = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+
+
+def _mock_current_user():
+    """Mock authenticated user for testing"""
+    from shared.auth.models import User
+
+    return User(
+        id="test-user-001",
+        email="test@sahool.app",
+        hashed_password="mock-hashed-password",
+        tenant_id=_VALID_TENANT,
+    )
+
 
 @pytest.fixture
 def api_client():
-    """Create a test client for the FastAPI app"""
+    """Create a test client for the FastAPI app with auth overrides"""
     try:
         from fastapi.testclient import TestClient
     except ImportError:
         pytest.skip("fastapi not installed")
     from main import app
 
-    return TestClient(app)
+    from shared.auth.dependencies import get_current_user
+
+    # Reset in-memory rate limiter state to avoid cross-test 429 errors
+    try:
+        import main as _main_mod
+
+        if hasattr(_main_mod, "rate_limiter") and hasattr(_main_mod.rate_limiter, "_in_memory"):
+            mem = _main_mod.rate_limiter._in_memory
+            mem._minute_windows.clear()
+            mem._hour_windows.clear()
+    except Exception:
+        pass
+
+    app.dependency_overrides[get_current_user] = _mock_current_user
+    client = TestClient(app, headers={"X-Tenant-ID": _VALID_TENANT})
+    yield client
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 @pytest.fixture
@@ -130,8 +161,12 @@ async def async_api_client():
         pytest.skip("httpx not installed")
     from main import app
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    from shared.auth.dependencies import get_current_user
+
+    app.dependency_overrides[get_current_user] = _mock_current_user
+    async with AsyncClient(app=app, base_url="http://test", headers={"X-Tenant-ID": _VALID_TENANT}) as client:
         yield client
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 # ============================================================================

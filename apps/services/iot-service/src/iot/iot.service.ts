@@ -236,7 +236,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.client.on("message", (topic, message) => {
-      this.handleMessage(topic, message.toString());
+      this.handleMessage(topic, message ? message.toString() : "");
     });
 
     this.client.on("error", (error) => {
@@ -284,11 +284,17 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       }
 
       if (parts.includes("sensor")) {
-        this.handleSensorData(parts, payload, tenantId);
+        void this.handleSensorData(parts, payload, tenantId).catch((err: unknown) => {
+          this.logger.error(`Error handling sensor data: ${err instanceof Error ? err.message : String(err)}`);
+        });
       } else if (parts.includes("actuator")) {
-        this.handleActuatorStatus(parts, payload, tenantId);
+        void this.handleActuatorStatus(parts, payload, tenantId).catch((err: unknown) => {
+          this.logger.error(`Error handling actuator status: ${err instanceof Error ? err.message : String(err)}`);
+        });
       } else if (parts.includes("status")) {
-        this.handleDeviceStatus(parts, payload, tenantId);
+        void this.handleDeviceStatus(parts, payload, tenantId).catch((err: unknown) => {
+          this.logger.error(`Error handling device status: ${err instanceof Error ? err.message : String(err)}`);
+        });
       }
     } catch (error) {
       this.logger.error("Error processing message", { topic: this.sanitizeForLog(topic) }, error);

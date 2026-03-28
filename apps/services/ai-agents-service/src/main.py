@@ -682,7 +682,7 @@ async def health_detailed():
 @limiter.limit("60/minute")
 async def list_agents(request: Request, user: User = Depends(get_current_user)):
     """List available agent types | قائمة أنواع الوكلاء المتاحة"""
-    cache_key = "ai_agents:agent_list"
+    cache_key = f"ai_agents:{user.tenant_id}:agent_list"
 
     # Try to get from cache
     cached = await cache_get(cache_key)
@@ -1068,7 +1068,7 @@ async def get_execution_status(
     user: User = Depends(get_current_user),
 ):
     """Get brief execution status | الحصول على حالة التنفيذ المختصرة"""
-    cache_key = f"ai_agents:execution_status:{execution_id}"
+    cache_key = f"ai_agents:{user.tenant_id}:execution_status:{execution_id}"
 
     # Try to get from cache (only for completed/failed executions)
     cached = await cache_get(cache_key)
@@ -1129,7 +1129,7 @@ async def cancel_execution(
         execution.state = "cancelled"
         execution.completed_at = datetime.now(UTC)
         # Invalidate cache for this execution
-        await cache_delete(f"ai_agents:execution_status:{execution_id}")
+        await cache_delete(f"ai_agents:{user.tenant_id}:execution_status:{execution_id}")
         return {"message": "Execution cancelled", "execution_id": execution_id}
 
     return {"message": "Execution already completed", "execution_id": execution_id}

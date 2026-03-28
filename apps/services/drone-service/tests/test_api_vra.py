@@ -15,6 +15,8 @@ from src.api.v1.vra import (
     router,
 )
 
+from shared.errors_py import NotFoundException
+
 
 class TestVRAModels:
     """Test Pydantic models for VRA."""
@@ -51,10 +53,10 @@ class TestVRAModels:
 
 class TestVRAHelpers:
     def test_raise_not_found(self):
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundException) as exc_info:
             _raise_not_found()
         assert exc_info.value.status_code == 404
-        assert "not found" in str(exc_info.value.detail).lower()
+        assert "not found" in exc_info.value.message.lower()
 
 
 def _create_test_app():

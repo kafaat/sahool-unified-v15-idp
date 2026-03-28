@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 # Mock shared.auth module tree to avoid cryptography import issues
 # Provide a real async function for get_current_user
 async def _fake_get_current_user():
-    return {"id": "test-user", "token": "fake-token"}
+    return {"id": "12345678-1234-1234-1234-123456789abc", "tenant_id": "test-tenant", "token": "fake-token"}
 
 
 _mock_auth = MagicMock()

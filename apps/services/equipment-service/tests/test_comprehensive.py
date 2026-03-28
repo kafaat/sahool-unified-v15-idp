@@ -226,17 +226,12 @@ class TestRepositoryCreateEquipment:
 class TestRepositoryGetEquipment:
     """Tests for repository.get_equipment."""
 
-    def test_get_equipment_without_tenant(self):
+    def test_get_equipment_requires_tenant(self):
         from src.repository import get_equipment
 
-        db = MagicMock()
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = "found_eq"
-        db.execute.return_value = mock_result
-
-        result = get_equipment(db, equipment_id="eq_001")
-        assert result == "found_eq"
-        db.execute.assert_called_once()
+        # tenant_id is now a required keyword-only argument (security hardening)
+        with pytest.raises(TypeError, match="tenant_id"):
+            get_equipment(MagicMock(), equipment_id="eq_001")
 
     def test_get_equipment_with_tenant(self):
         from src.repository import get_equipment
@@ -257,23 +252,19 @@ class TestRepositoryGetEquipment:
         mock_result.scalar_one_or_none.return_value = None
         db.execute.return_value = mock_result
 
-        result = get_equipment(db, equipment_id="nonexistent")
+        result = get_equipment(db, equipment_id="nonexistent", tenant_id="t1")
         assert result is None
 
 
 class TestRepositoryGetEquipmentByQR:
     """Tests for repository.get_equipment_by_qr."""
 
-    def test_get_by_qr_found(self):
+    def test_get_by_qr_requires_tenant(self):
         from src.repository import get_equipment_by_qr
 
-        db = MagicMock()
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = "eq_by_qr"
-        db.execute.return_value = mock_result
-
-        result = get_equipment_by_qr(db, qr_code="QR_123")
-        assert result == "eq_by_qr"
+        # tenant_id is now a required keyword-only argument (security hardening)
+        with pytest.raises(TypeError, match="tenant_id"):
+            get_equipment_by_qr(MagicMock(), qr_code="QR_123")
 
     def test_get_by_qr_with_tenant(self):
         from src.repository import get_equipment_by_qr
@@ -294,7 +285,7 @@ class TestRepositoryGetEquipmentByQR:
         mock_result.scalar_one_or_none.return_value = None
         db.execute.return_value = mock_result
 
-        result = get_equipment_by_qr(db, qr_code="NONEXISTENT")
+        result = get_equipment_by_qr(db, qr_code="NONEXISTENT", tenant_id="t1")
         assert result is None
 
 
@@ -483,20 +474,22 @@ class TestRepositoryGetEquipmentStats:
     def test_stats_with_data(self):
         from src.repository import get_equipment_stats
 
-        eq1 = MagicMock(equipment_type="tractor", status="operational")
-        eq2 = MagicMock(equipment_type="tractor", status="operational")
-        eq3 = MagicMock(equipment_type="pump", status="maintenance")
-        eq4 = MagicMock(equipment_type="drone", status="inactive")
-        eq5 = MagicMock(equipment_type="tractor", status="repair")
-
+        # The repo now uses GROUP BY queries:
+        #   db.query(Equipment.equipment_type, func.count()).filter(...).group_by(...).all()
+        #   db.query(Equipment.status, func.count()).filter(...).group_by(...).all()
         db = MagicMock()
-        db.query.return_value.filter.return_value.all.return_value = [
-            eq1,
-            eq2,
-            eq3,
-            eq4,
-            eq5,
-        ]
+
+        type_rows = [("tractor", 3), ("pump", 1), ("drone", 1)]
+        status_rows = [("operational", 2), ("maintenance", 1), ("inactive", 1), ("repair", 1)]
+
+        # Each db.query() call returns a new chain
+        query_chain_1 = MagicMock()
+        query_chain_1.filter.return_value.group_by.return_value.all.return_value = type_rows
+
+        query_chain_2 = MagicMock()
+        query_chain_2.filter.return_value.group_by.return_value.all.return_value = status_rows
+
+        db.query.side_effect = [query_chain_1, query_chain_2]
 
         stats = get_equipment_stats(db, tenant_id="t1")
         assert stats["total"] == 5
@@ -985,19 +978,25 @@ class TestGetTenantId:
             result = get_tenant_id(user=mock_user)
             assert result == "user_tenant"
 
-    def test_get_tenant_id_no_auth(self):
+    def test_get_tenant_id_no_auth_raises(self):
+        from fastapi import HTTPException
         from src.main import get_tenant_id
 
+        # Security hardening: no fallback to shared tenant
         with patch("src.main.AUTH_AVAILABLE", False):
-            result = get_tenant_id(user=None)
-            assert result == "tenant_demo"
+            with pytest.raises(HTTPException) as exc_info:
+                get_tenant_id(user=None)
+            assert exc_info.value.status_code == 401
 
-    def test_get_tenant_id_auth_but_no_user(self):
+    def test_get_tenant_id_auth_but_no_user_raises(self):
+        from fastapi import HTTPException
         from src.main import get_tenant_id
 
+        # Security hardening: no fallback to shared tenant
         with patch("src.main.AUTH_AVAILABLE", True):
-            result = get_tenant_id(user=None)
-            assert result == "tenant_demo"
+            with pytest.raises(HTTPException) as exc_info:
+                get_tenant_id(user=None)
+            assert exc_info.value.status_code == 401
 
 
 class TestSeedDemoData:

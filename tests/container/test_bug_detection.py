@@ -267,7 +267,7 @@ class TestPythonPathConfig:
             if not has_pythonpath and not copies_shared_to_workdir:
                 missing_pythonpath.append(svc)
         assert not missing_pythonpath, (
-            f"Services importing shared/ without PYTHONPATH or shared/ copy:\n"
+            "Services importing shared/ without PYTHONPATH or shared/ copy:\n"
             + "\n".join(f"  - {s}" for s in missing_pythonpath)
         )
 
@@ -407,7 +407,7 @@ class TestDockerfileSecurityRegressions:
                     root_services.append(svc_dir.name)
 
         assert not root_services, (
-            f"Services running CMD as root (security risk):\n"
+            "Services running CMD as root (security risk):\n"
             + "\n".join(f"  - {s}" for s in root_services)
         )
 
@@ -429,7 +429,7 @@ class TestDockerfileSecurityRegressions:
                     break
 
         assert not found_secrets, (
-            f"Dockerfiles with potential hardcoded secrets:\n"
+            "Dockerfiles with potential hardcoded secrets:\n"
             + "\n".join(f"  - {s}" for s in found_secrets)
         )
 
@@ -445,7 +445,7 @@ class TestDockerfileSecurityRegressions:
                 violations.append(svc_dir.name)
 
         assert not violations, (
-            f"Dockerfiles with chmod 777 (security risk):\n"
+            "Dockerfiles with chmod 777 (security risk):\n"
             + "\n".join(f"  - {s}" for s in violations)
         )
 
@@ -504,7 +504,7 @@ class TestNATSContractIntegrity:
         # Allow some orphans (subscribers may use wildcard patterns)
         if len(orphans) > 2:
             pytest.fail(
-                f"Critical NATS events without subscribers:\n"
+                "Critical NATS events without subscribers:\n"
                 + "\n".join(f"  - {o}" for o in orphans)
             )
 
@@ -549,7 +549,7 @@ class TestTenantSubjectPatterns:
         both = p1 & p2
         if both:
             pytest.fail(
-                f"Services using BOTH tenant subject patterns (inconsistency):\n"
+                "Services using BOTH tenant subject patterns (inconsistency):\n"
                 + "\n".join(f"  - {s}" for s in sorted(both))
                 + "\nShould use get_tenant_subject() from shared/events/subjects.py"
             )
@@ -579,7 +579,7 @@ class TestBrokenDependencies:
                 broken.append(f"{svc_name} → {missing}")
 
         assert not broken, (
-            f"Broken depends_on references:\n"
+            "Broken depends_on references:\n"
             + "\n".join(f"  - {b}" for b in broken)
         )
 
@@ -601,7 +601,7 @@ class TestBrokenDependencies:
 
         duplicates = {p: svcs for p, svcs in port_map.items() if len(svcs) > 1}
         assert not duplicates, (
-            f"Duplicate host port mappings:\n"
+            "Duplicate host port mappings:\n"
             + "\n".join(f"  port {p}: {svcs}" for p, svcs in duplicates.items())
         )
 
@@ -648,7 +648,7 @@ class TestHybridServiceDetection:
                         )
         if hybrids:
             pytest.fail(
-                f"Hybrid services detected (Python code in Node.js service):\n"
+                "Hybrid services detected (Python code in Node.js service):\n"
                 + "\n".join(f"  - {h}" for h in hybrids)
             )
 
@@ -687,7 +687,7 @@ class TestServiceRegistryCompleteness:
 
         if unregistered:
             pytest.fail(
-                f"Buildable services in compose but NOT in service_registry.py:\n"
+                "Buildable services in compose but NOT in service_registry.py:\n"
                 + "\n".join(f"  - {s}" for s in sorted(unregistered))
                 + "\nAdd them to PYTHON_SERVICES, NODE_SERVICES, or PORTLESS_SERVICES"
             )
@@ -720,8 +720,8 @@ class TestDeprecatedServiceIsolation:
 
         if no_profile:
             pytest.fail(
-                f"Deprecated services without 'profiles' annotation "
-                f"(will start by default):\n"
+                "Deprecated services without 'profiles' annotation "
+                "(will start by default):\n"
                 + "\n".join(f"  - {s}" for s in no_profile)
                 + "\nAdd: profiles: [deprecated] to prevent accidental startup"
             )
@@ -755,7 +755,7 @@ class TestImageVersionPinning:
             if ":latest" in image:
                 latest_images.append(f"{svc_name}: {image}")
         assert not latest_images, (
-            f"Services using :latest tag (non-reproducible, CVE risk):\n"
+            "Services using :latest tag (non-reproducible, CVE risk):\n"
             + "\n".join(f"  - {i}" for i in latest_images)
         )
 
@@ -771,7 +771,7 @@ class TestImageVersionPinning:
                 if ":latest" in line and "image:" in line and not line.strip().startswith("#"):
                     latest_found.append(f"{compose_file}:{i}: {line.strip()}")
         assert not latest_found, (
-            f"Compose files with :latest tags:\n"
+            "Compose files with :latest tags:\n"
             + "\n".join(f"  - {f}" for f in latest_found)
         )
 
@@ -794,7 +794,7 @@ class TestImageVersionPinning:
             elif parts[1] == "latest":
                 unpinned.append(f"{svc_name}: {image} (:latest)")
         assert not unpinned, (
-            f"Infrastructure images without version pin:\n"
+            "Infrastructure images without version pin:\n"
             + "\n".join(f"  - {u}" for u in unpinned)
         )
 

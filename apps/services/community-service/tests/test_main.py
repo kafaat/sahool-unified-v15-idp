@@ -426,7 +426,7 @@ class TestChannelListing:
             return_value=[
                 {
                     "_id": "ch001",
-                    "name": "irrigation",
+                    "name": "t-00000000-irrigation",
                     "description": "Irrigation",
                     "topic": "Water",
                     "usersCount": 15,
@@ -434,7 +434,7 @@ class TestChannelListing:
                 },
                 {
                     "_id": "ch002",
-                    "name": "announcements",
+                    "name": "t-00000000-announcements",
                     "description": "Announcements",
                     "topic": "News",
                     "usersCount": 50,

@@ -334,7 +334,7 @@ async def record_harvest_event(
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
-        await nc.publish(SAHOOL_TRACEABILITY_HARVEST_RECORDED, json.dumps({"batch_id": batch_id}).encode())
+        await nc.publish(SAHOOL_TRACEABILITY_HARVEST_RECORDED, json.dumps({"batch_id": batch_id, "tenant_id": tenant_id}).encode())
 
     logger.info("harvest_recorded", batch_id=batch_id)
     return {"status": "recorded", "event": _row_to_dict(row)}
@@ -373,7 +373,7 @@ async def record_processing_event(
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
-        await nc.publish(SAHOOL_TRACEABILITY_PROCESSING_RECORDED, json.dumps({"batch_id": batch_id}).encode())
+        await nc.publish(SAHOOL_TRACEABILITY_PROCESSING_RECORDED, json.dumps({"batch_id": batch_id, "tenant_id": tenant_id}).encode())
 
     logger.info("processing_recorded", batch_id=batch_id)
     return {"status": "recorded", "event": _row_to_dict(row)}
@@ -412,7 +412,7 @@ async def record_storage_event(
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
-        await nc.publish(SAHOOL_TRACEABILITY_STORAGE_RECORDED, json.dumps({"batch_id": batch_id}).encode())
+        await nc.publish(SAHOOL_TRACEABILITY_STORAGE_RECORDED, json.dumps({"batch_id": batch_id, "tenant_id": tenant_id}).encode())
 
     logger.info("storage_recorded", batch_id=batch_id)
     return {"status": "recorded", "event": _row_to_dict(row)}
@@ -457,7 +457,7 @@ async def record_transport_event(
 
     nc = getattr(req.app.state, "nc", None)
     if nc:
-        await nc.publish(SAHOOL_TRACEABILITY_TRANSPORT_RECORDED, json.dumps({"batch_id": batch_id}).encode())
+        await nc.publish(SAHOOL_TRACEABILITY_TRANSPORT_RECORDED, json.dumps({"batch_id": batch_id, "tenant_id": tenant_id}).encode())
 
     logger.info("transport_recorded", batch_id=batch_id)
     return {"status": "recorded", "event": _row_to_dict(row)}
@@ -516,11 +516,16 @@ async def generate_qr_code(batch_id: str, req: Request, tenant_id: str = Depends
 
 
 @router.get("/journey/{batch_code}")
-async def get_product_journey(batch_code: str, req: Request):
+async def get_product_journey(
+    batch_code: str,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """Get consumer-facing product journey - رحلة المنتج للمستهلك"""
     pool = await _get_db(req)
 
-    batch = await pool.fetchrow("SELECT * FROM produce_batches WHERE batch_code = $1", batch_code)
+    batch = await pool.fetchrow("SELECT * FROM produce_batches WHERE batch_code = $1 AND tenant_id = $2", batch_code, uuid.UUID(tenant_id))
     if not batch:
         raise HTTPException(status_code=404, detail={"error": "Product not found", "error_ar": "المنتج غير موجود"})
 

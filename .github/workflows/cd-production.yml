@@ -21,6 +21,9 @@ on:
         required: true
         type: string
       skip_approval:
+        # Approval is mandatory for all production deployments.
+        # This input must remain default: false. Only CODEOWNER-reviewed hotfixes
+        # with a written justification may override.
         description: 'Skip manual approval (for hotfixes - requires CODEOWNER review)'
         required: false
         type: boolean

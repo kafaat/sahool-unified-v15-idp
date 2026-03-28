@@ -624,21 +624,33 @@ async def send_whatsapp(body: WhatsAppSendRequest, current_user: User = Depends(
 # ============================================================
 
 
-async def get_user_language(app: FastAPI, phone_number: str) -> str:
+async def get_user_language(app: FastAPI, phone_number: str, tenant_id: str | None = None) -> str:
     """Get user's preferred language"""
     if not hasattr(app.state, "db_pool") or not app.state.db_pool:
         return "ar"  # Default to Arabic
 
     try:
         async with app.state.db_pool.acquire() as conn:
-            row = await conn.fetchrow(
-                """
-                SELECT preferred_language
-                FROM users
-                WHERE phone_number = $1
-                """,
-                phone_number,
-            )
+            if tenant_id:
+                row = await conn.fetchrow(
+                    """
+                    SELECT preferred_language
+                    FROM users
+                    WHERE phone_number = $1
+                    AND tenant_id = $2
+                    """,
+                    phone_number,
+                    tenant_id,
+                )
+            else:
+                row = await conn.fetchrow(
+                    """
+                    SELECT preferred_language
+                    FROM users
+                    WHERE phone_number = $1
+                    """,
+                    phone_number,
+                )
             if row:
                 return row["preferred_language"] or "ar"
     except Exception as e:

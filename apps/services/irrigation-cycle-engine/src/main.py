@@ -691,7 +691,7 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest, current_user: 
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
-            tenant_id = os.getenv("TENANT_ID", "default")
+            tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.irrigation.cycle_calculated",
                 json.dumps(

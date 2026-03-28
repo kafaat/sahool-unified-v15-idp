@@ -1,11 +1,19 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://sahool.kafaat.dev/schemas/device_status.v1.json",
+  "$id": "sahool://events/device_status.v1.json",
   "title": "DeviceStatus",
   "description": "Event emitted when device status changes",
   "type": "object",
-  "required": ["device_id", "status", "last_seen"],
+  "required": ["device_id", "status", "last_seen", "tenant_id", "version"],
   "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "Tenant identifier"
+    },
     "device_id": {
       "type": "string",
       "description": "Unique identifier of the device"

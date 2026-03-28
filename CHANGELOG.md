@@ -9,6 +9,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- **Comprehensive Security Hardening — 69 Services Audited** (March 2026)
+  - Identified and fixed ~430 security vulnerabilities across the entire platform
+  - Full report: [docs/SECURITY_HARDENING_AUDIT.md](docs/SECURITY_HARDENING_AUDIT.md)
+
+  **Tenant Isolation (12 service groups, ~300 fixes):**
+  - Added tenant_id to all database queries (SQL, Prisma, ORM) across 62 services
+  - Added tenant_id to all NATS event payloads (~40 events)
+  - Added tenant_id to all cache keys (Redis, in-memory, Qdrant, LLM)
+  - Fixed cache cross-contamination in copilot-api, ai-chat-assistant, code-review-service, yolo26-vision, LLM provider
+  - Fixed in-memory singletons: irrigation integration, market_prices tracker
+  - Added tenant enforcement to all WebSocket connections (chat, edge-orchestrator, ws-gateway)
+
+  **Authentication (~95 endpoints fixed):**
+  - Added JWT auth to all unauthenticated data endpoints across 30+ services
+  - Fixed astronomical-calendar (38 endpoints), ndvi-processor (10), terrain-core (6), pest-detection (5), hydrology (5), leveling-optimizer (4), knowledge-graph (14), agent-registry (6), ai-advisor (6)
+  - Added auth to IoT device endpoints (iot-gateway 5, iot-sensor-hub 5)
+  - Fixed copilot-api encyclopedia, services_rec, tools endpoints
+
+  **Shared Infrastructure Hardening:**
+  - shared/auth: Token revocation fail-closed, DI bypass deny-by-default, unsafe JWT decode blocked in staging
+  - shared/middleware: Rate limit override restricted to internal calls only, tier header removed, input filter enforced
+  - shared/ai: LLM cache tenant isolation, vector store tenant namespace
+  - shared/events: 4 event schemas + tenant_id, DLQ metadata enriched, TypeScript BaseEvent tenantId
+  - shared/telemetry: OTLP TLS default, tenant from JWT (not headers), user_id removed from metrics
+
+  **Infrastructure Config:**
+  - Redis: ACL users enabled, bind localhost, timeout 300s
+  - NATS: Gateway reject_unknown=true
+  - Kong: TRUSTED_IPS restricted to RFC 1918 private ranges
+  - Docker: Vault/etcd bind restricted
+  - Monitoring: Prometheus admin API removed, PG exporter sslmode=require
+  - Helm: 4 NetworkPolicy charts added (copilot-api, notification, audit, iot)
+  - Governance: Event schema $id standardized, .env.example passwords cleared
+  - Equipment migrations: tenant_id added to child tables
+  - Alert-service: tenant_id nullable=false enforced
+
+  **CI/CD Fixes:**
+  - Root cause fix: Added `cryptography`, `prometheus-client` to 3 CI workflow pip installs
+  - Prisma: Removed CONCURRENTLY from 17 migration files (P3018 fix)
+  - Test guards: BaseException with re-raise for KeyboardInterrupt/SystemExit (21 files)
+  - husky prepare script made Windows-compatible
+  - batch_operations: Fixed items AttributeError
+
 - **Container CVE Remediation** (March 2026)
   - Upgraded setuptools>=78.1.1 across 74 Dockerfiles (CVE-2024-6345, PYSEC-2025-49)
   - Upgraded wheel>=0.46.2 across 74 Dockerfiles (CVE-2026-24049)

@@ -208,7 +208,7 @@ async def create_report(report_data: ScoutReportCreate, current_user: User = Dep
 
 
 @router.get("/scouts/reports/{report_id}", response_model=ScoutReport)
-async def get_report(report_id: str):
+async def get_report(report_id: str, current_user: User = Depends(get_current_user)):
     """
     Get scout report by ID.
     الحصول على تقرير المسح بواسطة المعرف.
@@ -266,6 +266,7 @@ async def delete_report(report_id: str, current_user: User = Depends(get_current
 async def get_reports_by_field(
     field_id: str,
     limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get all reports for a field.
@@ -350,6 +351,7 @@ async def submit_report(report_id: str, current_user: User = Depends(get_current
 async def get_scouting_statistics(
     field_id: str | None = None,
     days: int = Query(30, ge=1, le=365),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get scouting statistics.

@@ -181,8 +181,9 @@ class RateLimiter:
         key = f"{tenant_id}:{client_ip}"
 
         # Use per-request config override if set (avoids shared state mutation)
+        # Only allow override for internal service-to-service calls
         config_override = getattr(getattr(request, "state", None), "rate_limit_config_override", None)
-        if config_override:
+        if config_override and getattr(getattr(request, "state", None), "_internal_service_call", False):
             tier = "override"
             config = config_override
         else:
@@ -225,7 +226,6 @@ class RateLimiter:
             "X-RateLimit-Limit": str(config.requests_per_minute),
             "X-RateLimit-Remaining": str(remaining),
             "X-RateLimit-Reset": str(int(time.time()) + 60),
-            "X-RateLimit-Tier": tier,
         }
 
         if exceeded:

@@ -1360,13 +1360,21 @@ class VectorStore:
         name: str,
         dimension: int | None = None,
         metadata: dict[str, Any] | None = None,
+        tenant_id: str | None = None,
     ) -> CollectionInfo:
         """Create a new collection
 
         إنشاء مجموعة جديدة
+
+        Args:
+            name: Collection name
+            dimension: Vector dimension (uses config default if None)
+            metadata: Optional collection metadata
+            tenant_id: Tenant identifier for namespace isolation
         """
+        collection_name = f"{tenant_id}:{name}" if tenant_id else name
         return await self._backend.create_collection(
-            name=name,
+            name=collection_name,
             dimension=dimension or self.config.dimension,
             distance_metric=self.config.distance_metric,
             metadata=metadata,

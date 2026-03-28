@@ -127,7 +127,11 @@ def upgrade() -> None:
         # Additional details
         sa.Column("notes", sa.Text(), nullable=True),
         sa.Column("parts_replaced", postgresql.ARRAY(sa.String()), nullable=True),
+        sa.Column("tenant_id", sa.String(length=100), nullable=False, server_default="default"),
     )
+
+    # Composite tenant + equipment index
+    op.create_index("ix_maintenance_tenant_equipment", "equipment_maintenance", ["tenant_id", "equipment_id"])
 
     # Indexes for equipment_maintenance table
     # Equipment maintenance history
@@ -171,7 +175,11 @@ def upgrade() -> None:
             nullable=False,
             server_default=sa.text("NOW()"),
         ),
+        sa.Column("tenant_id", sa.String(length=100), nullable=False, server_default="default"),
     )
+
+    # Composite tenant + equipment index
+    op.create_index("ix_alerts_tenant_equipment", "equipment_alerts", ["tenant_id", "equipment_id"])
 
     # Indexes for equipment_alerts table
     # Overdue alerts
@@ -194,11 +202,13 @@ def downgrade() -> None:
     Drop equipment, equipment_maintenance, and equipment_alerts tables.
     """
     # Drop equipment_alerts table
+    op.drop_index("ix_alerts_tenant_equipment", table_name="equipment_alerts")
     op.drop_index("ix_alerts_equipment_due", table_name="equipment_alerts")
     op.drop_index("ix_alerts_overdue", table_name="equipment_alerts")
     op.drop_table("equipment_alerts")
 
     # Drop equipment_maintenance table
+    op.drop_index("ix_maintenance_tenant_equipment", table_name="equipment_maintenance")
     op.drop_index("ix_maintenance_type", table_name="equipment_maintenance")
     op.drop_index("ix_maintenance_equipment_date", table_name="equipment_maintenance")
     op.drop_table("equipment_maintenance")

@@ -337,7 +337,7 @@ async def start_processing(
 
 
 @app.get("/process/{job_id}/status", response_model=JobResponse)
-async def get_job_status(job_id: str):
+async def get_job_status(job_id: str, user: User = Depends(get_current_user)):
     """حالة المعالجة"""
     job = get_job(job_id)
     if not job:
@@ -359,6 +359,7 @@ async def list_processing_jobs(
     tenant_id: str = Query(..., description="Tenant ID for isolation"),
     field_id: str = Query(None),
     status: str | None = Query(None),
+    user: User = Depends(get_current_user),
 ):
     """قائمة المهام مع عزل إلزامي للمستأجر"""
     jobs = list_jobs(tenant_id=tenant_id, field_id=field_id, status=status)
@@ -378,6 +379,7 @@ async def list_processing_jobs(
 async def get_ndvi(
     field_id: str,
     date: str | None = Query(None),
+    user: User = Depends(get_current_user),
 ):
     """الحصول على NDVI"""
     result = get_field_ndvi(field_id, date)
@@ -397,7 +399,7 @@ async def get_ndvi(
 
 
 @app.get("/fields/{field_id}/ndvi/latest")
-async def get_latest_ndvi(field_id: str):
+async def get_latest_ndvi(field_id: str, user: User = Depends(get_current_user)):
     """أحدث NDVI متاح"""
     result = get_field_ndvi(field_id)
 
@@ -420,6 +422,7 @@ async def get_timeseries(
     field_id: str,
     start: str = Query(..., description="YYYY-MM-DD"),
     end: str = Query(..., description="YYYY-MM-DD"),
+    user: User = Depends(get_current_user),
 ):
     """السلسلة الزمنية"""
     data = get_ndvi_timeseries(field_id, start, end)
@@ -445,6 +448,7 @@ async def get_change_analysis(
     date1: str = Query(...),
     date2: str = Query(...),
     include_zones: bool = Query(True),
+    user: User = Depends(get_current_user),
 ):
     """تحليل التغير"""
     result = analyze_change(field_id, date1, date2, include_zones)
@@ -471,6 +475,7 @@ async def post_change_analysis(
 async def get_seasonal_analysis(
     field_id: str,
     year: int = Query(..., ge=2000, le=2100),
+    user: User = Depends(get_current_user),
 ):
     """تحليل موسمي"""
     result = analyze_seasonal(field_id, year)
@@ -482,6 +487,7 @@ async def get_anomaly_detection(
     field_id: str,
     date: str = Query(...),
     current_ndvi: float | None = Query(None, ge=-1, le=1),
+    user: User = Depends(get_current_user),
 ):
     """كشف الشذوذ"""
     result = detect_anomaly(field_id, date, current_ndvi)
@@ -498,6 +504,7 @@ async def export_ndvi(
     start: str | None = Query(None),
     end: str | None = Query(None),
     format: ExportFormat = Query(ExportFormat.GEOTIFF),
+    user: User = Depends(get_current_user),
 ):
     """تصدير NDVI"""
     if format == ExportFormat.CSV:
@@ -564,6 +571,7 @@ async def create_monthly_composite(request: CompositeRequest, user: User = Depen
 async def list_composites(
     field_id: str,
     year: int | None = Query(None),
+    user: User = Depends(get_current_user),
 ):
     """قائمة المركبات"""
     composites = get_composites(field_id, year)
@@ -575,7 +583,7 @@ async def list_composites(
 
 
 @app.get("/composites/{composite_id}")
-async def get_composite(composite_id: str):
+async def get_composite(composite_id: str, user: User = Depends(get_current_user)):
     """جلب مركب"""
     from .processing import _composites
 
@@ -589,6 +597,7 @@ async def get_composite(composite_id: str):
 async def download_composite(
     composite_id: str,
     format: ExportFormat = Query(ExportFormat.GEOTIFF),
+    user: User = Depends(get_current_user),
 ):
     """تنزيل مركب"""
     from .processing import _composites

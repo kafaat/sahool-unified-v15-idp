@@ -23,7 +23,7 @@ import sys
 from datetime import UTC, datetime, timedelta
 
 import httpx
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -94,6 +94,25 @@ app.add_middleware(
 
 if _has_tenant_middleware:
     app.add_middleware(TenantContextMiddleware)
+
+# Auth (optional import)
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    AUTH_AVAILABLE = False
+
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = "anonymous"
+        username: str = "anonymous"
+        email: str = "anonymous@sahool.app"
+        tenant_id: str | None = None
+        roles: list[str] = []
+
+    async def get_current_user() -> User:  # type: ignore[misc]
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3228,7 +3247,7 @@ def readiness():
 
 
 @app.get("/v1/today", response_model=DailyAstronomicalData, tags=["Calendar"])
-def get_today():
+def get_today(user: User = Depends(get_current_user)):
     """
     الحصول على البيانات الفلكية لليوم الحالي
 
@@ -3244,7 +3263,7 @@ def get_today():
 
 
 @app.get("/v1/date/{date_str}", response_model=DailyAstronomicalData, tags=["Calendar"])
-def get_date(date_str: str):
+def get_date(date_str: str, user: User = Depends(get_current_user)):
     """
     الحصول على البيانات الفلكية لتاريخ محدد
 
@@ -3261,6 +3280,7 @@ def get_date(date_str: str):
 @app.get("/v1/week", response_model=WeeklyForecast, tags=["Calendar"])
 def get_weekly_forecast(
     start_date: str | None = Query(None, description="تاريخ البداية (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     الحصول على التوقعات الفلكية الأسبوعية
@@ -3311,7 +3331,7 @@ def get_weekly_forecast(
 
 
 @app.get("/v1/moon-phase", response_model=MoonPhase, tags=["Astronomy"])
-def get_moon_phase(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")):
+def get_moon_phase(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
     """الحصول على مرحلة القمر"""
     if date_str:
         try:
@@ -3325,7 +3345,7 @@ def get_moon_phase(date_str: str | None = Query(None, description="التاري�
 
 
 @app.get("/v1/lunar-mansion", response_model=LunarMansion, tags=["Astronomy"])
-def get_lunar_mansion(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")):
+def get_lunar_mansion(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
     """الحصول على المنزلة القمرية الحالية"""
     if date_str:
         try:
@@ -3339,7 +3359,7 @@ def get_lunar_mansion(date_str: str | None = Query(None, description="التار
 
 
 @app.get("/v1/lunar-mansions", tags=["Reference"])
-def list_lunar_mansions():
+def list_lunar_mansions(user: User = Depends(get_current_user)):
     """قائمة جميع المنازل القمرية الـ 28"""
     mansions = []
     for num, data in LUNAR_MANSIONS.items():
@@ -3358,7 +3378,7 @@ def list_lunar_mansions():
 
 
 @app.get("/v1/hijri", response_model=HijriDate, tags=["Calendar"])
-def get_hijri_date(date_str: str | None = Query(None, description="التاريخ الميلادي (YYYY-MM-DD)")):
+def get_hijri_date(date_str: str | None = Query(None, description="التاريخ الميلادي (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
     """تحويل تاريخ ميلادي إلى هجري"""
     if date_str:
         try:
@@ -3372,13 +3392,13 @@ def get_hijri_date(date_str: str | None = Query(None, description="التاري�
 
 
 @app.get("/v1/hijri-months", tags=["Reference"])
-def list_hijri_months():
+def list_hijri_months(user: User = Depends(get_current_user)):
     """قائمة الأشهر الهجرية"""
     return {"months": HIJRI_MONTHS}
 
 
 @app.get("/v1/zodiac", response_model=ZodiacInfo, tags=["Astronomy"])
-def get_zodiac(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")):
+def get_zodiac(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
     """الحصول على البرج الشمسي"""
     if date_str:
         try:
@@ -3392,25 +3412,25 @@ def get_zodiac(date_str: str | None = Query(None, description="التاريخ (Y
 
 
 @app.get("/v1/zodiac-farming", tags=["Reference"])
-def list_zodiac_farming():
+def list_zodiac_farming(user: User = Depends(get_current_user)):
     """قائمة الأبراج مع معلومات الخصوبة الزراعية"""
     return {"zodiac_signs": ZODIAC_FARMING}
 
 
 @app.get("/v1/seasons", tags=["Reference"])
-def list_seasons():
+def list_seasons(user: User = Depends(get_current_user)):
     """قائمة المواسم الزراعية اليمنية"""
     return {"seasons": YEMENI_SEASONS}
 
 
 @app.get("/v1/current-season", response_model=SeasonInfo, tags=["Calendar"])
-def get_current_season_info():
+def get_current_season_info(user: User = Depends(get_current_user)):
     """الحصول على الموسم الزراعي الحالي"""
     return get_current_season(datetime.now(UTC).month)
 
 
 @app.get("/v1/crop-calendar/{crop_name}", response_model=CropCalendar, tags=["Crops"])
-def get_crop_calendar(crop_name: str):
+def get_crop_calendar(crop_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على التقويم الفلكي لمحصول معين
 
@@ -3544,7 +3564,7 @@ def get_crop_calendar(crop_name: str):
 
 
 @app.get("/v1/crops", tags=["Crops"])
-def list_supported_crops():
+def list_supported_crops(user: User = Depends(get_current_user)):
     """قائمة المحاصيل المدعومة"""
     return {
         "crops": [
@@ -3566,7 +3586,7 @@ def list_supported_crops():
 
 
 @app.get("/v1/regions", tags=["Yemeni Heritage"])
-def get_regions():
+def get_regions(user: User = Depends(get_current_user)):
     """
     المناطق الزراعية اليمنية
 
@@ -3601,7 +3621,7 @@ def get_regions():
 
 
 @app.get("/v1/regions/{region_id}", tags=["Yemeni Heritage"])
-def get_region(region_id: str):
+def get_region(region_id: str, user: User = Depends(get_current_user)):
     """
     تفاصيل منطقة زراعية
 
@@ -3697,7 +3717,7 @@ def get_region(region_id: str):
 
 
 @app.get("/v1/regions/{region_id}/crops", tags=["Yemeni Heritage"])
-def get_region_crops(region_id: str):
+def get_region_crops(region_id: str, user: User = Depends(get_current_user)):
     """
     محاصيل منطقة معينة
 
@@ -3765,6 +3785,7 @@ def get_region_crops(region_id: str):
 def get_best_farming_days(
     activity: str = Query("زراعة", description="النشاط: زراعة، حصاد، ري، تقليم"),
     days: int = Query(30, ge=7, le=90, description="عدد الأيام للبحث"),
+    user: User = Depends(get_current_user),
 ):
     """
     البحث عن أفضل الأيام لنشاط زراعي معين
@@ -3805,6 +3826,7 @@ def get_best_farming_days(
 async def get_integrated_data(
     location_id: str = Query("sanaa", description="معرف الموقع"),
     date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     دمج البيانات الفلكية مع بيانات الطقس
@@ -3879,7 +3901,7 @@ async def get_integrated_data(
 
 
 @app.get("/v1/crop-details", tags=["Crops"])
-def list_detailed_crops():
+def list_detailed_crops(user: User = Depends(get_current_user)):
     """
     قائمة المحاصيل مع التفاصيل الكاملة
 
@@ -3906,7 +3928,7 @@ def list_detailed_crops():
 
 
 @app.get("/v1/crop-details/{crop_id}", tags=["Crops"])
-def get_crop_details(crop_id: str):
+def get_crop_details(crop_id: str, user: User = Depends(get_current_user)):
     """
     تفاصيل محصول كاملة
 
@@ -3968,7 +3990,7 @@ def get_crop_details(crop_id: str):
 
 
 @app.get("/v1/crop-details/{crop_id}/planting-guide", tags=["Crops"])
-def get_planting_guide(crop_id: str):
+def get_planting_guide(crop_id: str, user: User = Depends(get_current_user)):
     """
     دليل زراعة المحصول المفصل
 
@@ -4040,6 +4062,7 @@ def what_to_plant_now(
     region: str = Query(None, description="المنطقة (اختياري): حراز، صنعاء، تهامة، إلخ"),
     altitude_min: int = Query(None, description="الارتفاع الأدنى بالمتر"),
     altitude_max: int = Query(None, description="الارتفاع الأعلى بالمتر"),
+    user: User = Depends(get_current_user),
 ):
     """
     ماذا أزرع الآن؟
@@ -4155,7 +4178,7 @@ def what_to_plant_now(
 
 
 @app.get("/v1/proverbs", tags=["Yemeni Wisdom"])
-def get_all_proverbs():
+def get_all_proverbs(user: User = Depends(get_current_user)):
     """
     الحصول على جميع الأمثال الزراعية اليمنية
 
@@ -4175,7 +4198,7 @@ def get_all_proverbs():
 
 
 @app.get("/v1/proverbs/today", tags=["Yemeni Wisdom"])
-def get_proverb_of_the_day():
+def get_proverb_of_the_day(user: User = Depends(get_current_user)):
     """
     الحصول على مثل اليوم مع تفسيره
 
@@ -4217,7 +4240,7 @@ def get_proverb_of_the_day():
 
 
 @app.get("/v1/proverbs/crop/{crop_name}", tags=["Yemeni Wisdom"])
-def get_crop_proverbs(crop_name: str):
+def get_crop_proverbs(crop_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على الأمثال الخاصة بمحصول معين
 
@@ -4237,7 +4260,7 @@ def get_crop_proverbs(crop_name: str):
 
 
 @app.get("/v1/proverbs/mansion/{mansion_name}", tags=["Yemeni Wisdom"])
-def get_mansion_proverbs(mansion_name: str):
+def get_mansion_proverbs(mansion_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على الأمثال المرتبطة بمنزلة قمرية معينة
     """
@@ -4264,7 +4287,7 @@ def get_mansion_proverbs(mansion_name: str):
 
 
 @app.get("/v1/stars", tags=["Yemeni Wisdom"])
-def get_important_stars():
+def get_important_stars(user: User = Depends(get_current_user)):
     """
     الحصول على النجوم المهمة في التقويم الزراعي اليمني
 
@@ -4281,7 +4304,7 @@ def get_important_stars():
 
 
 @app.get("/v1/stars/{star_name}", tags=["Yemeni Wisdom"])
-def get_star_info(star_name: str):
+def get_star_info(star_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على معلومات نجم معين
     """
@@ -4307,7 +4330,7 @@ def get_star_info(star_name: str):
 
 
 @app.get("/v1/landmarks", tags=["Yemeni Heritage"])
-def get_landmarks():
+def get_landmarks(user: User = Depends(get_current_user)):
     """
     قائمة المعالم الزراعية اليمنية التاريخية
 
@@ -4342,7 +4365,7 @@ def get_landmarks():
 
 
 @app.get("/v1/landmarks/{category}", tags=["Yemeni Heritage"])
-def get_landmarks_by_category(category: str):
+def get_landmarks_by_category(category: str, user: User = Depends(get_current_user)):
     """
     المعالم حسب الفئة
 
@@ -4388,7 +4411,7 @@ def get_landmarks_by_category(category: str):
 
 
 @app.get("/v1/landmarks/{category}/{landmark_name}", tags=["Yemeni Heritage"])
-def get_specific_landmark(category: str, landmark_name: str):
+def get_specific_landmark(category: str, landmark_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على معلومات معلم محدد
 
@@ -4420,7 +4443,7 @@ def get_specific_landmark(category: str, landmark_name: str):
 
 
 @app.get("/v1/wisdom/today", tags=["Yemeni Wisdom"])
-def get_daily_wisdom():
+def get_daily_wisdom(user: User = Depends(get_current_user)):
     """
     الحكمة الزراعية اليومية الشاملة
 
@@ -4508,7 +4531,7 @@ def get_daily_wisdom():
 
 
 @app.get("/v1/techniques", tags=["Yemeni Heritage"])
-def get_all_techniques():
+def get_all_techniques(user: User = Depends(get_current_user)):
     """
     الحصول على جميع التقنيات الزراعية اليمنية التقليدية
 
@@ -4538,7 +4561,7 @@ def get_all_techniques():
 
 
 @app.get("/v1/techniques/{category}", tags=["Yemeni Heritage"])
-def get_techniques_by_category(category: str):
+def get_techniques_by_category(category: str, user: User = Depends(get_current_user)):
     """
     الحصول على جميع التقنيات في فئة معينة
 
@@ -4579,7 +4602,7 @@ def get_techniques_by_category(category: str):
 
 
 @app.get("/v1/techniques/{category}/{technique_id}", tags=["Yemeni Heritage"])
-def get_technique_details(category: str, technique_id: str):
+def get_technique_details(category: str, technique_id: str, user: User = Depends(get_current_user)):
     """
     الحصول على تفاصيل تقنية زراعية محددة
 

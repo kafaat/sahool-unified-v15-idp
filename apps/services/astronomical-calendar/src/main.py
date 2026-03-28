@@ -3990,7 +3990,7 @@ def get_crop_details(crop_id: str, user: User = Depends(get_current_user)):
 
 
 @app.get("/v1/crop-details/{crop_id}/planting-guide", tags=["Crops"])
-def get_planting_guide(crop_id: str):
+def get_planting_guide(crop_id: str, user: User = Depends(get_current_user)):
     """
     دليل زراعة المحصول المفصل
 
@@ -4062,6 +4062,7 @@ def what_to_plant_now(
     region: str = Query(None, description="المنطقة (اختياري): حراز، صنعاء، تهامة، إلخ"),
     altitude_min: int = Query(None, description="الارتفاع الأدنى بالمتر"),
     altitude_max: int = Query(None, description="الارتفاع الأعلى بالمتر"),
+    user: User = Depends(get_current_user),
 ):
     """
     ماذا أزرع الآن؟
@@ -4177,7 +4178,7 @@ def what_to_plant_now(
 
 
 @app.get("/v1/proverbs", tags=["Yemeni Wisdom"])
-def get_all_proverbs():
+def get_all_proverbs(user: User = Depends(get_current_user)):
     """
     الحصول على جميع الأمثال الزراعية اليمنية
 
@@ -4197,7 +4198,7 @@ def get_all_proverbs():
 
 
 @app.get("/v1/proverbs/today", tags=["Yemeni Wisdom"])
-def get_proverb_of_the_day():
+def get_proverb_of_the_day(user: User = Depends(get_current_user)):
     """
     الحصول على مثل اليوم مع تفسيره
 
@@ -4239,7 +4240,7 @@ def get_proverb_of_the_day():
 
 
 @app.get("/v1/proverbs/crop/{crop_name}", tags=["Yemeni Wisdom"])
-def get_crop_proverbs(crop_name: str):
+def get_crop_proverbs(crop_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على الأمثال الخاصة بمحصول معين
 
@@ -4259,7 +4260,7 @@ def get_crop_proverbs(crop_name: str):
 
 
 @app.get("/v1/proverbs/mansion/{mansion_name}", tags=["Yemeni Wisdom"])
-def get_mansion_proverbs(mansion_name: str):
+def get_mansion_proverbs(mansion_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على الأمثال المرتبطة بمنزلة قمرية معينة
     """

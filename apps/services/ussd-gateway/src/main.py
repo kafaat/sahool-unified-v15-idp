@@ -403,7 +403,7 @@ async def ussd_callback(request: Request):
     phone_number = validated.phoneNumber
     text = validated.text
 
-    logger.info("USSD request: phone=%s, text_len=%d", phone_number[-4:] if phone_number else "?", len(text))
+    logger.info(f"USSD request: phone={phone_number[-4:] if phone_number else '?'}, text_len={len(text)}")
 
     # Determine user language preference
     language = await get_user_language(app, phone_number)
@@ -505,7 +505,7 @@ async def receive_sms(request: Request):
     from_number = str(data.get("from", data.get("msisdn", "")))[:20]
     message = str(data.get("text", data.get("message", "")))[:500].strip().upper()
 
-    logger.info("SMS received: from=%s, message_len=%d", from_number[-4:] if from_number else "?", len(message))
+    logger.info(f"SMS received: from={from_number[-4:] if from_number else '?'}, message_len={len(message)}")
 
     # Process SMS keywords
     response = await process_sms_keyword(app, from_number, message)

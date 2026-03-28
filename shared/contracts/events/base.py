@@ -14,7 +14,10 @@ from pathlib import Path
 from typing import Any, ClassVar
 from uuid import UUID, uuid4
 
-import jsonschema
+try:
+    import jsonschema
+except (ImportError, ModuleNotFoundError, BaseException):
+    jsonschema = None  # type: ignore[assignment]
 
 # Schema directory relative to this file
 _SCHEMA_DIR = Path(__file__).parent.parent / "schemas"

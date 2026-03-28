@@ -14,6 +14,21 @@ try:
 except ImportError:
     pytest.skip("iot-sensor-hub dependencies not installed", allow_module_level=True)
 
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User as AuthUser
+
+
+def _mock_current_user():
+    return AuthUser(
+        id="test-user",
+        email="test@sahool.app",
+        roles=["admin"],
+        tenant_id="00000000-0000-0000-0000-000000000001",
+    )
+
+
+app.dependency_overrides[get_current_user] = _mock_current_user
+
 TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
 
 

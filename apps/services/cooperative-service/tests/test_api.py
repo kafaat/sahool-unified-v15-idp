@@ -140,7 +140,15 @@ class TestCooperativeEndpoints:
 
     def test_no_database_returns_503(self):
         """Test that missing DB pool returns 503."""
+        from unittest.mock import MagicMock
+
+        from src.api.v1.cooperatives import get_current_user
         from src.main import app
+
+        mock_user = MagicMock()
+        mock_user.id = "test-user-001"
+        mock_user.tenant_id = "00000000-0000-0000-0000-000000000001"
+        mock_user.roles = ["user"]
 
         # Ensure no db_pool is set
         if hasattr(app.state, "db_pool"):
@@ -148,6 +156,7 @@ class TestCooperativeEndpoints:
             app.state.db_pool = None
         else:
             saved = None
+        app.dependency_overrides[get_current_user] = lambda: mock_user
         try:
             from fastapi.testclient import TestClient
 
@@ -157,6 +166,7 @@ class TestCooperativeEndpoints:
             assert response.status_code == 503
         finally:
             app.state.db_pool = saved
+            app.dependency_overrides.pop(get_current_user, None)
 
 
 class TestMemberEndpoints:

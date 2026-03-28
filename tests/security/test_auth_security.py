@@ -126,21 +126,22 @@ class TestJWTAlgorithmConfusion:
 
     def test_none_algorithm_rejected_auth_module(self):
         """A token with alg=none must be rejected by shared.auth."""
+        import base64
+        import json as _json
+
         payload = {
             "sub": "user-1",
             "roles": ["farmer"],
-            "exp": datetime.now(UTC) + timedelta(hours=1),
-            "iat": datetime.now(UTC),
+            "exp": int((datetime.now(UTC) + timedelta(hours=1)).timestamp()),
+            "iat": int(datetime.now(UTC).timestamp()),
             "iss": "sahool-platform",
             "aud": "sahool-api",
             "jti": str(uuid.uuid4()),
         }
-        # Craft an unsigned 'none' token manually
-        header = pyjwt.utils.base64url_encode(b'{"alg":"none","typ":"JWT"}').decode()
-        body = pyjwt.utils.base64url_encode(
-            pyjwt.utils.force_bytes(pyjwt.api_jwt._json_encoder.encode(payload))
-        ).decode()
-        none_token = f"{header}.{body}."
+        # Craft an unsigned 'none' token manually (header.payload. with empty sig)
+        header_b64 = base64.urlsafe_b64encode(b'{"alg":"none","typ":"JWT"}').rstrip(b"=").decode()
+        payload_b64 = base64.urlsafe_b64encode(_json.dumps(payload).encode()).rstrip(b"=").decode()
+        none_token = f"{header_b64}.{payload_b64}."
 
         with pytest.raises(AuthException) as exc_info:
             verify_token(none_token)
@@ -148,21 +149,22 @@ class TestJWTAlgorithmConfusion:
 
     def test_none_algorithm_rejected_security_module(self):
         """A token with alg=none must be rejected by shared.security.jwt."""
+        import base64
+        import json as _json
+
         payload = {
             "sub": "user-1",
             "tid": "tenant-1",
             "roles": [],
             "scopes": [],
-            "exp": datetime.now(UTC) + timedelta(hours=1),
-            "iat": datetime.now(UTC),
+            "exp": int((datetime.now(UTC) + timedelta(hours=1)).timestamp()),
+            "iat": int(datetime.now(UTC).timestamp()),
             "iss": "sahool-platform",
             "aud": "sahool-api",
         }
-        header = pyjwt.utils.base64url_encode(b'{"alg":"none","typ":"JWT"}').decode()
-        body = pyjwt.utils.base64url_encode(
-            pyjwt.utils.force_bytes(pyjwt.api_jwt._json_encoder.encode(payload))
-        ).decode()
-        none_token = f"{header}.{body}."
+        header_b64 = base64.urlsafe_b64encode(b'{"alg":"none","typ":"JWT"}').rstrip(b"=").decode()
+        payload_b64 = base64.urlsafe_b64encode(_json.dumps(payload).encode()).rstrip(b"=").decode()
+        none_token = f"{header_b64}.{payload_b64}."
 
         with pytest.raises(AuthError) as exc_info:
             sec_verify_token(none_token, check_revocation=False)

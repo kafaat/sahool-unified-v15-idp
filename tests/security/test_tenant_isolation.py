@@ -15,10 +15,14 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import importlib.util
 import json
+import os
 import re
+import sys
 import time
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -31,6 +35,28 @@ import pytest
 TENANT_A = "11111111-1111-1111-1111-111111111111"
 TENANT_B = "22222222-2222-2222-2222-222222222222"
 FIELD_ID = "field-001"
+
+# ---------------------------------------------------------------------------
+# Helper: load indicators-service module from hyphenated directory path
+# ---------------------------------------------------------------------------
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+def _load_indicators_main():
+    """Load apps/services/indicators-service/src/main.py as a module.
+
+    The directory contains a hyphen which is not a valid Python identifier,
+    so we use importlib.util to load it by file path.
+    """
+    module_name = "indicators_service_main"
+    if module_name in sys.modules:
+        return sys.modules[module_name]
+
+    src_path = _PROJECT_ROOT / "apps" / "services" / "indicators-service" / "src" / "main.py"
+    spec = importlib.util.spec_from_file_location(module_name, src_path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
 
 
 # ===========================================================================
@@ -97,10 +123,11 @@ class TestCrossTenantDatabaseIsolation:
 
         Security property: A tenant can access its own indicator data.
         """
-        from apps.services.indicators_service.src.main import get_indicator
+        indicators_main = _load_indicators_main()
+        get_indicator = indicators_main.get_indicator
 
         # Patch the module-level 'app' so the function sees our mock
-        with patch("apps.services.indicators_service.src.main.app", mock_app):
+        with patch.object(indicators_main, "app", mock_app):
             result = asyncio.get_event_loop().run_until_complete(
                 get_indicator(FIELD_ID, "ndvi", tenant_id=TENANT_A)
             )
@@ -113,9 +140,10 @@ class TestCrossTenantDatabaseIsolation:
         Security property: Cross-tenant data access returns empty, not another
         tenant's data.
         """
-        from apps.services.indicators_service.src.main import get_indicator
+        indicators_main = _load_indicators_main()
+        get_indicator = indicators_main.get_indicator
 
-        with patch("apps.services.indicators_service.src.main.app", mock_app):
+        with patch.object(indicators_main, "app", mock_app):
             result = asyncio.get_event_loop().run_until_complete(
                 get_indicator(FIELD_ID, "ndvi", tenant_id=TENANT_B)
             )
@@ -129,9 +157,10 @@ class TestCrossTenantDatabaseIsolation:
         Security property: Listing all indicators for a field scoped to a
         different tenant must yield an empty list, not the real tenant's data.
         """
-        from apps.services.indicators_service.src.main import get_all_field_indicators
+        indicators_main = _load_indicators_main()
+        get_all_field_indicators = indicators_main.get_all_field_indicators
 
-        with patch("apps.services.indicators_service.src.main.app", mock_app):
+        with patch.object(indicators_main, "app", mock_app):
             result = asyncio.get_event_loop().run_until_complete(
                 get_all_field_indicators(FIELD_ID, tenant_id=TENANT_B)
             )
@@ -144,9 +173,10 @@ class TestCrossTenantDatabaseIsolation:
 
         Security property: The owning tenant can see its own indicator list.
         """
-        from apps.services.indicators_service.src.main import get_all_field_indicators
+        indicators_main = _load_indicators_main()
+        get_all_field_indicators = indicators_main.get_all_field_indicators
 
-        with patch("apps.services.indicators_service.src.main.app", mock_app):
+        with patch.object(indicators_main, "app", mock_app):
             result = asyncio.get_event_loop().run_until_complete(
                 get_all_field_indicators(FIELD_ID, tenant_id=TENANT_A)
             )
@@ -350,7 +380,7 @@ class TestAuthEndpointEnforcement:
         """
         from fastapi import HTTPException
 
-        from apps.services.indicators_service.src.main import _enforce_tenant
+        _enforce_tenant = _load_indicators_main()._enforce_tenant
 
         with pytest.raises(HTTPException) as exc_info:
             _enforce_tenant(None, TENANT_A)
@@ -364,7 +394,7 @@ class TestAuthEndpointEnforcement:
         """
         from fastapi import HTTPException
 
-        from apps.services.indicators_service.src.main import _enforce_tenant
+        _enforce_tenant = _load_indicators_main()._enforce_tenant
 
         user = SimpleNamespace(tenant_id=TENANT_A, roles=["farmer"])
         with pytest.raises(HTTPException) as exc_info:
@@ -377,7 +407,7 @@ class TestAuthEndpointEnforcement:
 
         Security property: Admin role is the only path to cross-tenant access.
         """
-        from apps.services.indicators_service.src.main import _enforce_tenant
+        _enforce_tenant = _load_indicators_main()._enforce_tenant
 
         admin_user = SimpleNamespace(tenant_id=TENANT_A, roles=["admin"])
         # Should not raise
@@ -385,7 +415,7 @@ class TestAuthEndpointEnforcement:
 
     def test_enforce_tenant_allows_super_admin_cross_tenant(self):
         """Verify _enforce_tenant() allows super_admin users to access any tenant."""
-        from apps.services.indicators_service.src.main import _enforce_tenant
+        _enforce_tenant = _load_indicators_main()._enforce_tenant
 
         super_admin = SimpleNamespace(tenant_id=TENANT_A, roles=["super_admin"])
         _enforce_tenant(super_admin, TENANT_B)
@@ -397,7 +427,7 @@ class TestAuthEndpointEnforcement:
         """
         from fastapi import HTTPException
 
-        from apps.services.indicators_service.src.main import _enforce_tenant
+        _enforce_tenant = _load_indicators_main()._enforce_tenant
 
         for role in ["farmer", "agronomist", "viewer", "manager", "operator"]:
             user = SimpleNamespace(tenant_id=TENANT_A, roles=[role])

@@ -496,6 +496,7 @@ async def evaluate_skill(
             "skill_id": request.skill_id,
             "performance_score": round(performance_score, 3),
             "metrics": metrics,
+            "tenant_id": getattr(user, "tenant_id", ""),
             "timestamp": timestamp,
         },
     )
@@ -584,6 +585,7 @@ async def assess_skill(
             "score": score,
             "level": level,
             "assessment_id": assessment_id,
+            "tenant_id": getattr(user, "tenant_id", ""),
             "timestamp": timestamp,
         },
     )
@@ -765,6 +767,7 @@ async def create_learning_path(
             "modules": [m.module_id for m in modules],
             "total_modules": len(modules),
             "total_duration_minutes": total_duration,
+            "tenant_id": getattr(user, "tenant_id", ""),
             "timestamp": timestamp,
         },
     )

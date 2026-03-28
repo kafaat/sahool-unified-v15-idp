@@ -27,7 +27,7 @@ except (ValueError, TypeError):
 
 # When True, field/farm access is granted when field-management-service is
 # unreachable (fail-open).  Set to "false" for fail-closed behaviour.
-WS_FIELD_ACCESS_FAIL_OPEN = os.getenv("WS_FIELD_ACCESS_FAIL_OPEN", "true").lower() in (
+WS_FIELD_ACCESS_FAIL_OPEN = os.getenv("WS_FIELD_ACCESS_FAIL_OPEN", "false").lower() in (
     "true",
     "1",
     "yes",

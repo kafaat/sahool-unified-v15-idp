@@ -764,7 +764,7 @@ async def create_fertigation_plan(req: FertigationRequest, current_user: User = 
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
-            tenant_id = os.getenv("TENANT_ID", "default")
+            tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.fertigation.plan_created",
                 json.dumps(

@@ -3424,13 +3424,13 @@ def list_seasons(user: User = Depends(get_current_user)):
 
 
 @app.get("/v1/current-season", response_model=SeasonInfo, tags=["Calendar"])
-def get_current_season_info():
+def get_current_season_info(user: User = Depends(get_current_user)):
     """الحصول على الموسم الزراعي الحالي"""
     return get_current_season(datetime.now(UTC).month)
 
 
 @app.get("/v1/crop-calendar/{crop_name}", response_model=CropCalendar, tags=["Crops"])
-def get_crop_calendar(crop_name: str):
+def get_crop_calendar(crop_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على التقويم الفلكي لمحصول معين
 
@@ -3564,7 +3564,7 @@ def get_crop_calendar(crop_name: str):
 
 
 @app.get("/v1/crops", tags=["Crops"])
-def list_supported_crops():
+def list_supported_crops(user: User = Depends(get_current_user)):
     """قائمة المحاصيل المدعومة"""
     return {
         "crops": [
@@ -3586,7 +3586,7 @@ def list_supported_crops():
 
 
 @app.get("/v1/regions", tags=["Yemeni Heritage"])
-def get_regions():
+def get_regions(user: User = Depends(get_current_user)):
     """
     المناطق الزراعية اليمنية
 
@@ -3621,7 +3621,7 @@ def get_regions():
 
 
 @app.get("/v1/regions/{region_id}", tags=["Yemeni Heritage"])
-def get_region(region_id: str):
+def get_region(region_id: str, user: User = Depends(get_current_user)):
     """
     تفاصيل منطقة زراعية
 
@@ -3717,7 +3717,7 @@ def get_region(region_id: str):
 
 
 @app.get("/v1/regions/{region_id}/crops", tags=["Yemeni Heritage"])
-def get_region_crops(region_id: str):
+def get_region_crops(region_id: str, user: User = Depends(get_current_user)):
     """
     محاصيل منطقة معينة
 
@@ -3785,6 +3785,7 @@ def get_region_crops(region_id: str):
 def get_best_farming_days(
     activity: str = Query("زراعة", description="النشاط: زراعة، حصاد، ري، تقليم"),
     days: int = Query(30, ge=7, le=90, description="عدد الأيام للبحث"),
+    user: User = Depends(get_current_user),
 ):
     """
     البحث عن أفضل الأيام لنشاط زراعي معين
@@ -3825,6 +3826,7 @@ def get_best_farming_days(
 async def get_integrated_data(
     location_id: str = Query("sanaa", description="معرف الموقع"),
     date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     دمج البيانات الفلكية مع بيانات الطقس
@@ -3899,7 +3901,7 @@ async def get_integrated_data(
 
 
 @app.get("/v1/crop-details", tags=["Crops"])
-def list_detailed_crops():
+def list_detailed_crops(user: User = Depends(get_current_user)):
     """
     قائمة المحاصيل مع التفاصيل الكاملة
 
@@ -3926,7 +3928,7 @@ def list_detailed_crops():
 
 
 @app.get("/v1/crop-details/{crop_id}", tags=["Crops"])
-def get_crop_details(crop_id: str):
+def get_crop_details(crop_id: str, user: User = Depends(get_current_user)):
     """
     تفاصيل محصول كاملة
 

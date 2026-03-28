@@ -611,6 +611,7 @@ async def get_slope_analysis(
     classify: bool = Query(default=True, description="Include slope classification"),
     dem_processor: DEMProcessor = Depends(get_dem_processor),
     terrain_calculator: TerrainIndicatorCalculator = Depends(get_terrain_calculator),
+    current_user: User = Depends(get_current_user),
 ):
     """Get slope analysis for a field | الحصول على تحليل الميل للحقل"""
     start_time = time.time()
@@ -665,6 +666,7 @@ async def get_flow_analysis(
     accumulation_threshold: int = Query(default=100, ge=1),
     dem_processor: DEMProcessor = Depends(get_dem_processor),
     terrain_calculator: TerrainIndicatorCalculator = Depends(get_terrain_calculator),
+    current_user: User = Depends(get_current_user),
 ):
     """Get flow direction and accumulation analysis | الحصول على تحليل اتجاه التدفق وتراكمه"""
     start_time = time.time()
@@ -730,6 +732,7 @@ async def get_twi_analysis(
     flow_method: FlowDirectionMethod = Query(default=FlowDirectionMethod.D8),
     dem_processor: DEMProcessor = Depends(get_dem_processor),
     terrain_calculator: TerrainIndicatorCalculator = Depends(get_terrain_calculator),
+    current_user: User = Depends(get_current_user),
 ):
     """Get Topographic Wetness Index analysis | الحصول على تحليل مؤشر الرطوبة الطبوغرافية"""
     start_time = time.time()
@@ -788,6 +791,7 @@ async def get_contours(
     simplify_tolerance: float = Query(default=1.0, ge=0),
     dem_processor: DEMProcessor = Depends(get_dem_processor),
     terrain_calculator: TerrainIndicatorCalculator = Depends(get_terrain_calculator),
+    current_user: User = Depends(get_current_user),
 ):
     """Get contour lines for a field | الحصول على خطوط الكنتور للحقل"""
     start_time = time.time()
@@ -846,6 +850,7 @@ async def get_contours(
 )
 async def list_dem_sources(
     dem_processor: DEMProcessor = Depends(get_dem_processor),
+    current_user: User = Depends(get_current_user),
 ) -> DEMSourcesResponse:
     """List available DEM data sources | قائمة مصادر بيانات الارتفاعات المتاحة"""
     raw_sources = dem_processor.list_available_sources()
@@ -899,6 +904,7 @@ async def get_dem_data(
         description="Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام",
     ),
     dem_processor: DEMProcessor = Depends(get_dem_processor),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get DEM data for a field - used by hydrology and leveling services.

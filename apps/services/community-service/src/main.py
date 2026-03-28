@@ -589,14 +589,15 @@ class RocketChatClient:
 # ===========================================================================
 # NATS event helper
 # ===========================================================================
-async def publish_event(app: FastAPI, subject: str, payload: dict) -> None:
-    """Publish a NATS event if connected."""
+async def publish_event(app: FastAPI, subject: str, payload: dict, tenant_id: str = "") -> None:
+    """Publish a NATS event if connected. Always includes tenant_id."""
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
-            data = json.dumps(
-                {**payload, "timestamp": datetime.now(UTC).isoformat(), "service": "community-service"},
-            ).encode()
+            event_data = {**payload, "timestamp": datetime.now(UTC).isoformat(), "service": "community-service"}
+            if tenant_id:
+                event_data["tenant_id"] = tenant_id
+            data = json.dumps(event_data).encode()
             await nc.publish(subject, data)
             logger.debug("nats_event_published", subject=subject)
         except Exception as exc:
@@ -954,6 +955,7 @@ async def create_channel(
         request.app,
         "sahool.community.channel_created",
         {"channel_id": channel.get("_id", ""), "name": body.name, "user_id": user.id},
+        tenant_id=getattr(user, "tenant_id", ""),
     )
     return ChannelResponse(
         id=channel.get("_id", ""),
@@ -1028,6 +1030,7 @@ async def join_channel(
         request.app,
         "sahool.community.user_joined",
         {"channel_id": channel_id, "user_id": user.id},
+        tenant_id=getattr(user, "tenant_id", ""),
     )
     return {"status": "joined", "channel_id": channel_id, "user_id": user.id}
 
@@ -1105,6 +1108,7 @@ async def post_message(
         request.app,
         "sahool.community.message_posted",
         {"channel_id": body.channel_id, "message_id": msg.get("_id", ""), "user_id": user.id},
+        tenant_id=getattr(user, "tenant_id", ""),
     )
     return MessageResponse(
         id=msg.get("_id", ""),
@@ -1248,6 +1252,7 @@ async def post_advisory(
             "severity": body.severity,
             "user_id": user.id,
         },
+        tenant_id=getattr(user, "tenant_id", ""),
     )
     return {
         "status": "posted",
@@ -1316,6 +1321,7 @@ async def post_alert(
             "affected_area": body.affected_area,
             "user_id": user.id,
         },
+        tenant_id=getattr(user, "tenant_id", ""),
     )
     return {
         "status": "posted",

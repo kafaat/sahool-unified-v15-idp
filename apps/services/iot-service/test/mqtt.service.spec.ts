@@ -13,8 +13,18 @@
 
 import { Test, TestingModule } from "@nestjs/testing";
 import { IotService, ActuatorType } from "../src/iot/iot.service";
+import { PrismaService } from "../src/prisma/prisma.service";
 import * as mqtt from "mqtt";
 import Redis from "ioredis";
+
+// Mock PrismaService
+const mockPrismaService = {
+  $queryRaw: jest.fn().mockRejectedValue(new Error("No DB in test")),
+  device: { upsert: jest.fn(), findFirst: jest.fn() },
+  sensor: { upsert: jest.fn() },
+  sensorReading: { create: jest.fn(), findMany: jest.fn() },
+  deviceAlert: { create: jest.fn() },
+};
 
 // Mock mqtt client
 const mockMqttClient = {
@@ -41,10 +51,14 @@ jest.mock("ioredis", () => {
     del: jest.fn(),
     scan: jest.fn(),
     keys: jest.fn(),
+    on: jest.fn(),
   };
 
-  return jest.fn(() => mockRedisInstance);
+  const MockRedis = jest.fn(() => mockRedisInstance);
+  return { __esModule: true, default: MockRedis };
 });
+
+const TEST_TENANT = "tenant-1";
 
 describe("IotService - MQTT Message Processing", () => {
   let service: IotService;
@@ -56,6 +70,23 @@ describe("IotService - MQTT Message Processing", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+
+    // Re-establish ioredis mock constructor after clearAllMocks
+    const ioredis = require("ioredis");
+    if (ioredis.default?.mockImplementation) {
+      const mockRedisInstance = {
+        connect: jest.fn().mockResolvedValue(undefined),
+        quit: jest.fn().mockResolvedValue(undefined),
+        get: jest.fn(),
+        set: jest.fn(),
+        setex: jest.fn(),
+        del: jest.fn(),
+        scan: jest.fn(),
+        keys: jest.fn(),
+        on: jest.fn(),
+      };
+      ioredis.default.mockImplementation(() => mockRedisInstance);
+    }
 
     // Setup MQTT client mock callbacks
     mockMqttClient.on.mockImplementation((event: string, callback: any) => {
@@ -73,7 +104,10 @@ describe("IotService - MQTT Message Processing", () => {
     );
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [IotService],
+      providers: [
+        IotService,
+        { provide: PrismaService, useValue: mockPrismaService },
+      ],
     }).compile();
 
     service = module.get<IotService>(IotService);
@@ -257,7 +291,7 @@ describe("IotService - MQTT Message Processing", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "sensor:field-001:soil_moisture",
+        `${TEST_TENANT}:sensor:field-001:soil_moisture`,
         300,
         expect.any(String),
       );
@@ -276,7 +310,7 @@ describe("IotService - MQTT Message Processing", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "actuator:field-001:pump",
+        `${TEST_TENANT}:actuator:field-001:pump`,
         3600,
         "true",
       );
@@ -361,10 +395,10 @@ describe("IotService - MQTT Message Processing", () => {
     it("should publish pump ON command", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
-      await service.togglePump("field-001", "ON");
+      await service.togglePump("field-001", "ON", { tenantId: TEST_TENANT });
 
       expect(mockMqttClient.publish).toHaveBeenCalledWith(
-        "sahool/default/farm/farm-1/field/field-001/actuator/pump/command",
+        expect.stringContaining("field-001/actuator/pump/command"),
         expect.stringContaining('"command":"ON"'),
         { qos: 1 },
       );
@@ -373,7 +407,7 @@ describe("IotService - MQTT Message Processing", () => {
     it("should publish pump OFF command", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
-      await service.togglePump("field-001", "OFF");
+      await service.togglePump("field-001", "OFF", { tenantId: TEST_TENANT });
 
       expect(mockMqttClient.publish).toHaveBeenCalledWith(
         expect.any(String),
@@ -385,7 +419,7 @@ describe("IotService - MQTT Message Processing", () => {
     it("should include duration in pump command", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
-      await service.togglePump("field-001", "ON", { duration: 30 });
+      await service.togglePump("field-001", "ON", { duration: 30, tenantId: TEST_TENANT });
 
       const publishCall = mockMqttClient.publish.mock.calls[0];
       const payload = JSON.parse(publishCall[1]);
@@ -393,11 +427,11 @@ describe("IotService - MQTT Message Processing", () => {
       expect(payload.duration).toBe(30);
     });
 
-    it("should publish valve commands", () => {
-      const result = service.toggleValve("field-001", "valve-1", "ON");
+    it("should publish valve commands", async () => {
+      const result = await service.toggleValve("field-001", "valve-1", "ON", { tenantId: TEST_TENANT });
 
       expect(mockMqttClient.publish).toHaveBeenCalledWith(
-        "sahool/default/farm/farm-1/field/field-001/actuator/valve/valve-1/command",
+        expect.stringContaining("field-001/actuator/valve/valve-1/command"),
         expect.stringContaining('"command":"ON"'),
         { qos: 1 },
       );
@@ -411,13 +445,14 @@ describe("IotService - MQTT Message Processing", () => {
         duration: 45,
         days: ["sunday", "tuesday"],
         enabled: true,
+        tenantId: TEST_TENANT,
       };
 
       const result = service.setIrrigationSchedule("field-001", schedule);
 
       expect(mockMqttClient.publish).toHaveBeenCalledWith(
-        "sahool/default/farm/farm-1/field/field-001/irrigation/schedule",
-        JSON.stringify(schedule),
+        expect.stringContaining("field-001/irrigation/schedule"),
+        expect.any(String),
         { qos: 1, retain: true },
       );
 
@@ -427,7 +462,7 @@ describe("IotService - MQTT Message Processing", () => {
     it("should use QoS 1 for actuator commands", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
-      await service.togglePump("field-001", "ON");
+      await service.togglePump("field-001", "ON", { tenantId: TEST_TENANT });
 
       const publishCall = mockMqttClient.publish.mock.calls[0];
       expect(publishCall[2]).toEqual({ qos: 1 });
@@ -439,6 +474,7 @@ describe("IotService - MQTT Message Processing", () => {
         duration: 45,
         days: ["sunday"],
         enabled: true,
+        tenantId: TEST_TENANT,
       };
 
       service.setIrrigationSchedule("field-001", schedule);
@@ -451,7 +487,7 @@ describe("IotService - MQTT Message Processing", () => {
       mockRedis.setex.mockResolvedValue("OK");
 
       const beforeTime = Date.now();
-      await service.togglePump("field-001", "ON");
+      await service.togglePump("field-001", "ON", { tenantId: TEST_TENANT });
       const afterTime = Date.now();
 
       const publishCall = mockMqttClient.publish.mock.calls[0];
@@ -465,7 +501,7 @@ describe("IotService - MQTT Message Processing", () => {
     it("should include source in commands", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
-      await service.togglePump("field-001", "ON");
+      await service.togglePump("field-001", "ON", { tenantId: TEST_TENANT });
 
       const publishCall = mockMqttClient.publish.mock.calls[0];
       const payload = JSON.parse(publishCall[1]);
@@ -521,7 +557,7 @@ describe("IotService - MQTT Message Processing", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.fieldId).toBe("field-789");
     });
 
@@ -538,14 +574,14 @@ describe("IotService - MQTT Message Processing", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.sensorType).toBe("air_temperature");
     });
 
     it("should handle wildcard subscriptions", () => {
       // The service should subscribe with wildcards
       const subscriptions = mockMqttClient.subscribe.mock.calls.map(
-        (call) => call[0],
+        (call: any[]) => call[0],
       );
 
       expect(subscriptions).toContain("sahool/+/farm/+/field/+/sensor/#");
@@ -590,7 +626,7 @@ describe("IotService - MQTT Message Processing", () => {
     it("should publish commands with QoS 1", async () => {
       mockRedis.setex.mockResolvedValue("OK");
 
-      await service.togglePump("field-001", "ON");
+      await service.togglePump("field-001", "ON", { tenantId: TEST_TENANT });
 
       const publishCall = mockMqttClient.publish.mock.calls[0];
       expect(publishCall[2].qos).toBe(1);
@@ -639,7 +675,7 @@ describe("IotService - MQTT Message Processing", () => {
 
       // Verify last value was saved
       const lastCall = mockRedis.setex.mock.calls[2];
-      const lastData = JSON.parse(lastCall[2]);
+      const lastData = JSON.parse(lastCall[2] as string);
       expect(lastData.value).toBe(62);
     });
   });

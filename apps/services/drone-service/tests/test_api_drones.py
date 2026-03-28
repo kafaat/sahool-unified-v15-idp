@@ -5,6 +5,7 @@ Tests for drone management API endpoints - اختبارات نقاط نهاية 
 import pytest
 from fastapi import HTTPException
 from httpx import ASGITransport, AsyncClient
+from shared.errors_py import NotFoundException
 from src.api.v1.drones import (
     DroneCreate,
     DroneResponse,
@@ -73,10 +74,10 @@ class TestHelpers:
         assert "extra_field" not in result
 
     def test_raise_not_found(self):
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundException) as exc_info:
             _raise_not_found()
         assert exc_info.value.status_code == 404
-        assert "not found" in str(exc_info.value.detail).lower()
+        assert "not found" in exc_info.value.message.lower()
 
 
 # --- API endpoint tests using httpx AsyncClient ---

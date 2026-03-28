@@ -222,6 +222,8 @@ class IoTAgent(BaseAgent):
                 self.sensor_buffers[sensor_type].append({"value": value, "timestamp": datetime.now()})
                 if self.context:
                     self.context.sensor_data[sensor_type] = value
+                else:
+                    self.context = AgentContext(sensor_data={sensor_type: value})
 
         # Update internal model (Model-Based Agent behavior)
         await self._update_internal_model()

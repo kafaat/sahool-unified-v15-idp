@@ -88,6 +88,7 @@ export class AppController {
       status: allReady ? "ready" : "degraded",
       service: "marketplace-service",
       version: "16.0.0",
+      timestamp: new Date().toISOString(),
       checks,
     };
   }
@@ -277,7 +278,7 @@ export class AppController {
     @Param("walletId") walletId: string,
     @Query("limit") limit?: string,
   ) {
-    const parsedLimit = Math.min(parseInt(limit) || 20, 100);
+    const parsedLimit = Math.min(parseInt(limit ?? "20") || 20, 100);
     return this.fintechService.getTransactions(
       walletId,
       parsedLimit,

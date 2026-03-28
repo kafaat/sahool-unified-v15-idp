@@ -13,6 +13,8 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { AppController } from "../app.controller";
 import { MarketService } from "../market/market.service";
 import { FintechService } from "../fintech/fintech.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { EventsService } from "../events/events.service";
 import { ForbiddenException } from "@nestjs/common";
 
 describe("AppController (Marketplace)", () => {
@@ -60,6 +62,15 @@ describe("AppController (Marketplace)", () => {
     getWalletDashboard: jest.fn(),
   };
 
+  const mockPrismaService = {
+    $queryRaw: jest.fn().mockResolvedValue([{ "?column?": 1 }]),
+  };
+
+  const mockEventsService = {
+    isConnected: jest.fn().mockReturnValue(true),
+    publish: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
@@ -71,6 +82,14 @@ describe("AppController (Marketplace)", () => {
         {
           provide: FintechService,
           useValue: mockFintechService,
+        },
+        {
+          provide: PrismaService,
+          useValue: mockPrismaService,
+        },
+        {
+          provide: EventsService,
+          useValue: mockEventsService,
         },
       ],
     }).compile();

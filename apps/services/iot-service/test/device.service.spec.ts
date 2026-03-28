@@ -12,7 +12,17 @@
 
 import { Test, TestingModule } from "@nestjs/testing";
 import { IotService, DeviceStatus, SensorType } from "../src/iot/iot.service";
+import { PrismaService } from "../src/prisma/prisma.service";
 import Redis from "ioredis";
+
+// Mock PrismaService
+const mockPrismaService = {
+  $queryRaw: jest.fn().mockRejectedValue(new Error("No DB in test")),
+  device: { upsert: jest.fn(), findFirst: jest.fn() },
+  sensor: { upsert: jest.fn() },
+  sensorReading: { create: jest.fn(), findMany: jest.fn() },
+  deviceAlert: { create: jest.fn() },
+};
 
 // Mock mqtt
 jest.mock("mqtt", () => ({
@@ -43,10 +53,14 @@ jest.mock("ioredis", () => {
     del: jest.fn(),
     scan: jest.fn(),
     keys: jest.fn(),
+    on: jest.fn(),
   };
 
-  return jest.fn(() => mockRedisInstance);
+  const MockRedis = jest.fn(() => mockRedisInstance);
+  return { __esModule: true, default: MockRedis };
 });
+
+const TEST_TENANT = "tenant-1";
 
 describe("IotService - Device Management", () => {
   let service: IotService;
@@ -55,8 +69,28 @@ describe("IotService - Device Management", () => {
   beforeEach(async () => {
     jest.clearAllMocks();
 
+    // Re-establish ioredis mock constructor after clearAllMocks
+    const ioredis = require("ioredis");
+    if (ioredis.default?.mockImplementation) {
+      const mockRedisInstance = {
+        connect: jest.fn().mockResolvedValue(undefined),
+        quit: jest.fn().mockResolvedValue(undefined),
+        get: jest.fn(),
+        set: jest.fn(),
+        setex: jest.fn(),
+        del: jest.fn(),
+        scan: jest.fn(),
+        keys: jest.fn(),
+        on: jest.fn(),
+      };
+      ioredis.default.mockImplementation(() => mockRedisInstance);
+    }
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [IotService],
+      providers: [
+        IotService,
+        { provide: PrismaService, useValue: mockPrismaService },
+      ],
     }).compile();
 
     service = module.get<IotService>(IotService);
@@ -101,7 +135,7 @@ describe("IotService - Device Management", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "device:sensor-001",
+        `${TEST_TENANT}:device:sensor-001`,
         600, // DEVICE_STATUS_TTL
         expect.stringContaining("sensor-001"),
       );
@@ -151,7 +185,7 @@ describe("IotService - Device Management", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "device:minimal-device",
+        `${TEST_TENANT}:device:minimal-device`,
         600,
         expect.any(String),
       );
@@ -240,7 +274,7 @@ describe("IotService - Device Management", () => {
       mockRedis.scan
         .mockResolvedValueOnce([
           "0",
-          ["device:device-001", "device:device-002"],
+          [`${TEST_TENANT}:device:device-001`, `${TEST_TENANT}:device:device-002`],
         ])
         .mockResolvedValueOnce(["0", []]);
 
@@ -248,7 +282,7 @@ describe("IotService - Device Management", () => {
         .mockResolvedValueOnce(JSON.stringify(devices[0]))
         .mockResolvedValueOnce(JSON.stringify(devices[1]));
 
-      const result = await service.getConnectedDevices();
+      const result = await service.getConnectedDevices(TEST_TENANT);
 
       expect(result).toHaveLength(2);
       expect(result[0].deviceId).toBe("device-001");
@@ -285,7 +319,7 @@ describe("IotService - Device Management", () => {
 
       mockRedis.scan.mockResolvedValue([
         "0",
-        ["device:device-001", "device:device-002", "device:device-003"],
+        [`${TEST_TENANT}:device:device-001`, `${TEST_TENANT}:device:device-002`, `${TEST_TENANT}:device:device-003`],
       ]);
 
       mockRedis.get
@@ -293,7 +327,7 @@ describe("IotService - Device Management", () => {
         .mockResolvedValueOnce(JSON.stringify(devices[1]))
         .mockResolvedValueOnce(JSON.stringify(devices[2]));
 
-      const stats = await service.getDeviceStats();
+      const stats = await service.getDeviceStats(TEST_TENANT);
 
       expect(stats.online).toBe(1);
       expect(stats.offline).toBe(1);
@@ -314,7 +348,7 @@ describe("IotService - Device Management", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = mockRedis.setex.mock.calls[0][2];
+      const savedData = mockRedis.setex.mock.calls[0][2] as string;
       const deviceData = JSON.parse(savedData);
 
       expect(new Date(deviceData.lastSeen).getTime()).toBeGreaterThanOrEqual(
@@ -336,7 +370,7 @@ describe("IotService - Device Management", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = mockRedis.setex.mock.calls[0][2];
+      const savedData = mockRedis.setex.mock.calls[0][2] as string;
       const deviceData = JSON.parse(savedData);
 
       expect(deviceData.batteryLevel).toBe(45);
@@ -442,14 +476,14 @@ describe("IotService - Device Management", () => {
       expect(mockRedis.setex).toHaveBeenCalledTimes(2);
 
       const lastCall = mockRedis.setex.mock.calls[1];
-      const lastStatus = JSON.parse(lastCall[2]);
+      const lastStatus = JSON.parse(lastCall[2] as string);
       expect(lastStatus.status).toBe("online");
     });
 
     it("should return empty array when no devices are online", async () => {
       mockRedis.scan.mockResolvedValue(["0", []]);
 
-      const devices = await service.getConnectedDevices();
+      const devices = await service.getConnectedDevices(TEST_TENANT);
 
       expect(devices).toEqual([]);
     });
@@ -457,16 +491,16 @@ describe("IotService - Device Management", () => {
     it("should handle Redis errors gracefully when fetching devices", async () => {
       mockRedis.scan.mockRejectedValue(new Error("Redis connection failed"));
 
-      const devices = await service.getConnectedDevices();
+      const devices = await service.getConnectedDevices(TEST_TENANT);
 
       expect(devices).toEqual([]);
     });
 
     it("should handle corrupted device data in Redis", async () => {
-      mockRedis.scan.mockResolvedValue(["0", ["device:corrupted"]]);
+      mockRedis.scan.mockResolvedValue(["0", [`${TEST_TENANT}:device:corrupted`]]);
       mockRedis.get.mockResolvedValue("invalid-json{");
 
-      const devices = await service.getConnectedDevices();
+      const devices = await service.getConnectedDevices(TEST_TENANT);
 
       // Should skip corrupted entries
       expect(devices).toEqual([]);
@@ -488,7 +522,7 @@ describe("IotService - Device Management", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "device:connection-device",
+        `${TEST_TENANT}:device:connection-device`,
         600, // TTL for device status
         expect.any(String),
       );
@@ -533,7 +567,7 @@ describe("IotService - Device Management", () => {
 
       // Verify TTL is set correctly (600 seconds = 10 minutes)
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "device:ttl-device",
+        `${TEST_TENANT}:device:ttl-device`,
         600,
         expect.any(String),
       );
@@ -555,7 +589,7 @@ describe("IotService - Device Management", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.type).toBe("sensor");
     });
 
@@ -573,7 +607,7 @@ describe("IotService - Device Management", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.type).toBe("actuator");
     });
 
@@ -590,7 +624,7 @@ describe("IotService - Device Management", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2]);
+      const savedData = JSON.parse(mockRedis.setex.mock.calls[0][2] as string);
       expect(savedData.type).toBe("sensor");
     });
   });

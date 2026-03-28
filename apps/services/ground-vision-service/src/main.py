@@ -700,6 +700,8 @@ async def analyze_timeline(request: TimelineAnalysisRequest, current_user: User 
 
     start_time = time.time()
 
+    tenant_id = current_user.tenant_id or request.tenant_id
+
     analysis_id = f"analysis_{request.field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
 
     # Default values - overridden by actual analysis if models are loaded
@@ -737,7 +739,7 @@ async def analyze_timeline(request: TimelineAnalysisRequest, current_user: User 
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)""",
                 analysis_id,
                 request.field_id,
-                request.tenant_id,
+                tenant_id,
                 crop_type,
                 growth_stage,
                 confidence,
@@ -763,12 +765,12 @@ async def analyze_timeline(request: TimelineAnalysisRequest, current_user: User 
         try:
             import json
 
-            subject = f"sahool.{request.tenant_id}.ground_vision.timeline_updated"
+            subject = f"sahool.{tenant_id}.ground_vision.timeline_updated"
             payload = json.dumps(
                 {
                     "analysis_id": analysis_id,
                     "field_id": request.field_id,
-                    "tenant_id": request.tenant_id,
+                    "tenant_id": tenant_id,
                     "crop_type": crop_type,
                     "growth_stage": growth_stage,
                     "confidence": confidence,

@@ -12,7 +12,7 @@ export interface BaseEvent {
   eventType: string;
   timestamp: Date;
   version: string;
-  tenantId?: string;
+  tenantId: string;
   metadata?: Record<string, unknown>;
 }
 

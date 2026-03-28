@@ -20,8 +20,21 @@ except ImportError:
 
 @pytest.fixture
 def client():
-    """Create test client."""
-    return TestClient(app, headers={"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"})
+    """Create test client with mock auth."""
+    try:
+        from shared.auth.dependencies import get_current_user
+        from shared.auth.models import User
+    except ImportError:
+        get_current_user = None
+        User = None
+
+    if get_current_user and User:
+        mock_user = User(id="test-user", tenant_id="00000000-0000-0000-0000-000000000001", email="test@test.com", roles=["admin"])
+        app.dependency_overrides[get_current_user] = lambda: mock_user
+
+    client = TestClient(app, headers={"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"})
+    yield client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

@@ -921,6 +921,7 @@ async def setup_tenant(
             "admin_synced": admin_synced,
             "user_id": user.id,
         },
+        tenant_id=body.tenant_id,
     )
 
     return TenantSetupResponse(

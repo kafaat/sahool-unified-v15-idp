@@ -15,6 +15,7 @@ abstract final class ServicePorts {
   static const int vegetationAnalysis = 8090;
   static const int indicators = 8091;
   static const int weather = 8092;
+  static const int weatherCore = 8108;
   static const int advisory = 8093;
   static const int irrigationSmart = 8094;
   static const int cropIntelligence = 8095;

@@ -483,59 +483,68 @@ export class AuthService {
         throw new UnauthorizedException("Invalid refresh token");
       }
 
-      // Check if token was already used (replay attack detection)
-      if (storedToken.used) {
-        this.logger.error(
-          `Token reuse detected! Token: ${payload.jti.substring(0, 8)}..., Family: ${payload.family?.substring(0, 8)}...`,
-        );
+      // Use interactive transaction to prevent race condition on concurrent
+      // refresh requests with the same token (check-then-update atomicity)
+      const { tokens, user } = await this.prisma.$transaction(async (tx) => {
+        // Re-fetch token inside transaction for atomicity
+        const tokenRecord = await tx.refreshToken.findUnique({
+          where: { jti: payload.jti },
+        });
 
-        // Invalidate entire token family
-        if (payload.family) {
-          await this.invalidateTokenFamily(payload.family);
+        if (!tokenRecord) {
+          throw new UnauthorizedException("Invalid refresh token");
         }
 
-        throw new UnauthorizedException(
-          "Token reuse detected - all tokens in family have been invalidated",
-        );
-      }
+        // Check if token was already used (replay attack detection)
+        if (tokenRecord.used) {
+          this.logger.error(
+            `Token reuse detected! Token: ${payload.jti.substring(0, 8)}..., Family: ${payload.family?.substring(0, 8)}...`,
+          );
 
-      // Check if token is revoked
-      if (storedToken.revoked) {
-        this.logger.warn(
-          `Refresh attempt with revoked token: ${payload.jti.substring(0, 8)}...`,
-        );
-        throw new UnauthorizedException("Token has been revoked");
-      }
+          // Invalidate entire token family
+          if (payload.family) {
+            await this.invalidateTokenFamily(payload.family);
+          }
 
-      // Check if token is expired
-      if (storedToken.expiresAt < new Date()) {
-        this.logger.warn(
-          `Refresh attempt with expired token: ${payload.jti.substring(0, 8)}...`,
-        );
-        throw new UnauthorizedException("Refresh token has expired");
-      }
+          throw new UnauthorizedException(
+            "Token reuse detected - all tokens in family have been invalidated",
+          );
+        }
 
-      // Verify user still exists and is active
-      const user = await this.prisma.user.findUnique({
-        where: { id: payload.sub },
+        // Check if token is revoked
+        if (tokenRecord.revoked) {
+          throw new UnauthorizedException("Token has been revoked");
+        }
+
+        // Check if token is expired
+        if (tokenRecord.expiresAt < new Date()) {
+          throw new UnauthorizedException("Refresh token has expired");
+        }
+
+        // Verify user still exists and is active
+        const txUser = await tx.user.findUnique({
+          where: { id: payload.sub },
+        });
+
+        if (!txUser || txUser.status !== UserStatus.ACTIVE) {
+          throw new UnauthorizedException("User account is not active");
+        }
+
+        // Atomically mark current refresh token as used
+        const newRefreshJti = uuidv4();
+        await tx.refreshToken.update({
+          where: { jti: payload.jti },
+          data: {
+            used: true,
+            usedAt: new Date(),
+            replacedBy: newRefreshJti,
+          },
+        });
+
+        return { tokens: null as any, user: txUser };
       });
 
-      if (!user || user.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedException("User account is not active");
-      }
-
-      // Mark current refresh token as used
-      const newRefreshJti = uuidv4();
-      await this.prisma.refreshToken.update({
-        where: { jti: payload.jti },
-        data: {
-          used: true,
-          usedAt: new Date(),
-          replacedBy: newRefreshJti,
-        },
-      });
-
-      // Mark old token as used in Redis (with short TTL for detection window)
+      // Outside transaction: Redis revocation and new token generation
       await this.revocationStore.revokeToken(payload.jti, {
         expiresIn: 300, // 5 minutes to detect concurrent reuse attempts
         reason: "refresh_token_rotated",
@@ -544,13 +553,13 @@ export class AuthService {
       });
 
       // Generate new token pair with same family
-      const tokens = await this.generateTokens(user, payload.family);
+      const newTokens = await this.generateTokens(user, payload.family);
 
       this.logger.log(
-        `Refresh token rotated for user: ${user.id}, Old JTI: ${payload.jti.substring(0, 8)}..., New JTI: ${newRefreshJti.substring(0, 8)}...`,
+        `Refresh token rotated for user: ${user.id}, Old JTI: ${payload.jti.substring(0, 8)}...`,
       );
 
-      return tokens;
+      return newTokens;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -1154,6 +1163,25 @@ SAHOOL - National Agricultural Intelligence Platform
   }> {
     const { identifier, otpCode, purpose } = dto;
 
+    // OTP brute-force protection: max 5 attempts per identifier per 15 minutes
+    const otpAttemptKey = `otp_attempts:${identifier}`;
+    try {
+      const attempts = await this.revocationStore.getOtpAttempts(otpAttemptKey);
+      if (attempts >= 5) {
+        this.logger.warn('OTP verification blocked: too many attempts', {
+          identifier: this.sanitizeForLog(identifier),
+        });
+        throw new BadRequestException(
+          'Too many verification attempts. Please wait 15 minutes and try again.',
+        );
+      }
+      await this.revocationStore.incrementOtpAttempts(otpAttemptKey);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      // If Redis is unavailable, allow the attempt but log warning
+      this.logger.warn('OTP rate limit check failed (Redis unavailable), allowing attempt');
+    }
+
     try {
       // Call notification service to verify OTP
       const notificationServiceUrl =
@@ -1193,6 +1221,13 @@ SAHOOL - National Agricultural Intelligence Platform
         identifier: this.sanitizeForLog(identifier),
         purpose,
       });
+
+      // Reset OTP attempt counter on successful verification
+      try {
+        await this.revocationStore.resetOtpAttempts(`otp_attempts:${identifier}`);
+      } catch {
+        // Best effort
+      }
 
       // For password_reset, generate a reset token
       if (purpose === "password_reset") {

@@ -485,7 +485,7 @@ export class AuthService {
 
       // Use interactive transaction to prevent race condition on concurrent
       // refresh requests with the same token (check-then-update atomicity)
-      const { tokens, user } = await this.prisma.$transaction(async (tx) => {
+      const { user } = await this.prisma.$transaction(async (tx) => {
         // Re-fetch token inside transaction for atomicity
         const tokenRecord = await tx.refreshToken.findUnique({
           where: { jti: payload.jti },
@@ -553,7 +553,7 @@ export class AuthService {
       // Generate new token pair with same family
       const newTokens = await this.generateTokens(user, payload.family);
 
-      // Update replacedBy with actual new refresh token JTI (decoded from generated token)
+      // Update replacedBy with actual new refresh token JTI (verified from generated token)
       try {
         const newPayload = this.jwtService.verify(newTokens.refresh_token, {
           secret: JWTConfig.SECRET,
@@ -564,8 +564,11 @@ export class AuthService {
           where: { jti: payload.jti },
           data: { replacedBy: newPayload.jti },
         });
-      } catch {
-        // Best effort - token chain logging only
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn(
+          `Failed to update refresh token chain for JTI ${payload.jti.substring(0, 8)}...: ${message}`,
+        );
       }
 
       this.logger.log(

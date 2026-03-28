@@ -2,3 +2,8 @@
 
 # Shell scripts should always use LF line endings
 *.sh text eol=lf
+
+# Config files that are mounted into Linux containers must use LF
+*.conf text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf

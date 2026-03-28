@@ -22,6 +22,19 @@ import pytest
 
 
 # ---------------------------------------------------------------------------
+# Override the autouse cleanup_test_data fixture from conftest.py that
+# requires a live PostgreSQL connection. Contract tests only validate
+# model schemas and do not need a database.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def cleanup_test_data():
+    """No-op override: contract tests do not require database access."""
+    yield
+
+
+# ---------------------------------------------------------------------------
 # 1. Weather service response format
 # ---------------------------------------------------------------------------
 

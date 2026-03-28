@@ -47,8 +47,9 @@ class ChannelResponse:
         if channel == ChannelType.WHATSAPP:
             # WhatsApp currently uses the Arabic variant and appends sources
             sections = [self.text_ar]
-            if self.sources:
-                sections.append(f"\n📋 المصادر: {', '.join(s.get('name', '') for s in self.sources[:3])}")
+            source_names = [s.get("name") for s in self.sources[:3] if s.get("name")]
+            if source_names:
+                sections.append(f"\n📋 المصادر: {', '.join(source_names)}")
             return "\n".join(sections)
         # For WEB, MOBILE, WECHAT: select language based on caller preference
         return self.text_ar if language == "ar" else self.text

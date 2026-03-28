@@ -138,7 +138,11 @@ export default function SahoolV2() {
           </div>
 
           {/* Notifications */}
-          <div style={{ position: 'relative', cursor: 'pointer' }}>
+          <button
+            type="button"
+            aria-label={`الإشعارات (${alerts.filter((a) => !a.isResolved).length} غير مقروءة)`}
+            style={{ position: 'relative', cursor: 'pointer', background: 'transparent', border: 'none', padding: 4 }}
+          >
             <span style={{ fontSize: 16 }}>🔔</span>
             {alerts.filter((a) => !a.isResolved).length > 0 && (
               <span
@@ -161,7 +165,7 @@ export default function SahoolV2() {
                 {alerts.filter((a) => !a.isResolved).length}
               </span>
             )}
-          </div>
+          </button>
 
           {/* Offline indicator */}
           <span
@@ -368,16 +372,25 @@ export default function SahoolV2() {
               <Card variant="bordered" style={{ height: 'calc(100vh - 250px)', overflow: 'hidden' }}>
                 <MapView
                   onFieldSelect={(id) => setSelectedFieldId(id)}
-                  fields={fields.map((f) => ({
-                    ...f,
-                    boundary: {
-                      type: 'Polygon' as const,
-                      coordinates: [
-                        [...(f.boundary ?? []).map((pt) => [pt.lng, pt.lat] as [number, number]),
-                         ...(f.boundary?.length ? [[f.boundary[0]!.lng, f.boundary[0]!.lat] as [number, number]] : [])],
-                      ],
-                    },
-                  })) as never[]}
+                  fields={fields.map((f) => {
+                    const coords = (f.boundary ?? []).map(
+                      (pt) => [pt.lng, pt.lat] as [number, number],
+                    );
+                    if (coords.length > 0) {
+                      coords.push(coords[0]!);
+                    }
+                    return {
+                      ...f,
+                      crop_type: f.cropType,
+                      ndvi_current: f.ndvi,
+                      name_ar: f.nameAr,
+                      area_hectares: f.area,
+                      boundary: {
+                        type: 'Polygon' as const,
+                        coordinates: [coords],
+                      },
+                    };
+                  }) as never[]}
                 />
               </Card>
             </div>
@@ -410,7 +423,7 @@ export default function SahoolV2() {
 
           {/* ── TASKS (uses existing TasksBoard) ──────────── */}
           {screen === 'tasks' && (
-            <TasksBoard onTaskClick={(id) => console.log('Task clicked:', id)} />
+            <TasksBoard onTaskClick={(_id) => {}} />
           )}
 
           {/* ── FILES ─────────────────────────────────────── */}
@@ -444,6 +457,7 @@ export default function SahoolV2() {
                 </div>
               </Card>
               {/* Upload zone */}
+              <label>
               <Card
                 variant="bordered"
                 padding="lg"
@@ -453,12 +467,14 @@ export default function SahoolV2() {
                   cursor: 'pointer',
                 }}
               >
+                <input type="file" accept=".kml,.shp,.geojson,.json,.pdf,.csv,.jpg,.png" multiple style={{ display: 'none' }} />
                 <div style={{ fontSize: 32, marginBottom: 8, color: '#426A88' }}>📁</div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#82B8D4' }}>اسحب ملفاتك هنا أو انقر للرفع</div>
                 <div style={{ fontSize: 9, color: '#426A88', marginTop: 4 }}>
                   KML, Shapefile, GeoJSON, PDF, CSV, صور (حتى 50MB)
                 </div>
               </Card>
+              </label>
             </div>
           )}
 

@@ -20,12 +20,18 @@ def _get_coord(context: dict | None, key: str, default: float) -> float:
     ctx = context or {}
     val = ctx.get(key)
     if val is not None:
-        return float(val)
+        try:
+            return float(val)
+        except (TypeError, ValueError):
+            logger.warning("invalid_coordinate_value", key=key, value=val)
     location = ctx.get("location") or {}
     loc_key = "lng" if key == "lon" else key
     loc_val = location.get(loc_key)
     if loc_val is not None:
-        return float(loc_val)
+        try:
+            return float(loc_val)
+        except (TypeError, ValueError):
+            logger.warning("invalid_location_coordinate_value", key=loc_key, value=loc_val)
     return default
 
 

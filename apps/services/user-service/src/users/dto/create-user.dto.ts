@@ -11,10 +11,11 @@ import {
   IsOptional,
   MinLength,
   MaxLength,
-  IsPhoneNumber,
   IsBoolean,
   IsUUID,
+  ValidateIf,
 } from "class-validator";
+import { Transform } from "class-transformer";
 import {
   IsYemeniPhone,
   IsStrongPassword,
@@ -24,12 +25,13 @@ import {
 } from "../../utils/validation";
 
 export class CreateUserDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Tenant ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @IsOptional()
   @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
-  tenantId: string;
+  tenantId?: string;
 
   @ApiProperty({
     description: "User email address",
@@ -54,25 +56,38 @@ export class CreateUserDto {
   @IsStrongPassword(8)
   password: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
+    description: "User full name (will be split into firstName and lastName)",
+    example: "أحمد محمد",
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  @SanitizePlainText()
+  name?: string;
+
+  @ApiPropertyOptional({
     description: "User first name",
     example: "أحمد",
   })
+  @ValidateIf((o) => !o.name)
   @IsString()
   @MinLength(2)
   @MaxLength(100)
   @SanitizePlainText()
-  firstName: string;
+  firstName?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "User last name",
     example: "محمد",
   })
+  @ValidateIf((o) => !o.name)
   @IsString()
   @MinLength(2)
   @MaxLength(100)
   @SanitizePlainText()
-  lastName: string;
+  lastName?: string;
 
   @ApiPropertyOptional({
     description: "User role",
@@ -80,6 +95,13 @@ export class CreateUserDto {
     default: UserRole.VIEWER,
   })
   @IsOptional()
+  @IsString()
+  @Transform(({ value }) => {
+    if (typeof value === "string") {
+      return value.toUpperCase();
+    }
+    return value;
+  })
   @IsEnum(UserRole)
   role?: UserRole;
 
@@ -89,6 +111,13 @@ export class CreateUserDto {
     default: UserStatus.PENDING,
   })
   @IsOptional()
+  @IsString()
+  @Transform(({ value }) => {
+    if (typeof value === "string") {
+      return value.toUpperCase();
+    }
+    return value;
+  })
   @IsEnum(UserStatus)
   status?: UserStatus;
 

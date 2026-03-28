@@ -35,8 +35,9 @@ export interface LoginDto {
 export interface RegisterDto {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   tenantId?: string;
 }
@@ -582,7 +583,22 @@ export class AuthService {
    * تسجيل مستخدم جديد
    */
   async register(registerDto: RegisterDto): Promise<TokenResponse> {
-    const { email, password, firstName, lastName, phone, tenantId } = registerDto;
+    const { email, password, phone, tenantId } = registerDto;
+
+    // Handle name splitting: accept either `name` or `firstName`+`lastName`
+    let firstName = registerDto.firstName;
+    let lastName = registerDto.lastName;
+    if (registerDto.name && (!firstName || !lastName)) {
+      const nameParts = registerDto.name.trim().split(/\s+/);
+      firstName = firstName || nameParts[0];
+      lastName = lastName || nameParts.slice(1).join(" ") || nameParts[0];
+    }
+
+    if (!firstName || !lastName) {
+      throw new UnauthorizedException(
+        "Either 'name' or both 'firstName' and 'lastName' must be provided",
+      );
+    }
 
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({

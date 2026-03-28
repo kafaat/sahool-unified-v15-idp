@@ -48,16 +48,34 @@ export class UsersService {
     // Hash password
     const passwordHash = await bcrypt.hash(createUserDto.password, BCRYPT_ROUNDS);
 
+    // Handle name splitting: if `name` provided, split into firstName/lastName
+    let firstName = createUserDto.firstName;
+    let lastName = createUserDto.lastName;
+    if (createUserDto.name && (!firstName || !lastName)) {
+      const nameParts = createUserDto.name.trim().split(/\s+/);
+      firstName = firstName || nameParts[0];
+      lastName = lastName || nameParts.slice(1).join(" ") || nameParts[0];
+    }
+
+    if (!firstName || !lastName) {
+      throw new BadRequestException(
+        "Either 'name' or both 'firstName' and 'lastName' must be provided",
+      );
+    }
+
+    // Default tenant ID if not provided
+    const tenantId = createUserDto.tenantId || "a0000000-0000-0000-0000-000000000001";
+
     // Create user
     const user = await this.prisma.user.create({
       data: {
-        tenantId: createUserDto.tenantId,
+        tenantId,
         email: createUserDto.email,
         phone: createUserDto.phone,
         passwordHash,
-        firstName: createUserDto.firstName,
-        lastName: createUserDto.lastName,
-        role: createUserDto.role as any, // Cast to Prisma UserRole enum
+        firstName,
+        lastName,
+        role: (createUserDto.role || "FARMER") as any, // Cast to Prisma UserRole enum
         status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
         emailVerified: createUserDto.emailVerified || false,
         phoneVerified: createUserDto.phoneVerified || false,

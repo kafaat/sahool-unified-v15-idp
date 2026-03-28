@@ -3,8 +3,8 @@
 # Single Source of Truth for all microservices
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "3.4.0"
-last_updated: "2026-03-10"
+version: "3.5.0"
+last_updated: "2026-03-28"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Architecture Layers
@@ -88,7 +88,7 @@ categories:
     description_ar: "المجتمع والسوق"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Approved Services (v15.3 → v16)
+# Approved Services (v16.0.0)
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
@@ -102,6 +102,7 @@ services:
     category: crop
     layer: decision
     path: "apps/services/crop-growth-model"
+    version: "16.0.0"
     port: 3023
     protocol: http
     health_endpoint: "/healthz"
@@ -1249,7 +1250,7 @@ services:
     team: agro
     lifecycle: production
     tier: tier-2
-    version: "1.0.0"
+    version: "16.0.0"
     events:
       produces:
         - FarmerSkillsAssessed.v1
@@ -1346,6 +1347,7 @@ services:
     category: core
     layer: decision
     path: "apps/services/advisory-service"
+    helm_chart: "helm/charts/advisory-service"
     port: 8093
     protocol: http
     health_endpoint: "/healthz"
@@ -1452,6 +1454,7 @@ services:
     category: core
     layer: business
     path: "apps/services/alert-service"
+    helm_chart: "helm/charts/alert-service"
     port: 8113
     protocol: http
     health_endpoint: "/healthz"
@@ -1748,7 +1751,7 @@ services:
     team: data
     lifecycle: production
     tier: tier-2
-    version: "1.0.0"
+    version: "16.0.0"
     events:
       produces:
         - AgentExecutionStarted.v1
@@ -1814,7 +1817,7 @@ services:
     team: frontend
     lifecycle: production
     tier: tier-1
-    version: "1.0.0"
+    version: "16.0.0"
     events:
       produces:
         - FarmerCreated.v1
@@ -1887,7 +1890,7 @@ services:
     team: platform
     lifecycle: production
     tier: tier-1
-    version: "1.0.0"
+    version: "16.0.0"
     events:
       produces:
         - PageCreated.v1
@@ -1957,7 +1960,7 @@ services:
     team: platform
     lifecycle: production
     tier: tier-1
-    version: "1.0.0"
+    version: "16.0.0"
     events:
       produces:
         - CommunityChannelCreated.v1
@@ -3584,7 +3587,7 @@ gateway:
 infrastructure:
   databases:
     postgresql:
-      version: "15"
+      version: "16"
       host: "${POSTGRES_HOST:-localhost}"
       port: 5432
     timescaledb:

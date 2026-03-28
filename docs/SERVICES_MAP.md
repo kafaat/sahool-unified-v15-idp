@@ -60,8 +60,8 @@ Data ingestion and normalization.
 | iot-service | 8117 | Node.js | IoT device management |
 | iot-gateway | 8106 | Python | IoT protocol gateway |
 | iot-sensor-hub | 8251 | Python | IoT sensor hub |
-| weather-service | 8092 | Python | Weather data |
-| virtual-sensors | 8119 | Python | Virtual sensor computation |
+| weather-service | 8092 | Python | Weather data; Prometheus `/metrics`, enhanced `/readyz` with DB/NATS checks, NATS event publishing |
+| virtual-sensors | 8119 | Python | Virtual sensor computation; input validation (Pydantic v2), Prometheus `/metrics`, Helm chart |
 | ground-vision-service | 8182 | Python | Ground-level vision analysis |
 | edge-orchestrator-service | 8180 | Python | Edge device management (Jetson Orin) |
 
@@ -71,8 +71,8 @@ Feature extraction and AI.
 
 | Service | Port | Type | Description |
 |---------|------|------|-------------|
-| vegetation-analysis-service | 8090 | Python | Satellite imagery, NDVI, VRA |
-| indicators-service | 8091 | Python | Field indicators computation |
+| vegetation-analysis-service | 8090 | Python | Satellite imagery, NDVI, VRA; Prometheus `/metrics`, NDVI anomaly NATS events, tenant isolation |
+| indicators-service | 8091 | Python | Field indicators computation; Kong routes, Helm chart, DB integration (asyncpg), JWT auth |
 | lai-estimation | 3022 | Node.js | Leaf Area Index estimation |
 | crop-intelligence-service | 8095 | Python | Crop health AI |
 | field-intelligence | 8120 | Python | Field analytics |
@@ -92,8 +92,8 @@ Recommendations and planning.
 | Service | Port | Type | Description |
 |---------|------|------|-------------|
 | crop-growth-model | 3023 | Node.js | Crop growth simulation (WOFOST) |
-| advisory-service | 8093 | Python | Advisory & recommendations |
-| irrigation-smart | 8094 | Python | Smart irrigation (FAO-56) |
+| advisory-service | 8093 | Python | Advisory & recommendations; tenant isolation, rate limiting, NATS subscriptions |
+| irrigation-smart | 8094 | Python | Smart irrigation (FAO-56); input validation (Pydantic v2), Prometheus `/metrics`, NATS events, Helm chart |
 | yield-prediction | 3021 | Node.js | Yield prediction **(deprecated — use yield-prediction-service)** |
 | yield-prediction-service | 8152 | Node.js | Yield prediction ML |
 | leveling-optimizer-service | 8170 | Python | Field leveling optimization |
@@ -106,16 +106,16 @@ User-facing operations.
 
 | Service | Port | Type | Description |
 |---------|------|------|-------------|
-| field-management-service | 3000 | Node.js | Field management (consolidated) |
-| user-service | 3025 | Node.js | Authentication & user management |
-| notification-service | 8110 | Python | Push notifications |
-| billing-core | 8089 | Python | Billing & invoicing |
+| field-management-service | 3000 | Node.js | Field management (consolidated); FieldEventsService, PostGIS health check in `/readyz`, Helm chart |
+| user-service | 3025 | Node.js | Authentication & user management; JWT validation hardened, bcrypt standardization, security config |
+| notification-service | 8110 | Python | Push notifications; JWT auth on 7 endpoints, retry logic, Prometheus `/metrics` |
+| billing-core | 8089 | Python | Billing & invoicing; input validation (Pydantic v2), Prometheus `/metrics`, NetworkPolicy |
 | task-service | 8103 | Python | Task management |
 | equipment-service | 8101 | Python | Equipment tracking |
 | alert-service | 8113 | Python | Alert management |
 | provider-config | 8104 | Python | Provider configuration |
 | audit-service | 8114 | Python | Audit logging |
-| marketplace-service | 3010 | Node.js | Agricultural marketplace |
+| marketplace-service | 3010 | Node.js | Agricultural marketplace; JwtAuthGuard on all fintech endpoints, Helm chart |
 | chat-service | 8115 | Node.js | Real-time messaging |
 | research-core | 3015 | Node.js | Research trials |
 | disaster-assessment | 3020 | Node.js | Disaster risk assessment |
@@ -164,15 +164,17 @@ User-facing operations.
 ## التبعيات | Dependencies
 
 ```
-field-management-service ──► postgres, redis, nats
-user-service ──────────────► postgres, redis
-billing-core ──────────────► postgres, redis, nats
-notification-service ──────► postgres, redis, nats
-marketplace-service ───────► postgres, redis
-vegetation-analysis-service► postgres, nats, sentinel-hub
-indicators-service ────────► postgres, nats
-advisory-service ──────────► postgres, nats
-irrigation-smart ──────────► postgres, nats
+field-management-service ──► postgres (PostGIS), redis, nats (FieldEventsService)
+user-service ──────────────► postgres, redis (JWT sessions, bcrypt)
+billing-core ──────────────► postgres, redis, nats, prometheus
+notification-service ──────► postgres, redis, nats (retry logic), prometheus
+marketplace-service ───────► postgres, redis, nats (JwtAuthGuard)
+vegetation-analysis-service► postgres, nats (NDVI anomaly events), sentinel-hub, prometheus
+indicators-service ────────► postgres (asyncpg), nats, kong (routes), prometheus
+advisory-service ──────────► postgres, nats (subscriptions), redis (rate limiting)
+irrigation-smart ──────────► postgres, nats (events), prometheus
+weather-service ───────────► postgres, nats (events), prometheus
+virtual-sensors ───────────► postgres, nats, prometheus
 yolo26-vision-service ─────► gpu (cuda), redis, nats
 copilot-api ───────────────► qdrant, ollama, redis, nats
 ```
@@ -196,8 +198,15 @@ GET /metrics       # Prometheus metrics (some services)
 
 - All DELETE endpoints require JWT authentication (`get_current_user`)
 - All services use unified error handling (`shared.errors_py`)
-- Multi-tenant isolation via `tenant_id` scoping
-- Kong gateway handles external auth and rate limiting
+- Multi-tenant isolation via `tenant_id` scoping (enforced in advisory-service, vegetation-analysis-service)
+- Kong gateway handles external auth and rate limiting (routes added for indicators-service)
+- **marketplace-service**: JwtAuthGuard enforced on all fintech endpoints (payments, wallets, transactions)
+- **notification-service**: JWT auth added to 7 previously unprotected endpoints, retry logic for delivery
+- **user-service**: JWT validation hardened, bcrypt standardized for password hashing, security config tightened
+- **billing-core**: Input validation via Pydantic v2, Kubernetes NetworkPolicy for network isolation
+- **advisory-service**: Rate limiting on advisory generation, NATS subscription-based event consumption
+- Prometheus `/metrics` endpoints added to: weather-service, vegetation-analysis-service, irrigation-smart, notification-service, billing-core, virtual-sensors
+- Helm charts added for: field-management-service, marketplace-service, indicators-service, irrigation-smart, virtual-sensors
 
 ---
 

@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [16.1.0] - 2026-03-28
+
+### Security
+
+- **JWT Authentication Hardening** (March 2026)
+  - Added JWT authentication (`get_current_user` dependency) to 30+ unprotected endpoints
+    across 5 services (advisory-service, vegetation-analysis-service, indicators-service,
+    irrigation-smart, virtual-sensors)
+  - Added tenant isolation to advisory, vegetation, and indicators endpoints
+  - Fixed API key leak prevention in weather provider error messages
+  - Made `WeatherProvider` API key attribute private (`_api_key`) to prevent logging exposure
+  - Standardized bcrypt work factor to 12 rounds in user-service
+  - Added JWT secret fail-fast validation enforcing minimum 32-character secret length
+  - Added HTML escaping for notification content to prevent XSS attacks
+
+### Infrastructure
+
+- **Helm Charts** (March 2026)
+  - Created Helm charts for 5 services: marketplace-service, field-management-service,
+    indicators-service, irrigation-smart, virtual-sensors
+  - Added `NetworkPolicy` to 6 services: weather-service, marketplace-service,
+    field-management-service, indicators-service, irrigation-smart, billing-core
+  - Added Prometheus `/metrics` endpoint to 7 services for observability
+
+- **Health Check Improvements** (March 2026)
+  - Fixed `/readyz` health checks in 8 services to verify actual dependency connectivity
+    (database, NATS, Redis) instead of returning static "ok" responses
+
+### Added
+
+- **Bilingual Error Codes** (March 2026)
+  - Added 60+ bilingual (Arabic/English) error codes across 11 services:
+    W1xxx (weather), M1xxx (marketplace), F1xxx (field-management),
+    V1xxx (vegetation-analysis), I1xxx (indicators/irrigation), N1xxx (notification),
+    A1xxx (advisory), U1xxx (user), B1xxx (billing), S1xxx (virtual-sensors)
+  - Regenerated Dart contracts for mobile app sync compatibility
+
+- **NATS Event Architecture** (March 2026)
+  - Added `FieldEventsService` to field-management-service (field.created, updated, deleted)
+  - Added NDVI anomaly and trend event publishing to vegetation-analysis-service
+  - Added `irrigation.calculated` event publishing to irrigation-smart
+  - Added advisory event subscriptions for weather, NDVI, and disease triggers
+  - Fixed NATS subject naming to dot-separated format (`sahool.domain.action`)
+  - Added 20+ missing NATS subject constants across services
+
+- **Knowledge Base Content** (March 2026)
+  - Added 11 bilingual Q&A guides for Yemen & Southern Saudi Arabia agriculture
+  - Added remote sensing article for precision agriculture
+  - Added cereals and potato Q&A guides
+
+### Fixed
+
+- **NATS & Notification Fixes** (March 2026)
+  - Fixed notification NATS handler error logging (was silently swallowing exceptions)
+
+### Tests
+
+- **Weather Service Test Suite** (March 2026)
+  - Added 35+ weather service tests covering advanced endpoints and error scenarios
+  - Added weather-service to `docker-compose.test.yml` for integration testing
+
+---
+
 ### Security
 
 - **Container CVE Remediation** (March 2026)

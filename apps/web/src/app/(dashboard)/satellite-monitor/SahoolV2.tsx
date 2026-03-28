@@ -14,16 +14,13 @@ import Link from 'next/link';
 // ── Existing SAHOOL Components ─────────────────────────────
 // Map & Fields
 import { MapView } from '@/components/dashboard/MapView';
-import { KPICard } from '@/components/dashboard/KPICard';
 // Weather
 import { WeatherDashboard } from '@/features/weather/components/WeatherDashboard';
 // Scouting
 import { ScoutingMode } from '@/features/scouting/components/ScoutingMode.dynamic';
 import { ScoutingHistory } from '@/features/scouting/components/ScoutingHistory';
-import { ObservationForm } from '@/features/scouting/components/ObservationForm';
 // Tasks
 import { TasksBoard } from '@/features/tasks/components/TasksBoard';
-import { TaskForm } from '@/features/tasks/components/TaskForm';
 // UI Components
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,20 +29,10 @@ import {
   useSatelliteMonitorFields,
   useSatelliteMonitorStats,
   useSatelliteMonitorAlerts,
-  useSatelliteMonitorWeather,
-  useSatelliteMonitorTimeSeries,
-  useSatelliteMonitorDirectionGrid,
-  useSatelliteMonitorSoilAnalysis,
-  useSatelliteMonitorIrrigationSchedule,
-  useSatelliteMonitorYieldPrediction,
-  useSatelliteMonitorPestPredictions,
 } from '@/features/satellite-monitor';
 import { MAP_LAYERS, HYBRID_COLORS } from '@/features/satellite-monitor/api';
 import type {
-  SatelliteField,
   MapLayerType,
-  CropHealthStatus,
-  TimePeriod,
 } from '@/features/satellite-monitor';
 
 // ── Screens ────────────────────────────────────────────────

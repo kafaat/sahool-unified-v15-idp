@@ -64,21 +64,18 @@ export class RedisTokenRevocationStore
   constructor(private readonly redisUrl?: string) {}
 
   /**
-   * Initialize on module startup.
-   * Failure is non-fatal: service starts in degraded mode and retries in background.
+   * Initialize on module startup (fire-and-forget — never blocks NestJS startup).
    * Security posture: FAIL-CLOSED — when Redis is unreachable, isTokenRevoked()
    * returns true (denies access) so no revoked token can be accepted while Redis is down.
    */
-  async onModuleInit(): Promise<void> {
-    try {
-      await this.initialize();
-    } catch (error) {
+  onModuleInit(): void {
+    this.initialize().catch((error) => {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(
         `Redis unavailable at startup, running in degraded mode: ${message}. ` +
         `All token revocation checks will DENY access (fail-closed) until Redis is reachable.`,
       );
-    }
+    });
   }
 
   /**
@@ -171,6 +168,15 @@ export class RedisTokenRevocationStore
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to initialize Redis: ${message}`);
+      // Clean up any partially-initialized client to prevent resource leaks on retry
+      if (this.redis) {
+        try {
+          await this.redis.quit();
+        } catch {
+          // ignore cleanup errors
+        }
+        this.redis = null;
+      }
       throw error;
     }
   }

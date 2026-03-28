@@ -524,7 +524,7 @@ services:
       - mongo_configdb:/data/configdb
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-sahool}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-change_this_mongo_dev_password}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--oplogSize", "128"]
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
@@ -572,7 +572,7 @@ services:
         echo "MongoDB replica set ready."
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-sahool}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-change_this_mongo_dev_password}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
     restart: "no"
     security_opt:
       - no-new-privileges:true
@@ -594,8 +594,8 @@ services:
     container_name: sahool-rocketchat
     environment:
       # MongoDB connection (replica set required for Rocket.Chat)
-      MONGO_URL: mongodb://${MONGO_USER:-sahool}:${MONGO_PASSWORD:-change_this_mongo_dev_password}@mongo:27017/rocketchat?authSource=admin&replicaSet=rs0
-      MONGO_OPLOG_URL: mongodb://${MONGO_USER:-sahool}:${MONGO_PASSWORD:-change_this_mongo_dev_password}@mongo:27017/local?authSource=admin&replicaSet=rs0
+      MONGO_URL: mongodb://${MONGO_USER:-sahool}:${MONGO_PASSWORD:?MONGO_PASSWORD is required}@mongo:27017/rocketchat?authSource=admin&replicaSet=rs0
+      MONGO_OPLOG_URL: mongodb://${MONGO_USER:-sahool}:${MONGO_PASSWORD:?MONGO_PASSWORD is required}@mongo:27017/local?authSource=admin&replicaSet=rs0
       # Rocket.Chat configuration
       ROOT_URL: ${ROCKETCHAT_URL:-http://localhost:3100}
       PORT: "3000"
@@ -603,7 +603,7 @@ services:
       DEPLOY_PLATFORM: sahool
       # Admin auto-setup
       ADMIN_USERNAME: ${ROCKETCHAT_ADMIN_USER:-rc_admin}
-      ADMIN_PASS: ${ROCKETCHAT_ADMIN_PASSWORD:-change_this_rocketchat_admin_password}
+      ADMIN_PASS: ${ROCKETCHAT_ADMIN_PASSWORD:?ROCKETCHAT_ADMIN_PASSWORD is required}
       ADMIN_EMAIL: ${ROCKETCHAT_ADMIN_EMAIL:-admin@sahool.io}
       # Internationalization
       OVERWRITE_SETTING_Language: ${ROCKETCHAT_LANGUAGE:-ar}

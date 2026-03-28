@@ -7,6 +7,9 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timezone
 
 import httpx
+import structlog
+
+logger = structlog.get_logger()
 
 
 @dataclass
@@ -127,7 +130,7 @@ class OpenMeteoProvider:
             )
 
         except Exception as e:
-            print(f"❌ Open-Meteo API error: {e}")
+            logger.error("open_meteo_api_error", error=str(e), lat=lat, lon=lon)
             raise
 
     async def get_daily_forecast(
@@ -193,7 +196,7 @@ class OpenMeteoProvider:
             return forecasts
 
         except Exception as e:
-            print(f"❌ Open-Meteo forecast error: {e}")
+            logger.error("open_meteo_forecast_error", error=str(e), lat=lat, lon=lon, days=days)
             raise
 
     async def get_hourly_forecast(
@@ -255,7 +258,7 @@ class OpenMeteoProvider:
             return forecasts
 
         except Exception as e:
-            print(f"❌ Open-Meteo hourly error: {e}")
+            logger.error("open_meteo_hourly_error", error=str(e), lat=lat, lon=lon, hours=hours)
             raise
 
 

@@ -30,6 +30,14 @@ abstract final class ErrorCodes {
   static const String syncFailed = 'SYNC_FAILED';
   static const String syncConflict = 'SYNC_CONFLICT';
   static const String certificateError = 'CERTIFICATE_ERROR';
+  static const String weatherLocationNotFound = 'W1001';
+  static const String weatherDataUnavailable = 'W1002';
+  static const String weatherProviderError = 'W1003';
+  static const String weatherApiKeyInvalid = 'W1004';
+  static const String weatherForecastRangeInvalid = 'W1005';
+  static const String weatherCoordinateInvalid = 'W1006';
+  static const String weatherCacheError = 'W1007';
+  static const String weatherRateLimited = 'W1008';
   static const String unknown = 'UNKNOWN';
 
   // Vision Service (E-codes)
@@ -235,6 +243,62 @@ const Map<String, ErrorMessage> errorMessages = {
     en: 'Security certificate error',
     ar: 'خطأ في شهادة الأمان',
     retryable: false,
+  ),
+  'W1001': ErrorMessage(
+    code: 'W1001',
+    httpStatus: 404,
+    en: 'Weather location not found',
+    ar: 'موقع الطقس غير موجود',
+    retryable: false,
+  ),
+  'W1002': ErrorMessage(
+    code: 'W1002',
+    httpStatus: 503,
+    en: 'Weather data is currently unavailable',
+    ar: 'بيانات الطقس غير متاحة حالياً',
+    retryable: true,
+  ),
+  'W1003': ErrorMessage(
+    code: 'W1003',
+    httpStatus: 502,
+    en: 'Weather provider returned an error',
+    ar: 'أرجع مزود الطقس خطأ',
+    retryable: true,
+  ),
+  'W1004': ErrorMessage(
+    code: 'W1004',
+    httpStatus: 401,
+    en: 'Invalid weather API key',
+    ar: 'مفتاح واجهة برمجة الطقس غير صالح',
+    retryable: false,
+  ),
+  'W1005': ErrorMessage(
+    code: 'W1005',
+    httpStatus: 400,
+    en: 'Invalid forecast date range',
+    ar: 'نطاق تاريخ التنبؤ غير صالح',
+    retryable: false,
+  ),
+  'W1006': ErrorMessage(
+    code: 'W1006',
+    httpStatus: 400,
+    en: 'Invalid geographic coordinates',
+    ar: 'إحداثيات جغرافية غير صالحة',
+    retryable: false,
+  ),
+  'W1007': ErrorMessage(
+    code: 'W1007',
+    httpStatus: 503,
+    en: 'Weather cache error',
+    ar: 'خطأ في ذاكرة التخزين المؤقت للطقس',
+    retryable: true,
+  ),
+  'W1008': ErrorMessage(
+    code: 'W1008',
+    httpStatus: 429,
+    en: 'Weather API rate limit exceeded. Please wait.',
+    ar: 'تم تجاوز حد معدل واجهة برمجة الطقس. يرجى الانتظار.',
+    retryable: true,
   ),
   'UNKNOWN': ErrorMessage(
     code: 'UNKNOWN',

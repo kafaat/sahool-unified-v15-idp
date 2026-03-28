@@ -342,8 +342,10 @@ export class UsersController {
     status: 403,
     description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
-  async countActive() {
-    const count = await this.usersService.countActive();
+  async countActive(@CurrentUser() currentUser: any) {
+    // SECURITY: Filter by tenant to prevent cross-tenant user count leakage
+    const tenantId = currentUser?.tenantId;
+    const count = await this.usersService.countActive(tenantId);
     return {
       success: true,
       data: { count },

@@ -526,11 +526,13 @@ export class AuthController {
     description: "Invalid or expired OTP",
   })
   @ApiResponse({ status: 429, description: "Too many verification attempts" })
-  async verifyOtp(@Body() dto: VerifyOtpRequestDto, @Req() request: Request) {
+  async verifyOtp(@Body() dto: VerifyOtpRequestDto, @Req() request: AuthenticatedRequest) {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.log(`OTP verification attempt from IP: ${ip}`);
 
-    return this.authService.verifyOtp(dto);
+    // Tenant context from request body or x-tenant-id header
+    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    return this.authService.verifyOtp(dto, tenantId);
   }
 
   /**

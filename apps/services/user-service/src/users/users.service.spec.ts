@@ -590,14 +590,14 @@ describe("UsersService", () => {
   });
 
   describe("countActive", () => {
-    it("should return count of active users", async () => {
+    it("should return count of active users filtered by tenant", async () => {
       prismaService.user.count.mockResolvedValue(10);
 
-      const result = await service.countActive();
+      const result = await service.countActive(mockTenantId);
 
       expect(result).toBe(10);
       expect(prismaService.user.count).toHaveBeenCalledWith({
-        where: { status: UserStatus.ACTIVE },
+        where: { status: UserStatus.ACTIVE, tenantId: mockTenantId },
       });
     });
   });

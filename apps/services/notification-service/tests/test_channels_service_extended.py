@@ -130,46 +130,41 @@ class TestListUserChannels:
 
 
 class TestUpdateChannelStatus:
-    @pytest.mark.asyncio
-    async def test_enable_channel(self):
+    def test_enable_channel(self):
         ch = _mock_channel()
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             mock_repo.update_channel = AsyncMock(return_value=True)
-            result = await ChannelsService.update_channel_status(str(ch.id), "user-123", True)
+            result = asyncio.run(ChannelsService.update_channel_status(str(ch.id), "user-123", True))
             assert result["success"] is True
             assert result["enabled"] is True
 
-    @pytest.mark.asyncio
-    async def test_disable_channel(self):
+    def test_disable_channel(self):
         ch = _mock_channel()
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             mock_repo.update_channel = AsyncMock(return_value=True)
-            result = await ChannelsService.update_channel_status(str(ch.id), "user-123", False)
+            result = asyncio.run(ChannelsService.update_channel_status(str(ch.id), "user-123", False))
             assert result["success"] is True
             assert "disabled" in result["message"]
 
-    @pytest.mark.asyncio
-    async def test_channel_not_found(self):
+    def test_channel_not_found(self):
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=None)
             with pytest.raises(ValueError, match="not found"):
-                await ChannelsService.update_channel_status(str(uuid4()), "user-123", True)
+                asyncio.run(ChannelsService.update_channel_status(str(uuid4()), "user-123", True))
 
-    @pytest.mark.asyncio
-    async def test_unauthorized(self):
+    def test_unauthorized(self):
         ch = _mock_channel(user_id="other-user")
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             with pytest.raises(ValueError, match="Unauthorized"):
-                await ChannelsService.update_channel_status(str(ch.id), "user-123", True)
+                asyncio.run(ChannelsService.update_channel_status(str(ch.id), "user-123", True))
 
-    @pytest.mark.asyncio
-    async def test_update_failed(self):
+    def test_update_failed(self):
         ch = _mock_channel()
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.get_by_id = AsyncMock(return_value=ch)
             mock_repo.update_channel = AsyncMock(return_value=False)
-            result = await ChannelsService.update_channel_status(str(ch.id), "user-123", True)
+            result = asyncio.run(ChannelsService.update_channel_status(str(ch.id), "user-123", True))
             assert result["success"] is False

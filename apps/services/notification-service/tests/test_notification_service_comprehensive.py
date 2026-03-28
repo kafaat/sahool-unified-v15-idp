@@ -4,6 +4,7 @@ Complete tests for notification business logic, delivery, and preferences
 Coverage: Notification creation, channel delivery, user preferences, targeting
 """
 
+import asyncio
 from datetime import datetime, time, timedelta
 from unittest.mock import AsyncMock, MagicMock, call, patch
 from uuid import uuid4
@@ -56,8 +57,7 @@ def mock_farmer_profile():
 class TestNotificationCreation:
     """Test notification creation logic"""
 
-    @pytest.mark.asyncio
-    async def test_create_notification_with_preferences(self, mock_notification):
+    def test_create_notification_with_preferences(self, mock_notification):
         """Test notification creation respects user preferences"""
         from src.main import NotificationPriority, NotificationType, create_notification
 
@@ -72,7 +72,7 @@ class TestNotificationCreation:
             ),
             patch("src.main.send_notification_via_channel", new=AsyncMock()),
         ):
-            result = await create_notification(
+            result = asyncio.run(create_notification(
                 type=NotificationType.WEATHER_ALERT,
                 priority=NotificationPriority.HIGH,
                 title="Weather Alert",
@@ -80,13 +80,12 @@ class TestNotificationCreation:
                 body="Frost expected",
                 body_ar="صقيع متوقع",
                 target_farmers=["farmer-123"],
-            )
+            ))
 
             assert result is not None
             assert result.id == mock_notification.id
 
-    @pytest.mark.asyncio
-    async def test_create_notification_preference_blocked(self, mock_notification):
+    def test_create_notification_preference_blocked(self, mock_notification):
         """Test notification creation when user preferences block it"""
         from src.main import NotificationPriority, NotificationType, create_notification
 
@@ -94,7 +93,7 @@ class TestNotificationCreation:
             "src.preferences_service.PreferencesService.check_if_should_send",
             new=AsyncMock(return_value=(False, [])),
         ):
-            result = await create_notification(
+            result = asyncio.run(create_notification(
                 type=NotificationType.WEATHER_ALERT,
                 priority=NotificationPriority.HIGH,
                 title="Weather Alert",
@@ -102,13 +101,12 @@ class TestNotificationCreation:
                 body="Frost expected",
                 body_ar="صقيع متوقع",
                 target_farmers=["farmer-123"],
-            )
+            ))
 
             # Should return None when all recipients are blocked
             assert result is None
 
-    @pytest.mark.asyncio
-    async def test_create_notification_with_targeting(self, mock_notification):
+    def test_create_notification_with_targeting(self, mock_notification):
         """Test notification creation with governorate and crop targeting"""
         from src.main import (
             CropType,
@@ -136,7 +134,7 @@ class TestNotificationCreation:
             ),
             patch("src.main.send_notification_via_channel", new=AsyncMock()),
         ):
-            result = await create_notification(
+            result = asyncio.run(create_notification(
                 type=NotificationType.PEST_OUTBREAK,
                 priority=NotificationPriority.HIGH,
                 title="Pest Alert",
@@ -145,12 +143,11 @@ class TestNotificationCreation:
                 body_ar="تم رصد المن",
                 target_governorates=[Governorate.SANAA],
                 target_crops=[CropType.TOMATO],
-            )
+            ))
 
             assert result is not None
 
-    @pytest.mark.asyncio
-    async def test_create_notification_multi_channel(self, mock_notification):
+    def test_create_notification_multi_channel(self, mock_notification):
         """Test notification sent to multiple channels"""
         from src.main import (
             NotificationChannel,
@@ -170,7 +167,7 @@ class TestNotificationCreation:
             ),
             patch("src.main.send_notification_via_channel", new=AsyncMock()) as mock_send,
         ):
-            await create_notification(
+            asyncio.run(create_notification(
                 type=NotificationType.WEATHER_ALERT,
                 priority=NotificationPriority.CRITICAL,
                 title="Critical Alert",
@@ -179,7 +176,7 @@ class TestNotificationCreation:
                 body_ar="مطلوب اتخاذ إجراء فوري",
                 target_farmers=["farmer-123"],
                 channels=[NotificationChannel.PUSH, NotificationChannel.SMS],
-            )
+            ))
 
             # Verify multiple channels were called
             assert mock_send.call_count >= 1
@@ -188,8 +185,7 @@ class TestNotificationCreation:
 class TestNotificationDelivery:
     """Test notification delivery via different channels"""
 
-    @pytest.mark.asyncio
-    async def test_send_sms_notification_success(self, mock_notification):
+    def test_send_sms_notification_success(self, mock_notification):
         """Test successful SMS notification delivery"""
         from src.main import send_sms_notification
 
@@ -207,11 +203,10 @@ class TestNotificationDelivery:
             patch("src.main.NotificationRepository.update_status", new=AsyncMock()),
             patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()),
         ):
-            await send_sms_notification(mock_notification, "farmer-123")
+            asyncio.run(send_sms_notification(mock_notification, "farmer-123"))
             mock_sms_client.send_sms.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_send_sms_notification_no_phone(self, mock_notification):
+    def test_send_sms_notification_no_phone(self, mock_notification):
         """Test SMS notification when farmer has no phone number"""
         from src.main import send_sms_notification
 
@@ -222,14 +217,13 @@ class TestNotificationDelivery:
             patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
             patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
         ):
-            await send_sms_notification(mock_notification, "farmer-123")
+            asyncio.run(send_sms_notification(mock_notification, "farmer-123"))
             mock_log.assert_called_once()
             call_args = mock_log.call_args
             assert call_args[1]["status"] == "failed"
             assert "phone" in call_args[1]["error_message"].lower()
 
-    @pytest.mark.asyncio
-    async def test_send_email_notification_success(self, mock_notification):
+    def test_send_email_notification_success(self, mock_notification):
         """Test successful email notification delivery"""
         from src.main import send_email_notification
 
@@ -247,11 +241,10 @@ class TestNotificationDelivery:
             patch("src.main.NotificationRepository.update_status", new=AsyncMock()),
             patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()),
         ):
-            await send_email_notification(mock_notification, "farmer-123")
+            asyncio.run(send_email_notification(mock_notification, "farmer-123"))
             mock_email_client.send_email.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_send_push_notification_success(self, mock_notification):
+    def test_send_push_notification_success(self, mock_notification):
         """Test successful push notification delivery"""
         from src.main import send_push_notification
 
@@ -269,11 +262,10 @@ class TestNotificationDelivery:
             patch("src.main.NotificationRepository.update_status", new=AsyncMock()),
             patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()),
         ):
-            await send_push_notification(mock_notification, "farmer-123")
+            asyncio.run(send_push_notification(mock_notification, "farmer-123"))
             mock_firebase_client.send_notification.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_send_push_notification_no_token(self, mock_notification):
+    def test_send_push_notification_no_token(self, mock_notification):
         """Test push notification when farmer has no FCM token"""
         from src.main import send_push_notification
 
@@ -284,45 +276,44 @@ class TestNotificationDelivery:
             patch("src.main.FarmerProfileRepository.get_by_farmer_id", new=AsyncMock(return_value=mock_profile)),
             patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
         ):
-            await send_push_notification(mock_notification, "farmer-123")
+            asyncio.run(send_push_notification(mock_notification, "farmer-123"))
             mock_log.assert_called_once()
             call_args = mock_log.call_args
             assert call_args[1]["status"] == "failed"
 
-    @pytest.mark.asyncio
-    async def test_send_notification_via_channel_dispatcher(self, mock_notification):
+    def test_send_notification_via_channel_dispatcher(self, mock_notification):
         """Test notification channel dispatcher"""
         from src.main import NotificationChannel, send_notification_via_channel
 
-        with patch("src.main.send_sms_notification", new=AsyncMock()) as mock_sms:
-            with patch("src.main.send_email_notification", new=AsyncMock()) as mock_email:
-                with patch("src.main.send_push_notification", new=AsyncMock()) as mock_push:
-                    # Test SMS
-                    await send_notification_via_channel(mock_notification, NotificationChannel.SMS, "farmer-123")
-                    mock_sms.assert_called_once()
+        async def _run():
+            with patch("src.main.send_sms_notification", new=AsyncMock()) as mock_sms:
+                with patch("src.main.send_email_notification", new=AsyncMock()) as mock_email:
+                    with patch("src.main.send_push_notification", new=AsyncMock()) as mock_push:
+                        # Test SMS
+                        await send_notification_via_channel(mock_notification, NotificationChannel.SMS, "farmer-123")
+                        mock_sms.assert_called_once()
 
-                    # Test Email
-                    await send_notification_via_channel(mock_notification, NotificationChannel.EMAIL, "farmer-123")
-                    mock_email.assert_called_once()
+                        # Test Email
+                        await send_notification_via_channel(mock_notification, NotificationChannel.EMAIL, "farmer-123")
+                        mock_email.assert_called_once()
 
-                    # Test Push
-                    await send_notification_via_channel(mock_notification, NotificationChannel.PUSH, "farmer-123")
-                    mock_push.assert_called_once()
+                        # Test Push
+                        await send_notification_via_channel(mock_notification, NotificationChannel.PUSH, "farmer-123")
+                        mock_push.assert_called_once()
+        asyncio.run(_run())
 
 
 class TestRecipientTargeting:
     """Test recipient determination and targeting logic"""
 
-    @pytest.mark.asyncio
-    async def test_determine_recipients_specific_farmers(self):
+    def test_determine_recipients_specific_farmers(self):
         """Test targeting specific farmers"""
         from src.main import determine_recipients_by_criteria
 
-        result = await determine_recipients_by_criteria(target_farmers=["farmer-1", "farmer-2"])
+        result = asyncio.run(determine_recipients_by_criteria(target_farmers=["farmer-1", "farmer-2"]))
         assert result == ["farmer-1", "farmer-2"]
 
-    @pytest.mark.asyncio
-    async def test_determine_recipients_by_governorate(self):
+    def test_determine_recipients_by_governorate(self):
         """Test targeting by governorate"""
         from src.main import Governorate, determine_recipients_by_criteria
 
@@ -333,11 +324,10 @@ class TestRecipientTargeting:
             "src.main.FarmerProfileRepository.find_by_criteria",
             new=AsyncMock(return_value=[mock_profile1]),
         ):
-            result = await determine_recipients_by_criteria(target_governorates=[Governorate.SANAA])
+            result = asyncio.run(determine_recipients_by_criteria(target_governorates=[Governorate.SANAA]))
             assert "farmer-1" in result
 
-    @pytest.mark.asyncio
-    async def test_determine_recipients_by_crop(self):
+    def test_determine_recipients_by_crop(self):
         """Test targeting by crop type"""
         from src.main import CropType, determine_recipients_by_criteria
 
@@ -348,11 +338,10 @@ class TestRecipientTargeting:
             "src.main.FarmerProfileRepository.find_by_criteria",
             new=AsyncMock(return_value=[mock_profile1]),
         ):
-            result = await determine_recipients_by_criteria(target_crops=[CropType.TOMATO])
+            result = asyncio.run(determine_recipients_by_criteria(target_crops=[CropType.TOMATO]))
             assert "farmer-1" in result
 
-    @pytest.mark.asyncio
-    async def test_determine_recipients_broadcast(self):
+    def test_determine_recipients_broadcast(self):
         """Test broadcast to all farmers"""
         from src.main import determine_recipients_by_criteria
 
@@ -372,7 +361,7 @@ class TestRecipientTargeting:
                 new=AsyncMock(return_value=mock_profiles),
             ),
         ):
-            result = await determine_recipients_by_criteria()
+            result = asyncio.run(determine_recipients_by_criteria())
             assert len(result) == 3
             assert "farmer-1" in result
             assert "farmer-2" in result
@@ -426,8 +415,7 @@ class TestWeatherAlerts:
 class TestNATSIntegration:
     """Test NATS event integration"""
 
-    @pytest.mark.asyncio
-    async def test_create_notification_from_nats_event(self):
+    def test_create_notification_from_nats_event(self):
         """Test creating notification from NATS event"""
         from src.main import create_notification_from_nats
 
@@ -445,10 +433,9 @@ class TestNATSIntegration:
         }
 
         with patch("src.main.create_notification", new=AsyncMock()):
-            await create_notification_from_nats(nats_event)
+            asyncio.run(create_notification_from_nats(nats_event))
 
-    @pytest.mark.asyncio
-    async def test_create_notification_from_nats_invalid_data(self):
+    def test_create_notification_from_nats_invalid_data(self):
         """Test NATS event with invalid data"""
         from src.main import create_notification_from_nats
 
@@ -456,7 +443,7 @@ class TestNATSIntegration:
 
         # Should not raise exception, just log error
         try:
-            await create_notification_from_nats(invalid_event)
+            asyncio.run(create_notification_from_nats(invalid_event))
         except Exception as e:
             pytest.fail(f"Should handle invalid data gracefully: {e}")
 
@@ -464,8 +451,7 @@ class TestNATSIntegration:
 class TestNotificationExpiry:
     """Test notification expiry logic"""
 
-    @pytest.mark.asyncio
-    async def test_notification_with_expiry(self, mock_notification):
+    def test_notification_with_expiry(self, mock_notification):
         """Test notification created with expiry time"""
         from src.main import NotificationPriority, NotificationType, create_notification
 
@@ -480,7 +466,7 @@ class TestNotificationExpiry:
             ),
             patch("src.main.send_notification_via_channel", new=AsyncMock()),
         ):
-            result = await create_notification(
+            result = asyncio.run(create_notification(
                 type=NotificationType.WEATHER_ALERT,
                 priority=NotificationPriority.HIGH,
                 title="Alert",
@@ -489,7 +475,7 @@ class TestNotificationExpiry:
                 body_ar="اختبار",
                 target_farmers=["farmer-123"],
                 expires_in_hours=48,
-            )
+            ))
 
             assert result is not None
 
@@ -497,8 +483,7 @@ class TestNotificationExpiry:
 class TestErrorHandling:
     """Test error handling in notification service"""
 
-    @pytest.mark.asyncio
-    async def test_send_sms_client_error(self, mock_notification):
+    def test_send_sms_client_error(self, mock_notification):
         """Test SMS sending with client error"""
         from src.main import send_sms_notification
 
@@ -515,13 +500,12 @@ class TestErrorHandling:
             patch("src.main.get_sms_client", return_value=mock_sms_client),
             patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
         ):
-            await send_sms_notification(mock_notification, "farmer-123")
+            asyncio.run(send_sms_notification(mock_notification, "farmer-123"))
             mock_log.assert_called()
             call_args = mock_log.call_args
             assert call_args[1]["status"] == "failed"
 
-    @pytest.mark.asyncio
-    async def test_send_email_client_error(self, mock_notification):
+    def test_send_email_client_error(self, mock_notification):
         """Test email sending with client error"""
         from src.main import send_email_notification
 
@@ -538,5 +522,5 @@ class TestErrorHandling:
             patch("src.main.get_email_client", return_value=mock_email_client),
             patch("src.main.NotificationLogRepository.create_log", new=AsyncMock()) as mock_log,
         ):
-            await send_email_notification(mock_notification, "farmer-123")
+            asyncio.run(send_email_notification(mock_notification, "farmer-123"))
             mock_log.assert_called()

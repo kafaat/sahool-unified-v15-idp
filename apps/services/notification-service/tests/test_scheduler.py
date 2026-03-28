@@ -7,6 +7,7 @@ Covers:
 - NotificationScheduler (schedule, batch, cancel, quiet hours, rate limiting)
 """
 
+import asyncio
 from datetime import UTC, datetime, time, timedelta
 from unittest.mock import MagicMock
 
@@ -412,8 +413,7 @@ class TestPriorityOrdering:
 
 
 class TestSendNotification:
-    @pytest.mark.asyncio
-    async def test_send_success(self):
+    def test_send_success(self):
         mock_firebase = MagicMock()
         mock_firebase.send_notification = MagicMock(return_value="msg-123")
         scheduler = NotificationScheduler(firebase_client=mock_firebase)
@@ -426,12 +426,11 @@ class TestSendNotification:
             recipient_token="token-1",
         )
 
-        result = await scheduler._send_notification(notif)
+        result = asyncio.run(scheduler._send_notification(notif))
         assert result is True
         assert notif.status == "sent"
 
-    @pytest.mark.asyncio
-    async def test_send_failure_retries(self):
+    def test_send_failure_retries(self):
         mock_firebase = MagicMock()
         mock_firebase.send_notification = MagicMock(side_effect=Exception("FCM error"))
         scheduler = NotificationScheduler(firebase_client=mock_firebase)
@@ -445,15 +444,14 @@ class TestSendNotification:
             max_retries=3,
         )
 
-        result = await scheduler._send_notification(notif)
+        result = asyncio.run(scheduler._send_notification(notif))
         assert result is False
         assert notif.status == "failed"
         assert notif.retry_count == 1
         # Should be rescheduled in queue
         assert len(scheduler._queue) == 1
 
-    @pytest.mark.asyncio
-    async def test_send_rate_limited(self):
+    def test_send_rate_limited(self):
         mock_firebase = MagicMock()
         scheduler = NotificationScheduler(
             firebase_client=mock_firebase,
@@ -471,11 +469,10 @@ class TestSendNotification:
         # Fill rate limit
         scheduler._send_timestamps["token-1"] = [datetime.now(UTC)]
 
-        result = await scheduler._send_notification(notif)
+        result = asyncio.run(scheduler._send_notification(notif))
         assert result is False
 
-    @pytest.mark.asyncio
-    async def test_send_with_recurring_frequency(self):
+    def test_send_with_recurring_frequency(self):
         mock_firebase = MagicMock()
         mock_firebase.send_notification = MagicMock(return_value="msg-456")
         scheduler = NotificationScheduler(firebase_client=mock_firebase)
@@ -489,13 +486,12 @@ class TestSendNotification:
             frequency=ScheduleFrequency.DAILY,
         )
 
-        result = await scheduler._send_notification(notif)
+        result = asyncio.run(scheduler._send_notification(notif))
         assert result is True
         # Should schedule next occurrence
         assert "n-daily-1_next" in scheduler._notification_map
 
-    @pytest.mark.asyncio
-    async def test_send_firebase_returns_none(self):
+    def test_send_firebase_returns_none(self):
         mock_firebase = MagicMock()
         mock_firebase.send_notification = MagicMock(return_value=None)
         scheduler = NotificationScheduler(firebase_client=mock_firebase)
@@ -508,14 +504,13 @@ class TestSendNotification:
             recipient_token="token-1",
         )
 
-        result = await scheduler._send_notification(notif)
+        result = asyncio.run(scheduler._send_notification(notif))
         assert result is False
         assert notif.status == "failed"
 
 
 class TestProcessBatch:
-    @pytest.mark.asyncio
-    async def test_batch_success(self):
+    def test_batch_success(self):
         mock_firebase = MagicMock()
         mock_firebase.send_multicast = MagicMock(
             return_value={
@@ -537,12 +532,11 @@ class TestProcessBatch:
             for i in range(2)
         ]
 
-        stats = await scheduler._process_batch(notifs)
+        stats = asyncio.run(scheduler._process_batch(notifs))
         assert stats["success"] == 2
         assert stats["failed"] == 0
 
-    @pytest.mark.asyncio
-    async def test_batch_with_failures(self):
+    def test_batch_with_failures(self):
         mock_firebase = MagicMock()
         mock_firebase.send_multicast = MagicMock(
             return_value={
@@ -564,14 +558,13 @@ class TestProcessBatch:
             for i in range(2)
         ]
 
-        stats = await scheduler._process_batch(notifs)
+        stats = asyncio.run(scheduler._process_batch(notifs))
         assert stats["success"] == 1
         assert stats["failed"] == 1
 
-    @pytest.mark.asyncio
-    async def test_batch_empty(self):
+    def test_batch_empty(self):
         scheduler = NotificationScheduler(firebase_client=MagicMock())
-        stats = await scheduler._process_batch([])
+        stats = asyncio.run(scheduler._process_batch([]))
         assert stats["success"] == 0
         assert stats["failed"] == 0
 
@@ -589,27 +582,24 @@ class TestSchedulerStats:
         assert stats["cancelled"] == 1
         assert stats["is_running"] is False
 
-    @pytest.mark.asyncio
-    async def test_start_stop(self):
+    def test_start_stop(self):
         scheduler = NotificationScheduler(firebase_client=MagicMock())
-        await scheduler.start()
+        asyncio.run(scheduler.start())
         assert scheduler._running is True
-        await scheduler.stop()
+        asyncio.run(scheduler.stop())
         assert scheduler._running is False
 
-    @pytest.mark.asyncio
-    async def test_stop_not_running(self):
+    def test_stop_not_running(self):
         scheduler = NotificationScheduler(firebase_client=MagicMock())
-        await scheduler.stop()  # Should not raise
+        asyncio.run(scheduler.stop())  # Should not raise
         assert scheduler._running is False
 
-    @pytest.mark.asyncio
-    async def test_start_already_running(self):
+    def test_start_already_running(self):
         scheduler = NotificationScheduler(firebase_client=MagicMock())
-        await scheduler.start()
-        await scheduler.start()  # Should warn but not create second worker
+        asyncio.run(scheduler.start())
+        asyncio.run(scheduler.start())  # Should warn but not create second worker
         assert scheduler._running is True
-        await scheduler.stop()
+        asyncio.run(scheduler.stop())
 
 
 class TestGetScheduler:

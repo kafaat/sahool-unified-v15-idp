@@ -206,7 +206,7 @@ class TestJWTValidation:
         """Test validating an expired token"""
         from src.main import validate_jwt_token
 
-        with pytest.raises(ValueError, match="Invalid token"):
+        with pytest.raises(ValueError, match="Authentication failed"):
             await validate_jwt_token(expired_jwt_token)
 
     @pytest.mark.asyncio
@@ -214,7 +214,7 @@ class TestJWTValidation:
         """Test validating an invalid token"""
         from src.main import validate_jwt_token
 
-        with pytest.raises(ValueError, match="Invalid token"):
+        with pytest.raises(ValueError, match="Authentication failed"):
             await validate_jwt_token(invalid_jwt_token)
 
     @pytest.mark.asyncio

@@ -92,10 +92,14 @@ def admin_jwt_token(sample_jwt_secret, sample_admin_payload) -> str:
 @pytest.fixture
 def expired_jwt_token(sample_jwt_secret) -> str:
     """Generate expired JWT token"""
+    now = datetime.utcnow()
     expired_payload = {
         "sub": "user-999",
         "tenant_id": "tenant-999",
-        "exp": datetime.utcnow() - timedelta(hours=1),  # Expired
+        "iss": "sahool-platform",
+        "aud": "sahool-api",
+        "iat": now - timedelta(hours=2),
+        "exp": now - timedelta(hours=1),  # Expired
     }
     return jwt.encode(expired_payload, sample_jwt_secret, algorithm="HS256")
 

@@ -3,6 +3,7 @@ Integration Tests for WS Gateway API
 اختبارات التكامل لواجهة برمجة بوابة WebSocket
 """
 
+import os
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -19,15 +20,20 @@ def client(mock_env_vars):
     # Force-import the module so ``patch`` can resolve the dotted path.
     import src.main  # noqa: F401
 
-    # Mock NATS bridge to prevent connection attempts
-    with patch("src.main.NATSBridge") as mock_nats:
-        mock_nats_instance = AsyncMock()
-        mock_nats_instance.is_connected = False
-        mock_nats_instance.connect = AsyncMock()
-        mock_nats_instance.disconnect = AsyncMock()
-        mock_nats_instance.get_stats = Mock(return_value={"connected": False})
-        mock_nats.return_value = mock_nats_instance
+    # Patch the already-instantiated nats_bridge to prevent real connection
+    # attempts during the lifespan, and clear NATS_URL so the lifespan
+    # skips connection entirely.
+    mock_nats_instance = AsyncMock()
+    mock_nats_instance.is_connected = True
+    mock_nats_instance.connect = AsyncMock()
+    mock_nats_instance.disconnect = AsyncMock()
+    mock_nats_instance.get_stats = Mock(return_value={"connected": True, "subscriptions": 0})
+    mock_nats_instance.get_subscription_health = Mock(return_value={"healthy": True})
 
+    with (
+        patch.dict(os.environ, {"NATS_URL": ""}, clear=False),
+        patch("src.main.nats_bridge", mock_nats_instance),
+    ):
         from src.main import app
 
         with TestClient(app) as test_client:

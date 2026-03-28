@@ -13,7 +13,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcryptjs";
-import { UserStatus } from "../utils/validation";
+import { UserRole, UserStatus } from "../utils/validation";
 import { BCRYPT_ROUNDS, DEFAULT_TENANT_ID, splitFullName } from "../utils/security.config";
 
 // User type - use when Prisma types are generated
@@ -69,7 +69,7 @@ export class UsersService {
         passwordHash,
         firstName,
         lastName,
-        role: (createUserDto.role || "VIEWER") as any, // Cast to Prisma UserRole enum
+        role: (createUserDto.role || UserRole.VIEWER) as any, // Cast to Prisma UserRole enum
         status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
         emailVerified: createUserDto.emailVerified || false,
         phoneVerified: createUserDto.phoneVerified || false,

@@ -135,6 +135,12 @@ export class RedisTokenRevocationStore
         this.logger.error(`Redis error: ${err.message}`);
       });
 
+      this.redis.on("end", () => {
+        this.logger.warn("Redis connection ended, marking store as uninitialized");
+        this.initialized = false;
+        this.redis = null;
+      });
+
       this.redis.on("connect", () => {
         this.logger.log("Redis connected");
       });

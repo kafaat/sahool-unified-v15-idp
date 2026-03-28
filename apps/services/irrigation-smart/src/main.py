@@ -43,14 +43,27 @@ except ImportError:
 
 # Prometheus metric definitions (guarded against re-registration during test re-imports)
 if HAS_PROMETHEUS:
-    import prometheus_client as _prom_registry
+    import prometheus_client as _prom_client
 
     def _get_or_create_metric(metric_cls, name, description, labels):
         """Get existing metric or create new one, avoiding duplicate registration."""
+        # Check persistent cache on prometheus_client module (survives module re-imports)
+        cache = getattr(_prom_client, '_sahool_metrics', None)
+        if cache is None:
+            cache = {}
+            _prom_client._sahool_metrics = cache
+        if name in cache:
+            return cache[name]
         try:
-            return metric_cls(name, description, labels)
+            metric = metric_cls(name, description, labels)
         except ValueError:
-            return _prom_registry.REGISTRY._names_to_collectors[name]
+            # Already in registry from previous import - retrieve it
+            collectors = getattr(_prom_client.REGISTRY, '_names_to_collectors', {})
+            metric = collectors.get(name)
+            if metric is None:
+                raise
+        cache[name] = metric
+        return metric
 
     REQUEST_COUNT = _get_or_create_metric(
         Counter,

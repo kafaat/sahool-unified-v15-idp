@@ -13,6 +13,7 @@ import {
   MaxLength,
   IsBoolean,
   IsUUID,
+  IsNotEmpty,
   ValidateIf,
 } from "class-validator";
 import { Transform } from "class-transformer";
@@ -73,6 +74,7 @@ export class CreateUserDto {
   })
   @ValidateIf((o) => !o.name)
   @IsString()
+  @IsNotEmpty({ message: "First name is required when name is not provided" })
   @MinLength(2)
   @MaxLength(100)
   @SanitizePlainText()
@@ -84,6 +86,7 @@ export class CreateUserDto {
   })
   @ValidateIf((o) => !o.name)
   @IsString()
+  @IsNotEmpty({ message: "Last name is required when name is not provided" })
   @MinLength(2)
   @MaxLength(100)
   @SanitizePlainText()

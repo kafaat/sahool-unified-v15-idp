@@ -2,6 +2,7 @@
 Tests for Task Automation Hook - advisory-service
 """
 
+import asyncio
 import json
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -47,8 +48,7 @@ class TestActionTaskMapping:
 class TestFieldOpsClient:
     """Tests for FieldOpsClient"""
 
-    @pytest.mark.asyncio
-    async def test_create_task(self):
+    def test_create_task(self):
         client = FieldOpsClient(base_url="http://test:8080")
         mock_http = AsyncMock()
         mock_response = MagicMock()
@@ -57,24 +57,25 @@ class TestFieldOpsClient:
         mock_http.post.return_value = mock_response
         client._client = mock_http
 
-        result = await client.create_task(
-            tenant_id="t1",
-            field_id="f1",
-            title="Test Task",
-            description="Description",
-            task_type="spray",
-            priority="high",
-            due_date=datetime.now(UTC),
+        result = asyncio.run(
+            client.create_task(
+                tenant_id="t1",
+                field_id="f1",
+                title="Test Task",
+                description="Description",
+                task_type="spray",
+                priority="high",
+                due_date=datetime.now(UTC),
+            )
         )
         assert result["id"] == "task_1"
         mock_http.post.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_close(self):
+    def test_close(self):
         client = FieldOpsClient()
         mock_http = AsyncMock()
         client._client = mock_http
-        await client.close()
+        asyncio.run(client.close())
         mock_http.aclose.assert_called_once()
         assert client._client is None
 
@@ -82,8 +83,7 @@ class TestFieldOpsClient:
 class TestTaskAutomationHook:
     """Tests for TaskAutomationHook"""
 
-    @pytest.mark.asyncio
-    async def test_handle_recommendation(self):
+    def test_handle_recommendation(self):
         hook = TaskAutomationHook()
         hook.fieldops = AsyncMock(spec=FieldOpsClient)
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
@@ -105,11 +105,10 @@ class TestTaskAutomationHook:
             }
         ).encode()
 
-        await hook._handle_recommendation(msg)
+        asyncio.run(hook._handle_recommendation(msg))
         assert hook.fieldops.create_task.call_count == 2
 
-    @pytest.mark.asyncio
-    async def test_handle_recommendation_unknown_action(self):
+    def test_handle_recommendation_unknown_action(self):
         hook = TaskAutomationHook()
         hook.fieldops = AsyncMock(spec=FieldOpsClient)
         hook.fieldops.create_task = AsyncMock()
@@ -126,11 +125,10 @@ class TestTaskAutomationHook:
             }
         ).encode()
 
-        await hook._handle_recommendation(msg)
+        asyncio.run(hook._handle_recommendation(msg))
         hook.fieldops.create_task.assert_not_called()
 
-    @pytest.mark.asyncio
-    async def test_handle_recommendation_max_3_tasks(self):
+    def test_handle_recommendation_max_3_tasks(self):
         hook = TaskAutomationHook()
         hook.fieldops = AsyncMock(spec=FieldOpsClient)
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
@@ -153,12 +151,11 @@ class TestTaskAutomationHook:
             }
         ).encode()
 
-        await hook._handle_recommendation(msg)
+        asyncio.run(hook._handle_recommendation(msg))
         # Max 3 tasks from actions[:3]
         assert hook.fieldops.create_task.call_count <= 3
 
-    @pytest.mark.asyncio
-    async def test_handle_fertilizer_plan(self):
+    def test_handle_fertilizer_plan(self):
         hook = TaskAutomationHook()
         hook.fieldops = AsyncMock(spec=FieldOpsClient)
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
@@ -193,11 +190,10 @@ class TestTaskAutomationHook:
             }
         ).encode()
 
-        await hook._handle_fertilizer_plan(msg)
+        asyncio.run(hook._handle_fertilizer_plan(msg))
         assert hook.fieldops.create_task.call_count == 2
 
-    @pytest.mark.asyncio
-    async def test_handle_nutrient_assessment_high_confidence(self):
+    def test_handle_nutrient_assessment_high_confidence(self):
         hook = TaskAutomationHook()
         hook.fieldops = AsyncMock(spec=FieldOpsClient)
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
@@ -222,12 +218,11 @@ class TestTaskAutomationHook:
             }
         ).encode()
 
-        await hook._handle_nutrient_assessment(msg)
+        asyncio.run(hook._handle_nutrient_assessment(msg))
         # 1 inspection + up to 2 correction tasks (only fertilizer type)
         assert hook.fieldops.create_task.call_count == 3  # inspection + 2 fertilizer corrections
 
-    @pytest.mark.asyncio
-    async def test_handle_nutrient_assessment_low_confidence(self):
+    def test_handle_nutrient_assessment_low_confidence(self):
         hook = TaskAutomationHook()
         hook.fieldops = AsyncMock(spec=FieldOpsClient)
         hook.fieldops.create_task = AsyncMock(return_value={"id": "task_1"})
@@ -249,12 +244,11 @@ class TestTaskAutomationHook:
             }
         ).encode()
 
-        await hook._handle_nutrient_assessment(msg)
+        asyncio.run(hook._handle_nutrient_assessment(msg))
         # Only inspection task, no corrections (confidence < 0.7)
         assert hook.fieldops.create_task.call_count == 1
 
-    @pytest.mark.asyncio
-    async def test_handle_recommendation_error(self):
+    def test_handle_recommendation_error(self):
         hook = TaskAutomationHook()
         hook.fieldops = AsyncMock(spec=FieldOpsClient)
         hook.fieldops.create_task = AsyncMock(side_effect=Exception("Connection refused"))
@@ -272,4 +266,4 @@ class TestTaskAutomationHook:
         ).encode()
 
         # Should not raise - errors are caught internally
-        await hook._handle_recommendation(msg)
+        asyncio.run(hook._handle_recommendation(msg))

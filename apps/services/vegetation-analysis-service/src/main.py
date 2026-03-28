@@ -37,6 +37,64 @@ from shared.auth.models import User
 
 logger = structlog.get_logger(__name__)
 
+
+def _validate_field_id(field_id: str) -> None:
+    """Validate field_id path parameter."""
+    if not field_id or len(field_id) > 100:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Invalid field_id", "error_ar": "معرف الحقل غير صالح"},
+        )
+
+
+def _validate_planting_date_not_future(planting_date: date | None) -> None:
+    """Validate that planting_date is not in the future."""
+    if planting_date and planting_date > date.today():
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "Planting date cannot be in the future",
+                "error_ar": "تاريخ الزراعة لا يمكن أن يكون في المستقبل",
+            },
+        )
+
+
+def _validate_crop_type(crop_type: str | None) -> None:
+    """Validate that crop_type is not null or empty."""
+    if not crop_type or not crop_type.strip():
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "crop_type is required and cannot be empty",
+                "error_ar": "نوع المحصول مطلوب ولا يمكن أن يكون فارغاً",
+            },
+        )
+
+
+def _validate_days_range(days: int) -> None:
+    """Validate days parameter is within 1-365 range."""
+    if days < 1 or days > 365:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "days must be between 1 and 365",
+                "error_ar": "عدد الأيام يجب أن يكون بين 1 و 365",
+            },
+        )
+
+
+def _validate_ndvi_value(ndvi: float, label: str = "NDVI") -> None:
+    """Validate NDVI value is within -1 to 1 range."""
+    if ndvi < -1.0 or ndvi > 1.0:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": f"{label} value must be between -1.0 and 1.0",
+                "error_ar": f"قيمة {label} يجب أن تكون بين -1.0 و 1.0",
+            },
+        )
+
+
 # Add shared modules to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
@@ -157,6 +215,45 @@ from .phenology_detector import (
 
 # Import VRA endpoints
 from .vra_endpoints import register_vra_endpoints
+
+# Prometheus metrics
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
+
+# Prometheus metric definitions
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "vegetation_requests_total",
+        "Total vegetation API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "vegetation_request_duration_seconds",
+        "Vegetation API request latency",
+        ["endpoint"],
+    )
+
+
+# Prometheus middleware to record metrics per request
+if HAS_PROMETHEUS:
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            import time as _time
+
+            endpoint = request.url.path
+            start = _time.time()
+            response = await call_next(request)
+            duration = _time.time() - start
+            REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+            REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+            return response
+
 
 # Import weather integration
 # Import yield predictor
@@ -350,6 +447,10 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+# Prometheus request metrics middleware
+if HAS_PROMETHEUS:
+    app.add_middleware(PrometheusMiddleware)
+
 # Add tenant context middleware
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
@@ -427,12 +528,12 @@ class SatelliteImagery(BaseModel):
 
 
 class VegetationIndices(BaseModel):
-    ndvi: float = Field(..., description="Normalized Difference Vegetation Index")
-    ndwi: float = Field(..., description="Normalized Difference Water Index")
+    ndvi: float = Field(..., ge=-1.0, le=1.0, description="Normalized Difference Vegetation Index")
+    ndwi: float = Field(..., ge=-1.0, le=1.0, description="Normalized Difference Water Index")
     evi: float = Field(..., description="Enhanced Vegetation Index")
     savi: float = Field(..., description="Soil Adjusted Vegetation Index")
-    lai: float = Field(..., description="Leaf Area Index estimate")
-    ndmi: float = Field(..., description="Normalized Difference Moisture Index")
+    lai: float = Field(..., ge=0, description="Leaf Area Index estimate")
+    ndmi: float = Field(..., ge=-1.0, le=1.0, description="Normalized Difference Moisture Index")
 
 
 class FieldAnalysis(BaseModel):
@@ -804,16 +905,48 @@ async def health():
 
 
 @app.get("/readyz")
-def readiness():
+async def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    checks = {}
+
+    # Check database
+    db_pool = getattr(app.state, "db_pool", None)
+    if db_pool:
+        try:
+            async with db_pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            checks["database"] = "connected"
+        except Exception:
+            checks["database"] = "disconnected"
+    else:
+        checks["database"] = "not_configured"
+
+    # Check NATS
+    nc = getattr(app.state, "nc", None)
+    if nc:
+        checks["nats"] = "connected" if not nc.is_closed else "disconnected"
+    else:
+        checks["nats"] = "not_configured"
+
+    all_ready = all(v != "disconnected" for v in checks.values())
     return {
-        "status": "ready",
+        "status": "ready" if all_ready else "degraded",
         "service": "vegetation-analysis-service",
         "version": "16.0.0",
-        "checks": {
-            "service": "ready",
-        },
+        "checks": checks,
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    if not HAS_PROMETHEUS:
+        from starlette.responses import Response
+
+        return Response(content="prometheus_client not installed", status_code=501)
+    from starlette.responses import Response
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/v1/providers")
@@ -974,6 +1107,7 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
 @app.post("/v1/analyze", response_model=FieldAnalysis)
 async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
+    _validate_field_id(request.field_id)
 
     # Get imagery first
     imagery = await request_imagery(request)
@@ -1134,6 +1268,8 @@ async def analyze_field_with_action(
     Field-First: ينتج قالب إجراء للتطبيق المحمول
     ينشر الحدث عبر NATS للإشعارات الفورية
     """
+    _validate_field_id(request.field_id)
+
     # Enforce tenant isolation
     if request.tenant_id:
         _enforce_tenant(user, request.tenant_id)
@@ -1244,6 +1380,8 @@ async def analyze_field_real(
     يستخدم sahool-eo و Sentinel Hub للحصول على بيانات حقيقية.
     إذا لم تكن الاعتمادات مكونة، يعود إلى البيانات المحاكاة.
     """
+    _validate_field_id(request.field_id)
+
     # Enforce tenant isolation
     _enforce_tenant(user, request.tenant_id)
 
@@ -1299,13 +1437,13 @@ async def analyze_field_real(
     }
 
 
-@app.get("/v1/timeseries/{field_id}")
-async def get_timeseries(
+async def _get_timeseries_data(
     field_id: str,
-    days: int = Query(default=30, ge=7, le=365),
+    days: int = 30,
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
-):
-    """الحصول على سلسلة زمنية للمؤشرات النباتية"""
+) -> dict:
+    """Internal helper for timeseries data generation (no auth required)."""
+    _validate_field_id(field_id)
 
     import random
 
@@ -1339,6 +1477,21 @@ async def get_timeseries(
     }
 
 
+@app.get("/v1/timeseries/{field_id}")
+async def get_timeseries(
+    field_id: str,
+    days: int = Query(default=30, ge=7, le=365),
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
+):
+    """الحصول على سلسلة زمنية للمؤشرات النباتية"""
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
+    return await _get_timeseries_data(field_id, days, satellite)
+
+
 # =============================================================================
 # NDVI Time-Series Analysis Endpoints
 # نقاط نهاية تحليل السلاسل الزمنية لمؤشر NDVI
@@ -1365,11 +1518,12 @@ async def analyze_ndvi_timeseries(
     - Seasonal metrics (المقاييس الموسمية)
     - 7-day forecast (تنبؤ 7 أيام)
     """
+    _validate_field_id(field_id)
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
 
     # Get NDVI time series data
-    timeseries_data = await get_timeseries(field_id, days)
+    timeseries_data = await _get_timeseries_data(field_id, days)
 
     # Convert to NDVIPoint objects
     ndvi_points = []
@@ -1412,6 +1566,38 @@ async def analyze_ndvi_timeseries(
         peak_ndvi=peak[1] if peak else None,
         integrated_ndvi=seasonal_integral,
     )
+
+    # Publish NDVI trend event to NATS
+    if _nats_available and publish_analysis_completed_sync:
+        try:
+            trend_direction = trend.trend_type.value
+            current_ndvi = round(values[-1], 4) if values else None
+            avg_ndvi = round(sum(values) / len(values), 4) if values else None
+            publish_analysis_completed_sync(
+                event_type="satellite.ndvi.trend",
+                source_service="vegetation-analysis-service",
+                field_id=field_id,
+                data={
+                    "field_id": field_id,
+                    "trend_direction": trend_direction,
+                    "current_ndvi": current_ndvi,
+                    "average_ndvi": avg_ndvi,
+                    "period_days": days,
+                    "data_points": len(ndvi_points),
+                    "has_anomalies": len(anomalies) > 0,
+                    "anomaly_count": len(anomalies),
+                    "timestamp": datetime.now(UTC).isoformat(),
+                },
+                priority="high" if trend_direction == "declining" else "medium",
+                tenant_id=tenant_id,
+            )
+            logger.info(
+                "nats_ndvi_trend_published",
+                field_id=field_id,
+                trend_direction=trend_direction,
+            )
+        except Exception as e:
+            logger.error("nats_publish_failed", subject="satellite.ndvi.trend", error=str(e))
 
     return {
         "field_id": field_id,
@@ -1460,6 +1646,8 @@ async def compare_ndvi_periods(
     - Before/after events (قبل/بعد الأحداث)
     - Seasonal comparisons (مقارنات موسمية)
     """
+    _validate_field_id(field_id)
+
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
 
@@ -1514,6 +1702,7 @@ async def get_phenology(
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     planting_date: str | None = Query(None, description="Planting date (YYYY-MM-DD)"),
     days: int = Query(default=60, ge=14, le=365, description="Days of historical data"),
+    user: User = Depends(get_current_user),
 ):
     """
     Detect current crop growth stage from NDVI time series
@@ -1525,11 +1714,17 @@ async def get_phenology(
     3. Determines current growth stage (BBCH scale)
     4. Provides stage-specific recommendations
     """
+    _validate_field_id(field_id)
+    _validate_crop_type(crop_type)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     # Get NDVI time series
-    timeseries_data = await get_timeseries(field_id, days)
+    timeseries_data = await _get_timeseries_data(field_id, days)
     ndvi_series = [{"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]]
 
     # Parse planting date
@@ -1539,6 +1734,7 @@ async def get_phenology(
             planting_dt = datetime.fromisoformat(planting_date).date()
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid planting_date format. Use YYYY-MM-DD")
+        _validate_planting_date_not_future(planting_dt)
 
     # Detect phenology
     try:
@@ -1590,6 +1786,7 @@ async def get_phenology_timeline(
     field_id: str,
     crop_type: str = Query(..., description="نوع المحصول"),
     planting_date: str = Query(..., description="Planting date (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     Get expected phenology timeline for crop planning
@@ -1598,6 +1795,12 @@ async def get_phenology_timeline(
     Returns expected dates for all growth stages based on planting date.
     Useful for planning irrigation, fertilization, and harvest.
     """
+    _validate_field_id(field_id)
+    _validate_crop_type(crop_type)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
@@ -1606,6 +1809,7 @@ async def get_phenology_timeline(
         planting_dt = datetime.fromisoformat(planting_date).date()
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid planting_date format. Use YYYY-MM-DD")
+    _validate_planting_date_not_future(planting_dt)
 
     # Generate timeline
     try:
@@ -1635,6 +1839,8 @@ async def get_stage_recommendations(crop_type: str, stage: str):
 
     Example: /v1/phenology/recommendations/wheat/flowering
     """
+    _validate_crop_type(crop_type)
+
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
@@ -1723,6 +1929,9 @@ async def analyze_phenology_with_action(
     2. Creates stage-specific ActionTemplate for mobile app
     3. Publishes event via NATS if enabled
     """
+    _validate_field_id(request.field_id)
+    _validate_crop_type(request.crop_type)
+
     # Enforce tenant isolation
     if request.tenant_id:
         _enforce_tenant(user, request.tenant_id)
@@ -1731,7 +1940,7 @@ async def analyze_phenology_with_action(
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     # Get NDVI time series
-    timeseries_data = await get_timeseries(request.field_id, request.days)
+    timeseries_data = await _get_timeseries_data(request.field_id, request.days)
     ndvi_series = [{"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]]
 
     # Parse planting date
@@ -1741,6 +1950,7 @@ async def analyze_phenology_with_action(
             planting_dt = datetime.fromisoformat(request.planting_date).date()
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid planting_date format")
+        _validate_planting_date_not_future(planting_dt)
 
     # Detect phenology
     try:
@@ -1930,6 +2140,7 @@ async def get_soil_moisture(
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     date: str | None = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
+    user: User = Depends(get_current_user),
 ):
     """
     تقدير رطوبة التربة من بيانات SAR سنتينل-1
@@ -1942,6 +2153,11 @@ async def get_soil_moisture(
 
     Works in all weather conditions (cloud-independent).
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
 
@@ -1989,6 +2205,7 @@ async def get_soil_moisture(
 async def get_irrigation_events(
     field_id: str,
     days: int = Query(default=30, ge=7, le=90, description="Days to look back"),
+    user: User = Depends(get_current_user),
 ):
     """
     كشف أحداث الري من تغيرات رطوبة التربة
@@ -2004,6 +2221,11 @@ async def get_irrigation_events(
     - Water use monitoring
     - Rainfall vs irrigation discrimination
     """
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _validate_field_id(field_id)
+
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
 
@@ -2059,6 +2281,7 @@ async def get_sar_timeseries(
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     lat: float | None = Query(None, ge=-90, le=90, description="Field latitude"),
     lon: float | None = Query(None, ge=-180, le=180, description="Field longitude"),
+    user: User = Depends(get_current_user),
 ):
     """
     سلسلة زمنية لبيانات SAR ورطوبة التربة
@@ -2072,6 +2295,11 @@ async def get_sar_timeseries(
 
     Sentinel-1 revisit: every 6 days
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
 
@@ -2153,6 +2381,7 @@ async def get_all_indices(
     lat: float = Query(..., description="Latitude", ge=-90, le=90),
     lon: float = Query(..., description="Longitude", ge=-180, le=180),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
 ):
     """
     Get all vegetation indices for a field location
@@ -2164,6 +2393,11 @@ async def get_all_indices(
     - Early Stress: GNDVI, VARI, GLI, GRVI
     - Corrected: MSAVI, OSAVI, ARVI
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
 
@@ -2208,6 +2442,7 @@ async def get_specific_index(
     crop_type: str | None = Query(default="unknown", description="نوع المحصول"),
     growth_stage: str | None = Query(default="vegetative", description="مرحلة النمو"),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
 ):
     """
     Get a specific vegetation index with interpretation
@@ -2218,6 +2453,11 @@ async def get_specific_index(
     - crop_type: wheat, sorghum, coffee, qat, etc.
     - growth_stage: emergence, vegetative, reproductive, maturation
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
 
@@ -2297,6 +2537,8 @@ async def interpret_indices(request: InterpretRequest, user: User = Depends(get_
         "growth_stage": "reproductive"
     }
     """
+    _validate_field_id(request.field_id)
+
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
 
@@ -2684,6 +2926,9 @@ async def predict_yield(request: YieldPredictionRequest, user: User = Depends(ge
 
     Returns predicted yield with confidence interval and actionable recommendations.
     """
+    _validate_field_id(request.field_id)
+    _validate_planting_date_not_future(request.planting_date)
+
     import random
 
     if not _yield_predictor:
@@ -2695,7 +2940,7 @@ async def predict_yield(request: YieldPredictionRequest, user: User = Depends(ge
     if request.ndvi_series is None or len(request.ndvi_series) == 0:
         # Fetch from timeseries endpoint
         try:
-            timeseries_data = await get_timeseries(
+            timeseries_data = await _get_timeseries_data(
                 field_id=request.field_id,
                 days=90,  # Last 3 months
                 satellite=SatelliteSource.SENTINEL2,
@@ -2807,6 +3052,7 @@ async def get_yield_history(
     field_id: str,
     seasons: int = Query(default=5, ge=1, le=20, description="Number of past seasons to retrieve"),
     crop_code: str | None = Query(None, description="Filter by crop code"),
+    user: User = Depends(get_current_user),
 ):
     """
     الحصول على سجل التنبؤات السابقة | Get Yield Prediction History
@@ -2814,6 +3060,11 @@ async def get_yield_history(
     Returns historical yield predictions for a field, optionally filtered by crop.
     In production, this would fetch from a database. Currently returns simulated data.
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     import random
 
     # Import shared crop catalog
@@ -3021,6 +3272,7 @@ async def get_cloud_cover(
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     date: str | None = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
+    user: User = Depends(get_current_user),
 ):
     """
     Analyze cloud cover for a field location using Sentinel-2 SCL
@@ -3038,6 +3290,11 @@ async def get_cloud_cover(
     Example:
         GET /v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-01-15
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
 
@@ -3076,6 +3333,7 @@ async def find_clear_observations(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     max_cloud: float = Query(20.0, ge=0, le=100, description="Maximum cloud cover %"),
+    user: User = Depends(get_current_user),
 ):
     """
     Find all clear (low cloud) observations in date range
@@ -3087,6 +3345,11 @@ async def find_clear_observations(
     Example:
         GET /v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
 
@@ -3137,6 +3400,7 @@ async def get_best_observation(
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     target_date: str = Query(..., description="Target date (YYYY-MM-DD)"),
     tolerance_days: int = Query(15, ge=1, le=90, description="Days before/after to search"),
+    user: User = Depends(get_current_user),
 ):
     """
     Find the best (lowest cloud) observation near target date
@@ -3148,6 +3412,11 @@ async def get_best_observation(
     Example:
         GET /v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
 
@@ -3224,6 +3493,8 @@ async def interpolate_cloudy_pixels(
         ]
     }
     """
+    _validate_field_id(field_id)
+
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
 
@@ -3275,6 +3546,7 @@ async def export_analysis(
     lat: float = Query(..., ge=-90, le=90, description="Latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
     format: str = Query(default="geojson", description="Export format: geojson, csv, json, kml"),
+    user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """
     Export field analysis data in specified format.
@@ -3285,6 +3557,11 @@ async def export_analysis(
     - json: Complete JSON structure
     - kml: Google Earth compatible format
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     try:
         export_format = ExportFormat(format.lower())
     except ValueError:
@@ -3325,12 +3602,18 @@ async def export_timeseries(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     format: str = Query(default="csv", description="Export format: csv, json, geojson"),
+    user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """
     Export time series data (NDVI over time) in specified format.
 
     Best for tracking vegetation health trends over time.
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     try:
         export_format = ExportFormat(format.lower())
         if export_format == ExportFormat.KML:
@@ -3401,12 +3684,17 @@ async def export_timeseries(
 async def export_boundaries(
     field_ids: str = Query(..., description="Comma-separated field IDs"),
     format: str = Query(default="geojson", description="Export format: geojson, json, kml"),
+    user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """
     Export field boundaries in specified format.
 
     Useful for GIS systems and mapping applications.
     """
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     try:
         export_format = ExportFormat(format.lower())
         if export_format == ExportFormat.CSV:
@@ -3480,6 +3768,7 @@ async def export_report(
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
     report_type: str = Query(default="full", description="Report type: full, summary, changes"),
     format: str = Query(default="json", description="Export format: json, csv, geojson"),
+    user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """
     Export comprehensive field report.
@@ -3489,6 +3778,11 @@ async def export_report(
     - summary: High-level health metrics
     - changes: Change detection over time
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     try:
         export_format = ExportFormat(format.lower())
     except ValueError:
@@ -3658,6 +3952,7 @@ async def detect_changes(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     crop_type: str | None = Query(None, description="Crop type (e.g., wheat, sorghum, coffee, qat)"),
+    user: User = Depends(get_current_user),
 ):
     """
     كشف التغييرات الزراعية | Detect Agricultural Changes
@@ -3675,6 +3970,11 @@ async def detect_changes(
     Example:
         GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
 
@@ -3726,6 +4026,7 @@ async def compare_dates(
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     date1: str = Query(..., description="First date (YYYY-MM-DD)"),
     date2: str = Query(..., description="Second date (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     مقارنة تاريخين | Compare Two Dates
@@ -3736,6 +4037,11 @@ async def compare_dates(
     Example:
         GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
 
@@ -3786,6 +4092,7 @@ async def get_anomalies(
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     days: int = Query(90, description="Number of days to analyze (default: 90)", ge=1, le=365),
     crop_type: str | None = Query(None, description="Crop type for expected pattern"),
+    user: User = Depends(get_current_user),
 ):
     """
     كشف الشذوذ | Detect Anomalies
@@ -3796,6 +4103,11 @@ async def get_anomalies(
     Example:
         GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
 
@@ -3826,6 +4138,49 @@ async def get_anomalies(
 
         # Detect anomalies
         anomalies = await _change_detector.detect_anomalies(ndvi_timeseries, expected_pattern)
+
+        # Publish NDVI anomaly event to NATS
+        if anomalies and _nats_available and publish_analysis_completed_sync:
+            try:
+                severity = "mild"
+                for a in anomalies:
+                    a_severity = (
+                        "severe"
+                        if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["severe"]
+                        else ("moderate" if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["moderate"] else "mild")
+                    )
+                    if a_severity == "severe":
+                        severity = "severe"
+                        break
+                    elif a_severity == "moderate":
+                        severity = "moderate"
+
+                publish_analysis_completed_sync(
+                    event_type="satellite.ndvi.anomaly",
+                    source_service="vegetation-analysis-service",
+                    field_id=field_id,
+                    data={
+                        "field_id": field_id,
+                        "anomaly_count": len(anomalies),
+                        "severity": severity,
+                        "crop_type": crop_type,
+                        "analysis_period": {
+                            "start_date": start_date.isoformat(),
+                            "end_date": end_date.isoformat(),
+                        },
+                        "timestamp": datetime.now(UTC).isoformat(),
+                    },
+                    priority="critical" if severity == "severe" else "high" if severity == "moderate" else "medium",
+                    tenant_id=tenant_id,
+                )
+                logger.info(
+                    "nats_ndvi_anomaly_published",
+                    field_id=field_id,
+                    anomaly_count=len(anomalies),
+                    severity=severity,
+                )
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="satellite.ndvi.anomaly", error=str(e))
 
         # Format response
         return {

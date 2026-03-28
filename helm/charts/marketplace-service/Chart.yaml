@@ -1,0 +1,13 @@
+apiVersion: v2
+name: marketplace-service
+description: SAHOOL Marketplace Service - Microservice
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - marketplace
+  - microservice
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

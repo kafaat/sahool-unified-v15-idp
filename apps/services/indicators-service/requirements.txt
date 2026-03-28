@@ -21,3 +21,6 @@ structlog>=24.1.0
 
 # Database
 asyncpg>=0.30.0
+
+# Monitoring
+prometheus-client==0.24.1

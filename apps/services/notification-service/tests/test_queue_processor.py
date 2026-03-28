@@ -7,6 +7,7 @@ Covers:
 - NotificationQueueProcessor init, connect, handlers
 """
 
+import asyncio
 from datetime import UTC, datetime
 
 import pytest
@@ -222,15 +223,14 @@ class TestNotificationQueueProcessor:
     def test_dead_letter_queue_key(self):
         assert "dead_letter" in NotificationQueueProcessor.DEAD_LETTER_QUEUE
 
-    @pytest.mark.asyncio
-    async def test_connect_without_redis(self):
+    def test_connect_without_redis(self):
         import src.queue_processor as mod
 
         old = mod._REDIS_AVAILABLE
         mod._REDIS_AVAILABLE = False
 
         processor = NotificationQueueProcessor()
-        result = await processor.connect()
+        result = asyncio.run(processor.connect())
         assert result is False
 
         mod._REDIS_AVAILABLE = old
@@ -264,24 +264,24 @@ class TestQueueProcessorMethods:
         processor.register_handler("sms", sms_handler)
         assert len(processor._handlers) == 2
 
-    @pytest.mark.asyncio
-    async def test_disconnect_without_connection(self):
+    def test_disconnect_without_connection(self):
         processor = NotificationQueueProcessor()
-        await processor.disconnect()
+        asyncio.run(processor.disconnect())
         assert processor._redis is None
 
-    @pytest.mark.asyncio
-    async def test_enqueue_without_redis_raises(self):
+    def test_enqueue_without_redis_raises(self):
         processor = NotificationQueueProcessor()
         with pytest.raises(RuntimeError, match="Not connected"):
-            await processor.enqueue(
-                user_id="u-1",
-                title="T",
-                title_ar="ع",
-                body="B",
-                body_ar="ن",
-                notification_type="system",
-                channel="push",
+            asyncio.run(
+                processor.enqueue(
+                    user_id="u-1",
+                    title="T",
+                    title_ar="ع",
+                    body="B",
+                    body_ar="ن",
+                    notification_type="system",
+                    channel="push",
+                )
             )
 
 

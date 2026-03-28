@@ -38,3 +38,6 @@ pytest-asyncio==0.26.0
 python-dotenv==1.2.2
 
 structlog>=24.1.0
+
+# Metrics
+prometheus-client==0.24.1

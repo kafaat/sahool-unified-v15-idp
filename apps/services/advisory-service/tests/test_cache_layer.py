@@ -3,6 +3,7 @@ Cache Layer Tests - Advisory Service
 Tests for AdvisoryCache, decorators, and invalidation helpers.
 """
 
+import asyncio
 import time
 
 import pytest
@@ -37,78 +38,69 @@ class TestAdvisoryCache:
     def cache(self):
         return AdvisoryCache(max_size=10, default_ttl=60)
 
-    @pytest.mark.asyncio
-    async def test_set_and_get(self, cache):
-        await cache.set("key1", "value1")
-        result = await cache.get("key1")
+    def test_set_and_get(self, cache):
+        asyncio.run(cache.set("key1", "value1"))
+        result = asyncio.run(cache.get("key1"))
         assert result == "value1"
 
-    @pytest.mark.asyncio
-    async def test_get_missing_key(self, cache):
-        result = await cache.get("nonexistent")
+    def test_get_missing_key(self, cache):
+        result = asyncio.run(cache.get("nonexistent"))
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_ttl_expiry(self, cache):
+    def test_ttl_expiry(self, cache):
         # Set with a very short TTL and manually expire
-        await cache.set("key1", "value1", ttl=1)
+        asyncio.run(cache.set("key1", "value1", ttl=1))
         # Manually set expiry to the past
         cache._cache["key1"] = (cache._cache["key1"][0], time.time() - 1)
-        result = await cache.get("key1")
+        result = asyncio.run(cache.get("key1"))
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_delete_existing(self, cache):
-        await cache.set("key1", "value1")
-        deleted = await cache.delete("key1")
+    def test_delete_existing(self, cache):
+        asyncio.run(cache.set("key1", "value1"))
+        deleted = asyncio.run(cache.delete("key1"))
         assert deleted is True
-        assert await cache.get("key1") is None
+        assert asyncio.run(cache.get("key1")) is None
 
-    @pytest.mark.asyncio
-    async def test_delete_nonexistent(self, cache):
-        deleted = await cache.delete("nonexistent")
+    def test_delete_nonexistent(self, cache):
+        deleted = asyncio.run(cache.delete("nonexistent"))
         assert deleted is False
 
-    @pytest.mark.asyncio
-    async def test_delete_pattern(self, cache):
-        await cache.set("disease:1", "v1")
-        await cache.set("disease:2", "v2")
-        await cache.set("fertilizer:1", "v3")
-        count = await cache.delete_pattern("disease:")
+    def test_delete_pattern(self, cache):
+        asyncio.run(cache.set("disease:1", "v1"))
+        asyncio.run(cache.set("disease:2", "v2"))
+        asyncio.run(cache.set("fertilizer:1", "v3"))
+        count = asyncio.run(cache.delete_pattern("disease:"))
         assert count == 2
-        assert await cache.get("disease:1") is None
-        assert await cache.get("fertilizer:1") == "v3"
+        assert asyncio.run(cache.get("disease:1")) is None
+        assert asyncio.run(cache.get("fertilizer:1")) == "v3"
 
-    @pytest.mark.asyncio
-    async def test_clear(self, cache):
-        await cache.set("a", 1)
-        await cache.set("b", 2)
-        count = await cache.clear()
+    def test_clear(self, cache):
+        asyncio.run(cache.set("a", 1))
+        asyncio.run(cache.set("b", 2))
+        count = asyncio.run(cache.clear())
         assert count == 2
-        assert await cache.get("a") is None
+        assert asyncio.run(cache.get("a")) is None
 
-    @pytest.mark.asyncio
-    async def test_eviction_at_capacity(self, cache):
+    def test_eviction_at_capacity(self, cache):
         """When at max_size, oldest entries should be evicted."""
         for i in range(10):
-            await cache.set(f"key{i}", f"val{i}")
+            asyncio.run(cache.set(f"key{i}", f"val{i}"))
         # Cache is full (10). Adding one more should evict the oldest.
-        await cache.set("key10", "val10")
+        asyncio.run(cache.set("key10", "val10"))
         # key0 should have been evicted
-        assert await cache.get("key0") is None
-        assert await cache.get("key10") == "val10"
+        assert asyncio.run(cache.get("key0")) is None
+        assert asyncio.run(cache.get("key10")) == "val10"
 
-    @pytest.mark.asyncio
-    async def test_lru_order(self, cache):
+    def test_lru_order(self, cache):
         """Accessed keys should move to end, surviving eviction."""
         for i in range(10):
-            await cache.set(f"key{i}", f"val{i}")
+            asyncio.run(cache.set(f"key{i}", f"val{i}"))
         # Access key0 to move it to end
-        await cache.get("key0")
+        asyncio.run(cache.get("key0"))
         # Now add a new key, key1 should be evicted (oldest not-accessed)
-        await cache.set("key10", "val10")
-        assert await cache.get("key0") == "val0"  # survived
-        assert await cache.get("key1") is None  # evicted
+        asyncio.run(cache.set("key10", "val10"))
+        assert asyncio.run(cache.get("key0")) == "val0"  # survived
+        assert asyncio.run(cache.get("key1")) is None  # evicted
 
     def test_get_stats_initial(self, cache):
         stats = cache.get_stats()
@@ -117,11 +109,10 @@ class TestAdvisoryCache:
         assert stats["misses"] == 0
         assert stats["hit_rate_percent"] == 0
 
-    @pytest.mark.asyncio
-    async def test_get_stats_after_operations(self, cache):
-        await cache.set("k", "v")
-        await cache.get("k")  # hit
-        await cache.get("miss")  # miss
+    def test_get_stats_after_operations(self, cache):
+        asyncio.run(cache.set("k", "v"))
+        asyncio.run(cache.get("k"))  # hit
+        asyncio.run(cache.get("miss"))  # miss
         stats = cache.get_stats()
         assert stats["hits"] == 1
         assert stats["misses"] == 1
@@ -275,8 +266,7 @@ class TestCacheAsyncResult:
 
         cl._advisory_cache = None
 
-    @pytest.mark.asyncio
-    async def test_caches_sync_func(self):
+    def test_caches_sync_func(self):
         call_count = 0
 
         def compute():
@@ -284,14 +274,13 @@ class TestCacheAsyncResult:
             call_count += 1
             return 42
 
-        r1 = await cache_async_result("k1", 60, compute)
-        r2 = await cache_async_result("k1", 60, compute)
+        r1 = asyncio.run(cache_async_result("k1", 60, compute))
+        r2 = asyncio.run(cache_async_result("k1", 60, compute))
         assert r1 == 42
         assert r2 == 42
         assert call_count == 1
 
-    @pytest.mark.asyncio
-    async def test_caches_async_func(self):
+    def test_caches_async_func(self):
         call_count = 0
 
         async def compute():
@@ -299,13 +288,12 @@ class TestCacheAsyncResult:
             call_count += 1
             return "async_val"
 
-        r1 = await cache_async_result("k2", 60, compute)
-        r2 = await cache_async_result("k2", 60, compute)
+        r1 = asyncio.run(cache_async_result("k2", 60, compute))
+        r2 = asyncio.run(cache_async_result("k2", 60, compute))
         assert r1 == "async_val"
         assert call_count == 1
 
-    @pytest.mark.asyncio
-    async def test_none_not_cached(self):
+    def test_none_not_cached(self):
         call_count = 0
 
         def compute():
@@ -313,8 +301,8 @@ class TestCacheAsyncResult:
             call_count += 1
             return None
 
-        await cache_async_result("k3", 60, compute)
-        await cache_async_result("k3", 60, compute)
+        asyncio.run(cache_async_result("k3", 60, compute))
+        asyncio.run(cache_async_result("k3", 60, compute))
         assert call_count == 2
 
 
@@ -334,37 +322,33 @@ class TestInvalidation:
 
         cl._advisory_cache = None
 
-    @pytest.mark.asyncio
-    async def test_invalidate_disease_cache(self):
+    def test_invalidate_disease_cache(self):
         cache = get_advisory_cache()
-        await cache.set("disease:abc", "v1")
-        await cache.set("disease:def", "v2")
-        await cache.set("fertilizer:xyz", "v3")
-        count = await invalidate_disease_cache()
+        asyncio.run(cache.set("disease:abc", "v1"))
+        asyncio.run(cache.set("disease:def", "v2"))
+        asyncio.run(cache.set("fertilizer:xyz", "v3"))
+        count = asyncio.run(invalidate_disease_cache())
         assert count == 2
-        assert await cache.get("fertilizer:xyz") == "v3"
+        assert asyncio.run(cache.get("fertilizer:xyz")) == "v3"
 
-    @pytest.mark.asyncio
-    async def test_invalidate_fertilizer_cache(self):
+    def test_invalidate_fertilizer_cache(self):
         cache = get_advisory_cache()
-        await cache.set("fertilizer:abc", "v1")
-        count = await invalidate_fertilizer_cache()
+        asyncio.run(cache.set("fertilizer:abc", "v1"))
+        count = asyncio.run(invalidate_fertilizer_cache())
         assert count == 1
 
-    @pytest.mark.asyncio
-    async def test_invalidate_crop_cache(self):
+    def test_invalidate_crop_cache(self):
         cache = get_advisory_cache()
-        await cache.set("crop_req:abc", "v1")
-        count = await invalidate_crop_cache()
+        asyncio.run(cache.set("crop_req:abc", "v1"))
+        count = asyncio.run(invalidate_crop_cache())
         assert count == 1
 
-    @pytest.mark.asyncio
-    async def test_invalidate_all_caches(self):
+    def test_invalidate_all_caches(self):
         cache = get_advisory_cache()
-        await cache.set("disease:1", "v1")
-        await cache.set("fertilizer:1", "v2")
-        await cache.set("crop_req:1", "v3")
-        result = await invalidate_all_caches()
+        asyncio.run(cache.set("disease:1", "v1"))
+        asyncio.run(cache.set("fertilizer:1", "v2"))
+        asyncio.run(cache.set("crop_req:1", "v3"))
+        result = asyncio.run(invalidate_all_caches())
         assert result["total_invalidated"] == 3
         assert cache._hits == 0
         assert cache._misses == 0

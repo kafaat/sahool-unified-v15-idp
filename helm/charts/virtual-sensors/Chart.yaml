@@ -1,0 +1,14 @@
+apiVersion: v2
+name: virtual-sensors
+description: SAHOOL Virtual Sensors Service - Virtual sensor computation and data synthesis microservice
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - virtual-sensors
+  - iot
+  - microservice
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

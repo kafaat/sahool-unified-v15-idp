@@ -1,0 +1,14 @@
+apiVersion: v2
+name: field-management-service
+description: SAHOOL Field Management Service - Microservice
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - field-management
+  - microservice
+  - postgis
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

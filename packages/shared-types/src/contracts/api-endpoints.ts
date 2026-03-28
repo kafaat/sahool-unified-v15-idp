@@ -84,11 +84,11 @@ export const WEATHER_ENDPOINTS = {
   ALERTS_BY_FIELD: `${API_PREFIX}/weather/alerts/field/{fieldId}`,
   LOCATIONS: `${API_PREFIX}/weather/locations`,
   AGRICULTURAL_CALENDAR: `${API_PREFIX}/weather/agricultural-calendar`,
-  /** @deprecated Use CURRENT instead */
+  /** @deprecated Use WEATHER_ENDPOINTS.CURRENT instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
   WEATHER_CORE_CURRENT: `${API_PREFIX}/weather-core/weather/current`,
-  /** @deprecated Use FORECAST instead */
+  /** @deprecated Use WEATHER_ENDPOINTS.FORECAST instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
   WEATHER_CORE_FORECAST: `${API_PREFIX}/weather-core/weather/forecast`,
-  /** @deprecated Use AGRICULTURAL_CALENDAR instead */
+  /** @deprecated Use WEATHER_ENDPOINTS.AGRICULTURAL_CALENDAR instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
   WEATHER_CORE_AG_REPORT: `${API_PREFIX}/weather-core/weather/agricultural-report`,
 } as const;
 

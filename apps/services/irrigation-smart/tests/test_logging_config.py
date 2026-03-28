@@ -372,32 +372,29 @@ class TestGetIrrigationLogger:
 # log_performance Decorator Tests
 # ============================================================================
 class TestLogPerformance:
-    @pytest.mark.asyncio
-    async def test_async_function_returns_result(self):
+    def test_async_function_returns_result(self):
         @log_performance("test_op", warn_threshold_ms=10000)
         async def my_func():
             return "result"
 
-        result = await my_func()
+        result = asyncio.run(my_func())
         assert result == "result"
 
-    @pytest.mark.asyncio
-    async def test_async_slow_operation_logs_warning(self):
+    def test_async_slow_operation_logs_warning(self):
         @log_performance("slow_op", warn_threshold_ms=1)
         async def slow_func():
             await asyncio.sleep(0.01)
             return "done"
 
-        result = await slow_func()
+        result = asyncio.run(slow_func())
         assert result == "done"
 
-    @pytest.mark.asyncio
-    async def test_async_fast_operation_logs_debug(self):
+    def test_async_fast_operation_logs_debug(self):
         @log_performance("fast_op", warn_threshold_ms=10000)
         async def fast_func():
             return "quick"
 
-        result = await fast_func()
+        result = asyncio.run(fast_func())
         assert result == "quick"
 
     def test_sync_function_returns_result(self):
@@ -417,8 +414,7 @@ class TestLogPerformance:
         result = slow_func()
         assert result == "slow"
 
-    @pytest.mark.asyncio
-    async def test_preserves_function_name(self):
+    def test_preserves_function_name(self):
         @log_performance("op")
         async def my_named_func():
             pass
@@ -432,11 +428,10 @@ class TestLogPerformance:
 
         assert my_sync_func.__name__ == "my_sync_func"
 
-    @pytest.mark.asyncio
-    async def test_async_exception_still_logs(self):
+    def test_async_exception_still_logs(self):
         @log_performance("error_op", warn_threshold_ms=10000)
         async def failing_func():
             raise ValueError("test error")
 
         with pytest.raises(ValueError):
-            await failing_func()
+            asyncio.run(failing_func())

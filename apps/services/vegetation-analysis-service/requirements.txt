@@ -27,5 +27,8 @@ redis[hiredis]>=7.1.0,<8.0.0
 # XML Security
 defusedxml>=0.7.1,<1.0.0
 
+# Metrics
+prometheus-client==0.24.1
+
 # ML/Scientific Computing
 numpy>=1.26.0,<2.5.0

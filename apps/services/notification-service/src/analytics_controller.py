@@ -10,10 +10,11 @@ import logging
 from datetime import UTC, datetime, timezone
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 
 from .analytics_service import NotificationAnalytics, TimeRange
+from .history_controller import get_tenant_id
 
 logger = logging.getLogger("sahool-notifications.analytics")
 
@@ -69,7 +70,7 @@ class DashboardSummaryResponse(BaseModel):
 @router.get("/delivery-stats")
 async def get_delivery_statistics(
     time_range: str = Query(default="day", description="Time range: hour, day, week, month, quarter, year"),
-    tenant_id: str | None = Query(default=None, description="Tenant ID filter"),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     إحصائيات التسليم
@@ -100,7 +101,7 @@ async def get_delivery_statistics(
 @router.get("/channel-performance")
 async def get_channel_performance(
     time_range: str = Query(default="day", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     أداء القنوات
@@ -128,7 +129,7 @@ async def get_channel_performance(
 @router.get("/notification-types")
 async def get_notification_type_breakdown(
     time_range: str = Query(default="week", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     تفصيل أنواع الإشعارات
@@ -156,7 +157,7 @@ async def get_notification_type_breakdown(
 @router.get("/regional-distribution")
 async def get_regional_distribution(
     time_range: str = Query(default="week", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     التوزيع الجغرافي
@@ -184,7 +185,7 @@ async def get_regional_distribution(
 @router.get("/hourly-trends")
 async def get_hourly_trends(
     days: int = Query(default=7, ge=1, le=30, description="Number of days to analyze"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     الاتجاهات بالساعة
@@ -210,7 +211,7 @@ async def get_hourly_trends(
 async def get_user_engagement(
     user_id: str | None = Query(default=None, description="Specific user ID"),
     time_range: str = Query(default="week", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     تفاعل المستخدم
@@ -243,7 +244,7 @@ async def get_user_engagement(
 @router.get("/priority-distribution")
 async def get_priority_distribution(
     time_range: str = Query(default="week", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     توزيع الأولويات
@@ -270,7 +271,7 @@ async def get_priority_distribution(
 
 @router.get("/dashboard")
 async def get_dashboard_summary(
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     ملخص لوحة القيادة
@@ -349,7 +350,7 @@ async def get_notification_health():
 async def compare_time_periods(
     current_range: str = Query(default="week", description="Current time range"),
     previous_range: str = Query(default="week", description="Previous time range for comparison"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     مقارنة الفترات الزمنية

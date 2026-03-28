@@ -46,3 +46,6 @@ tortoise-orm==1.1.6
 # tortoise-orm 1.x includes built-in migration CLI: python -m tortoise migrate
 
 structlog>=24.1.0
+
+# Metrics
+prometheus-client==0.24.1

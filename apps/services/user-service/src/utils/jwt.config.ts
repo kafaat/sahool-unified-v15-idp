@@ -8,7 +8,7 @@
 
 export interface JWTConfigInterface {
   secret: string;
-  algorithm: string;
+  algorithm: "HS256";
   accessTokenExpireMinutes: number;
   refreshTokenExpireDays: number;
   issuer: string;
@@ -17,15 +17,31 @@ export interface JWTConfigInterface {
 
 export class JWTConfig {
   /**
-   * JWT Secret Key (required)
+   * JWT Secret Key (required, minimum 32 characters)
+   * Fails fast at startup if not configured properly.
    */
-  static readonly SECRET: string =
-    process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || "";
+  static readonly SECRET: string = (() => {
+    const secret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET;
+    const env = process.env.ENVIRONMENT || process.env.NODE_ENV || '';
+    const isDevOrTest = ['development', 'test'].includes(env.toLowerCase());
+
+    if (!secret || secret.length < 32) {
+      if (isDevOrTest) {
+        return 'test-secret-key-for-unit-tests-only-32chars';
+      }
+      throw new Error(
+        'JWT_SECRET_KEY must be set and at least 32 characters. ' +
+        'Current length: ' + (secret?.length ?? 0),
+      );
+    }
+    return secret;
+  })();
 
   /**
    * JWT Algorithm - HS256 only (RS256 deprecated)
+   * Typed as literal to prevent 'none' algorithm attacks.
    */
-  static readonly ALGORITHM: string = "HS256";
+  static readonly ALGORITHM: "HS256" = "HS256";
 
   /**
    * Access token expiration time in minutes
@@ -36,11 +52,11 @@ export class JWTConfig {
   );
 
   /**
-   * Refresh token expiration time in days
+   * Refresh token expiration time in days (max 7 days)
    */
-  static readonly REFRESH_TOKEN_EXPIRE_DAYS: number = parseInt(
-    process.env.JWT_REFRESH_TOKEN_EXPIRE_DAYS || "7",
-    10,
+  static readonly REFRESH_TOKEN_EXPIRE_DAYS: number = Math.min(
+    parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRE_DAYS || "7", 10),
+    7,
   );
 
   /**
@@ -94,16 +110,27 @@ export class JWTConfig {
   /**
    * Validate JWT configuration
    * @throws Error if configuration is invalid
+   *
+   * Note: SECRET is validated at class load time (fail-fast).
+   * This method provides additional runtime validation.
    */
   static validate(): void {
-    const env = process.env.NODE_ENV || "development";
+    if (!this.SECRET || this.SECRET.length < 32) {
+      throw new Error(
+        "JWT_SECRET_KEY must be set and at least 32 characters",
+      );
+    }
 
-    if (env === "production" || env === "staging") {
-      if (!this.SECRET || this.SECRET.length < 32) {
-        throw new Error(
-          "JWT_SECRET must be at least 32 characters in production",
-        );
-      }
+    if (this.REFRESH_TOKEN_EXPIRE_DAYS > 7) {
+      throw new Error(
+        "Refresh token expiry must not exceed 7 days",
+      );
+    }
+
+    if (this.ALGORITHM !== "HS256") {
+      throw new Error(
+        "Only HS256 algorithm is supported",
+      );
     }
   }
 

@@ -33,10 +33,56 @@ except ImportError:
     NATS_AVAILABLE = False
     nats = None
 
+# Prometheus metrics
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
+
+# Prometheus metric definitions
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "irrigation_requests_total",
+        "Total irrigation API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "irrigation_request_duration_seconds",
+        "Irrigation API request latency",
+        ["endpoint"],
+    )
+    IRRIGATION_CALCULATIONS = Counter(
+        "irrigation_calculations_total",
+        "Total irrigation calculations",
+        ["method", "crop_type"],
+    )
+
+
+# Prometheus middleware to record metrics per request
+if HAS_PROMETHEUS:
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            import time as _time
+
+            endpoint = request.url.path
+            start = _time.time()
+            response = await call_next(request)
+            duration = _time.time() - start
+            REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+            REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+            return response
+
+
 logger = structlog.get_logger()
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
+import re
 
 from pydantic import BaseModel, Field
 
@@ -72,6 +118,59 @@ except ImportError:
 
 
 # =============================================================================
+# Input Validation Helpers
+# =============================================================================
+
+_FIELD_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-]+$")
+
+
+def _validate_field_id(field_id: str):
+    """Validate field_id format and length.
+    التحقق من صحة معرف الحقل."""
+    if not field_id or len(field_id) > 100 or not _FIELD_ID_PATTERN.match(field_id):
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Invalid field_id", "error_ar": "معرف الحقل غير صالح"},
+        )
+
+
+def _validate_tenant_id(user: dict):
+    """Extract and validate tenant_id from JWT claims.
+    استخراج والتحقق من معرف المستأجر من رمز JWT."""
+    tenant_id = user.get("tid") or user.get("tenant_id")
+    if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) > 100:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "Missing or invalid tenant_id", "error_ar": "معرف المستأجر مفقود أو غير صالح"},
+        )
+    return tenant_id
+
+
+def _validate_sensor_ranges(
+    moisture_percent: float | None = None,
+    temperature_c: float | None = None,
+    ec_ds_m: float | None = None,
+    depth_cm: int | None = None,
+):
+    """Validate sensor data ranges are physically plausible.
+    التحقق من أن نطاقات بيانات المستشعر معقولة فيزيائياً."""
+    errors = []
+    if moisture_percent is not None and not (0 <= moisture_percent <= 100):
+        errors.append("moisture_percent must be 0-100 | يجب أن تكون رطوبة التربة بين 0-100")
+    if temperature_c is not None and not (-40 <= temperature_c <= 80):
+        errors.append("temperature_c must be -40 to 80 | يجب أن تكون الحرارة بين -40 و 80")
+    if ec_ds_m is not None and not (0 <= ec_ds_m <= 50):
+        errors.append("ec_ds_m must be 0-50 | يجب أن تكون الموصلية الكهربائية بين 0-50")
+    if depth_cm is not None and not (0 < depth_cm <= 300):
+        errors.append("depth_cm must be 1-300 | يجب أن يكون العمق بين 1-300")
+    if errors:
+        raise HTTPException(
+            status_code=400,
+            detail={"errors": errors, "error_ar": "بيانات المستشعر خارج النطاق المقبول"},
+        )
+
+
+# =============================================================================
 # Lifespan & NATS Connection
 # =============================================================================
 
@@ -89,6 +188,17 @@ async def lifespan(app: FastAPI):
             try:
                 app.state.nc = await nats.connect(nats_url)
                 logger.info("Connected to NATS", nats_url=nats_url)
+
+                # Subscribe to weather forecast events for ET data
+                async def handle_weather_update(msg):
+                    try:
+                        data = json.loads(msg.data.decode())
+                        logger.info("weather_update_received", field_id=data.get("field_id"))
+                    except Exception as e:
+                        logger.error("weather_event_parse_failed", error=str(e))
+
+                await app.state.nc.subscribe("sahool.weather.forecast.issued", cb=handle_weather_update)
+                logger.info("Subscribed to weather forecast events")
             except Exception as e:
                 logger.warning("Failed to connect to NATS", error=str(e))
                 app.state.nc = None
@@ -124,6 +234,10 @@ if SECURITY_HEADERS_AVAILABLE:
 
 # Tenant context middleware - عزل المستأجرين
 app.add_middleware(TenantContextMiddleware)
+
+# Prometheus request metrics middleware
+if HAS_PROMETHEUS:
+    app.add_middleware(PrometheusMiddleware)
 
 
 # =============================================================================
@@ -550,8 +664,8 @@ def calculate_water_need(
         moisture_deficit = (70 - current_moisture) / 100 * soil_capacity * 0.3  # Top 30cm
         accumulated_need_mm = max(accumulated_need_mm, moisture_deficit)
 
-    # Apply irrigation efficiency
-    efficiency = IRRIGATION_EFFICIENCY[method]
+    # Apply irrigation efficiency (guard against near-zero values)
+    efficiency = max(IRRIGATION_EFFICIENCY[method], 0.1)
     gross_water_mm = accumulated_need_mm / efficiency
 
     # Convert to volume
@@ -571,7 +685,7 @@ def calculate_water_need(
     # Calculate potential savings with drip vs current method
     if method != IrrigationMethod.DRIP:
         drip_water = accumulated_need_mm / IRRIGATION_EFFICIENCY[IrrigationMethod.DRIP]
-        savings_percent = (gross_water_mm - drip_water) / gross_water_mm * 100
+        savings_percent = ((gross_water_mm - drip_water) / gross_water_mm * 100) if gross_water_mm > 0 else 0
     else:
         savings_percent = 0
 
@@ -599,6 +713,8 @@ def determine_irrigation_time(crop: CropType, temperature: float) -> str:
 
 def calculate_duration(water_liters: float, flow_rate_lph: float = 2000) -> int:
     """Calculate irrigation duration in minutes"""
+    if flow_rate_lph <= 0:
+        flow_rate_lph = 1.0
     hours = water_liters / flow_rate_lph
     return round(hours * 60)
 
@@ -649,19 +765,52 @@ def health():
 
 
 @app.get("/readyz")
-def readiness():
+async def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    nats_connected = hasattr(app.state, "nc") and app.state.nc is not None and app.state.nc.is_connected
+    checks = {}
+
+    # Check database
+    db_pool = getattr(app.state, "db_pool", None)
+    if db_pool:
+        try:
+            async with db_pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            checks["database"] = "connected"
+        except Exception:
+            checks["database"] = "disconnected"
+    else:
+        checks["database"] = "not_configured"
+
+    # Check NATS
+    nc = getattr(app.state, "nc", None)
+    if nc:
+        checks["nats"] = "connected" if nc.is_connected else "disconnected"
+    else:
+        checks["nats"] = "not_configured"
+
+    # Check crop requirements
+    checks["crop_requirements"] = "loaded" if CROP_WATER_REQUIREMENTS else "not_loaded"
+
+    all_ready = all(v != "disconnected" for v in checks.values())
     return {
-        "status": "ready",
+        "status": "ready" if all_ready else "degraded",
         "service": "irrigation-smart",
         "version": "16.0.0",
-        "checks": {
-            "crop_requirements": "loaded" if CROP_WATER_REQUIREMENTS else "not_loaded",
-            "nats": "connected" if nats_connected else "disconnected",
-        },
+        "checks": checks,
         "crops_supported": len(CROP_WATER_REQUIREMENTS),
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    if not HAS_PROMETHEUS:
+        from starlette.responses import Response
+
+        return Response(content="prometheus_client not installed", status_code=501)
+    from starlette.responses import Response
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/v1/crops")
@@ -700,7 +849,16 @@ async def calculate_irrigation(
     user: dict = Depends(get_current_user),
 ):
     """حساب احتياجات الري - Protected endpoint"""
+    if HAS_PROMETHEUS:
+        IRRIGATION_CALCULATIONS.labels(
+            method=request.irrigation_method.value,
+            crop_type=request.crop.value,
+        ).inc()
+
     import random
+
+    _validate_field_id(request.field_id)
+    _validate_tenant_id(user)
 
     # Calculate days since last irrigation
     if request.last_irrigation_date:
@@ -855,11 +1013,17 @@ async def calculate_irrigation(
     )
 
     # Publish irrigation plan created event
+    tenant_id = (
+        getattr(user, "tenant_id", "")
+        if isinstance(user, dict) and "tenant_id" in user
+        else getattr(user, "tenant_id", "")
+    )
     await publish_event(
         subject="sahool.irrigation.plan_created",
         data={
             "field_id": request.field_id,
             "plan_id": plan_id,
+            "tenant_id": tenant_id,
             "schedule": [
                 {
                     "schedule_id": s.schedule_id,
@@ -877,6 +1041,20 @@ async def calculate_irrigation(
         },
     )
 
+    # Publish irrigation calculated event for downstream consumers
+    if getattr(app.state, "nc", None):
+        try:
+            event = {
+                "field_id": request.field_id,
+                "tenant_id": tenant_id,
+                "water_amount_mm": water_need["gross_water_mm"],
+                "method": request.irrigation_method.value,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+            await app.state.nc.publish("sahool.irrigation.calculated", json.dumps(event).encode())
+        except Exception as e:
+            logger.error("nats_publish_failed", error=str(e))
+
     return plan
 
 
@@ -889,6 +1067,9 @@ def get_water_balance(
 ):
     """الميزان المائي للحقل - Protected endpoint"""
     import random
+
+    _validate_field_id(field_id)
+    _validate_tenant_id(user)
 
     balance_data = []
     cumulative_deficit = 0
@@ -946,6 +1127,15 @@ def record_sensor_reading(
 ):
     """تسجيل قراءة مستشعر الرطوبة - Protected endpoint"""
 
+    _validate_field_id(reading.field_id)
+    _validate_tenant_id(user)
+    _validate_sensor_ranges(
+        moisture_percent=reading.moisture_percent,
+        temperature_c=reading.temperature_c,
+        ec_ds_m=reading.ec_ds_m,
+        depth_cm=reading.depth_cm,
+    )
+
     # Analyze reading
     if reading.moisture_percent < 25:
         status = "critical"
@@ -987,15 +1177,24 @@ async def record_irrigation_executed(
     This endpoint records when irrigation has actually been executed
     and publishes an event for downstream services.
     """
+    _validate_field_id(execution.field_id)
+    _validate_tenant_id(user)
+
     execution_id = str(uuid.uuid4())
     executed_at = execution.executed_at or datetime.now(UTC)
 
     # Publish irrigation executed event
+    tenant_id = (
+        getattr(user, "tenant_id", "")
+        if isinstance(user, dict) and "tenant_id" in user
+        else getattr(user, "tenant_id", "")
+    )
     await publish_event(
         subject="sahool.irrigation.executed",
         data={
             "execution_id": execution_id,
             "field_id": execution.field_id,
+            "tenant_id": tenant_id,
             "plan_id": execution.plan_id,
             "schedule_id": execution.schedule_id,
             "amount_mm": execution.amount_mm,
@@ -1029,6 +1228,9 @@ def get_efficiency_report(
     user: dict = Depends(get_current_user),
 ):
     """تقرير كفاءة الري ومقارنة الطرق - Protected endpoint"""
+
+    _validate_field_id(field_id)
+    _validate_tenant_id(user)
 
     # Annual water usage estimates (m³/ha/year)
     annual_water_by_method = {

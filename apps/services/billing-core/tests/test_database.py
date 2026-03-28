@@ -3,6 +3,7 @@ Tests for billing-core database module.
 Covers: Engine creation, session management, health checks, init/drop/close.
 """
 
+import asyncio
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -143,58 +144,53 @@ class TestEngineCreation:
 class TestCloseDb:
     """Test database close/dispose"""
 
-    @pytest.mark.asyncio
-    async def test_close_db_disposes_engine(self):
+    def test_close_db_disposes_engine(self):
         import src.database as db_mod
 
         mock_engine = AsyncMock()
         db_mod._engine = mock_engine
         db_mod._session_factory = MagicMock()
 
-        await db_mod.close_db()
+        asyncio.run(db_mod.close_db())
 
         mock_engine.dispose.assert_awaited_once()
         assert db_mod._engine is None
         assert db_mod._session_factory is None
 
-    @pytest.mark.asyncio
-    async def test_close_db_noop_when_no_engine(self):
+    def test_close_db_noop_when_no_engine(self):
         import src.database as db_mod
 
         db_mod._engine = None
         db_mod._session_factory = None
 
         # Should not raise
-        await db_mod.close_db()
+        asyncio.run(db_mod.close_db())
         assert db_mod._engine is None
 
 
 class TestDbHealthCheck:
     """Test database health check"""
 
-    @pytest.mark.asyncio
-    async def test_db_health_check_healthy(self):
+    def test_db_health_check_healthy(self):
         import src.database as db_mod
 
         with patch.object(db_mod, "check_db_connection", new_callable=AsyncMock, return_value=True):
-            result = await db_mod.db_health_check()
+            result = asyncio.run(db_mod.db_health_check())
             assert result["status"] == "healthy"
             assert result["database"] == "postgresql"
 
-    @pytest.mark.asyncio
-    async def test_db_health_check_unhealthy(self):
+    def test_db_health_check_unhealthy(self):
         import src.database as db_mod
 
         with patch.object(db_mod, "check_db_connection", new_callable=AsyncMock, return_value=False):
-            result = await db_mod.db_health_check()
+            result = asyncio.run(db_mod.db_health_check())
             assert result["status"] == "unhealthy"
 
-    @pytest.mark.asyncio
-    async def test_db_health_check_exception(self):
+    def test_db_health_check_exception(self):
         import src.database as db_mod
 
         with patch.object(db_mod, "check_db_connection", new_callable=AsyncMock, side_effect=Exception("conn error")):
-            result = await db_mod.db_health_check()
+            result = asyncio.run(db_mod.db_health_check())
             assert result["status"] == "unhealthy"
             assert "conn error" in result["error"]
 
@@ -202,8 +198,7 @@ class TestDbHealthCheck:
 class TestCheckDbConnection:
     """Test check_db_connection"""
 
-    @pytest.mark.asyncio
-    async def test_check_db_connection_success(self):
+    def test_check_db_connection_success(self):
         import src.database as db_mod
 
         mock_session = AsyncMock()
@@ -215,11 +210,10 @@ class TestCheckDbConnection:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch.object(db_mod, "get_db_context", return_value=mock_ctx):
-            result = await db_mod.check_db_connection()
+            result = asyncio.run(db_mod.check_db_connection())
             assert result is True
 
-    @pytest.mark.asyncio
-    async def test_check_db_connection_failure(self):
+    def test_check_db_connection_failure(self):
         import src.database as db_mod
 
         mock_ctx = AsyncMock()
@@ -227,5 +221,5 @@ class TestCheckDbConnection:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch.object(db_mod, "get_db_context", return_value=mock_ctx):
-            result = await db_mod.check_db_connection()
+            result = asyncio.run(db_mod.check_db_connection())
             assert result is False

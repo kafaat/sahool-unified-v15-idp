@@ -39,4 +39,7 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, 
 # Redis (required by shared.auth token revocation)
 redis>=7.1.0,<8.0.0
 
+# Monitoring
+prometheus-client==0.24.1
+
 structlog>=24.1.0

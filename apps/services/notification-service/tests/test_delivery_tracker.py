@@ -7,6 +7,7 @@ Covers:
 - DeliveryTracker (start, stop, register, callbacks)
 """
 
+import asyncio
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 
@@ -127,26 +128,32 @@ class TestDeliveryTracker:
         assert tracker._webhook_urls == []
         assert tracker._http_client is None
 
-    @pytest.mark.asyncio
-    async def test_start(self):
-        tracker = DeliveryTracker()
-        await tracker.start()
-        assert tracker._http_client is not None
-        await tracker.stop()
+    def test_start(self):
+        async def _run():
+            tracker = DeliveryTracker()
+            await tracker.start()
+            assert tracker._http_client is not None
+            await tracker.stop()
 
-    @pytest.mark.asyncio
-    async def test_stop(self):
-        tracker = DeliveryTracker()
-        await tracker.start()
-        assert tracker._http_client is not None
-        await tracker.stop()
-        assert tracker._http_client is None
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_stop_without_start(self):
-        tracker = DeliveryTracker()
-        await tracker.stop()
-        assert tracker._http_client is None
+    def test_stop(self):
+        async def _run():
+            tracker = DeliveryTracker()
+            await tracker.start()
+            assert tracker._http_client is not None
+            await tracker.stop()
+            assert tracker._http_client is None
+
+        asyncio.run(_run())
+
+    def test_stop_without_start(self):
+        async def _run():
+            tracker = DeliveryTracker()
+            await tracker.stop()
+            assert tracker._http_client is None
+
+        asyncio.run(_run())
 
     def test_register_callback(self):
         tracker = DeliveryTracker()

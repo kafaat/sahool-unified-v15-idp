@@ -104,10 +104,19 @@ router = APIRouter(prefix="/api/v1/hydrology", tags=["Hydrology | الهيدرو
 # ==============================================================================
 
 
-def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+def get_tenant_id(
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
+    current_user: User = Depends(get_current_user),
+) -> str:
     """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    # Verify X-Tenant-Id matches authenticated user's tenant
+    if current_user.tenant_id and x_tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail="X-Tenant-Id does not match authenticated user's tenant | معرف المستأجر لا يتطابق مع المستأجر المصادق عليه",
+        )
     return x_tenant_id
 
 
@@ -365,6 +374,7 @@ async def get_drainage_network(
     flow_threshold: int = Query(default=100, ge=10, le=10000, description="Flow accumulation threshold"),
     include_pattern: bool = Query(default=True, description="Include drainage pattern classification"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> DrainageNetworkResponse:
     """
     Get drainage network for a field.
@@ -393,6 +403,7 @@ async def get_wetness_analysis(
     include_prediction: bool = Query(default=True, description="Include waterlogging prediction"),
     rainfall_mm: float | None = Query(default=None, ge=0, description="Expected rainfall for prediction"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> WetnessAnalysisResponse:
     """
     Get wetness/waterlogging analysis for a field.
@@ -422,6 +433,7 @@ async def get_depressions(
     min_depth_m: float = Query(default=0.1, ge=0.01, le=10.0, description="Minimum depression depth"),
     min_area_sqm: float = Query(default=10.0, ge=1.0, description="Minimum depression area"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> DepressionAnalysisResponse:
     """
     Identify depressions/sinks in the field.
@@ -444,6 +456,7 @@ async def get_streams(
     field_id: str,
     min_order: int = Query(default=1, ge=1, le=6, description="Minimum Strahler stream order"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> StreamNetworkResponse:
     """
     Detect streams in the field.
@@ -465,6 +478,7 @@ async def get_basins(
     field_id: str,
     min_area_ha: float = Query(default=0.5, ge=0.1, description="Minimum basin area in hectares"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> BasinDelineationResponse:
     """
     Delineate drainage basins/watersheds.

@@ -210,7 +210,7 @@ exporters:
   otlp/jaeger:
     endpoint: jaeger:4317
     tls:
-      insecure: true
+      insecure: ${env:OTEL_EXPORTER_OTLP_INSECURE:-false}
 
   # Prometheus exporter - مُصدِّر Prometheus
   prometheus:

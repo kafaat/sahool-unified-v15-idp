@@ -357,7 +357,7 @@ def track_business_metric(
 
     Example:
         # Track fields created
-        track_business_metric("fields_created", value=1, labels={"user_id": "123"})
+        track_business_metric("fields_created", value=1, labels={"tenant_id": "tenant-123"})
 
         # Track satellite request latency
         track_business_metric(
@@ -395,12 +395,12 @@ class SahoolMetrics:
     """Standard business metrics for SAHOOL platform."""
 
     @staticmethod
-    def track_field_created(user_id: str, field_type: str = "agricultural"):
+    def track_field_created(tenant_id: str, field_type: str = "agricultural"):
         """Track field creation."""
         track_business_metric(
             "sahool_fields_created_total",
             value=1,
-            labels={"user_id": user_id, "field_type": field_type},
+            labels={"tenant_id": tenant_id, "field_type": field_type},
             description="Total number of fields created",
         )
 

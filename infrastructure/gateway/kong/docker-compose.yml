@@ -120,7 +120,7 @@ services:
 
       # Security - الأمان
       KONG_HEADERS: "server_tokens=off,latency_tokens=on"
-      KONG_TRUSTED_IPS: "0.0.0.0/0,::/0"
+      KONG_TRUSTED_IPS: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
 
       # Logging level - مستوى التسجيل
       KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}

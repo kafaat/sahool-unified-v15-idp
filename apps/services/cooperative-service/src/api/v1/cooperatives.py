@@ -196,7 +196,11 @@ async def create_cooperative(
 
 
 @router.get("/")
-async def list_cooperatives(req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def list_cooperatives(
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """List cooperatives - قائمة التعاونيات"""
     pool = await _get_db(req)
 
@@ -329,13 +333,23 @@ async def add_member(
 
 
 @router.get("/{coop_id}/members")
-async def list_members(coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def list_members(
+    coop_id: str,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """List cooperative members - قائمة أعضاء التعاونية"""
     pool = await _get_db(req)
     await _get_coop_or_404(pool, coop_id, tenant_id)
 
     rows = await pool.fetch(
-        "SELECT * FROM cooperative_members WHERE cooperative_id = $1 ORDER BY joined_at", uuid.UUID(coop_id)
+        """SELECT cm.* FROM cooperative_members cm
+           JOIN cooperatives c ON cm.cooperative_id = c.id
+           WHERE cm.cooperative_id = $1 AND c.tenant_id = $2
+           ORDER BY cm.joined_at""",
+        uuid.UUID(coop_id),
+        uuid.UUID(tenant_id),
     )
     members = [_row_to_dict(r) for r in rows]
     return {"cooperative_id": coop_id, "members": members, "count": len(members)}
@@ -416,13 +430,23 @@ async def register_resource(
 
 
 @router.get("/{coop_id}/resources")
-async def list_resources(coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def list_resources(
+    coop_id: str,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """List cooperative resources - قائمة موارد التعاونية"""
     pool = await _get_db(req)
     await _get_coop_or_404(pool, coop_id, tenant_id)
 
     rows = await pool.fetch(
-        "SELECT * FROM shared_resources WHERE cooperative_id = $1 ORDER BY created_at", uuid.UUID(coop_id)
+        """SELECT sr.* FROM shared_resources sr
+           JOIN cooperatives c ON sr.cooperative_id = c.id
+           WHERE sr.cooperative_id = $1 AND c.tenant_id = $2
+           ORDER BY sr.created_at""",
+        uuid.UUID(coop_id),
+        uuid.UUID(tenant_id),
     )
     resources = [_row_to_dict(r) for r in rows]
     return {"cooperative_id": coop_id, "resources": resources, "count": len(resources)}

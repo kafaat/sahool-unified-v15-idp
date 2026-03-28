@@ -387,6 +387,7 @@ async def list_pests(
 @router.get("/pests/search")
 async def search_pests(
     q: str = Query(..., min_length=2, description="Search query"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Search pests by name.
@@ -403,7 +404,7 @@ async def search_pests(
 
 
 @router.get("/pests/crop/{crop}")
-async def get_pests_by_crop(crop: str):
+async def get_pests_by_crop(crop: str, current_user: User = Depends(get_current_user)):
     """
     Get pests that affect a specific crop.
     الحصول على الآفات التي تصيب محصولاً معيناً.
@@ -522,6 +523,7 @@ async def identify_pest_from_image(
                         "severity": result.severity.value,
                         "is_quarantine": pest_info.is_quarantine if pest_info else False,
                         "detection_id": str(uuid4()),
+                        "tenant_id": current_user.tenant_id,
                         "source": "pest-detection-service",
                         "timestamp": datetime.now(UTC).isoformat(),
                     },

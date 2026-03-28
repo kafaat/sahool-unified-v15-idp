@@ -26,13 +26,13 @@ import {
 } from "../../utils/validation";
 
 export class CreateUserDto {
-  @ApiPropertyOptional({
-    description: "Tenant ID",
+  @ApiProperty({
+    description: "Tenant ID (required for admin user creation)",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
-  @IsOptional()
+  @IsNotEmpty({ message: "Tenant ID is required" })
   @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
-  tenantId?: string;
+  tenantId: string;
 
   @ApiProperty({
     description: "User email address",

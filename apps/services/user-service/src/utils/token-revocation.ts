@@ -240,8 +240,9 @@ export class RedisTokenRevocationStore
       return exists > 0;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.error(`Error checking token revocation: ${message}`);
-      return false;
+      this.logger.error(`Error checking token revocation (fail-closed): ${message}`);
+      // Fail-closed: treat as revoked when Redis is unavailable
+      return true;
     }
   }
 
@@ -310,9 +311,9 @@ export class RedisTokenRevocationStore
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Error checking user token revocation: ${message}`,
+        `Error checking user token revocation (fail-closed): ${message}`,
       );
-      return false;
+      return true;
     }
   }
 
@@ -345,9 +346,9 @@ export class RedisTokenRevocationStore
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Error checking tenant token revocation: ${message}`,
+        `Error checking tenant token revocation (fail-closed): ${message}`,
       );
-      return false;
+      return true;
     }
   }
 

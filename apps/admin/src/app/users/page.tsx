@@ -32,6 +32,7 @@ import {
   type CreateUserData,
   type UpdateUserData,
 } from '@/lib/api';
+import { useAuth } from '@/stores/auth.store';
 
 // Extended User interface for UI
 interface User extends Omit<ApiUser, 'role'> {
@@ -44,6 +45,7 @@ interface User extends Omit<ApiUser, 'role'> {
 
 export default function UsersPage() {
   const { toast } = useToast();
+  const { user: authUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -98,10 +100,15 @@ export default function UsersPage() {
   }, [loadUsers]);
 
   // CRUD Handlers
-  async function handleCreate(data: CreateUserData) {
+  async function handleCreate(data: Omit<CreateUserData, 'tenantId'>) {
     setIsSubmitting(true);
     try {
-      await userService.create(data);
+      // Inject tenant ID from authenticated admin's context
+      if (!authUser?.tenant_id) {
+        toast.error('Tenant ID not available', 'معرّف المستأجر غير متوفر. يرجى تسجيل الدخول مجدداً.');
+        return;
+      }
+      await userService.create({ ...data, tenantId: authUser.tenant_id });
       await loadUsers();
       setShowCreateModal(false);
       logger.info('User created successfully');
@@ -427,7 +434,7 @@ export default function UsersPage() {
         <UserFormModal
           title="إضافة مستخدم جديد"
           onClose={() => setShowCreateModal(false)}
-          onSubmit={(data) => handleCreate(data as CreateUserData)}
+          onSubmit={(data) => handleCreate(data as Omit<CreateUserData, 'tenantId'>)}
           isSubmitting={isSubmitting}
         />
       )}
@@ -518,7 +525,7 @@ function UserFormModal({
   title: string;
   user?: User;
   onClose: () => void;
-  onSubmit: (data: CreateUserData | UpdateUserData) => void;
+  onSubmit: (data: Omit<CreateUserData, 'tenantId'> | UpdateUserData) => void;
   isSubmitting: boolean;
 }) {
   const { toast } = useToast();
@@ -540,7 +547,7 @@ function UserFormModal({
         toast.warning('Please enter a password', 'يرجى إدخال كلمة المرور');
         return;
       }
-      onSubmit(formData as CreateUserData);
+      onSubmit(formData as Omit<CreateUserData, 'tenantId'>);
     } else {
       // Edit mode - password optional
       const updateData: UpdateUserData = {

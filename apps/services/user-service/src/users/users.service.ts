@@ -14,7 +14,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcryptjs";
 import { UserRole, UserStatus } from "../utils/validation";
-import { BCRYPT_ROUNDS, DEFAULT_TENANT_ID, splitFullName } from "../utils/security.config";
+import { BCRYPT_ROUNDS, splitFullName } from "../utils/security.config";
 
 // User type - use when Prisma types are generated
 type User = any;
@@ -35,9 +35,12 @@ export class UsersService {
    * إنشاء مستخدم جديد
    */
   async create(createUserDto: CreateUserDto): Promise<User> {
+    // Normalize email to lowercase to prevent duplicate accounts
+    const email = createUserDto.email.toLowerCase().trim();
+
     // Check if user with email already exists
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email },
+      where: { email },
       select: { id: true },
     });
 
@@ -57,14 +60,19 @@ export class UsersService {
     }
     const { firstName, lastName } = names;
 
-    // Default tenant ID if not provided
-    const tenantId = createUserDto.tenantId || DEFAULT_TENANT_ID;
+    // Require explicit tenantId for admin user creation (tenant isolation)
+    const tenantId = createUserDto.tenantId;
+    if (!tenantId) {
+      throw new BadRequestException(
+        "Tenant ID is required for user creation",
+      );
+    }
 
     // Create user
     const user = await this.prisma.user.create({
       data: {
         tenantId,
-        email: createUserDto.email,
+        email,
         phone: createUserDto.phone,
         passwordHash,
         firstName,

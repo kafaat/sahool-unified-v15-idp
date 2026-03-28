@@ -96,12 +96,14 @@ class TestAdvisorPublisher:
         publisher.nc = AsyncMock()
         publisher._connected = True
 
-        event_id = asyncio.run(publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="f1",
-            payload={"test": True},
-        ))
+        event_id = asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="f1",
+                payload={"test": True},
+            )
+        )
         assert event_id is not None
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
@@ -113,12 +115,14 @@ class TestAdvisorPublisher:
         publisher._connected = False
         mock_nc = AsyncMock()
         with patch("src.events.publish.NATS", return_value=mock_nc):
-            event_id = asyncio.run(publisher.publish(
-                event_type="test",
-                tenant_id="t1",
-                aggregate_id="a1",
-                payload={},
-            ))
+            event_id = asyncio.run(
+                publisher.publish(
+                    event_type="test",
+                    tenant_id="t1",
+                    aggregate_id="a1",
+                    payload={},
+                )
+            )
             mock_nc.connect.assert_called_once()
 
     def test_publish_recommendation(self):
@@ -126,16 +130,18 @@ class TestAdvisorPublisher:
         publisher.nc = AsyncMock()
         publisher._connected = True
 
-        event_id = asyncio.run(publisher.publish_recommendation(
-            tenant_id="t1",
-            field_id="f1",
-            category="disease",
-            severity="high",
-            title_ar="اشتباه",
-            title_en="Suspected",
-            actions=["spray_copper"],
-            confidence=0.85,
-        ))
+        event_id = asyncio.run(
+            publisher.publish_recommendation(
+                tenant_id="t1",
+                field_id="f1",
+                category="disease",
+                severity="high",
+                title_ar="اشتباه",
+                title_en="Suspected",
+                actions=["spray_copper"],
+                confidence=0.85,
+            )
+        )
         assert event_id is not None
         publisher.nc.publish.assert_called_once()
 
@@ -144,14 +150,16 @@ class TestAdvisorPublisher:
         publisher.nc = AsyncMock()
         publisher._connected = True
 
-        event_id = asyncio.run(publisher.publish_fertilizer_plan(
-            tenant_id="t1",
-            field_id="f1",
-            crop="tomato",
-            stage="vegetative",
-            plan=[{"product": "Urea", "dose_kg_per_ha": 50}],
-            notes=["Apply after irrigation"],
-        ))
+        event_id = asyncio.run(
+            publisher.publish_fertilizer_plan(
+                tenant_id="t1",
+                field_id="f1",
+                crop="tomato",
+                stage="vegetative",
+                plan=[{"product": "Urea", "dose_kg_per_ha": 50}],
+                notes=["Apply after irrigation"],
+            )
+        )
         assert event_id is not None
 
     def test_publish_nutrient_assessment(self):
@@ -159,15 +167,17 @@ class TestAdvisorPublisher:
         publisher.nc = AsyncMock()
         publisher._connected = True
 
-        event_id = asyncio.run(publisher.publish_nutrient_assessment(
-            tenant_id="t1",
-            field_id="f1",
-            deficiency_id="nitrogen_deficiency",
-            nutrient="N",
-            severity="high",
-            title_ar="نقص النيتروجين",
-            title_en="Nitrogen Deficiency",
-            corrections=[],
-            confidence=0.7,
-        ))
+        event_id = asyncio.run(
+            publisher.publish_nutrient_assessment(
+                tenant_id="t1",
+                field_id="f1",
+                deficiency_id="nitrogen_deficiency",
+                nutrient="N",
+                severity="high",
+                title_ar="نقص النيتروجين",
+                title_en="Nitrogen Deficiency",
+                corrections=[],
+                confidence=0.7,
+            )
+        )
         assert event_id is not None

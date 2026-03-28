@@ -57,15 +57,17 @@ class TestFieldOpsClient:
         mock_http.post.return_value = mock_response
         client._client = mock_http
 
-        result = asyncio.run(client.create_task(
-            tenant_id="t1",
-            field_id="f1",
-            title="Test Task",
-            description="Description",
-            task_type="spray",
-            priority="high",
-            due_date=datetime.now(UTC),
-        ))
+        result = asyncio.run(
+            client.create_task(
+                tenant_id="t1",
+                field_id="f1",
+                title="Test Task",
+                description="Description",
+                task_type="spray",
+                priority="high",
+                due_date=datetime.now(UTC),
+            )
+        )
         assert result["id"] == "task_1"
         mock_http.post.assert_called_once()
 

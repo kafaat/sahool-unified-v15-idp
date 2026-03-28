@@ -87,17 +87,19 @@ class TestPlanRepository:
         mock_db = make_mock_session()
         repo = PlanRepository(mock_db)
 
-        asyncio.run(repo.create(
-            plan_id="test",
-            name="Test",
-            name_ar="تجربة",
-            description="Test plan",
-            description_ar="خطة تجريبية",
-            tier=PlanTier.STARTER,
-            pricing={"monthly_usd": "29"},
-            features={"fields": True},
-            limits={"fields": 10},
-        ))
+        asyncio.run(
+            repo.create(
+                plan_id="test",
+                name="Test",
+                name_ar="تجربة",
+                description="Test plan",
+                description_ar="خطة تجريبية",
+                tier=PlanTier.STARTER,
+                pricing={"monthly_usd": "29"},
+                features={"fields": True},
+                limits={"fields": 10},
+            )
+        )
 
         mock_db.add.assert_called_once()
         mock_db.commit.assert_awaited_once()
@@ -205,12 +207,14 @@ class TestTenantRepository:
         mock_db = make_mock_session()
         repo = TenantRepository(mock_db)
 
-        asyncio.run(repo.create(
-            tenant_id="t-001",
-            name="Test Tenant",
-            name_ar="مستأجر",
-            contact={"email": "test@example.com"},
-        ))
+        asyncio.run(
+            repo.create(
+                tenant_id="t-001",
+                name="Test Tenant",
+                name_ar="مستأجر",
+                contact={"email": "test@example.com"},
+            )
+        )
         mock_db.add.assert_called_once()
         mock_db.commit.assert_awaited_once()
 
@@ -264,13 +268,15 @@ class TestSubscriptionRepository:
         mock_db = make_mock_session()
         repo = SubscriptionRepository(mock_db)
 
-        asyncio.run(repo.create(
-            tenant_id="t-001",
-            plan_id="starter",
-            billing_cycle=BillingCycle.MONTHLY,
-            start_date=date(2025, 1, 1),
-            end_date=date(2025, 1, 31),
-        ))
+        asyncio.run(
+            repo.create(
+                tenant_id="t-001",
+                plan_id="starter",
+                billing_cycle=BillingCycle.MONTHLY,
+                start_date=date(2025, 1, 1),
+                end_date=date(2025, 1, 31),
+            )
+        )
         mock_db.add.assert_called_once()
         mock_db.commit.assert_awaited_once()
 
@@ -357,18 +363,20 @@ class TestInvoiceRepository:
         mock_db = make_mock_session()
         repo = InvoiceRepository(mock_db)
 
-        asyncio.run(repo.create(
-            invoice_number="SAH-2025-0001",
-            tenant_id="t-001",
-            subscription_id=uuid.uuid4(),
-            currency=Currency.USD,
-            issue_date=date(2025, 1, 1),
-            due_date=date(2025, 1, 8),
-            subtotal=Decimal("29.00"),
-            total=Decimal("29.00"),
-            amount_due=Decimal("29.00"),
-            line_items=[{"description": "Test", "amount": 29.0}],
-        ))
+        asyncio.run(
+            repo.create(
+                invoice_number="SAH-2025-0001",
+                tenant_id="t-001",
+                subscription_id=uuid.uuid4(),
+                currency=Currency.USD,
+                issue_date=date(2025, 1, 1),
+                due_date=date(2025, 1, 8),
+                subtotal=Decimal("29.00"),
+                total=Decimal("29.00"),
+                amount_due=Decimal("29.00"),
+                line_items=[{"description": "Test", "amount": 29.0}],
+            )
+        )
         mock_db.add.assert_called_once()
 
     def test_mark_paid_full(self):
@@ -453,11 +461,13 @@ class TestInvoiceRepository:
         mock_db.execute.return_value = mock_result
 
         repo = InvoiceRepository(mock_db)
-        total = asyncio.run(repo.get_total_revenue(
-            start_date=date(2025, 1, 1),
-            end_date=date(2025, 12, 31),
-            currency=Currency.USD,
-        ))
+        total = asyncio.run(
+            repo.get_total_revenue(
+                start_date=date(2025, 1, 1),
+                end_date=date(2025, 12, 31),
+                currency=Currency.USD,
+            )
+        )
         assert total == Decimal("500.00")
 
 
@@ -474,13 +484,15 @@ class TestPaymentRepository:
         mock_db = make_mock_session()
         repo = PaymentRepository(mock_db)
 
-        asyncio.run(repo.create(
-            invoice_id=uuid.uuid4(),
-            tenant_id="t-001",
-            amount=Decimal("29.00"),
-            currency=Currency.USD,
-            method=PaymentMethod.CREDIT_CARD,
-        ))
+        asyncio.run(
+            repo.create(
+                invoice_id=uuid.uuid4(),
+                tenant_id="t-001",
+                amount=Decimal("29.00"),
+                currency=Currency.USD,
+                method=PaymentMethod.CREDIT_CARD,
+            )
+        )
         mock_db.add.assert_called_once()
 
     def test_mark_succeeded(self):
@@ -533,10 +545,12 @@ class TestPaymentRepository:
         mock_db.execute.return_value = mock_result
 
         repo = PaymentRepository(mock_db)
-        totals = asyncio.run(repo.get_total_by_method(
-            start_date=date(2025, 1, 1),
-            end_date=date(2025, 12, 31),
-        ))
+        totals = asyncio.run(
+            repo.get_total_by_method(
+                start_date=date(2025, 1, 1),
+                end_date=date(2025, 12, 31),
+            )
+        )
         assert totals == {}
 
 
@@ -552,12 +566,14 @@ class TestUsageRecordRepository:
         mock_db = make_mock_session()
         repo = UsageRecordRepository(mock_db)
 
-        asyncio.run(repo.create(
-            subscription_id=uuid.uuid4(),
-            tenant_id="t-001",
-            metric_type="api_calls",
-            quantity=5,
-        ))
+        asyncio.run(
+            repo.create(
+                subscription_id=uuid.uuid4(),
+                tenant_id="t-001",
+                metric_type="api_calls",
+                quantity=5,
+            )
+        )
         mock_db.add.assert_called_once()
 
     def test_get_usage_summary(self):
@@ -582,11 +598,13 @@ class TestUsageRecordRepository:
         mock_db.execute.return_value = mock_result
 
         repo = UsageRecordRepository(mock_db)
-        summary = asyncio.run(repo.get_usage_summary(
-            "t-001",
-            start_date=datetime(2025, 1, 1, tzinfo=UTC),
-            end_date=datetime(2025, 12, 31, tzinfo=UTC),
-        ))
+        summary = asyncio.run(
+            repo.get_usage_summary(
+                "t-001",
+                start_date=datetime(2025, 1, 1, tzinfo=UTC),
+                end_date=datetime(2025, 12, 31, tzinfo=UTC),
+            )
+        )
         assert summary == {}
 
     def test_get_metric_count(self):
@@ -624,12 +642,14 @@ class TestUsageRecordRepository:
         mock_db.execute.return_value = mock_result
 
         repo = UsageRecordRepository(mock_db)
-        records = asyncio.run(repo.list_by_subscription(
-            subscription_id=uuid.uuid4(),
-            metric_type="api_calls",
-            start_date=datetime(2025, 1, 1, tzinfo=UTC),
-            end_date=datetime(2025, 12, 31, tzinfo=UTC),
-        ))
+        records = asyncio.run(
+            repo.list_by_subscription(
+                subscription_id=uuid.uuid4(),
+                metric_type="api_calls",
+                start_date=datetime(2025, 1, 1, tzinfo=UTC),
+                end_date=datetime(2025, 12, 31, tzinfo=UTC),
+            )
+        )
         assert len(records) == 2
 
     def test_list_by_tenant_with_filters(self):
@@ -643,10 +663,12 @@ class TestUsageRecordRepository:
         mock_db.execute.return_value = mock_result
 
         repo = UsageRecordRepository(mock_db)
-        records = asyncio.run(repo.list_by_tenant(
-            tenant_id="t-001",
-            metric_type="fields",
-            start_date=datetime(2025, 1, 1, tzinfo=UTC),
-            end_date=datetime(2025, 12, 31, tzinfo=UTC),
-        ))
+        records = asyncio.run(
+            repo.list_by_tenant(
+                tenant_id="t-001",
+                metric_type="fields",
+                start_date=datetime(2025, 1, 1, tzinfo=UTC),
+                end_date=datetime(2025, 12, 31, tzinfo=UTC),
+            )
+        )
         assert records == []

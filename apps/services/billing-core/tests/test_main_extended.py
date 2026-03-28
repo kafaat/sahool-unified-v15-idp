@@ -632,14 +632,16 @@ class TestPublishEventEdgeCases:
 
         mock_js = AsyncMock()
         with patch("src.main.js", mock_js):
-            asyncio.run(publish_event(
-                "sahool.test",
-                {
-                    "timestamp": datetime.now(UTC),
-                    "amount": Decimal("29.00"),
-                    "id": uuid.uuid4(),
-                },
-            ))
+            asyncio.run(
+                publish_event(
+                    "sahool.test",
+                    {
+                        "timestamp": datetime.now(UTC),
+                        "amount": Decimal("29.00"),
+                        "id": uuid.uuid4(),
+                    },
+                )
+            )
             mock_js.publish.assert_awaited_once()
 
 

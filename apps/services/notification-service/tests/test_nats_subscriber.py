@@ -206,6 +206,7 @@ class TestNATSSubscriber:
             with patch("src.nats_subscriber._nats_available", False):
                 result = await subscriber.connect()
                 assert result is False
+
         asyncio.run(_run())
 
     def test_subscribe_when_not_connected(self):
@@ -213,6 +214,7 @@ class TestNATSSubscriber:
             subscriber = NATSSubscriber()
             result = await subscriber.subscribe()
             assert result is False
+
         asyncio.run(_run())
 
     def test_close_without_connection(self):
@@ -220,6 +222,7 @@ class TestNATSSubscriber:
             subscriber = NATSSubscriber()
             await subscriber.close()
             assert subscriber._connected is False
+
         asyncio.run(_run())
 
     def test_close_with_subscriptions(self):
@@ -236,6 +239,7 @@ class TestNATSSubscriber:
             subscriber._nc.close.assert_called_once()
             assert subscriber._connected is False
             assert subscriber._subscriptions == []
+
         asyncio.run(_run())
 
 

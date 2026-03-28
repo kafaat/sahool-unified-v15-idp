@@ -193,16 +193,18 @@ class TestSaveIrrigationPlan:
             }
         ]
 
-        result = asyncio.run(db.save_irrigation_plan(
-            plan_id="p1",
-            field_id="f1",
-            crop="wheat",
-            growth_stage="vegetative",
-            total_water_m3=5.0,
-            estimated_cost=750.0,
-            schedules=schedules,
-            tenant_id="t1",
-        ))
+        result = asyncio.run(
+            db.save_irrigation_plan(
+                plan_id="p1",
+                field_id="f1",
+                crop="wheat",
+                growth_stage="vegetative",
+                total_water_m3=5.0,
+                estimated_cost=750.0,
+                schedules=schedules,
+                tenant_id="t1",
+            )
+        )
         assert result is True
 
     def test_returns_false_on_error(self):
@@ -227,17 +229,19 @@ class TestSaveIrrigationExecution:
         mock_pool, mock_conn = make_mock_pool()
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.save_irrigation_execution(
-            execution_id="e1",
-            field_id="f1",
-            plan_id="p1",
-            schedule_id="s1",
-            amount_mm=25.0,
-            duration_minutes=45,
-            method="drip",
-            executed_at=datetime.now(UTC),
-            tenant_id="t1",
-        ))
+        result = asyncio.run(
+            db.save_irrigation_execution(
+                execution_id="e1",
+                field_id="f1",
+                plan_id="p1",
+                schedule_id="s1",
+                amount_mm=25.0,
+                duration_minutes=45,
+                method="drip",
+                executed_at=datetime.now(UTC),
+                tenant_id="t1",
+            )
+        )
         assert result is True
 
     def test_returns_false_on_error(self):

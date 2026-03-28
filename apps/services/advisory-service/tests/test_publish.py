@@ -145,25 +145,29 @@ class TestAdvisorPublisher:
         return pub
 
     def test_publish_sends_message(self, publisher):
-        event_id = asyncio.run(publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="field_1",
-            payload={"severity": "high"},
-        ))
+        event_id = asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="field_1",
+                payload={"severity": "high"},
+            )
+        )
         assert event_id  # returns UUID string
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
         assert call_args[0][0] == "sahool.tenant.t1.advisory.recommendation_issued"
 
     def test_publish_message_format(self, publisher):
-        asyncio.run(publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="field_1",
-            payload={"key": "val"},
-            correlation_id="corr_1",
-        ))
+        asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="field_1",
+                payload={"key": "val"},
+                correlation_id="corr_1",
+            )
+        )
         call_args = publisher.nc.publish.call_args
         message_bytes = call_args[0][1]
         message = json.loads(message_bytes.decode())
@@ -174,41 +178,47 @@ class TestAdvisorPublisher:
         assert message["payload"] == {"key": "val"}
 
     def test_publish_auto_generates_correlation_id(self, publisher):
-        asyncio.run(publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="f1",
-            payload={},
-            correlation_id=None,
-        ))
+        asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="f1",
+                payload={},
+                correlation_id=None,
+            )
+        )
         call_args = publisher.nc.publish.call_args
         message = json.loads(call_args[0][1].decode())
         assert message["correlation_id"]  # auto-generated UUID
 
     def test_publish_custom_subject(self, publisher):
-        asyncio.run(publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="f1",
-            payload={},
-            subject="custom.subject.here",
-        ))
+        asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="f1",
+                payload={},
+                subject="custom.subject.here",
+            )
+        )
         call_args = publisher.nc.publish.call_args
         assert call_args[0][0] == "custom.subject.here"
 
     def test_publish_recommendation(self, publisher):
-        event_id = asyncio.run(publisher.publish_recommendation(
-            tenant_id="t1",
-            field_id="field_1",
-            category="disease",
-            severity="high",
-            title_ar="تنبيه",
-            title_en="Alert",
-            actions=["spray_copper"],
-            confidence=0.85,
-            correlation_id="corr_1",
-            details={"extra": True},
-        ))
+        event_id = asyncio.run(
+            publisher.publish_recommendation(
+                tenant_id="t1",
+                field_id="field_1",
+                category="disease",
+                severity="high",
+                title_ar="تنبيه",
+                title_en="Alert",
+                actions=["spray_copper"],
+                confidence=0.85,
+                correlation_id="corr_1",
+                details={"extra": True},
+            )
+        )
         assert event_id
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
@@ -220,30 +230,34 @@ class TestAdvisorPublisher:
         assert message["payload"]["details"] == {"extra": True}
 
     def test_publish_recommendation_no_details(self, publisher):
-        asyncio.run(publisher.publish_recommendation(
-            tenant_id="t1",
-            field_id="f1",
-            category="disease",
-            severity="medium",
-            title_ar="ع",
-            title_en="E",
-            actions=[],
-            confidence=0.5,
-        ))
+        asyncio.run(
+            publisher.publish_recommendation(
+                tenant_id="t1",
+                field_id="f1",
+                category="disease",
+                severity="medium",
+                title_ar="ع",
+                title_en="E",
+                actions=[],
+                confidence=0.5,
+            )
+        )
         call_args = publisher.nc.publish.call_args
         message = json.loads(call_args[0][1].decode())
         assert message["payload"]["details"] == {}
 
     def test_publish_fertilizer_plan(self, publisher):
-        event_id = asyncio.run(publisher.publish_fertilizer_plan(
-            tenant_id="t1",
-            field_id="field_1",
-            crop="tomato",
-            stage="vegetative",
-            plan=[{"product": "urea", "dose": 50}],
-            correlation_id="corr_2",
-            notes=["Apply early morning"],
-        ))
+        event_id = asyncio.run(
+            publisher.publish_fertilizer_plan(
+                tenant_id="t1",
+                field_id="field_1",
+                crop="tomato",
+                stage="vegetative",
+                plan=[{"product": "urea", "dose": 50}],
+                correlation_id="corr_2",
+                notes=["Apply early morning"],
+            )
+        )
         assert event_id
         call_args = publisher.nc.publish.call_args
         message = json.loads(call_args[0][1].decode())
@@ -253,30 +267,34 @@ class TestAdvisorPublisher:
         assert message["payload"]["notes"] == ["Apply early morning"]
 
     def test_publish_fertilizer_plan_no_notes(self, publisher):
-        asyncio.run(publisher.publish_fertilizer_plan(
-            tenant_id="t1",
-            field_id="f1",
-            crop="wheat",
-            stage="tillering",
-            plan=[],
-        ))
+        asyncio.run(
+            publisher.publish_fertilizer_plan(
+                tenant_id="t1",
+                field_id="f1",
+                crop="wheat",
+                stage="tillering",
+                plan=[],
+            )
+        )
         call_args = publisher.nc.publish.call_args
         message = json.loads(call_args[0][1].decode())
         assert message["payload"]["notes"] == []
 
     def test_publish_nutrient_assessment(self, publisher):
-        event_id = asyncio.run(publisher.publish_nutrient_assessment(
-            tenant_id="t1",
-            field_id="field_1",
-            deficiency_id="nitrogen_deficiency",
-            nutrient="N",
-            severity="high",
-            title_ar="نقص النيتروجين",
-            title_en="Nitrogen Deficiency",
-            corrections=[{"type": "fertilizer", "product": "urea"}],
-            confidence=0.8,
-            correlation_id="corr_3",
-        ))
+        event_id = asyncio.run(
+            publisher.publish_nutrient_assessment(
+                tenant_id="t1",
+                field_id="field_1",
+                deficiency_id="nitrogen_deficiency",
+                nutrient="N",
+                severity="high",
+                title_ar="نقص النيتروجين",
+                title_en="Nitrogen Deficiency",
+                corrections=[{"type": "fertilizer", "product": "urea"}],
+                confidence=0.8,
+                correlation_id="corr_3",
+            )
+        )
         assert event_id
         call_args = publisher.nc.publish.call_args
         message = json.loads(call_args[0][1].decode())
@@ -309,12 +327,14 @@ class TestAdvisorPublisher:
 
         pub.connect = AsyncMock(side_effect=fake_connect)
 
-        event_id = asyncio.run(pub.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="f1",
-            payload={},
-        ))
+        event_id = asyncio.run(
+            pub.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="f1",
+                payload={},
+            )
+        )
         pub.connect.assert_called_once()
         assert event_id
 
@@ -322,12 +342,14 @@ class TestAdvisorPublisher:
         """NATS publish error should propagate."""
         publisher.nc.publish.side_effect = Exception("NATS timeout")
         with pytest.raises(Exception, match="NATS timeout"):
-            asyncio.run(publisher.publish(
-                event_type="recommendation_issued",
-                tenant_id="t1",
-                aggregate_id="f1",
-                payload={},
-            ))
+            asyncio.run(
+                publisher.publish(
+                    event_type="recommendation_issued",
+                    tenant_id="t1",
+                    aggregate_id="f1",
+                    payload={},
+                )
+            )
 
 
 # ---------------------------------------------------------------------------

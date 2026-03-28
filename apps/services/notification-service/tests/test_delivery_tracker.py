@@ -134,6 +134,7 @@ class TestDeliveryTracker:
             await tracker.start()
             assert tracker._http_client is not None
             await tracker.stop()
+
         asyncio.run(_run())
 
     def test_stop(self):
@@ -143,6 +144,7 @@ class TestDeliveryTracker:
             assert tracker._http_client is not None
             await tracker.stop()
             assert tracker._http_client is None
+
         asyncio.run(_run())
 
     def test_stop_without_start(self):
@@ -150,6 +152,7 @@ class TestDeliveryTracker:
             tracker = DeliveryTracker()
             await tracker.stop()
             assert tracker._http_client is None
+
         asyncio.run(_run())
 
     def test_register_callback(self):

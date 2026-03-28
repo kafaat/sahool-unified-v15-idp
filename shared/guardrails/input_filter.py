@@ -391,7 +391,7 @@ class InputFilter:
             violations.append(f"Input exceeds maximum length ({len(text)} > {policy.max_input_length})")
             violations_ar.append(f"المدخل يتجاوز الحد الأقصى للطول ({len(text)} > {policy.max_input_length})")
             metadata["input_length"] = len(text)
-            text = text[:policy.max_input_length]
+            text = text[: policy.max_input_length]
 
         # 2. Check for prompt injection
         if policy.check_prompt_injection:

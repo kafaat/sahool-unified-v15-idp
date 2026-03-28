@@ -512,7 +512,7 @@ class BatchExecutor:
 
         # Verify all items belong to same tenant
         for item in items:
-            if hasattr(item, 'tenant_id') and item.tenant_id and item.tenant_id != batch.tenant_id:
+            if hasattr(item, "tenant_id") and item.tenant_id and item.tenant_id != batch.tenant_id:
                 raise BatchExecutionError(f"Item tenant_id mismatch: {item.tenant_id} != {batch.tenant_id}")
         total_items = len(items)
 

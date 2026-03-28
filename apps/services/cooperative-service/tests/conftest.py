@@ -31,9 +31,8 @@ def mock_auth_user():
 @pytest.fixture
 def client(mock_auth_user):
     """Create test client with tenant header."""
-    from src.main import app
-
     from src.api.v1.cooperatives import get_current_user
+    from src.main import app
 
     app.dependency_overrides[get_current_user] = lambda: mock_auth_user
     c = TestClient(app)
@@ -64,9 +63,8 @@ def mock_nats():
 @pytest.fixture
 def app_with_db(mock_db_pool, mock_nats, mock_auth_user):
     """Create FastAPI app with mocked DB and NATS."""
-    from src.main import app
-
     from src.api.v1.cooperatives import get_current_user
+    from src.main import app
 
     app.dependency_overrides[get_current_user] = lambda: mock_auth_user
     app.state.db_pool = mock_db_pool

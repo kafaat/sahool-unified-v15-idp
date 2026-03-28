@@ -2021,7 +2021,9 @@ class LLMProviderManager:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def _build_cache_key(prompt: str, system_prompt: str | None, provider: str, temperature: str, tenant_id: str = "") -> str:
+def _build_cache_key(
+    prompt: str, system_prompt: str | None, provider: str, temperature: str, tenant_id: str = ""
+) -> str:
     """
     Build a deterministic cache key from prompt parameters.
 

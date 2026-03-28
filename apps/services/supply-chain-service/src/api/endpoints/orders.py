@@ -35,6 +35,7 @@ except ImportError:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials, "id": None}
 
+
 logger = structlog.get_logger()
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])

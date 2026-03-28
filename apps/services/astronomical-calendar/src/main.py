@@ -3331,7 +3331,9 @@ def get_weekly_forecast(
 
 
 @app.get("/v1/moon-phase", response_model=MoonPhase, tags=["Astronomy"])
-def get_moon_phase(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
+def get_moon_phase(
+    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)
+):
     """الحصول على مرحلة القمر"""
     if date_str:
         try:
@@ -3345,7 +3347,9 @@ def get_moon_phase(date_str: str | None = Query(None, description="التاري�
 
 
 @app.get("/v1/lunar-mansion", response_model=LunarMansion, tags=["Astronomy"])
-def get_lunar_mansion(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
+def get_lunar_mansion(
+    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)
+):
     """الحصول على المنزلة القمرية الحالية"""
     if date_str:
         try:
@@ -3378,7 +3382,10 @@ def list_lunar_mansions(user: User = Depends(get_current_user)):
 
 
 @app.get("/v1/hijri", response_model=HijriDate, tags=["Calendar"])
-def get_hijri_date(date_str: str | None = Query(None, description="التاريخ الميلادي (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
+def get_hijri_date(
+    date_str: str | None = Query(None, description="التاريخ الميلادي (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
+):
     """تحويل تاريخ ميلادي إلى هجري"""
     if date_str:
         try:
@@ -3398,7 +3405,9 @@ def list_hijri_months(user: User = Depends(get_current_user)):
 
 
 @app.get("/v1/zodiac", response_model=ZodiacInfo, tags=["Astronomy"])
-def get_zodiac(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
+def get_zodiac(
+    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)
+):
     """الحصول على البرج الشمسي"""
     if date_str:
         try:

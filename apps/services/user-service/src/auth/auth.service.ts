@@ -531,17 +531,15 @@ export class AuthService {
         }
 
         // Atomically mark current refresh token as used
-        const newRefreshJti = uuidv4();
         await tx.refreshToken.update({
           where: { jti: payload.jti },
           data: {
             used: true,
             usedAt: new Date(),
-            replacedBy: newRefreshJti,
           },
         });
 
-        return { tokens: null as any, user: txUser };
+        return { user: txUser };
       });
 
       // Outside transaction: Redis revocation and new token generation
@@ -554,6 +552,21 @@ export class AuthService {
 
       // Generate new token pair with same family
       const newTokens = await this.generateTokens(user, payload.family);
+
+      // Update replacedBy with actual new refresh token JTI (decoded from generated token)
+      try {
+        const newPayload = this.jwtService.verify(newTokens.refresh_token, {
+          secret: JWTConfig.SECRET,
+          issuer: JWTConfig.ISSUER,
+          audience: JWTConfig.AUDIENCE,
+        }) as JwtPayload;
+        await this.prisma.refreshToken.update({
+          where: { jti: payload.jti },
+          data: { replacedBy: newPayload.jti },
+        });
+      } catch {
+        // Best effort - token chain logging only
+      }
 
       this.logger.log(
         `Refresh token rotated for user: ${user.id}, Old JTI: ${payload.jti.substring(0, 8)}...`,

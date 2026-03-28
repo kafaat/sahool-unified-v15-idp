@@ -384,9 +384,6 @@ export class RedisTokenRevocationStore
     return { isRevoked: false };
   }
 
-  /**
-   * Check if Redis connection is healthy
-   */
   // ═══════════════════════════════════════════════════════════════
   // OTP Brute-Force Protection
   // ═══════════════════════════════════════════════════════════════
@@ -398,7 +395,9 @@ export class RedisTokenRevocationStore
     if (!this.initialized) await this.initialize();
     try {
       const value = await this.redis!.get(key);
-      return value ? parseInt(value, 10) : 0;
+      if (!value) return 0;
+      const attempts = parseInt(value, 10);
+      return Number.isFinite(attempts) ? attempts : 0;
     } catch {
       return 0;
     }

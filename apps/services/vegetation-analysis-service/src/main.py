@@ -1107,6 +1107,7 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
 @app.post("/v1/analyze", response_model=FieldAnalysis)
 async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
+    _validate_field_id(request.field_id)
 
     # Get imagery first
     imagery = await request_imagery(request)
@@ -1377,6 +1378,8 @@ async def analyze_field_real(
     يستخدم sahool-eo و Sentinel Hub للحصول على بيانات حقيقية.
     إذا لم تكن الاعتمادات مكونة، يعود إلى البيانات المحاكاة.
     """
+    _validate_field_id(request.field_id)
+
     # Enforce tenant isolation
     _enforce_tenant(user, request.tenant_id)
 
@@ -3539,6 +3542,7 @@ async def export_analysis(
     lat: float = Query(..., ge=-90, le=90, description="Latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
     format: str = Query(default="geojson", description="Export format: geojson, csv, json, kml"),
+    user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """
     Export field analysis data in specified format.
@@ -3550,6 +3554,9 @@ async def export_analysis(
     - kml: Google Earth compatible format
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="export_analysis")
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3591,6 +3598,7 @@ async def export_timeseries(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     format: str = Query(default="csv", description="Export format: csv, json, geojson"),
+    user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """
     Export time series data (NDVI over time) in specified format.
@@ -3598,6 +3606,9 @@ async def export_timeseries(
     Best for tracking vegetation health trends over time.
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="export_timeseries")
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3669,12 +3680,17 @@ async def export_timeseries(
 async def export_boundaries(
     field_ids: str = Query(..., description="Comma-separated field IDs"),
     format: str = Query(default="geojson", description="Export format: geojson, json, kml"),
+    user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """
     Export field boundaries in specified format.
 
     Useful for GIS systems and mapping applications.
     """
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_ids=field_ids, endpoint="export_boundaries")
+
     try:
         export_format = ExportFormat(format.lower())
         if export_format == ExportFormat.CSV:
@@ -3748,6 +3764,7 @@ async def export_report(
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
     report_type: str = Query(default="full", description="Report type: full, summary, changes"),
     format: str = Query(default="json", description="Export format: json, csv, geojson"),
+    user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """
     Export comprehensive field report.
@@ -3758,6 +3775,9 @@ async def export_report(
     - changes: Change detection over time
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="export_report")
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3928,7 +3948,9 @@ async def detect_changes(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     crop_type: str | None = Query(None, description="Crop type (e.g., wheat, sorghum, coffee, qat)"),
-):
+,
+    user: User = Depends(get_current_user),
+)
     """
     كشف التغييرات الزراعية | Detect Agricultural Changes
 
@@ -3946,6 +3968,9 @@ async def detect_changes(
         GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="changes")
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -3998,7 +4023,9 @@ async def compare_dates(
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     date1: str = Query(..., description="First date (YYYY-MM-DD)"),
     date2: str = Query(..., description="Second date (YYYY-MM-DD)"),
-):
+,
+    user: User = Depends(get_current_user),
+)
     """
     مقارنة تاريخين | Compare Two Dates
 
@@ -4009,6 +4036,9 @@ async def compare_dates(
         GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="changes_compare")
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4060,7 +4090,9 @@ async def get_anomalies(
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     days: int = Query(90, description="Number of days to analyze (default: 90)", ge=1, le=365),
     crop_type: str | None = Query(None, description="Crop type for expected pattern"),
-):
+,
+    user: User = Depends(get_current_user),
+)
     """
     كشف الشذوذ | Detect Anomalies
 
@@ -4071,6 +4103,9 @@ async def get_anomalies(
         GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="anomalies")
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")

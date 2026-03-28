@@ -177,7 +177,9 @@ class NotificationRepository:
         return count
 
     @staticmethod
-    async def mark_as_read(notification_id: UUID, tenant_id: str | None = None, read_at: datetime | None = None) -> bool:
+    async def mark_as_read(
+        notification_id: UUID, tenant_id: str | None = None, read_at: datetime | None = None
+    ) -> bool:
         """
         تحديد إشعار كمقروء
         Mark notification as read
@@ -200,7 +202,9 @@ class NotificationRepository:
         return False
 
     @staticmethod
-    async def mark_multiple_as_read(notification_ids: list[UUID], tenant_id: str | None = None, read_at: datetime | None = None) -> int:
+    async def mark_multiple_as_read(
+        notification_ids: list[UUID], tenant_id: str | None = None, read_at: datetime | None = None
+    ) -> int:
         """
         تحديد إشعارات متعددة كمقروءة
         Mark multiple notifications as read
@@ -240,7 +244,9 @@ class NotificationRepository:
         return updated
 
     @staticmethod
-    async def update_status(notification_id: UUID, status: str, tenant_id: str | None = None, sent_at: datetime | None = None) -> bool:
+    async def update_status(
+        notification_id: UUID, status: str, tenant_id: str | None = None, sent_at: datetime | None = None
+    ) -> bool:
         """
         تحديث حالة الإشعار
         Update notification status
@@ -767,12 +773,7 @@ class NotificationLogRepository:
         if tenant_id:
             query = query.filter(notification__tenant_id=tenant_id)
 
-        return (
-            await query
-            .order_by("attempted_at")
-            .limit(limit)
-            .all()
-        )
+        return await query.order_by("attempted_at").limit(limit).all()
 
     @staticmethod
     async def increment_retry(log_id: UUID) -> bool:

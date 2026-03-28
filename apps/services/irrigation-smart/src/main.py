@@ -1013,7 +1013,11 @@ async def calculate_irrigation(
     )
 
     # Publish irrigation plan created event
-    tenant_id = getattr(user, "tenant_id", "") if isinstance(user, dict) and "tenant_id" in user else getattr(user, "tenant_id", "")
+    tenant_id = (
+        getattr(user, "tenant_id", "")
+        if isinstance(user, dict) and "tenant_id" in user
+        else getattr(user, "tenant_id", "")
+    )
     await publish_event(
         subject="sahool.irrigation.plan_created",
         data={
@@ -1180,7 +1184,11 @@ async def record_irrigation_executed(
     executed_at = execution.executed_at or datetime.now(UTC)
 
     # Publish irrigation executed event
-    tenant_id = getattr(user, "tenant_id", "") if isinstance(user, dict) and "tenant_id" in user else getattr(user, "tenant_id", "")
+    tenant_id = (
+        getattr(user, "tenant_id", "")
+        if isinstance(user, dict) and "tenant_id" in user
+        else getattr(user, "tenant_id", "")
+    )
     await publish_event(
         subject="sahool.irrigation.executed",
         data={

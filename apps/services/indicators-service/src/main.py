@@ -325,7 +325,9 @@ async def get_indicator(field_id: str, indicator_type: str, tenant_id: str | Non
                     sql = "SELECT value, calculated_at FROM field_indicators WHERE field_id = $1 AND indicator_type = $2 AND tenant_id = $3"
                     row = await conn.fetchrow(sql, field_id, indicator_type, tenant_id)
                 else:
-                    sql = "SELECT value, calculated_at FROM field_indicators WHERE field_id = $1 AND indicator_type = $2"
+                    sql = (
+                        "SELECT value, calculated_at FROM field_indicators WHERE field_id = $1 AND indicator_type = $2"
+                    )
                     row = await conn.fetchrow(sql, field_id, indicator_type)
                 if row:
                     try:

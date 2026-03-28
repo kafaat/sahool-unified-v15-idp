@@ -91,11 +91,13 @@ class TestBulkUpdatePreferencesRequest:
         assert req.tenant_id == "tenant-1"
 
     def test_empty_preferences(self):
-        req = BulkUpdatePreferencesRequest(
-            user_id="f-1",
-            preferences=[],
-        )
-        assert len(req.preferences) == 0
+        """Empty preferences list should be rejected by validation (min_length=1)."""
+        import pydantic
+        with pytest.raises(pydantic.ValidationError):
+            BulkUpdatePreferencesRequest(
+                user_id="f-1",
+                preferences=[],
+            )
 
 
 class TestChannelsRouter:

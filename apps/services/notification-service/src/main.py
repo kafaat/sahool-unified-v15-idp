@@ -52,7 +52,8 @@ def sanitize_log_input(value: str) -> str:
 # =============================================================================
 
 try:
-    from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
     HAS_PROMETHEUS = True
 except ImportError:
     HAS_PROMETHEUS = False
@@ -459,7 +460,7 @@ async def _send_with_retry(send_func, *args, max_retries=3, **kwargs):
             return result
         except Exception as e:
             if attempt < max_retries - 1:
-                wait = 2 ** attempt  # exponential backoff: 1, 2, 4 seconds
+                wait = 2**attempt  # exponential backoff: 1, 2, 4 seconds
                 logger.warning(
                     "notification_send_retry",
                     attempt=attempt + 1,
@@ -578,12 +579,14 @@ async def create_notification(
                 )
                 # Log if all retries exhausted
                 task.add_done_callback(
-                    lambda t: logger.error(
-                        "notification_delivery_exhausted",
-                        error=str(t.exception()),
+                    lambda t: (
+                        logger.error(
+                            "notification_delivery_exhausted",
+                            error=str(t.exception()),
+                        )
+                        if t.exception()
+                        else None
                     )
-                    if t.exception()
-                    else None
                 )
             except ValueError:
                 logger.warning(f"Invalid channel type: {channel_name}")
@@ -1324,7 +1327,12 @@ async def readiness():
     checks["nats"] = "connected" if nc and not nc.is_closed else "not_configured"
 
     all_ready = all(v != "disconnected" for v in checks.values())
-    return {"status": "ready" if all_ready else "degraded", "service": "notification-service", "version": "16.0.0", "checks": checks}
+    return {
+        "status": "ready" if all_ready else "degraded",
+        "service": "notification-service",
+        "version": "16.0.0",
+        "checks": checks,
+    }
 
 
 @app.get("/metrics")

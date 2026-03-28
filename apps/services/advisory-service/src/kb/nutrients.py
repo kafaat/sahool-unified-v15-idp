@@ -323,9 +323,7 @@ def diagnose_from_ndvi(ndvi: float, ndvi_history: list[float] | None = None) -> 
     # Check for declining trend
     if ndvi_history and isinstance(ndvi_history, list) and len(ndvi_history) >= 3:
         # Validate all history values are valid floats in range
-        valid_history = all(
-            isinstance(v, (int, float)) and -1 <= v <= 1 for v in ndvi_history
-        )
+        valid_history = all(isinstance(v, (int, float)) and -1 <= v <= 1 for v in ndvi_history)
         if valid_history:
             trend = ndvi_history[-1] - ndvi_history[0]
             if trend < -0.1:

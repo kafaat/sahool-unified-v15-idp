@@ -103,6 +103,7 @@ async def publish_event(subject: str, data: dict):
     else:
         logger.info("nats_event_local", subject=subject, data=data)
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -547,11 +548,15 @@ class WeatherInput(BaseModel):
     temperature_min: float = Field(..., ge=-60, le=60, description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
     wind_speed: float = Field(
-        ..., ge=0, le=111.12,
+        ...,
+        ge=0,
+        le=111.12,
         description="Wind speed at 2m height (m/s). Max 400 km/h = 111.12 m/s",
     )
     solar_radiation: float | None = Field(
-        None, ge=0, le=130.0,
+        None,
+        ge=0,
+        le=130.0,
         description="Solar radiation (MJ/m²/day). Max 1500 W/m² peak ≈ 130 MJ/m²/day",
     )
     sunshine_hours: float | None = Field(None, ge=0, le=24, description="Sunshine hours")
@@ -588,10 +593,7 @@ class CropWaterRequirement(BaseModel):
     @classmethod
     def validate_crop_type(cls, v: str) -> str:
         if v not in CROP_COEFFICIENTS:
-            raise ValueError(
-                f"Unsupported crop type '{v}'. "
-                f"Supported: {', '.join(sorted(CROP_COEFFICIENTS.keys()))}"
-            )
+            raise ValueError(f"Unsupported crop type '{v}'. Supported: {', '.join(sorted(CROP_COEFFICIENTS.keys()))}")
         return v
 
 
@@ -700,7 +702,9 @@ class WaterBalanceInput(BaseModel):
     """Input for water balance tracking"""
 
     field_id: str = Field(
-        ..., min_length=1, max_length=100,
+        ...,
+        min_length=1,
+        max_length=100,
         pattern=r"^[a-zA-Z0-9_\-]+$",
         description="Field identifier (alphanumeric, hyphens, underscores)",
     )
@@ -1697,17 +1701,23 @@ class VirtualSensorActionRequest(BaseModel):
     """Request for virtual sensor analysis with ActionTemplate output"""
 
     field_id: str = Field(
-        ..., min_length=1, max_length=100,
+        ...,
+        min_length=1,
+        max_length=100,
         pattern=r"^[a-zA-Z0-9_\-]+$",
         description="معرف الحقل - Field identifier (alphanumeric, hyphens, underscores)",
     )
     farmer_id: str | None = Field(
-        None, min_length=1, max_length=100,
+        None,
+        min_length=1,
+        max_length=100,
         pattern=r"^[a-zA-Z0-9_\-]+$",
         description="معرف المزارع",
     )
     tenant_id: str | None = Field(
-        None, min_length=1, max_length=100,
+        None,
+        min_length=1,
+        max_length=100,
         pattern=r"^[a-zA-Z0-9_\-]+$",
         description="معرف المستأجر",
     )
@@ -1717,11 +1727,9 @@ class VirtualSensorActionRequest(BaseModel):
     @classmethod
     def validate_crop_type(cls, v: str) -> str:
         if v not in CROP_COEFFICIENTS:
-            raise ValueError(
-                f"Unsupported crop type '{v}'. "
-                f"Supported: {', '.join(sorted(CROP_COEFFICIENTS.keys()))}"
-            )
+            raise ValueError(f"Unsupported crop type '{v}'. Supported: {', '.join(sorted(CROP_COEFFICIENTS.keys()))}")
         return v
+
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
     soil_type: SoilType = Field(SoilType.LOAM, description="نوع التربة")
     irrigation_method: IrrigationMethod = Field(IrrigationMethod.DRIP, description="طريقة الري")
@@ -1919,12 +1927,16 @@ async def get_irrigation_recommendation_with_action(
 @app.get("/v1/quick-check-with-action")
 async def quick_check_with_action(
     field_id: str = Query(
-        ..., min_length=1, max_length=100,
+        ...,
+        min_length=1,
+        max_length=100,
         pattern=r"^[a-zA-Z0-9_\-]+$",
         description="معرف الحقل - Field identifier",
     ),
     farmer_id: str | None = Query(
-        None, min_length=1, max_length=100,
+        None,
+        min_length=1,
+        max_length=100,
         pattern=r"^[a-zA-Z0-9_\-]+$",
         description="معرف المزارع",
     ),

@@ -1477,7 +1477,6 @@ async def _get_timeseries_data(
     }
 
 
-
 @app.get("/v1/timeseries/{field_id}")
 async def get_timeseries(
     field_id: str,
@@ -4147,11 +4146,7 @@ async def get_anomalies(
                     a_severity = (
                         "severe"
                         if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["severe"]
-                        else (
-                            "moderate"
-                            if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["moderate"]
-                            else "mild"
-                        )
+                        else ("moderate" if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["moderate"] else "mild")
                     )
                     if a_severity == "severe":
                         severity = "severe"

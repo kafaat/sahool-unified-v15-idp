@@ -54,8 +54,13 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
 
 ALLOWED_CHANNEL_TYPES = {"email", "sms", "push", "whatsapp", "in_app"}
 ALLOWED_EVENT_TYPES = {
-    "weather_alert", "pest_outbreak", "irrigation_reminder",
-    "crop_health", "market_price", "system", "task_reminder",
+    "weather_alert",
+    "pest_outbreak",
+    "irrigation_reminder",
+    "crop_health",
+    "market_price",
+    "system",
+    "task_reminder",
 }
 
 
@@ -63,7 +68,9 @@ class UpdateEventPreferenceRequest(BaseModel):
     """طلب ت��ديث تفضيلات حدث - Update Event Preference Request"""
 
     user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
-    event_type: str = Field(..., min_length=1, max_length=50, description="Event type (weather_alert, pest_outbreak, etc.)")
+    event_type: str = Field(
+        ..., min_length=1, max_length=50, description="Event type (weather_alert, pest_outbreak, etc.)"
+    )
     channels: list[str] = Field(..., min_length=1, description="List of channel types to use")
     enabled: bool = Field(True, description="Whether this event type is enabled")
     tenant_id: str | None = Field(None, max_length=100, description="Tenant ID for multi-tenancy")
@@ -101,8 +108,12 @@ class SetQuietHoursRequest(BaseModel):
     """طلب تحديد ساعات الهدوء - Set Quiet Hours Request"""
 
     user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
-    quiet_hours_start: str | None = Field(None, pattern=r"^\d{2}:\d{2}$", description="Start time in HH:MM format (e.g., '22:00')")
-    quiet_hours_end: str | None = Field(None, pattern=r"^\d{2}:\d{2}$", description="End time in HH:MM format (e.g., '06:00')")
+    quiet_hours_start: str | None = Field(
+        None, pattern=r"^\d{2}:\d{2}$", description="Start time in HH:MM format (e.g., '22:00')"
+    )
+    quiet_hours_end: str | None = Field(
+        None, pattern=r"^\d{2}:\d{2}$", description="End time in HH:MM format (e.g., '06:00')"
+    )
     tenant_id: str | None = Field(None, max_length=100, description="Tenant ID for multi-tenancy")
 
     model_config = ConfigDict(

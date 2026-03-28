@@ -71,7 +71,6 @@ from .engine import (
     get_stage_timeline,
 )
 from .events import get_publisher
-from .rate_limiter import rate_limit
 from .kb import (
     get_deficiency,
     get_disease,
@@ -80,6 +79,7 @@ from .kb import (
     get_fertilizers_for_nutrient,
     search_diseases,
 )
+from .rate_limiter import rate_limit
 
 # Import token revocation
 try:
@@ -130,9 +130,7 @@ def _validate_identifier(value: str, field_name: str) -> str:
 def _validate_crop_type(crop: str) -> str:
     """Validate crop value against known crops."""
     if crop not in VALID_CROP_VALUES:
-        raise ValueError(
-            f"Unknown crop type '{crop}'. Must be one of the registered crop codes or common names."
-        )
+        raise ValueError(f"Unknown crop type '{crop}'. Must be one of the registered crop codes or common names.")
     return crop
 
 

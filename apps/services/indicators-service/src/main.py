@@ -154,6 +154,7 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
+
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             logger.info("database_connected", pool_size=10)
         except Exception as e:
@@ -168,6 +169,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats as nats_lib
+
             app.state.nc = await nats_lib.connect(nats_url)
             logger.info("nats_connected")
         except Exception as e:
@@ -893,7 +895,12 @@ async def readiness():
     checks["nats"] = "connected" if nc and not nc.is_closed else "not_configured"
 
     all_ready = all(v != "disconnected" for v in checks.values())
-    return {"status": "ready" if all_ready else "degraded", "service": "indicators-service", "version": "16.0.0", "checks": checks}
+    return {
+        "status": "ready" if all_ready else "degraded",
+        "service": "indicators-service",
+        "version": "16.0.0",
+        "checks": checks,
+    }
 
 
 @app.get("/metrics")

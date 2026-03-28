@@ -957,7 +957,9 @@ class CreatePaymentRequest(BaseModel):
     amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
     method: PaymentMethod
     stripe_token: str | None = Field(default=None, max_length=500)
-    phone_number: str | None = Field(default=None, max_length=20)  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
+    phone_number: str | None = Field(
+        default=None, max_length=20
+    )  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
 
     @field_validator("invoice_id")
     @classmethod
@@ -1902,13 +1904,13 @@ async def readiness_check(db: AsyncSession = Depends(get_db)):
 # =============================================================================
 
 try:
+    from prometheus_client import CONTENT_TYPE_LATEST as PROM_CONTENT_TYPE
     from prometheus_client import (
         CollectorRegistry,
         Counter,
         Histogram,
         generate_latest,
     )
-    from prometheus_client import CONTENT_TYPE_LATEST as PROM_CONTENT_TYPE
 
     BILLING_REGISTRY = CollectorRegistry()
 

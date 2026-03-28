@@ -967,7 +967,7 @@ SAHOOL - National Agricultural Intelligence Platform
    * Reset password using token
    * إعادة تعيين كلمة المرور باستخدام الرمز
    */
-  async resetPassword(token: string, newPassword: string): Promise<{
+  async resetPassword(token: string, newPassword: string, tenantId?: string): Promise<{
     success: boolean;
     message: string;
   }> {
@@ -978,12 +978,14 @@ SAHOOL - National Agricultural Intelligence Platform
       .digest("hex");
 
     // Find user with matching token that hasn't expired
+    // SECURITY: Filter by tenantId to prevent cross-tenant password reset
     const user = await this.prisma.user.findFirst({
       where: {
         passwordResetToken: tokenHash,
         passwordResetExpiry: {
           gt: new Date(),
         },
+        ...(tenantId && { tenantId }),
       },
     });
 
@@ -1034,7 +1036,7 @@ SAHOOL - National Agricultural Intelligence Platform
    * Send OTP for password reset or phone verification
    * إرسال رمز التحقق لإعادة تعيين كلمة المرور أو التحقق من الهاتف
    */
-  async sendOtp(dto: SendOtpDto): Promise<{
+  async sendOtp(dto: SendOtpDto, tenantId?: string): Promise<{
     success: boolean;
     message: string;
     expiresIn?: number;
@@ -1044,9 +1046,13 @@ SAHOOL - National Agricultural Intelligence Platform
     // For password_reset, verify user exists (but don't reveal if not found)
     if (purpose === "password_reset") {
       // Check if identifier is email or phone
+      // SECURITY: Filter by tenantId to prevent cross-tenant user enumeration
       const isEmail = identifier.includes("@");
       const user = await this.prisma.user.findFirst({
-        where: isEmail ? { email: identifier } : { phone: identifier },
+        where: {
+          ...(isEmail ? { email: identifier } : { phone: identifier }),
+          ...(tenantId && { tenantId }),
+        },
       });
 
       if (!user) {
@@ -1128,7 +1134,7 @@ SAHOOL - National Agricultural Intelligence Platform
    * Verify OTP and return reset token for password reset
    * التحقق من رمز OTP وإرجاع رمز إعادة التعيين لإعادة تعيين كلمة المرور
    */
-  async verifyOtp(dto: VerifyOtpDto): Promise<{
+  async verifyOtp(dto: VerifyOtpDto, tenantId?: string): Promise<{
     success: boolean;
     message: string;
     resetToken?: string;
@@ -1179,9 +1185,13 @@ SAHOOL - National Agricultural Intelligence Platform
       // For password_reset, generate a reset token
       if (purpose === "password_reset") {
         // Find user by identifier
+        // SECURITY: Filter by tenantId to prevent cross-tenant password reset via OTP
         const isEmail = identifier.includes("@");
         const user = await this.prisma.user.findFirst({
-          where: isEmail ? { email: identifier } : { phone: identifier },
+          where: {
+            ...(isEmail ? { email: identifier } : { phone: identifier }),
+            ...(tenantId && { tenantId }),
+          },
         });
 
         if (!user) {
@@ -1220,9 +1230,13 @@ SAHOOL - National Agricultural Intelligence Platform
       }
 
       // For verify_phone, update user's phone verification status
+      // SECURITY: Filter by tenantId to prevent cross-tenant phone verification
       if (purpose === "verify_phone") {
         const user = await this.prisma.user.findFirst({
-          where: { phone: identifier },
+          where: {
+            phone: identifier,
+            ...(tenantId && { tenantId }),
+          },
         });
 
         if (user) {

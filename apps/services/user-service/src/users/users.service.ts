@@ -363,9 +363,12 @@ export class UsersService {
    * Get active users count
    * الحصول على عدد المستخدمين النشطين
    */
-  async countActive(): Promise<number> {
+  async countActive(tenantId?: string): Promise<number> {
     return this.prisma.user.count({
-      where: { status: UserStatus.ACTIVE },
+      where: {
+        status: UserStatus.ACTIVE,
+        ...(tenantId && { tenantId }),
+      },
     });
   }
 }

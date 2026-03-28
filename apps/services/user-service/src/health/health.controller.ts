@@ -48,12 +48,6 @@ export const httpRequestsTotal = new promClient.Counter({
   registers: [register],
 });
 
-export const activeConnections = new promClient.Gauge({
-  name: "active_connections",
-  help: "Number of active connections",
-  registers: [register],
-});
-
 export const dbHealthGauge = new promClient.Gauge({
   name: "dependency_health",
   help: "Health status of dependencies (1 = healthy, 0 = unhealthy)",

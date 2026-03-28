@@ -98,6 +98,14 @@ class ResetPasswordRequestDto implements ResetPasswordDto {
   @IsStrongPassword(8)
   @IsNotEmpty({ message: "New password is required" })
   newPassword: string;
+
+  @ApiPropertyOptional({
+    description: "Tenant ID for tenant-scoped password reset",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @IsOptional()
+  @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
+  tenantId?: string;
 }
 
 class SendOtpRequestDto implements SendOtpDto {
@@ -136,6 +144,14 @@ class SendOtpRequestDto implements SendOtpDto {
   @IsOptional()
   @IsString()
   language?: string;
+
+  @ApiPropertyOptional({
+    description: "Tenant ID for tenant-scoped OTP send",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @IsOptional()
+  @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
+  tenantId?: string;
 }
 
 class VerifyOtpRequestDto implements VerifyOtpDto {
@@ -166,6 +182,14 @@ class VerifyOtpRequestDto implements VerifyOtpDto {
   @IsNotEmpty({ message: "Purpose is required" })
   @IsIn(["password_reset", "verify_phone"], { message: "Purpose must be password_reset or verify_phone" })
   purpose: string;
+
+  @ApiPropertyOptional({
+    description: "Tenant ID for tenant-scoped OTP verification",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @IsOptional()
+  @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
+  tenantId?: string;
 }
 
 class RegisterRequestDto implements RegisterDto {
@@ -414,11 +438,13 @@ export class AuthController {
     description: "Invalid or expired reset token",
   })
   @ApiResponse({ status: 429, description: "Too many reset attempts" })
-  async resetPassword(@Body() dto: ResetPasswordRequestDto, @Req() request: Request) {
+  async resetPassword(@Body() dto: ResetPasswordRequestDto, @Req() request: AuthenticatedRequest) {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.warn(`Password reset attempt from IP: ${ip}`);
 
-    return this.authService.resetPassword(dto.token, dto.newPassword);
+    // Tenant context from request body or x-tenant-id header
+    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    return this.authService.resetPassword(dto.token, dto.newPassword, tenantId);
   }
 
   /**
@@ -454,11 +480,13 @@ export class AuthController {
     description: "Invalid request parameters",
   })
   @ApiResponse({ status: 429, description: "Too many OTP requests" })
-  async sendOtp(@Body() dto: SendOtpRequestDto, @Req() request: Request) {
+  async sendOtp(@Body() dto: SendOtpRequestDto, @Req() request: AuthenticatedRequest) {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.log(`OTP send request from IP: ${ip}`);
 
-    return this.authService.sendOtp(dto);
+    // Tenant context from request body or x-tenant-id header
+    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    return this.authService.sendOtp(dto, tenantId);
   }
 
   /**

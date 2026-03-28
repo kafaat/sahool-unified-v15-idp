@@ -151,7 +151,10 @@ async def lifespan(app: FastAPI):
                 connect_timeout=5,
                 max_reconnect_attempts=3,
             )
-            logger.info("NATS connected", url=settings.nats_url)
+            import re
+
+            safe_url = re.sub(r"://[^@]+@", "://***@", settings.nats_url) if settings.nats_url else ""
+            logger.info("NATS connected", url=safe_url)
         except Exception as e:
             logger.warning("NATS connection failed, events disabled", error=str(e))
 

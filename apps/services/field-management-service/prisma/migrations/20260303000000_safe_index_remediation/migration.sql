@@ -26,25 +26,25 @@ DROP INDEX IF EXISTS "idx_field_harvest";
 -- إعادة إنشاء الفهارس بشكل متزامن (بدون قفل الجداول)
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_farm"
+CREATE INDEX IF NOT EXISTS "idx_field_farm"
     ON "fields"("farm_id");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_tenant_status"
+CREATE INDEX IF NOT EXISTS "idx_field_tenant_status"
     ON "fields"("tenant_id", "status");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_tenant_crop"
+CREATE INDEX IF NOT EXISTS "idx_field_tenant_crop"
     ON "fields"("tenant_id", "crop_type");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_tenant_active"
+CREATE INDEX IF NOT EXISTS "idx_field_tenant_active"
     ON "fields"("tenant_id", "is_deleted");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_owner"
+CREATE INDEX IF NOT EXISTS "idx_field_owner"
     ON "fields"("owner_id");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_planting"
+CREATE INDEX IF NOT EXISTS "idx_field_planting"
     ON "fields"("planting_date");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_harvest"
+CREATE INDEX IF NOT EXISTS "idx_field_harvest"
     ON "fields"("expected_harvest");
 
 -- ═══════════════════════════════════════════════════════════════════════════

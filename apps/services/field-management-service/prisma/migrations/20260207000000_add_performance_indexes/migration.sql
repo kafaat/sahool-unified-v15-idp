@@ -10,17 +10,17 @@
 
 -- Composite index for filtering active farms by tenant
 -- فهرس مركب لتصفية المزارع النشطة حسب المستأجر
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_farm_tenant_active"
+CREATE INDEX IF NOT EXISTS "idx_farm_tenant_active"
     ON "farms" ("tenant_id", "is_deleted");
 
 -- Index for owner queries
 -- فهرس لاستعلامات المالك
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_farm_owner"
+CREATE INDEX IF NOT EXISTS "idx_farm_owner"
     ON "farms" ("owner_id");
 
 -- Index for time-based queries
 -- فهرس للاستعلامات الزمنية
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_farm_created"
+CREATE INDEX IF NOT EXISTS "idx_farm_created"
     ON "farms" ("created_at");
 
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -30,37 +30,37 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_farm_created"
 
 -- Index for farm relationship
 -- فهرس لعلاقة المزرعة
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_farm"
+CREATE INDEX IF NOT EXISTS "idx_field_farm"
     ON "fields" ("farm_id");
 
 -- Composite index for tenant + status filtering (most common query pattern)
 -- فهرس مركب لتصفية المستأجر + الحالة (نمط الاستعلام الأكثر شيوعًا)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_tenant_status"
+CREATE INDEX IF NOT EXISTS "idx_field_tenant_status"
     ON "fields" ("tenant_id", "status");
 
 -- Composite index for tenant + crop type filtering
 -- فهرس مركب لتصفية المستأجر + نوع المحصول
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_tenant_crop"
+CREATE INDEX IF NOT EXISTS "idx_field_tenant_crop"
     ON "fields" ("tenant_id", "crop_type");
 
 -- Composite index for active fields by tenant
 -- فهرس مركب للحقول النشطة حسب المستأجر
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_tenant_active"
+CREATE INDEX IF NOT EXISTS "idx_field_tenant_active"
     ON "fields" ("tenant_id", "is_deleted");
 
 -- Index for owner queries
 -- فهرس لاستعلامات المالك
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_owner"
+CREATE INDEX IF NOT EXISTS "idx_field_owner"
     ON "fields" ("owner_id");
 
 -- Index for planting date queries (seasonal analysis)
 -- فهرس لاستعلامات تاريخ الزراعة (التحليل الموسمي)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_planting"
+CREATE INDEX IF NOT EXISTS "idx_field_planting"
     ON "fields" ("planting_date");
 
 -- Index for harvest date queries (harvest planning)
 -- فهرس لاستعلامات تاريخ الحصاد (تخطيط الحصاد)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_harvest"
+CREATE INDEX IF NOT EXISTS "idx_field_harvest"
     ON "fields" ("expected_harvest");
 
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -70,42 +70,42 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_field_harvest"
 
 -- Index for assigned user queries
 -- فهرس لاستعلامات المستخدم المعين
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_assigned"
+CREATE INDEX IF NOT EXISTS "idx_task_assigned"
     ON "tasks" ("assigned_to");
 
 -- Index for creator queries
 -- فهرس لاستعلامات المنشئ
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_creator"
+CREATE INDEX IF NOT EXISTS "idx_task_creator"
     ON "tasks" ("created_by");
 
 -- Index for task type filtering
 -- فهرس لتصفية نوع المهمة
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_type"
+CREATE INDEX IF NOT EXISTS "idx_task_type"
     ON "tasks" ("task_type");
 
 -- Index for priority filtering
 -- فهرس لتصفية الأولوية
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_priority"
+CREATE INDEX IF NOT EXISTS "idx_task_priority"
     ON "tasks" ("priority");
 
 -- Composite index for pending/overdue tasks by due date
 -- فهرس مركب للمهام المعلقة/المتأخرة حسب تاريخ الاستحقاق
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_status_due"
+CREATE INDEX IF NOT EXISTS "idx_task_status_due"
     ON "tasks" ("status", "due_date");
 
 -- Composite index for field tasks by status
 -- فهرس مركب لمهام الحقل حسب الحالة
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_field_status"
+CREATE INDEX IF NOT EXISTS "idx_task_field_status"
     ON "tasks" ("field_id", "status");
 
 -- Composite index for user tasks by status
 -- فهرس مركب لمهام المستخدم حسب الحالة
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_assigned_status"
+CREATE INDEX IF NOT EXISTS "idx_task_assigned_status"
     ON "tasks" ("assigned_to", "status");
 
 -- Index for sync operations
 -- فهرس لعمليات المزامنة
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_sync"
+CREATE INDEX IF NOT EXISTS "idx_task_sync"
     ON "tasks" ("server_updated_at");
 
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -115,13 +115,13 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_sync"
 
 -- Partial index for good quality readings (most commonly queried)
 -- فهرس جزئي للقراءات ذات الجودة الجيدة (الأكثر استعلامًا)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_ndvi_good_quality"
+CREATE INDEX IF NOT EXISTS "idx_ndvi_good_quality"
     ON "ndvi_readings" ("field_id", "captured_at")
     WHERE quality = 'good' OR quality IS NULL;
 
 -- Index for source filtering
 -- فهرس لتصفية المصدر
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_ndvi_source"
+CREATE INDEX IF NOT EXISTS "idx_ndvi_source"
     ON "ndvi_readings" ("source");
 
 -- ═══════════════════════════════════════════════════════════════════════════════

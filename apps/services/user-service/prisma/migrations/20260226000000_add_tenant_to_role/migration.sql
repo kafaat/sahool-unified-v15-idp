@@ -31,5 +31,6 @@ DROP INDEX IF EXISTS "user_roles_name_key";
 
 -- Step 5: Create tenant-scoped unique constraint and index
 
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "uq_role_tenant_name" ON "user_roles" ("tenant_id", "name");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_role_tenant" ON "user_roles" ("tenant_id");
+-- Note: Cannot use CONCURRENTLY inside Prisma transaction block
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_role_tenant_name" ON "user_roles" ("tenant_id", "name");
+CREATE INDEX IF NOT EXISTS "idx_role_tenant" ON "user_roles" ("tenant_id");

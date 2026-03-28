@@ -31,7 +31,7 @@ ALTER TABLE "ndvi_readings" ALTER COLUMN "tenant_id" DROP DEFAULT;
 
 -- Step 4: Create tenant isolation indexes
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_history_tenant" ON "field_boundary_history" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_tenant" ON "tasks" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_tenant_status" ON "tasks" ("tenant_id", "status");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_ndvi_tenant" ON "ndvi_readings" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_history_tenant" ON "field_boundary_history" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_task_tenant" ON "tasks" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_task_tenant_status" ON "tasks" ("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_ndvi_tenant" ON "ndvi_readings" ("tenant_id");

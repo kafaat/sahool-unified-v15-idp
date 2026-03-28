@@ -17,7 +17,7 @@ import pytest
 try:
     from src.channels_service import ChannelsService
     from src.models import ChannelType
-except (ImportError, Exception):
+except BaseException:
     pytest.skip("notification-service dependencies not available", allow_module_level=True)
 
 

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import time
+from collections import defaultdict
 from datetime import UTC, datetime
 from typing import Any
 
@@ -36,7 +37,7 @@ from ...models.schemas import (
 )
 from ...rag import get_rag_service
 from ...security import MAX_PROMPT_CHARS
-from ...security.prompt_guard import detect_prompt_injection
+from ...security.prompt_guard import detect_prompt_injection, sanitize_input
 from ..deps import get_current_user
 
 # Import guardrails for input/output validation
@@ -53,6 +54,20 @@ router = APIRouter(tags=["Chat"])
 # Intent classification and routing (module-level singletons)
 _intent_classifier = AgriIntentClassifier()
 _intent_router: IntentRouter | None = None
+
+# In-memory rate limiter - حد الطلبات في الذاكرة
+_rate_limits: dict[str, list[float]] = defaultdict(list)
+_RATE_WINDOW = 60  # seconds
+_RATE_MAX = 30  # max requests per window
+
+
+def _check_rate_limit(user_id: str) -> None:
+    """Check per-user rate limit. Raises 429 if exceeded."""
+    now = time.time()
+    _rate_limits[user_id] = [t for t in _rate_limits[user_id] if now - t < _RATE_WINDOW]
+    if len(_rate_limits[user_id]) >= _RATE_MAX:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded | تم تجاوز حد الطلبات")
+    _rate_limits[user_id].append(now)
 
 
 def _get_intent_router() -> IntentRouter:
@@ -82,6 +97,10 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
     نقطة نهاية المحادثة الرئيسية مع RAG وتوجيه الوكلاء
     """
     start_time = time.time()
+
+    # Rate limit check - فحص حد الطلبات
+    _check_rate_limit(user.get("user_id", ""))
+
     settings = get_settings()
 
     # Validate total prompt size
@@ -123,6 +142,9 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
                 "pattern": pattern_name,
             },
         )
+
+    # Sanitize user input before further processing
+    user_query = sanitize_input(user_query)
 
     # Guardrails input validation
     if HAS_GUARDRAILS:
@@ -199,6 +221,7 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
         search_results = await rag_service.search(
             query=user_query,
             top_k=5,
+            tenant_id=user.get("tenant_id", ""),
         )
 
         if search_results:
@@ -348,11 +371,14 @@ async def chat_stream(request: ChatRequest, req: Request, user: dict = Depends(g
             status_code=400, detail={"error": "Prompt injection detected", "error_ar": "تم اكتشاف محاولة حقن أوامر"}
         )
 
+    # Sanitize user input before further processing
+    user_query = sanitize_input(user_query)
+
     # Build system prompt
     rag_context_text = ""
     try:
         rag_service = get_rag_service()
-        results = await rag_service.search(query=user_query, top_k=5)
+        results = await rag_service.search(query=user_query, top_k=5, tenant_id=user.get("tenant_id", ""))
         if results:
             rag_context_text = rag_service.format_context_for_prompt(results, language=_detect_language(user_query))
     except Exception:
@@ -545,7 +571,10 @@ async def _generate_response(
             )
             if response.status_code == 200:
                 data = response.json()
-                return data.get("message", {}).get("content", "")
+                response_content = data.get("message", {}).get("content", "")
+                if len(response_content) > 50000:
+                    response_content = response_content[:50000] + "\n\n[Response truncated]"
+                return response_content
 
         except Exception as e:
             logger.debug("Ollama not available", error=str(e))
@@ -570,7 +599,10 @@ async def _generate_response(
                 )
                 if response.status_code == 200:
                     data = response.json()
-                    return data["choices"][0]["message"]["content"]
+                    response_content = data["choices"][0]["message"]["content"]
+                    if len(response_content) > 50000:
+                        response_content = response_content[:50000] + "\n\n[Response truncated]"
+                    return response_content
 
             except Exception as e:
                 logger.warning("External LLM failed", error=str(e))

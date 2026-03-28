@@ -82,5 +82,5 @@ ALTER TABLE "alert_subscriptions" ALTER COLUMN "updated_at" SET DEFAULT now();
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Note: All indexes in 20260207000000_add_composite_indexes already use
--- CREATE INDEX CONCURRENTLY. No non-concurrent index patterns to fix.
+-- CREATE INDEX. No non-concurrent index patterns to fix.
 -- ═══════════════════════════════════════════════════════════════════════════════

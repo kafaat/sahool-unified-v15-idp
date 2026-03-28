@@ -12,7 +12,7 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
-except ImportError:
+except BaseException:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 

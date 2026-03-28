@@ -70,5 +70,5 @@ ALTER TABLE "audit_logs" ALTER COLUMN "correlation_id" SET DEFAULT gen_random_uu
 --    Created during initial table creation (CREATE TABLE IF NOT EXISTS).
 --    Table was empty at creation time. Acceptable.
 --
--- All subsequent migrations use CREATE INDEX CONCURRENTLY.
+-- All subsequent migrations use CREATE INDEX.
 -- ═══════════════════════════════════════════════════════════════════════════════

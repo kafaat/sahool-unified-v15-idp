@@ -44,6 +44,7 @@ export class HealthController {
 
   /**
    * Readiness probe - is the service ready to accept traffic?
+   * Verifies actual dependency connectivity (database, PostGIS, cache).
    */
   @Get("readyz")
   @Public()
@@ -52,32 +53,42 @@ export class HealthController {
   @ApiResponse({ status: 200, description: "Service is ready" })
   @ApiResponse({ status: 503, description: "Service not ready" })
   async readyz(@Res() res: Response) {
-    const checks = {
-      database: false,
-      cache: false,
-    };
+    const checks: Record<string, string> = {};
 
+    // Check database connection with a real query
     try {
-      // Check database
-      const dbStatus = await this.prisma.getConnectionStatus();
-      checks.database = dbStatus.connected;
+      await this.prisma.$queryRaw`SELECT 1`;
+      checks.database = "connected";
     } catch {
-      checks.database = false;
+      checks.database = "disconnected";
     }
 
+    // Check PostGIS availability (required for geospatial operations)
     try {
-      // Check cache
-      checks.cache = await this.cacheService.isHealthy();
+      await this.prisma.$queryRaw`SELECT PostGIS_Version()`;
+      checks.postgis = "available";
     } catch {
-      checks.cache = false;
+      checks.postgis = "unavailable";
     }
 
-    const isReady = checks.database; // Database is required
+    // Check cache (non-critical)
+    try {
+      const cacheHealthy = await this.cacheService.isHealthy();
+      checks.cache = cacheHealthy ? "connected" : "disconnected";
+    } catch {
+      checks.cache = "disconnected";
+    }
+
+    // Database and PostGIS are required; cache is optional
+    const isReady =
+      checks.database === "connected" && checks.postgis === "available";
 
     const status = isReady ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
 
     return res.status(status).json({
       status: isReady ? "ready" : "not ready",
+      service: "field-management-service",
+      version: "16.0.0",
       checks,
       timestamp: new Date().toISOString(),
     });
@@ -94,16 +105,31 @@ export class HealthController {
   async health() {
     const checks: Record<string, any> = {};
 
-    // Database check
+    // Database check with latency measurement
     try {
-      const dbStatus = await this.prisma.getConnectionStatus();
+      const dbStart = Date.now();
+      await this.prisma.$queryRaw`SELECT 1`;
+      const dbLatency = Date.now() - dbStart;
       checks.database = {
-        status: dbStatus.connected ? "healthy" : "unhealthy",
-        latency: null, // Could add latency measurement
-        details: dbStatus,
+        status: "healthy",
+        latency_ms: dbLatency,
       };
     } catch (error) {
       checks.database = {
+        status: "unhealthy",
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
+
+    // PostGIS check
+    try {
+      const postgisResult: any[] = await this.prisma.$queryRaw`SELECT PostGIS_Version() as version`;
+      checks.postgis = {
+        status: "healthy",
+        version: postgisResult?.[0]?.version ?? "unknown",
+      };
+    } catch (error) {
+      checks.postgis = {
         status: "unhealthy",
         error: error instanceof Error ? error.message : "Unknown error",
       };

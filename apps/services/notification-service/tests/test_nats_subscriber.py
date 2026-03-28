@@ -11,6 +11,7 @@ Covers:
 - Singleton subscriber management
 """
 
+import asyncio
 import json
 import os
 from datetime import UTC, datetime
@@ -199,39 +200,47 @@ class TestNATSSubscriber:
         assert "test.event" in subscriber._handlers
         assert subscriber._handlers["test.event"] is handler
 
-    @pytest.mark.asyncio
-    async def test_connect_without_nats_available(self):
-        subscriber = NATSSubscriber()
-        with patch("src.nats_subscriber._nats_available", False):
-            result = await subscriber.connect()
+    def test_connect_without_nats_available(self):
+        async def _run():
+            subscriber = NATSSubscriber()
+            with patch("src.nats_subscriber._nats_available", False):
+                result = await subscriber.connect()
+                assert result is False
+
+        asyncio.run(_run())
+
+    def test_subscribe_when_not_connected(self):
+        async def _run():
+            subscriber = NATSSubscriber()
+            result = await subscriber.subscribe()
             assert result is False
 
-    @pytest.mark.asyncio
-    async def test_subscribe_when_not_connected(self):
-        subscriber = NATSSubscriber()
-        result = await subscriber.subscribe()
-        assert result is False
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_close_without_connection(self):
-        subscriber = NATSSubscriber()
-        await subscriber.close()
-        assert subscriber._connected is False
+    def test_close_without_connection(self):
+        async def _run():
+            subscriber = NATSSubscriber()
+            await subscriber.close()
+            assert subscriber._connected is False
 
-    @pytest.mark.asyncio
-    async def test_close_with_subscriptions(self):
-        subscriber = NATSSubscriber()
-        mock_sub = AsyncMock()
-        subscriber._subscriptions = [mock_sub]
-        subscriber._nc = AsyncMock()
-        subscriber._connected = True
+        asyncio.run(_run())
 
-        await subscriber.close()
+    def test_close_with_subscriptions(self):
+        async def _run():
+            subscriber = NATSSubscriber()
+            mock_sub = AsyncMock()
+            subscriber._subscriptions = [mock_sub]
+            subscriber._nc = AsyncMock()
+            subscriber._connected = True
 
-        mock_sub.unsubscribe.assert_called_once()
-        subscriber._nc.close.assert_called_once()
-        assert subscriber._connected is False
-        assert subscriber._subscriptions == []
+            await subscriber.close()
+
+            mock_sub.unsubscribe.assert_called_once()
+            subscriber._nc.close.assert_called_once()
+            assert subscriber._connected is False
+            assert subscriber._subscriptions == []
+
+        asyncio.run(_run())
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -455,114 +464,124 @@ class TestEventToNotificationData:
 
 
 class TestIrrigationRecommendationHandler:
-    @pytest.mark.asyncio
-    async def test_basic_irrigation_recommendation(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+    def test_basic_irrigation_recommendation(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-        event = ReceivedEvent(
-            event_id="evt-irr-1",
-            event_type="irrigation.recommendation.ready",
-            source_service="irrigation-smart",
-            timestamp=datetime.now(UTC),
-            field_id="field-123",
-            tenant_id="tenant-1",
-            farmer_id="farmer-456",
-            data={
-                "recommendation": {
-                    "amount_mm": 25,
-                    "title": "Irrigation Ready",
-                    "title_ar": "الري جاهز",
-                    "description": "Apply 25mm",
-                    "description_ar": "طبق 25 ملم",
-                }
-            },
-        )
+            event = ReceivedEvent(
+                event_id="evt-irr-1",
+                event_type="irrigation.recommendation.ready",
+                source_service="irrigation-smart",
+                timestamp=datetime.now(UTC),
+                field_id="field-123",
+                tenant_id="tenant-1",
+                farmer_id="farmer-456",
+                data={
+                    "recommendation": {
+                        "amount_mm": 25,
+                        "title": "Irrigation Ready",
+                        "title_ar": "الري جاهز",
+                        "description": "Apply 25mm",
+                        "description_ar": "طبق 25 ملم",
+                    }
+                },
+            )
 
-        await subscriber._handle_irrigation_recommendation(event)
+            await subscriber._handle_irrigation_recommendation(event)
 
-        callback.assert_called_once()
-        notification_data = callback.call_args[0][0]
-        assert notification_data["type"] == "irrigation_reminder"
-        assert "25" in notification_data["title"]
-        assert notification_data["channels"] == ["in_app"]
+            callback.assert_called_once()
+            notification_data = callback.call_args[0][0]
+            assert notification_data["type"] == "irrigation_reminder"
+            assert "25" in notification_data["title"]
+            assert notification_data["channels"] == ["in_app"]
 
-    @pytest.mark.asyncio
-    async def test_irrigation_without_amount_mm(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+        asyncio.run(_run())
 
-        event = ReceivedEvent(
-            event_id="evt-irr-2",
-            event_type="irrigation.recommendation.ready",
-            source_service="irrigation-smart",
-            timestamp=datetime.now(UTC),
-            data={
-                "recommendation": {
-                    "title": "Custom Title",
-                    "title_ar": "عنوان مخصص",
-                }
-            },
-        )
+    def test_irrigation_without_amount_mm(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-        await subscriber._handle_irrigation_recommendation(event)
+            event = ReceivedEvent(
+                event_id="evt-irr-2",
+                event_type="irrigation.recommendation.ready",
+                source_service="irrigation-smart",
+                timestamp=datetime.now(UTC),
+                data={
+                    "recommendation": {
+                        "title": "Custom Title",
+                        "title_ar": "عنوان مخصص",
+                    }
+                },
+            )
 
-        callback.assert_called_once()
-        notification_data = callback.call_args[0][0]
-        assert notification_data["title"] == "Custom Title"
+            await subscriber._handle_irrigation_recommendation(event)
 
-    @pytest.mark.asyncio
-    async def test_irrigation_without_callback(self):
-        subscriber = NATSSubscriber(notification_callback=None)
+            callback.assert_called_once()
+            notification_data = callback.call_args[0][0]
+            assert notification_data["title"] == "Custom Title"
 
-        event = ReceivedEvent(
-            event_id="evt-irr-3",
-            event_type="irrigation.recommendation.ready",
-            source_service="irrigation-smart",
-            timestamp=datetime.now(UTC),
-            data={"recommendation": {}},
-        )
+        asyncio.run(_run())
 
-        # Should not raise
-        await subscriber._handle_irrigation_recommendation(event)
+    def test_irrigation_without_callback(self):
+        async def _run():
+            subscriber = NATSSubscriber(notification_callback=None)
 
-    @pytest.mark.asyncio
-    async def test_irrigation_field_id_from_data(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+            event = ReceivedEvent(
+                event_id="evt-irr-3",
+                event_type="irrigation.recommendation.ready",
+                source_service="irrigation-smart",
+                timestamp=datetime.now(UTC),
+                data={"recommendation": {}},
+            )
 
-        event = ReceivedEvent(
-            event_id="evt-irr-4",
-            event_type="irrigation.recommendation.ready",
-            source_service="irrigation-smart",
-            timestamp=datetime.now(UTC),
-            data={
-                "field_id": "field-from-data",
-                "recommendation": {"amount_mm": 10},
-            },
-        )
+            # Should not raise
+            await subscriber._handle_irrigation_recommendation(event)
 
-        await subscriber._handle_irrigation_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["data"]["field_id"] == "field-from-data"
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_irrigation_with_custom_channels(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+    def test_irrigation_field_id_from_data(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-        event = ReceivedEvent(
-            event_id="evt-irr-5",
-            event_type="irrigation.recommendation.ready",
-            source_service="irrigation-smart",
-            timestamp=datetime.now(UTC),
-            notification_channels=["push", "sms"],
-            data={"recommendation": {"amount_mm": 15}},
-        )
+            event = ReceivedEvent(
+                event_id="evt-irr-4",
+                event_type="irrigation.recommendation.ready",
+                source_service="irrigation-smart",
+                timestamp=datetime.now(UTC),
+                data={
+                    "field_id": "field-from-data",
+                    "recommendation": {"amount_mm": 10},
+                },
+            )
 
-        await subscriber._handle_irrigation_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["channels"] == ["push", "sms"]
+            await subscriber._handle_irrigation_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["data"]["field_id"] == "field-from-data"
+
+        asyncio.run(_run())
+
+    def test_irrigation_with_custom_channels(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
+
+            event = ReceivedEvent(
+                event_id="evt-irr-5",
+                event_type="irrigation.recommendation.ready",
+                source_service="irrigation-smart",
+                timestamp=datetime.now(UTC),
+                notification_channels=["push", "sms"],
+                data={"recommendation": {"amount_mm": 15}},
+            )
+
+            await subscriber._handle_irrigation_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["channels"] == ["push", "sms"]
+
+        asyncio.run(_run())
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -571,171 +590,187 @@ class TestIrrigationRecommendationHandler:
 
 
 class TestDecisionRecommendationHandler:
-    @pytest.mark.asyncio
-    async def test_irrigation_type_maps_correctly(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+    def test_irrigation_type_maps_correctly(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-        event = ReceivedEvent(
-            event_id="evt-dec-1",
-            event_type="recommendation.created",
-            source_service="advisory-service",
-            timestamp=datetime.now(UTC),
-            field_id="field-123",
-            data={
-                "recommendation": {
-                    "type": "irrigation",
-                    "title": "Irrigate Now",
-                    "title_ar": "اروي الآن",
-                    "description": "Apply water",
-                    "description_ar": "طبق الماء",
-                }
-            },
-        )
+            event = ReceivedEvent(
+                event_id="evt-dec-1",
+                event_type="recommendation.created",
+                source_service="advisory-service",
+                timestamp=datetime.now(UTC),
+                field_id="field-123",
+                data={
+                    "recommendation": {
+                        "type": "irrigation",
+                        "title": "Irrigate Now",
+                        "title_ar": "اروي الآن",
+                        "description": "Apply water",
+                        "description_ar": "طبق الماء",
+                    }
+                },
+            )
 
-        await subscriber._handle_decision_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["type"] == "irrigation_reminder"
+            await subscriber._handle_decision_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["type"] == "irrigation_reminder"
 
-    @pytest.mark.asyncio
-    async def test_pest_control_type(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+        asyncio.run(_run())
 
-        event = ReceivedEvent(
-            event_id="evt-dec-2",
-            event_type="recommendation.created",
-            source_service="advisory-service",
-            timestamp=datetime.now(UTC),
-            data={
-                "recommendation": {
-                    "type": "pest_control",
-                    "title": "Pest Alert",
-                    "title_ar": "تنبيه آفات",
-                }
-            },
-        )
+    def test_pest_control_type(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-        await subscriber._handle_decision_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["type"] == "pest_outbreak"
+            event = ReceivedEvent(
+                event_id="evt-dec-2",
+                event_type="recommendation.created",
+                source_service="advisory-service",
+                timestamp=datetime.now(UTC),
+                data={
+                    "recommendation": {
+                        "type": "pest_control",
+                        "title": "Pest Alert",
+                        "title_ar": "تنبيه آفات",
+                    }
+                },
+            )
 
-    @pytest.mark.asyncio
-    async def test_fertilizer_type(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+            await subscriber._handle_decision_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["type"] == "pest_outbreak"
 
-        event = ReceivedEvent(
-            event_id="evt-dec-3",
-            event_type="recommendation.created",
-            source_service="advisory-service",
-            timestamp=datetime.now(UTC),
-            data={
-                "recommendation": {
-                    "type": "fertilizer",
-                }
-            },
-        )
+        asyncio.run(_run())
 
-        await subscriber._handle_decision_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["type"] == "task_reminder"
+    def test_fertilizer_type(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-    @pytest.mark.asyncio
-    async def test_harvest_type(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+            event = ReceivedEvent(
+                event_id="evt-dec-3",
+                event_type="recommendation.created",
+                source_service="advisory-service",
+                timestamp=datetime.now(UTC),
+                data={
+                    "recommendation": {
+                        "type": "fertilizer",
+                    }
+                },
+            )
 
-        event = ReceivedEvent(
-            event_id="evt-dec-4",
-            event_type="recommendation.created",
-            source_service="advisory-service",
-            timestamp=datetime.now(UTC),
-            data={
-                "recommendation": {
-                    "type": "harvest",
-                }
-            },
-        )
+            await subscriber._handle_decision_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["type"] == "task_reminder"
 
-        await subscriber._handle_decision_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["type"] == "task_reminder"
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_unknown_type_maps_to_system(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+    def test_harvest_type(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-        event = ReceivedEvent(
-            event_id="evt-dec-5",
-            event_type="recommendation.created",
-            source_service="advisory-service",
-            timestamp=datetime.now(UTC),
-            data={
-                "recommendation": {
-                    "type": "unknown_type",
-                }
-            },
-        )
+            event = ReceivedEvent(
+                event_id="evt-dec-4",
+                event_type="recommendation.created",
+                source_service="advisory-service",
+                timestamp=datetime.now(UTC),
+                data={
+                    "recommendation": {
+                        "type": "harvest",
+                    }
+                },
+            )
 
-        await subscriber._handle_decision_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["type"] == "system"
+            await subscriber._handle_decision_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["type"] == "task_reminder"
 
-    @pytest.mark.asyncio
-    async def test_priority_from_recommendation(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+        asyncio.run(_run())
 
-        event = ReceivedEvent(
-            event_id="evt-dec-6",
-            event_type="recommendation.created",
-            source_service="advisory-service",
-            timestamp=datetime.now(UTC),
-            data={
-                "recommendation": {
-                    "type": "irrigation",
-                    "priority": "critical",
-                }
-            },
-        )
+    def test_unknown_type_maps_to_system(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-        await subscriber._handle_decision_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["priority"] == "critical"
+            event = ReceivedEvent(
+                event_id="evt-dec-5",
+                event_type="recommendation.created",
+                source_service="advisory-service",
+                timestamp=datetime.now(UTC),
+                data={
+                    "recommendation": {
+                        "type": "unknown_type",
+                    }
+                },
+            )
 
-    @pytest.mark.asyncio
-    async def test_without_callback(self):
-        subscriber = NATSSubscriber(notification_callback=None)
+            await subscriber._handle_decision_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["type"] == "system"
 
-        event = ReceivedEvent(
-            event_id="evt-dec-7",
-            event_type="recommendation.created",
-            source_service="advisory-service",
-            timestamp=datetime.now(UTC),
-            data={"recommendation": {}},
-        )
+        asyncio.run(_run())
 
-        # Should not raise
-        await subscriber._handle_decision_recommendation(event)
+    def test_priority_from_recommendation(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
 
-    @pytest.mark.asyncio
-    async def test_expires_in_48_hours(self):
-        callback = MagicMock()
-        subscriber = NATSSubscriber(notification_callback=callback)
+            event = ReceivedEvent(
+                event_id="evt-dec-6",
+                event_type="recommendation.created",
+                source_service="advisory-service",
+                timestamp=datetime.now(UTC),
+                data={
+                    "recommendation": {
+                        "type": "irrigation",
+                        "priority": "critical",
+                    }
+                },
+            )
 
-        event = ReceivedEvent(
-            event_id="evt-dec-8",
-            event_type="recommendation.created",
-            source_service="advisory-service",
-            timestamp=datetime.now(UTC),
-            data={"recommendation": {"type": "general"}},
-        )
+            await subscriber._handle_decision_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["priority"] == "critical"
 
-        await subscriber._handle_decision_recommendation(event)
-        notification_data = callback.call_args[0][0]
-        assert notification_data["expires_in_hours"] == 48
+        asyncio.run(_run())
+
+    def test_without_callback(self):
+        async def _run():
+            subscriber = NATSSubscriber(notification_callback=None)
+
+            event = ReceivedEvent(
+                event_id="evt-dec-7",
+                event_type="recommendation.created",
+                source_service="advisory-service",
+                timestamp=datetime.now(UTC),
+                data={"recommendation": {}},
+            )
+
+            # Should not raise
+            await subscriber._handle_decision_recommendation(event)
+
+        asyncio.run(_run())
+
+    def test_expires_in_48_hours(self):
+        async def _run():
+            callback = MagicMock()
+            subscriber = NATSSubscriber(notification_callback=callback)
+
+            event = ReceivedEvent(
+                event_id="evt-dec-8",
+                event_type="recommendation.created",
+                source_service="advisory-service",
+                timestamp=datetime.now(UTC),
+                data={"recommendation": {"type": "general"}},
+            )
+
+            await subscriber._handle_decision_recommendation(event)
+            notification_data = callback.call_args[0][0]
+            assert notification_data["expires_in_hours"] == 48
+
+        asyncio.run(_run())
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -744,8 +779,7 @@ class TestDecisionRecommendationHandler:
 
 
 class TestMessageHandler:
-    @pytest.mark.asyncio
-    async def test_message_handler_parses_json(self):
+    def test_message_handler_parses_json(self):
         callback = MagicMock()
         subscriber = NATSSubscriber(notification_callback=callback)
 
@@ -761,12 +795,11 @@ class TestMessageHandler:
         mock_msg.subject = "sahool.analysis.test"
         mock_msg.data = json.dumps(msg_data).encode("utf-8")
 
-        await subscriber._message_handler(mock_msg)
+        asyncio.run(subscriber._message_handler(mock_msg))
         # callback should be called (for _process_event_to_notification)
         assert callback.called
 
-    @pytest.mark.asyncio
-    async def test_message_handler_invalid_json(self):
+    def test_message_handler_invalid_json(self):
         subscriber = NATSSubscriber()
 
         mock_msg = MagicMock()
@@ -774,10 +807,9 @@ class TestMessageHandler:
         mock_msg.data = b"not valid json"
 
         # Should not raise
-        await subscriber._message_handler(mock_msg)
+        asyncio.run(subscriber._message_handler(mock_msg))
 
-    @pytest.mark.asyncio
-    async def test_message_handler_derives_irrigation_event_type(self):
+    def test_message_handler_derives_irrigation_event_type(self):
         callback = MagicMock()
         subscriber = NATSSubscriber(notification_callback=callback)
         subscriber._handlers["irrigation.recommendation.ready"] = AsyncMock()
@@ -793,11 +825,10 @@ class TestMessageHandler:
         mock_msg.subject = "sahool.irrigation.recommendation.ready.v1"
         mock_msg.data = json.dumps(msg_data).encode("utf-8")
 
-        await subscriber._message_handler(mock_msg)
+        asyncio.run(subscriber._message_handler(mock_msg))
         subscriber._handlers["irrigation.recommendation.ready"].assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_message_handler_derives_recommendation_event_type(self):
+    def test_message_handler_derives_recommendation_event_type(self):
         callback = MagicMock()
         subscriber = NATSSubscriber(notification_callback=callback)
         subscriber._handlers["recommendation.created"] = AsyncMock()
@@ -813,11 +844,10 @@ class TestMessageHandler:
         mock_msg.subject = "sahool.recommendation.fertilizer"
         mock_msg.data = json.dumps(msg_data).encode("utf-8")
 
-        await subscriber._message_handler(mock_msg)
+        asyncio.run(subscriber._message_handler(mock_msg))
         subscriber._handlers["recommendation.created"].assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_message_handler_uses_event_type_from_payload(self):
+    def test_message_handler_uses_event_type_from_payload(self):
         callback = MagicMock()
         subscriber = NATSSubscriber(notification_callback=callback)
 
@@ -833,7 +863,7 @@ class TestMessageHandler:
         mock_msg.subject = "sahool.analysis.test"
         mock_msg.data = json.dumps(msg_data).encode("utf-8")
 
-        await subscriber._message_handler(mock_msg)
+        asyncio.run(subscriber._message_handler(mock_msg))
         assert callback.called
 
 
@@ -843,8 +873,7 @@ class TestMessageHandler:
 
 
 class TestProcessEventToNotification:
-    @pytest.mark.asyncio
-    async def test_process_event_calls_callback(self):
+    def test_process_event_calls_callback(self):
         callback = MagicMock()
         subscriber = NATSSubscriber(notification_callback=callback)
 
@@ -855,11 +884,10 @@ class TestProcessEventToNotification:
             timestamp=datetime.now(UTC),
         )
 
-        await subscriber._process_event_to_notification(event)
+        asyncio.run(subscriber._process_event_to_notification(event))
         callback.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_process_event_without_callback(self):
+    def test_process_event_without_callback(self):
         subscriber = NATSSubscriber(notification_callback=None)
 
         event = ReceivedEvent(
@@ -870,10 +898,9 @@ class TestProcessEventToNotification:
         )
 
         # Should not raise
-        await subscriber._process_event_to_notification(event)
+        asyncio.run(subscriber._process_event_to_notification(event))
 
-    @pytest.mark.asyncio
-    async def test_process_event_callback_error_handled(self):
+    def test_process_event_callback_error_handled(self):
         callback = MagicMock(side_effect=Exception("callback error"))
         subscriber = NATSSubscriber(notification_callback=callback)
 
@@ -885,7 +912,7 @@ class TestProcessEventToNotification:
         )
 
         # Should not raise despite callback error
-        await subscriber._process_event_to_notification(event)
+        asyncio.run(subscriber._process_event_to_notification(event))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -894,22 +921,19 @@ class TestProcessEventToNotification:
 
 
 class TestCallbackMethods:
-    @pytest.mark.asyncio
-    async def test_error_callback(self):
+    def test_error_callback(self):
         subscriber = NATSSubscriber()
         # Should not raise
-        await subscriber._error_callback(Exception("test error"))
+        asyncio.run(subscriber._error_callback(Exception("test error")))
 
-    @pytest.mark.asyncio
-    async def test_disconnected_callback(self):
+    def test_disconnected_callback(self):
         subscriber = NATSSubscriber()
         subscriber._connected = True
-        await subscriber._disconnected_callback()
+        asyncio.run(subscriber._disconnected_callback())
         assert subscriber._connected is False
 
-    @pytest.mark.asyncio
-    async def test_reconnected_callback(self):
+    def test_reconnected_callback(self):
         subscriber = NATSSubscriber()
         subscriber._connected = False
-        await subscriber._reconnected_callback()
+        asyncio.run(subscriber._reconnected_callback())
         assert subscriber._connected is True

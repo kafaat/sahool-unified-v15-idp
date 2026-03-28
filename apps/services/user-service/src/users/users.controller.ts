@@ -18,6 +18,7 @@ import {
   UseGuards,
   ParseIntPipe,
   DefaultValuePipe,
+  ParseUUIDPipe,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import {
@@ -155,7 +156,7 @@ export class UsersController {
     status: 403,
     description: "Forbidden - You can only access your own data",
   })
-  async findOne(@Param("id") id: string, @CurrentUser() currentUser: any) {
+  async findOne(@Param("id", ParseUUIDPipe) id: string, @CurrentUser() currentUser: any) {
     // Validate resource ownership - users can only access their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
@@ -222,7 +223,7 @@ export class UsersController {
     description: "Forbidden - You can only update your own data",
   })
   async update(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() currentUser: any,
   ) {
@@ -257,7 +258,7 @@ export class UsersController {
     status: 403,
     description: "Forbidden - You can only delete your own data",
   })
-  async remove(@Param("id") id: string, @CurrentUser() currentUser: any) {
+  async remove(@Param("id", ParseUUIDPipe) id: string, @CurrentUser() currentUser: any) {
     // Validate resource ownership - users can only delete their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
@@ -294,7 +295,7 @@ export class UsersController {
     status: 404,
     description: "User not found",
   })
-  async hardDelete(@Param("id") id: string) {
+  async hardDelete(@Param("id", ParseUUIDPipe) id: string) {
     await this.usersService.hardDelete(id);
     return {
       success: true,
@@ -318,7 +319,7 @@ export class UsersController {
     status: 403,
     description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
-  async countByTenant(@Param("tenantId") tenantId: string) {
+  async countByTenant(@Param("tenantId", ParseUUIDPipe) tenantId: string) {
     const count = await this.usersService.countByTenant(tenantId);
     return {
       success: true,
@@ -341,8 +342,10 @@ export class UsersController {
     status: 403,
     description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
-  async countActive() {
-    const count = await this.usersService.countActive();
+  async countActive(@CurrentUser() currentUser: any) {
+    // SECURITY: Filter by tenant to prevent cross-tenant user count leakage
+    const tenantId = currentUser?.tenantId;
+    const count = await this.usersService.countActive(tenantId);
     return {
       success: true,
       data: { count },

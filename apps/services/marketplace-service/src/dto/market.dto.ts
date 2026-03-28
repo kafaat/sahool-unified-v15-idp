@@ -20,6 +20,8 @@ import {
   IsEnum,
   IsDateString,
   IsObject,
+  IsUUID,
+  IsUrl,
 } from "class-validator";
 import { Type } from "class-transformer";
 import {
@@ -48,9 +50,8 @@ export class CreateProductDto {
   @SanitizePlainText()
   nameAr: string;
 
-  @IsString()
+  @IsIn(["HARVEST", "SEEDS", "FERTILIZER", "PESTICIDE", "EQUIPMENT", "IRRIGATION", "OTHER"])
   @IsNotEmpty()
-  @SanitizePlainText()
   category: string;
 
   @IsMoneyValue()
@@ -75,11 +76,11 @@ export class CreateProductDto {
   @SanitizePlainText()
   descriptionAr?: string;
 
-  @IsString()
+  @IsUrl()
   @IsOptional()
   imageUrl?: string;
 
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   sellerId: string;
 

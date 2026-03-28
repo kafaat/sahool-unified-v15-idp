@@ -388,16 +388,19 @@ export class FintechService {
   // الإحصائيات - Statistics
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getFinanceStats() {
+  async getFinanceStats(tenantId?: string) {
+    const tenantFilter = tenantId ? { tenantId } : {};
+
     const [totalWallets, totalBalance, activeLoans, paidLoans] =
       await Promise.all([
-        this.prisma.wallet.count(),
-        this.prisma.wallet.aggregate({ _sum: { balance: true } }),
-        this.prisma.loan.count({ where: { status: "ACTIVE" } }),
-        this.prisma.loan.count({ where: { status: "PAID" } }),
+        this.prisma.wallet.count({ where: { ...tenantFilter } }),
+        this.prisma.wallet.aggregate({ where: { ...tenantFilter }, _sum: { balance: true } }),
+        this.prisma.loan.count({ where: { status: "ACTIVE", ...tenantFilter } }),
+        this.prisma.loan.count({ where: { status: "PAID", ...tenantFilter } }),
       ]);
 
     const avgCreditScore = await this.prisma.wallet.aggregate({
+      where: { ...tenantFilter },
       _avg: { creditScore: true },
     });
 

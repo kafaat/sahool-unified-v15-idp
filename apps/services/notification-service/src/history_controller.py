@@ -236,13 +236,17 @@ async def get_user_notification_history(
 @router.get("/notification/{notification_id}")
 async def get_notification_details(
     notification_id: str,
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     الحصول على تفاصيل إشعار
     Get detailed information about a specific notification
 
+    SECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.
+
     Args:
         notification_id: Notification UUID
+        tenant_id: Tenant ID from X-Tenant-Id header (required)
 
     Returns:
         Notification details with delivery logs
@@ -250,8 +254,8 @@ async def get_notification_details(
     try:
         notif_uuid = UUID(notification_id)
 
-        # Get notification
-        notification = await NotificationRepository.get_by_id(notif_uuid)
+        # Get notification - SECURITY: filter by tenant_id for tenant isolation
+        notification = await NotificationRepository.get_by_id(notif_uuid, tenant_id=tenant_id)
         if not notification:
             raise HTTPException(status_code=404, detail="Notification not found")
 
@@ -309,19 +313,29 @@ async def get_notification_details(
 @router.get("/delivery-logs/{notification_id}")
 async def get_delivery_logs(
     notification_id: str,
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     الحصول على سجلات التسليم
     Get delivery logs for a notification
 
+    SECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.
+
     Args:
         notification_id: Notification UUID
+        tenant_id: Tenant ID from X-Tenant-Id header (required)
 
     Returns:
         List of delivery log entries
     """
     try:
         notif_uuid = UUID(notification_id)
+
+        # SECURITY: Verify notification belongs to the caller's tenant
+        notification = await NotificationRepository.get_by_id(notif_uuid, tenant_id=tenant_id)
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+
         logs = await NotificationLogRepository.get_notification_logs(notif_uuid)
 
         return {
@@ -354,21 +368,25 @@ async def get_delivery_logs(
 async def get_failed_notifications(
     limit: int = Query(default=50, ge=1, le=200),
     retry_pending: bool = Query(default=False, description="Only show notifications pending retry"),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     الحصول على الإشعارات الفاشلة
     Get failed notifications for monitoring
 
+    SECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.
+
     Args:
         limit: Maximum number of records
         retry_pending: Only show notifications pending retry
+        tenant_id: Tenant ID from X-Tenant-Id header (required)
 
     Returns:
         List of failed notifications with details
     """
     try:
-        # Get failed logs
-        failed_logs = await NotificationLogRepository.get_failed_logs(limit=limit)
+        # Get failed logs - SECURITY: filter by tenant_id for tenant isolation
+        failed_logs = await NotificationLogRepository.get_failed_logs(limit=limit, tenant_id=tenant_id)
 
         if retry_pending:
             failed_logs = [log for log in failed_logs if log.retry_count < 3]
@@ -580,13 +598,17 @@ async def export_notification_history(
 @router.post("/retry/{notification_id}")
 async def retry_failed_notification(
     notification_id: str,
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     إعادة محاولة إرسال إشعار فاشل
     Retry sending a failed notification
 
+    SECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.
+
     Args:
         notification_id: Notification UUID
+        tenant_id: Tenant ID from X-Tenant-Id header (required)
 
     Returns:
         Retry result
@@ -594,8 +616,8 @@ async def retry_failed_notification(
     try:
         notif_uuid = UUID(notification_id)
 
-        # Get notification
-        notification = await NotificationRepository.get_by_id(notif_uuid)
+        # Get notification - SECURITY: filter by tenant_id for tenant isolation
+        notification = await NotificationRepository.get_by_id(notif_uuid, tenant_id=tenant_id)
         if not notification:
             raise HTTPException(status_code=404, detail="Notification not found")
 
@@ -606,7 +628,7 @@ async def retry_failed_notification(
             )
 
         # Reset status to pending for retry
-        await NotificationRepository.update_status(notif_uuid, status="pending")
+        await NotificationRepository.update_status(notif_uuid, status="pending", tenant_id=tenant_id)
 
         logger.info(f"Scheduled retry for notification {notification_id}")
 

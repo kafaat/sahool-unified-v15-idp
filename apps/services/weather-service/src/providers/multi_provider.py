@@ -722,9 +722,9 @@ class MultiWeatherService:
         """Cache a result"""
         self._cache[key] = (data, datetime.now(UTC))
 
-    async def get_current(self, lat: float, lon: float) -> WeatherResult:
+    async def get_current(self, lat: float, lon: float, tenant_id: str = "") -> WeatherResult:
         """Get current weather with automatic fallback"""
-        cache_key = f"current_{lat:.2f}_{lon:.2f}"
+        cache_key = f"current_{tenant_id}_{lat:.2f}_{lon:.2f}"
 
         # Check cache
         cached = self._get_cached(cache_key)
@@ -757,9 +757,9 @@ class MultiWeatherService:
             error_ar="فشل جميع مزودي الطقس",
         )
 
-    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> WeatherResult:
+    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7, tenant_id: str = "") -> WeatherResult:
         """Get daily forecast with automatic fallback"""
-        cache_key = f"daily_{lat:.2f}_{lon:.2f}_{days}"
+        cache_key = f"daily_{tenant_id}_{lat:.2f}_{lon:.2f}_{days}"
 
         cached = self._get_cached(cache_key)
         if cached:
@@ -796,9 +796,9 @@ class MultiWeatherService:
             error_ar="فشل جميع مزودي التوقعات",
         )
 
-    async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24) -> WeatherResult:
+    async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24, tenant_id: str = "") -> WeatherResult:
         """Get hourly forecast with automatic fallback"""
-        cache_key = f"hourly_{lat:.2f}_{lon:.2f}_{hours}"
+        cache_key = f"hourly_{tenant_id}_{lat:.2f}_{lon:.2f}_{hours}"
 
         cached = self._get_cached(cache_key)
         if cached:

@@ -48,9 +48,9 @@ export class NdviService {
     // Enforce tenant isolation
     assertTenantOwnership(field.tenantId, tenantId, "field");
 
-    // Get NDVI readings
+    // Get NDVI readings (tenant-scoped for defense-in-depth)
     const readings = await this.prisma.ndviReading.findMany({
-      where: { fieldId },
+      where: { fieldId, tenantId: field.tenantId },
       orderBy: { capturedAt: "desc" },
       take: 30,
       select: {

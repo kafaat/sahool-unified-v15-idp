@@ -5,6 +5,7 @@ Covers provider failover, malformed responses, authentication errors,
 tenant isolation, rate limiting, and NATS failure scenarios.
 """
 
+import asyncio
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -139,8 +140,7 @@ def _location_payload(tenant_id="00000000-0000-0000-0000-000000000123"):
 class TestProviderFailover:
     """Test multi-provider failover behaviour"""
 
-    @pytest.mark.asyncio
-    async def test_primary_provider_fails_uses_fallback(self, client, mock_weather_response):
+    def test_primary_provider_fails_uses_fallback(self, client, mock_weather_response):
         """When primary provider fails, fallback provider is used"""
         with patch("src.main.app.state") as mock_state:
             mock_multi = AsyncMock()
@@ -159,8 +159,7 @@ class TestProviderFailover:
             data = response.json()
             assert data["provider"] == "OpenWeatherMap"
 
-    @pytest.mark.asyncio
-    async def test_all_providers_fail_returns_503(self, client):
+    def test_all_providers_fail_returns_503(self, client):
         """When all providers fail, return service unavailable"""
         with patch("src.main.app.state") as mock_state:
             mock_multi = AsyncMock()
@@ -182,8 +181,7 @@ class TestProviderFailover:
             # ExternalServiceException maps to 502/503 via unified error handling
             assert response.status_code in (502, 503)
 
-    @pytest.mark.asyncio
-    async def test_provider_timeout_triggers_fallback(self, client, mock_weather_response):
+    def test_provider_timeout_triggers_fallback(self, client, mock_weather_response):
         """Provider timeout triggers fallback to next provider"""
         with patch("src.main.app.state") as mock_state:
             mock_multi = AsyncMock()
@@ -205,8 +203,7 @@ class TestProviderFailover:
             data = response.json()
             assert data["provider"] == "WeatherAPI"
 
-    @pytest.mark.asyncio
-    async def test_single_provider_network_error_returns_error(self, client):
+    def test_single_provider_network_error_returns_error(self, client):
         """Single provider mode raises error on network failure"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
@@ -220,8 +217,7 @@ class TestProviderFailover:
             # ExternalServiceException wraps the error
             assert response.status_code in (502, 503)
 
-    @pytest.mark.asyncio
-    async def test_forecast_all_providers_fail(self, client):
+    def test_forecast_all_providers_fail(self, client):
         """Forecast endpoint handles all providers failing"""
         with patch("src.main.app.state") as mock_state:
             mock_multi = AsyncMock()
@@ -248,8 +244,7 @@ class TestProviderFailover:
 class TestMalformedResponses:
     """Test handling of malformed or unexpected external API responses"""
 
-    @pytest.mark.asyncio
-    async def test_invalid_json_from_provider(self):
+    def test_invalid_json_from_provider(self):
         """Handle invalid JSON from external weather API"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -265,12 +260,11 @@ class TestMalformedResponses:
             mock_client_getter.return_value = mock_client
 
             with pytest.raises((ValueError, Exception)):
-                await provider.get_current(15.35, 44.20)
+                asyncio.run(provider.get_current(15.35, 44.20))
 
-        await provider.close()
+        asyncio.run(provider.close())
 
-    @pytest.mark.asyncio
-    async def test_missing_fields_in_provider_response(self):
+    def test_missing_fields_in_provider_response(self):
         """Handle missing required fields in API response"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -285,7 +279,7 @@ class TestMalformedResponses:
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_getter.return_value = mock_client
 
-            weather = await provider.get_current(15.35, 44.20)
+            weather = asyncio.run(provider.get_current(15.35, 44.20))
 
             # Provider uses .get() with defaults, so missing fields yield 0
             assert weather.temperature_c == 0
@@ -293,10 +287,9 @@ class TestMalformedResponses:
             assert weather.wind_speed_kmh == 0
             assert weather.pressure_hpa == 0
 
-        await provider.close()
+        asyncio.run(provider.close())
 
-    @pytest.mark.asyncio
-    async def test_empty_forecast_response(self):
+    def test_empty_forecast_response(self):
         """Handle empty forecast data from provider"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -310,14 +303,13 @@ class TestMalformedResponses:
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_getter.return_value = mock_client
 
-            forecast = await provider.get_daily_forecast(15.35, 44.20, 7)
+            forecast = asyncio.run(provider.get_daily_forecast(15.35, 44.20, 7))
 
             assert forecast == []
 
-        await provider.close()
+        asyncio.run(provider.close())
 
-    @pytest.mark.asyncio
-    async def test_http_500_from_provider(self):
+    def test_http_500_from_provider(self):
         """Handle HTTP 500 from external weather API"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -337,12 +329,11 @@ class TestMalformedResponses:
             mock_client_getter.return_value = mock_client
 
             with pytest.raises(httpx.HTTPStatusError):
-                await provider.get_current(15.35, 44.20)
+                asyncio.run(provider.get_current(15.35, 44.20))
 
-        await provider.close()
+        asyncio.run(provider.close())
 
-    @pytest.mark.asyncio
-    async def test_http_429_rate_limited_from_provider(self):
+    def test_http_429_rate_limited_from_provider(self):
         """Handle HTTP 429 rate limit response from provider"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -362,9 +353,9 @@ class TestMalformedResponses:
             mock_client_getter.return_value = mock_client
 
             with pytest.raises(httpx.HTTPStatusError):
-                await provider.get_current(15.35, 44.20)
+                asyncio.run(provider.get_current(15.35, 44.20))
 
-        await provider.close()
+        asyncio.run(provider.close())
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -519,8 +510,7 @@ class TestRateLimiting:
             response = client.get("/healthz")
             assert response.status_code == 200
 
-    @pytest.mark.asyncio
-    async def test_rapid_current_weather_requests(self, client, mock_weather_response):
+    def test_rapid_current_weather_requests(self, client, mock_weather_response):
         """Current weather handles rapid requests using cached multi-provider"""
         with patch("src.main.app.state") as mock_state:
             mock_multi = AsyncMock()
@@ -550,8 +540,7 @@ class TestRateLimiting:
 class TestNATSFailures:
     """Test that NATS failures do not break endpoint responses"""
 
-    @pytest.mark.asyncio
-    async def test_nats_publish_failure_doesnt_break_response(self, client, mock_weather_response):
+    def test_nats_publish_failure_doesnt_break_response(self, client, mock_weather_response):
         """NATS publish failure does not affect endpoint response"""
         with patch("src.main.app.state") as mock_state:
             mock_multi = AsyncMock()
@@ -583,8 +572,7 @@ class TestNATSFailures:
             # event_ids should be empty since publishing failed
             assert data["event_ids"] == []
 
-    @pytest.mark.asyncio
-    async def test_nats_disconnected_service_still_works(self, client, mock_weather_response):
+    def test_nats_disconnected_service_still_works(self, client, mock_weather_response):
         """Service works when NATS is disconnected (publisher is None)"""
         with patch("src.main.app.state") as mock_state:
             mock_multi = AsyncMock()
@@ -604,8 +592,7 @@ class TestNATSFailures:
             assert "current" in data
             assert data["field_id"] == "field-456"
 
-    @pytest.mark.asyncio
-    async def test_nats_failure_on_assess_doesnt_break_response(self, client):
+    def test_nats_failure_on_assess_doesnt_break_response(self, client):
         """NATS failure on assess endpoint does not break the response"""
         with patch("src.main.app.state") as mock_state:
             mock_publisher = AsyncMock()
@@ -632,8 +619,7 @@ class TestNATSFailures:
             # event_ids should be empty since NATS failed
             assert data["event_ids"] == []
 
-    @pytest.mark.asyncio
-    async def test_nats_none_on_assess_still_works(self, client):
+    def test_nats_none_on_assess_still_works(self, client):
         """Assess endpoint works when NATS publisher is None"""
         with patch("src.main.app.state") as mock_state:
             mock_state.publisher = None

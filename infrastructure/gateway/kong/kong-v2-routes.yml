@@ -378,6 +378,85 @@ services:
               - "X-API-Version: 2"
 
   # ============================================================================
+  # Indicators Service - v1 & v2 (Current)
+  # ============================================================================
+  - name: indicators-service-v1
+    host: indicators-service-upstream
+    tags:
+      - v1
+      - deprecated
+      - indicators
+    routes:
+      - name: indicators-service-v1-route
+        paths:
+          - /api/v1/indicators
+        strip_path: true
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 1"
+              - "X-API-Deprecated: true"
+              - "X-API-Deprecation-Date: 2025-06-30"
+              - "X-API-Sunset-Date: 2026-06-30"
+              - "Link: </api/v2/indicators>; rel=\"successor-version\""
+
+  - name: indicators-service-v2
+    host: indicators-service-upstream
+    tags:
+      - v2
+      - current
+      - indicators
+    routes:
+      - name: indicators-service-v2-route
+        paths:
+          - /api/v2/indicators
+        strip_path: true
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 2"
+
+  # ============================================================================
   # AI Advisor - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: ai-advisor-v1

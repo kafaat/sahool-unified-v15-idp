@@ -11,6 +11,7 @@ Covers:
 - API endpoint integration tests via TestClient
 """
 
+import asyncio
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -282,8 +283,7 @@ class TestRequestModels:
 
 
 class TestCreateNotificationFromNats:
-    @pytest.mark.asyncio
-    async def test_weather_alert_type(self):
+    def test_weather_alert_type(self):
         notification_data = {
             "type": "weather_alert",
             "priority": "high",
@@ -297,14 +297,13 @@ class TestCreateNotificationFromNats:
         }
 
         with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
             mock_create.assert_called_once()
             call_kwargs = mock_create.call_args[1]
             assert call_kwargs["type"] == NotificationType.WEATHER_ALERT
             assert call_kwargs["priority"] == NotificationPriority.HIGH
 
-    @pytest.mark.asyncio
-    async def test_pest_outbreak_type(self):
+    def test_pest_outbreak_type(self):
         notification_data = {
             "type": "pest_outbreak",
             "priority": "medium",
@@ -315,12 +314,11 @@ class TestCreateNotificationFromNats:
         }
 
         with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
             call_kwargs = mock_create.call_args[1]
             assert call_kwargs["type"] == NotificationType.PEST_OUTBREAK
 
-    @pytest.mark.asyncio
-    async def test_irrigation_reminder_type(self):
+    def test_irrigation_reminder_type(self):
         notification_data = {
             "type": "irrigation_reminder",
             "priority": "low",
@@ -331,12 +329,11 @@ class TestCreateNotificationFromNats:
         }
 
         with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
             call_kwargs = mock_create.call_args[1]
             assert call_kwargs["type"] == NotificationType.IRRIGATION_REMINDER
 
-    @pytest.mark.asyncio
-    async def test_unknown_type_defaults_to_system(self):
+    def test_unknown_type_defaults_to_system(self):
         notification_data = {
             "type": "unknown_type",
             "title": "Title",
@@ -346,12 +343,11 @@ class TestCreateNotificationFromNats:
         }
 
         with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
             call_kwargs = mock_create.call_args[1]
             assert call_kwargs["type"] == NotificationType.SYSTEM
 
-    @pytest.mark.asyncio
-    async def test_unknown_priority_defaults_to_medium(self):
+    def test_unknown_priority_defaults_to_medium(self):
         notification_data = {
             "type": "system",
             "priority": "unknown",
@@ -362,12 +358,11 @@ class TestCreateNotificationFromNats:
         }
 
         with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
             call_kwargs = mock_create.call_args[1]
             assert call_kwargs["priority"] == NotificationPriority.MEDIUM
 
-    @pytest.mark.asyncio
-    async def test_channel_mapping(self):
+    def test_channel_mapping(self):
         notification_data = {
             "type": "system",
             "title": "Title",
@@ -378,14 +373,13 @@ class TestCreateNotificationFromNats:
         }
 
         with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
             call_kwargs = mock_create.call_args[1]
             assert NotificationChannel.PUSH in call_kwargs["channels"]
             assert NotificationChannel.SMS in call_kwargs["channels"]
             assert NotificationChannel.EMAIL in call_kwargs["channels"]
 
-    @pytest.mark.asyncio
-    async def test_unknown_channel_defaults_to_in_app(self):
+    def test_unknown_channel_defaults_to_in_app(self):
         notification_data = {
             "type": "system",
             "title": "Title",
@@ -396,16 +390,15 @@ class TestCreateNotificationFromNats:
         }
 
         with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
             call_kwargs = mock_create.call_args[1]
             assert NotificationChannel.IN_APP in call_kwargs["channels"]
 
-    @pytest.mark.asyncio
-    async def test_defaults_for_missing_fields(self):
+    def test_defaults_for_missing_fields(self):
         notification_data = {}
 
         with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
             call_kwargs = mock_create.call_args[1]
             assert call_kwargs["title"] == "Notification"
             assert call_kwargs["title_ar"] == "إشعار"
@@ -415,8 +408,7 @@ class TestCreateNotificationFromNats:
             assert call_kwargs["target_farmers"] == []
             assert call_kwargs["expires_in_hours"] == 24
 
-    @pytest.mark.asyncio
-    async def test_error_handled_gracefully(self):
+    def test_error_handled_gracefully(self):
         notification_data = {
             "type": "system",
             "title": "Title",
@@ -427,10 +419,9 @@ class TestCreateNotificationFromNats:
 
         with patch("src.main.create_notification", new_callable=AsyncMock, side_effect=Exception("DB error")):
             # Should not raise
-            await create_notification_from_nats(notification_data)
+            asyncio.run(create_notification_from_nats(notification_data))
 
-    @pytest.mark.asyncio
-    async def test_all_types_mapped(self):
+    def test_all_types_mapped(self):
         """Verify all known notification types are handled"""
         for ntype_str, ntype_enum in [
             ("weather_alert", NotificationType.WEATHER_ALERT),
@@ -450,7 +441,7 @@ class TestCreateNotificationFromNats:
             }
 
             with patch("src.main.create_notification", new_callable=AsyncMock) as mock_create:
-                await create_notification_from_nats(notification_data)
+                asyncio.run(create_notification_from_nats(notification_data))
                 call_kwargs = mock_create.call_args[1]
                 assert call_kwargs["type"] == ntype_enum
 
@@ -461,45 +452,46 @@ class TestCreateNotificationFromNats:
 
 
 class TestDetermineRecipientsByCriteria:
-    @pytest.mark.asyncio
-    async def test_specific_farmers_returned(self):
-        result = await determine_recipients_by_criteria(
-            target_farmers=["f-1", "f-2"],
+    def test_specific_farmers_returned(self):
+        result = asyncio.run(
+            determine_recipients_by_criteria(
+                target_farmers=["f-1", "f-2"],
+            )
         )
         assert result == ["f-1", "f-2"]
 
-    @pytest.mark.asyncio
-    async def test_empty_farmers_queries_database(self):
+    def test_empty_farmers_queries_database(self):
         with patch("src.main.FarmerProfileRepository") as mock_repo:
             mock_repo.find_by_criteria = AsyncMock(return_value=[])
             mock_repo.get_all = AsyncMock(return_value=[])
 
-            result = await determine_recipients_by_criteria(
-                target_farmers=[],
-                target_governorates=[Governorate.SANAA],
+            result = asyncio.run(
+                determine_recipients_by_criteria(
+                    target_farmers=[],
+                    target_governorates=[Governorate.SANAA],
+                )
             )
             assert result == []
             mock_repo.find_by_criteria.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_none_defaults_handled(self):
-        result = await determine_recipients_by_criteria()
+    def test_none_defaults_handled(self):
+        result = asyncio.run(determine_recipients_by_criteria())
         # Should return some list (empty if database unavailable)
         assert isinstance(result, list)
 
-    @pytest.mark.asyncio
-    async def test_database_error_returns_empty(self):
+    def test_database_error_returns_empty(self):
         with patch("src.main.FarmerProfileRepository") as mock_repo:
             mock_repo.find_by_criteria = AsyncMock(side_effect=Exception("DB error"))
 
-            result = await determine_recipients_by_criteria(
-                target_farmers=[],
-                target_governorates=[Governorate.SANAA],
+            result = asyncio.run(
+                determine_recipients_by_criteria(
+                    target_farmers=[],
+                    target_governorates=[Governorate.SANAA],
+                )
             )
             assert result == []
 
-    @pytest.mark.asyncio
-    async def test_broadcast_fallback(self):
+    def test_broadcast_fallback(self):
         mock_profile = MagicMock()
         mock_profile.farmer_id = "broadcast-farmer"
 
@@ -507,10 +499,12 @@ class TestDetermineRecipientsByCriteria:
             mock_repo.find_by_criteria = AsyncMock(return_value=[])
             mock_repo.get_all = AsyncMock(return_value=[mock_profile])
 
-            result = await determine_recipients_by_criteria(
-                target_farmers=[],
-                target_governorates=[],
-                target_crops=[],
+            result = asyncio.run(
+                determine_recipients_by_criteria(
+                    target_farmers=[],
+                    target_governorates=[],
+                    target_crops=[],
+                )
             )
             assert result == ["broadcast-farmer"]
 
@@ -521,53 +515,48 @@ class TestDetermineRecipientsByCriteria:
 
 
 class TestSendNotificationViaChannel:
-    @pytest.mark.asyncio
-    async def test_in_app_channel_noop(self):
+    def test_in_app_channel_noop(self):
         mock_notif = MagicMock()
         mock_notif.id = "n-1"
         # IN_APP should do nothing (stored in DB already)
-        await send_notification_via_channel(mock_notif, NotificationChannel.IN_APP, "farmer-1")
+        asyncio.run(send_notification_via_channel(mock_notif, NotificationChannel.IN_APP, "farmer-1"))
 
-    @pytest.mark.asyncio
-    async def test_sms_channel_error_logged(self):
+    def test_sms_channel_error_logged(self):
         mock_notif = MagicMock()
         mock_notif.id = "n-1"
 
         with patch("src.main.send_sms_notification", new_callable=AsyncMock, side_effect=Exception("SMS error")):
             with patch("src.main.NotificationLogRepository") as mock_log:
                 mock_log.create_log = AsyncMock()
-                await send_notification_via_channel(mock_notif, NotificationChannel.SMS, "farmer-1")
+                asyncio.run(send_notification_via_channel(mock_notif, NotificationChannel.SMS, "farmer-1"))
                 mock_log.create_log.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_email_channel_error_logged(self):
+    def test_email_channel_error_logged(self):
         mock_notif = MagicMock()
         mock_notif.id = "n-1"
 
         with patch("src.main.send_email_notification", new_callable=AsyncMock, side_effect=Exception("Email error")):
             with patch("src.main.NotificationLogRepository") as mock_log:
                 mock_log.create_log = AsyncMock()
-                await send_notification_via_channel(mock_notif, NotificationChannel.EMAIL, "farmer-1")
+                asyncio.run(send_notification_via_channel(mock_notif, NotificationChannel.EMAIL, "farmer-1"))
                 mock_log.create_log.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_push_channel_error_logged(self):
+    def test_push_channel_error_logged(self):
         mock_notif = MagicMock()
         mock_notif.id = "n-1"
 
         with patch("src.main.send_push_notification", new_callable=AsyncMock, side_effect=Exception("Push error")):
             with patch("src.main.NotificationLogRepository") as mock_log:
                 mock_log.create_log = AsyncMock()
-                await send_notification_via_channel(mock_notif, NotificationChannel.PUSH, "farmer-1")
+                asyncio.run(send_notification_via_channel(mock_notif, NotificationChannel.PUSH, "farmer-1"))
                 mock_log.create_log.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_whatsapp_channel_error_logged(self):
+    def test_whatsapp_channel_error_logged(self):
         mock_notif = MagicMock()
         mock_notif.id = "n-1"
 
         with patch("src.main.send_whatsapp_notification", new_callable=AsyncMock, side_effect=Exception("WA error")):
             with patch("src.main.NotificationLogRepository") as mock_log:
                 mock_log.create_log = AsyncMock()
-                await send_notification_via_channel(mock_notif, NotificationChannel.WHATSAPP, "farmer-1")
+                asyncio.run(send_notification_via_channel(mock_notif, NotificationChannel.WHATSAPP, "farmer-1"))
                 mock_log.create_log.assert_called_once()

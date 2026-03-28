@@ -4,6 +4,7 @@ Tests for EventEnvelope, AdvisorPublisher, and get_publisher.
 Uses unittest.mock to avoid real NATS connections.
 """
 
+import asyncio
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -143,27 +144,29 @@ class TestAdvisorPublisher:
         pub._connected = True
         return pub
 
-    @pytest.mark.asyncio
-    async def test_publish_sends_message(self, publisher):
-        event_id = await publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="field_1",
-            payload={"severity": "high"},
+    def test_publish_sends_message(self, publisher):
+        event_id = asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="field_1",
+                payload={"severity": "high"},
+            )
         )
         assert event_id  # returns UUID string
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
         assert call_args[0][0] == "sahool.tenant.t1.advisory.recommendation_issued"
 
-    @pytest.mark.asyncio
-    async def test_publish_message_format(self, publisher):
-        await publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="field_1",
-            payload={"key": "val"},
-            correlation_id="corr_1",
+    def test_publish_message_format(self, publisher):
+        asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="field_1",
+                payload={"key": "val"},
+                correlation_id="corr_1",
+            )
         )
         call_args = publisher.nc.publish.call_args
         message_bytes = call_args[0][1]
@@ -174,44 +177,47 @@ class TestAdvisorPublisher:
         assert message["correlation_id"] == "corr_1"
         assert message["payload"] == {"key": "val"}
 
-    @pytest.mark.asyncio
-    async def test_publish_auto_generates_correlation_id(self, publisher):
-        await publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="f1",
-            payload={},
-            correlation_id=None,
+    def test_publish_auto_generates_correlation_id(self, publisher):
+        asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="f1",
+                payload={},
+                correlation_id=None,
+            )
         )
         call_args = publisher.nc.publish.call_args
         message = json.loads(call_args[0][1].decode())
         assert message["correlation_id"]  # auto-generated UUID
 
-    @pytest.mark.asyncio
-    async def test_publish_custom_subject(self, publisher):
-        await publisher.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="f1",
-            payload={},
-            subject="custom.subject.here",
+    def test_publish_custom_subject(self, publisher):
+        asyncio.run(
+            publisher.publish(
+                event_type="recommendation_issued",
+                tenant_id="t1",
+                aggregate_id="f1",
+                payload={},
+                subject="custom.subject.here",
+            )
         )
         call_args = publisher.nc.publish.call_args
         assert call_args[0][0] == "custom.subject.here"
 
-    @pytest.mark.asyncio
-    async def test_publish_recommendation(self, publisher):
-        event_id = await publisher.publish_recommendation(
-            tenant_id="t1",
-            field_id="field_1",
-            category="disease",
-            severity="high",
-            title_ar="تنبيه",
-            title_en="Alert",
-            actions=["spray_copper"],
-            confidence=0.85,
-            correlation_id="corr_1",
-            details={"extra": True},
+    def test_publish_recommendation(self, publisher):
+        event_id = asyncio.run(
+            publisher.publish_recommendation(
+                tenant_id="t1",
+                field_id="field_1",
+                category="disease",
+                severity="high",
+                title_ar="تنبيه",
+                title_en="Alert",
+                actions=["spray_copper"],
+                confidence=0.85,
+                correlation_id="corr_1",
+                details={"extra": True},
+            )
         )
         assert event_id
         publisher.nc.publish.assert_called_once()
@@ -223,32 +229,34 @@ class TestAdvisorPublisher:
         assert message["payload"]["confidence"] == 0.85
         assert message["payload"]["details"] == {"extra": True}
 
-    @pytest.mark.asyncio
-    async def test_publish_recommendation_no_details(self, publisher):
-        await publisher.publish_recommendation(
-            tenant_id="t1",
-            field_id="f1",
-            category="disease",
-            severity="medium",
-            title_ar="ع",
-            title_en="E",
-            actions=[],
-            confidence=0.5,
+    def test_publish_recommendation_no_details(self, publisher):
+        asyncio.run(
+            publisher.publish_recommendation(
+                tenant_id="t1",
+                field_id="f1",
+                category="disease",
+                severity="medium",
+                title_ar="ع",
+                title_en="E",
+                actions=[],
+                confidence=0.5,
+            )
         )
         call_args = publisher.nc.publish.call_args
         message = json.loads(call_args[0][1].decode())
         assert message["payload"]["details"] == {}
 
-    @pytest.mark.asyncio
-    async def test_publish_fertilizer_plan(self, publisher):
-        event_id = await publisher.publish_fertilizer_plan(
-            tenant_id="t1",
-            field_id="field_1",
-            crop="tomato",
-            stage="vegetative",
-            plan=[{"product": "urea", "dose": 50}],
-            correlation_id="corr_2",
-            notes=["Apply early morning"],
+    def test_publish_fertilizer_plan(self, publisher):
+        event_id = asyncio.run(
+            publisher.publish_fertilizer_plan(
+                tenant_id="t1",
+                field_id="field_1",
+                crop="tomato",
+                stage="vegetative",
+                plan=[{"product": "urea", "dose": 50}],
+                correlation_id="corr_2",
+                notes=["Apply early morning"],
+            )
         )
         assert event_id
         call_args = publisher.nc.publish.call_args
@@ -258,32 +266,34 @@ class TestAdvisorPublisher:
         assert message["payload"]["stage"] == "vegetative"
         assert message["payload"]["notes"] == ["Apply early morning"]
 
-    @pytest.mark.asyncio
-    async def test_publish_fertilizer_plan_no_notes(self, publisher):
-        await publisher.publish_fertilizer_plan(
-            tenant_id="t1",
-            field_id="f1",
-            crop="wheat",
-            stage="tillering",
-            plan=[],
+    def test_publish_fertilizer_plan_no_notes(self, publisher):
+        asyncio.run(
+            publisher.publish_fertilizer_plan(
+                tenant_id="t1",
+                field_id="f1",
+                crop="wheat",
+                stage="tillering",
+                plan=[],
+            )
         )
         call_args = publisher.nc.publish.call_args
         message = json.loads(call_args[0][1].decode())
         assert message["payload"]["notes"] == []
 
-    @pytest.mark.asyncio
-    async def test_publish_nutrient_assessment(self, publisher):
-        event_id = await publisher.publish_nutrient_assessment(
-            tenant_id="t1",
-            field_id="field_1",
-            deficiency_id="nitrogen_deficiency",
-            nutrient="N",
-            severity="high",
-            title_ar="نقص النيتروجين",
-            title_en="Nitrogen Deficiency",
-            corrections=[{"type": "fertilizer", "product": "urea"}],
-            confidence=0.8,
-            correlation_id="corr_3",
+    def test_publish_nutrient_assessment(self, publisher):
+        event_id = asyncio.run(
+            publisher.publish_nutrient_assessment(
+                tenant_id="t1",
+                field_id="field_1",
+                deficiency_id="nitrogen_deficiency",
+                nutrient="N",
+                severity="high",
+                title_ar="نقص النيتروجين",
+                title_en="Nitrogen Deficiency",
+                corrections=[{"type": "fertilizer", "product": "urea"}],
+                confidence=0.8,
+                correlation_id="corr_3",
+            )
         )
         assert event_id
         call_args = publisher.nc.publish.call_args
@@ -292,21 +302,18 @@ class TestAdvisorPublisher:
         assert message["payload"]["deficiency_id"] == "nitrogen_deficiency"
         assert message["payload"]["nutrient"] == "N"
 
-    @pytest.mark.asyncio
-    async def test_close_disconnects(self, publisher):
-        await publisher.close()
+    def test_close_disconnects(self, publisher):
+        asyncio.run(publisher.close())
         publisher.nc.close.assert_called_once()
         assert publisher._connected is False
 
-    @pytest.mark.asyncio
-    async def test_close_when_not_connected(self):
+    def test_close_when_not_connected(self):
         pub = AdvisorPublisher()
         pub.nc = None
         pub._connected = False
-        await pub.close()  # should not raise
+        asyncio.run(pub.close())  # should not raise
 
-    @pytest.mark.asyncio
-    async def test_publish_calls_connect_when_disconnected(self):
+    def test_publish_calls_connect_when_disconnected(self):
         """If not connected, publish should trigger connect."""
         pub = AdvisorPublisher(nats_url="nats://test:4222")
         pub._connected = False
@@ -320,25 +327,28 @@ class TestAdvisorPublisher:
 
         pub.connect = AsyncMock(side_effect=fake_connect)
 
-        event_id = await pub.publish(
-            event_type="recommendation_issued",
-            tenant_id="t1",
-            aggregate_id="f1",
-            payload={},
-        )
-        pub.connect.assert_called_once()
-        assert event_id
-
-    @pytest.mark.asyncio
-    async def test_publish_raises_on_nats_error(self, publisher):
-        """NATS publish error should propagate."""
-        publisher.nc.publish.side_effect = Exception("NATS timeout")
-        with pytest.raises(Exception, match="NATS timeout"):
-            await publisher.publish(
+        event_id = asyncio.run(
+            pub.publish(
                 event_type="recommendation_issued",
                 tenant_id="t1",
                 aggregate_id="f1",
                 payload={},
+            )
+        )
+        pub.connect.assert_called_once()
+        assert event_id
+
+    def test_publish_raises_on_nats_error(self, publisher):
+        """NATS publish error should propagate."""
+        publisher.nc.publish.side_effect = Exception("NATS timeout")
+        with pytest.raises(Exception, match="NATS timeout"):
+            asyncio.run(
+                publisher.publish(
+                    event_type="recommendation_issued",
+                    tenant_id="t1",
+                    aggregate_id="f1",
+                    payload={},
+                )
             )
 
 
@@ -350,8 +360,7 @@ class TestAdvisorPublisher:
 class TestGetPublisher:
     """Test get_publisher singleton factory."""
 
-    @pytest.mark.asyncio
-    async def test_get_publisher_creates_instance(self):
+    def test_get_publisher_creates_instance(self):
         """get_publisher should return an AdvisorPublisher."""
         import src.events.publish as publish_module
 
@@ -359,22 +368,25 @@ class TestGetPublisher:
         publish_module._publisher = None
 
         with patch.object(AdvisorPublisher, "connect", new_callable=AsyncMock):
-            publisher = await get_publisher()
+            publisher = asyncio.run(get_publisher())
             assert isinstance(publisher, AdvisorPublisher)
 
         # Clean up singleton
         publish_module._publisher = None
 
-    @pytest.mark.asyncio
-    async def test_get_publisher_returns_same_instance(self):
+    def test_get_publisher_returns_same_instance(self):
         """Subsequent calls should return the same instance."""
         import src.events.publish as publish_module
 
         publish_module._publisher = None
 
-        with patch.object(AdvisorPublisher, "connect", new_callable=AsyncMock):
-            pub1 = await get_publisher()
-            pub2 = await get_publisher()
-            assert pub1 is pub2
+        async def _test():
+            with patch.object(AdvisorPublisher, "connect", new_callable=AsyncMock):
+                pub1 = await get_publisher()
+                pub2 = await get_publisher()
+                return pub1, pub2
+
+        pub1, pub2 = asyncio.run(_test())
+        assert pub1 is pub2
 
         publish_module._publisher = None

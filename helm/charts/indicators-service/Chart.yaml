@@ -1,0 +1,13 @@
+apiVersion: v2
+name: indicators-service
+description: SAHOOL Indicators Service - Field indicators computation microservice
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - indicators
+  - microservice
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

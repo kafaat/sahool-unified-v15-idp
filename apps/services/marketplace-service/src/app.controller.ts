@@ -21,6 +21,8 @@ import {
 import { Throttle } from "@nestjs/throttler";
 import { MarketService } from "./market/market.service";
 import { FintechService } from "./fintech/fintech.service";
+import { PrismaService } from "./prisma/prisma.service";
+import { EventsService } from "./events/events.service";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
 import { Public } from "./auth/public.decorator";
 import { SkipTenantCheck } from "./auth/tenant.guard";
@@ -40,6 +42,8 @@ export class AppController {
   constructor(
     private readonly marketService: MarketService,
     private readonly fintechService: FintechService,
+    private readonly prismaService: PrismaService,
+    private readonly eventsService: EventsService,
   ) {}
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -63,16 +67,28 @@ export class AppController {
   @SkipTenantCheck()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get("readyz")
-  readinessCheck() {
+  async readinessCheck() {
+    const checks: Record<string, string> = {};
+
+    // Check database connection
+    try {
+      await this.prismaService.$queryRaw`SELECT 1`;
+      checks.database = "connected";
+    } catch {
+      checks.database = "disconnected";
+    }
+
+    // Check NATS connection
+    const eventsConnected = this.eventsService?.isConnected?.() ?? false;
+    checks.nats = eventsConnected ? "connected" : "not_configured";
+
+    const allReady = Object.values(checks).every(v => v === "connected" || v === "not_configured");
+
     return {
-      status: "ready",
+      status: allReady ? "ready" : "degraded",
       service: "marketplace-service",
       version: "16.0.0",
-      checks: {
-        database: "connected",
-        cache: "connected",
-      },
-      timestamp: new Date().toISOString(),
+      checks,
     };
   }
 
@@ -192,6 +208,7 @@ export class AppController {
    * GET /api/v1/market/stats
    */
   @Get("market/stats")
+  @UseGuards(JwtAuthGuard)
   async getMarketStats(@Req() req: any) {
     const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.marketService.getMarketStats(tenantId);
@@ -206,6 +223,7 @@ export class AppController {
    * GET /api/v1/fintech/wallet/:userId
    */
   @Get("fintech/wallet/:userId")
+  @UseGuards(JwtAuthGuard)
   async getWallet(
     @Param("userId") userId: string,
     @Query("userType") userType?: string,
@@ -254,13 +272,15 @@ export class AppController {
    * GET /api/v1/fintech/wallet/:walletId/transactions
    */
   @Get("fintech/wallet/:walletId/transactions")
+  @UseGuards(JwtAuthGuard)
   async getTransactions(
     @Param("walletId") walletId: string,
     @Query("limit") limit?: string,
   ) {
+    const parsedLimit = Math.min(parseInt(limit) || 20, 100);
     return this.fintechService.getTransactions(
       walletId,
-      limit ? parseInt(limit) : 20,
+      parsedLimit,
     );
   }
 
@@ -301,6 +321,7 @@ export class AppController {
    * GET /api/v1/fintech/credit-factors/:userId
    */
   @Get("fintech/credit-factors/:userId")
+  @UseGuards(JwtAuthGuard)
   async getCreditFactors(@Param("userId") userId: string) {
     return this.fintechService.getCreditFactors(userId);
   }
@@ -325,6 +346,7 @@ export class AppController {
    * GET /api/v1/fintech/credit-report/:userId
    */
   @Get("fintech/credit-report/:userId")
+  @UseGuards(JwtAuthGuard)
   async getCreditReport(@Param("userId") userId: string) {
     return this.fintechService.getCreditReport(userId);
   }
@@ -373,6 +395,7 @@ export class AppController {
    * GET /api/v1/fintech/loans/:walletId
    */
   @Get("fintech/loans/:walletId")
+  @UseGuards(JwtAuthGuard)
   async getUserLoans(@Param("walletId") walletId: string) {
     return this.fintechService.getUserLoans(walletId);
   }
@@ -382,6 +405,7 @@ export class AppController {
    * GET /api/v1/fintech/stats
    */
   @Get("fintech/stats")
+  @UseGuards(JwtAuthGuard)
   async getFinanceStats() {
     return this.fintechService.getFinanceStats();
   }
@@ -395,6 +419,7 @@ export class AppController {
    * GET /api/v1/fintech/wallet/:walletId/limits
    */
   @Get("fintech/wallet/:walletId/limits")
+  @UseGuards(JwtAuthGuard)
   async getWalletLimits(@Param("walletId") walletId: string) {
     return this.fintechService.getWalletLimits(walletId);
   }
@@ -633,6 +658,7 @@ export class AppController {
    * GET /api/v1/fintech/escrow/order/:orderId
    */
   @Get("fintech/escrow/order/:orderId")
+  @UseGuards(JwtAuthGuard)
   async getEscrowByOrder(@Param("orderId") orderId: string) {
     return this.fintechService.getEscrowByOrder(orderId);
   }
@@ -642,6 +668,7 @@ export class AppController {
    * GET /api/v1/fintech/wallet/:walletId/escrows
    */
   @Get("fintech/wallet/:walletId/escrows")
+  @UseGuards(JwtAuthGuard)
   async getWalletEscrows(@Param("walletId") walletId: string) {
     return this.fintechService.getWalletEscrows(walletId);
   }
@@ -792,6 +819,7 @@ export class AppController {
    * GET /api/v1/fintech/wallet/:walletId/dashboard
    */
   @Get("fintech/wallet/:walletId/dashboard")
+  @UseGuards(JwtAuthGuard)
   async getWalletDashboard(@Param("walletId") walletId: string) {
     return this.fintechService.getWalletDashboard(walletId);
   }

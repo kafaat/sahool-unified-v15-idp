@@ -30,7 +30,7 @@ interface BaseEvent {
 }
 
 interface OrderPlacedEvent extends BaseEvent {
-  eventType: "sahool.marketplace.order.placed";
+  eventType: "sahool.marketplace.order.created";
   payload: {
     orderId: string;
     userId: string;
@@ -109,11 +109,18 @@ type MarketplaceEvent =
 // ============================================================================
 
 const EventSubjects = {
-  ORDER_PLACED: "sahool.marketplace.order.placed",
+  ORDER_CREATED: "sahool.marketplace.order.created",
   ORDER_COMPLETED: "sahool.marketplace.order.completed",
   ORDER_CANCELLED: "sahool.marketplace.order.cancelled",
   INVENTORY_LOW_STOCK: "sahool.marketplace.inventory.low_stock",
   INVENTORY_MOVEMENT: "sahool.marketplace.inventory.movement",
+
+  /**
+   * @deprecated Legacy subject kept for backward compatibility with existing consumers
+   * that subscribe to "sahool.marketplace.order.placed" (including shared-events ORDER_PLACED).
+   * Will be removed in v17.0.0. Consumers should migrate to ORDER_CREATED ("sahool.marketplace.order.created").
+   */
+  ORDER_PLACED_LEGACY: "sahool.marketplace.order.placed",
 } as const;
 
 type EventSubject = (typeof EventSubjects)[keyof typeof EventSubjects];
@@ -183,9 +190,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       "sahool.delivery.completed",
       async (event) => {
         const payload = event.payload as Record<string, unknown>;
-        this.logger.log(
-          `Received delivery completed event for order: ${payload?.orderId}`,
-        );
+        this.logger.log(`Processing delivery.completed event`, { orderId: payload?.orderId });
+        // TODO: Update order status to DELIVERED when delivery is confirmed
+        // TODO: Trigger buyer notification via notification-service
+        // TODO: Auto-release escrow after delivery confirmation period
       },
       { queue: queueGroup },
     );
@@ -195,9 +203,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       "sahool.inventory.restocked",
       async (event) => {
         const payload = event.payload as Record<string, unknown>;
-        this.logger.log(
-          `Received inventory restocked event for product: ${payload?.productId}`,
-        );
+        this.logger.log(`Processing inventory.restocked event`, { productId: payload?.productId });
+        // TODO: Update product stock levels in marketplace catalog
+        // TODO: Re-enable listings that were auto-hidden due to zero stock
+        // TODO: Notify sellers/buyers who had back-order requests
       },
       { queue: queueGroup },
     );
@@ -207,9 +216,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       "sahool.payment.confirmed",
       async (event) => {
         const payload = event.payload as Record<string, unknown>;
-        this.logger.log(
-          `Received payment confirmed event for order: ${payload?.orderId}`,
-        );
+        this.logger.log(`Processing payment.confirmed event`, { orderId: payload?.orderId });
+        // TODO: Update order status from PENDING_PAYMENT to CONFIRMED
+        // TODO: Trigger order fulfillment workflow
+        // TODO: Send payment receipt notification to buyer
       },
       { queue: queueGroup },
     );
@@ -484,7 +494,14 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Publish order placed event
+   * Publish order placed event.
+   *
+   * Publishes to both the current subject ("sahool.marketplace.order.created") and the
+   * legacy subject ("sahool.marketplace.order.placed") for backward compatibility with
+   * existing consumers (shared-events ORDER_PLACED, notification-service, billing-core, etc.).
+   *
+   * TODO: Remove dual-publish once all consumers have migrated to "order.created".
+   * Legacy subject will be removed in v17.0.0.
    */
   async publishOrderPlaced(orderData: {
     orderId: string;
@@ -503,18 +520,33 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       postalCode: string;
     };
   }): Promise<void> {
-    this.logger.log(`Publishing order.placed event`, {
+    this.logger.log(`Publishing order.created event`, {
       orderId: this.sanitizeForLog(orderData.orderId),
     });
 
+    // Publish to the current subject
     await this.publishEvent<OrderPlacedEvent>(
-      EventSubjects.ORDER_PLACED,
+      EventSubjects.ORDER_CREATED,
+      orderData,
+    );
+
+    // Also publish to the legacy subject for backward compatibility (remove in v17.0.0)
+    this.logger.log(`Publishing legacy order.placed event for backward compatibility`, {
+      orderId: this.sanitizeForLog(orderData.orderId),
+    });
+    await this.publishEvent<OrderPlacedEvent>(
+      EventSubjects.ORDER_PLACED_LEGACY,
       orderData,
     );
   }
 
   /**
    * Publish order completed event
+   *
+   * TODO: This method is defined but never called in production code.
+   * It should be called from the order fulfillment flow when delivery is
+   * confirmed (e.g., in the delivery.completed event handler or an
+   * OrderService.completeOrder() method).
    */
   async publishOrderCompleted(orderData: {
     orderId: string;
@@ -535,6 +567,11 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * Publish order cancelled event
+   *
+   * TODO: This method is defined but never called in production code.
+   * It should be called from OrderService.cancelOrder() or a similar
+   * cancellation handler (e.g., buyer-initiated cancel, admin cancel,
+   * or auto-cancel on payment timeout).
    */
   async publishOrderCancelled(orderData: {
     orderId: string;

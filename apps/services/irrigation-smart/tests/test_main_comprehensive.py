@@ -3,6 +3,7 @@ Comprehensive tests for irrigation-smart service main.py
 Tests cover: enums, models, calculation functions, API endpoints, NATS publishing
 """
 
+import asyncio
 import json
 import math
 import sys
@@ -555,49 +556,44 @@ class TestWaterBalanceModel:
 # NATS Event Publishing Tests
 # ============================================================================
 class TestPublishEvent:
-    @pytest.mark.asyncio
-    async def test_publish_when_connected(self):
+    def test_publish_when_connected(self):
         mock_nc = AsyncMock()
         mock_nc.is_connected = True
         app.state.nc = mock_nc
 
-        result = await publish_event("sahool.irrigation.test", {"field_id": "f1"})
+        result = asyncio.run(publish_event("sahool.irrigation.test", {"field_id": "f1"}))
         assert result is True
         mock_nc.publish.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_publish_when_not_connected(self):
+    def test_publish_when_not_connected(self):
         mock_nc = MagicMock()
         mock_nc.is_connected = False
         app.state.nc = mock_nc
 
-        result = await publish_event("sahool.irrigation.test", {"field_id": "f1"})
+        result = asyncio.run(publish_event("sahool.irrigation.test", {"field_id": "f1"}))
         assert result is False
 
-    @pytest.mark.asyncio
-    async def test_publish_when_nc_is_none(self):
+    def test_publish_when_nc_is_none(self):
         app.state.nc = None
-        result = await publish_event("sahool.irrigation.test", {"field_id": "f1"})
+        result = asyncio.run(publish_event("sahool.irrigation.test", {"field_id": "f1"}))
         assert result is False
 
-    @pytest.mark.asyncio
-    async def test_publish_handles_exception(self):
+    def test_publish_handles_exception(self):
         mock_nc = AsyncMock()
         mock_nc.is_connected = True
         mock_nc.publish.side_effect = Exception("connection lost")
         app.state.nc = mock_nc
 
-        result = await publish_event("sahool.irrigation.test", {"field_id": "f1"})
+        result = asyncio.run(publish_event("sahool.irrigation.test", {"field_id": "f1"}))
         assert result is False
 
-    @pytest.mark.asyncio
-    async def test_publish_correct_payload(self):
+    def test_publish_correct_payload(self):
         mock_nc = AsyncMock()
         mock_nc.is_connected = True
         app.state.nc = mock_nc
 
         data = {"field_id": "f1", "amount": 25}
-        await publish_event("sahool.irrigation.executed", data)
+        asyncio.run(publish_event("sahool.irrigation.executed", data))
 
         call_args = mock_nc.publish.call_args
         subject_arg = call_args[0][0]

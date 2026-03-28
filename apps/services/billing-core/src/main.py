@@ -24,7 +24,7 @@ from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum, StrEnum
-from pathlib import Path
+from pathlib import Path as FilePath
 from typing import Any
 
 import httpx
@@ -36,6 +36,7 @@ from fastapi import (
     FastAPI,
     Header,
     HTTPException,
+    Path,
     Query,
     Request,
 )
@@ -55,7 +56,7 @@ except ImportError:
     setup_cors = None
     ObservabilityMiddleware = None
 from nats.js.api import RetentionPolicy
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -65,7 +66,7 @@ from . import models as db_models
 from .database import check_db_connection, close_db, db_health_check, get_db, init_db
 from .repository import BillingRepository
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+sys.path.insert(0, str(FilePath(__file__).parent.parent.parent / "shared"))
 
 # Configure logging early so it can be used in imports
 # FIX: Use force=True to reset handlers and prevent double logging with uvicorn's default handlers
@@ -303,6 +304,9 @@ async def job_mark_overdue_invoices():
     Mark overdue invoices as OVERDUE
     تحديث الفواتير المتأخرة
     Runs daily at 03:00 UTC
+
+    NOTE: This is a system-level background job that intentionally operates across
+    all tenants. Global access is required for correct billing enforcement.
     """
     from .database import get_db_context
 
@@ -399,6 +403,9 @@ async def job_suspend_past_due():
     Suspend subscriptions with invoices overdue > 14 days
     تعليق الاشتراكات ذات الفواتير المتأخرة أكثر من 14 يوم
     Runs daily at 05:00 UTC
+
+    NOTE: This is a system-level background job that intentionally operates across
+    all tenants. Global access is required for correct billing enforcement.
     """
     from .database import get_db_context
 
@@ -609,6 +616,29 @@ def require_tenant_or_admin(current_user, tenant_id: str):
     """
     if not verify_tenant_access(current_user, tenant_id):
         raise HTTPException(status_code=403, detail="Access denied - cannot access this tenant's data")
+
+
+def _is_super_admin(current_user) -> bool:
+    """Check if user has super_admin role (supports both object and dict user representations)."""
+    if hasattr(current_user, "has_any_role"):
+        return current_user.has_any_role("super_admin")
+    # Dict fallback (dev/test mode)
+    roles = current_user.get("roles", []) if isinstance(current_user, dict) else getattr(current_user, "roles", [])
+    return "super_admin" in roles
+
+
+def _get_tenant_filter(current_user) -> str | None:
+    """
+    Return tenant_id to filter by, or None if the user is super_admin (full access).
+    Non-super_admin users are always scoped to their own tenant.
+    استخراج معرف المستأجر للفلترة - المسؤول العام يرى الكل
+    """
+    if _is_super_admin(current_user):
+        return None
+    # For tenant_admin / regular users, force tenant isolation
+    if isinstance(current_user, dict):
+        return current_user.get("tenant_id")
+    return getattr(current_user, "tenant_id", None)
 
 
 # =============================================================================
@@ -846,49 +876,129 @@ class UsageRecord(BaseModel):
 
 
 # =============================================================================
+# Validation Constants - ثوابت التحقق
+# =============================================================================
+
+# Known plan IDs that are accepted by the system
+KNOWN_PLAN_IDS: set[str] = {"free", "starter", "professional", "enterprise"}
+
+# Regex pattern for valid tenant_id (UUID format or dev- prefixed IDs)
+import re
+
+_TENANT_ID_PATTERN = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_\-]{0,99}$")
+_FIELD_ID_PATTERN = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_\-]{0,99}$")
+_METRIC_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,99}$")
+
+
+def validate_tenant_id(tenant_id: str) -> str:
+    """
+    Validate tenant_id format to prevent injection attacks.
+    التحقق من صيغة معرف المستأجر لمنع هجمات الحقن
+    """
+    if not tenant_id or len(tenant_id) < 1 or len(tenant_id) > 100:
+        raise HTTPException(400, "معرف المستأجر غير صالح: يجب أن يكون بين 1 و 100 حرف")
+    if not _TENANT_ID_PATTERN.match(tenant_id):
+        raise HTTPException(400, "معرف المستأجر غير صالح: يحتوي على أحرف غير مسموح بها")
+    return tenant_id
+
+
+def validate_plan_id(plan_id: str) -> str:
+    """
+    Validate plan_id against known plans.
+    التحقق من معرف الخطة مقابل الخطط المعروفة
+    """
+    if plan_id not in KNOWN_PLAN_IDS:
+        raise HTTPException(
+            400,
+            f"خطة غير معروفة: {plan_id}. الخطط المتاحة: {', '.join(sorted(KNOWN_PLAN_IDS))}",
+        )
+    return plan_id
+
+
+# =============================================================================
 # Request/Response Models
 # =============================================================================
 
 
 class CreatePlanRequest(BaseModel):
-    name: str
-    name_ar: str
-    description: str
-    description_ar: str
+    name: str = Field(min_length=1, max_length=200)
+    name_ar: str = Field(min_length=1, max_length=200)
+    description: str = Field(min_length=1, max_length=1000)
+    description_ar: str = Field(min_length=1, max_length=1000)
     tier: PlanTier
-    monthly_price_usd: Decimal
+    monthly_price_usd: Decimal = Field(gt=0, max_digits=10, decimal_places=2)
     features: dict[str, bool]
     limits: dict[str, int]
-    trial_days: int = 14
+    trial_days: int = Field(default=14, ge=0, le=365)
 
 
 class CreateTenantRequest(BaseModel):
-    name: str
-    name_ar: str
+    name: str = Field(min_length=1, max_length=200)
+    name_ar: str = Field(min_length=1, max_length=200)
     email: EmailStr
-    phone: str
-    plan_id: str
+    phone: str = Field(min_length=1, max_length=20)
+    plan_id: str = Field(min_length=1, max_length=100)
     billing_cycle: BillingCycle = BillingCycle.MONTHLY
+
+    @field_validator("plan_id")
+    @classmethod
+    def plan_must_be_known(cls, v: str) -> str:
+        if v not in KNOWN_PLAN_IDS:
+            raise ValueError(f"Unknown plan: {v}. Available plans: {', '.join(sorted(KNOWN_PLAN_IDS))}")
+        return v
+
+    @field_validator("phone")
+    @classmethod
+    def phone_must_be_valid(cls, v: str) -> str:
+        cleaned = v.strip().replace(" ", "").replace("-", "")
+        if not re.match(r"^\+?[0-9]{7,15}$", cleaned):
+            raise ValueError("Invalid phone number format")
+        return v
 
 
 class UpdateSubscriptionRequest(BaseModel):
-    plan_id: str | None = None
+    plan_id: str | None = Field(default=None, min_length=1, max_length=100)
     billing_cycle: BillingCycle | None = None
     payment_method: PaymentMethod | None = None
 
+    @field_validator("plan_id")
+    @classmethod
+    def plan_must_be_known(cls, v: str | None) -> str | None:
+        if v is not None and v not in KNOWN_PLAN_IDS:
+            raise ValueError(f"Unknown plan: {v}. Available plans: {', '.join(sorted(KNOWN_PLAN_IDS))}")
+        return v
+
 
 class RecordUsageRequest(BaseModel):
-    metric: str
-    quantity: int = 1
+    metric: str = Field(min_length=1, max_length=100)
+    quantity: int = Field(default=1, gt=0, le=100000)
     metadata: dict[str, Any] = {}
+
+    @field_validator("metric")
+    @classmethod
+    def metric_must_be_valid(cls, v: str) -> str:
+        if not _METRIC_PATTERN.match(v):
+            raise ValueError("Invalid metric name: must be lowercase alphanumeric with underscores")
+        return v
 
 
 class CreatePaymentRequest(BaseModel):
-    invoice_id: str
-    amount: Decimal
+    invoice_id: str = Field(min_length=1, max_length=100)
+    amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
     method: PaymentMethod
-    stripe_token: str | None = None
-    phone_number: str | None = None  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
+    stripe_token: str | None = Field(default=None, max_length=500)
+    phone_number: str | None = Field(
+        default=None, max_length=20
+    )  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
+
+    @field_validator("invoice_id")
+    @classmethod
+    def invoice_id_must_be_valid_uuid(cls, v: str) -> str:
+        try:
+            uuid.UUID(v)
+        except (ValueError, AttributeError):
+            raise ValueError("invoice_id must be a valid UUID")
+        return v
 
 
 # =============================================================================
@@ -1775,7 +1885,20 @@ async def health_check():
 @app.get("/readyz")
 async def readiness_check(db: AsyncSession = Depends(get_db)):
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    db_status = await db_health_check()
+    # Check database connectivity with a real query
+    db_ok = False
+    try:
+        result = await db.execute(text("SELECT 1"))
+        db_ok = result.scalar() == 1
+    except Exception as exc:
+        logger.warning("readyz_db_check_failed", error=str(exc))
+
+    # Check NATS connectivity (verify connection is alive, not just non-None)
+    nats_ok = False
+    try:
+        nats_ok = nats_client is not None and nats_client.is_connected
+    except Exception as exc:
+        logger.warning("readyz_nats_check_failed", error=str(exc))
 
     # Get plans count from database
     plans_count = 0
@@ -1786,19 +1909,89 @@ async def readiness_check(db: AsyncSession = Depends(get_db)):
     except Exception:
         pass
 
-    db_ok = db_status.get("status") == "healthy"
-    nats_ok = nats_client is not None
+    all_ok = db_ok and nats_ok
+    status_code = 200 if all_ok else 503
 
-    return {
-        "status": "ready" if db_ok else "not_ready",
-        "service": "billing-core",
-        "version": "16.0.0",
-        "checks": {
-            "database": "connected" if db_ok else "disconnected",
-            "nats": "connected" if nats_ok else "disconnected",
+    from fastapi.responses import JSONResponse
+
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": "ready" if all_ok else "not_ready",
+            "service": "billing-core",
+            "version": "16.0.0",
+            "checks": {
+                "database": "connected" if db_ok else "disconnected",
+                "nats": "connected" if nats_ok else "disconnected",
+            },
+            "plans_count": plans_count,
         },
-        "plans_count": plans_count,
-    }
+    )
+
+
+# =============================================================================
+# Prometheus Metrics - مقاييس المراقبة
+# =============================================================================
+
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST as PROM_CONTENT_TYPE
+    from prometheus_client import (
+        CollectorRegistry,
+        Counter,
+        Histogram,
+        generate_latest,
+    )
+
+    BILLING_REGISTRY = CollectorRegistry()
+
+    INVOICES_CREATED = Counter(
+        "billing_invoices_created_total",
+        "Total invoices created",
+        ["plan", "currency"],
+        registry=BILLING_REGISTRY,
+    )
+    PAYMENTS_PROCESSED = Counter(
+        "billing_payments_processed_total",
+        "Total payments processed",
+        ["method", "status"],
+        registry=BILLING_REGISTRY,
+    )
+    SUBSCRIPTIONS_CHANGED = Counter(
+        "billing_subscriptions_changed_total",
+        "Subscription lifecycle events",
+        ["action"],  # created, upgraded, downgraded, cancelled, renewed
+        registry=BILLING_REGISTRY,
+    )
+    BILLING_ERRORS = Counter(
+        "billing_errors_total",
+        "Total billing errors",
+        ["operation"],
+        registry=BILLING_REGISTRY,
+    )
+    PAYMENT_AMOUNT = Histogram(
+        "billing_payment_amount_usd",
+        "Payment amounts in USD",
+        buckets=[1, 5, 10, 25, 50, 100, 250, 500, 1000, 5000],
+        registry=BILLING_REGISTRY,
+    )
+
+    _prometheus_available = True
+except ImportError:
+    _prometheus_available = False
+    logger.warning("prometheus_client_not_installed", msg="Install prometheus-client for /metrics support")
+
+
+@app.get("/metrics")
+async def prometheus_metrics():
+    """Prometheus metrics endpoint"""
+    if not _prometheus_available:
+        raise HTTPException(status_code=501, detail="prometheus-client not installed")
+    from fastapi.responses import Response
+
+    return Response(
+        content=generate_latest(BILLING_REGISTRY),
+        media_type=PROM_CONTENT_TYPE,
+    )
 
 
 @app.get("/api/v1/plans")
@@ -1829,8 +2022,10 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
 
 
 @app.get("/api/v1/plans/{plan_id}")
-async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
-    """تفاصيل خطة محددة"""
+async def get_plan(plan_id: str = Path(min_length=1, max_length=100), db: AsyncSession = Depends(get_db)):
+    """تفاصيل الخطة"""
+    if not plan_id or len(plan_id) > 100:
+        raise HTTPException(400, "معرف الخطة غير صالح")
     repo = BillingRepository(db)
     plan = await repo.plans.get_by_plan_id(plan_id)
 
@@ -1940,10 +2135,14 @@ async def create_tenant(
     tenant_id = str(uuid.uuid4())
     repo = BillingRepository(db)
 
-    # Validate plan exists in database
+    # Validate plan exists in database (plan_id already validated by Pydantic model)
     plan = await repo.plans.get_by_plan_id(request.plan_id)
     if not plan:
         raise HTTPException(400, "الخطة غير موجودة")
+
+    # Verify plan is active
+    if not plan.is_active:
+        raise HTTPException(400, "الخطة غير نشطة حالياً")
 
     # Create tenant in database
     await repo.tenants.create(
@@ -1974,6 +2173,19 @@ async def create_tenant(
 
     logger.info(f"Tenant created: {tenant_id} with subscription {subscription.id}")
 
+    # Publish subscription created event
+    await publish_event(
+        "sahool.billing.subscription.created",
+        {
+            "subscription_id": str(subscription.id),
+            "tenant_id": tenant_id,
+            "plan_id": request.plan_id,
+            "billing_cycle": request.billing_cycle,
+            "status": subscription.status.value,
+            "trial_end_date": trial_end.isoformat() if trial_end else None,
+        },
+    )
+
     return {
         "success": True,
         "tenant_id": tenant_id,
@@ -1991,6 +2203,7 @@ async def get_tenant(
     db: AsyncSession = Depends(get_db),
 ):
     """معلومات المستأجر"""
+    validate_tenant_id(tenant_id)
     # Verify tenant access
     require_tenant_or_admin(current_user, tenant_id)
 
@@ -2045,6 +2258,7 @@ async def get_subscription(
     db: AsyncSession = Depends(get_db),
 ):
     """تفاصيل الاشتراك"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     # Get subscription from database
@@ -2095,6 +2309,7 @@ async def update_subscription(
     db: AsyncSession = Depends(get_db),
 ):
     """تحديث الاشتراك (ترقية/تخفيض) مع حساب التناسب"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2217,6 +2432,20 @@ async def update_subscription(
             },
         )
 
+        # Publish subscription upgraded event when upgrading to a higher-tier plan
+        if net_proration > 0:
+            background_tasks.add_task(
+                publish_event,
+                "sahool.billing.subscription.upgraded",
+                {
+                    "subscription_id": str(subscription.id),
+                    "tenant_id": tenant_id,
+                    "old_plan": old_plan.plan_id if old_plan else None,
+                    "new_plan": request.plan_id,
+                    "net_proration": float(net_proration),
+                },
+            )
+
     return {
         "success": True,
         "subscription": {
@@ -2249,6 +2478,7 @@ async def cancel_subscription(
     db: AsyncSession = Depends(get_db),
 ):
     """إلغاء الاشتراك"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2291,6 +2521,7 @@ async def record_usage(
     db: AsyncSession = Depends(get_db),
 ):
     """تسجيل استخدام"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2336,6 +2567,7 @@ async def get_quota(
     db: AsyncSession = Depends(get_db),
 ):
     """حالة الحصة والاستخدام"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2378,7 +2610,7 @@ async def get_quota(
 @app.get("/api/v1/enforce")
 async def enforce_quota(
     x_tenant_id: str | None = Header(default=None),
-    metric: str = Query(...),
+    metric: str = Query(..., min_length=1, max_length=100),
     api_key: str = Depends(api_key_auth),  # Service-to-service auth
     db: AsyncSession = Depends(get_db),
 ):
@@ -2386,9 +2618,25 @@ async def enforce_quota(
     if not x_tenant_id:
         raise HTTPException(400, "Missing x-tenant-id header")
 
+    validate_tenant_id(x_tenant_id)
+
+    # Validate metric name format
+    if not _METRIC_PATTERN.match(metric):
+        raise HTTPException(400, "Invalid metric name format")
+
     check = await check_usage_limit_db(db, x_tenant_id, metric)
 
     if not check["allowed"]:
+        # Publish quota exceeded event
+        await publish_event(
+            "sahool.billing.quota.exceeded",
+            {
+                "tenant_id": x_tenant_id,
+                "metric": metric,
+                "limit": check.get("limit"),
+                "used": check.get("used"),
+            },
+        )
         raise HTTPException(
             429,
             detail={
@@ -2416,11 +2664,12 @@ async def enforce_quota(
 async def list_invoices(
     tenant_id: str,
     status: InvoiceStatus | None = None,
-    limit: int = Query(default=20, le=100),
+    limit: int = Query(default=20, ge=1, le=100),
     current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     """قائمة الفواتير"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2465,6 +2714,8 @@ async def get_invoice(
     db: AsyncSession = Depends(get_db),
 ):
     """تفاصيل فاتورة"""
+    if not invoice_id or len(invoice_id) > 100:
+        raise HTTPException(400, "معرف فاتورة غير صالح")
     try:
         invoice_uuid = uuid.UUID(invoice_id)
     except (ValueError, AttributeError):
@@ -2527,6 +2778,7 @@ async def generate_tenant_invoice(
     db: AsyncSession = Depends(get_db),
 ):
     """توليد فاتورة يدوياً"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     # Get subscription from database
@@ -2660,11 +2912,8 @@ async def create_payment(
     db: AsyncSession = Depends(get_db),
 ):
     """تسجيل دفعة"""
-    # Parse invoice_id (could be UUID string)
-    try:
-        invoice_uuid = uuid.UUID(request.invoice_id)
-    except (ValueError, AttributeError):
-        raise HTTPException(400, "معرف فاتورة غير صالح")
+    # invoice_id already validated as UUID by Pydantic model
+    invoice_uuid = uuid.UUID(request.invoice_id)
 
     # Get invoice from database
     repo = BillingRepository(db)
@@ -2673,11 +2922,15 @@ async def create_payment(
     if not invoice:
         raise HTTPException(404, "الفاتورة غير موجودة")
 
-    # Verify user can make payment for this tenant's invoice
+    # Verify user can make payment for this tenant's invoice (tenant isolation)
     require_tenant_or_admin(current_user, invoice.tenant_id)
 
     if invoice.status == db_models.InvoiceStatus.PAID:
         raise HTTPException(400, "الفاتورة مدفوعة بالفعل")
+
+    # Validate payment amount does not exceed amount due
+    if request.amount > invoice.amount_due:
+        raise HTTPException(400, "مبلغ الدفعة أكبر من المبلغ المستحق")
 
     # Create payment in database
     payment = await repo.payments.create(
@@ -2761,6 +3014,21 @@ async def create_payment(
         },
     )
 
+    # Publish payment completed event when payment succeeded
+    if payment.status == db_models.PaymentStatus.SUCCEEDED:
+        background_tasks.add_task(
+            publish_event,
+            "sahool.billing.payment.completed",
+            {
+                "payment_id": str(payment.id),
+                "invoice_id": str(payment.invoice_id),
+                "tenant_id": payment.tenant_id,
+                "amount": float(payment.amount),
+                "currency": payment.currency.value,
+                "method": payment.method.value,
+            },
+        )
+
     # Refresh invoice to get updated status
     invoice = await repo.invoices.get_by_id(invoice.id)
 
@@ -2785,11 +3053,12 @@ async def create_payment(
 @app.get("/api/v1/tenants/{tenant_id}/payments")
 async def list_payments(
     tenant_id: str,
-    limit: int = Query(default=20, le=100),
+    limit: int = Query(default=20, ge=1, le=100),
     current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     """قائمة المدفوعات"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2822,10 +3091,19 @@ async def list_payments(
 class RefundRequest(BaseModel):
     """طلب استرداد"""
 
-    payment_id: str
-    amount: Decimal | None = None  # None = full refund
-    reason: str
-    reason_ar: str | None = None
+    payment_id: str = Field(min_length=1, max_length=100)
+    amount: Decimal | None = Field(default=None, gt=0, max_digits=12, decimal_places=2)  # None = full refund
+    reason: str = Field(min_length=1, max_length=1000)
+    reason_ar: str | None = Field(default=None, max_length=1000)
+
+    @field_validator("payment_id")
+    @classmethod
+    def payment_id_must_be_valid_uuid(cls, v: str) -> str:
+        try:
+            uuid.UUID(v)
+        except (ValueError, AttributeError):
+            raise ValueError("payment_id must be a valid UUID")
+        return v
 
 
 @app.post("/api/v1/refunds")
@@ -2849,6 +3127,9 @@ async def create_refund(
 
     if not payment:
         raise HTTPException(404, "الدفعة غير موجودة")
+
+    # Tenant isolation: tenant_admin can only refund their own tenant's payments
+    require_tenant_or_admin(current_user, payment.tenant_id)
 
     if payment.status != db_models.PaymentStatus.SUCCEEDED:
         raise HTTPException(400, "لا يمكن استرداد دفعة غير ناجحة")
@@ -3319,24 +3600,30 @@ async def get_revenue_report(
     if not end_date:
         end_date = date.today()
 
+    # Tenant isolation: tenant_admin sees only their own data, super_admin sees all
+    tenant_filter = _get_tenant_filter(current_user)
+
     repo = BillingRepository(db)
 
     # Calculate revenue from database
     total_usd = await repo.invoices.get_total_revenue(
-        start_date=start_date, end_date=end_date, currency=db_models.Currency.USD
+        start_date=start_date, end_date=end_date, currency=db_models.Currency.USD, tenant_id=tenant_filter
     )
     total_yer = await repo.invoices.get_total_revenue(
-        start_date=start_date, end_date=end_date, currency=db_models.Currency.YER
+        start_date=start_date, end_date=end_date, currency=db_models.Currency.YER, tenant_id=tenant_filter
     )
 
     # Revenue by payment method
     by_method = await repo.payments.get_total_by_method(
         start_date=datetime.combine(start_date, datetime.min.time()).replace(tzinfo=UTC),
         end_date=datetime.combine(end_date, datetime.max.time()).replace(tzinfo=UTC),
+        tenant_id=tenant_filter,
     )
 
     # Count paid invoices in period
-    paid_invoices = await repo.invoices.list_by_tenant(tenant_id=None, status=db_models.InvoiceStatus.PAID, limit=10000)
+    paid_invoices = await repo.invoices.list_by_tenant(
+        tenant_id=tenant_filter, status=db_models.InvoiceStatus.PAID, limit=10000
+    )
     invoices_in_period = [inv for inv in paid_invoices if inv.paid_date and start_date <= inv.paid_date <= end_date]
 
     # Revenue by plan
@@ -3367,11 +3654,14 @@ async def get_subscriptions_report(
     db: AsyncSession = Depends(get_db),
 ):
     """تقرير الاشتراكات (للمسؤولين)"""
+    # Tenant isolation: tenant_admin sees only their own data, super_admin sees all
+    tenant_filter = _get_tenant_filter(current_user)
+
     repo = BillingRepository(db)
 
     # Get counts from database
-    by_status = await repo.subscriptions.count_by_status()
-    by_plan = await repo.subscriptions.count_by_plan()
+    by_status = await repo.subscriptions.count_by_status(tenant_id=tenant_filter)
+    by_plan = await repo.subscriptions.count_by_plan(tenant_id=tenant_filter)
     total_tenants = await repo.tenants.count_total(active_only=False)
 
     total_subscriptions = sum(by_status.values())

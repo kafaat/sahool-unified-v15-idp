@@ -196,35 +196,53 @@ FERTILIZERS = {
 
 
 def get_fertilizer(fertilizer_id: str) -> dict | None:
-    """Get fertilizer by ID"""
-    return FERTILIZERS.get(fertilizer_id)
+    """Get fertilizer by ID. Returns None if fertilizer_id is empty or not found."""
+    if not fertilizer_id or not isinstance(fertilizer_id, str):
+        return None
+    return FERTILIZERS.get(fertilizer_id.strip())
 
 
 def get_fertilizers_by_type(fert_type: str) -> list[dict]:
-    """Get all fertilizers of a specific type"""
-    return [{"id": k, **v} for k, v in FERTILIZERS.items() if v["type"] == fert_type]
+    """Get all fertilizers of a specific type. Returns empty list if type is missing or not found."""
+    if not fert_type or not isinstance(fert_type, str):
+        return []
+    fert_type = fert_type.strip()
+    return [{"id": k, **v} for k, v in FERTILIZERS.items() if v.get("type") == fert_type]
 
 
 def get_fertilizers_for_nutrient(nutrient: str) -> list[dict]:
-    """Get fertilizers that provide a specific nutrient"""
+    """Get fertilizers that provide a specific nutrient. Returns empty list if nutrient is missing."""
+    if not nutrient or not isinstance(nutrient, str):
+        return []
+    nutrient = nutrient.strip()
     results = []
     for fert_id, fert in FERTILIZERS.items():
-        if nutrient in fert["analysis"] and fert["analysis"][nutrient] > 0:
-            results.append({"id": fert_id, **fert, "nutrient_content": fert["analysis"][nutrient]})
+        analysis = fert.get("analysis", {})
+        if nutrient in analysis and analysis[nutrient] > 0:
+            results.append({"id": fert_id, **fert, "nutrient_content": analysis[nutrient]})
     # Sort by nutrient content descending
     return sorted(results, key=lambda x: x["nutrient_content"], reverse=True)
 
 
 def calculate_dose(fertilizer_id: str, nutrient: str, target_kg_ha: float) -> float | None:
     """
-    Calculate fertilizer dose needed to supply target kg/ha of nutrient
-    Returns kg/ha of fertilizer needed
+    Calculate fertilizer dose needed to supply target kg/ha of nutrient.
+    Returns kg/ha of fertilizer needed, or None if inputs are invalid.
     """
-    fert = FERTILIZERS.get(fertilizer_id)
-    if not fert or nutrient not in fert["analysis"]:
+    if not fertilizer_id or not nutrient:
+        return None
+    if target_kg_ha <= 0:
         return None
 
-    nutrient_pct = fert["analysis"][nutrient]
+    fert = FERTILIZERS.get(fertilizer_id)
+    if not fert:
+        return None
+
+    analysis = fert.get("analysis", {})
+    if nutrient not in analysis:
+        return None
+
+    nutrient_pct = analysis[nutrient]
     if nutrient_pct == 0:
         return None
 

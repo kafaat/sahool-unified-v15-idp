@@ -113,3 +113,7 @@ securityContext:
     drop:
       - ALL
   readOnlyRootFilesystem: true
+
+# Network policy
+networkPolicy:
+  enabled: true

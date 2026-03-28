@@ -1,12 +1,13 @@
 apiVersion: v2
 name: irrigation-smart
-description: SAHOOL Irrigation Smart - Microservice
+description: SAHOOL Irrigation Smart Service - Smart irrigation scheduling and optimization microservice
 type: application
 version: 1.0.0
 appVersion: "16.0.0"
 keywords:
   - sahool
   - irrigation
+  - smart-irrigation
   - microservice
 maintainers:
   - name: KAFAAT

@@ -39,6 +39,7 @@
     "reflect-metadata": "^0.2.2",
     "helmet": "^8.0.0",
     "rxjs": "^7.8.1",
+    "prom-client": "^15.1.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

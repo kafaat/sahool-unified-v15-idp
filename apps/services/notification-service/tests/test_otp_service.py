@@ -9,6 +9,7 @@ Covers:
 - OTPService initialization and generate/verify flow
 """
 
+import asyncio
 import os
 import time as time_module
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -241,108 +242,126 @@ class TestOTPResult:
 
 
 class TestInMemoryStorage:
-    @pytest.mark.asyncio
-    async def test_set_and_get_otp(self):
-        storage = InMemoryStorage()
-        now = time_module.time()
-        record = OTPRecord(
-            user_id="user-1",
-            otp_hash="hash1",
-            purpose="login",
-            channel="sms",
-            destination="+967***1234",
-            created_at=now,
-            expires_at=now + 600,
-        )
-        await storage.set_otp("key-1", record)
-        result = await storage.get_otp("key-1")
-        assert result is not None
-        assert result.user_id == "user-1"
+    def test_set_and_get_otp(self):
+        async def _run():
+            storage = InMemoryStorage()
+            now = time_module.time()
+            record = OTPRecord(
+                user_id="user-1",
+                otp_hash="hash1",
+                purpose="login",
+                channel="sms",
+                destination="+967***1234",
+                created_at=now,
+                expires_at=now + 600,
+            )
+            await storage.set_otp("key-1", record)
+            result = await storage.get_otp("key-1")
+            assert result is not None
+            assert result.user_id == "user-1"
 
-    @pytest.mark.asyncio
-    async def test_get_nonexistent_otp(self):
-        storage = InMemoryStorage()
-        result = await storage.get_otp("nonexistent")
-        assert result is None
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_delete_otp(self):
-        storage = InMemoryStorage()
-        now = time_module.time()
-        record = OTPRecord(
-            user_id="user-1",
-            otp_hash="hash1",
-            purpose="login",
-            channel="sms",
-            destination="+967***1234",
-            created_at=now,
-            expires_at=now + 600,
-        )
-        await storage.set_otp("key-del", record)
-        result = await storage.delete_otp("key-del")
-        assert result is True
+    def test_get_nonexistent_otp(self):
+        async def _run():
+            storage = InMemoryStorage()
+            result = await storage.get_otp("nonexistent")
+            assert result is None
 
-        # Verify deleted
-        result = await storage.get_otp("key-del")
-        assert result is None
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_delete_nonexistent(self):
-        storage = InMemoryStorage()
-        result = await storage.delete_otp("nonexistent")
-        assert result is False
+    def test_delete_otp(self):
+        async def _run():
+            storage = InMemoryStorage()
+            now = time_module.time()
+            record = OTPRecord(
+                user_id="user-1",
+                otp_hash="hash1",
+                purpose="login",
+                channel="sms",
+                destination="+967***1234",
+                created_at=now,
+                expires_at=now + 600,
+            )
+            await storage.set_otp("key-del", record)
+            result = await storage.delete_otp("key-del")
+            assert result is True
 
-    @pytest.mark.asyncio
-    async def test_update_otp(self):
-        storage = InMemoryStorage()
-        now = time_module.time()
-        record = OTPRecord(
-            user_id="user-1",
-            otp_hash="hash1",
-            purpose="login",
-            channel="sms",
-            destination="+967***1234",
-            created_at=now,
-            expires_at=now + 600,
-            attempts=0,
-        )
-        await storage.set_otp("key-upd", record)
+            # Verify deleted
+            result = await storage.get_otp("key-del")
+            assert result is None
 
-        record.attempts = 2
-        await storage.update_otp("key-upd", record)
+        asyncio.run(_run())
 
-        updated = await storage.get_otp("key-upd")
-        assert updated.attempts == 2
+    def test_delete_nonexistent(self):
+        async def _run():
+            storage = InMemoryStorage()
+            result = await storage.delete_otp("nonexistent")
+            assert result is False
 
-    @pytest.mark.asyncio
-    async def test_rate_limit_allowed(self):
-        storage = InMemoryStorage()
-        allowed, remaining = await storage.check_rate_limit("user-rl-1")
-        assert allowed is True
-        assert remaining == RATE_LIMIT_MAX_REQUESTS
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_rate_limit_exceeded(self):
-        storage = InMemoryStorage()
-        for _ in range(RATE_LIMIT_MAX_REQUESTS):
-            await storage.record_request("user-rl-2")
-        allowed, remaining = await storage.check_rate_limit("user-rl-2")
-        assert allowed is False
-        assert remaining == 0
+    def test_update_otp(self):
+        async def _run():
+            storage = InMemoryStorage()
+            now = time_module.time()
+            record = OTPRecord(
+                user_id="user-1",
+                otp_hash="hash1",
+                purpose="login",
+                channel="sms",
+                destination="+967***1234",
+                created_at=now,
+                expires_at=now + 600,
+                attempts=0,
+            )
+            await storage.set_otp("key-upd", record)
 
-    @pytest.mark.asyncio
-    async def test_rate_limit_decrements_remaining(self):
-        storage = InMemoryStorage()
-        await storage.record_request("user-rl-3")
-        allowed, remaining = await storage.check_rate_limit("user-rl-3")
-        assert allowed is True
-        assert remaining == RATE_LIMIT_MAX_REQUESTS - 1
+            record.attempts = 2
+            await storage.update_otp("key-upd", record)
 
-    @pytest.mark.asyncio
-    async def test_record_request(self):
-        storage = InMemoryStorage()
-        await storage.record_request("user-rl-4")
-        assert len(storage._rate_limit_store["user-rl-4"]) == 1
+            updated = await storage.get_otp("key-upd")
+            assert updated.attempts == 2
+
+        asyncio.run(_run())
+
+    def test_rate_limit_allowed(self):
+        async def _run():
+            storage = InMemoryStorage()
+            allowed, remaining = await storage.check_rate_limit("user-rl-1")
+            assert allowed is True
+            assert remaining == RATE_LIMIT_MAX_REQUESTS
+
+        asyncio.run(_run())
+
+    def test_rate_limit_exceeded(self):
+        async def _run():
+            storage = InMemoryStorage()
+            for _ in range(RATE_LIMIT_MAX_REQUESTS):
+                await storage.record_request("user-rl-2")
+            allowed, remaining = await storage.check_rate_limit("user-rl-2")
+            assert allowed is False
+            assert remaining == 0
+
+        asyncio.run(_run())
+
+    def test_rate_limit_decrements_remaining(self):
+        async def _run():
+            storage = InMemoryStorage()
+            await storage.record_request("user-rl-3")
+            allowed, remaining = await storage.check_rate_limit("user-rl-3")
+            assert allowed is True
+            assert remaining == RATE_LIMIT_MAX_REQUESTS - 1
+
+        asyncio.run(_run())
+
+    def test_record_request(self):
+        async def _run():
+            storage = InMemoryStorage()
+            await storage.record_request("user-rl-4")
+            assert len(storage._rate_limit_store["user-rl-4"]) == 1
+
+        asyncio.run(_run())
 
     def test_clear(self):
         storage = InMemoryStorage()
@@ -365,23 +384,20 @@ class TestOTPService:
         assert service._use_redis is False
         assert service._redis_client is None
 
-    @pytest.mark.asyncio
-    async def test_initialize_without_redis(self):
+    def test_initialize_without_redis(self):
         service = OTPService()
-        result = await service.initialize(use_redis=False)
+        result = asyncio.run(service.initialize(use_redis=False))
         assert result is True
         assert service._initialized is True
         assert service._use_redis is False
 
-    @pytest.mark.asyncio
-    async def test_initialize_already_initialized(self):
+    def test_initialize_already_initialized(self):
         service = OTPService()
         service._initialized = True
-        result = await service.initialize()
+        result = asyncio.run(service.initialize())
         assert result is True
 
-    @pytest.mark.asyncio
-    async def test_initialize_redis_not_available(self):
+    def test_initialize_redis_not_available(self):
         service = OTPService()
         # Mock shared.cache.get_redis_client to raise ConnectionError so we
         # don't attempt a real Redis Sentinel connection (causes timeouts in CI)
@@ -389,7 +405,7 @@ class TestOTPService:
             "sys.modules",
             {"shared.cache": MagicMock(get_redis_client=MagicMock(side_effect=ConnectionError("mocked")))},
         ):
-            result = await service.initialize(use_redis=True)
+            result = asyncio.run(service.initialize(use_redis=True))
         # Should fallback to in-memory
         assert result is True
         assert service._initialized is True
@@ -480,50 +496,56 @@ class TestOTPService:
         service._initialized = True
         assert service._check_initialized() is True
 
-    @pytest.mark.asyncio
-    async def test_store_otp_in_memory(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+    def test_store_otp_in_memory(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
 
-        now = time_module.time()
-        record = OTPRecord(
-            user_id="user-1",
-            otp_hash="hash1",
-            purpose="login",
-            channel="sms",
-            destination="+967***1234",
-            created_at=now,
-            expires_at=now + 600,
-        )
-        result = await service._store_otp("test-key", record)
-        assert result is True
+            now = time_module.time()
+            record = OTPRecord(
+                user_id="user-1",
+                otp_hash="hash1",
+                purpose="login",
+                channel="sms",
+                destination="+967***1234",
+                created_at=now,
+                expires_at=now + 600,
+            )
+            result = await service._store_otp("test-key", record)
+            assert result is True
 
-    @pytest.mark.asyncio
-    async def test_get_otp_in_memory(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+        asyncio.run(_run())
 
-        now = time_module.time()
-        record = OTPRecord(
-            user_id="user-1",
-            otp_hash="hash1",
-            purpose="login",
-            channel="sms",
-            destination="+967***1234",
-            created_at=now,
-            expires_at=now + 600,
-        )
-        await service._store_otp("test-key-get", record)
-        retrieved = await service._get_otp("test-key-get")
-        assert retrieved is not None
-        assert retrieved.user_id == "user-1"
+    def test_get_otp_in_memory(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
 
-    @pytest.mark.asyncio
-    async def test_get_otp_nonexistent(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-        result = await service._get_otp("nonexistent")
-        assert result is None
+            now = time_module.time()
+            record = OTPRecord(
+                user_id="user-1",
+                otp_hash="hash1",
+                purpose="login",
+                channel="sms",
+                destination="+967***1234",
+                created_at=now,
+                expires_at=now + 600,
+            )
+            await service._store_otp("test-key-get", record)
+            retrieved = await service._get_otp("test-key-get")
+            assert retrieved is not None
+            assert retrieved.user_id == "user-1"
+
+        asyncio.run(_run())
+
+    def test_get_otp_nonexistent(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+            result = await service._get_otp("nonexistent")
+            assert result is None
+
+        asyncio.run(_run())
 
     def test_get_sms_client(self):
         service = OTPService()
@@ -546,61 +568,69 @@ class TestOTPService:
         client = service._get_email_client()
         assert client is not None or client is None
 
-    @pytest.mark.asyncio
-    async def test_delete_otp_in_memory(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+    def test_delete_otp_in_memory(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
 
-        now = time_module.time()
-        record = OTPRecord(
-            user_id="user-del",
-            otp_hash="hash",
-            purpose="login",
-            channel="sms",
-            destination="+967***1234",
-            created_at=now,
-            expires_at=now + 600,
-        )
-        await service._store_otp("del-key", record)
-        result = await service._delete_otp("del-key")
-        assert result is True
+            now = time_module.time()
+            record = OTPRecord(
+                user_id="user-del",
+                otp_hash="hash",
+                purpose="login",
+                channel="sms",
+                destination="+967***1234",
+                created_at=now,
+                expires_at=now + 600,
+            )
+            await service._store_otp("del-key", record)
+            result = await service._delete_otp("del-key")
+            assert result is True
 
-    @pytest.mark.asyncio
-    async def test_update_otp_in_memory(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+        asyncio.run(_run())
 
-        now = time_module.time()
-        record = OTPRecord(
-            user_id="user-upd",
-            otp_hash="hash",
-            purpose="login",
-            channel="sms",
-            destination="+967***1234",
-            created_at=now,
-            expires_at=now + 600,
-        )
-        await service._store_otp("upd-key", record)
-        record.attempts = 2
-        result = await service._update_otp("upd-key", record)
-        assert result is True
+    def test_update_otp_in_memory(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
 
-    @pytest.mark.asyncio
-    async def test_check_rate_limit_in_memory(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+            now = time_module.time()
+            record = OTPRecord(
+                user_id="user-upd",
+                otp_hash="hash",
+                purpose="login",
+                channel="sms",
+                destination="+967***1234",
+                created_at=now,
+                expires_at=now + 600,
+            )
+            await service._store_otp("upd-key", record)
+            record.attempts = 2
+            result = await service._update_otp("upd-key", record)
+            assert result is True
 
-        allowed, remaining = await service._check_rate_limit("user-rl", "sms")
-        assert allowed is True
-        assert remaining > 0
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_record_rate_limit_in_memory(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+    def test_check_rate_limit_in_memory(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
 
-        # Should not raise
-        await service._record_rate_limit("user-rl2", "sms")
+            allowed, remaining = await service._check_rate_limit("user-rl", "sms")
+            assert allowed is True
+            assert remaining > 0
+
+        asyncio.run(_run())
+
+    def test_record_rate_limit_in_memory(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            # Should not raise
+            await service._record_rate_limit("user-rl2", "sms")
+
+        asyncio.run(_run())
 
     def test_get_otp_message_arabic(self):
         service = OTPService()
@@ -654,189 +684,252 @@ class TestOTPService:
 
 
 class TestOTPServiceDelivery:
-    @pytest.mark.asyncio
-    async def test_send_via_sms_no_client(self):
-        service = OTPService()
-        service._sms_client = None
-        # Force _get_sms_client to return None
-        with patch.object(service, "_get_sms_client", return_value=None):
-            result = await service._send_otp_via_sms("+967712345678", "123456", "login", "ar")
-            assert result is None
+    def test_send_via_sms_no_client(self):
+        async def _run():
+            service = OTPService()
+            service._sms_client = None
+            # Force _get_sms_client to return None
+            with patch.object(service, "_get_sms_client", return_value=None):
+                result = await service._send_otp_via_sms("+967712345678", "123456", "login", "ar")
+                assert result is None
 
-    @pytest.mark.asyncio
-    async def test_send_via_sms_success(self):
-        service = OTPService()
-        mock_client = MagicMock()
-        mock_client.send_sms = AsyncMock(return_value="SM123")
-        with patch.object(service, "_get_sms_client", return_value=mock_client):
-            result = await service._send_otp_via_sms("+967712345678", "123456", "login", "ar")
-            assert result == "SM123"
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_send_via_whatsapp_no_client(self):
-        service = OTPService()
-        with patch.object(service, "_get_whatsapp_client", return_value=None):
-            result = await service._send_otp_via_whatsapp("+967712345678", "123456", "login", "ar")
-            assert result is None
+    def test_send_via_sms_success(self):
+        async def _run():
+            service = OTPService()
+            mock_client = MagicMock()
+            mock_client.send_sms = AsyncMock(return_value="SM123")
+            with patch.object(service, "_get_sms_client", return_value=mock_client):
+                result = await service._send_otp_via_sms("+967712345678", "123456", "login", "ar")
+                assert result == "SM123"
 
-    @pytest.mark.asyncio
-    async def test_send_via_whatsapp_success(self):
-        service = OTPService()
-        mock_client = MagicMock()
-        mock_client.send_otp = AsyncMock(return_value="WA123")
-        with patch.object(service, "_get_whatsapp_client", return_value=mock_client):
-            result = await service._send_otp_via_whatsapp("+967712345678", "123456", "login", "ar")
-            assert result == "WA123"
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_send_via_telegram_no_client(self):
-        service = OTPService()
-        with patch.object(service, "_get_telegram_client", return_value=None):
-            result = await service._send_otp_via_telegram("chat123", "123456", "login", "ar")
-            assert result is None
+    def test_send_via_whatsapp_no_client(self):
+        async def _run():
+            service = OTPService()
+            with patch.object(service, "_get_whatsapp_client", return_value=None):
+                result = await service._send_otp_via_whatsapp("+967712345678", "123456", "login", "ar")
+                assert result is None
 
-    @pytest.mark.asyncio
-    async def test_send_via_telegram_success(self):
-        service = OTPService()
-        mock_client = MagicMock()
-        mock_client.send_otp = AsyncMock(return_value=12345)
-        with patch.object(service, "_get_telegram_client", return_value=mock_client):
-            result = await service._send_otp_via_telegram("chat123", "123456", "login", "ar")
-            assert result == 12345
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_send_via_email_no_client(self):
-        service = OTPService()
-        with patch.object(service, "_get_email_client", return_value=None):
-            result = await service._send_otp_via_email("test@example.com", "123456", "login", "en")
-            assert result is None
+    def test_send_via_whatsapp_success(self):
+        async def _run():
+            service = OTPService()
+            mock_client = MagicMock()
+            mock_client.send_otp = AsyncMock(return_value="WA123")
+            with patch.object(service, "_get_whatsapp_client", return_value=mock_client):
+                result = await service._send_otp_via_whatsapp("+967712345678", "123456", "login", "ar")
+                assert result == "WA123"
 
-    @pytest.mark.asyncio
-    async def test_send_via_email_success(self):
-        service = OTPService()
-        mock_client = MagicMock()
-        mock_client.send_email = AsyncMock(return_value="msg-123")
-        with patch.object(service, "_get_email_client", return_value=mock_client):
-            result = await service._send_otp_via_email("test@example.com", "123456", "login", "en")
-            assert result == "msg-123"
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_send_via_email_arabic(self):
-        service = OTPService()
-        mock_client = MagicMock()
-        mock_client.send_email = AsyncMock(return_value="msg-ar")
-        with patch.object(service, "_get_email_client", return_value=mock_client):
-            result = await service._send_otp_via_email("test@example.com", "123456", "login", "ar")
-            assert result == "msg-ar"
+    def test_send_via_telegram_no_client(self):
+        async def _run():
+            service = OTPService()
+            with patch.object(service, "_get_telegram_client", return_value=None):
+                result = await service._send_otp_via_telegram("chat123", "123456", "login", "ar")
+                assert result is None
+
+        asyncio.run(_run())
+
+    def test_send_via_telegram_success(self):
+        async def _run():
+            service = OTPService()
+            mock_client = MagicMock()
+            mock_client.send_otp = AsyncMock(return_value=12345)
+            with patch.object(service, "_get_telegram_client", return_value=mock_client):
+                result = await service._send_otp_via_telegram("chat123", "123456", "login", "ar")
+                assert result == 12345
+
+        asyncio.run(_run())
+
+    def test_send_via_email_no_client(self):
+        async def _run():
+            service = OTPService()
+            with patch.object(service, "_get_email_client", return_value=None):
+                result = await service._send_otp_via_email("test@example.com", "123456", "login", "en")
+                assert result is None
+
+        asyncio.run(_run())
+
+    def test_send_via_email_success(self):
+        async def _run():
+            service = OTPService()
+            mock_client = MagicMock()
+            mock_client.send_email = AsyncMock(return_value="msg-123")
+            with patch.object(service, "_get_email_client", return_value=mock_client):
+                result = await service._send_otp_via_email("test@example.com", "123456", "login", "en")
+                assert result == "msg-123"
+
+        asyncio.run(_run())
+
+    def test_send_via_email_arabic(self):
+        async def _run():
+            service = OTPService()
+            mock_client = MagicMock()
+            mock_client.send_email = AsyncMock(return_value="msg-ar")
+            with patch.object(service, "_get_email_client", return_value=mock_client):
+                result = await service._send_otp_via_email("test@example.com", "123456", "login", "ar")
+                assert result == "msg-ar"
+
+        asyncio.run(_run())
 
 
 class TestOTPServiceGenerateAndVerify:
-    @pytest.mark.asyncio
-    async def test_generate_otp_not_initialized(self):
-        service = OTPService()
-        result = await service.generate_otp(
-            user_id="user-1",
-            phone_or_email="+967712345678",
-            channel="sms",
-            purpose="login",
-        )
-        assert result.success is False
-        assert result.error_code == "SERVICE_NOT_INITIALIZED"
-
-    @pytest.mark.asyncio
-    async def test_generate_otp_rate_limited(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-
-        # Exhaust rate limit
-        for _ in range(RATE_LIMIT_MAX_REQUESTS):
-            rate_key = service._get_rate_limit_key("user-rl-gen", "sms")
-            await service._in_memory_storage.record_request(rate_key)
-
-        result = await service.generate_otp(
-            user_id="user-rl-gen",
-            phone_or_email="+967712345678",
-            channel=OTPChannel.SMS,
-            purpose=OTPPurpose.LOGIN,
-        )
-        assert result.success is False
-        assert result.error_code == "RATE_LIMIT_EXCEEDED"
-
-    @pytest.mark.asyncio
-    async def test_generate_otp_existing_not_expired(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-
-        # Store an existing OTP that isn't expired yet
-        now = time_module.time()
-        otp_key = service._get_otp_key("user-existing", "login")
-        record = OTPRecord(
-            user_id="user-existing",
-            otp_hash="hash",
-            purpose="login",
-            channel="sms",
-            destination="***5678",
-            created_at=now,
-            expires_at=now + 300,  # 5 minutes remaining
-        )
-        await service._store_otp(otp_key, record)
-
-        result = await service.generate_otp(
-            user_id="user-existing",
-            phone_or_email="+967712345678",
-            channel=OTPChannel.SMS,
-            purpose=OTPPurpose.LOGIN,
-        )
-        assert result.success is False
-        assert result.error_code == "OTP_ALREADY_SENT"
-
-    @pytest.mark.asyncio
-    async def test_generate_otp_sms_success(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-
-        mock_client = MagicMock()
-        mock_client.send_sms = AsyncMock(return_value="SM789")
-        with patch.object(service, "_get_sms_client", return_value=mock_client):
+    def test_generate_otp_not_initialized(self):
+        async def _run():
+            service = OTPService()
             result = await service.generate_otp(
-                user_id="user-sms-ok",
+                user_id="user-1",
+                phone_or_email="+967712345678",
+                channel="sms",
+                purpose="login",
+            )
+            assert result.success is False
+            assert result.error_code == "SERVICE_NOT_INITIALIZED"
+
+        asyncio.run(_run())
+
+    def test_generate_otp_rate_limited(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            # Exhaust rate limit
+            for _ in range(RATE_LIMIT_MAX_REQUESTS):
+                rate_key = service._get_rate_limit_key("user-rl-gen", "sms")
+                await service._in_memory_storage.record_request(rate_key)
+
+            result = await service.generate_otp(
+                user_id="user-rl-gen",
                 phone_or_email="+967712345678",
                 channel=OTPChannel.SMS,
                 purpose=OTPPurpose.LOGIN,
-                language="ar",
             )
-            assert result.success is True
-            assert result.otp_sent is True
-            assert result.delivery_id is not None
+            assert result.success is False
+            assert result.error_code == "RATE_LIMIT_EXCEEDED"
 
-    @pytest.mark.asyncio
-    async def test_generate_otp_email_success(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+        asyncio.run(_run())
 
-        mock_client = MagicMock()
-        mock_client.send_email = AsyncMock(return_value="msg-456")
-        with patch.object(service, "_get_email_client", return_value=mock_client):
-            result = await service.generate_otp(
-                user_id="user-email-ok",
-                phone_or_email="test@example.com",
-                channel=OTPChannel.EMAIL,
-                purpose=OTPPurpose.EMAIL_VERIFICATION,
-                language="en",
+    def test_generate_otp_existing_not_expired(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            # Store an existing OTP that isn't expired yet
+            now = time_module.time()
+            otp_key = service._get_otp_key("user-existing", "login")
+            record = OTPRecord(
+                user_id="user-existing",
+                otp_hash="hash",
+                purpose="login",
+                channel="sms",
+                destination="***5678",
+                created_at=now,
+                expires_at=now + 300,  # 5 minutes remaining
             )
-            assert result.success is True
-            assert result.otp_sent is True
+            await service._store_otp(otp_key, record)
 
-    @pytest.mark.asyncio
-    async def test_generate_otp_delivery_exception(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-
-        mock_client = MagicMock()
-        mock_client.send_sms = AsyncMock(side_effect=Exception("Network error"))
-        with patch.object(service, "_get_sms_client", return_value=mock_client):
             result = await service.generate_otp(
-                user_id="user-exc",
+                user_id="user-existing",
+                phone_or_email="+967712345678",
+                channel=OTPChannel.SMS,
+                purpose=OTPPurpose.LOGIN,
+            )
+            assert result.success is False
+            assert result.error_code == "OTP_ALREADY_SENT"
+
+        asyncio.run(_run())
+
+    def test_generate_otp_sms_success(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            mock_client = MagicMock()
+            mock_client.send_sms = AsyncMock(return_value="SM789")
+            with patch.object(service, "_get_sms_client", return_value=mock_client):
+                result = await service.generate_otp(
+                    user_id="user-sms-ok",
+                    phone_or_email="+967712345678",
+                    channel=OTPChannel.SMS,
+                    purpose=OTPPurpose.LOGIN,
+                    language="ar",
+                )
+                assert result.success is True
+                assert result.otp_sent is True
+                assert result.delivery_id is not None
+
+        asyncio.run(_run())
+
+    def test_generate_otp_email_success(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            mock_client = MagicMock()
+            mock_client.send_email = AsyncMock(return_value="msg-456")
+            with patch.object(service, "_get_email_client", return_value=mock_client):
+                result = await service.generate_otp(
+                    user_id="user-email-ok",
+                    phone_or_email="test@example.com",
+                    channel=OTPChannel.EMAIL,
+                    purpose=OTPPurpose.EMAIL_VERIFICATION,
+                    language="en",
+                )
+                assert result.success is True
+                assert result.otp_sent is True
+
+        asyncio.run(_run())
+
+    def test_generate_otp_delivery_exception(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            mock_client = MagicMock()
+            mock_client.send_sms = AsyncMock(side_effect=Exception("Network error"))
+            with patch.object(service, "_get_sms_client", return_value=mock_client):
+                result = await service.generate_otp(
+                    user_id="user-exc",
+                    phone_or_email="+967712345678",
+                    channel=OTPChannel.SMS,
+                    purpose=OTPPurpose.LOGIN,
+                )
+                assert result.success is False
+                assert result.error_code == "DELIVERY_FAILED"
+
+        asyncio.run(_run())
+
+    def test_generate_otp_string_enum_conversion(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            mock_client = MagicMock()
+            mock_client.send_sms = AsyncMock(return_value="SM101")
+            with patch.object(service, "_get_sms_client", return_value=mock_client):
+                result = await service.generate_otp(
+                    user_id="user-str-conv",
+                    phone_or_email="+967712345678",
+                    channel="sms",  # string instead of enum
+                    purpose="login",  # string instead of enum
+                )
+                assert result.success is True
+
+        asyncio.run(_run())
+
+    def test_generate_otp_sms_delivery_fails(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            # SMS client returns None (delivery failure)
+            result = await service.generate_otp(
+                user_id="user-sms-fail",
                 phone_or_email="+967712345678",
                 channel=OTPChannel.SMS,
                 purpose=OTPPurpose.LOGIN,
@@ -844,165 +937,148 @@ class TestOTPServiceGenerateAndVerify:
             assert result.success is False
             assert result.error_code == "DELIVERY_FAILED"
 
-    @pytest.mark.asyncio
-    async def test_generate_otp_string_enum_conversion(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+        asyncio.run(_run())
 
-        mock_client = MagicMock()
-        mock_client.send_sms = AsyncMock(return_value="SM101")
-        with patch.object(service, "_get_sms_client", return_value=mock_client):
-            result = await service.generate_otp(
-                user_id="user-str-conv",
-                phone_or_email="+967712345678",
-                channel="sms",  # string instead of enum
-                purpose="login",  # string instead of enum
+    def test_verify_otp_not_initialized(self):
+        async def _run():
+            service = OTPService()
+            result = await service.verify_otp(
+                user_id="user-1",
+                otp_code="123456",
+                purpose="login",
+            )
+            assert result.success is False
+            assert result.error_code == "SERVICE_NOT_INITIALIZED"
+
+        asyncio.run(_run())
+
+    def test_verify_otp_not_found(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            result = await service.verify_otp(
+                user_id="user-no-otp",
+                otp_code="123456",
+                purpose=OTPPurpose.LOGIN,
+            )
+            assert result.success is False
+            assert result.error_code == "OTP_NOT_FOUND"
+
+        asyncio.run(_run())
+
+    def test_verify_otp_expired(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            # Store expired OTP
+            now = time_module.time()
+            otp_key = service._get_otp_key("user-expired", "login")
+            record = OTPRecord(
+                user_id="user-expired",
+                otp_hash=service._hash_otp("123456", "user-expired"),
+                purpose="login",
+                channel="sms",
+                destination="***5678",
+                created_at=now - 700,
+                expires_at=now - 100,  # Expired
+            )
+            await service._store_otp(otp_key, record)
+
+            result = await service.verify_otp(
+                user_id="user-expired",
+                otp_code="123456",
+                purpose=OTPPurpose.LOGIN,
+            )
+            assert result.success is False
+            assert result.error_code == "OTP_EXPIRED"
+
+        asyncio.run(_run())
+
+    def test_verify_otp_wrong_code(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            now = time_module.time()
+            otp_key = service._get_otp_key("user-wrong", "login")
+            record = OTPRecord(
+                user_id="user-wrong",
+                otp_hash=service._hash_otp("123456", "user-wrong"),
+                purpose="login",
+                channel="sms",
+                destination="***5678",
+                created_at=now,
+                expires_at=now + 600,
+            )
+            await service._store_otp(otp_key, record)
+
+            result = await service.verify_otp(
+                user_id="user-wrong",
+                otp_code="654321",  # Wrong code
+                purpose=OTPPurpose.LOGIN,
+            )
+            assert result.success is False
+            assert result.error_code == "INVALID_OTP"
+
+        asyncio.run(_run())
+
+    def test_verify_otp_correct_code(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
+
+            now = time_module.time()
+            otp_code = "123456"
+            user_id = "user-correct"
+            otp_key = service._get_otp_key(user_id, "login")
+            record = OTPRecord(
+                user_id=user_id,
+                otp_hash=service._hash_otp(otp_code, user_id),
+                purpose="login",
+                channel="sms",
+                destination="***5678",
+                created_at=now,
+                expires_at=now + 600,
+            )
+            await service._store_otp(otp_key, record)
+
+            result = await service.verify_otp(
+                user_id=user_id,
+                otp_code=otp_code,
+                purpose=OTPPurpose.LOGIN,
             )
             assert result.success is True
 
-    @pytest.mark.asyncio
-    async def test_generate_otp_sms_delivery_fails(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+        asyncio.run(_run())
 
-        # SMS client returns None (delivery failure)
-        result = await service.generate_otp(
-            user_id="user-sms-fail",
-            phone_or_email="+967712345678",
-            channel=OTPChannel.SMS,
-            purpose=OTPPurpose.LOGIN,
-        )
-        assert result.success is False
-        assert result.error_code == "DELIVERY_FAILED"
+    def test_verify_otp_max_attempts_exceeded(self):
+        async def _run():
+            service = OTPService()
+            await service.initialize(use_redis=False)
 
-    @pytest.mark.asyncio
-    async def test_verify_otp_not_initialized(self):
-        service = OTPService()
-        result = await service.verify_otp(
-            user_id="user-1",
-            otp_code="123456",
-            purpose="login",
-        )
-        assert result.success is False
-        assert result.error_code == "SERVICE_NOT_INITIALIZED"
+            now = time_module.time()
+            otp_key = service._get_otp_key("user-attempts", "login")
+            record = OTPRecord(
+                user_id="user-attempts",
+                otp_hash=service._hash_otp("123456", "user-attempts"),
+                purpose="login",
+                channel="sms",
+                destination="***5678",
+                created_at=now,
+                expires_at=now + 600,
+                attempts=3,
+                max_attempts=3,
+            )
+            await service._store_otp(otp_key, record)
 
-    @pytest.mark.asyncio
-    async def test_verify_otp_not_found(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
+            result = await service.verify_otp(
+                user_id="user-attempts",
+                otp_code="123456",
+                purpose=OTPPurpose.LOGIN,
+            )
+            assert result.success is False
+            assert result.error_code == "MAX_ATTEMPTS_EXCEEDED"
 
-        result = await service.verify_otp(
-            user_id="user-no-otp",
-            otp_code="123456",
-            purpose=OTPPurpose.LOGIN,
-        )
-        assert result.success is False
-        assert result.error_code == "OTP_NOT_FOUND"
-
-    @pytest.mark.asyncio
-    async def test_verify_otp_expired(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-
-        # Store expired OTP
-        now = time_module.time()
-        otp_key = service._get_otp_key("user-expired", "login")
-        record = OTPRecord(
-            user_id="user-expired",
-            otp_hash=service._hash_otp("123456", "user-expired"),
-            purpose="login",
-            channel="sms",
-            destination="***5678",
-            created_at=now - 700,
-            expires_at=now - 100,  # Expired
-        )
-        await service._store_otp(otp_key, record)
-
-        result = await service.verify_otp(
-            user_id="user-expired",
-            otp_code="123456",
-            purpose=OTPPurpose.LOGIN,
-        )
-        assert result.success is False
-        assert result.error_code == "OTP_EXPIRED"
-
-    @pytest.mark.asyncio
-    async def test_verify_otp_wrong_code(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-
-        now = time_module.time()
-        otp_key = service._get_otp_key("user-wrong", "login")
-        record = OTPRecord(
-            user_id="user-wrong",
-            otp_hash=service._hash_otp("123456", "user-wrong"),
-            purpose="login",
-            channel="sms",
-            destination="***5678",
-            created_at=now,
-            expires_at=now + 600,
-        )
-        await service._store_otp(otp_key, record)
-
-        result = await service.verify_otp(
-            user_id="user-wrong",
-            otp_code="654321",  # Wrong code
-            purpose=OTPPurpose.LOGIN,
-        )
-        assert result.success is False
-        assert result.error_code == "INVALID_OTP"
-
-    @pytest.mark.asyncio
-    async def test_verify_otp_correct_code(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-
-        now = time_module.time()
-        otp_code = "123456"
-        user_id = "user-correct"
-        otp_key = service._get_otp_key(user_id, "login")
-        record = OTPRecord(
-            user_id=user_id,
-            otp_hash=service._hash_otp(otp_code, user_id),
-            purpose="login",
-            channel="sms",
-            destination="***5678",
-            created_at=now,
-            expires_at=now + 600,
-        )
-        await service._store_otp(otp_key, record)
-
-        result = await service.verify_otp(
-            user_id=user_id,
-            otp_code=otp_code,
-            purpose=OTPPurpose.LOGIN,
-        )
-        assert result.success is True
-
-    @pytest.mark.asyncio
-    async def test_verify_otp_max_attempts_exceeded(self):
-        service = OTPService()
-        await service.initialize(use_redis=False)
-
-        now = time_module.time()
-        otp_key = service._get_otp_key("user-attempts", "login")
-        record = OTPRecord(
-            user_id="user-attempts",
-            otp_hash=service._hash_otp("123456", "user-attempts"),
-            purpose="login",
-            channel="sms",
-            destination="***5678",
-            created_at=now,
-            expires_at=now + 600,
-            attempts=3,
-            max_attempts=3,
-        )
-        await service._store_otp(otp_key, record)
-
-        result = await service.verify_otp(
-            user_id="user-attempts",
-            otp_code="123456",
-            purpose=OTPPurpose.LOGIN,
-        )
-        assert result.success is False
-        assert result.error_code == "MAX_ATTEMPTS_EXCEEDED"
+        asyncio.run(_run())

@@ -13,6 +13,7 @@ import {
   MaxLength,
   IsPhoneNumber,
   IsBoolean,
+  IsUUID,
 } from "class-validator";
 import {
   IsYemeniPhone,
@@ -27,7 +28,7 @@ export class CreateUserDto {
     description: "Tenant ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
-  @IsString()
+  @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
   tenantId: string;
 
   @ApiProperty({
@@ -59,7 +60,7 @@ export class CreateUserDto {
   })
   @IsString()
   @MinLength(2)
-  @MaxLength(50)
+  @MaxLength(100)
   @SanitizePlainText()
   firstName: string;
 
@@ -69,7 +70,7 @@ export class CreateUserDto {
   })
   @IsString()
   @MinLength(2)
-  @MaxLength(50)
+  @MaxLength(100)
   @SanitizePlainText()
   lastName: string;
 

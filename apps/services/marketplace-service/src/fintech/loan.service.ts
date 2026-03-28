@@ -82,6 +82,9 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
   /**
    * معالجة الدفعات المستحقة
+   * NOTE: This is a system-level scheduled job (cron) that intentionally
+   * processes due payments across all tenants. Tenant isolation is not
+   * applied here because the scheduler must handle payments globally.
    */
   async processDuePayments(): Promise<{ processed: number; failed: number }> {
     const now = new Date();

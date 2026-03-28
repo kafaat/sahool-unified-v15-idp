@@ -17,6 +17,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
+import { FieldEventsService } from "../events/field-events.service";
 import {
   CreateFieldDto,
   UpdateFieldDto,
@@ -72,6 +73,7 @@ export class FieldsService {
   constructor(
     private prisma: PrismaService,
     private cacheService: CacheService,
+    private fieldEvents: FieldEventsService,
   ) {}
 
   /**
@@ -163,6 +165,14 @@ export class FieldsService {
 
     // Invalidate related caches
     await this.cacheService.invalidateTenant(dto.tenantId);
+
+    // Publish field created event (non-blocking)
+    this.fieldEvents.publishFieldCreated(dto.tenantId, createdField.id, {
+      name: dto.name,
+      cropType: dto.cropType,
+      areaHectares: createdField.areaHectares,
+      ownerId: dto.ownerId,
+    }).catch((e) => this.logger.error(`Event publish failed: ${e}`));
 
     const etag = generateETag(createdField.id, createdField.version);
 
@@ -389,6 +399,12 @@ export class FieldsService {
     await this.cacheService.invalidateField(id, current.tenantId);
 
     const result = await this.findById(id);
+
+    // Publish field updated event (non-blocking)
+    this.fieldEvents.publishFieldUpdated(tenantId, id, {
+      changes: dto,
+    }).catch((e) => this.logger.error(`Event publish failed: ${e}`));
+
     const etag = generateETag(result.id, result.version);
 
     return { ...result, etag };
@@ -417,6 +433,10 @@ export class FieldsService {
 
     // Invalidate caches
     await this.cacheService.invalidateField(id, field.tenantId);
+
+    // Publish field deleted event (non-blocking)
+    this.fieldEvents.publishFieldDeleted(tenantId, id)
+      .catch((e) => this.logger.error(`Event publish failed: ${e}`));
   }
 
   /**
@@ -521,6 +541,12 @@ export class FieldsService {
     // Invalidate caches
     await this.cacheService.invalidateField(id, field.tenantId);
 
+    // Publish boundary changed event (non-blocking)
+    this.fieldEvents.publishBoundaryChanged(tenantId, id, {
+      reason: dto.reason,
+      changeSource: dto.deviceId ? 'mobile' : 'api',
+    }).catch((e) => this.logger.error(`Event publish failed: ${e}`));
+
     return this.findById(id) as Promise<FieldResponseDto & { etag: string }>;
   }
 
@@ -548,6 +574,9 @@ export class FieldsService {
     // Fetch GeoJSON for boundaries
     if (history.length > 0) {
       const historyIds = history.map((h: any) => h.id);
+      // Defense-in-depth: historyIds are already tenant-filtered by the
+      // findMany above (where: { fieldId, tenantId }), so the IN clause
+      // only contains rows belonging to the authenticated tenant.
       const geoJsonResults = await this.prisma.$queryRaw<any[]>`
         SELECT
           id,
@@ -622,6 +651,8 @@ export class FieldsService {
       });
 
       // Restore previous boundary
+      // Defense-in-depth: tenant_id added to both UPDATE and subquery WHERE
+      // clauses, even though field ownership and history entry are validated above.
       await tx.$executeRaw`
         UPDATE fields
         SET
@@ -629,14 +660,16 @@ export class FieldsService {
             SELECT previous_boundary
             FROM field_boundary_history
             WHERE id = ${dto.historyId}::uuid
+              AND tenant_id = ${field.tenantId}::uuid
           ),
           area_hectares = ST_Area(ST_Transform(
-            (SELECT previous_boundary FROM field_boundary_history WHERE id = ${dto.historyId}::uuid),
+            (SELECT previous_boundary FROM field_boundary_history WHERE id = ${dto.historyId}::uuid AND tenant_id = ${field.tenantId}::uuid),
             32637
           )) / 10000,
           version = version + 1,
           server_updated_at = NOW()
         WHERE id = ${id}::uuid
+          AND tenant_id = ${field.tenantId}::uuid
       `;
     });
 

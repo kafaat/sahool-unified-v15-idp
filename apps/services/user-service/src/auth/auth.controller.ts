@@ -33,7 +33,8 @@ import { Throttle, SkipThrottle } from "@nestjs/throttler";
 import { Request } from "express";
 import { AuthService, LoginDto, RegisterDto, ForgotPasswordDto, ResetPasswordDto, SendOtpDto, VerifyOtpDto } from "./auth.service";
 import { JwtAuthGuard } from "./jwt-auth.guard";
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength, IsIn } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength, IsIn, Matches, Length, IsUUID } from "class-validator";
+import { IsStrongPassword, IsYemeniPhone, SanitizePlainText } from "../utils/validation";
 
 // Extend Express Request to include user property set by JWT guard
 interface AuthenticatedRequest extends Request {
@@ -91,13 +92,20 @@ class ResetPasswordRequestDto implements ResetPasswordDto {
   token: string;
 
   @ApiProperty({
-    description: "New password (min 8 characters)",
+    description: "New password (min 8 characters, must contain uppercase, lowercase, number, and special character)",
     example: "NewSecurePassword123!",
   })
-  @IsString()
+  @IsStrongPassword(8)
   @IsNotEmpty({ message: "New password is required" })
-  @MinLength(8, { message: "Password must be at least 8 characters long" })
   newPassword: string;
+
+  @ApiPropertyOptional({
+    description: "Tenant ID for tenant-scoped password reset",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @IsOptional()
+  @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
+  tenantId?: string;
 }
 
 class SendOtpRequestDto implements SendOtpDto {
@@ -136,6 +144,14 @@ class SendOtpRequestDto implements SendOtpDto {
   @IsOptional()
   @IsString()
   language?: string;
+
+  @ApiPropertyOptional({
+    description: "Tenant ID for tenant-scoped OTP send",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @IsOptional()
+  @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
+  tenantId?: string;
 }
 
 class VerifyOtpRequestDto implements VerifyOtpDto {
@@ -148,22 +164,32 @@ class VerifyOtpRequestDto implements VerifyOtpDto {
   identifier: string;
 
   @ApiProperty({
-    description: "OTP code received",
+    description: "OTP code received (6 digits, numeric only)",
     example: "123456",
   })
   @IsString()
   @IsNotEmpty({ message: "OTP code is required" })
-  @MinLength(4, { message: "OTP code must be at least 4 characters" })
-  @MaxLength(8, { message: "OTP code must not exceed 8 characters" })
+  @Length(6, 6, { message: "OTP code must be exactly 6 digits" })
+  @Matches(/^[0-9]{6}$/, { message: "OTP code must contain only digits (0-9)" })
   otpCode: string;
 
   @ApiProperty({
     description: "Purpose of OTP verification",
     example: "password_reset",
+    enum: ["password_reset", "verify_phone"],
   })
   @IsString()
   @IsNotEmpty({ message: "Purpose is required" })
+  @IsIn(["password_reset", "verify_phone"], { message: "Purpose must be password_reset or verify_phone" })
   purpose: string;
+
+  @ApiPropertyOptional({
+    description: "Tenant ID for tenant-scoped OTP verification",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @IsOptional()
+  @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
+  tenantId?: string;
 }
 
 class RegisterRequestDto implements RegisterDto {
@@ -176,12 +202,11 @@ class RegisterRequestDto implements RegisterDto {
   email: string;
 
   @ApiProperty({
-    description: "User password (min 8 characters)",
+    description: "User password (min 8 characters, must contain uppercase, lowercase, number, and special character)",
     example: "SecurePassword123!",
   })
-  @IsString()
+  @IsStrongPassword(8)
   @IsNotEmpty({ message: "Password is required" })
-  @MinLength(8, { message: "Password must be at least 8 characters long" })
   password: string;
 
   @ApiProperty({
@@ -191,7 +216,8 @@ class RegisterRequestDto implements RegisterDto {
   @IsString()
   @IsNotEmpty({ message: "First name is required" })
   @MinLength(2, { message: "First name must be at least 2 characters" })
-  @MaxLength(50, { message: "First name must not exceed 50 characters" })
+  @MaxLength(100, { message: "First name must not exceed 100 characters" })
+  @SanitizePlainText()
   firstName: string;
 
   @ApiProperty({
@@ -201,23 +227,24 @@ class RegisterRequestDto implements RegisterDto {
   @IsString()
   @IsNotEmpty({ message: "Last name is required" })
   @MinLength(2, { message: "Last name must be at least 2 characters" })
-  @MaxLength(50, { message: "Last name must not exceed 50 characters" })
+  @MaxLength(100, { message: "Last name must not exceed 100 characters" })
+  @SanitizePlainText()
   lastName: string;
 
   @ApiPropertyOptional({
-    description: "User phone number",
+    description: "User phone number (Yemen format: +967XXXXXXXX or 7XXXXXXXX)",
     example: "+967712345678",
   })
   @IsOptional()
-  @IsString()
+  @IsYemeniPhone()
   phone?: string;
 
   @ApiPropertyOptional({
-    description: "Tenant ID (optional, defaults to 'default-tenant')",
-    example: "tenant_123",
+    description: "Tenant ID (optional, must be a valid UUID)",
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @IsOptional()
-  @IsString()
+  @IsUUID("4", { message: "Tenant ID must be a valid UUID" })
   tenantId?: string;
 }
 
@@ -411,11 +438,13 @@ export class AuthController {
     description: "Invalid or expired reset token",
   })
   @ApiResponse({ status: 429, description: "Too many reset attempts" })
-  async resetPassword(@Body() dto: ResetPasswordRequestDto, @Req() request: Request) {
+  async resetPassword(@Body() dto: ResetPasswordRequestDto, @Req() request: AuthenticatedRequest) {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.warn(`Password reset attempt from IP: ${ip}`);
 
-    return this.authService.resetPassword(dto.token, dto.newPassword);
+    // Tenant context from request body or x-tenant-id header
+    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    return this.authService.resetPassword(dto.token, dto.newPassword, tenantId);
   }
 
   /**
@@ -451,11 +480,13 @@ export class AuthController {
     description: "Invalid request parameters",
   })
   @ApiResponse({ status: 429, description: "Too many OTP requests" })
-  async sendOtp(@Body() dto: SendOtpRequestDto, @Req() request: Request) {
+  async sendOtp(@Body() dto: SendOtpRequestDto, @Req() request: AuthenticatedRequest) {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.log(`OTP send request from IP: ${ip}`);
 
-    return this.authService.sendOtp(dto);
+    // Tenant context from request body or x-tenant-id header
+    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    return this.authService.sendOtp(dto, tenantId);
   }
 
   /**
@@ -495,11 +526,13 @@ export class AuthController {
     description: "Invalid or expired OTP",
   })
   @ApiResponse({ status: 429, description: "Too many verification attempts" })
-  async verifyOtp(@Body() dto: VerifyOtpRequestDto, @Req() request: Request) {
+  async verifyOtp(@Body() dto: VerifyOtpRequestDto, @Req() request: AuthenticatedRequest) {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.log(`OTP verification attempt from IP: ${ip}`);
 
-    return this.authService.verifyOtp(dto);
+    // Tenant context from request body or x-tenant-id header
+    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    return this.authService.verifyOtp(dto, tenantId);
   }
 
   /**

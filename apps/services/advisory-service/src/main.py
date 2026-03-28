@@ -7,17 +7,21 @@ Port: 8093
 # Service version - single source of truth
 VERSION = "16.0.0"
 
+import html
+import json
 import os
+import re
 import sys
 from contextlib import asynccontextmanager
+from datetime import date
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 
 # Shared middleware imports - add apps/services/ to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # Add shared modules to path (for crops, yemen_varieties etc.)
 # In Docker, shared is at /app/shared
@@ -75,6 +79,7 @@ from .kb import (
     get_fertilizers_for_nutrient,
     search_diseases,
 )
+from .rate_limiter import rate_limit
 
 # Import token revocation
 try:
@@ -84,6 +89,268 @@ try:
     REVOCATION_AVAILABLE = True
 except ImportError:
     REVOCATION_AVAILABLE = False
+
+
+# ============== Input Validation Helpers ==============
+
+# Build set of known crop codes from the crop catalog for validation
+KNOWN_CROP_CODES: set[str] = {crop.code for crop in ALL_CROPS}
+
+# Also include crops referenced in the disease KB and planner that may use
+# short names (e.g. "tomato", "wheat") rather than catalog codes.
+_KB_CROP_NAMES = {"tomato", "wheat", "potato", "barley", "date_palm", "general"}
+_PLANNER_CROP_NAMES = set(CROP_REQUIREMENTS.keys()) if CROP_REQUIREMENTS else set()
+VALID_CROP_VALUES: set[str] = KNOWN_CROP_CODES | _KB_CROP_NAMES | _PLANNER_CROP_NAMES
+
+# Allowed language codes
+VALID_LANG_CODES: set[str] = {"ar", "en"}
+
+# Allowed soil fertility levels
+VALID_SOIL_FERTILITY: set[str] = {"low", "medium", "high"}
+
+# Allowed irrigation types
+VALID_IRRIGATION_TYPES: set[str] = {"drip", "flood", "sprinkler", "furrow", "pivot", "surface"}
+
+
+def _sanitize_text(value: str) -> str:
+    """Sanitize user-provided text by escaping HTML entities."""
+    return html.escape(value, quote=True)
+
+
+def _validate_identifier(value: str, field_name: str) -> str:
+    """Validate that an identifier contains only safe characters."""
+    if not re.match(r"^[\w\-.:]+$", value):
+        raise ValueError(
+            f"{field_name} contains invalid characters; "
+            "only alphanumeric, hyphens, underscores, dots, and colons are allowed"
+        )
+    return value
+
+
+def _validate_crop_type(crop: str) -> str:
+    """Validate crop value against known crops."""
+    if crop not in VALID_CROP_VALUES:
+        raise ValueError(f"Unknown crop type '{crop}'. Must be one of the registered crop codes or common names.")
+    return crop
+
+
+# ============== Request/Response Models ==============
+
+
+class DiseaseAssessRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(min_length=1, max_length=100)
+    condition_id: str = Field(min_length=1, max_length=200)
+    confidence: float = Field(ge=0, le=1)
+    crop: str | None = Field(default=None, max_length=100)
+    weather: dict | None = None
+    correlation_id: str | None = Field(default=None, max_length=200)
+
+    @field_validator("tenant_id", "field_id", "condition_id")
+    @classmethod
+    def validate_identifiers(cls, v: str, info) -> str:
+        return _validate_identifier(v, info.field_name)
+
+    @field_validator("crop")
+    @classmethod
+    def validate_crop(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _validate_crop_type(v)
+        return v
+
+    @field_validator("correlation_id")
+    @classmethod
+    def sanitize_correlation_id(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _validate_identifier(v, "correlation_id")
+        return v
+
+
+class SymptomAssessRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(min_length=1, max_length=100)
+    crop: str = Field(min_length=1, max_length=100)
+    symptoms: list[str] = Field(min_length=1, max_length=50)
+    lang: str = Field(default="ar", max_length=5)
+    correlation_id: str | None = Field(default=None, max_length=200)
+
+    @field_validator("tenant_id", "field_id")
+    @classmethod
+    def validate_identifiers(cls, v: str, info) -> str:
+        return _validate_identifier(v, info.field_name)
+
+    @field_validator("crop")
+    @classmethod
+    def validate_crop(cls, v: str) -> str:
+        return _validate_crop_type(v)
+
+    @field_validator("symptoms")
+    @classmethod
+    def sanitize_symptoms(cls, v: list[str]) -> list[str]:
+        sanitized = []
+        for symptom in v:
+            if len(symptom) > 500:
+                raise ValueError("Each symptom description must be at most 500 characters")
+            sanitized.append(_sanitize_text(symptom))
+        return sanitized
+
+    @field_validator("lang")
+    @classmethod
+    def validate_lang(cls, v: str) -> str:
+        if v not in VALID_LANG_CODES:
+            raise ValueError(f"lang must be one of: {', '.join(sorted(VALID_LANG_CODES))}")
+        return v
+
+    @field_validator("correlation_id")
+    @classmethod
+    def sanitize_correlation_id(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _validate_identifier(v, "correlation_id")
+        return v
+
+
+class NDVIAssessRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(min_length=1, max_length=100)
+    ndvi: float = Field(ge=-1, le=1)
+    ndvi_history: list[float] | None = Field(default=None, max_length=365)
+    crop: str | None = Field(default=None, max_length=100)
+    stage: str | None = Field(default=None, max_length=100)
+    correlation_id: str | None = Field(default=None, max_length=200)
+
+    @field_validator("tenant_id", "field_id")
+    @classmethod
+    def validate_identifiers(cls, v: str, info) -> str:
+        return _validate_identifier(v, info.field_name)
+
+    @field_validator("crop")
+    @classmethod
+    def validate_crop(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _validate_crop_type(v)
+        return v
+
+    @field_validator("ndvi_history")
+    @classmethod
+    def validate_ndvi_history(cls, v: list[float] | None) -> list[float] | None:
+        if v is not None:
+            for val in v:
+                if not (-1 <= val <= 1):
+                    raise ValueError("All NDVI history values must be between -1 and 1")
+        return v
+
+    @field_validator("stage")
+    @classmethod
+    def sanitize_stage(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _sanitize_text(v.strip())
+        return v
+
+    @field_validator("correlation_id")
+    @classmethod
+    def sanitize_correlation_id(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _validate_identifier(v, "correlation_id")
+        return v
+
+
+class VisualAssessRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(min_length=1, max_length=100)
+    leaf_color: str | None = Field(default=None, max_length=100)
+    pattern: str | None = Field(default=None, max_length=200)
+    location: str | None = Field(default=None, max_length=200)
+    crop: str | None = Field(default=None, max_length=100)
+    lang: str = Field(default="ar", max_length=5)
+    correlation_id: str | None = Field(default=None, max_length=200)
+
+    @field_validator("tenant_id", "field_id")
+    @classmethod
+    def validate_identifiers(cls, v: str, info) -> str:
+        return _validate_identifier(v, info.field_name)
+
+    @field_validator("crop")
+    @classmethod
+    def validate_crop(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _validate_crop_type(v)
+        return v
+
+    @field_validator("leaf_color", "pattern", "location")
+    @classmethod
+    def sanitize_text_fields(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _sanitize_text(v.strip())
+        return v
+
+    @field_validator("lang")
+    @classmethod
+    def validate_lang(cls, v: str) -> str:
+        if v not in VALID_LANG_CODES:
+            raise ValueError(f"lang must be one of: {', '.join(sorted(VALID_LANG_CODES))}")
+        return v
+
+    @field_validator("correlation_id")
+    @classmethod
+    def sanitize_correlation_id(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _validate_identifier(v, "correlation_id")
+        return v
+
+
+class FertilizerPlanRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(min_length=1, max_length=100)
+    crop: str = Field(min_length=1, max_length=100)
+    stage: str = Field(min_length=1, max_length=100)
+    field_size_ha: float = Field(default=1.0, gt=0, le=10000)
+    soil_fertility: str = Field(default="medium", max_length=20)
+    irrigation_type: str = Field(default="drip", max_length=20)
+    planting_date: date | None = None
+    correlation_id: str | None = Field(default=None, max_length=200)
+
+    @field_validator("tenant_id", "field_id")
+    @classmethod
+    def validate_identifiers(cls, v: str, info) -> str:
+        return _validate_identifier(v, info.field_name)
+
+    @field_validator("crop")
+    @classmethod
+    def validate_crop(cls, v: str) -> str:
+        return _validate_crop_type(v)
+
+    @field_validator("stage")
+    @classmethod
+    def sanitize_stage(cls, v: str) -> str:
+        return _sanitize_text(v.strip())
+
+    @field_validator("soil_fertility")
+    @classmethod
+    def validate_soil_fertility(cls, v: str) -> str:
+        if v not in VALID_SOIL_FERTILITY:
+            raise ValueError(f"soil_fertility must be one of: {', '.join(sorted(VALID_SOIL_FERTILITY))}")
+        return v
+
+    @field_validator("irrigation_type")
+    @classmethod
+    def validate_irrigation_type(cls, v: str) -> str:
+        if v not in VALID_IRRIGATION_TYPES:
+            raise ValueError(f"irrigation_type must be one of: {', '.join(sorted(VALID_IRRIGATION_TYPES))}")
+        return v
+
+    @field_validator("planting_date")
+    @classmethod
+    def validate_planting_date(cls, v: date | None) -> date | None:
+        if v is not None and v > date.today():
+            raise ValueError("planting_date cannot be in the future")
+        return v
+
+    @field_validator("correlation_id")
+    @classmethod
+    def sanitize_correlation_id(cls, v: str | None) -> str | None:
+        if v is not None:
+            return _validate_identifier(v, "correlation_id")
+        return v
 
 
 # Lifespan context manager
@@ -228,60 +495,6 @@ def readiness():
     }
 
 
-# ============== Request/Response Models ==============
-
-
-class DiseaseAssessRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    condition_id: str
-    confidence: float = Field(ge=0, le=1)
-    crop: str | None = None
-    weather: dict | None = None
-    correlation_id: str | None = None
-
-
-class SymptomAssessRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    crop: str
-    symptoms: list[str]
-    lang: str = "ar"
-    correlation_id: str | None = None
-
-
-class NDVIAssessRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    ndvi: float = Field(ge=-1, le=1)
-    ndvi_history: list[float] | None = None
-    crop: str | None = None
-    stage: str | None = None
-    correlation_id: str | None = None
-
-
-class VisualAssessRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    leaf_color: str | None = None
-    pattern: str | None = None
-    location: str | None = None
-    crop: str | None = None
-    lang: str = "ar"
-    correlation_id: str | None = None
-
-
-class FertilizerPlanRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    crop: str
-    stage: str
-    field_size_ha: float = 1.0
-    soil_fertility: str = "medium"
-    irrigation_type: str = "drip"
-    correlation_id: str | None = None
-
-
 # ============== Helper Functions ==============
 
 
@@ -389,23 +602,31 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
 
 
 # NOTE: Static routes MUST come before dynamic routes to avoid path matching issues
+# Knowledge-base lookup endpoints: tenant isolation is logged (not enforced)
+# because these return static reference data shared across tenants.
 @app.get("/api/v1/disease/search")
-def search_disease(q: str, lang: str = "ar"):
+@rate_limit(tier="lookup")
+def search_disease(request: Request, q: str, lang: str = "ar", user: User = Depends(get_current_user)):
     """Search diseases by name or symptoms"""
+    logger.info("disease_search", tenant_id=user.tenant_id, user_id=user.id, query=q, lang=lang)
     results = search_diseases(q, lang)
     return {"query": q, "results": results, "count": len(results)}
 
 
 @app.get("/api/v1/disease/crop/{crop}")
-def get_crop_diseases(crop: str):
+@rate_limit(tier="lookup")
+def get_crop_diseases(request: Request, crop: str, user: User = Depends(get_current_user)):
     """Get all diseases for a specific crop"""
+    logger.info("crop_diseases_lookup", tenant_id=user.tenant_id, user_id=user.id, crop=crop)
     diseases = get_diseases_by_crop(crop)
     return {"crop": crop, "diseases": diseases, "count": len(diseases)}
 
 
 @app.get("/api/v1/disease/{disease_id}")
-def get_disease_info(disease_id: str, lang: str = "ar"):
+@rate_limit(tier="lookup")
+def get_disease_info(request: Request, disease_id: str, lang: str = "ar", user: User = Depends(get_current_user)):
     """Get disease information by ID"""
+    logger.info("disease_info_lookup", tenant_id=user.tenant_id, user_id=user.id, disease_id=disease_id)
     disease = get_disease(disease_id)
     if not disease:
         raise HTTPException(status_code=404, detail=f"Disease not found: {disease_id}")
@@ -414,7 +635,7 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
         {
             "id": disease_id,
             **disease,
-            "actions_details": [get_action_details(action, lang) for action in disease["actions"]],
+            "actions_details": [get_action_details(action, lang) for action in disease.get("actions", [])],
         }
     )
 
@@ -498,8 +719,10 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
 
 
 @app.get("/api/v1/nutrient/{deficiency_id}")
-def get_deficiency_info(deficiency_id: str):
+@rate_limit(tier="lookup")
+def get_deficiency_info(request: Request, deficiency_id: str, user: User = Depends(get_current_user)):
     """Get nutrient deficiency information by ID"""
+    logger.info("deficiency_info_lookup", tenant_id=user.tenant_id, user_id=user.id, deficiency_id=deficiency_id)
     deficiency = get_deficiency(deficiency_id)
     if not deficiency:
         raise HTTPException(status_code=404, detail=f"Deficiency not found: {deficiency_id}")
@@ -545,8 +768,10 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
 
 
 @app.get("/api/v1/fertilizer/{fertilizer_id}")
-def get_fertilizer_info(fertilizer_id: str):
+@rate_limit(tier="lookup")
+def get_fertilizer_info(request: Request, fertilizer_id: str, user: User = Depends(get_current_user)):
     """Get fertilizer information by ID"""
+    logger.info("fertilizer_info_lookup", tenant_id=user.tenant_id, user_id=user.id, fertilizer_id=fertilizer_id)
     fert = get_fertilizer(fertilizer_id)
     if not fert:
         raise HTTPException(status_code=404, detail=f"Fertilizer not found: {fertilizer_id}")

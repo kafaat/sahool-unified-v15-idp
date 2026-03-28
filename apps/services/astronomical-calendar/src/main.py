@@ -4287,7 +4287,7 @@ def get_mansion_proverbs(mansion_name: str, user: User = Depends(get_current_use
 
 
 @app.get("/v1/stars", tags=["Yemeni Wisdom"])
-def get_important_stars():
+def get_important_stars(user: User = Depends(get_current_user)):
     """
     الحصول على النجوم المهمة في التقويم الزراعي اليمني
 
@@ -4304,7 +4304,7 @@ def get_important_stars():
 
 
 @app.get("/v1/stars/{star_name}", tags=["Yemeni Wisdom"])
-def get_star_info(star_name: str):
+def get_star_info(star_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على معلومات نجم معين
     """
@@ -4330,7 +4330,7 @@ def get_star_info(star_name: str):
 
 
 @app.get("/v1/landmarks", tags=["Yemeni Heritage"])
-def get_landmarks():
+def get_landmarks(user: User = Depends(get_current_user)):
     """
     قائمة المعالم الزراعية اليمنية التاريخية
 
@@ -4365,7 +4365,7 @@ def get_landmarks():
 
 
 @app.get("/v1/landmarks/{category}", tags=["Yemeni Heritage"])
-def get_landmarks_by_category(category: str):
+def get_landmarks_by_category(category: str, user: User = Depends(get_current_user)):
     """
     المعالم حسب الفئة
 
@@ -4411,7 +4411,7 @@ def get_landmarks_by_category(category: str):
 
 
 @app.get("/v1/landmarks/{category}/{landmark_name}", tags=["Yemeni Heritage"])
-def get_specific_landmark(category: str, landmark_name: str):
+def get_specific_landmark(category: str, landmark_name: str, user: User = Depends(get_current_user)):
     """
     الحصول على معلومات معلم محدد
 
@@ -4443,7 +4443,7 @@ def get_specific_landmark(category: str, landmark_name: str):
 
 
 @app.get("/v1/wisdom/today", tags=["Yemeni Wisdom"])
-def get_daily_wisdom():
+def get_daily_wisdom(user: User = Depends(get_current_user)):
     """
     الحكمة الزراعية اليومية الشاملة
 
@@ -4531,7 +4531,7 @@ def get_daily_wisdom():
 
 
 @app.get("/v1/techniques", tags=["Yemeni Heritage"])
-def get_all_techniques():
+def get_all_techniques(user: User = Depends(get_current_user)):
     """
     الحصول على جميع التقنيات الزراعية اليمنية التقليدية
 
@@ -4561,7 +4561,7 @@ def get_all_techniques():
 
 
 @app.get("/v1/techniques/{category}", tags=["Yemeni Heritage"])
-def get_techniques_by_category(category: str):
+def get_techniques_by_category(category: str, user: User = Depends(get_current_user)):
     """
     الحصول على جميع التقنيات في فئة معينة
 
@@ -4602,7 +4602,7 @@ def get_techniques_by_category(category: str):
 
 
 @app.get("/v1/techniques/{category}/{technique_id}", tags=["Yemeni Heritage"])
-def get_technique_details(category: str, technique_id: str):
+def get_technique_details(category: str, technique_id: str, user: User = Depends(get_current_user)):
     """
     الحصول على تفاصيل تقنية زراعية محددة
 

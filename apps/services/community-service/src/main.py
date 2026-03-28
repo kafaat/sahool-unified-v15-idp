@@ -828,6 +828,12 @@ async def setup_tenant(
     Creates all default agricultural channels for a tenant and optionally syncs
     an admin user to Rocket.Chat.
     """
+    # Tenant validation: user can only set up their own tenant
+    if user.tenant_id and str(user.tenant_id) != str(body.tenant_id):
+        raise HTTPException(
+            status_code=403,
+            detail="Cannot setup workspace for a different tenant | لا يمكن تهيئة مساحة عمل لمستأجر آخر",
+        )
     rc = get_rc(request)
     created_channels: list[ChannelResponse] = []
     prefix = f"t-{body.tenant_id[:8]}-"
@@ -971,19 +977,24 @@ async def list_channels(
     """List community channels | عرض قنوات المجتمع"""
     rc = get_rc(request)
     channels = await rc.get_channels(count=count, offset=offset)
+
+    # Filter channels by user's tenant_id prefix
+    tenant_prefix = f"t-{str(user.tenant_id)[:8]}-" if user.tenant_id else None
+    filtered = [
+        {
+            "id": ch.get("_id", ""),
+            "name": ch.get("name", ""),
+            "description": ch.get("description", ""),
+            "topic": ch.get("topic", ""),
+            "members_count": ch.get("usersCount", 0),
+            "read_only": ch.get("ro", False),
+        }
+        for ch in channels
+        if not tenant_prefix or ch.get("name", "").startswith(tenant_prefix)
+    ]
     return {
-        "channels": [
-            {
-                "id": ch.get("_id", ""),
-                "name": ch.get("name", ""),
-                "description": ch.get("description", ""),
-                "topic": ch.get("topic", ""),
-                "members_count": ch.get("usersCount", 0),
-                "read_only": ch.get("ro", False),
-            }
-            for ch in channels
-        ],
-        "count": len(channels),
+        "channels": filtered,
+        "count": len(filtered),
     }
 
 
@@ -995,6 +1006,21 @@ async def join_channel(
 ):
     """Join a community channel | الانضمام إلى قناة"""
     rc = get_rc(request)
+
+    # Tenant check: verify user can only join channels belonging to their tenant
+    if user.tenant_id:
+        # Retrieve channel info to check tenant prefix
+        channels = await rc.get_channels(count=500)
+        channel_info = next((ch for ch in channels if ch.get("_id") == channel_id), None)
+        if channel_info:
+            tenant_prefix = f"t-{str(user.tenant_id)[:8]}-"
+            channel_name = channel_info.get("name", "")
+            if channel_name.startswith("t-") and not channel_name.startswith(tenant_prefix):
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cannot join channel belonging to another tenant | لا يمكن الانضمام لقناة مستأجر آخر",
+                )
+
     # Use the SAHOOL user ID as Rocket.Chat user lookup
     await rc.add_user_to_channel(channel_id, user.id)
 
@@ -1053,6 +1079,18 @@ async def post_message(
 ):
     """Post a message to a channel | نشر رسالة في قناة"""
     rc = get_rc(request)
+
+    # Tenant check: verify user can only post to channels belonging to their tenant
+    if user.tenant_id:
+        tenant_prefix = f"t-{str(user.tenant_id)[:8]}-"
+        channel_target = body.channel_id
+        # If channel_id looks like a tenant-prefixed name, validate it
+        if channel_target.startswith("t-") and not channel_target.startswith(tenant_prefix):
+            raise HTTPException(
+                status_code=403,
+                detail="Cannot post to channel belonging to another tenant | لا يمكن النشر في قناة مستأجر آخر",
+            )
+
     msg = await rc.post_message(
         channel=body.channel_id,
         text=body.text,

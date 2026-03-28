@@ -204,8 +204,11 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
-# Tenant context middleware
-app.add_middleware(TenantContextMiddleware)
+# Tenant context middleware – exempt operational endpoints from tenant requirement
+app.add_middleware(
+    TenantContextMiddleware,
+    exempt_paths=["/health", "/healthz", "/readyz", "/metrics", "/stats", "/docs", "/openapi.json"],
+)
 
 
 # ============== Health Check ==============

@@ -15,6 +15,20 @@ from shared.ai.intent_classifier import INTENT_SERVICE_MAP, AgriIntent, IntentRe
 logger = structlog.get_logger()
 
 
+def _get_coord(context: dict | None, key: str, default: float) -> float:
+    """Safely extract a coordinate from context, handling None and 0.0 correctly."""
+    ctx = context or {}
+    val = ctx.get(key)
+    if val is not None:
+        return float(val)
+    location = ctx.get("location") or {}
+    loc_key = "lng" if key == "lon" else key
+    loc_val = location.get(loc_key)
+    if loc_val is not None:
+        return float(loc_val)
+    return default
+
+
 @dataclass
 class RouterResult:
     intent: AgriIntent
@@ -107,9 +121,9 @@ class IntentRouter:
                 {
                     "tenant_id": tenant_id,
                     "field_id": field_id,
-                    # Derive coordinates from context; fall back to Sana'a (15.37, 44.19) only if unavailable
-                    "lat": (context or {}).get("lat") or (context or {}).get("location", {}).get("lat", 15.37),
-                    "lon": (context or {}).get("lon") or (context or {}).get("location", {}).get("lng", 44.19),
+                    # Derive coordinates from context safely; fall back to Sana'a defaults
+                    "lat": _get_coord(context, "lat", 15.37),
+                    "lon": _get_coord(context, "lon", 44.19),
                 },
             ),
             AgriIntent.MARKET_PRICE: (

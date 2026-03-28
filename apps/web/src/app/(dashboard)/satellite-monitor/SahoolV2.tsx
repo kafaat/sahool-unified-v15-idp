@@ -217,9 +217,11 @@ export default function SahoolV2() {
           </div>
           <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
             {SCREENS.map((s) => (
-              <div
+              <button
+                type="button"
                 key={s.id}
                 onClick={() => setScreen(s.id)}
+                aria-current={screen === s.id ? 'page' : undefined}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -233,13 +235,16 @@ export default function SahoolV2() {
                   marginBottom: 2,
                   transition: 'all 0.16s',
                   overflow: 'hidden',
+                  width: '100%',
+                  fontFamily: 'inherit',
+                  textAlign: 'right',
                 }}
               >
                 <span style={{ fontSize: 15, width: 22, textAlign: 'center', flexShrink: 0, fontFamily: "'IBM Plex Mono', monospace" }}>
                   {s.ic}
                 </span>
                 {!collapsed && <span style={{ fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>{s.label}</span>}
-              </div>
+              </button>
             ))}
           </div>
         </nav>
@@ -363,7 +368,16 @@ export default function SahoolV2() {
               <Card variant="bordered" style={{ height: 'calc(100vh - 250px)', overflow: 'hidden' }}>
                 <MapView
                   onFieldSelect={(id) => setSelectedFieldId(id)}
-                  fields={fields as never[]}
+                  fields={fields.map((f) => ({
+                    ...f,
+                    boundary: {
+                      type: 'Polygon' as const,
+                      coordinates: [
+                        [...(f.boundary ?? []).map((pt) => [pt.lng, pt.lat] as [number, number]),
+                         ...(f.boundary?.length ? [[f.boundary[0]!.lng, f.boundary[0]!.lat] as [number, number]] : [])],
+                      ],
+                    },
+                  })) as never[]}
                 />
               </Card>
             </div>

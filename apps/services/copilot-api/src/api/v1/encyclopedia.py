@@ -5,7 +5,7 @@ Phase 4 of Component Unification Plan (PR #1344)
 """
 
 import structlog
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
 logger = structlog.get_logger()
 router = APIRouter(prefix="/encyclopedia", tags=["encyclopedia"])
@@ -129,11 +129,14 @@ async def get_crop_encyclopedia(crop_type: str):
     crop = CROP_KNOWLEDGE.get(crop_type.lower())
     if not crop:
         available = list(CROP_KNOWLEDGE.keys())
-        return {
-            "error": f"Crop '{crop_type}' not found",
-            "error_ar": f"المحصول '{crop_type}' غير موجود",
-            "available_crops": available,
-        }
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": f"Crop '{crop_type}' not found",
+                "error_ar": f"المحصول '{crop_type}' غير موجود",
+                "available_crops": available,
+            },
+        )
     return {"crop": crop_type, "data": crop}
 
 

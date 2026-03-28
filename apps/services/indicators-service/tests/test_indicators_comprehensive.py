@@ -234,7 +234,6 @@ class TestModels:
         inp = IndicatorInput(indicator_type="ndvi", value=0.5)
         assert inp.trend is None
         assert inp.trend_percent is None
-        assert inp.tenant_id is None
 
     def test_indicator_input_with_all_fields(self):
         inp = IndicatorInput(
@@ -242,7 +241,6 @@ class TestModels:
             value=0.65,
             trend=TrendDirection.UP,
             trend_percent=3.0,
-            tenant_id="t1",
         )
         assert inp.trend == TrendDirection.UP
 

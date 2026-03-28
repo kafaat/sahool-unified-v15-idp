@@ -94,7 +94,9 @@ class TestWebSocketMessageHandler:
 
         message = {"type": "join_room", "room": "field:field_123"}
 
-        response = await handler.handle_join_room("conn_001", message)
+        # Mock field access validation to avoid HTTP call to field-management-service
+        with patch.object(handler, "_validate_field_access", new_callable=AsyncMock, return_value=True):
+            response = await handler.handle_join_room("conn_001", message)
 
         assert response["type"] == "room_joined"
         assert response["room"] == "field:field_123"
@@ -150,7 +152,9 @@ class TestWebSocketMessageHandler:
             "message": {"content": "Hello room"},
         }
 
-        response = await handler.handle_broadcast("conn_001", message)
+        # Mock field access validation to avoid HTTP call to field-management-service
+        with patch.object(handler, "_validate_field_access", new_callable=AsyncMock, return_value=True):
+            response = await handler.handle_broadcast("conn_001", message)
 
         assert response["type"] == "broadcast_sent"
         assert response["room"] == "field:field_123"

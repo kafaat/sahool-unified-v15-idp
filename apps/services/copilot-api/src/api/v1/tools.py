@@ -182,7 +182,9 @@ async def check_domain(domain: str, user: dict = Depends(get_current_user)):
     }
 
 
-async def _execute_tool(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None, user: dict | None = None) -> Any:
+async def _execute_tool(
+    tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None, user: dict | None = None
+) -> Any:
     """
     Execute a tool by name.
     تنفيذ أداة بالاسم

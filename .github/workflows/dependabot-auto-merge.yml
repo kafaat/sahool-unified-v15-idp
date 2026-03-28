@@ -45,11 +45,12 @@ jobs:
 
       - name: Determine merge eligibility
         id: eligibility
+        env:
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          DEP_TYPE: ${{ steps.metadata.outputs.dependency-type }}
+          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+          DEP_NAMES: ${{ steps.metadata.outputs.dependency-names }}
         run: |
-          UPDATE_TYPE="${{ steps.metadata.outputs.update-type }}"
-          DEP_TYPE="${{ steps.metadata.outputs.dependency-type }}"
-          ECOSYSTEM="${{ steps.metadata.outputs.package-ecosystem }}"
-          DEP_NAMES="${{ steps.metadata.outputs.dependency-names }}"
 
           echo "📦 Dependency: $DEP_NAMES"
           echo "📊 Update type: $UPDATE_TYPE"
@@ -180,14 +181,21 @@ jobs:
 
       - name: Post summary
         if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          DEP_NAMES: ${{ steps.metadata.outputs.dependency-names }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+          ELIGIBLE: ${{ steps.eligibility.outputs.eligible }}
+          REASON: ${{ steps.eligibility.outputs.reason }}
         run: |
           echo "## 🤖 Dependabot Auto-Merge" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| PR | #${{ github.event.pull_request.number }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Dependency | ${{ steps.metadata.outputs.dependency-names }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Update Type | ${{ steps.metadata.outputs.update-type }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Ecosystem | ${{ steps.metadata.outputs.package-ecosystem }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Eligible | ${{ steps.eligibility.outputs.eligible }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Reason | ${{ steps.eligibility.outputs.reason }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| PR | #${PR_NUMBER} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency | ${DEP_NAMES} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Update Type | ${UPDATE_TYPE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Ecosystem | ${ECOSYSTEM} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Eligible | ${ELIGIBLE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Reason | ${REASON} |" >> $GITHUB_STEP_SUMMARY

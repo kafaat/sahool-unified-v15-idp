@@ -331,6 +331,15 @@ DECLARE
     v_lock_key BIGINT;
     v_result BOOLEAN := FALSE;
 BEGIN
+    -- Validate table name against allowed set (prevent SQL injection via dynamic SQL)
+    IF p_table_name NOT IN (
+        'fields', 'field_operations', 'sensor_readings',
+        'irrigation_schedules', 'tasks', 'task_assignments',
+        'field_notes', 'field_boundaries', 'crop_records'
+    ) THEN
+        RAISE EXCEPTION 'safe_delete_with_lock: invalid table name: %', p_table_name;
+    END IF;
+
     -- Generate consistent lock key from table name and ID
     v_lock_key := hashtext(p_table_name || p_id::TEXT);
 

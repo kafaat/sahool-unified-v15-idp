@@ -95,6 +95,7 @@ const protectedRoutes = [
   '/reports',
   '/research',
   '/satellite',
+  '/satellite-monitor',
   '/seasons',
   '/sensors',
   '/support',

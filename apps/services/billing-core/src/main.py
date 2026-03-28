@@ -78,6 +78,20 @@ logging.basicConfig(
 logging.getLogger("uvicorn.access").propagate = False
 logger = structlog.get_logger("sahool-billing")
 
+# Python mirror of DEFAULT_FREE_TIER from packages/shared-types/src/contracts/api-responses.ts
+# IMPORTANT: Keep in sync with TypeScript contract. Any changes must update both files.
+# Note: Python uses snake_case keys; TS contract uses camelCase (dailyQueries, imageDetection, etc.)
+# API serialization layer handles the mapping between conventions.
+FREE_TIER_LIMITS = {
+    "daily_queries": 20,
+    "image_detection": 3,
+    "weather_alerts": True,
+    "market_prices": True,
+    "field_count": 1,
+    "advanced_ndvi": False,
+    "ai_advisor_full": False,
+}
+
 
 def _sanitize_log(value: Any) -> str:
     """Sanitize user-provided values before logging to prevent log injection."""

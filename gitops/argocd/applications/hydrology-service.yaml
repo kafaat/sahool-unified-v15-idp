@@ -34,15 +34,15 @@ spec:
     server: https://kubernetes.default.svc
     namespace: sahool-intelligence
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-      allowEmpty: false
     syncOptions:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
       - PruneLast=true
       - ServerSideApply=true
+    # automated sync disabled for production safety - use manual sync
+    # automated:
+    #   prune: true
+    #   selfHeal: true
     retry:
       limit: 5
       backoff:

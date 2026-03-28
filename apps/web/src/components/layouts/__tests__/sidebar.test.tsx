@@ -129,6 +129,7 @@ vi.mock('lucide-react', () => {
     Bot: IconMock,
     HelpCircle: IconMock,
     Bug: IconMock,
+    Radar: IconMock,
   };
 });
 

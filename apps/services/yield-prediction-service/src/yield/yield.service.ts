@@ -967,6 +967,7 @@ export class YieldService {
       source_service: "yield-prediction",
       field_id: fieldId,
       farmer_id: farmerId,
+      tenant_id: tenantId,
       data: {
         maturity_status: maturity.maturity.status,
         maturity_progress: maturity.maturity.progress,

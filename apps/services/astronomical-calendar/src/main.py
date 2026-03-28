@@ -23,7 +23,7 @@ import sys
 from datetime import UTC, datetime, timedelta
 
 import httpx
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -94,6 +94,25 @@ app.add_middleware(
 
 if _has_tenant_middleware:
     app.add_middleware(TenantContextMiddleware)
+
+# Auth (optional import)
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    AUTH_AVAILABLE = False
+
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = "anonymous"
+        username: str = "anonymous"
+        email: str = "anonymous@sahool.app"
+        tenant_id: str | None = None
+        roles: list[str] = []
+
+    async def get_current_user() -> User:  # type: ignore[misc]
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

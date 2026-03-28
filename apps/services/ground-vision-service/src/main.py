@@ -334,6 +334,13 @@ async def register_camera(request: CameraRegistration, current_user: User = Depe
 
     تسجيل كاميرا برج جديدة
     """
+    # Validate tenant_id in request matches authenticated user's tenant
+    if current_user.tenant_id and request.tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Camera tenant_id does not match authenticated user's tenant | معرف المستأجر للكاميرا لا يتطابق مع المستأجر المصادق عليه",
+        )
+
     logger.info(f"Registering camera {request.camera_id} at tower {request.tower_id}")
     created_at = datetime.now(UTC).isoformat()
 

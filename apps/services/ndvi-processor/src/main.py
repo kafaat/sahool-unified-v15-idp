@@ -504,6 +504,7 @@ async def export_ndvi(
     start: str | None = Query(None),
     end: str | None = Query(None),
     format: ExportFormat = Query(ExportFormat.GEOTIFF),
+    user: User = Depends(get_current_user),
 ):
     """تصدير NDVI"""
     if format == ExportFormat.CSV:
@@ -570,6 +571,7 @@ async def create_monthly_composite(request: CompositeRequest, user: User = Depen
 async def list_composites(
     field_id: str,
     year: int | None = Query(None),
+    user: User = Depends(get_current_user),
 ):
     """قائمة المركبات"""
     composites = get_composites(field_id, year)
@@ -581,7 +583,7 @@ async def list_composites(
 
 
 @app.get("/composites/{composite_id}")
-async def get_composite(composite_id: str):
+async def get_composite(composite_id: str, user: User = Depends(get_current_user)):
     """جلب مركب"""
     from .processing import _composites
 

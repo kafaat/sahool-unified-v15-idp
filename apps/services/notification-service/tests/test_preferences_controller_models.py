@@ -93,6 +93,7 @@ class TestBulkUpdatePreferencesRequest:
     def test_empty_preferences(self):
         """Empty preferences list should be rejected by validation (min_length=1)."""
         import pydantic
+
         with pytest.raises(pydantic.ValidationError):
             BulkUpdatePreferencesRequest(
                 user_id="f-1",

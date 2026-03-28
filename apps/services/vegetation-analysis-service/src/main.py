@@ -4171,6 +4171,7 @@ async def get_anomalies(
                         "timestamp": datetime.now(UTC).isoformat(),
                     },
                     priority="critical" if severity == "severe" else "high" if severity == "moderate" else "medium",
+                    tenant_id=tenant_id,
                 )
                 logger.info(
                     "nats_ndvi_anomaly_published",

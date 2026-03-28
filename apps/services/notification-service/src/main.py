@@ -1626,10 +1626,12 @@ async def get_broadcast_notifications(
 ):
     """الحصول على الإشعارات العامة (البث)"""
     # Get broadcast notifications from database
+    tenant_id = user.tenant_id if user else None
     notifications = await NotificationRepository.get_broadcast_notifications(
         governorate=governorate.value if governorate else None,
         crop=crop.value if crop else None,
         limit=limit,
+        tenant_id=tenant_id,
     )
 
     # Format response

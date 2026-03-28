@@ -598,13 +598,17 @@ async def export_notification_history(
 @router.post("/retry/{notification_id}")
 async def retry_failed_notification(
     notification_id: str,
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     إعادة محاولة إرسال إشعار فاشل
     Retry sending a failed notification
 
+    SECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.
+
     Args:
         notification_id: Notification UUID
+        tenant_id: Tenant ID from X-Tenant-Id header (required)
 
     Returns:
         Retry result
@@ -612,8 +616,8 @@ async def retry_failed_notification(
     try:
         notif_uuid = UUID(notification_id)
 
-        # Get notification
-        notification = await NotificationRepository.get_by_id(notif_uuid)
+        # Get notification - SECURITY: filter by tenant_id for tenant isolation
+        notification = await NotificationRepository.get_by_id(notif_uuid, tenant_id=tenant_id)
         if not notification:
             raise HTTPException(status_code=404, detail="Notification not found")
 
@@ -624,7 +628,7 @@ async def retry_failed_notification(
             )
 
         # Reset status to pending for retry
-        await NotificationRepository.update_status(notif_uuid, status="pending")
+        await NotificationRepository.update_status(notif_uuid, status="pending", tenant_id=tenant_id)
 
         logger.info(f"Scheduled retry for notification {notification_id}")
 

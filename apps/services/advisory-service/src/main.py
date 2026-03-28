@@ -722,7 +722,7 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
 @rate_limit(tier="lookup")
 def get_deficiency_info(request: Request, deficiency_id: str, user: User = Depends(get_current_user)):
     """Get nutrient deficiency information by ID"""
-    logger.info("deficiency_info_lookup", tenant_id=user.tenant_id, deficiency_id=deficiency_id)
+    logger.info("deficiency_info_lookup", tenant_id=user.tenant_id, user_id=user.id, deficiency_id=deficiency_id)
     deficiency = get_deficiency(deficiency_id)
     if not deficiency:
         raise HTTPException(status_code=404, detail=f"Deficiency not found: {deficiency_id}")
@@ -771,7 +771,7 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
 @rate_limit(tier="lookup")
 def get_fertilizer_info(request: Request, fertilizer_id: str, user: User = Depends(get_current_user)):
     """Get fertilizer information by ID"""
-    logger.info("fertilizer_info_lookup", tenant_id=user.tenant_id, fertilizer_id=fertilizer_id)
+    logger.info("fertilizer_info_lookup", tenant_id=user.tenant_id, user_id=user.id, fertilizer_id=fertilizer_id)
     fert = get_fertilizer(fertilizer_id)
     if not fert:
         raise HTTPException(status_code=404, detail=f"Fertilizer not found: {fertilizer_id}")

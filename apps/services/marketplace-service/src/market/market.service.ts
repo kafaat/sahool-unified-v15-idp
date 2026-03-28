@@ -253,6 +253,7 @@ export class MarketService {
   /**
    * الحصول على صورة افتراضية للمحصول
    */
+  // TODO: Move crop images to CDN configuration (env var or database)
   private getCropImageUrl(crop: string): string {
     const cropImages: Record<string, string> = {
       wheat: "https://cdn.sahool.io/crops/wheat.jpg",
@@ -342,7 +343,7 @@ export class MarketService {
       // We'll do this in a non-blocking way after the transaction completes
       Promise.all(
         updatedProducts.map(async (product: ProductType) => {
-          const LOW_STOCK_THRESHOLD = 10;
+          const LOW_STOCK_THRESHOLD = parseInt(process.env.LOW_STOCK_THRESHOLD || "10", 10);
           if (product.stock <= LOW_STOCK_THRESHOLD && product.stock > 0) {
             await this.eventsService.publishInventoryLowStock({
               productId: product.id,

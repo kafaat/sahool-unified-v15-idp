@@ -86,6 +86,20 @@ export const ERROR_CODES = {
   WEATHER_CACHE_ERROR: 'W1007',
   WEATHER_RATE_LIMITED: 'W1008',
 
+  // ── Marketplace Service (M1xxx) ────────────────────────────────────
+  MARKETPLACE_PRODUCT_NOT_FOUND: 'M1001',
+  MARKETPLACE_INSUFFICIENT_STOCK: 'M1002',
+  MARKETPLACE_ORDER_NOT_FOUND: 'M1003',
+  MARKETPLACE_WALLET_NOT_FOUND: 'M1004',
+  MARKETPLACE_INSUFFICIENT_BALANCE: 'M1005',
+  MARKETPLACE_INVALID_TRANSACTION: 'M1006',
+  MARKETPLACE_ESCROW_NOT_FOUND: 'M1007',
+  MARKETPLACE_LOAN_NOT_FOUND: 'M1008',
+  MARKETPLACE_DUPLICATE_TRANSACTION: 'M1009',
+  MARKETPLACE_PIN_REQUIRED: 'M1010',
+  MARKETPLACE_CREDIT_SCORE_ERROR: 'M1011',
+  MARKETPLACE_RATE_LIMITED: 'M1012',
+
   // ── Generic ──────────────────────────────────────────────────────────
   UNKNOWN: 'UNKNOWN',
 } as const;
@@ -338,6 +352,92 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 429,
     en: 'Weather API rate limit exceeded. Please wait.',
     ar: 'تم تجاوز حد معدل واجهة برمجة الطقس. يرجى الانتظار.',
+    retryable: true,
+  },
+
+  // ── Marketplace Service (M1xxx) ────────────────────────────────────
+  [ERROR_CODES.MARKETPLACE_PRODUCT_NOT_FOUND]: {
+    code: ERROR_CODES.MARKETPLACE_PRODUCT_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Product not found in marketplace',
+    ar: 'المنتج غير موجود في السوق',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_INSUFFICIENT_STOCK]: {
+    code: ERROR_CODES.MARKETPLACE_INSUFFICIENT_STOCK,
+    httpStatus: 409,
+    en: 'Insufficient stock for the requested quantity',
+    ar: 'المخزون غير كافٍ للكمية المطلوبة',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_ORDER_NOT_FOUND]: {
+    code: ERROR_CODES.MARKETPLACE_ORDER_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Order not found',
+    ar: 'الطلب غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_WALLET_NOT_FOUND]: {
+    code: ERROR_CODES.MARKETPLACE_WALLET_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Wallet not found for the specified user',
+    ar: 'المحفظة غير موجودة للمستخدم المحدد',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_INSUFFICIENT_BALANCE]: {
+    code: ERROR_CODES.MARKETPLACE_INSUFFICIENT_BALANCE,
+    httpStatus: 402,
+    en: 'Insufficient wallet balance for this transaction',
+    ar: 'رصيد المحفظة غير كافٍ لهذه المعاملة',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_INVALID_TRANSACTION]: {
+    code: ERROR_CODES.MARKETPLACE_INVALID_TRANSACTION,
+    httpStatus: 400,
+    en: 'Invalid transaction details',
+    ar: 'تفاصيل المعاملة غير صالحة',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_ESCROW_NOT_FOUND]: {
+    code: ERROR_CODES.MARKETPLACE_ESCROW_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Escrow record not found',
+    ar: 'سجل الضمان غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_LOAN_NOT_FOUND]: {
+    code: ERROR_CODES.MARKETPLACE_LOAN_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Loan record not found',
+    ar: 'سجل القرض غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_DUPLICATE_TRANSACTION]: {
+    code: ERROR_CODES.MARKETPLACE_DUPLICATE_TRANSACTION,
+    httpStatus: 409,
+    en: 'Duplicate transaction detected',
+    ar: 'تم اكتشاف معاملة مكررة',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_PIN_REQUIRED]: {
+    code: ERROR_CODES.MARKETPLACE_PIN_REQUIRED,
+    httpStatus: 403,
+    en: 'PIN verification required to complete this transaction',
+    ar: 'يلزم التحقق من الرقم السري لإتمام هذه المعاملة',
+    retryable: false,
+  },
+  [ERROR_CODES.MARKETPLACE_CREDIT_SCORE_ERROR]: {
+    code: ERROR_CODES.MARKETPLACE_CREDIT_SCORE_ERROR,
+    httpStatus: 503,
+    en: 'Credit score service is currently unavailable',
+    ar: 'خدمة التصنيف الائتماني غير متاحة حالياً',
+    retryable: true,
+  },
+  [ERROR_CODES.MARKETPLACE_RATE_LIMITED]: {
+    code: ERROR_CODES.MARKETPLACE_RATE_LIMITED,
+    httpStatus: 429,
+    en: 'Marketplace API rate limit exceeded. Please wait.',
+    ar: 'تم تجاوز حد معدل واجهة برمجة السوق. يرجى الانتظار.',
     retryable: true,
   },
 

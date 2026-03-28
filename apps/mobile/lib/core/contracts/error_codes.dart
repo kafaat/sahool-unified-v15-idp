@@ -38,6 +38,18 @@ abstract final class ErrorCodes {
   static const String weatherCoordinateInvalid = 'W1006';
   static const String weatherCacheError = 'W1007';
   static const String weatherRateLimited = 'W1008';
+  static const String marketplaceProductNotFound = 'M1001';
+  static const String marketplaceInsufficientStock = 'M1002';
+  static const String marketplaceOrderNotFound = 'M1003';
+  static const String marketplaceWalletNotFound = 'M1004';
+  static const String marketplaceInsufficientBalance = 'M1005';
+  static const String marketplaceInvalidTransaction = 'M1006';
+  static const String marketplaceEscrowNotFound = 'M1007';
+  static const String marketplaceLoanNotFound = 'M1008';
+  static const String marketplaceDuplicateTransaction = 'M1009';
+  static const String marketplacePinRequired = 'M1010';
+  static const String marketplaceCreditScoreError = 'M1011';
+  static const String marketplaceRateLimited = 'M1012';
   static const String unknown = 'UNKNOWN';
 
   // Vision Service (E-codes)
@@ -298,6 +310,90 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 429,
     en: 'Weather API rate limit exceeded. Please wait.',
     ar: 'تم تجاوز حد معدل واجهة برمجة الطقس. يرجى الانتظار.',
+    retryable: true,
+  ),
+  'M1001': ErrorMessage(
+    code: 'M1001',
+    httpStatus: 404,
+    en: 'Product not found in marketplace',
+    ar: 'المنتج غير موجود في السوق',
+    retryable: false,
+  ),
+  'M1002': ErrorMessage(
+    code: 'M1002',
+    httpStatus: 409,
+    en: 'Insufficient stock for the requested quantity',
+    ar: 'المخزون غير كافٍ للكمية المطلوبة',
+    retryable: false,
+  ),
+  'M1003': ErrorMessage(
+    code: 'M1003',
+    httpStatus: 404,
+    en: 'Order not found',
+    ar: 'الطلب غير موجود',
+    retryable: false,
+  ),
+  'M1004': ErrorMessage(
+    code: 'M1004',
+    httpStatus: 404,
+    en: 'Wallet not found for the specified user',
+    ar: 'المحفظة غير موجودة للمستخدم المحدد',
+    retryable: false,
+  ),
+  'M1005': ErrorMessage(
+    code: 'M1005',
+    httpStatus: 402,
+    en: 'Insufficient wallet balance for this transaction',
+    ar: 'رصيد المحفظة غير كافٍ لهذه المعاملة',
+    retryable: false,
+  ),
+  'M1006': ErrorMessage(
+    code: 'M1006',
+    httpStatus: 400,
+    en: 'Invalid transaction details',
+    ar: 'تفاصيل المعاملة غير صالحة',
+    retryable: false,
+  ),
+  'M1007': ErrorMessage(
+    code: 'M1007',
+    httpStatus: 404,
+    en: 'Escrow record not found',
+    ar: 'سجل الضمان غير موجود',
+    retryable: false,
+  ),
+  'M1008': ErrorMessage(
+    code: 'M1008',
+    httpStatus: 404,
+    en: 'Loan record not found',
+    ar: 'سجل القرض غير موجود',
+    retryable: false,
+  ),
+  'M1009': ErrorMessage(
+    code: 'M1009',
+    httpStatus: 409,
+    en: 'Duplicate transaction detected',
+    ar: 'تم اكتشاف معاملة مكررة',
+    retryable: false,
+  ),
+  'M1010': ErrorMessage(
+    code: 'M1010',
+    httpStatus: 403,
+    en: 'PIN verification required to complete this transaction',
+    ar: 'يلزم التحقق من الرقم السري لإتمام هذه المعاملة',
+    retryable: false,
+  ),
+  'M1011': ErrorMessage(
+    code: 'M1011',
+    httpStatus: 503,
+    en: 'Credit score service is currently unavailable',
+    ar: 'خدمة التصنيف الائتماني غير متاحة حالياً',
+    retryable: true,
+  ),
+  'M1012': ErrorMessage(
+    code: 'M1012',
+    httpStatus: 429,
+    en: 'Marketplace API rate limit exceeded. Please wait.',
+    ar: 'تم تجاوز حد معدل واجهة برمجة السوق. يرجى الانتظار.',
     retryable: true,
   ),
   'UNKNOWN': ErrorMessage(

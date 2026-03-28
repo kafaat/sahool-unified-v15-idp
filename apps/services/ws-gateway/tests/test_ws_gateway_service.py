@@ -146,6 +146,10 @@ class TestWebSocketMessaging:
         """Test sending message to a room"""
         mock_validate.return_value = {"sub": "user_123", "tenant_id": "tenant_123"}
 
+        mock_room_manager.add_connection = AsyncMock()
+        mock_room_manager.remove_connection = AsyncMock()
+        mock_room_manager.get_connection_metadata = Mock(return_value={"user_id": "user_123", "tenant_id": "tenant_123"})
+        mock_room_manager.join_room = AsyncMock(return_value=True)
         mock_room_manager.broadcast_to_room = AsyncMock(return_value=5)
 
         with client.websocket_connect("/ws?tenant_id=tenant_123&token=token") as websocket:

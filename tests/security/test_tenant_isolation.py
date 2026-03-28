@@ -380,7 +380,7 @@ class TestAuthEndpointEnforcement:
         """
         from fastapi import HTTPException
 
-        _enforce_tenant = _load_indicators_main()._enforce_tenant
+        _enforce_tenant = getattr(_load_indicators_main(), "_enforce_tenant")
 
         with pytest.raises(HTTPException) as exc_info:
             _enforce_tenant(None, TENANT_A)
@@ -394,7 +394,7 @@ class TestAuthEndpointEnforcement:
         """
         from fastapi import HTTPException
 
-        _enforce_tenant = _load_indicators_main()._enforce_tenant
+        _enforce_tenant = getattr(_load_indicators_main(), "_enforce_tenant")
 
         user = SimpleNamespace(tenant_id=TENANT_A, roles=["farmer"])
         with pytest.raises(HTTPException) as exc_info:
@@ -407,7 +407,7 @@ class TestAuthEndpointEnforcement:
 
         Security property: Admin role is the only path to cross-tenant access.
         """
-        _enforce_tenant = _load_indicators_main()._enforce_tenant
+        _enforce_tenant = getattr(_load_indicators_main(), "_enforce_tenant")
 
         admin_user = SimpleNamespace(tenant_id=TENANT_A, roles=["admin"])
         # Should not raise
@@ -415,7 +415,7 @@ class TestAuthEndpointEnforcement:
 
     def test_enforce_tenant_allows_super_admin_cross_tenant(self):
         """Verify _enforce_tenant() allows super_admin users to access any tenant."""
-        _enforce_tenant = _load_indicators_main()._enforce_tenant
+        _enforce_tenant = getattr(_load_indicators_main(), "_enforce_tenant")
 
         super_admin = SimpleNamespace(tenant_id=TENANT_A, roles=["super_admin"])
         _enforce_tenant(super_admin, TENANT_B)
@@ -427,7 +427,7 @@ class TestAuthEndpointEnforcement:
         """
         from fastapi import HTTPException
 
-        _enforce_tenant = _load_indicators_main()._enforce_tenant
+        _enforce_tenant = getattr(_load_indicators_main(), "_enforce_tenant")
 
         for role in ["farmer", "agronomist", "viewer", "manager", "operator"]:
             user = SimpleNamespace(tenant_id=TENANT_A, roles=[role])
@@ -453,7 +453,7 @@ class TestTenantIdValidation:
         """
         from fastapi import HTTPException
 
-        from apps.services.indicators_service.src.main import _validate_tenant_id
+        _validate_tenant_id = getattr(_load_indicators_main(), "_validate_tenant_id")
 
         with pytest.raises(HTTPException) as exc_info:
             _validate_tenant_id("")
@@ -466,7 +466,7 @@ class TestTenantIdValidation:
         """
         from fastapi import HTTPException
 
-        from apps.services.indicators_service.src.main import _validate_tenant_id
+        _validate_tenant_id = getattr(_load_indicators_main(), "_validate_tenant_id")
 
         with pytest.raises(HTTPException) as exc_info:
             _validate_tenant_id("   ")
@@ -479,7 +479,7 @@ class TestTenantIdValidation:
         """
         from fastapi import HTTPException
 
-        from apps.services.indicators_service.src.main import _validate_tenant_id
+        _validate_tenant_id = getattr(_load_indicators_main(), "_validate_tenant_id")
 
         long_tid = "a" * 256
         with pytest.raises(HTTPException) as exc_info:
@@ -488,14 +488,14 @@ class TestTenantIdValidation:
 
     def test_accepts_valid_tenant_id(self):
         """Verify a valid tenant_id passes validation."""
-        from apps.services.indicators_service.src.main import _validate_tenant_id
+        _validate_tenant_id = getattr(_load_indicators_main(), "_validate_tenant_id")
 
         # Should not raise
         _validate_tenant_id(TENANT_A)
 
     def test_accepts_none_tenant_id(self):
         """Verify None tenant_id is accepted (optional parameter)."""
-        from apps.services.indicators_service.src.main import _validate_tenant_id
+        _validate_tenant_id = getattr(_load_indicators_main(), "_validate_tenant_id")
 
         # Should not raise
         _validate_tenant_id(None)
@@ -641,7 +641,7 @@ class TestInputValidationBoundaries:
         """
         from fastapi import HTTPException
 
-        from apps.services.indicators_service.src.main import _validate_field_id
+        _validate_field_id = getattr(_load_indicators_main(), "_validate_field_id")
 
         malicious_ids = [
             "'; DROP TABLE--",
@@ -662,7 +662,7 @@ class TestInputValidationBoundaries:
 
     def test_field_id_accepts_valid_formats(self):
         """Verify valid field IDs pass validation."""
-        from apps.services.indicators_service.src.main import _validate_field_id
+        _validate_field_id = getattr(_load_indicators_main(), "_validate_field_id")
 
         valid_ids = [
             "field-001",

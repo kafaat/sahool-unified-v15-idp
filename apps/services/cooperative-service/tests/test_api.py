@@ -140,8 +140,6 @@ class TestCooperativeEndpoints:
 
     def test_no_database_returns_503(self):
         """Test that missing DB pool returns 503."""
-        from unittest.mock import MagicMock
-
         from src.api.v1.cooperatives import get_current_user
         from src.main import app
 

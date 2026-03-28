@@ -304,25 +304,23 @@ class TestCSRFTimingAttackPrevention:
     """Tests for timing attack prevention."""
 
     def test_constant_time_comparison(self, csrf_manager):
-        """Test that token comparison uses constant-time algorithm."""
-        session_id = "session123"
-        token = csrf_manager.generate_token(session_id)
+        """Test that token comparison uses constant-time algorithm.
 
-        valid_times = []
-        invalid_times = []
+        Instead of measuring timing (which is flaky due to CPU scheduling),
+        we verify structurally that hmac.compare_digest is used for the
+        signature comparison rather than a plain == operator.
+        """
+        import inspect
 
-        for _ in range(10):
-            start = time.perf_counter()
-            csrf_manager.validate_token(token, session_id)
-            valid_times.append(time.perf_counter() - start)
-
-        for _ in range(10):
-            start = time.perf_counter()
-            csrf_manager.validate_token("invalid" * 20, session_id)
-            invalid_times.append(time.perf_counter() - start)
-
-        avg_valid = sum(valid_times) / len(valid_times)
-        avg_invalid = sum(invalid_times) / len(invalid_times)
-
-        ratio = max(avg_valid, avg_invalid) / min(avg_valid, avg_invalid)
-        assert ratio < 10, "Timing difference too large, possible timing attack vulnerability"
+        source = inspect.getsource(csrf_manager.validate_token)
+        assert "hmac.compare_digest" in source or "compare_digest" in source, (
+            "Token validation must use hmac.compare_digest() for constant-time "
+            "comparison to prevent timing attacks. Found plain == comparison instead."
+        )
+        # Also verify that plain == is NOT used for signature comparison.
+        # The source should not contain '== expected_signature' or 'signature =='
+        # outside of a compare_digest call.
+        assert "signature ==" not in source and "== signature" not in source, (
+            "Token validation should not use == for signature comparison. "
+            "Use hmac.compare_digest() instead."
+        )

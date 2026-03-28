@@ -749,15 +749,19 @@ def get_subject_for_event(event_type: str) -> str:
 
 def get_wildcard_subject(domain: str) -> str:
     """
-    Get wildcard subject for a domain to subscribe to all events in that domain.
+    Get wildcard subject for a domain to subscribe to all events in that domain,
+    including deeply nested sub-subjects.
+
+    Uses the NATS '>' wildcard which matches one or more tokens, allowing
+    subscription to subjects like 'sahool.field.created', 'sahool.field.boundary.updated', etc.
 
     Args:
         domain: Domain name (e.g., "field", "weather", "billing")
 
     Returns:
-        Wildcard subject (e.g., "sahool.field.*")
+        Wildcard subject (e.g., "sahool.field.>")
     """
-    return f"sahool.{domain}.*"
+    return f"sahool.{domain}.>"
 
 
 def is_valid_subject(subject: str) -> bool:

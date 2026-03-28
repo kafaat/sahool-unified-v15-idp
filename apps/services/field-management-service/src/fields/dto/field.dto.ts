@@ -32,14 +32,12 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 // ---------------------------------------------------------------------------
 
 /** Maximum boundary area in hectares (default: 10,000 ha) */
-export const MAX_BOUNDARY_AREA_HECTARES = Number(
-  process.env.MAX_BOUNDARY_AREA_HECTARES ?? 10_000,
-);
+const parsedMaxBoundaryArea = parseFloat(process.env.MAX_BOUNDARY_AREA_HECTARES ?? '');
+export const MAX_BOUNDARY_AREA_HECTARES = Number.isFinite(parsedMaxBoundaryArea) ? parsedMaxBoundaryArea : 10_000;
 
 /** Maximum proximity query distance in meters (default: 100 km) */
-export const MAX_PROXIMITY_DISTANCE_METERS = Number(
-  process.env.MAX_PROXIMITY_DISTANCE_METERS ?? 100_000,
-);
+const parsedMaxProximityDistance = parseFloat(process.env.MAX_PROXIMITY_DISTANCE_METERS ?? '');
+export const MAX_PROXIMITY_DISTANCE_METERS = Number.isFinite(parsedMaxProximityDistance) ? parsedMaxProximityDistance : 100_000;
 
 /** Maximum number of coordinate points in a single polygon ring */
 const MAX_POLYGON_POINTS = 10_000;

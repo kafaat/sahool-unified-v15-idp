@@ -25,7 +25,7 @@ wait_for_db() {
       fi
     else
       # Fallback: use node to attempt a raw TCP connection via prisma
-      if npx prisma db execute --stdin <<< "SELECT 1;" >/dev/null 2>&1; then
+      if printf 'SELECT 1;' | npx prisma db execute --stdin >/dev/null 2>&1; then
         echo "Database is ready (prisma probe)."
         return 0
       fi
@@ -58,7 +58,7 @@ handle_p3009() {
   echo 'Failed migration detected (P3009). Attempting to resolve...'
   # Prisma outputs a line like:
   #   The `20250115120000_add_fields` migration started at ...
-  failed_migration=$(grep -oP 'The `\K[^`]+' /tmp/prisma_migrate.log | head -n1)
+  failed_migration=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log | head -n1)
   if [ -z "$failed_migration" ]; then
     echo 'ERROR: Could not extract failed migration name from P3009 error log.'
     cat /tmp/prisma_migrate.log

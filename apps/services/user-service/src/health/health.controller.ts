@@ -85,7 +85,8 @@ class HealthChecker {
       const status = result.connected ? "connected" : "disconnected";
       dbHealthGauge.set({ dependency: "database" }, status === "connected" ? 1 : 0);
       return status;
-    } catch {
+    } catch (error) {
+      this.logger.warn(`Database health check failed: ${error}`);
       dbHealthGauge.set({ dependency: "database" }, 0);
       return "disconnected";
     }
@@ -103,7 +104,8 @@ class HealthChecker {
       const status = isHealthy ? "connected" : "disconnected";
       dbHealthGauge.set({ dependency: "redis" }, status === "connected" ? 1 : 0);
       return status;
-    } catch {
+    } catch (error) {
+      this.logger.warn(`Redis health check failed: ${error}`);
       dbHealthGauge.set({ dependency: "redis" }, 0);
       return "disconnected";
     }

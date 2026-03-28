@@ -16,6 +16,7 @@ Field-First Architecture:
 """
 
 import asyncio
+import html
 import logging
 import os
 import sys
@@ -31,7 +32,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 # Add shared middleware to path
 shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
@@ -44,6 +45,39 @@ def sanitize_log_input(value: str) -> str:
     if not isinstance(value, str):
         value = str(value)
     return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+
+
+# =============================================================================
+# Prometheus Metrics
+# =============================================================================
+
+try:
+    from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
+
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "notification_requests_total",
+        "Total notification API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "notification_request_duration_seconds",
+        "Notification API latency",
+        ["endpoint"],
+    )
+    NOTIFICATIONS_SENT = Counter(
+        "notifications_sent_total",
+        "Notifications sent by channel",
+        ["channel", "status"],
+    )
+    NOTIFICATIONS_FAILED = Counter(
+        "notifications_failed_total",
+        "Failed notification deliveries",
+        ["channel", "reason"],
+    )
 
 
 # Security headers middleware
@@ -141,6 +175,23 @@ class NotificationChannel(StrEnum):
     IN_APP = "in_app"
 
 
+class DevicePlatform(StrEnum):
+    IOS = "ios"
+    ANDROID = "android"
+    WEB = "web"
+
+
+# Allowed notification channel types for validation
+ALLOWED_CHANNEL_TYPES = {ch.value for ch in NotificationChannel}
+
+
+def sanitize_notification_content(text: str) -> str:
+    """Sanitize notification content to prevent XSS in push notifications."""
+    if not isinstance(text, str):
+        text = str(text)
+    return html.escape(text)
+
+
 class Governorate(StrEnum):
     SANAA = "sanaa"
     ADEN = "aden"
@@ -224,24 +275,30 @@ CROP_AR = {
 class FarmerProfile(BaseModel):
     """ملف المزارع للإشعارات المخصصة"""
 
-    farmer_id: str
-    name: str
-    name_ar: str
+    farmer_id: str = Field(..., min_length=1, max_length=100)
+    name: str = Field(..., min_length=1, max_length=200)
+    name_ar: str = Field(..., min_length=1, max_length=200)
     governorate: Governorate
-    district: str | None = None
+    district: str | None = Field(None, max_length=200)
     crops: list[CropType]
     field_ids: list[str] = []
-    phone: str | None = None
-    email: str | None = None
-    fcm_token: str | None = None  # Firebase Cloud Messaging
+    phone: str | None = Field(None, max_length=20)
+    email: str | None = Field(None, max_length=254)
+    fcm_token: str | None = Field(None, min_length=10, max_length=500)  # Firebase Cloud Messaging
+    device_platform: DevicePlatform | None = None
     notification_channels: list[NotificationChannel] = [NotificationChannel.IN_APP]
-    language: str = "ar"
+    language: str = Field("ar", max_length=10)
+
+    @field_validator("name", "name_ar")
+    @classmethod
+    def sanitize_name(cls, v: str) -> str:
+        return sanitize_notification_content(v)
 
 
 class NotificationPreferences(BaseModel):
     """تفضيلات الإشعارات"""
 
-    farmer_id: str
+    farmer_id: str = Field(..., min_length=1, max_length=100)
     weather_alerts: bool = True
     pest_alerts: bool = True
     irrigation_reminders: bool = True
@@ -257,13 +314,13 @@ class Notification(BaseModel):
 
     id: str
     type: NotificationType
-    type_ar: str
+    type_ar: str = Field(..., max_length=200)
     priority: NotificationPriority
-    priority_ar: str
-    title: str
-    title_ar: str
-    body: str
-    body_ar: str
+    priority_ar: str = Field(..., max_length=200)
+    title: str = Field(..., max_length=200)
+    title_ar: str = Field(..., max_length=200)
+    body: str = Field(..., max_length=2000)
+    body_ar: str = Field(..., max_length=2000)
     data: dict[str, Any] = {}
     target_farmers: list[str] = []  # Empty = broadcast
     target_governorates: list[Governorate] = []
@@ -272,7 +329,7 @@ class Notification(BaseModel):
     created_at: datetime
     expires_at: datetime | None = None
     is_read: bool = False
-    action_url: str | None = None
+    action_url: str | None = Field(None, max_length=2000)
 
 
 class CreateNotificationRequest(BaseModel):
@@ -280,49 +337,83 @@ class CreateNotificationRequest(BaseModel):
 
     type: NotificationType
     priority: NotificationPriority = NotificationPriority.MEDIUM
-    title: str
-    title_ar: str
-    body: str
-    body_ar: str
+    title: str = Field(..., min_length=1, max_length=200)
+    title_ar: str = Field(..., min_length=1, max_length=200)
+    body: str = Field(..., min_length=1, max_length=2000)
+    body_ar: str = Field(..., min_length=1, max_length=2000)
     data: dict[str, Any] = {}
-    target_farmers: list[str] = []
+    target_farmers: list[str] = Field(default=[])
     target_governorates: list[Governorate] = []
     target_crops: list[CropType] = []
     channels: list[NotificationChannel] = [NotificationChannel.IN_APP]
-    expires_in_hours: int | None = 24
+    expires_in_hours: int | None = Field(24, ge=1, le=8760)
+
+    @field_validator("title", "title_ar", "body", "body_ar")
+    @classmethod
+    def sanitize_content(cls, v: str) -> str:
+        """Sanitize notification content to prevent XSS in push notifications."""
+        return sanitize_notification_content(v)
+
+    @field_validator("target_farmers")
+    @classmethod
+    def validate_target_farmers(cls, v: list[str]) -> list[str]:
+        for fid in v:
+            if not fid or len(fid) > 100:
+                raise ValueError("Each farmer_id must be between 1 and 100 characters")
+        return v
 
 
 class WeatherAlertRequest(BaseModel):
     """طلب تنبيه طقس"""
 
-    governorates: list[Governorate]
-    alert_type: str  # frost, heat_wave, storm, flood, drought
+    governorates: list[Governorate] = Field(..., min_length=1)
+    alert_type: str = Field(..., min_length=1, max_length=50)
     severity: NotificationPriority
     expected_date: date
     details: dict[str, Any] = {}
+
+    @field_validator("alert_type")
+    @classmethod
+    def sanitize_alert_type(cls, v: str) -> str:
+        return sanitize_notification_content(v)
 
 
 class PestAlertRequest(BaseModel):
     """طلب تنبيه آفات"""
 
     governorate: Governorate
-    pest_name: str
-    pest_name_ar: str
-    affected_crops: list[CropType]
+    pest_name: str = Field(..., min_length=1, max_length=200)
+    pest_name_ar: str = Field(..., min_length=1, max_length=200)
+    affected_crops: list[CropType] = Field(..., min_length=1)
     severity: NotificationPriority
     recommendations: list[str] = []
     recommendations_ar: list[str] = []
+
+    @field_validator("pest_name", "pest_name_ar")
+    @classmethod
+    def sanitize_pest_names(cls, v: str) -> str:
+        return sanitize_notification_content(v)
+
+    @field_validator("recommendations", "recommendations_ar")
+    @classmethod
+    def sanitize_recommendations(cls, v: list[str]) -> list[str]:
+        return [sanitize_notification_content(r) for r in v]
 
 
 class IrrigationReminderRequest(BaseModel):
     """طلب تذكير ري"""
 
-    farmer_id: str
-    field_id: str
-    field_name: str
+    farmer_id: str = Field(..., min_length=1, max_length=100)
+    field_id: str = Field(..., min_length=1, max_length=100)
+    field_name: str = Field(..., min_length=1, max_length=200)
     crop: CropType
-    water_needed_mm: float
+    water_needed_mm: float = Field(..., gt=0, le=500)
     urgency: NotificationPriority
+
+    @field_validator("field_name")
+    @classmethod
+    def sanitize_field_name(cls, v: str) -> str:
+        return sanitize_notification_content(v)
 
 
 # =============================================================================
@@ -360,6 +451,33 @@ FARMER_PROFILES: dict[str, Any] = {}
 # =============================================================================
 
 
+async def _send_with_retry(send_func, *args, max_retries=3, **kwargs):
+    """Send notification with retry on failure."""
+    for attempt in range(max_retries):
+        try:
+            result = await send_func(*args, **kwargs)
+            return result
+        except Exception as e:
+            if attempt < max_retries - 1:
+                wait = 2 ** attempt  # exponential backoff: 1, 2, 4 seconds
+                logger.warning(
+                    "notification_send_retry",
+                    attempt=attempt + 1,
+                    max=max_retries,
+                    wait=wait,
+                    error=str(e),
+                )
+                await asyncio.sleep(wait)
+            else:
+                logger.error(
+                    "notification_send_failed_all_retries",
+                    error=str(e),
+                    retries=max_retries,
+                )
+                # TODO: Add to dead-letter queue for manual retry
+                raise
+
+
 async def create_notification(
     type: NotificationType,
     priority: NotificationPriority,
@@ -376,6 +494,12 @@ async def create_notification(
     tenant_id: str | None = None,
 ):
     """إنشاء إشعار جديد - Database version with preference checking"""
+
+    # Sanitize notification content to prevent XSS (defense in depth)
+    title = sanitize_notification_content(title)
+    title_ar = sanitize_notification_content(title_ar)
+    body = sanitize_notification_content(body)
+    body_ar = sanitize_notification_content(body_ar)
 
     # Determine target farmers based on criteria
     if channels is None:
@@ -438,22 +562,28 @@ async def create_notification(
         )
         notifications.append(notification)
 
-        # Send notifications via appropriate channels (async background task)
+        # Send notifications via appropriate channels (async background task with retry)
         for channel_name in final_channels:
             try:
                 # Convert channel name string to enum
                 channel_enum = NotificationChannel(channel_name)
                 task = asyncio.create_task(
-                    send_notification_via_channel(
+                    _send_with_retry(
+                        send_notification_via_channel,
                         notification=notification,
                         channel=channel_enum,
                         farmer_id=notification.user_id,
                     ),
                     name=f"send_{channel_name}_{notification.id}",
                 )
-                # Prevent unhandled exception warnings on fire-and-forget tasks
+                # Log if all retries exhausted
                 task.add_done_callback(
-                    lambda t: logger.error(f"Background send failed: {t.exception()}") if t.exception() else None
+                    lambda t: logger.error(
+                        "notification_delivery_exhausted",
+                        error=str(t.exception()),
+                    )
+                    if t.exception()
+                    else None
                 )
             except ValueError:
                 logger.warning(f"Invalid channel type: {channel_name}")
@@ -1119,6 +1249,35 @@ except Exception as e:
 app.add_middleware(TenantContextMiddleware)
 
 
+# Prometheus metrics middleware - مقاييس الأداء
+if HAS_PROMETHEUS:
+    import time as _time
+
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.requests import Request as _Request
+    from starlette.responses import Response as _Response
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        """Middleware to collect request count and latency metrics."""
+
+        async def dispatch(self, request: _Request, call_next) -> _Response:
+            endpoint = request.url.path
+            start = _time.perf_counter()
+            try:
+                response = await call_next(request)
+                REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+                return response
+            except Exception:
+                REQUEST_COUNT.labels(endpoint=endpoint, status=500).inc()
+                raise
+            finally:
+                elapsed = _time.perf_counter() - start
+                REQUEST_LATENCY.labels(endpoint=endpoint).observe(elapsed)
+
+    app.add_middleware(PrometheusMiddleware)
+    logger.info("Prometheus metrics middleware enabled")
+
+
 # =============================================================================
 # API Endpoints
 # =============================================================================
@@ -1147,39 +1306,38 @@ async def health_check():
 
 
 @app.get("/readyz")
-async def readiness_check():
-    """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    try:
-        db_health = await check_db_health()
-        db_stats = await get_db_stats() if db_health.get("connected") else {}
-    except Exception as e:
-        logger.warning(f"Readiness check - database error: {e}")
-        db_health = {"status": "unavailable", "connected": False, "error": str(e)}
-        db_stats = {}
+async def readiness():
+    checks = {}
 
-    # Determine readiness based on critical dependencies
-    nats_ok = _nats_available and _nats_subscriber is not None
-    db_ok = db_health.get("connected", False)
-    is_ready = nats_ok or db_ok  # At least one critical dependency should work
+    db_pool = getattr(app.state, "db_pool", None)
+    if db_pool:
+        try:
+            async with db_pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            checks["database"] = "connected"
+        except Exception:
+            checks["database"] = "disconnected"
+    else:
+        checks["database"] = "not_configured"
 
-    # Get farmer count from database
-    try:
-        farmer_count = await FarmerProfileRepository.get_count() if db_ok else 0
-    except Exception:
-        farmer_count = 0
+    nc = getattr(app.state, "nc", None)
+    checks["nats"] = "connected" if nc and not nc.is_closed else "not_configured"
 
-    return {
-        "status": "ready" if is_ready else "not_ready",
-        "service": "notification-service",
-        "version": "16.0.0",
-        "mode": "normal" if db_ok else "degraded",
-        "checks": {
-            "nats": "connected" if nats_ok else "disconnected",
-            "database": "connected" if db_ok else "disconnected",
-        },
-        "stats": db_stats,
-        "registered_farmers": farmer_count,
-    }
+    all_ready = all(v != "disconnected" for v in checks.values())
+    return {"status": "ready" if all_ready else "degraded", "service": "notification-service", "version": "16.0.0", "checks": checks}
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint - نقطة نهاية مقاييس بروميثيوس"""
+    if not HAS_PROMETHEUS:
+        return {"error": "prometheus_client not installed"}
+    from starlette.responses import Response as _MetricsResponse
+
+    return _MetricsResponse(
+        content=generate_latest(),
+        media_type=CONTENT_TYPE_LATEST,
+    )
 
 
 @app.post("/")
@@ -1225,7 +1383,11 @@ async def create_custom_notification(
 
 
 @app.post("/weather")
-async def create_weather_alert(request: WeatherAlertRequest, background_tasks: BackgroundTasks):
+async def create_weather_alert(
+    request: WeatherAlertRequest,
+    background_tasks: BackgroundTasks,
+    user: User | None = Depends(get_current_user),
+):
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
     # Get message for first governorate (can be customized per governorate)
@@ -1262,7 +1424,10 @@ async def create_weather_alert(request: WeatherAlertRequest, background_tasks: B
 
 
 @app.post("/pest")
-async def create_pest_alert(request: PestAlertRequest):
+async def create_pest_alert(
+    request: PestAlertRequest,
+    user: User | None = Depends(get_current_user),
+):
     """إنشاء تنبيه انتشار آفات"""
     gov_ar = GOVERNORATE_AR[request.governorate]
     crops_ar = ", ".join([CROP_AR[c] for c in request.affected_crops])
@@ -1301,7 +1466,10 @@ async def create_pest_alert(request: PestAlertRequest):
 
 
 @app.post("/irrigation")
-async def create_irrigation_reminder(request: IrrigationReminderRequest):
+async def create_irrigation_reminder(
+    request: IrrigationReminderRequest,
+    user: User | None = Depends(get_current_user),
+):
     """إنشاء تذكير ري مخصص"""
     crop_ar = CROP_AR.get(request.crop, request.crop.value)
 
@@ -1441,6 +1609,7 @@ async def get_broadcast_notifications(
     governorate: Governorate | None = None,
     crop: CropType | None = None,
     limit: int = Query(default=20, ge=1, le=50),
+    user: User | None = Depends(get_current_user),
 ):
     """الحصول على الإشعارات العامة (البث)"""
     # Get broadcast notifications from database
@@ -1478,7 +1647,10 @@ async def get_broadcast_notifications(
 
 
 @app.post("/register")
-async def register_farmer(profile: FarmerProfile):
+async def register_farmer(
+    profile: FarmerProfile,
+    user: User | None = Depends(get_current_user),
+):
     """تسجيل مزارع للإشعارات - Database version"""
     try:
         # Convert CropType enums to strings
@@ -1515,7 +1687,11 @@ async def register_farmer(profile: FarmerProfile):
 
 
 @app.put("/{farmer_id}/preferences")
-async def update_preferences(farmer_id: str, preferences: NotificationPreferences):
+async def update_preferences(
+    farmer_id: str,
+    preferences: NotificationPreferences,
+    user: User | None = Depends(get_current_user),
+):
     """تحديث تفضيلات الإشعارات"""
     # Update preferences for each channel
     channels = ["push", "sms", "in_app"]
@@ -1565,7 +1741,9 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
 
 
 @app.get("/stats")
-async def get_notification_stats():
+async def get_notification_stats(
+    user: User | None = Depends(get_current_user),
+):
     """إحصائيات الإشعارات - Database version"""
     db_stats = await get_db_stats()
 

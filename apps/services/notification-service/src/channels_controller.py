@@ -9,7 +9,7 @@ import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .channels_service import ChannelsService
 

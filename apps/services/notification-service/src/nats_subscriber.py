@@ -318,10 +318,33 @@ class NATSSubscriber:
 
     async def _message_handler(self, msg):
         """Handle incoming NATS message"""
-        try:
-            subject = msg.subject
-            data = json.loads(msg.data.decode("utf-8"))
+        subject = msg.subject
 
+        # Decode raw bytes
+        try:
+            raw_text = msg.data.decode("utf-8")
+        except Exception as e:
+            logger.error(
+                "NATS message decode failed: subject=%s error=%s raw_bytes=%s",
+                sanitize_for_log(subject),
+                sanitize_for_log(e),
+                sanitize_for_log(msg.data[:200] if msg.data else b""),
+            )
+            return
+
+        # Parse JSON
+        try:
+            data = json.loads(raw_text)
+        except json.JSONDecodeError as e:
+            logger.error(
+                "NATS message JSON parse failed: subject=%s error=%s payload_preview=%s",
+                sanitize_for_log(subject),
+                sanitize_for_log(e),
+                sanitize_for_log(raw_text[:500]),
+            )
+            return
+
+        try:
             logger.info("Received message on %s", sanitize_for_log(subject))
 
             # Derive event_type from payload or subject
@@ -356,7 +379,12 @@ class NATSSubscriber:
                 await self._process_event_to_notification(event)
 
         except Exception as e:
-            logger.error("Error processing NATS message: %s", sanitize_for_log(e))
+            logger.error(
+                "Error processing NATS message: subject=%s error=%s event_id=%s",
+                sanitize_for_log(subject),
+                sanitize_for_log(e),
+                sanitize_for_log(data.get("event_id", "unknown")),
+            )
 
     async def _process_event_to_notification(self, event: ReceivedEvent):
         """Process event and create notification"""

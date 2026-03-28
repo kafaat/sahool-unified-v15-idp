@@ -68,6 +68,14 @@ abstract final class ErrorCodes {
   static const String irrigationMethodNotSupported = 'I1006';
   static const String irrigationCropNotFound = 'I1007';
   static const String irrigationEfficiencyOutOfRange = 'I1008';
+  static const String notificationNotFound = 'N1001';
+  static const String notificationDeliveryFailed = 'N1002';
+  static const String notificationDeviceNotRegistered = 'N1003';
+  static const String notificationInvalidChannel = 'N1004';
+  static const String notificationTemplateNotFound = 'N1005';
+  static const String notificationRateLimited = 'N1006';
+  static const String notificationPreferencesNotFound = 'N1007';
+  static const String notificationBroadcastFailed = 'N1008';
   static const String vegetationFieldNotFound = 'V1001';
   static const String vegetationNdviDataUnavailable = 'V1002';
   static const String vegetationSatelliteError = 'V1003';
@@ -547,6 +555,62 @@ const Map<String, ErrorMessage> errorMessages = {
     en: 'Irrigation efficiency must be between 0 and 100 percent',
     ar: 'كفاءة الري يجب أن تكون بين 0 و100 بالمائة',
     retryable: false,
+  ),
+  'N1001': ErrorMessage(
+    code: 'N1001',
+    httpStatus: 404,
+    en: 'Notification not found',
+    ar: 'الإشعار غير موجود',
+    retryable: false,
+  ),
+  'N1002': ErrorMessage(
+    code: 'N1002',
+    httpStatus: 502,
+    en: 'Notification delivery failed',
+    ar: 'فشل تسليم الإشعار',
+    retryable: true,
+  ),
+  'N1003': ErrorMessage(
+    code: 'N1003',
+    httpStatus: 404,
+    en: 'Device is not registered for push notifications',
+    ar: 'الجهاز غير مسجل لتلقي الإشعارات الفورية',
+    retryable: false,
+  ),
+  'N1004': ErrorMessage(
+    code: 'N1004',
+    httpStatus: 400,
+    en: 'Invalid notification channel specified',
+    ar: 'قناة الإشعار المحددة غير صالحة',
+    retryable: false,
+  ),
+  'N1005': ErrorMessage(
+    code: 'N1005',
+    httpStatus: 404,
+    en: 'Notification template not found',
+    ar: 'قالب الإشعار غير موجود',
+    retryable: false,
+  ),
+  'N1006': ErrorMessage(
+    code: 'N1006',
+    httpStatus: 429,
+    en: 'Notification rate limit exceeded. Please wait.',
+    ar: 'تم تجاوز حد معدل الإشعارات. يرجى الانتظار.',
+    retryable: true,
+  ),
+  'N1007': ErrorMessage(
+    code: 'N1007',
+    httpStatus: 404,
+    en: 'Notification preferences not found for this user',
+    ar: 'تفضيلات الإشعارات غير موجودة لهذا المستخدم',
+    retryable: false,
+  ),
+  'N1008': ErrorMessage(
+    code: 'N1008',
+    httpStatus: 500,
+    en: 'Broadcast notification failed to send',
+    ar: 'فشل إرسال الإشعار الجماعي',
+    retryable: true,
   ),
   'V1001': ErrorMessage(
     code: 'V1001',

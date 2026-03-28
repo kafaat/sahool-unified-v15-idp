@@ -122,6 +122,16 @@ export const ERROR_CODES = {
   IRRIGATION_CROP_NOT_FOUND: 'I1007',
   IRRIGATION_EFFICIENCY_OUT_OF_RANGE: 'I1008',
 
+  // ── Notification Service (N1xxx) ───────────────────────────────────
+  NOTIFICATION_NOT_FOUND: 'N1001',
+  NOTIFICATION_DELIVERY_FAILED: 'N1002',
+  NOTIFICATION_DEVICE_NOT_REGISTERED: 'N1003',
+  NOTIFICATION_INVALID_CHANNEL: 'N1004',
+  NOTIFICATION_TEMPLATE_NOT_FOUND: 'N1005',
+  NOTIFICATION_RATE_LIMITED: 'N1006',
+  NOTIFICATION_PREFERENCES_NOT_FOUND: 'N1007',
+  NOTIFICATION_BROADCAST_FAILED: 'N1008',
+
   // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────
   VEGETATION_FIELD_NOT_FOUND: 'V1001',
   VEGETATION_NDVI_DATA_UNAVAILABLE: 'V1002',
@@ -601,6 +611,64 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'Irrigation efficiency must be between 0 and 100 percent',
     ar: 'كفاءة الري يجب أن تكون بين 0 و100 بالمائة',
     retryable: false,
+  },
+
+  // ── Notification Service (N1xxx) ───────────────────────────────────
+  [ERROR_CODES.NOTIFICATION_NOT_FOUND]: {
+    code: ERROR_CODES.NOTIFICATION_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Notification not found',
+    ar: 'الإشعار غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.NOTIFICATION_DELIVERY_FAILED]: {
+    code: ERROR_CODES.NOTIFICATION_DELIVERY_FAILED,
+    httpStatus: 502,
+    en: 'Notification delivery failed',
+    ar: 'فشل تسليم الإشعار',
+    retryable: true,
+  },
+  [ERROR_CODES.NOTIFICATION_DEVICE_NOT_REGISTERED]: {
+    code: ERROR_CODES.NOTIFICATION_DEVICE_NOT_REGISTERED,
+    httpStatus: 404,
+    en: 'Device is not registered for push notifications',
+    ar: 'الجهاز غير مسجل لتلقي الإشعارات الفورية',
+    retryable: false,
+  },
+  [ERROR_CODES.NOTIFICATION_INVALID_CHANNEL]: {
+    code: ERROR_CODES.NOTIFICATION_INVALID_CHANNEL,
+    httpStatus: 400,
+    en: 'Invalid notification channel specified',
+    ar: 'قناة الإشعار المحددة غير صالحة',
+    retryable: false,
+  },
+  [ERROR_CODES.NOTIFICATION_TEMPLATE_NOT_FOUND]: {
+    code: ERROR_CODES.NOTIFICATION_TEMPLATE_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Notification template not found',
+    ar: 'قالب الإشعار غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.NOTIFICATION_RATE_LIMITED]: {
+    code: ERROR_CODES.NOTIFICATION_RATE_LIMITED,
+    httpStatus: 429,
+    en: 'Notification rate limit exceeded. Please wait.',
+    ar: 'تم تجاوز حد معدل الإشعارات. يرجى الانتظار.',
+    retryable: true,
+  },
+  [ERROR_CODES.NOTIFICATION_PREFERENCES_NOT_FOUND]: {
+    code: ERROR_CODES.NOTIFICATION_PREFERENCES_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Notification preferences not found for this user',
+    ar: 'تفضيلات الإشعارات غير موجودة لهذا المستخدم',
+    retryable: false,
+  },
+  [ERROR_CODES.NOTIFICATION_BROADCAST_FAILED]: {
+    code: ERROR_CODES.NOTIFICATION_BROADCAST_FAILED,
+    httpStatus: 500,
+    en: 'Broadcast notification failed to send',
+    ar: 'فشل إرسال الإشعار الجماعي',
+    retryable: true,
   },
 
   // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────

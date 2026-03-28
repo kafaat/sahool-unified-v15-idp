@@ -32,6 +32,7 @@ import {
   type CreateUserData,
   type UpdateUserData,
 } from '@/lib/api';
+import { useAuth } from '@/stores/auth.store';
 
 // Extended User interface for UI
 interface User extends Omit<ApiUser, 'role'> {
@@ -44,6 +45,7 @@ interface User extends Omit<ApiUser, 'role'> {
 
 export default function UsersPage() {
   const { toast } = useToast();
+  const { user: authUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -101,7 +103,9 @@ export default function UsersPage() {
   async function handleCreate(data: CreateUserData) {
     setIsSubmitting(true);
     try {
-      await userService.create(data);
+      // Inject tenant ID from authenticated admin's context
+      const createData = { ...data, tenantId: authUser?.tenant_id || '' };
+      await userService.create(createData);
       await loadUsers();
       setShowCreateModal(false);
       logger.info('User created successfully');

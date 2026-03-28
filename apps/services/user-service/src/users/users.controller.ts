@@ -66,9 +66,12 @@ export class UsersController {
   }
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN", "MANAGER")
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({
-    summary: "Create a new user",
-    description: "إنشاء مستخدم جديد",
+    summary: "Create a new user (Admin/Manager only)",
+    description: "إنشاء مستخدم جديد (للمشرفين والمديرين فقط)",
   })
   @ApiResponse({
     status: 201,
@@ -229,6 +232,13 @@ export class UsersController {
   ) {
     // Validate resource ownership - users can only update their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
+
+    // Prevent privilege escalation: only admins can change role/status
+    const isAdmin = currentUser?.roles?.includes("ADMIN") || currentUser?.roles?.includes("admin");
+    if (!isAdmin) {
+      delete updateUserDto.role;
+      delete updateUserDto.status;
+    }
 
     const user = await this.usersService.update(id, updateUserDto);
     const { passwordHash, ...userWithoutPassword } = user;

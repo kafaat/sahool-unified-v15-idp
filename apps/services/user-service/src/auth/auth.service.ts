@@ -129,7 +129,8 @@ export class AuthService {
    * تسجيل دخول المستخدم مع حماية قفل الحساب
    */
   async login(loginDto: LoginDto): Promise<TokenResponse> {
-    const { email, password } = loginDto;
+    const { password } = loginDto;
+    const email = loginDto.email.toLowerCase().trim();
 
     // Find user by email
     const user = await this.prisma.user.findUnique({
@@ -197,7 +198,7 @@ export class AuthService {
         { email: this.sanitizeForLog(email) },
       );
       throw new UnauthorizedException(
-        `Account is ${user.status.toLowerCase()}. Please contact support.`,
+        'Account is not available. Please contact support.',
       );
     }
 
@@ -583,7 +584,8 @@ export class AuthService {
    * تسجيل مستخدم جديد
    */
   async register(registerDto: RegisterDto): Promise<TokenResponse> {
-    const { email, password, phone, tenantId } = registerDto;
+    const { password, phone, tenantId } = registerDto;
+    const email = registerDto.email.toLowerCase().trim();
 
     // Handle name splitting: accept either `name` or `firstName`+`lastName`
     const names = splitFullName(registerDto.name, registerDto.firstName, registerDto.lastName);

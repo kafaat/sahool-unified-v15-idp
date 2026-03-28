@@ -1460,8 +1460,44 @@ async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput, user: Us
         daily_etc=input_data.daily_etc,
     )
 
+    calculation_id = str(uuid.uuid4())
+
+    # Publish sensor.calculated event for soil moisture estimation
+    await publish_event(
+        "sahool.sensor.calculated",
+        {
+            "calculation_id": calculation_id,
+            "sensor_type": "soil_moisture",
+            "method": "water_balance",
+            "value": round(result["moisture_content"], 3),
+            "unit": "volumetric",
+            "depletion_percent": round(result["depletion_percent"], 1),
+            "soil_type": input_data.soil_type.value,
+            "status": result["status"],
+            "urgency": result["urgency"].value if hasattr(result["urgency"], "value") else str(result["urgency"]),
+            "user_id": user.id if hasattr(user, "id") else None,
+        },
+    )
+
+    # Publish sensor.anomaly event when critical depletion is detected
+    if result["depletion_percent"] >= 80:
+        await publish_event(
+            "sahool.sensor.anomaly",
+            {
+                "calculation_id": calculation_id,
+                "anomaly_type": "critical_moisture_depletion",
+                "sensor_type": "soil_moisture",
+                "depletion_percent": round(result["depletion_percent"], 1),
+                "soil_type": input_data.soil_type.value,
+                "status": result["status"],
+                "urgency": result["urgency"].value if hasattr(result["urgency"], "value") else str(result["urgency"]),
+                "message": "Soil moisture critically depleted - immediate irrigation recommended",
+                "message_ar": "رطوبة التربة منخفضة بشكل حرج - يوصى بالري فوراً",
+            },
+        )
+
     return VirtualSoilMoistureResponse(
-        calculation_id=str(uuid.uuid4()),
+        calculation_id=calculation_id,
         estimated_moisture=round(result["moisture_content"], 3),
         moisture_percentage=round(100 - result["depletion_percent"], 1),
         days_since_irrigation=result["days_elapsed"],

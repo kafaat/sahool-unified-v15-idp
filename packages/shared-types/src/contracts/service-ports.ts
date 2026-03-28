@@ -34,8 +34,6 @@ export const SERVICE_PORTS = {
   INDICATORS: 8091,
   /** Weather data & forecasts - بيانات الطقس */
   WEATHER: 8092,
-  /** @deprecated Alias for SERVICE_PORTS.WEATHER. Use WEATHER instead. Removal: v18.0.0 */
-  WEATHER_CORE: 8092,
   /** Advisory & fertilizer recommendations - الاستشارات والتسميد */
   ADVISORY: 8093,
   /** Smart irrigation scheduling - الري الذكي */

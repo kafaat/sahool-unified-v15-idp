@@ -144,6 +144,12 @@ class BaseEvent:
             ValidationError: If the event data does not conform to the schema
             FileNotFoundError: If the schema file cannot be found
         """
+        if jsonschema is None:
+            raise ImportError(
+                "jsonschema is required for event validation. "
+                "Install it with: pip install jsonschema"
+            )
+
         if not self.SCHEMA_PATH:
             # No schema defined, skip validation
             return True

@@ -19,6 +19,6 @@ class TestHealthEndpoints:
         assert response.status_code == 200
 
     def test_health(self, client):
-        """Test comprehensive health check."""
-        response = client.get("/health")
+        """Test comprehensive health check via readyz (no /health route)."""
+        response = client.get("/readyz")
         assert response.status_code == 200

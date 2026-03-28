@@ -24,12 +24,21 @@ def client():
     from fastapi.testclient import TestClient
     from src.main import app
 
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    # Override auth dependency so protected endpoints work without a real JWT
+    mock_user = User(id="test-user-id", email="test@sahool.app", role="admin")
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+
     app.state.db_pool = None
     app.state.db_connected = False
     app.state.nc = None
     app.state.nats_connected = False
 
-    return TestClient(app, raise_server_exceptions=False)
+    yield TestClient(app, raise_server_exceptions=False)
+
+    app.dependency_overrides.clear()
 
 
 # Default headers for requests that pass through tenant middleware

@@ -23,12 +23,20 @@ from typing import Any
 
 import httpx
 import structlog
-from tenacity import (
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-)
+
+try:
+    from tenacity import (
+        retry,
+        retry_if_exception_type,
+        stop_after_attempt,
+        wait_exponential,
+    )
+except (ImportError, ModuleNotFoundError, BaseException):
+    # Provide no-op fallback so module can be imported without tenacity
+    retry = None  # type: ignore[assignment]
+    retry_if_exception_type = None  # type: ignore[assignment]
+    stop_after_attempt = None  # type: ignore[assignment]
+    wait_exponential = None  # type: ignore[assignment]
 
 logger = structlog.get_logger()
 

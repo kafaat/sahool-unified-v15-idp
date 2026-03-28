@@ -20,7 +20,10 @@ Usage:
     await publisher.publish(event)
 """
 
-from jsonschema import ValidationError
+try:
+    from jsonschema import ValidationError
+except (ImportError, ModuleNotFoundError, BaseException):
+    ValidationError = None  # type: ignore[assignment,misc]
 
 from .analytics_events import NDVICalculatedEvent, YieldPredictedEvent
 from .base import BaseEvent, EventMetadata

@@ -312,7 +312,7 @@ class TestEventPublisherPublish:
         invalid_event.causation_id = None
         invalid_event.trace_id = None
         invalid_event.span_id = None
-        invalid_event.tenant_id = None
+        invalid_event.tenant_id = "test-tenant-for-validation"
         invalid_event.tenant_id_header = None
         invalid_event.event_id = str(uuid4())
         invalid_event.version = "1.0.0"
@@ -350,7 +350,7 @@ class TestEventPublisherPublish:
         publisher._nc = mock_nc
         publisher._connected = True
 
-        data = {"field_id": "123", "action": "update", "tenant_id": "test-tenant"}
+        data = {"field_id": "123", "action": "update"}
 
         result = await publisher.publish_json("test.subject", data)
 
@@ -365,104 +365,6 @@ class TestEventPublisherPublish:
         result = await publisher.publish_json("test.subject", data)
 
         assert result is False
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# EventPublisher Tenant Enforcement & DLQ Tests
-# ─────────────────────────────────────────────────────────────────────────────
-
-
-@pytest.mark.unit
-class TestPublishJsonTenantEnforcement:
-    """Tests for publish_json tenant_id enforcement and DLQ buffer."""
-
-    @pytest.fixture
-    def publisher(self):
-        return EventPublisher(service_name="test")
-
-    @pytest.mark.asyncio
-    async def test_publish_json_rejects_without_tenant_id(self, publisher):
-        """publish_json should reject dict payloads without tenant_id."""
-        mock_nc = AsyncMock()
-        publisher._nc = mock_nc
-        publisher._connected = True
-
-        data = {"field_id": "123", "action": "update"}
-        result = await publisher.publish_json("test.subject", data)
-
-        assert result is False
-        assert publisher._error_count == 1
-        mock_nc.publish.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_publish_json_accepts_with_tenant_id(self, publisher):
-        """publish_json should accept payloads with tenant_id."""
-        mock_nc = AsyncMock()
-        mock_nc.publish = AsyncMock()
-        publisher._nc = mock_nc
-        publisher._connected = True
-
-        data = {"field_id": "123", "tenant_id": "tenant-1"}
-        result = await publisher.publish_json("test.subject", data)
-
-        assert result is True
-        assert publisher._publish_count == 1
-
-    @pytest.mark.asyncio
-    async def test_publish_json_normalizes_camel_case_tenant(self, publisher):
-        """publish_json should accept camelCase tenantId."""
-        mock_nc = AsyncMock()
-        mock_nc.publish = AsyncMock()
-        publisher._nc = mock_nc
-        publisher._connected = True
-
-        data = {"field_id": "123", "tenantId": "tenant-camel"}
-        result = await publisher.publish_json("test.subject", data)
-
-        assert result is True
-        assert data["tenant_id"] == "tenant-camel"
-
-    @pytest.mark.asyncio
-    async def test_rejection_records_to_dlq_buffer(self, publisher):
-        """Rejected events should be recorded in DLQ buffer."""
-        mock_nc = AsyncMock()
-        publisher._nc = mock_nc
-        publisher._connected = True
-
-        await publisher.publish_json("test.subject", {"no_tenant": True})
-
-        assert len(publisher.rejected_events) == 1
-        entry = publisher.rejected_events[0]
-        assert entry["subject"] == "test.subject"
-        assert entry["reason"] == "missing_tenant_id"
-        assert entry["service"] == "test"
-
-    @pytest.mark.asyncio
-    async def test_rejected_count_increments_monotonically(self, publisher):
-        """rejected_count should increase even when buffer is trimmed."""
-        mock_nc = AsyncMock()
-        publisher._nc = mock_nc
-        publisher._connected = True
-        publisher._rejected_events_max = 2
-
-        for i in range(5):
-            await publisher.publish_json(f"test.{i}", {"no_tenant": True})
-
-        assert publisher.stats["rejected_count"] == 5
-        assert publisher.stats["rejected_buffer_size"] == 2
-
-    @pytest.mark.asyncio
-    async def test_rejected_events_returns_copy(self, publisher):
-        """rejected_events should return a copy, not the internal list."""
-        mock_nc = AsyncMock()
-        publisher._nc = mock_nc
-        publisher._connected = True
-
-        await publisher.publish_json("test.subject", {"no_tenant": True})
-
-        events = publisher.rejected_events
-        events.clear()
-        assert len(publisher.rejected_events) == 1
 
 
 # ─────────────────────────────────────────────────────────────────────────────

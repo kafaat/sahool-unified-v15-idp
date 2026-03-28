@@ -359,6 +359,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [test-ai-modules, test-typescript, validate-skills]
     if: always()
 

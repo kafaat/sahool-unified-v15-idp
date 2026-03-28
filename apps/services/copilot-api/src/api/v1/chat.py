@@ -20,8 +20,11 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
+from shared.ai.intent_classifier import AgriIntent, AgriIntentClassifier
+
 from ...core.agents import get_agent_router
 from ...core.config import get_settings
+from ...core.intent_router import IntentRouter
 from ...db import save_message
 from ...events.publisher import publish_copilot_event
 from ...models.schemas import (
@@ -46,6 +49,17 @@ except ImportError:
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["Chat"])
+
+# Intent classification and routing (module-level singletons)
+_intent_classifier = AgriIntentClassifier()
+_intent_router: IntentRouter | None = None
+
+
+def _get_intent_router() -> IntentRouter:
+    global _intent_router
+    if _intent_router is None:
+        _intent_router = IntentRouter()
+    return _intent_router
 
 
 def _get_http_client(req: Request) -> httpx.AsyncClient:
@@ -151,6 +165,32 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
         },
     )
 
+    # Intent classification — run before RAG/LLM to enable service routing
+    # تصنيف النية — يتم قبل RAG/LLM لتمكين توجيه الخدمة
+    intent_result = None
+    intent_router_result = None
+    intent_context_text = ""
+    try:
+        intent_result = await _intent_classifier.classify(user_query)
+        if intent_result.confidence >= 0.7 and intent_result.intent != AgriIntent.GENERAL_ADVISORY:
+            field_id = getattr(request, "field_id", None)
+            if field_id is None:
+                request_context = getattr(request, "context", None)
+                if isinstance(request_context, dict):
+                    field_id = request_context.get("field_id")
+            intent_router_result = await _get_intent_router().route(
+                intent_result,
+                user_query,
+                {
+                    "field_id": field_id,
+                    "tenant_id": user.get("tenant_id"),
+                },
+            )
+            if intent_router_result and intent_router_result.response:
+                intent_context_text = json.dumps(intent_router_result.response, ensure_ascii=False)
+    except Exception as e:
+        logger.warning("Intent classification/routing failed, proceeding without", error=str(e))
+
     # Perform RAG search (service already initialized in lifespan)
     rag_context = []
     rag_context_text = ""
@@ -178,6 +218,12 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
     except Exception as e:
         logger.warning("RAG search failed", error=str(e))
 
+    # Prepend intent-routed service context to RAG context if available
+    if intent_context_text:
+        rag_context_text = (
+            f"[Service context for {intent_result.intent.value}]:\n{intent_context_text}\n\n{rag_context_text}"
+        )
+
     # Route to appropriate agent
     agent_router = get_agent_router()
     routing_result = agent_router.route(user_query)
@@ -204,6 +250,9 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
         "Chat completed",
         session_id=request.session_id,
         agent=routing_result.agent_type.value,
+        intent=intent_result.intent.value if intent_result else None,
+        intent_confidence=intent_result.confidence if intent_result else None,
+        service_used=intent_router_result.service_used if intent_router_result else None,
         rag_hits=len(rag_context),
         elapsed_ms=elapsed_ms,
     )
@@ -265,6 +314,9 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
             content=response_content,
         ),
         rag_context=rag_context if rag_context else None,
+        intent=intent_result.intent.value if intent_result else None,
+        services_used=[intent_router_result.service_used] if intent_router_result else [],
+        confidence=intent_result.confidence if intent_result else None,
         usage={"total_chars": total_chars, "response_chars": len(response_content)},
         timestamp=datetime.now(UTC),
     )

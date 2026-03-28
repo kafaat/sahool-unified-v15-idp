@@ -589,3 +589,28 @@ export const RETRY_DEFAULTS = {
   /** Delay multiplier for exponential backoff */
   MULTIPLIER: 2,
 } as const;
+
+// ---------------------------------------------------------------------------
+// Free Tier Limits - حدود الطبقة المجانية
+// ---------------------------------------------------------------------------
+
+/** Free tier limits for C-tier farmers (Phase 3 of Component Unification Plan) */
+export interface FreeTierLimits {
+  dailyQueries: number;
+  imageDetection: number;
+  weatherAlerts: boolean;
+  marketPrices: boolean;
+  fieldCount: number;
+  advancedNdvi: boolean;
+  aiAdvisorFull: boolean;
+}
+
+export const DEFAULT_FREE_TIER: FreeTierLimits = {
+  dailyQueries: 20,
+  imageDetection: 3,
+  weatherAlerts: true,
+  marketPrices: true,
+  fieldCount: 1,
+  advancedNdvi: false,
+  aiAdvisorFull: false,
+};

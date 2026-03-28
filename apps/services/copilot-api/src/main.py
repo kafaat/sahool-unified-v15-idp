@@ -31,6 +31,8 @@ from fastapi.responses import JSONResponse
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .api.v1 import chat_router, health_router, rag_router, tools_router
+from .api.v1.encyclopedia import router as encyclopedia_router
+from .api.v1.services_rec import router as services_rec_router
 from .core.config import Settings, get_settings
 from .db import close_db, init_db
 from .rag import get_rag_service
@@ -273,6 +275,8 @@ def create_app() -> FastAPI:
     app.include_router(chat_router, prefix="/api/v1")
     app.include_router(tools_router, prefix="/api/v1")
     app.include_router(rag_router, prefix="/api/v1")
+    app.include_router(encyclopedia_router, prefix="/api/v1")
+    app.include_router(services_rec_router, prefix="/api/v1")
 
     # Root endpoint
     @app.get("/")

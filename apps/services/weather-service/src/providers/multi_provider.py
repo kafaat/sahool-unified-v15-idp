@@ -109,8 +109,16 @@ class WeatherProvider(ABC):
 
     def __init__(self, name: str, api_key: str | None = None):
         self.name = name
-        self.api_key = api_key
+        self._api_key = api_key  # Stored as private to prevent accidental exposure
         self._client: httpx.AsyncClient | None = None
+
+    @property
+    def api_key(self) -> str | None:
+        """Access API key - private to prevent logging/serialization exposure."""
+        return self._api_key
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name!r}, configured={self.is_configured})"
 
     @property
     def is_configured(self) -> bool:

@@ -147,11 +147,18 @@ class TestSendMessageAPI:
     """Tests for send message API endpoint."""
 
     def setup_method(self):
-        """Set up test client."""
+        """Set up test client with auth dependency overridden."""
+        from src.api.endpoints.webhook import get_current_user
         from src.main import app
 
+        # Override auth dependency so send endpoints don't require a real JWT
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "tenant_id": "test-tenant"}
         self.client = TestClient(app)
         self.app = app
+
+    def teardown_method(self):
+        """Clean up dependency overrides."""
+        self.app.dependency_overrides.clear()
 
     def test_send_text_message(self, mock_whatsapp_client):
         """Test sending a text message."""
@@ -195,11 +202,18 @@ class TestSendTemplateAPI:
     """Tests for send template message API endpoint."""
 
     def setup_method(self):
-        """Set up test client."""
+        """Set up test client with auth dependency overridden."""
+        from src.api.endpoints.webhook import get_current_user
         from src.main import app
 
+        # Override auth dependency so template endpoints don't require a real JWT
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "tenant_id": "test-tenant"}
         self.client = TestClient(app)
         self.app = app
+
+    def teardown_method(self):
+        """Clean up dependency overrides."""
+        self.app.dependency_overrides.clear()
 
     def test_send_template_message(self, mock_whatsapp_client):
         """Test sending a template message."""

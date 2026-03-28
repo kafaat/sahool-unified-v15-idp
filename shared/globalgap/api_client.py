@@ -464,6 +464,7 @@ class GlobalGAPClient:
         if not clean_ggn.isdigit() or len(clean_ggn) != 13 or not clean_ggn.startswith("4"):
             raise InvalidGGN(ggn)
 
+    @_http_retry
     async def _make_request(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
         """
         Make HTTP request with retry logic

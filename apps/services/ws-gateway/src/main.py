@@ -17,6 +17,7 @@ except ImportError:
     structlog = None  # type: ignore[assignment]
 
 from fastapi import (
+    Depends,
     FastAPI,
     Header,
     HTTPException,
@@ -25,8 +26,9 @@ from fastapi import (
     WebSocketDisconnect,
 )
 
-# Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+# Shared middleware imports - add repo root so the top-level ``shared`` package
+# is importable (going up 4 levels: src -> ws-gateway -> services -> apps -> repo_root).
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
 from pydantic import BaseModel
 

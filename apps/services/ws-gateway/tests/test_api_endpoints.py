@@ -16,6 +16,9 @@ except ImportError:
 @pytest.fixture
 def client(mock_env_vars):
     """Create test client"""
+    # Force-import the module so ``patch`` can resolve the dotted path.
+    import src.main  # noqa: F401
+
     # Mock NATS bridge to prevent connection attempts
     with patch("src.main.NATSBridge") as mock_nats:
         mock_nats_instance = AsyncMock()

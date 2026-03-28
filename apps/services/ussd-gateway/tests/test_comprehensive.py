@@ -857,14 +857,13 @@ class TestSmsEndpoints:
         assert data["success"] == 2
 
     def test_bulk_sms_missing_fields(self, client):
+        # Empty phone_numbers list is rejected by Pydantic (min_length=1)
         r = client.post(
             "/sms/bulk",
             json={"phone_numbers": []},
             headers=TENANT_HEADERS,
         )
-        assert r.status_code == 200
-        data = r.json()
-        assert data["success"] is False
+        assert r.status_code == 422
 
 
 # ---------------------------------------------------------------------------
@@ -919,14 +918,13 @@ class TestWhatsAppEndpoints:
         assert data["success"] is True
 
     def test_send_whatsapp_missing_phone(self, client):
+        # Missing required phone_number field is rejected by Pydantic
         r = client.post(
             "/whatsapp/send",
             json={"message": "Hello"},
             headers=TENANT_HEADERS,
         )
-        assert r.status_code == 200
-        data = r.json()
-        assert data["success"] is False
+        assert r.status_code == 422
 
 
 # ---------------------------------------------------------------------------

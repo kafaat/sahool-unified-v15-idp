@@ -65,7 +65,7 @@ describe("AuthService", () => {
 
   beforeEach(async () => {
     // Create mock instances
-    const mockPrismaService = {
+    const mockPrismaService: any = {
       user: {
         findUnique: jest.fn(),
         update: jest.fn(),
@@ -78,6 +78,8 @@ describe("AuthService", () => {
         findMany: jest.fn(),
       },
     };
+    // $transaction executes the callback passing the mock itself as the tx client
+    mockPrismaService.$transaction = jest.fn((cb: (tx: any) => Promise<any>) => cb(mockPrismaService));
 
     const mockJwtService = {
       sign: jest.fn(),

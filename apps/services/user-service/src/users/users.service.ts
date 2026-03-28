@@ -14,6 +14,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcryptjs";
 import { UserStatus } from "../utils/validation";
+import { BCRYPT_ROUNDS } from "../utils/security.config";
 
 // User type - use when Prisma types are generated
 type User = any;
@@ -45,7 +46,7 @@ export class UsersService {
     }
 
     // Hash password
-    const passwordHash = await bcrypt.hash(createUserDto.password, 10);
+    const passwordHash = await bcrypt.hash(createUserDto.password, BCRYPT_ROUNDS);
 
     // Create user
     const user = await this.prisma.user.create({
@@ -246,7 +247,7 @@ export class UsersService {
 
     // Hash password if provided
     if (updateUserDto.password) {
-      updateData.passwordHash = await bcrypt.hash(updateUserDto.password, 10);
+      updateData.passwordHash = await bcrypt.hash(updateUserDto.password, BCRYPT_ROUNDS);
     }
 
     // Remove undefined fields

@@ -67,12 +67,13 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global prefix - exclude health endpoints for K8s probes
+  // Global prefix - exclude health and metrics endpoints for K8s probes & Prometheus
   app.setGlobalPrefix("api/v1", {
     exclude: [
       { path: "healthz", method: RequestMethod.GET },
       { path: "readyz", method: RequestMethod.GET },
       { path: "health", method: RequestMethod.GET },
+      { path: "metrics", method: RequestMethod.GET },
     ],
   });
 

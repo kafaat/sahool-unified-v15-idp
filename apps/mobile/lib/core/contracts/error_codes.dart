@@ -84,6 +84,16 @@ abstract final class ErrorCodes {
   static const String advisoryKnowledgeBaseError = 'A1006';
   static const String advisoryWeatherDataUnavailable = 'A1007';
   static const String advisoryRateLimited = 'A1008';
+  static const String userNotFound = 'U1001';
+  static const String userEmailExists = 'U1002';
+  static const String userPhoneExists = 'U1003';
+  static const String userInvalidCredentials = 'U1004';
+  static const String userAccountLocked = 'U1005';
+  static const String userOtpExpired = 'U1006';
+  static const String userOtpInvalid = 'U1007';
+  static const String userTokenExpired = 'U1008';
+  static const String user2faRequired = 'U1009';
+  static const String userPasswordTooWeak = 'U1010';
   static const String vegetationFieldNotFound = 'V1001';
   static const String vegetationNdviDataUnavailable = 'V1002';
   static const String vegetationSatelliteError = 'V1003';
@@ -675,6 +685,76 @@ const Map<String, ErrorMessage> errorMessages = {
     en: 'Advisory service rate limit exceeded. Please wait.',
     ar: 'تم تجاوز حد معدل خدمة الاستشارات. يرجى الانتظار.',
     retryable: true,
+  ),
+  'U1001': ErrorMessage(
+    code: 'U1001',
+    httpStatus: 404,
+    en: 'User not found',
+    ar: 'المستخدم غير موجود',
+    retryable: false,
+  ),
+  'U1002': ErrorMessage(
+    code: 'U1002',
+    httpStatus: 409,
+    en: 'A user with this email already exists',
+    ar: 'يوجد مستخدم بهذا البريد الإلكتروني بالفعل',
+    retryable: false,
+  ),
+  'U1003': ErrorMessage(
+    code: 'U1003',
+    httpStatus: 409,
+    en: 'A user with this phone number already exists',
+    ar: 'يوجد مستخدم برقم الهاتف هذا بالفعل',
+    retryable: false,
+  ),
+  'U1004': ErrorMessage(
+    code: 'U1004',
+    httpStatus: 401,
+    en: 'Invalid email or password',
+    ar: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    retryable: false,
+  ),
+  'U1005': ErrorMessage(
+    code: 'U1005',
+    httpStatus: 403,
+    en: 'Account is locked due to too many failed login attempts',
+    ar: 'تم قفل الحساب بسبب محاولات تسجيل دخول فاشلة كثيرة',
+    retryable: false,
+  ),
+  'U1006': ErrorMessage(
+    code: 'U1006',
+    httpStatus: 401,
+    en: 'OTP has expired. Please request a new one.',
+    ar: 'انتهت صلاحية رمز التحقق. يرجى طلب رمز جديد.',
+    retryable: false,
+  ),
+  'U1007': ErrorMessage(
+    code: 'U1007',
+    httpStatus: 401,
+    en: 'Invalid OTP code',
+    ar: 'رمز التحقق غير صالح',
+    retryable: false,
+  ),
+  'U1008': ErrorMessage(
+    code: 'U1008',
+    httpStatus: 401,
+    en: 'User token has expired. Please login again.',
+    ar: 'انتهت صلاحية رمز المستخدم. يرجى تسجيل الدخول مرة أخرى.',
+    retryable: false,
+  ),
+  'U1009': ErrorMessage(
+    code: 'U1009',
+    httpStatus: 403,
+    en: 'Two-factor authentication is required',
+    ar: 'المصادقة الثنائية مطلوبة',
+    retryable: false,
+  ),
+  'U1010': ErrorMessage(
+    code: 'U1010',
+    httpStatus: 400,
+    en: 'Password does not meet security requirements',
+    ar: 'كلمة المرور لا تستوفي متطلبات الأمان',
+    retryable: false,
   ),
   'V1001': ErrorMessage(
     code: 'V1001',

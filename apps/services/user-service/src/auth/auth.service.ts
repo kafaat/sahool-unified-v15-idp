@@ -25,6 +25,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
 import { JWTConfig } from "../utils/jwt.config";
 import { UserStatus } from "../utils/validation";
+import { BCRYPT_ROUNDS } from "../utils/security.config";
 
 export interface LoginDto {
   email: string;
@@ -597,8 +598,7 @@ export class AuthService {
     }
 
     // Hash password
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
     // Create user with default tenant if not provided
     // Use the default tenant UUID from database (sahool-demo tenant)
@@ -998,8 +998,7 @@ SAHOOL - National Agricultural Intelligence Platform
     }
 
     // Hash new password
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
 
     // Update password and clear reset token
     await this.prisma.user.update({

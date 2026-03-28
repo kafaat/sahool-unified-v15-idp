@@ -13,7 +13,13 @@ import {
   MaxLength,
   IsBoolean,
 } from "class-validator";
-import { UserRole, UserStatus, IsStrongPassword } from "../../utils/validation";
+import {
+  UserRole,
+  UserStatus,
+  IsStrongPassword,
+  IsYemeniPhone,
+  SanitizePlainText,
+} from "../../utils/validation";
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
@@ -25,11 +31,11 @@ export class UpdateUserDto {
   email?: string;
 
   @ApiPropertyOptional({
-    description: "User phone number",
-    example: "+966501234567",
+    description: "User phone number (Yemen format: +967XXXXXXXX or 7XXXXXXXX)",
+    example: "+967712345678",
   })
   @IsOptional()
-  @IsString()
+  @IsYemeniPhone()
   phone?: string;
 
   @ApiPropertyOptional({
@@ -47,7 +53,8 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   @MinLength(2)
-  @MaxLength(50)
+  @MaxLength(100)
+  @SanitizePlainText()
   firstName?: string;
 
   @ApiPropertyOptional({
@@ -57,7 +64,8 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   @MinLength(2)
-  @MaxLength(50)
+  @MaxLength(100)
+  @SanitizePlainText()
   lastName?: string;
 
   @ApiPropertyOptional({

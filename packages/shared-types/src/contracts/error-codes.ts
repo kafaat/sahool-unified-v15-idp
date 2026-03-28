@@ -142,6 +142,18 @@ export const ERROR_CODES = {
   ADVISORY_WEATHER_DATA_UNAVAILABLE: 'A1007',
   ADVISORY_RATE_LIMITED: 'A1008',
 
+  // ── User Service (U1xxx) ────────────────────────────────────────────
+  USER_NOT_FOUND: 'U1001',
+  USER_EMAIL_EXISTS: 'U1002',
+  USER_PHONE_EXISTS: 'U1003',
+  USER_INVALID_CREDENTIALS: 'U1004',
+  USER_ACCOUNT_LOCKED: 'U1005',
+  USER_OTP_EXPIRED: 'U1006',
+  USER_OTP_INVALID: 'U1007',
+  USER_TOKEN_EXPIRED: 'U1008',
+  USER_2FA_REQUIRED: 'U1009',
+  USER_PASSWORD_TOO_WEAK: 'U1010',
+
   // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────
   VEGETATION_FIELD_NOT_FOUND: 'V1001',
   VEGETATION_NDVI_DATA_UNAVAILABLE: 'V1002',
@@ -737,6 +749,78 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'Advisory service rate limit exceeded. Please wait.',
     ar: 'تم تجاوز حد معدل خدمة الاستشارات. يرجى الانتظار.',
     retryable: true,
+  },
+
+  // ── User Service (U1xxx) ────────────────────────────────────────────
+  [ERROR_CODES.USER_NOT_FOUND]: {
+    code: ERROR_CODES.USER_NOT_FOUND,
+    httpStatus: 404,
+    en: 'User not found',
+    ar: 'المستخدم غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_EMAIL_EXISTS]: {
+    code: ERROR_CODES.USER_EMAIL_EXISTS,
+    httpStatus: 409,
+    en: 'A user with this email already exists',
+    ar: 'يوجد مستخدم بهذا البريد الإلكتروني بالفعل',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_PHONE_EXISTS]: {
+    code: ERROR_CODES.USER_PHONE_EXISTS,
+    httpStatus: 409,
+    en: 'A user with this phone number already exists',
+    ar: 'يوجد مستخدم برقم الهاتف هذا بالفعل',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_INVALID_CREDENTIALS]: {
+    code: ERROR_CODES.USER_INVALID_CREDENTIALS,
+    httpStatus: 401,
+    en: 'Invalid email or password',
+    ar: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_ACCOUNT_LOCKED]: {
+    code: ERROR_CODES.USER_ACCOUNT_LOCKED,
+    httpStatus: 403,
+    en: 'Account is locked due to too many failed login attempts',
+    ar: 'تم قفل الحساب بسبب محاولات تسجيل دخول فاشلة كثيرة',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_OTP_EXPIRED]: {
+    code: ERROR_CODES.USER_OTP_EXPIRED,
+    httpStatus: 401,
+    en: 'OTP has expired. Please request a new one.',
+    ar: 'انتهت صلاحية رمز التحقق. يرجى طلب رمز جديد.',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_OTP_INVALID]: {
+    code: ERROR_CODES.USER_OTP_INVALID,
+    httpStatus: 401,
+    en: 'Invalid OTP code',
+    ar: 'رمز التحقق غير صالح',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_TOKEN_EXPIRED]: {
+    code: ERROR_CODES.USER_TOKEN_EXPIRED,
+    httpStatus: 401,
+    en: 'User token has expired. Please login again.',
+    ar: 'انتهت صلاحية رمز المستخدم. يرجى تسجيل الدخول مرة أخرى.',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_2FA_REQUIRED]: {
+    code: ERROR_CODES.USER_2FA_REQUIRED,
+    httpStatus: 403,
+    en: 'Two-factor authentication is required',
+    ar: 'المصادقة الثنائية مطلوبة',
+    retryable: false,
+  },
+  [ERROR_CODES.USER_PASSWORD_TOO_WEAK]: {
+    code: ERROR_CODES.USER_PASSWORD_TOO_WEAK,
+    httpStatus: 400,
+    en: 'Password does not meet security requirements',
+    ar: 'كلمة المرور لا تستوفي متطلبات الأمان',
+    retryable: false,
   },
 
   // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────

@@ -457,8 +457,11 @@ SAHOOL_USER_LOGGED_IN = "sahool.user.logged_in"
 SAHOOL_USER_LOGGED_OUT = "sahool.user.logged_out"
 SAHOOL_USER_UPDATED = "sahool.user.updated"
 SAHOOL_USER_DELETED = "sahool.user.deleted"
+SAHOOL_USER_PASSWORD_CHANGED = "sahool.user.password_changed"
+SAHOOL_USER_2FA_ENABLED = "sahool.user.2fa_enabled"
+SAHOOL_USER_ACCOUNT_LOCKED = "sahool.user.account_locked"
 
-SAHOOL_USER_ALL = "sahool.user.*"
+SAHOOL_USER_ALL = "sahool.user.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

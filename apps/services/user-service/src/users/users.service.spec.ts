@@ -112,7 +112,7 @@ describe("UsersService", () => {
         where: { email: createUserDto.email },
         select: { id: true },
       });
-      expect(bcrypt.hash).toHaveBeenCalledWith(createUserDto.password, 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith(createUserDto.password, 12);
       expect(prismaService.user.create).toHaveBeenCalled();
     });
 
@@ -137,7 +137,7 @@ describe("UsersService", () => {
 
       await service.create(createUserDto);
 
-      expect(hashSpy).toHaveBeenCalledWith(createUserDto.password, 10);
+      expect(hashSpy).toHaveBeenCalledWith(createUserDto.password, 12);
       expect(prismaService.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           passwordHash: mockPasswordHash,
@@ -429,7 +429,7 @@ describe("UsersService", () => {
 
       await service.update(mockUserId, updateWithPassword);
 
-      expect(bcrypt.hash).toHaveBeenCalledWith("NewPassword123!", 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith("NewPassword123!", 12);
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: mockUserId },
         data: expect.objectContaining({

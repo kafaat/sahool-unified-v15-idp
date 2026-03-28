@@ -57,6 +57,14 @@ except ImportError:
         pass
 
 
+# Shared weather alerts module integration
+try:
+    from shared.weather_alerts import WeatherAlertGenerator, AlertGeneratorConfig
+
+    HAS_SHARED_ALERTS = True
+except ImportError:
+    HAS_SHARED_ALERTS = False
+
 # Prometheus metrics
 try:
     from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
@@ -124,6 +132,14 @@ async def lifespan(app: FastAPI):
         app.state.weather_provider = OpenMeteoProvider()
         app.state.multi_provider = None
         logger.info("weather_provider_initialized", provider="open-meteo")
+
+    # Initialize shared weather alerts module
+    if HAS_SHARED_ALERTS:
+        app.state.shared_alert_generator = WeatherAlertGenerator(AlertGeneratorConfig())
+        logger.info("shared_alert_generator_initialized")
+    else:
+        app.state.shared_alert_generator = None
+        logger.info("shared_alert_generator_unavailable", reason="import_failed")
 
     # Initialize publisher
     try:

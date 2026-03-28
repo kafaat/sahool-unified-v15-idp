@@ -22,6 +22,12 @@ export interface PublishOptions {
   version?: string;
 
   /**
+   * Tenant ID for multi-tenant event isolation (from JWT `tid` claim).
+   * When provided, enables downstream consumers to filter by tenant.
+   */
+  tenantId?: string;
+
+  /**
    * Additional metadata to attach to the event
    */
   metadata?: Record<string, unknown>;
@@ -59,6 +65,7 @@ export async function publishEvent<T extends SahoolEvent>(
     eventType: subject,
     timestamp: new Date(),
     version: options.version || '1.0',
+    tenantId: options.tenantId,
     payload,
     metadata: options.metadata,
   } as SahoolEvent;

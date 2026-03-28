@@ -303,7 +303,7 @@ describe("User Creation Validation", () => {
   describe("CreateUserDto validation", () => {
     it("should pass with all valid fields", async () => {
       const dto = plainToInstance(CreateUserDto, {
-        tenantId: "tenant-123",
+        tenantId: "123e4567-e89b-4d3b-a456-426614174000",
         email: "farmer@sahool.app",
         password: "SecurePassword123!",
         firstName: "Ahmed",
@@ -374,13 +374,13 @@ describe("User Creation Validation", () => {
       expect(firstNameError).toBeDefined();
     });
 
-    it("should fail with lastName exceeding 50 characters", async () => {
+    it("should fail with lastName exceeding 100 characters", async () => {
       const dto = plainToInstance(CreateUserDto, {
-        tenantId: "tenant-123",
+        tenantId: "123e4567-e89b-12d3-a456-426614174000",
         email: "farmer@sahool.app",
         password: "SecurePassword123!",
         firstName: "Ahmed",
-        lastName: "A".repeat(51),
+        lastName: "A".repeat(101),
       });
 
       const errors = await validate(dto);

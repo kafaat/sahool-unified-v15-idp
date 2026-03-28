@@ -24,7 +24,13 @@ from .db_models import Base
 # - Example: postgresql://user:pass@host:port/db?sslmode=require
 # - Development: sslmode=disable is acceptable for Docker internal network
 # - Production: sslmode=require is MANDATORY for external connections
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost:5432/sahool")
+DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql://localhost:5432/sahool"
+
+# Determine SSL mode based on environment
+_environment = os.getenv("ENVIRONMENT", "development")
+_connect_args = {}
+if _environment in ("production", "staging"):
+    _connect_args["sslmode"] = "require"
 
 # Create SQLAlchemy engine
 engine = create_engine(
@@ -33,9 +39,7 @@ engine = create_engine(
     pool_size=10,  # Maximum number of connections in the pool
     max_overflow=20,  # Maximum overflow connections
     echo=False,  # Set to True for SQL query logging (debug only)
-    connect_args={
-        "sslmode": "require",  # Enforce TLS/SSL encryption
-    },
+    connect_args=_connect_args,
 )
 
 # Create session factory

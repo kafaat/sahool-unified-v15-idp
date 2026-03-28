@@ -74,11 +74,20 @@ async def _override_tenant_id():
     return TENANT
 
 
+class _MockUser:
+    id = "test-user-logistics"
+    tenant_id = TENANT
+    email = "test@sahool.app"
+    role = "admin"
+
+
 @pytest.fixture
 def client():
+    from src.main import get_current_user as real_get_current_user
     from src.main import get_tenant_id as real_get_tenant_id
 
     app.dependency_overrides[real_get_tenant_id] = _override_tenant_id
+    app.dependency_overrides[real_get_current_user] = lambda: _MockUser()
     c = TestClient(app)
     yield c
     app.dependency_overrides.clear()

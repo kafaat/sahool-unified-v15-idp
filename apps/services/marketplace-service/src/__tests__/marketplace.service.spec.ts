@@ -153,12 +153,23 @@ describe("Health Endpoints", () => {
     unfreezeWallet: jest.fn(),
   };
 
+  const mockPrismaService = {
+    $queryRaw: jest.fn().mockResolvedValue([{ "?column?": 1 }]),
+  };
+
+  const mockEventsService = {
+    isConnected: jest.fn().mockReturnValue(true),
+    publish: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [
         { provide: MarketService, useValue: mockMarketService },
         { provide: FintechService, useValue: mockFintechService },
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EventsService, useValue: mockEventsService },
       ],
     }).compile();
 
@@ -188,19 +199,19 @@ describe("Health Endpoints", () => {
   });
 
   describe("GET /readyz", () => {
-    it("should return readiness status with dependency checks", () => {
-      const result = controller.readinessCheck();
+    it("should return readiness status with dependency checks", async () => {
+      const result = await controller.readinessCheck();
 
       expect(result).toHaveProperty("status", "ready");
       expect(result).toHaveProperty("service", "marketplace-service");
       expect(result).toHaveProperty("version", "16.0.0");
       expect(result).toHaveProperty("checks");
       expect(result.checks).toHaveProperty("database", "connected");
-      expect(result.checks).toHaveProperty("cache", "connected");
+      expect(result.checks).toHaveProperty("nats", "connected");
     });
 
-    it("should include a valid ISO timestamp", () => {
-      const result = controller.readinessCheck();
+    it("should include a valid ISO timestamp", async () => {
+      const result = await controller.readinessCheck();
 
       expect(result).toHaveProperty("timestamp");
       const parsed = Date.parse(result.timestamp);

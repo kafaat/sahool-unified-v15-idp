@@ -59,7 +59,11 @@ def app_with_db(mock_db_pool, mock_nats):
 
 @pytest.fixture
 def db_client(app_with_db):
-    """Create test client with DB mock and tenant header."""
+    """Create test client with DB mock, tenant header, and auth override."""
+    from src.api.v1.batches import get_current_user
+
+    app_with_db.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
     c = TestClient(app_with_db)
     c.headers["X-Tenant-Id"] = "00000000-0000-0000-0000-000000000001"
-    return c
+    yield c
+    app_with_db.dependency_overrides.pop(get_current_user, None)

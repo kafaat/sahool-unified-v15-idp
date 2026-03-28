@@ -761,6 +761,9 @@ class TestResourceManagement:
         """Test resource usage can be tracked"""
         agent = MasterCoordinatorAgent()
 
+        # Reset mutable class-level state that may leak from prior tests
+        agent.RESOURCES["water"]["used"] = 0
+
         # Initially zero
         assert agent.RESOURCES["water"]["used"] == 0
 

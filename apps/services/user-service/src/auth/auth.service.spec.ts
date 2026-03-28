@@ -203,7 +203,7 @@ describe("AuthService", () => {
         UnauthorizedException,
       );
       await expect(service.login(loginDto)).rejects.toThrow(
-        "Account is inactive",
+        "Account is not available. Please contact support.",
       );
     });
 
@@ -218,7 +218,7 @@ describe("AuthService", () => {
         UnauthorizedException,
       );
       await expect(service.login(loginDto)).rejects.toThrow(
-        "Account is suspended",
+        "Account is not available. Please contact support.",
       );
     });
 

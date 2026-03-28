@@ -32,9 +32,21 @@ TENANT_UUID = "00000000-0000-0000-0000-000000000001"
 HEADERS = {"X-Tenant-Id": TENANT_UUID}
 
 
+class _MockUser:
+    id = "test-user-fertigation"
+    tenant_id = TENANT_UUID
+    email = "test@sahool.app"
+    role = "admin"
+
+
 @pytest.fixture
 def client():
-    return TestClient(app)
+    from src.main import get_current_user as real_get_current_user
+
+    app.dependency_overrides[real_get_current_user] = lambda: _MockUser()
+    c = TestClient(app)
+    yield c
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

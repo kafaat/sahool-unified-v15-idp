@@ -1159,9 +1159,10 @@ async def health_detailed():
 @app.get("/api/v1/components", response_model=list[ComponentResponse], tags=["Components"])
 async def list_components(
     category: str | None = Query(None, description="Filter by category"),
+    user: User = Depends(get_current_user),
 ):
     """List available components | قائمة المكونات المتاحة"""
-    cache_key = f"lowcode:components:{category or 'all'}"
+    cache_key = f"lowcode:{user.tenant_id}:components:{category or 'all'}"
 
     # Try to get from cache first
     cached = await cache_get(cache_key)
@@ -1531,7 +1532,7 @@ async def list_pages(
 @app.get("/api/v1/pages/{page_id}", response_model=PageResponse, tags=["Pages"])
 async def get_page(page_id: str, user: User = Depends(get_current_user)):
     """Get page by ID | الحصول على صفحة بالمعرف"""
-    cache_key = f"lowcode:page:{page_id}"
+    cache_key = f"lowcode:{user.tenant_id}:page:{page_id}"
 
     # Try to get from cache first
     cached = await cache_get(cache_key)
@@ -1612,7 +1613,7 @@ async def publish_page(page_id: str, tenant_id: str = Query(None), user: User = 
             logger.warning("page_publish_db_failed_using_memory", page_id=page_id)
 
     # Invalidate cache for this page
-    await cache_delete(f"lowcode:page:{page_id}")
+    await cache_delete(f"lowcode:{tenant_id or user.tenant_id}:page:{page_id}")
 
     # Publish page updated event (publish action)
     await publish_event(

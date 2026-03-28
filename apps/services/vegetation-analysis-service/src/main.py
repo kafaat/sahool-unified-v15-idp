@@ -1504,7 +1504,7 @@ async def analyze_ndvi_timeseries(
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
 
     # Get NDVI time series data
-    timeseries_data = await get_timeseries(field_id, days)
+    timeseries_data = await _get_timeseries_data(field_id, days)
 
     # Convert to NDVIPoint objects
     ndvi_points = []
@@ -1682,6 +1682,7 @@ async def get_phenology(
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     planting_date: str | None = Query(None, description="Planting date (YYYY-MM-DD)"),
     days: int = Query(default=60, ge=14, le=365, description="Days of historical data"),
+    user: User = Depends(get_current_user),
 ):
     """
     Detect current crop growth stage from NDVI time series
@@ -1700,7 +1701,7 @@ async def get_phenology(
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     # Get NDVI time series
-    timeseries_data = await get_timeseries(field_id, days)
+    timeseries_data = await _get_timeseries_data(field_id, days)
     ndvi_series = [{"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]]
 
     # Parse planting date
@@ -1762,6 +1763,7 @@ async def get_phenology_timeline(
     field_id: str,
     crop_type: str = Query(..., description="نوع المحصول"),
     planting_date: str = Query(..., description="Planting date (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     Get expected phenology timeline for crop planning
@@ -1912,7 +1914,7 @@ async def analyze_phenology_with_action(
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     # Get NDVI time series
-    timeseries_data = await get_timeseries(request.field_id, request.days)
+    timeseries_data = await _get_timeseries_data(request.field_id, request.days)
     ndvi_series = [{"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]]
 
     # Parse planting date
@@ -2112,6 +2114,7 @@ async def get_soil_moisture(
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     date: str | None = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
+    user: User = Depends(get_current_user),
 ):
     """
     تقدير رطوبة التربة من بيانات SAR سنتينل-1
@@ -2173,6 +2176,7 @@ async def get_soil_moisture(
 async def get_irrigation_events(
     field_id: str,
     days: int = Query(default=30, ge=7, le=90, description="Days to look back"),
+    user: User = Depends(get_current_user),
 ):
     """
     كشف أحداث الري من تغيرات رطوبة التربة
@@ -2188,6 +2192,9 @@ async def get_irrigation_events(
     - Water use monitoring
     - Rainfall vs irrigation discrimination
     """
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="irrigation_events")
     _validate_field_id(field_id)
 
     if not _sar_processor:
@@ -2245,6 +2252,7 @@ async def get_sar_timeseries(
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     lat: float | None = Query(None, ge=-90, le=90, description="Field latitude"),
     lon: float | None = Query(None, ge=-180, le=180, description="Field longitude"),
+    user: User = Depends(get_current_user),
 ):
     """
     سلسلة زمنية لبيانات SAR ورطوبة التربة
@@ -2341,6 +2349,7 @@ async def get_all_indices(
     lat: float = Query(..., description="Latitude", ge=-90, le=90),
     lon: float = Query(..., description="Longitude", ge=-180, le=180),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
 ):
     """
     Get all vegetation indices for a field location
@@ -2890,7 +2899,7 @@ async def predict_yield(request: YieldPredictionRequest, user: User = Depends(ge
     if request.ndvi_series is None or len(request.ndvi_series) == 0:
         # Fetch from timeseries endpoint
         try:
-            timeseries_data = await get_timeseries(
+            timeseries_data = await _get_timeseries_data(
                 field_id=request.field_id,
                 days=90,  # Last 3 months
                 satellite=SatelliteSource.SENTINEL2,
@@ -3427,6 +3436,8 @@ async def interpolate_cloudy_pixels(
         ]
     }
     """
+    _validate_field_id(field_id)
+
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
 
@@ -3488,6 +3499,8 @@ async def export_analysis(
     - json: Complete JSON structure
     - kml: Google Earth compatible format
     """
+    _validate_field_id(field_id)
+
     try:
         export_format = ExportFormat(format.lower())
     except ValueError:
@@ -3534,6 +3547,8 @@ async def export_timeseries(
 
     Best for tracking vegetation health trends over time.
     """
+    _validate_field_id(field_id)
+
     try:
         export_format = ExportFormat(format.lower())
         if export_format == ExportFormat.KML:

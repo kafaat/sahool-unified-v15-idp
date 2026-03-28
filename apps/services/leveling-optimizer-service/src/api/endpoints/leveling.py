@@ -496,6 +496,7 @@ async def analyze_field_leveling(
 )
 async def get_leveling_plan(
     field_id: str = Path(..., description="Field identifier | معرف الحقل"),
+    _user=Depends(get_current_user),
 ):
     """
     Get the optimal leveling plan for a field.
@@ -565,6 +566,7 @@ async def get_cost_estimation(
     fill_volume_m3: float = Query(..., description="Fill volume (m³) | حجم الردم (م³)"),
     field_area_hectares: float = Query(..., description="Field area (hectares) | مساحة الحقل (هكتار)"),
     haul_distance_m: float = Query(default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"),
+    _user=Depends(get_current_user),
 ):
     """
     Get detailed cost estimation for leveling operation.
@@ -611,6 +613,7 @@ async def get_equipment_recommendations(
     total_volume_m3: float = Query(..., description="Total earthwork volume (m³) | إجمالي حجم الحفريات (م³)"),
     haul_distance_m: float = Query(default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"),
     method: LevelingMethod = Query(default=LevelingMethod.SINGLE_PLANE, description="Leveling method | طريقة التسوية"),
+    _user=Depends(get_current_user),
 ):
     """
     Get equipment recommendations for leveling operation.
@@ -646,7 +649,7 @@ async def get_equipment_recommendations(
     response_model=SimulationResult,
     summary="Simulate leveling scenario | محاكاة سيناريو التسوية",
 )
-async def simulate_leveling(request: SimulationRequest, http_request: Request):
+async def simulate_leveling(request: SimulationRequest, http_request: Request, _user=Depends(get_current_user)):
     """
     Simulate a leveling scenario and return predicted results.
 

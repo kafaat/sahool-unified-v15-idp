@@ -29,7 +29,7 @@ services:
       - '--storage.tsdb.retention.time=30d'
       - '--storage.tsdb.retention.size=10GB'
       - '--web.enable-lifecycle'
-      - '--web.enable-admin-api'
+      # '--web.enable-admin-api' removed: exposes dangerous endpoints (snapshot, delete series, clean tombstones)
       - '--web.external-url=http://localhost:9090'
     ports:
       - "9090:9090"
@@ -185,7 +185,7 @@ services:
       # Custom queries configuration - استعلامات مخصصة
       - ./postgres-exporter-queries.yaml:/etc/postgres-exporter/queries.yaml:ro
     environment:
-      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/sahool?sslmode=disable
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/sahool?sslmode=require
       - PG_EXPORTER_EXTEND_QUERY_PATH=/etc/postgres-exporter/queries.yaml
       - PG_EXPORTER_AUTO_DISCOVER_DATABASES=true
     networks:

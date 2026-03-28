@@ -583,7 +583,7 @@ def get_tenant_id(
         return user.tenant_id
     if x_tenant_id:
         return x_tenant_id
-    return "tenant_demo"
+    raise HTTPException(status_code=400, detail="Tenant ID is required (authenticate or provide X-Tenant-Id header)")
 
 
 async def publish_event(subject: str, data: dict):

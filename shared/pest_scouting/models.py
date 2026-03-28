@@ -728,6 +728,7 @@ class TreatmentRecommendation:
 
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    tenant_id: str = ""
     scout_report_id: str | None = None
     alert_id: str | None = None
 
@@ -812,6 +813,7 @@ class TreatmentRecommendation:
         """Convert to dictionary"""
         return {
             "id": self.id,
+            "tenant_id": self.tenant_id,
             "scout_report_id": self.scout_report_id,
             "alert_id": self.alert_id,
             "pest_id": self.pest_id,

@@ -18,6 +18,24 @@ from ..schemas import (
     OrderStatus,
 )
 
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+    _bearer_scheme = HTTPBearer(auto_error=False)
+
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials, "id": None}
+
+
 logger = structlog.get_logger()
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
@@ -26,10 +44,18 @@ router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
 MOCK_ORDERS: dict[UUID, Order] = {}
 
 
-def _get_current_farmer_id() -> UUID:
-    """Get current farmer ID (mock for now)."""
-    # In production, this would come from JWT token
-    return UUID("12345678-1234-1234-1234-123456789abc")
+def _get_current_farmer_id(user=Depends(get_current_user)) -> UUID:
+    """Get current farmer ID from authenticated user."""
+    user_id = getattr(user, "id", None) or (user.get("id") if isinstance(user, dict) else None)
+    if not user_id:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "message": "Authentication required",
+                "message_ar": "المصادقة مطلوبة",
+            },
+        )
+    return UUID(str(user_id)) if not isinstance(user_id, UUID) else user_id
 
 
 @router.post(

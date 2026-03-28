@@ -73,9 +73,11 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         # Generate or extract request ID
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
 
-        # Extract tenant and user from headers or auth
-        tenant_id = request.headers.get("X-Tenant-ID", "")
-        user_id = request.headers.get("X-User-ID", "")
+        # SECURITY: Prefer tenant_id from authenticated JWT (request.state.principal)
+        # Fall back to header only if JWT not available
+        principal = getattr(getattr(request, "state", None), "principal", None)
+        tenant_id = getattr(principal, "tenant_id", None) or request.headers.get("X-Tenant-ID", "")
+        user_id = getattr(principal, "id", None) or request.headers.get("X-User-ID", "")
 
         # Set request context for logging
         set_request_context(

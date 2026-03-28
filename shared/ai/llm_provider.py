@@ -1163,6 +1163,7 @@ class LLMProviderManager:
         fallback: bool = True,
         correlation_id: str | None = None,
         cache_ttl_seconds: float = 300.0,
+        tenant_id: str = "",
     ) -> LLMResponse:
         """
         Generate text with in-memory LRU caching for repeated prompts.
@@ -1196,7 +1197,7 @@ class LLMProviderManager:
         # Build cache key
         provider_key = preferred_provider.value if preferred_provider else "auto"
         temp_key = temperature if temperature is not None else "default"
-        cache_key = _build_cache_key(prompt, system_prompt, provider_key, str(temp_key))
+        cache_key = _build_cache_key(prompt, system_prompt, provider_key, str(temp_key), tenant_id=tenant_id)
 
         # Check cache
         cached = await cache.get(cache_key, cache_ttl_seconds)
@@ -2020,13 +2021,15 @@ class LLMProviderManager:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def _build_cache_key(prompt: str, system_prompt: str | None, provider: str, temperature: str) -> str:
+def _build_cache_key(
+    prompt: str, system_prompt: str | None, provider: str, temperature: str, tenant_id: str = ""
+) -> str:
     """
     Build a deterministic cache key from prompt parameters.
 
     بناء مفتاح تخزين مؤقت حتمي من معاملات الطلب
     """
-    raw = f"{prompt}|{system_prompt or ''}|{provider}|{temperature}"
+    raw = f"{tenant_id}:{prompt}|{system_prompt or ''}|{provider}|{temperature}"
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 

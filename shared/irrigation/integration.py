@@ -881,28 +881,36 @@ async def sync_with_fertilization_system(
 # Singleton Instance - مثيل واحد
 # =============================================================================
 
-# Global integration manager instance
-_integration_manager: HMCIntegrationManager | None = None
+# Tenant-scoped integration manager instances
+_integration_managers: dict[str, HMCIntegrationManager] = {}
 
 
-def get_integration_manager() -> HMCIntegrationManager:
+def get_integration_manager(tenant_id: str = "default") -> HMCIntegrationManager:
     """
-    Get the global HMC Integration Manager instance.
-    الحصول على مثيل مدير تكامل HMC العام
+    Get a tenant-scoped HMC Integration Manager instance.
+    الحصول على مثيل مدير تكامل HMC مخصص للمستأجر
+
+    Args:
+        tenant_id: Tenant identifier (defaults to "default") | معرف المستأجر
 
     Returns:
         HMCIntegrationManager instance | مثيل HMCIntegrationManager
     """
-    global _integration_manager
-    if _integration_manager is None:
-        _integration_manager = HMCIntegrationManager()
-    return _integration_manager
+    if tenant_id not in _integration_managers:
+        _integration_managers[tenant_id] = HMCIntegrationManager()
+    return _integration_managers[tenant_id]
 
 
-def reset_integration_manager() -> None:
+def reset_integration_manager(tenant_id: str | None = None) -> None:
     """
-    Reset the global integration manager.
-    إعادة تعيين مدير التكامل العام
+    Reset integration manager(s).
+    إعادة تعيين مدير(مديري) التكامل
+
+    Args:
+        tenant_id: Specific tenant to reset, or None to reset all | معرف المستأجر
     """
-    global _integration_manager
-    _integration_manager = None
+    global _integration_managers
+    if tenant_id is None:
+        _integration_managers = {}
+    else:
+        _integration_managers.pop(tenant_id, None)

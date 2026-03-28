@@ -74,15 +74,12 @@ export class UserValidationService {
 
     // Cache miss - get from database
     if (!this.userRepository) {
-      this.logger.warn(
-        "No user repository configured - skipping database validation",
-      );
-      // Return minimal validation data
+      this.logger.warn("No user repository configured - denying access");
       return {
         userId,
         email: "",
-        isActive: true,
-        isVerified: true,
+        isActive: false,  // DENY by default
+        isVerified: false,
         roles: [],
       };
     }

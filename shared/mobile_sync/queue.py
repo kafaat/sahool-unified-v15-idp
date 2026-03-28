@@ -245,6 +245,10 @@ class SyncQueue:
                         # Skip duplicate
                         return True, SYNC_MESSAGES["queued_for_sync"]
 
+            # Reject items without tenant_id (H-06: tenant isolation)
+            if not item.tenant_id:
+                raise ValueError("tenant_id is required for sync items")
+
             # Set queue metadata
             item.status = SyncStatus.QUEUED
             item.queued_at = datetime.now(UTC)

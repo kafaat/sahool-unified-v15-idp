@@ -200,6 +200,7 @@ async def search_products(
     price_max: float | None = Query(None, ge=0, description="Maximum price"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    _user=Depends(get_current_user),
 ) -> ProductListResponse:
     """Search products with advanced filters."""
     _init_mock_products()
@@ -246,7 +247,7 @@ async def search_products(
     summary="Get Product | الحصول على منتج",
     description="Get detailed information about a specific product. الحصول على معلومات تفصيلية عن منتج محدد.",
 )
-async def get_product(product_id: UUID) -> Product:
+async def get_product(product_id: UUID, _user=Depends(get_current_user)) -> Product:
     """Get product by ID."""
     _init_mock_products()
 

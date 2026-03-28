@@ -132,7 +132,7 @@ async def process_field(field_id: str):
 # Track business metrics
 from shared.telemetry import SahoolMetrics
 
-SahoolMetrics.track_field_created(user_id="123", field_type="agricultural")
+SahoolMetrics.track_field_created(tenant_id="tenant-123", field_type="agricultural")
 ```
 
 ### 4. TypeScript (NestJS) Integration
@@ -275,7 +275,7 @@ All 44+ SAHOOL services are instrumented with standardized service names:
 from shared.telemetry import SahoolMetrics
 
 # Track field creation
-SahoolMetrics.track_field_created(user_id="123", field_type="agricultural")
+SahoolMetrics.track_field_created(tenant_id="tenant-123", field_type="agricultural")
 
 # Track satellite imagery request
 SahoolMetrics.track_satellite_request(

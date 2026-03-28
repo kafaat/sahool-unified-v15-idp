@@ -194,7 +194,11 @@ async def create_soil_test(
 
 
 @router.get("/tests/{test_id}")
-async def get_soil_test(test_id: str):
+async def get_soil_test(
+    test_id: str,
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+):
     """Get soil test by ID - الحصول على تحليل التربة"""
     if test_id not in _soil_tests:
         raise HTTPException(status_code=404, detail={"error": "Test not found", "error_ar": "التحليل غير موجود"})
@@ -203,10 +207,16 @@ async def get_soil_test(test_id: str):
 
 
 @router.get("/tests/field/{field_id}")
-async def get_field_soil_tests(field_id: str):
+async def get_field_soil_tests(
+    field_id: str,
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+):
     """Get all soil tests for a field - الحصول على جميع تحاليل التربة للحقل"""
     tests = [
-        {k: v for k, v in t.items() if k != "_soil_test_obj"} for t in _soil_tests.values() if t["field_id"] == field_id
+        {k: v for k, v in t.items() if k != "_soil_test_obj"}
+        for t in _soil_tests.values()
+        if t["field_id"] == field_id and t.get("tenant_id") == tenant_id
     ]
     return {"field_id": field_id, "tests": tests, "count": len(tests)}
 

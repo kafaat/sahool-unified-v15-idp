@@ -52,8 +52,13 @@ export class UsersController {
     currentUser: any,
     resourceUserId: string,
   ): void {
+    // Normalize roles to lowercase for consistent checks
+    const roles = Array.isArray(currentUser?.roles)
+      ? currentUser.roles.map((r: string) => r.toLowerCase())
+      : [];
+
     // Allow admins to access any user
-    if (currentUser?.roles?.includes("admin")) {
+    if (roles.includes("admin")) {
       return;
     }
 
@@ -234,8 +239,10 @@ export class UsersController {
     this.validateResourceOwnership(currentUser, id);
 
     // Prevent privilege escalation: only admins can change role/status
-    const isAdmin = currentUser?.roles?.includes("ADMIN") || currentUser?.roles?.includes("admin");
-    if (!isAdmin) {
+    const normalizedRoles = Array.isArray(currentUser?.roles)
+      ? currentUser.roles.map((r: string) => r.toLowerCase())
+      : [];
+    if (!normalizedRoles.includes("admin")) {
       delete updateUserDto.role;
       delete updateUserDto.status;
     }

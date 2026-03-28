@@ -100,12 +100,15 @@ export default function UsersPage() {
   }, [loadUsers]);
 
   // CRUD Handlers
-  async function handleCreate(data: CreateUserData) {
+  async function handleCreate(data: Omit<CreateUserData, 'tenantId'>) {
     setIsSubmitting(true);
     try {
       // Inject tenant ID from authenticated admin's context
-      const createData = { ...data, tenantId: authUser?.tenant_id || '' };
-      await userService.create(createData);
+      if (!authUser?.tenant_id) {
+        toast.error('Tenant ID not available', 'معرّف المستأجر غير متوفر. يرجى تسجيل الدخول مجدداً.');
+        return;
+      }
+      await userService.create({ ...data, tenantId: authUser.tenant_id });
       await loadUsers();
       setShowCreateModal(false);
       logger.info('User created successfully');
@@ -431,7 +434,7 @@ export default function UsersPage() {
         <UserFormModal
           title="إضافة مستخدم جديد"
           onClose={() => setShowCreateModal(false)}
-          onSubmit={(data) => handleCreate(data as CreateUserData)}
+          onSubmit={(data) => handleCreate(data as Omit<CreateUserData, 'tenantId'>)}
           isSubmitting={isSubmitting}
         />
       )}

@@ -73,7 +73,7 @@ export interface CreateUserData {
   name: string;
   phone?: string;
   role?: User['role'];
-  tenantId?: string;
+  tenantId: string;
 }
 
 export interface UpdateUserData {

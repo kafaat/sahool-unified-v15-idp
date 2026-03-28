@@ -14,7 +14,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcryptjs";
 import { UserRole, UserStatus } from "../utils/validation";
-import { BCRYPT_ROUNDS, DEFAULT_TENANT_ID, splitFullName } from "../utils/security.config";
+import { BCRYPT_ROUNDS, splitFullName } from "../utils/security.config";
 
 // User type - use when Prisma types are generated
 type User = any;

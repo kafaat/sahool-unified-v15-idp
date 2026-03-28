@@ -320,6 +320,7 @@ services:
     category: community
     layer: business
     path: "apps/services/marketplace-service"
+    helm_chart: "helm/charts/marketplace-service"
     port: 3010
     protocol: http
     health_endpoint: "/healthz"
@@ -391,6 +392,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/iot-service"
+    helm_chart: "helm/charts/iot-service"
     port: 8117
     protocol: http
     health_endpoint: "/healthz"
@@ -738,6 +740,7 @@ services:
     category: analytics
     layer: acquisition
     path: "apps/services/virtual-sensors"
+    helm_chart: "helm/charts/virtual-sensors"
     port: 8119
     protocol: http
     health_endpoint: "/healthz"
@@ -846,6 +849,7 @@ services:
     category: core
     layer: decision
     path: "apps/services/irrigation-smart"
+    helm_chart: "helm/charts/irrigation-smart"
     port: 8094
     protocol: http
     health_endpoint: "/healthz"
@@ -883,6 +887,7 @@ services:
     category: core
     layer: business
     path: "apps/services/notification-service"
+    helm_chart: "helm/charts/notification-service"
     port: 8110
     protocol: http
     health_endpoint: "/healthz"
@@ -1171,6 +1176,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/vegetation-analysis-service"
+    helm_chart: "helm/charts/vegetation-analysis-service"
     port: 8090
     protocol: http
     health_endpoint: "/healthz"
@@ -1208,6 +1214,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/weather-service"
+    helm_chart: "helm/charts/weather-service"
     port: 8092
     protocol: http
     health_endpoint: "/healthz"

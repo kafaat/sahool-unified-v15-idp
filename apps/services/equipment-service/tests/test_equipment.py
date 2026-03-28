@@ -34,11 +34,11 @@ def _fake_current_user():
     # hashed_password; the top-level shared/auth/models.py does not.  We supply
     # both optional-style kwargs so construction succeeds regardless of which
     # variant is on sys.path.
-    kwargs = dict(
-        id="test-user-001",
-        email="test@sahool.sa",
-        tenant_id=TEST_TENANT_ID,
-    )
+    kwargs = {
+        "id": "test-user-001",
+        "email": "test@sahool.sa",
+        "tenant_id": TEST_TENANT_ID,
+    }
     import inspect
 
     sig = inspect.signature(User)
@@ -60,35 +60,35 @@ def _fake_get_db():
 
 def _make_equipment_row(**overrides):
     """Create a mock equipment DB row with sensible defaults."""
-    defaults = dict(
-        equipment_id="eq_001",
-        tenant_id=TEST_TENANT_ID,
-        name="John Deere 8R 410",
-        name_ar="جون ديري 8R 410",
-        equipment_type="tractor",
-        status="operational",
-        brand="John Deere",
-        model="8R 410",
-        serial_number="JD8R410-2023-001",
-        year=2023,
-        purchase_date=None,
-        purchase_price=None,
-        field_id="field_north",
-        location_name="الحقل الشمالي",
-        horsepower=410,
-        fuel_capacity_liters=800,
-        current_fuel_percent=75,
-        current_hours=1250,
-        current_lat=15.3694,
-        current_lon=44.1910,
-        last_maintenance_at=NOW - timedelta(days=30),
-        next_maintenance_at=NOW + timedelta(days=60),
-        next_maintenance_hours=1500,
-        created_at=NOW - timedelta(days=365),
-        updated_at=NOW - timedelta(hours=2),
-        qr_code="QR_EQ001_JD8R410",
-        extra_metadata=None,
-    )
+    defaults = {
+        "equipment_id": "eq_001",
+        "tenant_id": TEST_TENANT_ID,
+        "name": "John Deere 8R 410",
+        "name_ar": "جون ديري 8R 410",
+        "equipment_type": "tractor",
+        "status": "operational",
+        "brand": "John Deere",
+        "model": "8R 410",
+        "serial_number": "JD8R410-2023-001",
+        "year": 2023,
+        "purchase_date": None,
+        "purchase_price": None,
+        "field_id": "field_north",
+        "location_name": "الحقل الشمالي",
+        "horsepower": 410,
+        "fuel_capacity_liters": 800,
+        "current_fuel_percent": 75,
+        "current_hours": 1250,
+        "current_lat": 15.3694,
+        "current_lon": 44.1910,
+        "last_maintenance_at": NOW - timedelta(days=30),
+        "next_maintenance_at": NOW + timedelta(days=60),
+        "next_maintenance_hours": 1500,
+        "created_at": NOW - timedelta(days=365),
+        "updated_at": NOW - timedelta(hours=2),
+        "qr_code": "QR_EQ001_JD8R410",
+        "extra_metadata": None,
+    }
     defaults.update(overrides)
     row = MagicMock()
     for k, v in defaults.items():

@@ -65,9 +65,18 @@ export class RedisTokenRevocationStore
 
   /**
    * Initialize on module startup
+   * Failure is non-fatal: service starts in degraded mode and retries in background.
    */
   async onModuleInit(): Promise<void> {
-    await this.initialize();
+    try {
+      await this.initialize();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(
+        `Redis unavailable at startup, running in degraded mode: ${message}. ` +
+        `Token revocation checks will fail-closed until Redis is reachable.`,
+      );
+    }
   }
 
   /**

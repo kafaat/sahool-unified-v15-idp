@@ -65,7 +65,7 @@ export async function publishEvent<T extends SahoolEvent>(
     eventType: subject,
     timestamp: new Date(),
     version: options.version || '1.0',
-    ...(options.tenantId ? { tenantId: options.tenantId } : {}),
+    tenantId: options.tenantId,
     payload,
     metadata: options.metadata,
   } as SahoolEvent;

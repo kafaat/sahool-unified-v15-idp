@@ -589,8 +589,11 @@ class RocketChatClient:
 # ===========================================================================
 # NATS event helper
 # ===========================================================================
-async def publish_event(app: FastAPI, subject: str, payload: dict, tenant_id: str = "") -> None:
+async def publish_event(app: FastAPI, subject: str, payload: dict, tenant_id: str) -> None:
     """Publish a NATS event if connected. Always includes tenant_id."""
+    if not tenant_id:
+        logger.warning("publish_event_missing_tenant", subject=subject)
+        return
     nc = getattr(app.state, "nc", None)
     if nc:
         try:

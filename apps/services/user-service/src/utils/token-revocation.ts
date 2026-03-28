@@ -67,15 +67,10 @@ export class RedisTokenRevocationStore
    * Initialize on module startup (fire-and-forget — never blocks NestJS startup).
    * Security posture: FAIL-CLOSED — when Redis is unreachable, isTokenRevoked()
    * returns true (denies access) so no revoked token can be accepted while Redis is down.
+   * Errors are handled inside initialize() and logged there; this call will never reject.
    */
   onModuleInit(): void {
-    this.initialize().catch((error) => {
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(
-        `Redis unavailable at startup, running in degraded mode: ${message}. ` +
-        `All token revocation checks will DENY access (fail-closed) until Redis is reachable.`,
-      );
-    });
+    void this.initialize();
   }
 
   /**
@@ -177,7 +172,10 @@ export class RedisTokenRevocationStore
         }
         this.redis = null;
       }
-      throw error;
+      // Do NOT re-throw: callers rely on fail-closed semantics (isTokenRevoked returns true,
+      // write operations return false) when Redis is unavailable. Throwing here would bypass
+      // those per-method catch blocks and propagate the error unexpectedly.
+      this.initialized = false;
     }
   }
 

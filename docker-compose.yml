@@ -668,7 +668,7 @@ services:
   ollama:
     profiles:
       - gpu
-    image: ollama/ollama:0.5.4
+    image: ollama/ollama:latest
     container_name: sahool-ollama
     volumes:
       - ollama_data:/root/.ollama

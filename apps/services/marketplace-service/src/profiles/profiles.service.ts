@@ -160,6 +160,7 @@ export class ProfilesService {
     verified?: boolean;
     tenantId?: string;
     minRating?: number;
+    isAdmin?: boolean;
   }) {
     const where: any = {};
 
@@ -171,8 +172,11 @@ export class ProfilesService {
       where.verified = filters.verified;
     }
 
+    // tenantId is required for non-admin callers to enforce tenant isolation
     if (filters?.tenantId) {
       where.tenantId = filters.tenantId;
+    } else if (!filters?.isAdmin) {
+      throw new Error("tenantId is required for non-admin access");
     }
 
     if (filters?.minRating) {
@@ -436,11 +440,15 @@ export class ProfilesService {
     tenantId?: string;
     minPurchases?: number;
     minLoyaltyPoints?: number;
+    isAdmin?: boolean;
   }) {
     const where: any = {};
 
+    // tenantId is required for non-admin callers to enforce tenant isolation
     if (filters?.tenantId) {
       where.tenantId = filters.tenantId;
+    } else if (!filters?.isAdmin) {
+      throw new Error("tenantId is required for non-admin access");
     }
 
     if (filters?.minPurchases) {

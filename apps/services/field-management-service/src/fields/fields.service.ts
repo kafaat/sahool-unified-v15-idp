@@ -574,6 +574,9 @@ export class FieldsService {
     // Fetch GeoJSON for boundaries
     if (history.length > 0) {
       const historyIds = history.map((h: any) => h.id);
+      // Defense-in-depth: historyIds are already tenant-filtered by the
+      // findMany above (where: { fieldId, tenantId }), so the IN clause
+      // only contains rows belonging to the authenticated tenant.
       const geoJsonResults = await this.prisma.$queryRaw<any[]>`
         SELECT
           id,
@@ -648,6 +651,8 @@ export class FieldsService {
       });
 
       // Restore previous boundary
+      // Defense-in-depth: tenant_id added to both UPDATE and subquery WHERE
+      // clauses, even though field ownership and history entry are validated above.
       await tx.$executeRaw`
         UPDATE fields
         SET
@@ -655,14 +660,16 @@ export class FieldsService {
             SELECT previous_boundary
             FROM field_boundary_history
             WHERE id = ${dto.historyId}::uuid
+              AND tenant_id = ${field.tenantId}::uuid
           ),
           area_hectares = ST_Area(ST_Transform(
-            (SELECT previous_boundary FROM field_boundary_history WHERE id = ${dto.historyId}::uuid),
+            (SELECT previous_boundary FROM field_boundary_history WHERE id = ${dto.historyId}::uuid AND tenant_id = ${field.tenantId}::uuid),
             32637
           )) / 10000,
           version = version + 1,
           server_updated_at = NOW()
         WHERE id = ${id}::uuid
+          AND tenant_id = ${field.tenantId}::uuid
       `;
     });
 

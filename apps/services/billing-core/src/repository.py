@@ -442,19 +442,29 @@ class SubscriptionRepository:
         )
         return list(result.scalars().all())
 
-    async def count_by_status(self) -> dict[str, int]:
-        """Count subscriptions by status - عد الاشتراكات حسب الحالة"""
-        result = await self.db.execute(
-            select(Subscription.status, func.count(Subscription.id)).group_by(Subscription.status)
-        )
+    async def count_by_status(self, tenant_id: str | None = None) -> dict[str, int]:
+        """Count subscriptions by status with optional tenant isolation - عد الاشتراكات حسب الحالة"""
+        query = select(Subscription.status, func.count(Subscription.id))
+
+        if tenant_id:
+            query = query.where(Subscription.tenant_id == tenant_id)
+
+        query = query.group_by(Subscription.status)
+
+        result = await self.db.execute(query)
 
         return {status.value: count for status, count in result.all()}
 
-    async def count_by_plan(self) -> dict[str, int]:
-        """Count subscriptions by plan - عد الاشتراكات حسب الخطة"""
-        result = await self.db.execute(
-            select(Subscription.plan_id, func.count(Subscription.id)).group_by(Subscription.plan_id)
-        )
+    async def count_by_plan(self, tenant_id: str | None = None) -> dict[str, int]:
+        """Count subscriptions by plan with optional tenant isolation - عد الاشتراكات حسب الخطة"""
+        query = select(Subscription.plan_id, func.count(Subscription.id))
+
+        if tenant_id:
+            query = query.where(Subscription.tenant_id == tenant_id)
+
+        query = query.group_by(Subscription.plan_id)
+
+        result = await self.db.execute(query)
 
         return dict(result.all())
 
@@ -624,20 +634,24 @@ class InvoiceRepository:
     async def get_overdue(
         self,
         as_of_date: date = None,
+        tenant_id: str | None = None,
     ) -> list[Invoice]:
-        """Get overdue invoices - الحصول على الفواتير المتأخرة"""
+        """Get overdue invoices with optional tenant isolation - الحصول على الفواتير المتأخرة"""
         if as_of_date is None:
             as_of_date = date.today()
 
-        result = await self.db.execute(
-            select(Invoice).where(
-                and_(
-                    Invoice.due_date < as_of_date,
-                    Invoice.status.in_([InvoiceStatus.PENDING, InvoiceStatus.OVERDUE]),
-                    Invoice.amount_due > 0,
-                )
+        query = select(Invoice).where(
+            and_(
+                Invoice.due_date < as_of_date,
+                Invoice.status.in_([InvoiceStatus.PENDING, InvoiceStatus.OVERDUE]),
+                Invoice.amount_due > 0,
             )
         )
+
+        if tenant_id:
+            query = query.where(Invoice.tenant_id == tenant_id)
+
+        result = await self.db.execute(query)
         return list(result.scalars().all())
 
     async def get_total_revenue(
@@ -645,8 +659,9 @@ class InvoiceRepository:
         start_date: date | None = None,
         end_date: date | None = None,
         currency: Currency | None = None,
+        tenant_id: str | None = None,
     ) -> Decimal:
-        """Calculate total revenue - حساب إجمالي الإيرادات"""
+        """Calculate total revenue with optional tenant isolation - حساب إجمالي الإيرادات"""
         query = select(func.sum(Invoice.total)).where(Invoice.status == InvoiceStatus.PAID)
 
         if start_date:
@@ -657,6 +672,9 @@ class InvoiceRepository:
 
         if currency:
             query = query.where(Invoice.currency == currency)
+
+        if tenant_id:
+            query = query.where(Invoice.tenant_id == tenant_id)
 
         result = await self.db.execute(query)
         total = result.scalar_one_or_none()
@@ -801,8 +819,9 @@ class PaymentRepository:
         self,
         start_date: date | None = None,
         end_date: date | None = None,
+        tenant_id: str | None = None,
     ) -> dict[str, Decimal]:
-        """Get total payments by method - إجمالي المدفوعات حسب الطريقة"""
+        """Get total payments by method with optional tenant isolation - إجمالي المدفوعات حسب الطريقة"""
         query = select(Payment.method, func.sum(Payment.amount)).where(Payment.status == PaymentStatus.SUCCEEDED)
 
         if start_date:
@@ -810,6 +829,9 @@ class PaymentRepository:
 
         if end_date:
             query = query.where(Payment.paid_at <= end_date)
+
+        if tenant_id:
+            query = query.where(Payment.tenant_id == tenant_id)
 
         query = query.group_by(Payment.method)
 

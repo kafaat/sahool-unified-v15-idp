@@ -1487,7 +1487,7 @@ async def get_timeseries(
     """الحصول على سلسلة زمنية للمؤشرات النباتية"""
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="timeseries")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     return await _get_timeseries_data(field_id, days, satellite)
 
@@ -1717,7 +1717,7 @@ async def get_phenology(
     _validate_crop_type(crop_type)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="phenology")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -1798,7 +1798,7 @@ async def get_phenology_timeline(
     _validate_crop_type(crop_type)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="phenology_timeline")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -2155,7 +2155,7 @@ async def get_soil_moisture(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="soil_moisture")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")

@@ -10,10 +10,11 @@ import logging
 from datetime import UTC, datetime, timezone
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 
 from .analytics_service import NotificationAnalytics, TimeRange
+from .history_controller import get_tenant_id
 
 logger = logging.getLogger("sahool-notifications.analytics")
 
@@ -69,7 +70,7 @@ class DashboardSummaryResponse(BaseModel):
 @router.get("/delivery-stats")
 async def get_delivery_statistics(
     time_range: str = Query(default="day", description="Time range: hour, day, week, month, quarter, year"),
-    tenant_id: str | None = Query(default=None, description="Tenant ID filter"),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     إحصائيات التسليم
@@ -100,7 +101,7 @@ async def get_delivery_statistics(
 @router.get("/channel-performance")
 async def get_channel_performance(
     time_range: str = Query(default="day", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     أداء القنوات
@@ -128,7 +129,7 @@ async def get_channel_performance(
 @router.get("/notification-types")
 async def get_notification_type_breakdown(
     time_range: str = Query(default="week", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     تفصيل أنواع الإشعارات
@@ -156,7 +157,7 @@ async def get_notification_type_breakdown(
 @router.get("/regional-distribution")
 async def get_regional_distribution(
     time_range: str = Query(default="week", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     التوزيع الجغرافي

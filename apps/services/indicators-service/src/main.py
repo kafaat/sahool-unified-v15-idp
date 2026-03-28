@@ -184,7 +184,9 @@ async def lifespan(app: FastAPI):
         async def handle_field_created(msg):
             try:
                 data = json.loads(msg.data.decode())
-                logger.info("field_created_event_received", field_id=data.get("field_id"))
+                tenant_id = data.get("tenant_id")
+                field_id = data.get("field_id")
+                logger.info("field_created_event_received", field_id=field_id, tenant_id=tenant_id)
                 # TODO: Initialize default indicators for new field
             except Exception as e:
                 logger.error("event_handler_failed", subject="field.created", error=str(e))
@@ -192,7 +194,9 @@ async def lifespan(app: FastAPI):
         async def handle_ndvi_calculated(msg):
             try:
                 data = json.loads(msg.data.decode())
-                logger.info("ndvi_calculated_received", field_id=data.get("field_id"))
+                tenant_id = data.get("tenant_id")
+                field_id = data.get("field_id")
+                logger.info("ndvi_calculated_received", field_id=field_id, tenant_id=tenant_id)
                 # TODO: Update NDVI indicator for field
             except Exception as e:
                 logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))
@@ -282,7 +286,7 @@ async def save_indicator(field_id: str, indicator_type: str, value: dict, tenant
                     """
                     INSERT INTO field_indicators (field_id, indicator_type, value, tenant_id)
                     VALUES ($1, $2, $3, $4)
-                    ON CONFLICT (field_id, indicator_type)
+                    ON CONFLICT (tenant_id, field_id, indicator_type)
                     DO UPDATE SET value = $3, calculated_at = NOW()
                 """,
                     field_id,
@@ -303,12 +307,13 @@ async def save_indicator(field_id: str, indicator_type: str, value: dict, tenant
     return False
 
 
-async def get_indicator(field_id: str, indicator_type: str) -> dict | None:
+async def get_indicator(field_id: str, indicator_type: str, tenant_id: str | None = None) -> dict | None:
     """Retrieve indicator value from database.
 
     Args:
         field_id: The field identifier
         indicator_type: Type of indicator
+        tenant_id: Optional tenant identifier for isolation
 
     Returns:
         Indicator data dictionary or None if not found
@@ -316,14 +321,12 @@ async def get_indicator(field_id: str, indicator_type: str) -> dict | None:
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                row = await conn.fetchrow(
-                    """
-                    SELECT value, calculated_at FROM field_indicators
-                    WHERE field_id = $1 AND indicator_type = $2
-                """,
-                    field_id,
-                    indicator_type,
-                )
+                if tenant_id:
+                    sql = "SELECT value, calculated_at FROM field_indicators WHERE field_id = $1 AND indicator_type = $2 AND tenant_id = $3"
+                    row = await conn.fetchrow(sql, field_id, indicator_type, tenant_id)
+                else:
+                    sql = "SELECT value, calculated_at FROM field_indicators WHERE field_id = $1 AND indicator_type = $2"
+                    row = await conn.fetchrow(sql, field_id, indicator_type)
                 if row:
                     try:
                         data = json.loads(row["value"])
@@ -342,11 +345,12 @@ async def get_indicator(field_id: str, indicator_type: str) -> dict | None:
     return None
 
 
-async def get_all_field_indicators(field_id: str) -> list[dict]:
+async def get_all_field_indicators(field_id: str, tenant_id: str | None = None) -> list[dict]:
     """Retrieve all indicators for a field from database.
 
     Args:
         field_id: The field identifier
+        tenant_id: Optional tenant identifier for isolation
 
     Returns:
         List of indicator data dictionaries
@@ -354,14 +358,20 @@ async def get_all_field_indicators(field_id: str) -> list[dict]:
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                rows = await conn.fetch(
+                if tenant_id:
+                    sql = """
+                        SELECT indicator_type, value, calculated_at FROM field_indicators
+                        WHERE field_id = $1 AND tenant_id = $2
+                        ORDER BY indicator_type
                     """
-                    SELECT indicator_type, value, calculated_at FROM field_indicators
-                    WHERE field_id = $1
-                    ORDER BY indicator_type
-                """,
-                    field_id,
-                )
+                    rows = await conn.fetch(sql, field_id, tenant_id)
+                else:
+                    sql = """
+                        SELECT indicator_type, value, calculated_at FROM field_indicators
+                        WHERE field_id = $1
+                        ORDER BY indicator_type
+                    """
+                    rows = await conn.fetch(sql, field_id)
                 result = []
                 for row in rows:
                     try:
@@ -954,6 +964,7 @@ async def get_field_indicators(
     """
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", None) or ""
+    _enforce_tenant(user, tenant_id)
     import random
 
     indicators = []
@@ -961,7 +972,7 @@ async def get_field_indicators(
     timestamp = datetime.now(UTC).isoformat()
 
     # Try to load existing indicators from database
-    stored_indicators = await get_all_field_indicators(field_id) if not force_refresh else []
+    stored_indicators = await get_all_field_indicators(field_id, tenant_id=tenant_id) if not force_refresh else []
     stored_map = {ind["indicator_type"]: ind for ind in stored_indicators}
 
     # Check if we have fresh data (less than 1 hour old)
@@ -1181,10 +1192,11 @@ async def get_single_indicator(
     """
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", None) or ""
+    _enforce_tenant(user, tenant_id)
     if indicator_type not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=400, detail=f"Invalid indicator type: {indicator_type}")
 
-    indicator_data = await get_indicator(field_id, indicator_type)
+    indicator_data = await get_indicator(field_id, indicator_type, tenant_id=tenant_id)
 
     if not indicator_data:
         raise HTTPException(
@@ -1401,6 +1413,7 @@ async def get_indicator_trends(
     import random
 
     tenant_id = getattr(user, "tenant_id", None) or ""
+    _enforce_tenant(user, tenant_id)
 
     if indicator_id not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=404, detail=f"Indicator {indicator_id} not found")

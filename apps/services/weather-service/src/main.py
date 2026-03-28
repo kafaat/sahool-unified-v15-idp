@@ -398,7 +398,7 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
-            result = await app.state.multi_provider.get_current(req.lat, req.lon)
+            result = await app.state.multi_provider.get_current(req.lat, req.lon, tenant_id=req.tenant_id)
             if not result.success:
                 raise ExternalServiceException.weather_service(
                     details={
@@ -484,7 +484,7 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
-            result = await app.state.multi_provider.get_daily_forecast(req.lat, req.lon, days)
+            result = await app.state.multi_provider.get_daily_forecast(req.lat, req.lon, days, tenant_id=req.tenant_id)
             if not result.success:
                 raise ExternalServiceException.weather_service(
                     details={
@@ -591,7 +591,7 @@ async def irrigation_adjustment(req: IrrigationRequest, user: User = Depends(get
 
 
 @app.get("/weather/heat-stress/{temp_c}")
-def check_heat_stress(temp_c: float):
+def check_heat_stress(temp_c: float, user: User = Depends(get_current_user)):
     """Quick heat stress check for a temperature"""
     alert_type, severity = heat_stress_risk(temp_c)
 
@@ -604,7 +604,7 @@ def check_heat_stress(temp_c: float):
 
 
 @app.get("/weather/providers")
-async def get_providers():
+async def get_providers(user: User = Depends(get_current_user)):
     """
     Get list of available weather providers
     الحصول على قائمة مزودي الطقس المتاحين

@@ -1281,6 +1281,9 @@ async def calculate_et0(weather: WeatherInput, user: User = Depends(get_current_
     Calculate reference evapotranspiration (ET0) using Penman-Monteith.
     حساب التبخر-نتح المرجعي باستخدام بنمان-مونتيث
     """
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    logger.info("et0_calculate", tenant_id=tenant_id, user_id=getattr(user, "id", None))
+
     et0 = calculate_et0_penman_monteith(weather)
 
     # Publish sensor.calculated event
@@ -1295,6 +1298,7 @@ async def calculate_et0(weather: WeatherInput, user: User = Depends(get_current_
             "altitude": weather.altitude,
             "calculation_date": str(weather.calculation_date),
             "user_id": user.id if hasattr(user, "id") else None,
+            "tenant_id": tenant_id,
         },
     )
 
@@ -1387,6 +1391,9 @@ async def calculate_crop_etc(
     Calculate crop evapotranspiration (ETc = ET0 × Kc).
     حساب التبخر-نتح للمحصول
     """
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    logger.info("etc_calculate", tenant_id=tenant_id, user_id=getattr(user, "id", None))
+
     if crop_type not in CROP_COEFFICIENTS:
         raise HTTPException(status_code=404, detail=f"Crop '{crop_type}' not found")
 
@@ -1455,6 +1462,8 @@ async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput, user: Us
     Estimate soil moisture using water balance method.
     تقدير رطوبة التربة باستخدام ميزان الماء
     """
+    tenant_id = getattr(user, "tenant_id", None) or ""
+
     result = estimate_soil_moisture(
         soil_type=input_data.soil_type,
         root_depth=input_data.root_depth,
@@ -1480,6 +1489,7 @@ async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput, user: Us
             "status": result["status"],
             "urgency": result["urgency"].value if hasattr(result["urgency"], "value") else str(result["urgency"]),
             "user_id": user.id if hasattr(user, "id") else None,
+            "tenant_id": tenant_id,
         },
     )
 
@@ -1497,6 +1507,7 @@ async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput, user: Us
                 "urgency": result["urgency"].value if hasattr(result["urgency"], "value") else str(result["urgency"]),
                 "message": "Soil moisture critically depleted - immediate irrigation recommended",
                 "message_ar": "رطوبة التربة منخفضة بشكل حرج - يوصى بالري فوراً",
+                "tenant_id": tenant_id,
             },
         )
 
@@ -1636,6 +1647,9 @@ async def quick_irrigation_check(
     Quick irrigation check without full weather data.
     فحص سريع للري بدون بيانات الطقس الكاملة
     """
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    logger.info("quick_irrigation_check", tenant_id=tenant_id, user_id=getattr(user, "id", None))
+
     if crop_type not in CROP_COEFFICIENTS:
         raise HTTPException(status_code=404, detail=f"Crop '{crop_type}' not found")
 

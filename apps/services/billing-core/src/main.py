@@ -612,6 +612,29 @@ def require_tenant_or_admin(current_user, tenant_id: str):
         raise HTTPException(status_code=403, detail="Access denied - cannot access this tenant's data")
 
 
+def _is_super_admin(current_user) -> bool:
+    """Check if user has super_admin role (supports both object and dict user representations)."""
+    if hasattr(current_user, "has_any_role"):
+        return current_user.has_any_role("super_admin")
+    # Dict fallback (dev/test mode)
+    roles = current_user.get("roles", []) if isinstance(current_user, dict) else getattr(current_user, "roles", [])
+    return "super_admin" in roles
+
+
+def _get_tenant_filter(current_user) -> str | None:
+    """
+    Return tenant_id to filter by, or None if the user is super_admin (full access).
+    Non-super_admin users are always scoped to their own tenant.
+    استخراج معرف المستأجر للفلترة - المسؤول العام يرى الكل
+    """
+    if _is_super_admin(current_user):
+        return None
+    # For tenant_admin / regular users, force tenant isolation
+    if isinstance(current_user, dict):
+        return current_user.get("tenant_id")
+    return getattr(current_user, "tenant_id", None)
+
+
 # =============================================================================
 # Enums
 # =============================================================================

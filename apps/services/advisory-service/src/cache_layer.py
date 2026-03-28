@@ -126,16 +126,17 @@ def get_advisory_cache() -> AdvisoryCache:
     return _advisory_cache
 
 
-def _generate_cache_key(func_name: str, *args, **kwargs) -> str:
-    """Generate a cache key from function name and arguments."""
+def _generate_cache_key(func_name: str, *args, tenant_id: str = "", **kwargs) -> str:
+    """Generate a cache key from function name, tenant context, and arguments."""
     key_data = {
         "func": func_name,
+        "tenant": tenant_id,
         "args": [
             str(arg)
             for arg in args
             if not hasattr(arg, "__class__") or str(type(arg).__name__) not in ("Request", "User")
         ],
-        "kwargs": {k: str(v) for k, v in sorted(kwargs.items()) if k not in ("user", "request")},
+        "kwargs": {k: str(v) for k, v in sorted(kwargs.items()) if k not in ("user", "request", "tenant_id")},
     }
     key_str = json.dumps(key_data, sort_keys=True)
     return hashlib.sha256(key_str.encode()).hexdigest()[:32]
@@ -156,7 +157,8 @@ def cache_disease_lookup(ttl: int = 3600):
         @wraps(func)
         def wrapper(*args, **kwargs):
             cache = get_advisory_cache()
-            cache_key = f"disease:{_generate_cache_key(func.__name__, *args, **kwargs)}"
+            tenant_id = kwargs.pop("tenant_id", "")
+            cache_key = f"disease:{_generate_cache_key(func.__name__, *args, tenant_id=tenant_id, **kwargs)}"
 
             # Check cache synchronously (sync function)
             if cache_key in cache._cache:
@@ -196,7 +198,8 @@ def cache_fertilizer_plan(ttl: int = 1800):
         @wraps(func)
         def wrapper(*args, **kwargs):
             cache = get_advisory_cache()
-            cache_key = f"fertilizer:{_generate_cache_key(func.__name__, *args, **kwargs)}"
+            tenant_id = kwargs.pop("tenant_id", "")
+            cache_key = f"fertilizer:{_generate_cache_key(func.__name__, *args, tenant_id=tenant_id, **kwargs)}"
 
             # Check cache synchronously
             if cache_key in cache._cache:

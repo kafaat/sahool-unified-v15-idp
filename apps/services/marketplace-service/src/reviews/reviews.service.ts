@@ -133,9 +133,14 @@ export class ReviewsService {
       verified?: boolean;
       limit?: number;
       offset?: number;
+      tenantId?: string;
     },
   ) {
     const where: any = { productId };
+
+    if (filters?.tenantId) {
+      where.tenantId = filters.tenantId;
+    }
 
     if (filters?.minRating) {
       where.rating = { ...where.rating, gte: filters.minRating };
@@ -165,7 +170,7 @@ export class ReviewsService {
     });
 
     // Calculate review statistics
-    const stats = await this.getProductReviewStats(productId);
+    const stats = await this.getProductReviewStats(productId, filters?.tenantId);
 
     return {
       reviews,

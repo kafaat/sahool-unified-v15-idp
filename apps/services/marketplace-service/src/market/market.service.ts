@@ -171,18 +171,27 @@ export class MarketService {
   /**
    * الحصول على منتج بالمعرف (مع التخزين المؤقت)
    */
-  async findProductById(id: string) {
+  async findProductById(id: string, tenantId?: string) {
     const cacheKey = CACHE_KEYS.PRODUCT(id);
 
     // Try cache first
     const cached = await this.cacheService.get<any>(cacheKey);
     if (cached) {
+      // Validate tenant isolation even for cached results
+      if (tenantId && cached.tenantId && cached.tenantId !== tenantId) {
+        throw new NotFoundException("المنتج غير موجود");
+      }
       this.logger.debug(`Product ${id} served from cache`);
       return cached;
     }
 
     const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) throw new NotFoundException("المنتج غير موجود");
+
+    // Validate tenant isolation
+    if (tenantId && product.tenantId && product.tenantId !== tenantId) {
+      throw new NotFoundException("المنتج غير موجود");
+    }
 
     // Cache the product
     await this.cacheService.set(cacheKey, product, CACHE_TTL.MEDIUM);
@@ -489,15 +498,17 @@ export class MarketService {
       return cached;
     }
 
+    const tenantFilter = tenantId ? { tenantId } : {};
+
     const [totalProducts, totalHarvests, totalOrders, recentProducts] =
       await Promise.all([
-        this.prisma.product.count({ where: { status: "AVAILABLE" } }),
+        this.prisma.product.count({ where: { status: "AVAILABLE", ...tenantFilter } }),
         this.prisma.product.count({
-          where: { category: "HARVEST", status: "AVAILABLE" },
+          where: { category: "HARVEST", status: "AVAILABLE", ...tenantFilter },
         }),
-        this.prisma.order.count(),
+        this.prisma.order.count({ where: { ...tenantFilter } }),
         this.prisma.product.findMany({
-          where: { status: "AVAILABLE" },
+          where: { status: "AVAILABLE", ...tenantFilter },
           orderBy: { createdAt: "desc" },
           take: 5,
           select: {

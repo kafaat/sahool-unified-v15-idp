@@ -54,6 +54,7 @@ class IrrigationDatabase:
     async def get_field_irrigation_history(
         self,
         field_id: str,
+        tenant_id: str,
         days: int = 30,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
@@ -66,6 +67,7 @@ class IrrigationDatabase:
             FROM irrigation_executions
             WHERE field_id = $1
               AND executed_at >= $2
+              AND tenant_id = $4
             ORDER BY executed_at DESC
             LIMIT $3
         """
@@ -73,7 +75,7 @@ class IrrigationDatabase:
 
         try:
             async with self.pool.acquire() as conn:
-                rows = await conn.fetch(sql, field_id, start_date, limit)
+                rows = await conn.fetch(sql, field_id, start_date, limit, tenant_id)
                 return [dict(row) for row in rows]
         except Exception as e:
             logger.error(f"Error fetching irrigation history: {e}")
@@ -82,6 +84,7 @@ class IrrigationDatabase:
     async def get_sensor_readings_summary(
         self,
         field_id: str,
+        tenant_id: str,
         hours: int = 24,
     ) -> dict[str, Any]:
         """Get summary of sensor readings for a field."""
@@ -95,12 +98,13 @@ class IrrigationDatabase:
             FROM soil_moisture_readings
             WHERE field_id = $1
               AND reading_time >= $2
+              AND tenant_id = $3
         """
         start_time = datetime.now(UTC) - timedelta(hours=hours)
 
         try:
             async with self.pool.acquire() as conn:
-                row = await conn.fetchrow(sql, field_id, start_time)
+                row = await conn.fetchrow(sql, field_id, start_time, tenant_id)
                 if row:
                     return {
                         "reading_count": row["reading_count"] or 0,
@@ -272,6 +276,7 @@ class IrrigationDatabase:
     async def get_water_balance_summary(
         self,
         field_id: str,
+        tenant_id: str,
         days: int = 14,
     ) -> dict[str, Any]:
         """Get water balance summary for planning."""
@@ -284,12 +289,13 @@ class IrrigationDatabase:
             FROM water_balance
             WHERE field_id = $1
               AND date >= $2
+              AND tenant_id = $3
         """
         start_date = date.today() - timedelta(days=days)
 
         try:
             async with self.pool.acquire() as conn:
-                row = await conn.fetchrow(sql, field_id, start_date)
+                row = await conn.fetchrow(sql, field_id, start_date, tenant_id)
                 if row:
                     return {
                         "total_et_mm": round(row["total_et"] or 0, 2),

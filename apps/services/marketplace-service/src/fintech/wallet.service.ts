@@ -733,12 +733,17 @@ export class WalletService {
   /**
    * الحصول على إحصائيات لوحة تحكم المحفظة
    */
-  async getWalletDashboard(walletId: string) {
+  async getWalletDashboard(walletId: string, tenantId?: string) {
     const wallet = await this.prisma.wallet.findUnique({
       where: { id: walletId },
     });
 
     if (!wallet) {
+      throw new NotFoundException("المحفظة غير موجودة");
+    }
+
+    // Validate tenant isolation
+    if (tenantId && wallet.tenantId && wallet.tenantId !== tenantId) {
       throw new NotFoundException("المحفظة غير موجودة");
     }
 

@@ -639,6 +639,24 @@ class WeatherAlertGenerator:
                 uv_alert.location_name_ar = location_name_ar
                 alerts.append(uv_alert)
 
+            # Sandstorm alerts
+            sandstorm_alert = self._check_sandstorm(forecast)
+            if sandstorm_alert:
+                sandstorm_alert.field_id = field_id
+                sandstorm_alert.farm_id = farm_id
+                sandstorm_alert.location_name = location_name
+                sandstorm_alert.location_name_ar = location_name_ar
+                alerts.append(sandstorm_alert)
+
+            # Hail alerts
+            hail_alert = self._check_hail(forecast)
+            if hail_alert:
+                hail_alert.field_id = field_id
+                hail_alert.farm_id = farm_id
+                hail_alert.location_name = location_name
+                hail_alert.location_name_ar = location_name_ar
+                alerts.append(hail_alert)
+
         # Sort by severity (critical first)
         severity_order = {
             AlertSeverity.CRITICAL: 0,
@@ -959,6 +977,91 @@ class WeatherAlertGenerator:
             confidence=forecast.confidence,
         )
 
+    def _check_sandstorm(self, forecast: WeatherForecast) -> WeatherAlert | None:
+        """Check for sandstorm conditions — فحص ظروف العاصفة الرملية"""
+        wind = forecast.wind_gust or forecast.wind_speed
+        humidity = forecast.humidity
+
+        # Sandstorm conditions: high wind + low humidity in arid regions
+        if wind >= 60 and humidity < 20:
+            severity = AlertSeverity.CRITICAL
+            level = "critical"
+        elif wind >= 45 and humidity < 25:
+            severity = AlertSeverity.WARNING
+            level = "warning"
+        elif wind >= 35 and humidity < 30:
+            severity = AlertSeverity.ADVISORY
+            level = "warning"  # Use warning template (closest available)
+        else:
+            return None
+
+        template = ALERT_TEMPLATES.get(AlertType.SANDSTORM, {}).get(level)
+        actions = ALERT_ACTIONS.get(AlertType.SANDSTORM, {}).get(level, ([], []))
+
+        if not template:
+            return None
+
+        actions_en, actions_ar = actions if isinstance(actions, tuple) else (actions, [])
+
+        return WeatherAlert(
+            alert_type=AlertType.SANDSTORM,
+            severity=severity,
+            valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time()) + timedelta(hours=6),
+            title=template.get("title", "Sandstorm Warning"),
+            title_ar=template.get("title_ar", "تحذير عاصفة رملية"),
+            description=template.get("description", ""),
+            description_ar=template.get("description_ar", ""),
+            impact=template.get("impact", ""),
+            impact_ar=template.get("impact_ar", ""),
+            recommended_actions=list(actions_en),
+            recommended_actions_ar=list(actions_ar),
+            trigger_value=wind,
+            threshold_value=60.0 if severity == AlertSeverity.CRITICAL else 45.0,
+            trigger_unit="km/h",
+            confidence=forecast.confidence,
+        )
+
+    def _check_hail(self, forecast: WeatherForecast) -> WeatherAlert | None:
+        """Check for hail conditions — فحص ظروف البرد"""
+        # Only trigger if precipitation type indicates hail
+        if forecast.precipitation_type != "hail":
+            return None
+
+        # Determine severity based on precipitation amount as proxy for hail size
+        rain = forecast.precipitation_amount
+        if rain >= 20:
+            severity = AlertSeverity.CRITICAL
+            level = "critical"
+        else:
+            severity = AlertSeverity.WARNING
+            level = "warning"
+
+        template = ALERT_TEMPLATES.get(AlertType.HAIL, {}).get(level)
+        if not template:
+            return None
+
+        actions = ALERT_ACTIONS.get(AlertType.HAIL, {}).get(level, ([], []))
+        actions_en, actions_ar = actions if isinstance(actions, tuple) else (actions, [])
+
+        return WeatherAlert(
+            alert_type=AlertType.HAIL,
+            severity=severity,
+            valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time()) + timedelta(hours=24),
+            title=template["title"],
+            description=template["description"],
+            impact=template["impact"],
+            recommended_actions=list(actions_en),
+            title_ar=template["title_ar"],
+            description_ar=template["description_ar"],
+            impact_ar=template["impact_ar"],
+            recommended_actions_ar=list(actions_ar),
+            trigger_value=rain,
+            trigger_unit="mm",
+            confidence=forecast.confidence,
+        )
+
     def generate_irrigation_schedule(
         self,
         forecasts: list[WeatherForecast],
@@ -988,8 +1091,8 @@ class WeatherAlertGenerator:
 
         # Simple ET calculation (more sophisticated in real implementation)
         avg_temp = sum(f.temperature for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
-        sum(f.humidity for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
-        sum(f.wind_speed for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
+        avg_humidity = sum(f.humidity for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
+        avg_wind = sum(f.wind_speed for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
 
         # Simplified Hargreaves ET (reference ET)
         expected_et_mm = max(0.0023 * (avg_temp + 17.8) * 7, 0) * 3  # 3 days
@@ -1054,8 +1157,8 @@ class WeatherAlertGenerator:
         if adjustment_factor < 1.0 and planned_irrigation_mm > 0:
             water_saved_mm = planned_irrigation_mm - recommended_amount
             water_saved_liters = water_saved_mm * field_area_ha * 10000  # Convert to liters
-            # Assume 0.003 SAR per liter
-            cost_saved = water_saved_liters * 0.003
+            water_cost_per_liter = getattr(self.config, 'water_cost_per_liter', 0.003)
+            cost_saved = water_saved_liters * water_cost_per_liter
 
         return IrrigationSchedule(
             field_id=field_id,

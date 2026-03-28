@@ -734,7 +734,12 @@ class MultiWeatherService:
                 self._set_cached(cache_key, data)
                 return WeatherResult(data=data, provider=provider.name, failed_providers=failed_providers)
             except Exception as e:
-                failed_providers.append(f"{provider.name}: {str(e)}")
+                # Sanitize error message to prevent API key leakage
+                error_msg = str(e)
+                # Remove any query parameters that might contain API keys
+                if "appid=" in error_msg or "key=" in error_msg or "apikey=" in error_msg:
+                    error_msg = error_msg.split("?")[0] + " [query params redacted]"
+                failed_providers.append(f"{provider.name}: {error_msg}")
 
         return WeatherResult(
             data=None,
@@ -768,7 +773,12 @@ class MultiWeatherService:
                         failed_providers=failed_providers,
                     )
             except Exception as e:
-                failed_providers.append(f"{provider.name}: {str(e)}")
+                # Sanitize error message to prevent API key leakage
+                error_msg = str(e)
+                # Remove any query parameters that might contain API keys
+                if "appid=" in error_msg or "key=" in error_msg or "apikey=" in error_msg:
+                    error_msg = error_msg.split("?")[0] + " [query params redacted]"
+                failed_providers.append(f"{provider.name}: {error_msg}")
 
         return WeatherResult(
             data=None,
@@ -802,7 +812,12 @@ class MultiWeatherService:
                         failed_providers=failed_providers,
                     )
             except Exception as e:
-                failed_providers.append(f"{provider.name}: {str(e)}")
+                # Sanitize error message to prevent API key leakage
+                error_msg = str(e)
+                # Remove any query parameters that might contain API keys
+                if "appid=" in error_msg or "key=" in error_msg or "apikey=" in error_msg:
+                    error_msg = error_msg.split("?")[0] + " [query params redacted]"
+                failed_providers.append(f"{provider.name}: {error_msg}")
 
         return WeatherResult(
             data=None,

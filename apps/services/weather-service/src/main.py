@@ -12,6 +12,7 @@ Multi-Provider Support:
 import os
 import sys
 from contextlib import asynccontextmanager
+from enum import Enum
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -200,17 +201,29 @@ def health():
 
 @app.get("/readyz")
 def readiness():
-    """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    from datetime import datetime, timezone
+    checks = {}
+
+    # Check NATS connection
+    publisher = getattr(app.state, "publisher", None)
+    if publisher is not None:
+        checks["nats"] = "connected" if getattr(publisher, "_connected", False) else "disconnected"
+    else:
+        checks["nats"] = "not_configured"
+
+    # Check if providers are available
+    provider_manager = getattr(app.state, "provider_manager", None)
+    if provider_manager is not None:
+        checks["providers"] = "available"
+    else:
+        checks["providers"] = "not_initialized"
+
+    all_ready = all(v not in ("disconnected", "not_initialized") for v in checks.values())
 
     return {
-        "status": "ready",
+        "status": "ready" if all_ready else "degraded",
         "service": "weather-service",
         "version": "16.0.0",
-        "checks": {
-            "service": "ready",
-        },
-        "timestamp": datetime.now(UTC).isoformat(),
+        "checks": checks,
     }
 
 
@@ -218,32 +231,32 @@ def readiness():
 
 
 class WeatherAssessRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    temp_c: float
-    humidity_pct: float | None = None
-    wind_speed_kmh: float | None = None
-    precipitation_mm: float | None = None
-    uv_index: float | None = None
-    correlation_id: str | None = None
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(max_length=100)
+    temp_c: float = Field(ge=-60, le=60)
+    humidity_pct: float | None = Field(default=None, ge=0, le=100)
+    wind_speed_kmh: float | None = Field(default=None, ge=0, le=400)
+    precipitation_mm: float | None = Field(default=None, ge=0, le=500)
+    uv_index: float | None = Field(default=None, ge=0, le=20)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class LocationRequest(BaseModel):
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)
-    correlation_id: str | None = None
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class IrrigationRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    temp_c: float
-    humidity_pct: float
-    wind_speed_kmh: float
-    precipitation_mm: float = 0
-    correlation_id: str | None = None
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(max_length=100)
+    temp_c: float = Field(ge=-60, le=60)
+    humidity_pct: float = Field(ge=0, le=100)
+    wind_speed_kmh: float = Field(ge=0, le=400)
+    precipitation_mm: float = Field(default=0, ge=0, le=500)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 # ============== Weather Endpoints ==============
@@ -390,11 +403,12 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
         days: Number of forecast days (1-16)
     """
     _enforce_tenant(user, req.tenant_id)
+    days = max(1, min(days, 16))
 
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
-            result = await app.state.multi_provider.get_daily_forecast(req.lat, req.lon, min(days, 16))
+            result = await app.state.multi_provider.get_daily_forecast(req.lat, req.lon, days)
             if not result.success:
                 raise ExternalServiceException.weather_service(
                     details={
@@ -406,7 +420,7 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
             forecast = result.data
             provider = result.provider
         else:
-            forecast = await app.state.weather_provider.get_daily_forecast(req.lat, req.lon, min(days, 16))
+            forecast = await app.state.weather_provider.get_daily_forecast(req.lat, req.lon, days)
             provider = "Open-Meteo"
 
         # Publish forecast issued event
@@ -778,13 +792,19 @@ class HeatStressRequest(BaseModel):
     wind_speed_kmh: float = Field(default=10.0, ge=0, description="Wind speed km/h")
 
 
+class ChillModel(str, Enum):
+    SIMPLE = "simple"
+    UTAH = "utah"
+    DYNAMIC = "dynamic"
+
+
 class ChillHoursRequest(BaseModel):
     """Chill hours calculation request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(max_length=100)
     hourly_temps: list[float] = Field(..., description="List of hourly temperatures °C")
-    model: str = Field(default="utah", description="Model: simple, utah, or dynamic")
+    model: ChillModel = Field(default=ChillModel.UTAH, description="Model: simple, utah, or dynamic")
     base_temp_c: float = Field(default=7.2, ge=0, le=15, description="Base temp for simple model")
 
 

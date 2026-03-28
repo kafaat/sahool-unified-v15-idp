@@ -14,7 +14,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcryptjs";
 import { UserStatus } from "../utils/validation";
-import { BCRYPT_ROUNDS } from "../utils/security.config";
+import { BCRYPT_ROUNDS, DEFAULT_TENANT_ID, splitFullName } from "../utils/security.config";
 
 // User type - use when Prisma types are generated
 type User = any;
@@ -49,22 +49,16 @@ export class UsersService {
     const passwordHash = await bcrypt.hash(createUserDto.password, BCRYPT_ROUNDS);
 
     // Handle name splitting: if `name` provided, split into firstName/lastName
-    let firstName = createUserDto.firstName;
-    let lastName = createUserDto.lastName;
-    if (createUserDto.name && (!firstName || !lastName)) {
-      const nameParts = createUserDto.name.trim().split(/\s+/);
-      firstName = firstName || nameParts[0];
-      lastName = lastName || nameParts.slice(1).join(" ") || nameParts[0];
-    }
-
-    if (!firstName || !lastName) {
+    const names = splitFullName(createUserDto.name, createUserDto.firstName, createUserDto.lastName);
+    if (!names) {
       throw new BadRequestException(
         "Either 'name' or both 'firstName' and 'lastName' must be provided",
       );
     }
+    const { firstName, lastName } = names;
 
     // Default tenant ID if not provided
-    const tenantId = createUserDto.tenantId || "a0000000-0000-0000-0000-000000000001";
+    const tenantId = createUserDto.tenantId || DEFAULT_TENANT_ID;
 
     // Create user
     const user = await this.prisma.user.create({
@@ -75,7 +69,7 @@ export class UsersService {
         passwordHash,
         firstName,
         lastName,
-        role: (createUserDto.role || "FARMER") as any, // Cast to Prisma UserRole enum
+        role: (createUserDto.role || "VIEWER") as any, // Cast to Prisma UserRole enum
         status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
         emailVerified: createUserDto.emailVerified || false,
         phoneVerified: createUserDto.phoneVerified || false,

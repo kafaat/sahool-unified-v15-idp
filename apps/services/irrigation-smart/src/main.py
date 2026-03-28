@@ -41,19 +41,31 @@ try:
 except ImportError:
     HAS_PROMETHEUS = False
 
-# Prometheus metric definitions
+# Prometheus metric definitions (guarded against re-registration during test re-imports)
 if HAS_PROMETHEUS:
-    REQUEST_COUNT = Counter(
+    import prometheus_client as _prom_registry
+
+    def _get_or_create_metric(metric_cls, name, description, labels):
+        """Get existing metric or create new one, avoiding duplicate registration."""
+        try:
+            return metric_cls(name, description, labels)
+        except ValueError:
+            return _prom_registry.REGISTRY._names_to_collectors[name]
+
+    REQUEST_COUNT = _get_or_create_metric(
+        Counter,
         "irrigation_requests_total",
         "Total irrigation API requests",
         ["endpoint", "status"],
     )
-    REQUEST_LATENCY = Histogram(
+    REQUEST_LATENCY = _get_or_create_metric(
+        Histogram,
         "irrigation_request_duration_seconds",
         "Irrigation API request latency",
         ["endpoint"],
     )
-    IRRIGATION_CALCULATIONS = Counter(
+    IRRIGATION_CALCULATIONS = _get_or_create_metric(
+        Counter,
         "irrigation_calculations_total",
         "Total irrigation calculations",
         ["method", "crop_type"],

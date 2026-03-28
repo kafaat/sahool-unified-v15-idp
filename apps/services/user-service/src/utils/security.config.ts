@@ -17,3 +17,31 @@
  */
 const parsed = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
 export const BCRYPT_ROUNDS = Number.isFinite(parsed) && parsed >= 12 ? parsed : 12;
+
+/**
+ * Default tenant ID for users created without explicit tenant.
+ * Corresponds to the sahool-demo tenant in the database.
+ * معرف المستأجر الافتراضي
+ */
+export const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID || "a0000000-0000-0000-0000-000000000001";
+
+/**
+ * Split a full name into firstName and lastName.
+ * If the name has only one part, it's used for both.
+ * تقسيم الاسم الكامل إلى الاسم الأول والأخير
+ */
+export function splitFullName(
+  name?: string,
+  firstName?: string,
+  lastName?: string,
+): { firstName: string; lastName: string } | null {
+  let first = firstName;
+  let last = lastName;
+  if (name && (!first || !last)) {
+    const parts = name.trim().split(/\s+/);
+    first = first || parts[0];
+    last = last || parts.slice(1).join(" ") || parts[0];
+  }
+  if (!first || !last) return null;
+  return { firstName: first, lastName: last };
+}

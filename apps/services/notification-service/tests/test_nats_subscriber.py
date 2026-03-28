@@ -495,6 +495,7 @@ class TestIrrigationRecommendationHandler:
             assert notification_data["type"] == "irrigation_reminder"
             assert "25" in notification_data["title"]
             assert notification_data["channels"] == ["in_app"]
+
         asyncio.run(_run())
 
     def test_irrigation_without_amount_mm(self):
@@ -520,6 +521,7 @@ class TestIrrigationRecommendationHandler:
             callback.assert_called_once()
             notification_data = callback.call_args[0][0]
             assert notification_data["title"] == "Custom Title"
+
         asyncio.run(_run())
 
     def test_irrigation_without_callback(self):
@@ -536,6 +538,7 @@ class TestIrrigationRecommendationHandler:
 
             # Should not raise
             await subscriber._handle_irrigation_recommendation(event)
+
         asyncio.run(_run())
 
     def test_irrigation_field_id_from_data(self):
@@ -557,6 +560,7 @@ class TestIrrigationRecommendationHandler:
             await subscriber._handle_irrigation_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["data"]["field_id"] == "field-from-data"
+
         asyncio.run(_run())
 
     def test_irrigation_with_custom_channels(self):
@@ -576,6 +580,7 @@ class TestIrrigationRecommendationHandler:
             await subscriber._handle_irrigation_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["channels"] == ["push", "sms"]
+
         asyncio.run(_run())
 
 
@@ -610,6 +615,7 @@ class TestDecisionRecommendationHandler:
             await subscriber._handle_decision_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["type"] == "irrigation_reminder"
+
         asyncio.run(_run())
 
     def test_pest_control_type(self):
@@ -634,6 +640,7 @@ class TestDecisionRecommendationHandler:
             await subscriber._handle_decision_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["type"] == "pest_outbreak"
+
         asyncio.run(_run())
 
     def test_fertilizer_type(self):
@@ -656,6 +663,7 @@ class TestDecisionRecommendationHandler:
             await subscriber._handle_decision_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["type"] == "task_reminder"
+
         asyncio.run(_run())
 
     def test_harvest_type(self):
@@ -678,6 +686,7 @@ class TestDecisionRecommendationHandler:
             await subscriber._handle_decision_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["type"] == "task_reminder"
+
         asyncio.run(_run())
 
     def test_unknown_type_maps_to_system(self):
@@ -700,6 +709,7 @@ class TestDecisionRecommendationHandler:
             await subscriber._handle_decision_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["type"] == "system"
+
         asyncio.run(_run())
 
     def test_priority_from_recommendation(self):
@@ -723,6 +733,7 @@ class TestDecisionRecommendationHandler:
             await subscriber._handle_decision_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["priority"] == "critical"
+
         asyncio.run(_run())
 
     def test_without_callback(self):
@@ -739,6 +750,7 @@ class TestDecisionRecommendationHandler:
 
             # Should not raise
             await subscriber._handle_decision_recommendation(event)
+
         asyncio.run(_run())
 
     def test_expires_in_48_hours(self):
@@ -757,6 +769,7 @@ class TestDecisionRecommendationHandler:
             await subscriber._handle_decision_recommendation(event)
             notification_data = callback.call_args[0][0]
             assert notification_data["expires_in_hours"] == 48
+
         asyncio.run(_run())
 
 

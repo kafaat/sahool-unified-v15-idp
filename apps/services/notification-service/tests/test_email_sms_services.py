@@ -146,10 +146,12 @@ class TestSMSClient:
         client._client = mock_twilio_client
 
         # Send without + prefix
-        result = asyncio.run(client.send_sms(
-            to="967771234567",  # No + prefix
-            body="Test",
-        ))
+        result = asyncio.run(
+            client.send_sms(
+                to="967771234567",  # No + prefix
+                body="Test",
+            )
+        )
 
         # Should add + prefix
         assert result == "SM123456"
@@ -213,9 +215,9 @@ class TestSMSClient:
         # Mock send_sms to return success for all
         client.send_sms = AsyncMock(side_effect=["SM1", "SM2", "SM3"])
 
-        result = asyncio.run(client.send_bulk_sms(
-            recipients=["+9671", "+9672", "+9673"], body="Bulk message", body_ar="رسالة جماعية"
-        ))
+        result = asyncio.run(
+            client.send_bulk_sms(recipients=["+9671", "+9672", "+9673"], body="Bulk message", body_ar="رسالة جماعية")
+        )
 
         assert result["success_count"] == 3
         assert result["failure_count"] == 0
@@ -230,12 +232,14 @@ class TestSMSClient:
         # Fail first, succeed second
         client.send_sms = AsyncMock(side_effect=[None, "SM123456"])
 
-        result = asyncio.run(client.send_sms_with_retry(
-            to="+967771234567",
-            body="Test",
-            max_retries=3,
-            retry_delay=0,  # No delay for testing
-        ))
+        result = asyncio.run(
+            client.send_sms_with_retry(
+                to="+967771234567",
+                body="Test",
+                max_retries=3,
+                retry_delay=0,  # No delay for testing
+            )
+        )
 
         assert result == "SM123456"
         assert client.send_sms.call_count == 2
@@ -334,13 +338,15 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(return_value=mock_response)
         client._client = mock_sendgrid_client
 
-        result = asyncio.run(client.send_email(
-            to="farmer@example.com",
-            subject="Weather Alert",
-            body="Frost expected tonight",
-            subject_ar="تنبيه طقس",
-            body_ar="صقيع متوقع الليلة",
-        ))
+        result = asyncio.run(
+            client.send_email(
+                to="farmer@example.com",
+                subject="Weather Alert",
+                body="Frost expected tonight",
+                subject_ar="تنبيه طقس",
+                body_ar="صقيع متوقع الليلة",
+            )
+        )
 
         assert result == "msg-123456"
 
@@ -384,14 +390,16 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(return_value=mock_response)
         client._client = mock_sendgrid_client
 
-        result = asyncio.run(client.send_email(
-            to="farmer@example.com",
-            subject="Weather Alert",
-            body="Frost expected",
-            subject_ar="تنبيه طقس",
-            body_ar="صقيع متوقع",
-            language="ar",
-        ))
+        result = asyncio.run(
+            client.send_email(
+                to="farmer@example.com",
+                subject="Weather Alert",
+                body="Frost expected",
+                subject_ar="تنبيه طقس",
+                body_ar="صقيع متوقع",
+                language="ar",
+            )
+        )
 
         assert result == "msg-123456"
 
@@ -412,13 +420,15 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(return_value=mock_response)
         client._client = mock_sendgrid_client
 
-        result = asyncio.run(client.send_email(
-            to="farmer@example.com",
-            subject="Test",
-            body="Test body",
-            cc=["cc1@example.com", "cc2@example.com"],
-            bcc=["bcc@example.com"],
-        ))
+        result = asyncio.run(
+            client.send_email(
+                to="farmer@example.com",
+                subject="Test",
+                body="Test body",
+                cc=["cc1@example.com", "cc2@example.com"],
+                bcc=["bcc@example.com"],
+            )
+        )
 
         assert result == "msg-123456"
 
@@ -429,11 +439,13 @@ class TestEmailClient:
         client = EmailClient()
         client._initialized = True
 
-        result = asyncio.run(client.send_email(
-            to="invalid-email",  # No @ sign
-            subject="Test",
-            body="Test",
-        ))
+        result = asyncio.run(
+            client.send_email(
+                to="invalid-email",  # No @ sign
+                subject="Test",
+                body="Test",
+            )
+        )
 
         assert result is None
 
@@ -475,11 +487,13 @@ class TestEmailClient:
         # Mock send_email to return success
         client.send_email = AsyncMock(side_effect=["msg-1", "msg-2", "msg-3"])
 
-        result = asyncio.run(client.send_bulk_email(
-            recipients=["user1@example.com", "user2@example.com", "user3@example.com"],
-            subject="Broadcast",
-            body="Important message",
-        ))
+        result = asyncio.run(
+            client.send_bulk_email(
+                recipients=["user1@example.com", "user2@example.com", "user3@example.com"],
+                subject="Broadcast",
+                body="Important message",
+            )
+        )
 
         assert result["success_count"] == 3
         assert result["failure_count"] == 0
@@ -494,9 +508,11 @@ class TestEmailClient:
         # Fail first, succeed second
         client.send_email = AsyncMock(side_effect=[None, "msg-123456"])
 
-        result = asyncio.run(client.send_email_with_retry(
-            to="test@example.com", subject="Test", body="Test", max_retries=3, retry_delay=0
-        ))
+        result = asyncio.run(
+            client.send_email_with_retry(
+                to="test@example.com", subject="Test", body="Test", max_retries=3, retry_delay=0
+            )
+        )
 
         assert result == "msg-123456"
         assert client.send_email.call_count == 2
@@ -518,12 +534,14 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(return_value=mock_response)
         client._client = mock_sendgrid_client
 
-        result = asyncio.run(client.send_template_email(
-            to="farmer@example.com",
-            template_id="d-1234567890",
-            template_data={"farmer_name": "Ahmed", "alert_type": "frost", "temperature": -2},
-            language="ar",
-        ))
+        result = asyncio.run(
+            client.send_template_email(
+                to="farmer@example.com",
+                template_id="d-1234567890",
+                template_data={"farmer_name": "Ahmed", "alert_type": "frost", "temperature": -2},
+                language="ar",
+            )
+        )
 
         assert result == "msg-template-123"
 
@@ -638,7 +656,9 @@ class TestBilingualSupport:
         client._client = mock_twilio_client
 
         # Test Arabic
-        asyncio.run(client.send_sms(to="+967771234567", body="English version", body_ar="النسخة العربية", language="ar"))
+        asyncio.run(
+            client.send_sms(to="+967771234567", body="English version", body_ar="النسخة العربية", language="ar")
+        )
 
         # Verify Arabic was used
         call_args = mock_twilio_client.messages.create.call_args
@@ -662,13 +682,15 @@ class TestBilingualSupport:
         client._client = mock_sendgrid_client
 
         # Test Arabic
-        result = asyncio.run(client.send_email(
-            to="test@example.com",
-            subject="English Subject",
-            body="English body",
-            subject_ar="العنوان العربي",
-            body_ar="النص العربي",
-            language="ar",
-        ))
+        result = asyncio.run(
+            client.send_email(
+                to="test@example.com",
+                subject="English Subject",
+                body="English body",
+                subject_ar="العنوان العربي",
+                body_ar="النص العربي",
+                language="ar",
+            )
+        )
 
         assert result == "msg-123"

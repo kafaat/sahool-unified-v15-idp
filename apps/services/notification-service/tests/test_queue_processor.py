@@ -272,15 +272,17 @@ class TestQueueProcessorMethods:
     def test_enqueue_without_redis_raises(self):
         processor = NotificationQueueProcessor()
         with pytest.raises(RuntimeError, match="Not connected"):
-            asyncio.run(processor.enqueue(
-                user_id="u-1",
-                title="T",
-                title_ar="ع",
-                body="B",
-                body_ar="ن",
-                notification_type="system",
-                channel="push",
-            ))
+            asyncio.run(
+                processor.enqueue(
+                    user_id="u-1",
+                    title="T",
+                    title_ar="ع",
+                    body="B",
+                    body_ar="ن",
+                    notification_type="system",
+                    channel="push",
+                )
+            )
 
 
 class TestGetQueueProcessor:

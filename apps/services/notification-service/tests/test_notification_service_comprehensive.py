@@ -72,15 +72,17 @@ class TestNotificationCreation:
             ),
             patch("src.main.send_notification_via_channel", new=AsyncMock()),
         ):
-            result = asyncio.run(create_notification(
-                type=NotificationType.WEATHER_ALERT,
-                priority=NotificationPriority.HIGH,
-                title="Weather Alert",
-                title_ar="تنبيه طقس",
-                body="Frost expected",
-                body_ar="صقيع متوقع",
-                target_farmers=["farmer-123"],
-            ))
+            result = asyncio.run(
+                create_notification(
+                    type=NotificationType.WEATHER_ALERT,
+                    priority=NotificationPriority.HIGH,
+                    title="Weather Alert",
+                    title_ar="تنبيه طقس",
+                    body="Frost expected",
+                    body_ar="صقيع متوقع",
+                    target_farmers=["farmer-123"],
+                )
+            )
 
             assert result is not None
             assert result.id == mock_notification.id
@@ -93,15 +95,17 @@ class TestNotificationCreation:
             "src.preferences_service.PreferencesService.check_if_should_send",
             new=AsyncMock(return_value=(False, [])),
         ):
-            result = asyncio.run(create_notification(
-                type=NotificationType.WEATHER_ALERT,
-                priority=NotificationPriority.HIGH,
-                title="Weather Alert",
-                title_ar="تنبيه طقس",
-                body="Frost expected",
-                body_ar="صقيع متوقع",
-                target_farmers=["farmer-123"],
-            ))
+            result = asyncio.run(
+                create_notification(
+                    type=NotificationType.WEATHER_ALERT,
+                    priority=NotificationPriority.HIGH,
+                    title="Weather Alert",
+                    title_ar="تنبيه طقس",
+                    body="Frost expected",
+                    body_ar="صقيع متوقع",
+                    target_farmers=["farmer-123"],
+                )
+            )
 
             # Should return None when all recipients are blocked
             assert result is None
@@ -134,16 +138,18 @@ class TestNotificationCreation:
             ),
             patch("src.main.send_notification_via_channel", new=AsyncMock()),
         ):
-            result = asyncio.run(create_notification(
-                type=NotificationType.PEST_OUTBREAK,
-                priority=NotificationPriority.HIGH,
-                title="Pest Alert",
-                title_ar="تنبيه آفات",
-                body="Aphids detected",
-                body_ar="تم رصد المن",
-                target_governorates=[Governorate.SANAA],
-                target_crops=[CropType.TOMATO],
-            ))
+            result = asyncio.run(
+                create_notification(
+                    type=NotificationType.PEST_OUTBREAK,
+                    priority=NotificationPriority.HIGH,
+                    title="Pest Alert",
+                    title_ar="تنبيه آفات",
+                    body="Aphids detected",
+                    body_ar="تم رصد المن",
+                    target_governorates=[Governorate.SANAA],
+                    target_crops=[CropType.TOMATO],
+                )
+            )
 
             assert result is not None
 
@@ -167,16 +173,18 @@ class TestNotificationCreation:
             ),
             patch("src.main.send_notification_via_channel", new=AsyncMock()) as mock_send,
         ):
-            asyncio.run(create_notification(
-                type=NotificationType.WEATHER_ALERT,
-                priority=NotificationPriority.CRITICAL,
-                title="Critical Alert",
-                title_ar="تنبيه حرج",
-                body="Immediate action required",
-                body_ar="مطلوب اتخاذ إجراء فوري",
-                target_farmers=["farmer-123"],
-                channels=[NotificationChannel.PUSH, NotificationChannel.SMS],
-            ))
+            asyncio.run(
+                create_notification(
+                    type=NotificationType.WEATHER_ALERT,
+                    priority=NotificationPriority.CRITICAL,
+                    title="Critical Alert",
+                    title_ar="تنبيه حرج",
+                    body="Immediate action required",
+                    body_ar="مطلوب اتخاذ إجراء فوري",
+                    target_farmers=["farmer-123"],
+                    channels=[NotificationChannel.PUSH, NotificationChannel.SMS],
+                )
+            )
 
             # Verify multiple channels were called
             assert mock_send.call_count >= 1
@@ -300,6 +308,7 @@ class TestNotificationDelivery:
                         # Test Push
                         await send_notification_via_channel(mock_notification, NotificationChannel.PUSH, "farmer-123")
                         mock_push.assert_called_once()
+
         asyncio.run(_run())
 
 
@@ -466,16 +475,18 @@ class TestNotificationExpiry:
             ),
             patch("src.main.send_notification_via_channel", new=AsyncMock()),
         ):
-            result = asyncio.run(create_notification(
-                type=NotificationType.WEATHER_ALERT,
-                priority=NotificationPriority.HIGH,
-                title="Alert",
-                title_ar="تنبيه",
-                body="Test",
-                body_ar="اختبار",
-                target_farmers=["farmer-123"],
-                expires_in_hours=48,
-            ))
+            result = asyncio.run(
+                create_notification(
+                    type=NotificationType.WEATHER_ALERT,
+                    priority=NotificationPriority.HIGH,
+                    title="Alert",
+                    title_ar="تنبيه",
+                    body="Test",
+                    body_ar="اختبار",
+                    target_farmers=["farmer-123"],
+                    expires_in_hours=48,
+                )
+            )
 
             assert result is not None
 

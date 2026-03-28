@@ -259,6 +259,7 @@ class TestInMemoryStorage:
             result = await storage.get_otp("key-1")
             assert result is not None
             assert result.user_id == "user-1"
+
         asyncio.run(_run())
 
     def test_get_nonexistent_otp(self):
@@ -266,6 +267,7 @@ class TestInMemoryStorage:
             storage = InMemoryStorage()
             result = await storage.get_otp("nonexistent")
             assert result is None
+
         asyncio.run(_run())
 
     def test_delete_otp(self):
@@ -288,6 +290,7 @@ class TestInMemoryStorage:
             # Verify deleted
             result = await storage.get_otp("key-del")
             assert result is None
+
         asyncio.run(_run())
 
     def test_delete_nonexistent(self):
@@ -295,6 +298,7 @@ class TestInMemoryStorage:
             storage = InMemoryStorage()
             result = await storage.delete_otp("nonexistent")
             assert result is False
+
         asyncio.run(_run())
 
     def test_update_otp(self):
@@ -318,6 +322,7 @@ class TestInMemoryStorage:
 
             updated = await storage.get_otp("key-upd")
             assert updated.attempts == 2
+
         asyncio.run(_run())
 
     def test_rate_limit_allowed(self):
@@ -326,6 +331,7 @@ class TestInMemoryStorage:
             allowed, remaining = await storage.check_rate_limit("user-rl-1")
             assert allowed is True
             assert remaining == RATE_LIMIT_MAX_REQUESTS
+
         asyncio.run(_run())
 
     def test_rate_limit_exceeded(self):
@@ -336,6 +342,7 @@ class TestInMemoryStorage:
             allowed, remaining = await storage.check_rate_limit("user-rl-2")
             assert allowed is False
             assert remaining == 0
+
         asyncio.run(_run())
 
     def test_rate_limit_decrements_remaining(self):
@@ -345,6 +352,7 @@ class TestInMemoryStorage:
             allowed, remaining = await storage.check_rate_limit("user-rl-3")
             assert allowed is True
             assert remaining == RATE_LIMIT_MAX_REQUESTS - 1
+
         asyncio.run(_run())
 
     def test_record_request(self):
@@ -352,6 +360,7 @@ class TestInMemoryStorage:
             storage = InMemoryStorage()
             await storage.record_request("user-rl-4")
             assert len(storage._rate_limit_store["user-rl-4"]) == 1
+
         asyncio.run(_run())
 
     def test_clear(self):
@@ -504,6 +513,7 @@ class TestOTPService:
             )
             result = await service._store_otp("test-key", record)
             assert result is True
+
         asyncio.run(_run())
 
     def test_get_otp_in_memory(self):
@@ -525,6 +535,7 @@ class TestOTPService:
             retrieved = await service._get_otp("test-key-get")
             assert retrieved is not None
             assert retrieved.user_id == "user-1"
+
         asyncio.run(_run())
 
     def test_get_otp_nonexistent(self):
@@ -533,6 +544,7 @@ class TestOTPService:
             await service.initialize(use_redis=False)
             result = await service._get_otp("nonexistent")
             assert result is None
+
         asyncio.run(_run())
 
     def test_get_sms_client(self):
@@ -574,6 +586,7 @@ class TestOTPService:
             await service._store_otp("del-key", record)
             result = await service._delete_otp("del-key")
             assert result is True
+
         asyncio.run(_run())
 
     def test_update_otp_in_memory(self):
@@ -595,6 +608,7 @@ class TestOTPService:
             record.attempts = 2
             result = await service._update_otp("upd-key", record)
             assert result is True
+
         asyncio.run(_run())
 
     def test_check_rate_limit_in_memory(self):
@@ -605,6 +619,7 @@ class TestOTPService:
             allowed, remaining = await service._check_rate_limit("user-rl", "sms")
             assert allowed is True
             assert remaining > 0
+
         asyncio.run(_run())
 
     def test_record_rate_limit_in_memory(self):
@@ -614,6 +629,7 @@ class TestOTPService:
 
             # Should not raise
             await service._record_rate_limit("user-rl2", "sms")
+
         asyncio.run(_run())
 
     def test_get_otp_message_arabic(self):
@@ -676,6 +692,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_sms_client", return_value=None):
                 result = await service._send_otp_via_sms("+967712345678", "123456", "login", "ar")
                 assert result is None
+
         asyncio.run(_run())
 
     def test_send_via_sms_success(self):
@@ -686,6 +703,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_sms_client", return_value=mock_client):
                 result = await service._send_otp_via_sms("+967712345678", "123456", "login", "ar")
                 assert result == "SM123"
+
         asyncio.run(_run())
 
     def test_send_via_whatsapp_no_client(self):
@@ -694,6 +712,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_whatsapp_client", return_value=None):
                 result = await service._send_otp_via_whatsapp("+967712345678", "123456", "login", "ar")
                 assert result is None
+
         asyncio.run(_run())
 
     def test_send_via_whatsapp_success(self):
@@ -704,6 +723,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_whatsapp_client", return_value=mock_client):
                 result = await service._send_otp_via_whatsapp("+967712345678", "123456", "login", "ar")
                 assert result == "WA123"
+
         asyncio.run(_run())
 
     def test_send_via_telegram_no_client(self):
@@ -712,6 +732,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_telegram_client", return_value=None):
                 result = await service._send_otp_via_telegram("chat123", "123456", "login", "ar")
                 assert result is None
+
         asyncio.run(_run())
 
     def test_send_via_telegram_success(self):
@@ -722,6 +743,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_telegram_client", return_value=mock_client):
                 result = await service._send_otp_via_telegram("chat123", "123456", "login", "ar")
                 assert result == 12345
+
         asyncio.run(_run())
 
     def test_send_via_email_no_client(self):
@@ -730,6 +752,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_email_client", return_value=None):
                 result = await service._send_otp_via_email("test@example.com", "123456", "login", "en")
                 assert result is None
+
         asyncio.run(_run())
 
     def test_send_via_email_success(self):
@@ -740,6 +763,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_email_client", return_value=mock_client):
                 result = await service._send_otp_via_email("test@example.com", "123456", "login", "en")
                 assert result == "msg-123"
+
         asyncio.run(_run())
 
     def test_send_via_email_arabic(self):
@@ -750,6 +774,7 @@ class TestOTPServiceDelivery:
             with patch.object(service, "_get_email_client", return_value=mock_client):
                 result = await service._send_otp_via_email("test@example.com", "123456", "login", "ar")
                 assert result == "msg-ar"
+
         asyncio.run(_run())
 
 
@@ -765,6 +790,7 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "SERVICE_NOT_INITIALIZED"
+
         asyncio.run(_run())
 
     def test_generate_otp_rate_limited(self):
@@ -785,6 +811,7 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "RATE_LIMIT_EXCEEDED"
+
         asyncio.run(_run())
 
     def test_generate_otp_existing_not_expired(self):
@@ -814,6 +841,7 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "OTP_ALREADY_SENT"
+
         asyncio.run(_run())
 
     def test_generate_otp_sms_success(self):
@@ -834,6 +862,7 @@ class TestOTPServiceGenerateAndVerify:
                 assert result.success is True
                 assert result.otp_sent is True
                 assert result.delivery_id is not None
+
         asyncio.run(_run())
 
     def test_generate_otp_email_success(self):
@@ -853,6 +882,7 @@ class TestOTPServiceGenerateAndVerify:
                 )
                 assert result.success is True
                 assert result.otp_sent is True
+
         asyncio.run(_run())
 
     def test_generate_otp_delivery_exception(self):
@@ -871,6 +901,7 @@ class TestOTPServiceGenerateAndVerify:
                 )
                 assert result.success is False
                 assert result.error_code == "DELIVERY_FAILED"
+
         asyncio.run(_run())
 
     def test_generate_otp_string_enum_conversion(self):
@@ -888,6 +919,7 @@ class TestOTPServiceGenerateAndVerify:
                     purpose="login",  # string instead of enum
                 )
                 assert result.success is True
+
         asyncio.run(_run())
 
     def test_generate_otp_sms_delivery_fails(self):
@@ -904,6 +936,7 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "DELIVERY_FAILED"
+
         asyncio.run(_run())
 
     def test_verify_otp_not_initialized(self):
@@ -916,6 +949,7 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "SERVICE_NOT_INITIALIZED"
+
         asyncio.run(_run())
 
     def test_verify_otp_not_found(self):
@@ -930,6 +964,7 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "OTP_NOT_FOUND"
+
         asyncio.run(_run())
 
     def test_verify_otp_expired(self):
@@ -958,6 +993,7 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "OTP_EXPIRED"
+
         asyncio.run(_run())
 
     def test_verify_otp_wrong_code(self):
@@ -985,6 +1021,7 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "INVALID_OTP"
+
         asyncio.run(_run())
 
     def test_verify_otp_correct_code(self):
@@ -1013,6 +1050,7 @@ class TestOTPServiceGenerateAndVerify:
                 purpose=OTPPurpose.LOGIN,
             )
             assert result.success is True
+
         asyncio.run(_run())
 
     def test_verify_otp_max_attempts_exceeded(self):
@@ -1042,4 +1080,5 @@ class TestOTPServiceGenerateAndVerify:
             )
             assert result.success is False
             assert result.error_code == "MAX_ATTEMPTS_EXCEEDED"
+
         asyncio.run(_run())

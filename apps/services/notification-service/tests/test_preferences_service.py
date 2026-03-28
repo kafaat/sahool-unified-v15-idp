@@ -91,21 +91,25 @@ class TestUpdateEventPreference:
 
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.create_or_update = AsyncMock(return_value=mock_pref)
-            result = asyncio.run(PreferencesService.update_event_preference(
-                user_id="user-123",
-                event_type="pest_outbreak",
-                channels=["push"],
-            ))
+            result = asyncio.run(
+                PreferencesService.update_event_preference(
+                    user_id="user-123",
+                    event_type="pest_outbreak",
+                    channels=["push"],
+                )
+            )
             assert result["event_type"] == "pest_outbreak"
             assert result["channels"] == ["push"]
 
     def test_invalid_channel_raises(self):
         with pytest.raises(ValueError, match="Invalid channel type"):
-            asyncio.run(PreferencesService.update_event_preference(
-                user_id="user-123",
-                event_type="weather_alert",
-                channels=["invalid_channel"],
-            ))
+            asyncio.run(
+                PreferencesService.update_event_preference(
+                    user_id="user-123",
+                    event_type="weather_alert",
+                    channels=["invalid_channel"],
+                )
+            )
 
     def test_all_valid_channels(self):
         valid_channels = ["email", "sms", "push", "whatsapp", "in_app"]
@@ -113,11 +117,13 @@ class TestUpdateEventPreference:
 
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.create_or_update = AsyncMock(return_value=mock_pref)
-            result = asyncio.run(PreferencesService.update_event_preference(
-                user_id="user-123",
-                event_type="weather_alert",
-                channels=valid_channels,
-            ))
+            result = asyncio.run(
+                PreferencesService.update_event_preference(
+                    user_id="user-123",
+                    event_type="weather_alert",
+                    channels=valid_channels,
+                )
+            )
             assert result is not None
 
 
@@ -125,11 +131,13 @@ class TestSetQuietHours:
     def test_valid_quiet_hours(self):
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.update_quiet_hours = AsyncMock(return_value=True)
-            result = asyncio.run(PreferencesService.set_quiet_hours(
-                user_id="user-123",
-                quiet_hours_start="22:00",
-                quiet_hours_end="06:00",
-            ))
+            result = asyncio.run(
+                PreferencesService.set_quiet_hours(
+                    user_id="user-123",
+                    quiet_hours_start="22:00",
+                    quiet_hours_end="06:00",
+                )
+            )
             assert result["success"] is True
             assert result["quiet_hours_start"] == "22:00"
             assert result["quiet_hours_end"] == "06:00"
@@ -137,33 +145,41 @@ class TestSetQuietHours:
     def test_no_preferences_found(self):
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.update_quiet_hours = AsyncMock(return_value=False)
-            result = asyncio.run(PreferencesService.set_quiet_hours(
-                user_id="user-123",
-                quiet_hours_start="22:00",
-                quiet_hours_end="06:00",
-            ))
+            result = asyncio.run(
+                PreferencesService.set_quiet_hours(
+                    user_id="user-123",
+                    quiet_hours_start="22:00",
+                    quiet_hours_end="06:00",
+                )
+            )
             assert result["success"] is False
 
     def test_invalid_start_time(self):
         with pytest.raises(ValueError, match="Invalid time format"):
-            asyncio.run(PreferencesService.set_quiet_hours(
-                user_id="user-123",
-                quiet_hours_start="25:00",
-            ))
+            asyncio.run(
+                PreferencesService.set_quiet_hours(
+                    user_id="user-123",
+                    quiet_hours_start="25:00",
+                )
+            )
 
     def test_invalid_end_time(self):
         with pytest.raises(ValueError, match="Invalid time format"):
-            asyncio.run(PreferencesService.set_quiet_hours(
-                user_id="user-123",
-                quiet_hours_end="12:99",
-            ))
+            asyncio.run(
+                PreferencesService.set_quiet_hours(
+                    user_id="user-123",
+                    quiet_hours_end="12:99",
+                )
+            )
 
     def test_invalid_format_non_numeric(self):
         with pytest.raises(ValueError, match="Invalid time format"):
-            asyncio.run(PreferencesService.set_quiet_hours(
-                user_id="user-123",
-                quiet_hours_start="abc",
-            ))
+            asyncio.run(
+                PreferencesService.set_quiet_hours(
+                    user_id="user-123",
+                    quiet_hours_start="abc",
+                )
+            )
 
     def test_none_quiet_hours(self):
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
@@ -181,13 +197,15 @@ class TestBulkUpdatePreferences:
 
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.create_or_update = AsyncMock(side_effect=mock_prefs)
-            result = asyncio.run(PreferencesService.bulk_update_preferences(
-                user_id="user-123",
-                preferences=[
-                    {"event_type": "weather_alert", "channels": ["push"]},
-                    {"event_type": "pest_outbreak", "channels": ["sms"]},
-                ],
-            ))
+            result = asyncio.run(
+                PreferencesService.bulk_update_preferences(
+                    user_id="user-123",
+                    preferences=[
+                        {"event_type": "weather_alert", "channels": ["push"]},
+                        {"event_type": "pest_outbreak", "channels": ["sms"]},
+                    ],
+                )
+            )
             assert result["success"] is True
             assert result["updated_count"] == 2
             assert len(result["preferences"]) == 2
@@ -197,20 +215,24 @@ class TestBulkUpdatePreferences:
 
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.create_or_update = AsyncMock(return_value=mock_pref)
-            result = asyncio.run(PreferencesService.bulk_update_preferences(
-                user_id="user-123",
-                preferences=[
-                    {"channels": ["push"]},  # Missing event_type
-                    {"event_type": "weather_alert", "channels": ["push"]},
-                ],
-            ))
+            result = asyncio.run(
+                PreferencesService.bulk_update_preferences(
+                    user_id="user-123",
+                    preferences=[
+                        {"channels": ["push"]},  # Missing event_type
+                        {"event_type": "weather_alert", "channels": ["push"]},
+                    ],
+                )
+            )
             assert result["updated_count"] == 1
 
     def test_empty_list(self):
-        result = asyncio.run(PreferencesService.bulk_update_preferences(
-            user_id="user-123",
-            preferences=[],
-        ))
+        result = asyncio.run(
+            PreferencesService.bulk_update_preferences(
+                user_id="user-123",
+                preferences=[],
+            )
+        )
         assert result["success"] is True
         assert result["updated_count"] == 0
 
@@ -218,10 +240,12 @@ class TestBulkUpdatePreferences:
         with patch("src.preferences_service.NotificationPreferenceRepository") as mock_repo:
             mock_repo.create_or_update = AsyncMock(side_effect=Exception("DB error"))
             with pytest.raises(Exception):
-                asyncio.run(PreferencesService.bulk_update_preferences(
-                    user_id="user-123",
-                    preferences=[{"event_type": "weather_alert", "channels": ["push"]}],
-                ))
+                asyncio.run(
+                    PreferencesService.bulk_update_preferences(
+                        user_id="user-123",
+                        preferences=[{"event_type": "weather_alert", "channels": ["push"]}],
+                    )
+                )
 
 
 class TestGetEventPreference:

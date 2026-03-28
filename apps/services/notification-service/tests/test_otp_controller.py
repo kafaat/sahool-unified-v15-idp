@@ -9,6 +9,7 @@ Covers:
 """
 
 import asyncio
+
 import pytest
 from fastapi import HTTPException
 from src.otp_controller import (
@@ -410,23 +411,25 @@ from src.otp_controller import send_otp_via_channel
 
 class TestSendOTPViaChannel:
     def test_sms_not_initialized(self):
-        result = asyncio.run(send_otp_via_channel(
-            "+967771234567", "123456", OTPChannel.SMS, OTPPurpose.LOGIN, Language.ARABIC
-        ))
+        result = asyncio.run(
+            send_otp_via_channel("+967771234567", "123456", OTPChannel.SMS, OTPPurpose.LOGIN, Language.ARABIC)
+        )
         assert result is False
 
     def test_whatsapp_not_initialized(self):
-        result = asyncio.run(send_otp_via_channel(
-            "+967771234567", "123456", OTPChannel.WHATSAPP, OTPPurpose.LOGIN, Language.ARABIC
-        ))
+        result = asyncio.run(
+            send_otp_via_channel("+967771234567", "123456", OTPChannel.WHATSAPP, OTPPurpose.LOGIN, Language.ARABIC)
+        )
         assert result is False
 
     def test_telegram_not_initialized(self):
-        result = asyncio.run(send_otp_via_channel("chat123", "123456", OTPChannel.TELEGRAM, OTPPurpose.LOGIN, Language.ARABIC))
+        result = asyncio.run(
+            send_otp_via_channel("chat123", "123456", OTPChannel.TELEGRAM, OTPPurpose.LOGIN, Language.ARABIC)
+        )
         assert result is False
 
     def test_email_not_initialized(self):
-        result = asyncio.run(send_otp_via_channel(
-            "test@example.com", "123456", OTPChannel.EMAIL, OTPPurpose.LOGIN, Language.ENGLISH
-        ))
+        result = asyncio.run(
+            send_otp_via_channel("test@example.com", "123456", OTPChannel.EMAIL, OTPPurpose.LOGIN, Language.ENGLISH)
+        )
         assert result is False

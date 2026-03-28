@@ -453,9 +453,11 @@ class TestCreateNotificationFromNats:
 
 class TestDetermineRecipientsByCriteria:
     def test_specific_farmers_returned(self):
-        result = asyncio.run(determine_recipients_by_criteria(
-            target_farmers=["f-1", "f-2"],
-        ))
+        result = asyncio.run(
+            determine_recipients_by_criteria(
+                target_farmers=["f-1", "f-2"],
+            )
+        )
         assert result == ["f-1", "f-2"]
 
     def test_empty_farmers_queries_database(self):
@@ -463,10 +465,12 @@ class TestDetermineRecipientsByCriteria:
             mock_repo.find_by_criteria = AsyncMock(return_value=[])
             mock_repo.get_all = AsyncMock(return_value=[])
 
-            result = asyncio.run(determine_recipients_by_criteria(
-                target_farmers=[],
-                target_governorates=[Governorate.SANAA],
-            ))
+            result = asyncio.run(
+                determine_recipients_by_criteria(
+                    target_farmers=[],
+                    target_governorates=[Governorate.SANAA],
+                )
+            )
             assert result == []
             mock_repo.find_by_criteria.assert_called_once()
 
@@ -479,10 +483,12 @@ class TestDetermineRecipientsByCriteria:
         with patch("src.main.FarmerProfileRepository") as mock_repo:
             mock_repo.find_by_criteria = AsyncMock(side_effect=Exception("DB error"))
 
-            result = asyncio.run(determine_recipients_by_criteria(
-                target_farmers=[],
-                target_governorates=[Governorate.SANAA],
-            ))
+            result = asyncio.run(
+                determine_recipients_by_criteria(
+                    target_farmers=[],
+                    target_governorates=[Governorate.SANAA],
+                )
+            )
             assert result == []
 
     def test_broadcast_fallback(self):
@@ -493,11 +499,13 @@ class TestDetermineRecipientsByCriteria:
             mock_repo.find_by_criteria = AsyncMock(return_value=[])
             mock_repo.get_all = AsyncMock(return_value=[mock_profile])
 
-            result = asyncio.run(determine_recipients_by_criteria(
-                target_farmers=[],
-                target_governorates=[],
-                target_crops=[],
-            ))
+            result = asyncio.run(
+                determine_recipients_by_criteria(
+                    target_farmers=[],
+                    target_governorates=[],
+                    target_crops=[],
+                )
+            )
             assert result == ["broadcast-farmer"]
 
 

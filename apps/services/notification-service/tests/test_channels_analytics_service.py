@@ -62,11 +62,13 @@ class TestGenerateVerificationCode:
 class TestAddChannel:
     def test_invalid_channel_type_raises(self):
         with pytest.raises(ValueError, match="Invalid channel type"):
-            asyncio.run(ChannelsService.add_channel(
-                user_id="user-123",
-                channel_type="invalid_channel",
-                address="test@example.com",
-            ))
+            asyncio.run(
+                ChannelsService.add_channel(
+                    user_id="user-123",
+                    channel_type="invalid_channel",
+                    address="test@example.com",
+                )
+            )
 
     def test_valid_push_channel(self):
         mock_channel = MagicMock()
@@ -82,11 +84,13 @@ class TestAddChannel:
 
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.create = AsyncMock(return_value=mock_channel)
-            result = asyncio.run(ChannelsService.add_channel(
-                user_id="user-123",
-                channel_type="push",
-                address="fcm-token-123",
-            ))
+            result = asyncio.run(
+                ChannelsService.add_channel(
+                    user_id="user-123",
+                    channel_type="push",
+                    address="fcm-token-123",
+                )
+            )
             assert result["channel"] == "push"
             assert result["verified"] is True
 
@@ -105,10 +109,12 @@ class TestAddChannel:
         with patch("src.channels_service.NotificationChannelRepository") as mock_repo:
             mock_repo.create = AsyncMock(return_value=mock_channel)
             mock_repo.update_channel = AsyncMock(return_value=True)
-            result = asyncio.run(ChannelsService.add_channel(
-                user_id="user-123",
-                channel_type="email",
-                address="test@example.com",
-            ))
+            result = asyncio.run(
+                ChannelsService.add_channel(
+                    user_id="user-123",
+                    channel_type="email",
+                    address="test@example.com",
+                )
+            )
             assert result["verified"] is False
             assert "verification_code" in result

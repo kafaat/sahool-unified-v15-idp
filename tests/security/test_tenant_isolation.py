@@ -45,17 +45,57 @@ def _load_indicators_main():
     """Load apps/services/indicators-service/src/main.py as a module.
 
     The directory contains a hyphen which is not a valid Python identifier,
-    so we use importlib.util to load it by file path.
+    so we use importlib.util to load it by file path.  We temporarily mock
+    heavy dependencies (asyncpg, nats) that are not needed for testing
+    the pure tenant-isolation logic, then restore original modules.
     """
     module_name = "indicators_service_main"
     if module_name in sys.modules:
         return sys.modules[module_name]
 
-    src_path = _PROJECT_ROOT / "apps" / "services" / "indicators-service" / "src" / "main.py"
-    spec = importlib.util.spec_from_file_location(module_name, src_path)
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = mod
-    spec.loader.exec_module(mod)
+    # Save originals before mocking
+    deps_to_mock = ("asyncpg",)
+    saved = {dep: sys.modules.get(dep) for dep in deps_to_mock}
+
+    # Mock heavy optional dependencies that may not be installed in test env
+    for dep in deps_to_mock:
+        if dep not in sys.modules or sys.modules[dep] is None:
+            sys.modules[dep] = MagicMock()
+
+    # Save shared submodule state -- the indicators main.py inserts
+    # apps/services into sys.path which shadows top-level shared with
+    # apps/services/shared/, corrupting shared.events etc.
+    saved_shared = {
+        k: v for k, v in sys.modules.items()
+        if k == "shared" or k.startswith("shared.")
+    }
+    saved_path = list(sys.path)
+
+    try:
+        src_path = _PROJECT_ROOT / "apps" / "services" / "indicators-service" / "src" / "main.py"
+        spec = importlib.util.spec_from_file_location(module_name, src_path)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = mod
+        spec.loader.exec_module(mod)
+    finally:
+        # Restore originals so shared.events / shared.ai imports work later
+        for dep, original in saved.items():
+            if original is not None:
+                sys.modules[dep] = original
+            elif dep in sys.modules and isinstance(sys.modules[dep], MagicMock):
+                pass
+
+        # Restore shared module state -- remove any shadow entries and
+        # re-add the originals from the top-level shared package
+        shared_keys_now = [k for k in sys.modules if k == "shared" or k.startswith("shared.")]
+        for k in shared_keys_now:
+            if k not in saved_shared:
+                del sys.modules[k]
+        sys.modules.update(saved_shared)
+
+        # Restore sys.path to avoid the apps/services shadow
+        sys.path[:] = saved_path
+
     return mod
 
 

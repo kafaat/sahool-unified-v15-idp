@@ -246,7 +246,8 @@ class TestBroadcastAPI:
         """Test broadcasting message to specific user"""
         mock_validate.return_value = {"sub": "admin_123", "tenant_id": "tenant_123"}
 
-        mock_room_manager.send_to_user = AsyncMock(return_value=1)
+        # The endpoint routes via tenant_id first, so mock send_to_tenant
+        mock_room_manager.send_to_tenant = AsyncMock(return_value=1)
 
         broadcast_data = {
             "tenant_id": "tenant_123",
@@ -265,7 +266,8 @@ class TestBroadcastAPI:
         """Test broadcasting message to field"""
         mock_validate.return_value = {"sub": "user_123", "tenant_id": "tenant_123"}
 
-        mock_room_manager.send_to_field = AsyncMock(return_value=3)
+        # The endpoint routes via tenant_id first, so mock send_to_tenant
+        mock_room_manager.send_to_tenant = AsyncMock(return_value=3)
 
         broadcast_data = {
             "tenant_id": "tenant_123",
@@ -314,12 +316,19 @@ class TestNATSIntegration:
         assert response.json()["nats"] is True
 
     @patch("src.main.nats_bridge")
-    def test_nats_stats(self, mock_nats, client):
+    @patch("src.main.room_manager")
+    def test_nats_stats(self, mock_room_manager, mock_nats, client):
         """Test NATS statistics"""
         mock_nats.get_stats.return_value = {
             "connected": True,
             "subscriptions": 5,
             "messages_received": 100,
+        }
+        mock_room_manager.get_stats.return_value = {
+            "total_connections": 0,
+            "total_rooms": 0,
+            "rooms": {},
+            "connections_by_room_type": {},
         }
 
         response = client.get("/stats")

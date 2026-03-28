@@ -2,7 +2,7 @@
 -- الهجرة: إصلاح فهارس التدقيق والقيود بشكل آمن
 -- Created: 2026-03-10
 -- Description: Remediate risky migration patterns flagged by drift detection:
---   1. Recreate audit_logs indexes from 20260101_add_audit_logs with CONCURRENTLY
+--   1. Recreate audit_logs indexes from 20260101_add_audit_logs
 --   2. Recreate CHECK constraints from 20260207000001 using NOT VALID + VALIDATE pattern
 --      to avoid full table locks on existing production data.
 -- Addresses: Drift Detection Report 01fb579f-de8 (2026-03-10)
@@ -12,8 +12,7 @@
 -- إصلاح فهارس جدول التدقيق
 -- ═══════════════════════════════════════════════════════════════════════════
 
--- Drop existing non-concurrent indexes from 20260101_add_audit_logs
--- Using CONCURRENTLY to avoid blocking queries during drop
+-- Drop existing indexes from 20260101_add_audit_logs
 DROP INDEX IF EXISTS "idx_audit_tenant_created";
 DROP INDEX IF EXISTS "idx_audit_actor_created";
 DROP INDEX IF EXISTS "idx_audit_resource";
@@ -22,7 +21,7 @@ DROP INDEX IF EXISTS "idx_audit_category_created";
 DROP INDEX IF EXISTS "idx_audit_severity";
 DROP INDEX IF EXISTS "idx_audit_action";
 
--- Recreate with CONCURRENTLY (no table locks)
+-- Recreate indexes (note: standard CREATE INDEX may briefly lock table during creation)
 CREATE INDEX IF NOT EXISTS "idx_audit_tenant_created"
     ON "audit_logs"("tenant_id", "created_at" DESC);
 

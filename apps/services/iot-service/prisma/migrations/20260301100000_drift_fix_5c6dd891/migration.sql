@@ -37,5 +37,5 @@ ALTER TABLE "device_alerts" ALTER COLUMN "updatedAt" SET DEFAULT now();
 -- Tables affected: devices, sensors, sensor_readings, actuators,
 --                  actuator_commands, device_alerts
 --
--- All future migrations MUST use CREATE INDEX.
+-- All future migrations should use CREATE INDEX. For zero-downtime on large tables, run CONCURRENTLY outside Prisma migrate.
 -- ═══════════════════════════════════════════════════════════════════════════════

@@ -19,7 +19,9 @@ import pytest
 
 try:
     from src.preferences_service import PreferencesService
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("notification-service dependencies not available", allow_module_level=True)
 
 

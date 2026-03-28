@@ -38,7 +38,7 @@ ALTER TABLE "tasks" ALTER COLUMN "updated_at" SET DEFAULT now();
 --
 -- The following non-concurrent indexes were created in initial migrations on
 -- EMPTY tables (0001_init_postgis, 20260214000000_add_farms_table), which is
--- safe and does not require CONCURRENTLY:
+-- safe and does not require special handling:
 --   - idx_field_tenant, idx_field_sync, idx_field_status, idx_field_crop
 --   - idx_field_boundary (GIST), idx_field_centroid (GIST)
 --   - idx_history_field, idx_history_date

@@ -12,7 +12,7 @@ ALTER TABLE "products"
 ADD COLUMN "deleted_at" TIMESTAMPTZ,
 ADD COLUMN "deleted_by" VARCHAR(255);
 
--- Create index for soft delete queries (remediated with CONCURRENTLY in 20260303)
+-- Create index for soft delete queries (remediated in 20260303)
 -- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
 CREATE INDEX "idx_products_deleted_at" ON "products"("deleted_at");
 

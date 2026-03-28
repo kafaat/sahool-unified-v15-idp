@@ -1,8 +1,8 @@
 -- Migration: Safe Index Remediation
 -- الهجرة: إصلاح الفهارس غير الآمنة
 -- Created: 2026-03-03
--- Description: Recreate non-concurrent indexes from 20260214000000_add_farms_table
---              using CONCURRENTLY to avoid table locks on production.
+-- Description: Recreate indexes from 20260214000000_add_farms_table
+--              using standard CREATE INDEX (runs inside Prisma transaction wrapper).
 --              Also validates FK constraint fk_fields_farm_id with NOT VALID pattern.
 -- Addresses: Drift Detection medium-severity findings:
 --   - "Non-concurrent index creation"
@@ -22,8 +22,8 @@ DROP INDEX IF EXISTS "idx_field_planting";
 DROP INDEX IF EXISTS "idx_field_harvest";
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- Recreate indexes with CONCURRENTLY (no table locks)
--- إعادة إنشاء الفهارس بشكل متزامن (بدون قفل الجداول)
+-- Recreate indexes (standard CREATE INDEX, may briefly lock table)
+-- إعادة إنشاء الفهارس (قد يتم قفل الجدول لفترة وجيزة أثناء الإنشاء)
 -- ═══════════════════════════════════════════════════════════════════════════
 
 CREATE INDEX IF NOT EXISTS "idx_field_farm"

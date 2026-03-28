@@ -9,7 +9,9 @@ try:
         assess_weather,
         get_irrigation_adjustment,
     )
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("weather-service dependencies not installed", allow_module_level=True)
 
 

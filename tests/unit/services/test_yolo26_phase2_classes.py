@@ -21,20 +21,48 @@ Updated: February 2026
 """
 
 import importlib.util
+import sys
+from enum import StrEnum
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
-# Load schemas module directly to avoid pulling in torch/GPU dependencies
-_SCHEMAS_PATH = (
+# Load schemas module directly to avoid pulling in torch/GPU dependencies.
+# schemas.py imports from src.core.vlm_verifier which requires PIL, httpx, etc.
+# We mock the vlm_verifier module to avoid pulling in heavy dependencies.
+_SERVICE_ROOT = (
     Path(__file__).parent.parent.parent.parent
     / "apps"
     / "services"
     / "yolo26-vision-service"
-    / "src"
-    / "api"
-    / "schemas.py"
 )
+_SCHEMAS_PATH = _SERVICE_ROOT / "src" / "api" / "schemas.py"
+
+_service_root_str = str(_SERVICE_ROOT)
+if _service_root_str not in sys.path:
+    sys.path.insert(0, _service_root_str)
+
+# Pre-populate sys.modules with a mock for vlm_verifier to avoid heavy imports
+_mock_vlm = MagicMock()
+
+class _VLMProvider(StrEnum):
+    DISABLED = "disabled"
+    QWEN_VL = "qwen_vl"
+    OLLAMA = "ollama"
+    VLLM = "vllm"
+
+class _VLMVerificationStatus(StrEnum):
+    CONFIRMED = "confirmed"
+    SUSPICIOUS = "suspicious"
+    DISMISSED = "dismissed"
+    ERROR = "error"
+    UNVERIFIED = "unverified"
+
+_mock_vlm.VLMProvider = _VLMProvider
+_mock_vlm.VLMVerificationStatus = _VLMVerificationStatus
+sys.modules["src.core.vlm_verifier"] = _mock_vlm
+
 _spec = importlib.util.spec_from_file_location("yolo26_schemas_p2", str(_SCHEMAS_PATH))
 _schemas = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_schemas)

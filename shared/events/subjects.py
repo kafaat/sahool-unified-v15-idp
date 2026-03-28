@@ -297,6 +297,8 @@ SAHOOL_RECOMMENDATION_ALL = "sahool.recommendation.*"
 # ─────────────────────────────────────────────────────────────────────────────
 
 SAHOOL_ADVISORY_RECOMMENDATION_ISSUED = "sahool.advisory.recommendation.issued"
+# Backward compatibility alias (original subject before dotted-action migration)
+SAHOOL_ADVISORY_RECOMMENDATION_ISSUED_LEGACY = "sahool.advisory.recommendation_issued"
 SAHOOL_ADVISORY_FERTILIZER_PLAN_ISSUED = "sahool.advisory.fertilizer_plan_issued"
 SAHOOL_ADVISORY_NUTRIENT_ASSESSMENT_ISSUED = "sahool.advisory.nutrient_assessment_issued"
 SAHOOL_ADVISORY_FERTILIZER_RECOMMENDED = "sahool.advisory.fertilizer.recommended"

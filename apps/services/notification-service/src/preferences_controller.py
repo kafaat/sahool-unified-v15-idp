@@ -65,7 +65,7 @@ ALLOWED_EVENT_TYPES = {
 
 
 class UpdateEventPreferenceRequest(BaseModel):
-    """طلب ت��ديث تفضيلات حدث - Update Event Preference Request"""
+    """طلب تحديث تفضيلات حدث - Update Event Preference Request"""
 
     user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
     event_type: str = Field(
@@ -129,7 +129,7 @@ class SetQuietHoursRequest(BaseModel):
 
 
 class BulkUpdatePreferencesRequest(BaseModel):
-    """طلب تحديث تفضيلات متعد��ة - Bulk Update Preferences Request"""
+    """طلب تحديث تفضيلات متعددة - Bulk Update Preferences Request"""
 
     user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
     preferences: list[dict[str, Any]] = Field(..., min_length=1, description="List of preference updates")

@@ -54,13 +54,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "indicators-service.fullname" . }}-secrets
                   key: jwt-secret
-                  optional: false
+                  optional: true
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: {{ include "indicators-service.fullname" . }}-secrets
                   key: database-url
-                  optional: false
+                  optional: true
             - name: NATS_URL
               valueFrom:
                 configMapKeyRef:

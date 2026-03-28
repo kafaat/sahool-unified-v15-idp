@@ -36,6 +36,7 @@ from fastapi import (
     FastAPI,
     Header,
     HTTPException,
+    Path,
     Query,
     Request,
 )
@@ -1992,7 +1993,7 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
 
 
 @app.get("/api/v1/plans/{plan_id}")
-async def get_plan(plan_id: str = Field(min_length=1, max_length=100), db: AsyncSession = Depends(get_db)):
+async def get_plan(plan_id: str = Path(min_length=1, max_length=100), db: AsyncSession = Depends(get_db)):
     """تفاصيل خ��ة محددة"""
     if not plan_id or len(plan_id) > 100:
         raise HTTPException(400, "معرف الخط�� غير صالح")

@@ -1327,12 +1327,17 @@ async def readiness():
     checks["nats"] = "connected" if nc and not nc.is_closed else "not_configured"
 
     all_ready = all(v != "disconnected" for v in checks.values())
-    return {
+    response = {
         "status": "ready" if all_ready else "degraded",
         "service": "notification-service",
         "version": "16.0.0",
         "checks": checks,
     }
+    if not all_ready:
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(status_code=503, content=response)
+    return response
 
 
 @app.get("/metrics")

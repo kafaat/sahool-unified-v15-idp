@@ -17,6 +17,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserStatus, UserRole } from "../utils/validation";
+import { BCRYPT_ROUNDS } from "../utils/security.config";
 
 describe("UsersService", () => {
   let service: UsersService;
@@ -112,7 +113,7 @@ describe("UsersService", () => {
         where: { email: createUserDto.email },
         select: { id: true },
       });
-      expect(bcrypt.hash).toHaveBeenCalledWith(createUserDto.password, 12);
+      expect(bcrypt.hash).toHaveBeenCalledWith(createUserDto.password, BCRYPT_ROUNDS);
       expect(prismaService.user.create).toHaveBeenCalled();
     });
 
@@ -137,7 +138,7 @@ describe("UsersService", () => {
 
       await service.create(createUserDto);
 
-      expect(hashSpy).toHaveBeenCalledWith(createUserDto.password, 12);
+      expect(hashSpy).toHaveBeenCalledWith(createUserDto.password, BCRYPT_ROUNDS);
       expect(prismaService.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           passwordHash: mockPasswordHash,
@@ -429,7 +430,7 @@ describe("UsersService", () => {
 
       await service.update(mockUserId, updateWithPassword);
 
-      expect(bcrypt.hash).toHaveBeenCalledWith("NewPassword123!", 12);
+      expect(bcrypt.hash).toHaveBeenCalledWith("NewPassword123!", BCRYPT_ROUNDS);
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: mockUserId },
         data: expect.objectContaining({

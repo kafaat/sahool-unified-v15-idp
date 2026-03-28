@@ -1203,7 +1203,7 @@ async def health_check():
 @app.get("/readyz")
 async def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    nats_ok = hasattr(app.state, "nats_client") and app.state.nats_client is not None
+    nats_ok = _nats_client is not None and not _nats_client.is_closed
 
     redis_ok = False
     redis_url = os.getenv("REDIS_URL")

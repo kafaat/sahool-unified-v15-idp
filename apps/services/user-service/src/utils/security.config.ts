@@ -15,4 +15,5 @@
  *
  * عدد جولات تشفير كلمة المرور - الحد الأدنى الموصى به من OWASP هو 12
  */
-export const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
+const parsed = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
+export const BCRYPT_ROUNDS = Number.isFinite(parsed) && parsed >= 12 ? parsed : 12;

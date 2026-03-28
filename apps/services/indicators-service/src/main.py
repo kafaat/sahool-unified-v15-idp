@@ -1100,7 +1100,7 @@ async def store_field_indicator(
     """
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", None) or ""
-    _validate_tenant_id(indicator_input.tenant_id)
+    _validate_tenant_id(tenant_id)
 
     # Validate indicator type
     if indicator_input.indicator_type not in INDICATOR_DEFINITIONS:

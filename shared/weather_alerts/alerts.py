@@ -203,6 +203,24 @@ ALERT_TEMPLATES: dict[AlertType, dict[str, dict[str, str]]] = {
             "impact_ar": "خطر حروق الشمس للعمال، تسارع إجهاد المحصول",
         },
     },
+    AlertType.DROUGHT: {
+        "critical": {
+            "title": "Severe Drought Conditions",
+            "title_ar": "ظروف جفاف شديدة",
+            "description": "Prolonged dry period with no rainfall expected. Soil moisture critically low.",
+            "description_ar": "فترة جفاف مطولة بدون أمطار متوقعة. رطوبة التربة منخفضة بشكل حرج.",
+            "impact": "Severe crop water stress, potential crop failure",
+            "impact_ar": "إجهاد مائي شديد للمحاصيل، احتمال فشل المحصول",
+        },
+        "warning": {
+            "title": "Drought Warning",
+            "title_ar": "تحذير جفاف",
+            "description": "Extended dry conditions detected. Monitor soil moisture and increase irrigation.",
+            "description_ar": "ظروف جفاف ممتدة. راقب رطوبة التربة وزد الري.",
+            "impact": "Increased water demand, crop stress likely",
+            "impact_ar": "زيادة الطلب على المياه، إجهاد المحاصيل محتمل",
+        },
+    },
 }
 
 # Recommended actions by alert type
@@ -499,6 +517,34 @@ ALERT_ACTIONS: dict[AlertType, dict[str, tuple[list[str], list[str]]]] = {
             ],
         ),
     },
+    AlertType.DROUGHT: {
+        "critical": (
+            [
+                "Switch to deficit irrigation strategy immediately",
+                "Apply mulch to conserve soil moisture",
+                "Prioritize water for high-value crops",
+                "Consider emergency water sourcing",
+            ],
+            [
+                "انتقل لاستراتيجية الري العجزي فوراً",
+                "ضع تغطية عضوية للحفاظ على رطوبة التربة",
+                "أعطِ أولوية المياه للمحاصيل عالية القيمة",
+                "فكّر في مصادر مياه طوارئ",
+            ],
+        ),
+        "warning": (
+            [
+                "Increase irrigation frequency",
+                "Monitor soil moisture sensors closely",
+                "Apply organic mulch around crop bases",
+            ],
+            [
+                "زد تكرار الري",
+                "راقب مستشعرات رطوبة التربة عن كثب",
+                "ضع تغطية عضوية حول قواعد المحاصيل",
+            ],
+        ),
+    },
 }
 
 
@@ -574,7 +620,7 @@ class WeatherAlertGenerator:
         crop_type = crop_type or self.config.default_crop
         alerts: list[WeatherAlert] = []
 
-        for forecast in forecasts:
+        for i, forecast in enumerate(forecasts):
             # Frost alerts
             frost_alert = self._check_frost(forecast, crop_type)
             if frost_alert:
@@ -656,6 +702,15 @@ class WeatherAlertGenerator:
                 hail_alert.location_name = location_name
                 hail_alert.location_name_ar = location_name_ar
                 alerts.append(hail_alert)
+
+            # Drought alerts (multi-day analysis)
+            drought_alert = self._check_drought(forecasts, i)
+            if drought_alert:
+                drought_alert.field_id = field_id
+                drought_alert.farm_id = farm_id
+                drought_alert.location_name = location_name
+                drought_alert.location_name_ar = location_name_ar
+                alerts.append(drought_alert)
 
         # Sort by severity (critical first)
         severity_order = {
@@ -1060,6 +1115,54 @@ class WeatherAlertGenerator:
             trigger_value=rain,
             trigger_unit="mm",
             confidence=forecast.confidence,
+        )
+
+    def _check_drought(self, forecasts: list, current_index: int) -> WeatherAlert | None:
+        """Check for drought conditions over multi-day forecast — فحص ظروف الجفاف"""
+        if current_index + 5 > len(forecasts):
+            return None
+
+        # Check 5 consecutive days with no significant precipitation
+        upcoming = forecasts[current_index:current_index + 5]
+        total_precip = sum(getattr(f, "precipitation_amount", 0) or 0 for f in upcoming)
+        avg_humidity = sum(f.humidity for f in upcoming) / len(upcoming)
+        avg_temp = sum(f.temperature for f in upcoming) / len(upcoming)
+
+        if total_precip < 1.0 and avg_humidity < 25 and avg_temp > 35:
+            severity = AlertSeverity.CRITICAL
+            level = "critical"
+        elif total_precip < 2.0 and avg_humidity < 30 and avg_temp > 30:
+            severity = AlertSeverity.WARNING
+            level = "warning"
+        else:
+            return None
+
+        template = ALERT_TEMPLATES.get(AlertType.DROUGHT, {}).get(level)
+        actions = ALERT_ACTIONS.get(AlertType.DROUGHT, {}).get(level, ([], []))
+
+        if not template:
+            return None
+
+        actions_en, actions_ar = actions if isinstance(actions, tuple) else (actions, [])
+
+        first_forecast = upcoming[0]
+        return WeatherAlert(
+            alert_type=AlertType.DROUGHT,
+            severity=severity,
+            valid_from=datetime.combine(first_forecast.forecast_date, datetime.min.time()),
+            valid_until=datetime.combine(first_forecast.forecast_date, datetime.min.time()) + timedelta(hours=120),
+            title=template.get("title", "Drought Warning"),
+            title_ar=template.get("title_ar", "تحذير جفاف"),
+            description=template.get("description", ""),
+            description_ar=template.get("description_ar", ""),
+            impact=template.get("impact", ""),
+            impact_ar=template.get("impact_ar", ""),
+            recommended_actions=list(actions_en),
+            recommended_actions_ar=list(actions_ar),
+            trigger_value=total_precip,
+            trigger_unit="mm (5-day total)",
+            confidence=first_forecast.confidence,
+            tags=["drought", "multi-day"],
         )
 
     def generate_irrigation_schedule(

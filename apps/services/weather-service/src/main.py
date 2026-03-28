@@ -57,6 +57,14 @@ except ImportError:
         pass
 
 
+# Prometheus metrics
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
+
 from datetime import UTC
 
 from .events import get_publisher
@@ -77,6 +85,24 @@ from .risks import (
 # Configuration
 USE_MOCK_WEATHER = os.getenv("USE_MOCK_WEATHER", "false").lower() == "true"
 USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
+
+# Prometheus metric definitions
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "weather_requests_total",
+        "Total weather API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "weather_request_duration_seconds",
+        "Weather API request latency",
+        ["endpoint"],
+    )
+    PROVIDER_FALLBACK = Counter(
+        "weather_provider_fallback_total",
+        "Weather provider fallback events",
+        ["from_provider", "to_provider"],
+    )
 
 
 @asynccontextmanager
@@ -225,6 +251,18 @@ def readiness():
         "version": "16.0.0",
         "checks": checks,
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    if not HAS_PROMETHEUS:
+        from starlette.responses import Response
+
+        return Response(content="prometheus_client not installed", status_code=501)
+    from starlette.responses import Response
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 # ============== Request Models ==============
@@ -607,6 +645,20 @@ async def calculate_et(req: ETRequest, user: User = Depends(get_current_user)):
         solar_radiation_mj=req.solar_radiation_mj,
     )
 
+    # Publish event for high ET conditions
+    et0_mm = result.get("et0_mm", 0)
+    if app.state.publisher and et0_mm > 7.0:
+        try:
+            await app.state.publisher.publish_weather_alert({
+                "alert_type": "high_evapotranspiration",
+                "severity": "warning",
+                "et0_mm": et0_mm,
+                "tenant_id": req.tenant_id,
+                "field_id": req.field_id,
+            })
+        except Exception as e:
+            logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
+
     return {
         "tenant_id": req.tenant_id,
         "field_id": req.field_id,
@@ -662,6 +714,18 @@ async def assess_spray_window(req: SprayWindowRequest, user: User = Depends(get_
         wind_speed_kmh=req.wind_speed_kmh,
         precipitation_probability=req.precipitation_probability,
     )
+
+    if app.state.publisher and not result.get("suitable", True):
+        try:
+            await app.state.publisher.publish_weather_alert({
+                "alert_type": "spray_window_unsuitable",
+                "severity": "advisory",
+                "tenant_id": req.tenant_id,
+                "field_id": req.field_id,
+                "reason": result.get("reason", ""),
+            })
+        except Exception as e:
+            logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
 
     return {
         "tenant_id": req.tenant_id,
@@ -751,6 +815,25 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                 event_ids.append(event_id)
             except Exception as e:
                 logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
+
+    # Publish report generated event
+    report = {
+        "evapotranspiration": et_result,
+        "growing_degree_days": gdd_result,
+        "spray_window": spray_result,
+        "irrigation_adjustment": irrigation,
+        "alerts": [a.to_dict() for a in alerts],
+    }
+    if app.state.publisher:
+        try:
+            await app.state.publisher.publish_forecast_issued({
+                "report_type": "agricultural",
+                "tenant_id": req.tenant_id,
+                "field_id": req.field_id,
+                "alerts_count": len(report.get("alerts", [])),
+            })
+        except Exception as e:
+            logger.error("nats_publish_failed", subject="forecast_issued", error=str(e))
 
     return {
         "tenant_id": req.tenant_id,

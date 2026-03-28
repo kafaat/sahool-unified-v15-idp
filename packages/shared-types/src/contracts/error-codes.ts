@@ -76,6 +76,16 @@ export const ERROR_CODES = {
   VISION_INFERENCE_TIMEOUT: 'E7001',
   VISION_REQUEST_TIMEOUT: 'E7002',
 
+  // ── Weather Service (W1xxx) ───────────────────────────────────────────
+  WEATHER_LOCATION_NOT_FOUND: 'W1001',
+  WEATHER_DATA_UNAVAILABLE: 'W1002',
+  WEATHER_PROVIDER_ERROR: 'W1003',
+  WEATHER_API_KEY_INVALID: 'W1004',
+  WEATHER_FORECAST_RANGE_INVALID: 'W1005',
+  WEATHER_COORDINATE_INVALID: 'W1006',
+  WEATHER_CACHE_ERROR: 'W1007',
+  WEATHER_RATE_LIMITED: 'W1008',
+
   // ── Generic ──────────────────────────────────────────────────────────
   UNKNOWN: 'UNKNOWN',
 } as const;
@@ -271,6 +281,64 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'Security certificate error',
     ar: 'خطأ في شهادة الأمان',
     retryable: false,
+  },
+
+  // ── Weather Service (W1xxx) ───────────────────────────────────────────
+  [ERROR_CODES.WEATHER_LOCATION_NOT_FOUND]: {
+    code: ERROR_CODES.WEATHER_LOCATION_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Weather location not found',
+    ar: 'موقع الطقس غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.WEATHER_DATA_UNAVAILABLE]: {
+    code: ERROR_CODES.WEATHER_DATA_UNAVAILABLE,
+    httpStatus: 503,
+    en: 'Weather data is currently unavailable',
+    ar: 'بيانات الطقس غير متاحة حالياً',
+    retryable: true,
+  },
+  [ERROR_CODES.WEATHER_PROVIDER_ERROR]: {
+    code: ERROR_CODES.WEATHER_PROVIDER_ERROR,
+    httpStatus: 502,
+    en: 'Weather provider returned an error',
+    ar: 'أرجع مزود الطقس خطأ',
+    retryable: true,
+  },
+  [ERROR_CODES.WEATHER_API_KEY_INVALID]: {
+    code: ERROR_CODES.WEATHER_API_KEY_INVALID,
+    httpStatus: 401,
+    en: 'Invalid weather API key',
+    ar: 'مفتاح واجهة برمجة الطقس غير صالح',
+    retryable: false,
+  },
+  [ERROR_CODES.WEATHER_FORECAST_RANGE_INVALID]: {
+    code: ERROR_CODES.WEATHER_FORECAST_RANGE_INVALID,
+    httpStatus: 400,
+    en: 'Invalid forecast date range',
+    ar: 'نطاق تاريخ التنبؤ غير صالح',
+    retryable: false,
+  },
+  [ERROR_CODES.WEATHER_COORDINATE_INVALID]: {
+    code: ERROR_CODES.WEATHER_COORDINATE_INVALID,
+    httpStatus: 400,
+    en: 'Invalid geographic coordinates',
+    ar: 'إحداثيات جغرافية غير صالحة',
+    retryable: false,
+  },
+  [ERROR_CODES.WEATHER_CACHE_ERROR]: {
+    code: ERROR_CODES.WEATHER_CACHE_ERROR,
+    httpStatus: 503,
+    en: 'Weather cache error',
+    ar: 'خطأ في ذاكرة التخزين المؤقت للطقس',
+    retryable: true,
+  },
+  [ERROR_CODES.WEATHER_RATE_LIMITED]: {
+    code: ERROR_CODES.WEATHER_RATE_LIMITED,
+    httpStatus: 429,
+    en: 'Weather API rate limit exceeded. Please wait.',
+    ar: 'تم تجاوز حد معدل واجهة برمجة الطقس. يرجى الانتظار.',
+    retryable: true,
   },
 
   // ── Generic ──────────────────────────────────────────────────────────

@@ -155,8 +155,13 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
+            # Validate SSL mode is present in DATABASE_URL for security
+            ssl_mode = os.getenv("POSTGRES_SSL_MODE", "disable")
+            if ssl_mode != "disable" and "sslmode=" not in db_url:
+                db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode={ssl_mode}"
+
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
-            logger.info("database_connected", pool_size=10)
+            logger.info("database_connected", pool_size=10, ssl_mode=ssl_mode)
         except Exception as e:
             logger.warning("database_connection_failed", error=str(e))
             app.state.db_pool = None

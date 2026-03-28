@@ -370,13 +370,18 @@ describe("AuthService", () => {
         token_type: "Bearer",
       });
 
+      // First update inside transaction: mark token as used
       expect(prismaService.refreshToken.update).toHaveBeenCalledWith({
         where: { jti: mockJti },
         data: {
           used: true,
           usedAt: expect.any(Date),
-          replacedBy: expect.any(String),
         },
+      });
+      // Second update outside transaction: set replacedBy
+      expect(prismaService.refreshToken.update).toHaveBeenCalledWith({
+        where: { jti: mockJti },
+        data: { replacedBy: expect.any(String) },
       });
     });
 

@@ -3,7 +3,7 @@ Unit Tests for WebSocket Message Handlers
 اختبارات الوحدة لمعالجات رسائل WebSocket
 """
 
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 

@@ -602,11 +602,13 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
 
 
 # NOTE: Static routes MUST come before dynamic routes to avoid path matching issues
+# Knowledge-base lookup endpoints: tenant isolation is logged (not enforced)
+# because these return static reference data shared across tenants.
 @app.get("/api/v1/disease/search")
 @rate_limit(tier="lookup")
 def search_disease(request: Request, q: str, lang: str = "ar", user: User = Depends(get_current_user)):
     """Search diseases by name or symptoms"""
-    logger.info("disease_search", tenant_id=user.tenant_id, query=q, lang=lang)
+    logger.info("disease_search", tenant_id=user.tenant_id, user_id=user.id, query=q, lang=lang)
     results = search_diseases(q, lang)
     return {"query": q, "results": results, "count": len(results)}
 
@@ -615,7 +617,7 @@ def search_disease(request: Request, q: str, lang: str = "ar", user: User = Depe
 @rate_limit(tier="lookup")
 def get_crop_diseases(request: Request, crop: str, user: User = Depends(get_current_user)):
     """Get all diseases for a specific crop"""
-    logger.info("crop_diseases_lookup", tenant_id=user.tenant_id, crop=crop)
+    logger.info("crop_diseases_lookup", tenant_id=user.tenant_id, user_id=user.id, crop=crop)
     diseases = get_diseases_by_crop(crop)
     return {"crop": crop, "diseases": diseases, "count": len(diseases)}
 
@@ -624,7 +626,7 @@ def get_crop_diseases(request: Request, crop: str, user: User = Depends(get_curr
 @rate_limit(tier="lookup")
 def get_disease_info(request: Request, disease_id: str, lang: str = "ar", user: User = Depends(get_current_user)):
     """Get disease information by ID"""
-    logger.info("disease_info_lookup", tenant_id=user.tenant_id, disease_id=disease_id)
+    logger.info("disease_info_lookup", tenant_id=user.tenant_id, user_id=user.id, disease_id=disease_id)
     disease = get_disease(disease_id)
     if not disease:
         raise HTTPException(status_code=404, detail=f"Disease not found: {disease_id}")

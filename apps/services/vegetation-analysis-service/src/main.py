@@ -1589,6 +1589,7 @@ async def analyze_ndvi_timeseries(
                     "timestamp": datetime.now(UTC).isoformat(),
                 },
                 priority="high" if trend_direction == "declining" else "medium",
+                tenant_id=tenant_id,
             )
             logger.info(
                 "nats_ndvi_trend_published",
@@ -2222,7 +2223,7 @@ async def get_irrigation_events(
     """
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="irrigation_events")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
     _validate_field_id(field_id)
 
     if not _sar_processor:
@@ -2297,7 +2298,7 @@ async def get_sar_timeseries(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="sar_timeseries")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2395,7 +2396,7 @@ async def get_all_indices(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="indices")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -2455,7 +2456,7 @@ async def get_specific_index(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="specific_index")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -3062,7 +3063,7 @@ async def get_yield_history(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="yield_history")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     import random
 
@@ -3292,7 +3293,7 @@ async def get_cloud_cover(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="cloud_cover")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3347,7 +3348,7 @@ async def find_clear_observations(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="clear_observations")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3414,7 +3415,7 @@ async def get_best_observation(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="best_observation")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3559,7 +3560,7 @@ async def export_analysis(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="export_analysis")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3611,7 +3612,7 @@ async def export_timeseries(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="export_timeseries")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3692,7 +3693,7 @@ async def export_boundaries(
     """
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_ids=field_ids, endpoint="export_boundaries")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3780,7 +3781,7 @@ async def export_report(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="export_report")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3972,7 +3973,7 @@ async def detect_changes(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="changes")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4039,7 +4040,7 @@ async def compare_dates(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="changes_compare")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4105,7 +4106,7 @@ async def get_anomalies(
     _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
-        logger.warning("missing_tenant_context", field_id=field_id, endpoint="anomalies")
+        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")

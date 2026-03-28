@@ -185,7 +185,7 @@ async def get_regional_distribution(
 @router.get("/hourly-trends")
 async def get_hourly_trends(
     days: int = Query(default=7, ge=1, le=30, description="Number of days to analyze"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     الاتجاهات بالساعة
@@ -211,7 +211,7 @@ async def get_hourly_trends(
 async def get_user_engagement(
     user_id: str | None = Query(default=None, description="Specific user ID"),
     time_range: str = Query(default="week", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     تفاعل المستخدم
@@ -244,7 +244,7 @@ async def get_user_engagement(
 @router.get("/priority-distribution")
 async def get_priority_distribution(
     time_range: str = Query(default="week", description="Time range"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     توزيع الأولويات
@@ -271,7 +271,7 @@ async def get_priority_distribution(
 
 @router.get("/dashboard")
 async def get_dashboard_summary(
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     ملخص لوحة القيادة
@@ -350,7 +350,7 @@ async def get_notification_health():
 async def compare_time_periods(
     current_range: str = Query(default="week", description="Current time range"),
     previous_range: str = Query(default="week", description="Previous time range for comparison"),
-    tenant_id: str | None = Query(default=None),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     مقارنة الفترات الزمنية

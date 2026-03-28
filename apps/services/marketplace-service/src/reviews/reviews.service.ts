@@ -185,9 +185,14 @@ export class ReviewsService {
   /**
    * جلب إحصائيات تقييمات المنتج
    */
-  async getProductReviewStats(productId: string) {
+  async getProductReviewStats(productId: string, tenantId?: string) {
+    const where: any = { productId };
+    if (tenantId) {
+      where.tenantId = tenantId;
+    }
+
     const reviews = await this.prisma.productReview.findMany({
-      where: { productId },
+      where,
       select: { rating: true },
       take: 100,
     });
@@ -222,9 +227,14 @@ export class ReviewsService {
   /**
    * جلب تقييمات المشتري
    */
-  async getBuyerReviews(buyerId: string, limit = 20, offset = 0) {
+  async getBuyerReviews(buyerId: string, limit = 20, offset = 0, tenantId?: string) {
+    const where: any = { buyerId };
+    if (tenantId) {
+      where.tenantId = tenantId;
+    }
+
     return this.prisma.productReview.findMany({
-      where: { buyerId },
+      where,
       include: {
         response: {
           include: {
@@ -505,9 +515,14 @@ export class ReviewsService {
   /**
    * جلب ردود البائع
    */
-  async getSellerResponses(sellerId: string, limit = 20, offset = 0) {
+  async getSellerResponses(sellerId: string, limit = 20, offset = 0, tenantId?: string) {
+    const where: any = { sellerId };
+    if (tenantId) {
+      where.tenantId = tenantId;
+    }
+
     return this.prisma.reviewResponse.findMany({
-      where: { sellerId },
+      where,
       include: {
         review: {
           include: {

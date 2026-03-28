@@ -1960,6 +1960,7 @@ async def quick_check_with_action(
     days_since_irrigation: int = Query(..., ge=0, description="أيام منذ آخر ري"),
     temperature: float = Query(..., ge=-60, le=60, description="درجة الحرارة"),
     humidity: float = Query(50, ge=0, le=100, description="الرطوبة النسبية"),
+    tenant_id: str | None = Query(None, description="معرف المستأجر - Tenant identifier"),
     user: User = Depends(get_current_user),
 ):
     """
@@ -1967,6 +1968,10 @@ async def quick_check_with_action(
 
     للبيئات الريفية بدون IoT
     """
+    # Enforce tenant isolation
+    if tenant_id:
+        _enforce_tenant(user, tenant_id)
+
     # Get quick check result
     result = await quick_irrigation_check(
         crop_type=crop_type,

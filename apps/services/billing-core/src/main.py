@@ -304,6 +304,9 @@ async def job_mark_overdue_invoices():
     Mark overdue invoices as OVERDUE
     تحديث الفواتير المتأخرة
     Runs daily at 03:00 UTC
+
+    NOTE: This is a system-level background job that intentionally operates across
+    all tenants. Global access is required for correct billing enforcement.
     """
     from .database import get_db_context
 
@@ -400,6 +403,9 @@ async def job_suspend_past_due():
     Suspend subscriptions with invoices overdue > 14 days
     تعليق الاشتراكات ذات الفواتير المتأخرة أكثر من 14 يوم
     Runs daily at 05:00 UTC
+
+    NOTE: This is a system-level background job that intentionally operates across
+    all tenants. Global access is required for correct billing enforcement.
     """
     from .database import get_db_context
 
@@ -3122,6 +3128,9 @@ async def create_refund(
     if not payment:
         raise HTTPException(404, "الدفعة غير موجودة")
 
+    # Tenant isolation: tenant_admin can only refund their own tenant's payments
+    require_tenant_or_admin(current_user, payment.tenant_id)
+
     if payment.status != db_models.PaymentStatus.SUCCEEDED:
         raise HTTPException(400, "لا يمكن استرداد دفعة غير ناجحة")
 
@@ -3591,24 +3600,30 @@ async def get_revenue_report(
     if not end_date:
         end_date = date.today()
 
+    # Tenant isolation: tenant_admin sees only their own data, super_admin sees all
+    tenant_filter = _get_tenant_filter(current_user)
+
     repo = BillingRepository(db)
 
     # Calculate revenue from database
     total_usd = await repo.invoices.get_total_revenue(
-        start_date=start_date, end_date=end_date, currency=db_models.Currency.USD
+        start_date=start_date, end_date=end_date, currency=db_models.Currency.USD, tenant_id=tenant_filter
     )
     total_yer = await repo.invoices.get_total_revenue(
-        start_date=start_date, end_date=end_date, currency=db_models.Currency.YER
+        start_date=start_date, end_date=end_date, currency=db_models.Currency.YER, tenant_id=tenant_filter
     )
 
     # Revenue by payment method
     by_method = await repo.payments.get_total_by_method(
         start_date=datetime.combine(start_date, datetime.min.time()).replace(tzinfo=UTC),
         end_date=datetime.combine(end_date, datetime.max.time()).replace(tzinfo=UTC),
+        tenant_id=tenant_filter,
     )
 
     # Count paid invoices in period
-    paid_invoices = await repo.invoices.list_by_tenant(tenant_id=None, status=db_models.InvoiceStatus.PAID, limit=10000)
+    paid_invoices = await repo.invoices.list_by_tenant(
+        tenant_id=tenant_filter, status=db_models.InvoiceStatus.PAID, limit=10000
+    )
     invoices_in_period = [inv for inv in paid_invoices if inv.paid_date and start_date <= inv.paid_date <= end_date]
 
     # Revenue by plan
@@ -3639,11 +3654,14 @@ async def get_subscriptions_report(
     db: AsyncSession = Depends(get_db),
 ):
     """تقرير الاشتراكات (للمسؤولين)"""
+    # Tenant isolation: tenant_admin sees only their own data, super_admin sees all
+    tenant_filter = _get_tenant_filter(current_user)
+
     repo = BillingRepository(db)
 
     # Get counts from database
-    by_status = await repo.subscriptions.count_by_status()
-    by_plan = await repo.subscriptions.count_by_plan()
+    by_status = await repo.subscriptions.count_by_status(tenant_id=tenant_filter)
+    by_plan = await repo.subscriptions.count_by_plan(tenant_id=tenant_filter)
     total_tenants = await repo.tenants.count_total(active_only=False)
 
     total_subscriptions = sum(by_status.values())

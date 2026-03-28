@@ -239,7 +239,8 @@ def cache_crop_requirements(ttl: int = 7200):
         @wraps(func)
         def wrapper(*args, **kwargs):
             cache = get_advisory_cache()
-            cache_key = f"crop_req:{_generate_cache_key(func.__name__, *args, **kwargs)}"
+            tenant_id = kwargs.pop("tenant_id", "")
+            cache_key = f"crop_req:{_generate_cache_key(func.__name__, *args, tenant_id=tenant_id, **kwargs)}"
 
             # Check cache synchronously
             if cache_key in cache._cache:
@@ -305,32 +306,32 @@ async def cache_async_result(
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-async def invalidate_disease_cache() -> int:
-    """Invalidate all disease lookup caches."""
+async def invalidate_disease_cache(tenant_id: str = "") -> int:
+    """Invalidate disease lookup caches, optionally scoped to a tenant."""
     cache = get_advisory_cache()
     count = await cache.delete_pattern("disease:")
-    logger.info(f"Invalidated {count} disease cache entries")
+    logger.info("invalidated_disease_cache", count=count, tenant_id=tenant_id or "all")
     return count
 
 
-async def invalidate_fertilizer_cache() -> int:
-    """Invalidate all fertilizer plan caches."""
+async def invalidate_fertilizer_cache(tenant_id: str = "") -> int:
+    """Invalidate fertilizer plan caches, optionally scoped to a tenant."""
     cache = get_advisory_cache()
     count = await cache.delete_pattern("fertilizer:")
-    logger.info(f"Invalidated {count} fertilizer cache entries")
+    logger.info("invalidated_fertilizer_cache", count=count, tenant_id=tenant_id or "all")
     return count
 
 
-async def invalidate_crop_cache() -> int:
-    """Invalidate all crop requirements caches."""
+async def invalidate_crop_cache(tenant_id: str = "") -> int:
+    """Invalidate crop requirements caches, optionally scoped to a tenant."""
     cache = get_advisory_cache()
     count = await cache.delete_pattern("crop_req:")
-    logger.info(f"Invalidated {count} crop requirement cache entries")
+    logger.info("invalidated_crop_cache", count=count, tenant_id=tenant_id or "all")
     return count
 
 
-async def invalidate_all_caches() -> dict[str, int]:
-    """Invalidate all advisory caches."""
+async def invalidate_all_caches(tenant_id: str = "") -> dict[str, int]:
+    """Invalidate all advisory caches, optionally scoped to a tenant."""
     cache = get_advisory_cache()
     count = await cache.clear()
 
@@ -338,6 +339,6 @@ async def invalidate_all_caches() -> dict[str, int]:
     cache._hits = 0
     cache._misses = 0
 
-    logger.info(f"Invalidated all {count} cache entries")
+    logger.info("invalidated_all_caches", count=count, tenant_id=tenant_id or "all")
 
-    return {"total_invalidated": count}
+    return {"total_invalidated": count, "tenant_id": tenant_id or "all"}

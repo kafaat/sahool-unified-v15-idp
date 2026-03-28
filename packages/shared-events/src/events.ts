@@ -12,7 +12,12 @@ export interface BaseEvent {
   eventType: string;
   timestamp: Date;
   version: string;
-  tenantId: string;
+  /**
+   * Tenant ID for multi-tenant event isolation.
+   * Extracted from JWT `tid` claim. Optional for system-level events
+   * (e.g. device.connected) that may not have a tenant context.
+   */
+  tenantId?: string;
   metadata?: Record<string, unknown>;
 }
 

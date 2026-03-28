@@ -1,6 +1,6 @@
 /**
- * Prisma Service - Database Connection
- * خدمة الاتصال بقاعدة البيانات
+ * Prisma Service - Database Connection with retry
+ * خدمة الاتصال بقاعدة البيانات مع إعادة المحاولة
  */
 
 import {
@@ -30,6 +30,30 @@ export class PrismaService
           url: process.env.DATABASE_URL,
         },
       },
+    });
+
+    // Handle connection errors gracefully by reconnecting
+    // PgBouncer may close idle connections, causing "Server has closed the connection"
+    this.$use(async (params, next) => {
+      try {
+        return await next(params);
+      } catch (error: any) {
+        // Retry on connection closed errors (PgBouncer idle timeout)
+        if (
+          error?.message?.includes('Server has closed the connection') ||
+          error?.message?.includes('Connection reset by peer') ||
+          error?.code === 'P2024' // Timed out fetching a new connection from pool
+        ) {
+          this.logger.warn(
+            `Database connection lost during ${params.model}.${params.action}, reconnecting...`,
+          );
+          await this.$disconnect();
+          await this.$connect();
+          // Retry the query once after reconnecting
+          return await next(params);
+        }
+        throw error;
+      }
     });
   }
 

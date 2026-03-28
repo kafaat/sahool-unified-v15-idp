@@ -1827,7 +1827,9 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
       - PORT=3025
       # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Added connection_limit=10, pool_timeout=20, connect_timeout=10 to prevent
+      # Prisma pool exhaustion and handle PgBouncer idle connection drops
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true&connection_limit=10&pool_timeout=20&connect_timeout=10
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0

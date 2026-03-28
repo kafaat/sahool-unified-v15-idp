@@ -3247,7 +3247,7 @@ def readiness():
 
 
 @app.get("/v1/today", response_model=DailyAstronomicalData, tags=["Calendar"])
-def get_today():
+def get_today(user: User = Depends(get_current_user)):
     """
     الحصول على البيانات الفلكية لليوم الحالي
 
@@ -3263,7 +3263,7 @@ def get_today():
 
 
 @app.get("/v1/date/{date_str}", response_model=DailyAstronomicalData, tags=["Calendar"])
-def get_date(date_str: str):
+def get_date(date_str: str, user: User = Depends(get_current_user)):
     """
     الحصول على البيانات الفلكية لتاريخ محدد
 
@@ -3280,6 +3280,7 @@ def get_date(date_str: str):
 @app.get("/v1/week", response_model=WeeklyForecast, tags=["Calendar"])
 def get_weekly_forecast(
     start_date: str | None = Query(None, description="تاريخ البداية (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     الحصول على التوقعات الفلكية الأسبوعية

@@ -928,14 +928,16 @@ async def acknowledge_anomaly(
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            tenant_id = current_user.tenant_id or ""
             result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
                 """UPDATE anomalies SET status='acknowledged',
                    acknowledged_by=$1, acknowledged_notes=$2, acknowledged_at=$3
-                   WHERE anomaly_id=$4""",
+                   WHERE anomaly_id=$4 AND tenant_id=$5""",
                 request.acknowledged_by,
                 request.notes,
                 acknowledged_at,
                 anomaly_id,
+                tenant_id,
             )
             if result == "UPDATE 0":
                 raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")
@@ -973,15 +975,17 @@ async def resolve_anomaly(
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            tenant_id = current_user.tenant_id or ""
             result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
                 """UPDATE anomalies SET status='resolved',
                    resolved_by=$1, resolution_notes=$2, resolution_notes_ar=$3, resolved_at=$4
-                   WHERE anomaly_id=$5""",
+                   WHERE anomaly_id=$5 AND tenant_id=$6""",
                 request.resolved_by,
                 request.resolution_notes,
                 request.resolution_notes_ar,
                 resolved_at,
                 anomaly_id,
+                tenant_id,
             )
             if result == "UPDATE 0":
                 raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")

@@ -597,6 +597,7 @@ async def get_composite(composite_id: str, user: User = Depends(get_current_user
 async def download_composite(
     composite_id: str,
     format: ExportFormat = Query(ExportFormat.GEOTIFF),
+    user: User = Depends(get_current_user),
 ):
     """تنزيل مركب"""
     from .processing import _composites

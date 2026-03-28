@@ -358,8 +358,12 @@ async def get_checklists(
     Get available checklists
     الحصول على قوائم المراجعة المتاحة
     """
-    # Filter checklists | تصفية قوائم المراجعة
-    filtered = [c for c in _checklists.values() if c.get("ifa_version") == ifa_version and c.get("is_active", True)]
+    # Filter checklists by tenant and version | تصفية قوائم المراجعة حسب المستأجر والإصدار
+    filtered = [
+        c
+        for c in _checklists.values()
+        if c.get("ifa_version") == ifa_version and c.get("is_active", True) and c.get("tenant_id") == tenant_id
+    ]
 
     if checklist_type:
         filtered = [c for c in filtered if c.get("checklist_type") == checklist_type]

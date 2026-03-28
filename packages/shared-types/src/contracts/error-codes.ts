@@ -112,6 +112,16 @@ export const ERROR_CODES = {
   FIELD_GEOJSON_INVALID: 'F1009',
   FIELD_POSTGIS_ERROR: 'F1010',
 
+  // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────
+  VEGETATION_FIELD_NOT_FOUND: 'V1001',
+  VEGETATION_NDVI_DATA_UNAVAILABLE: 'V1002',
+  VEGETATION_SATELLITE_ERROR: 'V1003',
+  VEGETATION_CLOUD_COVER_HIGH: 'V1004',
+  VEGETATION_INVALID_DATE_RANGE: 'V1005',
+  VEGETATION_ANOMALY_DETECTION_FAILED: 'V1006',
+  VEGETATION_INDICATOR_NOT_FOUND: 'V1007',
+  VEGETATION_INDICATOR_VALUE_INVALID: 'V1008',
+
   // ── Generic ──────────────────────────────────────────────────────────
   UNKNOWN: 'UNKNOWN',
 } as const;
@@ -523,6 +533,64 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'PostGIS spatial operation failed',
     ar: 'فشلت العملية المكانية في PostGIS',
     retryable: true,
+  },
+
+  // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────
+  [ERROR_CODES.VEGETATION_FIELD_NOT_FOUND]: {
+    code: ERROR_CODES.VEGETATION_FIELD_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Field not found for vegetation analysis',
+    ar: 'الحقل غير موجود لتحليل الغطاء النباتي',
+    retryable: false,
+  },
+  [ERROR_CODES.VEGETATION_NDVI_DATA_UNAVAILABLE]: {
+    code: ERROR_CODES.VEGETATION_NDVI_DATA_UNAVAILABLE,
+    httpStatus: 503,
+    en: 'NDVI data is currently unavailable for this field',
+    ar: 'بيانات مؤشر الغطاء النباتي غير متاحة حالياً لهذا الحقل',
+    retryable: true,
+  },
+  [ERROR_CODES.VEGETATION_SATELLITE_ERROR]: {
+    code: ERROR_CODES.VEGETATION_SATELLITE_ERROR,
+    httpStatus: 502,
+    en: 'Satellite imagery provider returned an error',
+    ar: 'أرجع مزود صور الأقمار الصناعية خطأ',
+    retryable: true,
+  },
+  [ERROR_CODES.VEGETATION_CLOUD_COVER_HIGH]: {
+    code: ERROR_CODES.VEGETATION_CLOUD_COVER_HIGH,
+    httpStatus: 422,
+    en: 'Cloud cover is too high for reliable NDVI analysis',
+    ar: 'الغطاء السحابي مرتفع جداً لتحليل موثوق لمؤشر الغطاء النباتي',
+    retryable: true,
+  },
+  [ERROR_CODES.VEGETATION_INVALID_DATE_RANGE]: {
+    code: ERROR_CODES.VEGETATION_INVALID_DATE_RANGE,
+    httpStatus: 400,
+    en: 'Invalid date range for vegetation analysis',
+    ar: 'نطاق التاريخ غير صالح لتحليل الغطاء النباتي',
+    retryable: false,
+  },
+  [ERROR_CODES.VEGETATION_ANOMALY_DETECTION_FAILED]: {
+    code: ERROR_CODES.VEGETATION_ANOMALY_DETECTION_FAILED,
+    httpStatus: 500,
+    en: 'Vegetation anomaly detection failed',
+    ar: 'فشل اكتشاف شذوذ الغطاء النباتي',
+    retryable: true,
+  },
+  [ERROR_CODES.VEGETATION_INDICATOR_NOT_FOUND]: {
+    code: ERROR_CODES.VEGETATION_INDICATOR_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Vegetation indicator not found',
+    ar: 'مؤشر الغطاء النباتي غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.VEGETATION_INDICATOR_VALUE_INVALID]: {
+    code: ERROR_CODES.VEGETATION_INDICATOR_VALUE_INVALID,
+    httpStatus: 400,
+    en: 'Vegetation indicator value is out of valid range',
+    ar: 'قيمة مؤشر الغطاء النباتي خارج النطاق الصالح',
+    retryable: false,
   },
 
   // ── Generic ──────────────────────────────────────────────────────────

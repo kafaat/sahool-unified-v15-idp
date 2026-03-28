@@ -1,10 +1,11 @@
 """
-📊 SAHOOL Agricultural Indicators Service v15.3
+📊 SAHOOL Agricultural Indicators Service v16.0
 خدمة المؤشرات الزراعية - Dashboard & Analytics
 """
 
 import json
 import os
+import re
 import sys
 import uuid
 from contextlib import asynccontextmanager
@@ -20,7 +21,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
@@ -65,80 +66,146 @@ def _enforce_tenant(user: Any, requested_tenant_id: str) -> None:
             )
 
 
+# Prometheus metrics
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
+
+# Prometheus metric definitions
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "indicators_requests_total",
+        "Total indicators API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "indicators_request_duration_seconds",
+        "Indicators API request latency",
+        ["endpoint"],
+    )
+
+# Prometheus middleware to record metrics per request
+if HAS_PROMETHEUS:
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            import time as _time
+
+            endpoint = request.url.path
+            start = _time.time()
+            response = await call_next(request)
+            duration = _time.time() - start
+            REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+            REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+            return response
+
+
 logger = structlog.get_logger()
+
+# Field ID validation: alphanumeric, hyphens, underscores; 1-100 chars
+_FIELD_ID_RE = re.compile(r"^[a-zA-Z0-9_-]{1,100}$")
+
+
+def _validate_field_id(field_id: str) -> None:
+    """Validate field_id format - must be non-empty, max 100 chars, alphanumeric/hyphens/underscores."""
+    if not field_id or not _FIELD_ID_RE.match(field_id):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "invalid_field_id",
+                "message_ar": "معرّف الحقل غير صالح: يجب أن يكون من 1 إلى 100 حرف (أحرف وأرقام وشرطات فقط)",
+                "message_en": "Invalid field_id: must be 1-100 characters (alphanumeric, hyphens, underscores only)",
+            },
+        )
+
+
+def _validate_tenant_id(tenant_id: str | None) -> None:
+    """Validate tenant_id if provided - must be non-empty, max 255 chars."""
+    if tenant_id is not None:
+        if not tenant_id or not tenant_id.strip():
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "invalid_tenant_id",
+                    "message_ar": "معرّف المستأجر لا يمكن أن يكون فارغًا",
+                    "message_en": "Tenant ID cannot be empty",
+                },
+            )
+        if len(tenant_id) > 255:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "invalid_tenant_id",
+                    "message_ar": "معرّف المستأجر طويل جدًا (الحد الأقصى 255 حرفًا)",
+                    "message_en": "Tenant ID too long (max 255 characters)",
+                },
+            )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifecycle - startup and shutdown."""
-    # Startup
-    logger.info("Starting indicators-service...")
-
     # Database connection
     db_url = os.getenv("DATABASE_URL")
-    # Enforce sslmode for non-development database connections
-    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
-        if "sslmode" not in db_url:
-            # Use sslmode=disable for PgBouncer (port 6432) which does not support SSL
-            ssl_mode = "disable" if ":6432" in db_url else "require"
-            db_url += f"?sslmode={ssl_mode}" if "?" not in db_url else f"&sslmode={ssl_mode}"
     if db_url:
         try:
+            import asyncpg
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
-            logger.info("Connected to database")
-            # Create table if not exists
-            async with app.state.db_pool.acquire() as conn:
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS field_indicators (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        indicator_type VARCHAR(100) NOT NULL,
-                        value JSONB NOT NULL,
-                        calculated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        tenant_id VARCHAR(255),
-                        UNIQUE(field_id, indicator_type)
-                    )
-                """)
-                # Create index for faster lookups
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_field_indicators_field_id
-                    ON field_indicators(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_field_indicators_tenant_id
-                    ON field_indicators(tenant_id)
-                """)
-            logger.info("Database tables initialized")
+            logger.info("database_connected", pool_size=10)
         except Exception as e:
-            logger.warning("Failed to connect to database", error=str(e))
+            logger.warning("database_connection_failed", error=str(e))
             app.state.db_pool = None
     else:
         app.state.db_pool = None
-        logger.info("DATABASE_URL not configured, using in-memory storage")
+        logger.info("database_not_configured")
 
     # NATS connection
     nats_url = os.getenv("NATS_URL")
     if nats_url:
         try:
-            app.state.nc = await nats.connect(nats_url)
-            logger.info("Connected to NATS", nats_url=nats_url)
+            import nats as nats_lib
+            app.state.nc = await nats_lib.connect(nats_url)
+            logger.info("nats_connected")
         except Exception as e:
-            logger.warning("Failed to connect to NATS", error=str(e))
+            logger.warning("nats_connection_failed", error=str(e))
             app.state.nc = None
     else:
         app.state.nc = None
-        logger.info("NATS_URL not configured, event publishing disabled")
+
+    # Subscribe to NATS events
+    if app.state.nc:
+        # Subscribe to field events
+        async def handle_field_created(msg):
+            try:
+                data = json.loads(msg.data.decode())
+                logger.info("field_created_event_received", field_id=data.get("field_id"))
+                # TODO: Initialize default indicators for new field
+            except Exception as e:
+                logger.error("event_handler_failed", subject="field.created", error=str(e))
+
+        async def handle_ndvi_calculated(msg):
+            try:
+                data = json.loads(msg.data.decode())
+                logger.info("ndvi_calculated_received", field_id=data.get("field_id"))
+                # TODO: Update NDVI indicator for field
+            except Exception as e:
+                logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))
+
+        await app.state.nc.subscribe("sahool.field.created", cb=handle_field_created)
+        await app.state.nc.subscribe("sahool.satellite.ndvi.computed", cb=handle_ndvi_calculated)
+        logger.info("nats_subscriptions_registered", count=2)
 
     yield
 
-    # Shutdown
-    logger.info("Shutting down indicators-service...")
-    if hasattr(app.state, "db_pool") and app.state.db_pool:
+    # Cleanup
+    if getattr(app.state, "db_pool", None):
         await app.state.db_pool.close()
-        logger.info("Database connection closed")
-    if hasattr(app.state, "nc") and app.state.nc:
+    if getattr(app.state, "nc", None):
         await app.state.nc.close()
-        logger.info("NATS connection closed")
 
 
 app = FastAPI(
@@ -152,6 +219,10 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 app.add_middleware(TenantContextMiddleware)
+
+# Prometheus request metrics middleware
+if HAS_PROMETHEUS:
+    app.add_middleware(PrometheusMiddleware)
 
 
 async def publish_event(subject: str, data: dict, tenant_id: str | None = None):
@@ -252,7 +323,11 @@ async def get_indicator(field_id: str, indicator_type: str) -> dict | None:
                     indicator_type,
                 )
                 if row:
-                    data = json.loads(row["value"])
+                    try:
+                        data = json.loads(row["value"])
+                    except (json.JSONDecodeError, TypeError):
+                        logger.warning("corrupted_indicator_data", row_id=str(row.get("id", "")), field_id=field_id)
+                        return None
                     data["calculated_at"] = row["calculated_at"].isoformat()
                     return data
         except Exception as e:
@@ -287,7 +362,11 @@ async def get_all_field_indicators(field_id: str) -> list[dict]:
                 )
                 result = []
                 for row in rows:
-                    data = json.loads(row["value"])
+                    try:
+                        data = json.loads(row["value"])
+                    except (json.JSONDecodeError, TypeError):
+                        logger.warning("corrupted_indicator_data", row_id=str(row.get("id", "")), field_id=field_id)
+                        continue
                     data["indicator_type"] = row["indicator_type"]
                     data["calculated_at"] = row["calculated_at"].isoformat()
                     result.append(data)
@@ -323,7 +402,11 @@ async def get_tenant_indicators(tenant_id: str, limit: int = 100) -> list[dict]:
                 )
                 result = []
                 for row in rows:
-                    data = json.loads(row["value"])
+                    try:
+                        data = json.loads(row["value"])
+                    except (json.JSONDecodeError, TypeError):
+                        logger.warning("corrupted_indicator_data", row_id=str(row.get("id", "")))
+                        continue
                     data["field_id"] = row["field_id"]
                     data["indicator_type"] = row["indicator_type"]
                     data["calculated_at"] = row["calculated_at"].isoformat()
@@ -792,21 +875,37 @@ def health():
 
 
 @app.get("/readyz")
-def readiness():
+async def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    nats_connected = hasattr(app.state, "nc") and app.state.nc is not None
-    db_connected = hasattr(app.state, "db_pool") and app.state.db_pool is not None
-    return {
-        "status": "ready",
-        "service": "indicators-service",
-        "version": "16.0.0",
-        "checks": {
-            "indicators": "loaded" if INDICATOR_DEFINITIONS else "not_loaded",
-            "nats": "connected" if nats_connected else "disconnected",
-            "database": "connected" if db_connected else "disconnected",
-        },
-        "indicators_count": len(INDICATOR_DEFINITIONS),
-    }
+    checks = {}
+    db_pool = getattr(app.state, "db_pool", None)
+    if db_pool:
+        try:
+            async with db_pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            checks["database"] = "connected"
+        except Exception:
+            checks["database"] = "disconnected"
+    else:
+        checks["database"] = "not_configured"
+
+    nc = getattr(app.state, "nc", None)
+    checks["nats"] = "connected" if nc and not nc.is_closed else "not_configured"
+
+    all_ready = all(v != "disconnected" for v in checks.values())
+    return {"status": "ready" if all_ready else "degraded", "service": "indicators-service", "version": "16.0.0", "checks": checks}
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    if not HAS_PROMETHEUS:
+        from starlette.responses import Response
+
+        return Response(content="prometheus_client not installed", status_code=501)
+    from starlette.responses import Response
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/v1/indicators/definitions")
@@ -836,17 +935,18 @@ def get_indicator_definitions():
 async def get_field_indicators(
     field_id: str,
     category: IndicatorCategory | None = None,
-    tenant_id: str | None = None,
     force_refresh: bool = False,
+    user: Any = Depends(get_current_user),
 ):
     """الحصول على مؤشرات حقل معين
 
     Args:
         field_id: Field identifier
         category: Optional category filter
-        tenant_id: Optional tenant identifier for multi-tenancy
         force_refresh: If True, regenerate indicators even if cached
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", None) or ""
     import random
 
     indicators = []
@@ -977,17 +1077,24 @@ class IndicatorInput(BaseModel):
     value: float
     trend: TrendDirection | None = None
     trend_percent: float | None = None
-    tenant_id: str | None = None
 
 
 @app.post("/v1/field/{field_id}/indicators")
-async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
+async def store_field_indicator(
+    field_id: str,
+    indicator_input: IndicatorInput,
+    user: Any = Depends(get_current_user),
+):
     """تخزين قيمة مؤشر لحقل معين
 
     Store an indicator value for a specific field. This is useful when
     indicator values are computed externally (e.g., from satellite imagery
     processing or IoT sensors).
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    _validate_tenant_id(indicator_input.tenant_id)
+
     # Validate indicator type
     if indicator_input.indicator_type not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=400, detail=f"Invalid indicator type: {indicator_input.indicator_type}")
@@ -1019,7 +1126,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     }
 
     # Save to database
-    success = await save_indicator(field_id, indicator_input.indicator_type, indicator_data, indicator_input.tenant_id)
+    success = await save_indicator(field_id, indicator_input.indicator_type, indicator_data, tenant_id)
 
     if not success:
         raise HTTPException(status_code=503, detail="Failed to save indicator. Database may not be available.")
@@ -1035,7 +1142,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
             "status": status,
             "timestamp": timestamp,
         },
-        tenant_id=indicator_input.tenant_id,
+        tenant_id=tenant_id,
     )
 
     logger.info(
@@ -1056,11 +1163,17 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
 
 
 @app.get("/v1/field/{field_id}/indicator/{indicator_type}")
-async def get_single_indicator(field_id: str, indicator_type: str):
+async def get_single_indicator(
+    field_id: str,
+    indicator_type: str,
+    user: Any = Depends(get_current_user),
+):
     """الحصول على مؤشر واحد لحقل معين
 
     Retrieve a single indicator value from the database.
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", None) or ""
     if indicator_type not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=400, detail=f"Invalid indicator type: {indicator_type}")
 
@@ -1098,6 +1211,7 @@ async def delete_field_indicators_endpoint(field_id: str, user=Depends(get_curre
     Delete all stored indicators for a specific field.
     Use with caution - this operation cannot be undone.
     """
+    _validate_field_id(field_id)
     tenant_id = getattr(user, "tenant_id", None) if user else None
     if not tenant_id:
         raise HTTPException(status_code=401, detail="Tenant ID is required for this operation.")
@@ -1269,9 +1383,17 @@ async def get_tenant_alerts(
 
 
 @app.get("/v1/trends/{field_id}/{indicator_id}")
-async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Query(default=30, ge=7, le=365)):
+async def get_indicator_trends(
+    field_id: str,
+    indicator_id: str,
+    days: int = Query(default=30, ge=7, le=365),
+    user: Any = Depends(get_current_user),
+):
     """الحصول على اتجاهات مؤشر معين"""
+    _validate_field_id(field_id)
     import random
+
+    tenant_id = getattr(user, "tenant_id", None) or ""
 
     if indicator_id not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=404, detail=f"Indicator {indicator_id} not found")
@@ -1313,9 +1435,7 @@ async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Que
         else (TrendDirection.DOWN.value if values[-1] < values[0] else TrendDirection.STABLE.value)
     )
 
-    # Publish trend analysis event
-    # TODO: Add tenant_id parameter to this endpoint for full tenant isolation
-    # TODO: إضافة معرف المستأجر لهذه النقطة لعزل البيانات الكامل
+    # Publish trend analysis event with tenant isolation | نشر حدث تحليل الاتجاهات مع عزل المستأجر
     await publish_event(
         "sahool.indicators.trend_analyzed",
         {
@@ -1327,6 +1447,7 @@ async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Que
             "overall_trend": overall_trend,
             "timestamp": datetime.now(UTC).isoformat(),
         },
+        tenant_id=tenant_id,
     )
 
     return {

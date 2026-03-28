@@ -60,6 +60,14 @@ abstract final class ErrorCodes {
   static const String fieldSyncConflict = 'F1008';
   static const String fieldGeojsonInvalid = 'F1009';
   static const String fieldPostgisError = 'F1010';
+  static const String vegetationFieldNotFound = 'V1001';
+  static const String vegetationNdviDataUnavailable = 'V1002';
+  static const String vegetationSatelliteError = 'V1003';
+  static const String vegetationCloudCoverHigh = 'V1004';
+  static const String vegetationInvalidDateRange = 'V1005';
+  static const String vegetationAnomalyDetectionFailed = 'V1006';
+  static const String vegetationIndicatorNotFound = 'V1007';
+  static const String vegetationIndicatorValueInvalid = 'V1008';
   static const String unknown = 'UNKNOWN';
 
   // Vision Service (E-codes)
@@ -475,6 +483,62 @@ const Map<String, ErrorMessage> errorMessages = {
     en: 'PostGIS spatial operation failed',
     ar: 'فشلت العملية المكانية في PostGIS',
     retryable: true,
+  ),
+  'V1001': ErrorMessage(
+    code: 'V1001',
+    httpStatus: 404,
+    en: 'Field not found for vegetation analysis',
+    ar: 'الحقل غير موجود لتحليل الغطاء النباتي',
+    retryable: false,
+  ),
+  'V1002': ErrorMessage(
+    code: 'V1002',
+    httpStatus: 503,
+    en: 'NDVI data is currently unavailable for this field',
+    ar: 'بيانات مؤشر الغطاء النباتي غير متاحة حالياً لهذا الحقل',
+    retryable: true,
+  ),
+  'V1003': ErrorMessage(
+    code: 'V1003',
+    httpStatus: 502,
+    en: 'Satellite imagery provider returned an error',
+    ar: 'أرجع مزود صور الأقمار الصناعية خطأ',
+    retryable: true,
+  ),
+  'V1004': ErrorMessage(
+    code: 'V1004',
+    httpStatus: 422,
+    en: 'Cloud cover is too high for reliable NDVI analysis',
+    ar: 'الغطاء السحابي مرتفع جداً لتحليل موثوق لمؤشر الغطاء النباتي',
+    retryable: true,
+  ),
+  'V1005': ErrorMessage(
+    code: 'V1005',
+    httpStatus: 400,
+    en: 'Invalid date range for vegetation analysis',
+    ar: 'نطاق التاريخ غير صالح لتحليل الغطاء النباتي',
+    retryable: false,
+  ),
+  'V1006': ErrorMessage(
+    code: 'V1006',
+    httpStatus: 500,
+    en: 'Vegetation anomaly detection failed',
+    ar: 'فشل اكتشاف شذوذ الغطاء النباتي',
+    retryable: true,
+  ),
+  'V1007': ErrorMessage(
+    code: 'V1007',
+    httpStatus: 404,
+    en: 'Vegetation indicator not found',
+    ar: 'مؤشر الغطاء النباتي غير موجود',
+    retryable: false,
+  ),
+  'V1008': ErrorMessage(
+    code: 'V1008',
+    httpStatus: 400,
+    en: 'Vegetation indicator value is out of valid range',
+    ar: 'قيمة مؤشر الغطاء النباتي خارج النطاق الصالح',
+    retryable: false,
   ),
   'UNKNOWN': ErrorMessage(
     code: 'UNKNOWN',

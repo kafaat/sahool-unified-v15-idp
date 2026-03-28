@@ -87,6 +87,7 @@ SAHOOL_SATELLITE_ANOMALY_DISEASE = "sahool.satellite.anomaly.disease"
 # NDVI specific
 SAHOOL_NDVI_COMPUTED = "sahool.satellite.ndvi.computed"
 SAHOOL_NDVI_ANOMALY = "sahool.satellite.ndvi.anomaly"
+SAHOOL_SATELLITE_NDVI_TREND = "sahool.satellite.ndvi.trend"
 
 # Wildcards
 SAHOOL_SATELLITE_ALL = "sahool.satellite.>"
@@ -481,6 +482,8 @@ SAHOOL_INDICATORS_FIELD_SUMMARY = "sahool.indicators.field_summary"
 SAHOOL_INDICATORS_DASHBOARD_COMPUTED = "sahool.indicators.dashboard_computed"
 SAHOOL_INDICATORS_ALERTS_RETRIEVED = "sahool.indicators.alerts_retrieved"
 SAHOOL_INDICATORS_TREND_ANALYZED = "sahool.indicators.trend_analyzed"
+SAHOOL_INDICATORS_UPDATED = "sahool.indicators.updated"
+SAHOOL_INDICATORS_ALERT = "sahool.indicators.alert"
 
 SAHOOL_INDICATORS_ALL = "sahool.indicators.*"
 
@@ -768,6 +771,7 @@ SUBJECT_REGISTRY = {
     # Satellite
     "satellite.data.ready": SAHOOL_SATELLITE_DATA_READY,
     "satellite.anomaly": SAHOOL_SATELLITE_ANOMALY,
+    "satellite.ndvi.trend": SAHOOL_SATELLITE_NDVI_TREND,
     # Health
     "health.disease.detected": SAHOOL_HEALTH_DISEASE_DETECTED,
     "health.stress.detected": SAHOOL_HEALTH_STRESS_DETECTED,
@@ -864,6 +868,8 @@ SUBJECT_REGISTRY = {
     "indicators.dashboard_computed": SAHOOL_INDICATORS_DASHBOARD_COMPUTED,
     "indicators.alerts_retrieved": SAHOOL_INDICATORS_ALERTS_RETRIEVED,
     "indicators.trend_analyzed": SAHOOL_INDICATORS_TREND_ANALYZED,
+    "indicators.updated": SAHOOL_INDICATORS_UPDATED,
+    "indicators.alert": SAHOOL_INDICATORS_ALERT,
     # Skills
     "skills.evaluated": SAHOOL_SKILLS_EVALUATED,
     "skills.assessed": SAHOOL_SKILLS_ASSESSED,

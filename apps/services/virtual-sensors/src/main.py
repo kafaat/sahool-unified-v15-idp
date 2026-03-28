@@ -1111,9 +1111,13 @@ async def lifespan(app: FastAPI):
     else:
         logger.warning("nats_publisher_unavailable", mode="degraded")
 
+    # Initialize async NATS client for event publishing
+    await _init_nats()
+
     yield
 
     # Cleanup
+    await _close_nats()
     app.state.nats_client = None
     logger.info("service_shutting_down", service=SERVICE_NAME)
 
@@ -1274,6 +1278,21 @@ async def calculate_et0(weather: WeatherInput, user: User = Depends(get_current_
     حساب التبخر-نتح المرجعي باستخدام بنمان-مونتيث
     """
     et0 = calculate_et0_penman_monteith(weather)
+
+    # Publish sensor.calculated event
+    await publish_event(
+        "sahool.sensor.calculated",
+        {
+            "sensor_type": "et0",
+            "method": "FAO-56 Penman-Monteith",
+            "value": round(et0, 2),
+            "unit": "mm/day",
+            "latitude": weather.latitude,
+            "altitude": weather.altitude,
+            "calculation_date": str(weather.calculation_date),
+            "user_id": user.id if hasattr(user, "id") else None,
+        },
+    )
 
     return ET0Response(
         et0=round(et0, 2),

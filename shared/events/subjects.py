@@ -192,6 +192,7 @@ SAHOOL_BILLING_SUBSCRIPTION_UPDATED = "sahool.billing.subscription.updated"
 SAHOOL_BILLING_SUBSCRIPTION_RENEWED = "sahool.billing.subscription.renewed"
 SAHOOL_BILLING_SUBSCRIPTION_CANCELLED = "sahool.billing.subscription.cancelled"
 SAHOOL_BILLING_SUBSCRIPTION_EXPIRED = "sahool.billing.subscription.expired"
+SAHOOL_BILLING_SUBSCRIPTION_UPGRADED = "sahool.billing.subscription.upgraded"
 
 # Payment events
 SAHOOL_BILLING_PAYMENT_INITIATED = "sahool.billing.payment.initiated"
@@ -340,6 +341,17 @@ SAHOOL_IOT_THRESHOLD = "sahool.iot.threshold"
 SAHOOL_IOT_ALL = "sahool.iot.>"
 SAHOOL_IOT_SENSOR_ALL = "sahool.iot.sensor.*"
 SAHOOL_IOT_DEVICE_ALL = "sahool.iot.device.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Virtual Sensor Subjects - موضوعات المستشعرات الافتراضية
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_SENSOR_CALCULATED = "sahool.sensor.calculated"
+SAHOOL_SENSOR_ANOMALY = "sahool.sensor.anomaly"
+
+# Wildcards
+SAHOOL_SENSOR_ALL = "sahool.sensor.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -787,6 +799,7 @@ SUBJECT_REGISTRY = {
     "inventory.batch.expired": SAHOOL_INVENTORY_BATCH_EXPIRED,
     # Billing
     "billing.subscription.created": SAHOOL_BILLING_SUBSCRIPTION_CREATED,
+    "billing.subscription.upgraded": SAHOOL_BILLING_SUBSCRIPTION_UPGRADED,
     "billing.payment.completed": SAHOOL_BILLING_PAYMENT_COMPLETED,
     "billing.payment.failed": SAHOOL_BILLING_PAYMENT_FAILED,
     # Agent
@@ -958,6 +971,9 @@ SUBJECT_REGISTRY = {
     "community.advisory_posted": SAHOOL_COMMUNITY_ADVISORY_POSTED,
     "community.alert_posted": SAHOOL_COMMUNITY_ALERT_POSTED,
     "community.tenant_setup": SAHOOL_COMMUNITY_TENANT_SETUP,
+    # Virtual Sensors
+    "sensor.calculated": SAHOOL_SENSOR_CALCULATED,
+    "sensor.anomaly": SAHOOL_SENSOR_ANOMALY,
 }
 
 

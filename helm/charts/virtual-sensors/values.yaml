@@ -1,10 +1,10 @@
-# SAHOOL Billing Core - Microservice
+# SAHOOL Virtual Sensors Service - Virtual Sensor Computation & Data Synthesis
 # Version: 16.0.0
 
 replicaCount: 2
 
 image:
-  repository: ghcr.io/kafaat/sahool/billing-core
+  repository: ghcr.io/kafaat/sahool/virtual-sensors
   tag: "16.0.0"
   pullPolicy: IfNotPresent
 
@@ -19,7 +19,7 @@ serviceAccount:
 
 service:
   type: ClusterIP
-  port: 8089
+  port: 8119
 
 resources:
   limits:
@@ -90,13 +90,13 @@ affinity:
               - key: app.kubernetes.io/name
                 operator: In
                 values:
-                  - billing-core
+                  - virtual-sensors
           topologyKey: kubernetes.io/hostname
 
 # Pod annotations
 podAnnotations:
   prometheus.io/scrape: "true"
-  prometheus.io/port: "8089"
+  prometheus.io/port: "8119"
   prometheus.io/path: "/metrics"
 
 # Security context

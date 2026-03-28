@@ -94,6 +94,16 @@ abstract final class ErrorCodes {
   static const String userTokenExpired = 'U1008';
   static const String user2faRequired = 'U1009';
   static const String userPasswordTooWeak = 'U1010';
+  static const String billingSubscriptionNotFound = 'B1001';
+  static const String billingPlanNotFound = 'B1002';
+  static const String billingPaymentFailed = 'B1003';
+  static const String billingInvoiceNotFound = 'B1004';
+  static const String billingQuotaExceeded = 'B1005';
+  static const String billingInvalidPlanChange = 'B1006';
+  static const String sensorCalculationError = 'S1001';
+  static const String sensorInvalidInput = 'S1002';
+  static const String sensorCalibrationFailed = 'S1003';
+  static const String sensorDataOutOfRange = 'S1004';
   static const String vegetationFieldNotFound = 'V1001';
   static const String vegetationNdviDataUnavailable = 'V1002';
   static const String vegetationSatelliteError = 'V1003';
@@ -754,6 +764,76 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 400,
     en: 'Password does not meet security requirements',
     ar: 'كلمة المرور لا تستوفي متطلبات الأمان',
+    retryable: false,
+  ),
+  'B1001': ErrorMessage(
+    code: 'B1001',
+    httpStatus: 404,
+    en: 'Subscription not found',
+    ar: 'الاشتراك غير موجود',
+    retryable: false,
+  ),
+  'B1002': ErrorMessage(
+    code: 'B1002',
+    httpStatus: 404,
+    en: 'Billing plan not found',
+    ar: 'خطة الفوترة غير موجودة',
+    retryable: false,
+  ),
+  'B1003': ErrorMessage(
+    code: 'B1003',
+    httpStatus: 402,
+    en: 'Payment processing failed',
+    ar: 'فشلت معالجة الدفع',
+    retryable: true,
+  ),
+  'B1004': ErrorMessage(
+    code: 'B1004',
+    httpStatus: 404,
+    en: 'Invoice not found',
+    ar: 'الفاتورة غير موجودة',
+    retryable: false,
+  ),
+  'B1005': ErrorMessage(
+    code: 'B1005',
+    httpStatus: 429,
+    en: 'Billing quota exceeded. Please upgrade your plan.',
+    ar: 'تم تجاوز حصة الفوترة. يرجى ترقية خطتك.',
+    retryable: false,
+  ),
+  'B1006': ErrorMessage(
+    code: 'B1006',
+    httpStatus: 400,
+    en: 'Invalid plan change - cannot downgrade with active features',
+    ar: 'تغيير الخطة غير صالح - لا يمكن التخفيض مع وجود ميزات نشطة',
+    retryable: false,
+  ),
+  'S1001': ErrorMessage(
+    code: 'S1001',
+    httpStatus: 500,
+    en: 'Virtual sensor calculation failed',
+    ar: 'فشل حساب المستشعر الافتراضي',
+    retryable: true,
+  ),
+  'S1002': ErrorMessage(
+    code: 'S1002',
+    httpStatus: 400,
+    en: 'Invalid input data for virtual sensor',
+    ar: 'بيانات إدخال غير صالحة للمستشعر الافتراضي',
+    retryable: false,
+  ),
+  'S1003': ErrorMessage(
+    code: 'S1003',
+    httpStatus: 500,
+    en: 'Sensor calibration failed',
+    ar: 'فشلت معايرة المستشعر',
+    retryable: true,
+  ),
+  'S1004': ErrorMessage(
+    code: 'S1004',
+    httpStatus: 400,
+    en: 'Sensor data is outside the acceptable range',
+    ar: 'بيانات المستشعر خارج النطاق المقبول',
     retryable: false,
   ),
   'V1001': ErrorMessage(

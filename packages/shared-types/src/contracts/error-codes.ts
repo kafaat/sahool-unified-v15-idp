@@ -154,6 +154,20 @@ export const ERROR_CODES = {
   USER_2FA_REQUIRED: 'U1009',
   USER_PASSWORD_TOO_WEAK: 'U1010',
 
+  // ── Billing Service (B1xxx) ────────────────────────────────────────
+  BILLING_SUBSCRIPTION_NOT_FOUND: 'B1001',
+  BILLING_PLAN_NOT_FOUND: 'B1002',
+  BILLING_PAYMENT_FAILED: 'B1003',
+  BILLING_INVOICE_NOT_FOUND: 'B1004',
+  BILLING_QUOTA_EXCEEDED: 'B1005',
+  BILLING_INVALID_PLAN_CHANGE: 'B1006',
+
+  // ── Virtual Sensors Service (S1xxx) ────────────────────────────────
+  SENSOR_CALCULATION_ERROR: 'S1001',
+  SENSOR_INVALID_INPUT: 'S1002',
+  SENSOR_CALIBRATION_FAILED: 'S1003',
+  SENSOR_DATA_OUT_OF_RANGE: 'S1004',
+
   // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────
   VEGETATION_FIELD_NOT_FOUND: 'V1001',
   VEGETATION_NDVI_DATA_UNAVAILABLE: 'V1002',
@@ -820,6 +834,80 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 400,
     en: 'Password does not meet security requirements',
     ar: 'كلمة المرور لا تستوفي متطلبات الأمان',
+    retryable: false,
+  },
+
+  // ── Billing Service (B1xxx) ────────────────────────────────────────
+  [ERROR_CODES.BILLING_SUBSCRIPTION_NOT_FOUND]: {
+    code: ERROR_CODES.BILLING_SUBSCRIPTION_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Subscription not found',
+    ar: 'الاشتراك غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.BILLING_PLAN_NOT_FOUND]: {
+    code: ERROR_CODES.BILLING_PLAN_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Billing plan not found',
+    ar: 'خطة الفوترة غير موجودة',
+    retryable: false,
+  },
+  [ERROR_CODES.BILLING_PAYMENT_FAILED]: {
+    code: ERROR_CODES.BILLING_PAYMENT_FAILED,
+    httpStatus: 402,
+    en: 'Payment processing failed',
+    ar: 'فشلت معالجة الدفع',
+    retryable: true,
+  },
+  [ERROR_CODES.BILLING_INVOICE_NOT_FOUND]: {
+    code: ERROR_CODES.BILLING_INVOICE_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Invoice not found',
+    ar: 'الفاتورة غير موجودة',
+    retryable: false,
+  },
+  [ERROR_CODES.BILLING_QUOTA_EXCEEDED]: {
+    code: ERROR_CODES.BILLING_QUOTA_EXCEEDED,
+    httpStatus: 429,
+    en: 'Billing quota exceeded. Please upgrade your plan.',
+    ar: 'تم تجاوز حصة الفوترة. يرجى ترقية خطتك.',
+    retryable: false,
+  },
+  [ERROR_CODES.BILLING_INVALID_PLAN_CHANGE]: {
+    code: ERROR_CODES.BILLING_INVALID_PLAN_CHANGE,
+    httpStatus: 400,
+    en: 'Invalid plan change - cannot downgrade with active features',
+    ar: 'تغيير الخطة غير صالح - لا يمكن التخفيض مع وجود ميزات نشطة',
+    retryable: false,
+  },
+
+  // ── Virtual Sensors Service (S1xxx) ────────────────────────────────
+  [ERROR_CODES.SENSOR_CALCULATION_ERROR]: {
+    code: ERROR_CODES.SENSOR_CALCULATION_ERROR,
+    httpStatus: 500,
+    en: 'Virtual sensor calculation failed',
+    ar: 'فشل حساب المستشعر الافتراضي',
+    retryable: true,
+  },
+  [ERROR_CODES.SENSOR_INVALID_INPUT]: {
+    code: ERROR_CODES.SENSOR_INVALID_INPUT,
+    httpStatus: 400,
+    en: 'Invalid input data for virtual sensor',
+    ar: 'بيانات إدخال غير صالحة للمستشعر الافتراضي',
+    retryable: false,
+  },
+  [ERROR_CODES.SENSOR_CALIBRATION_FAILED]: {
+    code: ERROR_CODES.SENSOR_CALIBRATION_FAILED,
+    httpStatus: 500,
+    en: 'Sensor calibration failed',
+    ar: 'فشلت معايرة المستشعر',
+    retryable: true,
+  },
+  [ERROR_CODES.SENSOR_DATA_OUT_OF_RANGE]: {
+    code: ERROR_CODES.SENSOR_DATA_OUT_OF_RANGE,
+    httpStatus: 400,
+    en: 'Sensor data is outside the acceptable range',
+    ar: 'بيانات المستشعر خارج النطاق المقبول',
     retryable: false,
   },
 

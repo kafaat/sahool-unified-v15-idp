@@ -195,7 +195,7 @@ class TestRequestModels:
             crops=[CropType.WHEAT, CropType.TOMATO],
             phone="+967712345678",
             email="ahmed@example.com",
-            fcm_token="token-123",
+            fcm_token="fcm-token-valid-length-123",
         )
         assert profile.farmer_id == "f-1"
         assert len(profile.crops) == 2

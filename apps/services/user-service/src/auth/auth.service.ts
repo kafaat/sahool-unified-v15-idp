@@ -25,7 +25,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
 import { JWTConfig } from "../utils/jwt.config";
 import { UserStatus } from "../utils/validation";
-import { BCRYPT_ROUNDS } from "../utils/security.config";
+import { BCRYPT_ROUNDS, DEFAULT_TENANT_ID, splitFullName } from "../utils/security.config";
 
 export interface LoginDto {
   email: string;
@@ -35,8 +35,9 @@ export interface LoginDto {
 export interface RegisterDto {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   tenantId?: string;
 }
@@ -582,7 +583,16 @@ export class AuthService {
    * تسجيل مستخدم جديد
    */
   async register(registerDto: RegisterDto): Promise<TokenResponse> {
-    const { email, password, firstName, lastName, phone, tenantId } = registerDto;
+    const { email, password, phone, tenantId } = registerDto;
+
+    // Handle name splitting: accept either `name` or `firstName`+`lastName`
+    const names = splitFullName(registerDto.name, registerDto.firstName, registerDto.lastName);
+    if (!names) {
+      throw new BadRequestException(
+        "Either 'name' or both 'firstName' and 'lastName' must be provided",
+      );
+    }
+    const { firstName, lastName } = names;
 
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
@@ -602,7 +612,7 @@ export class AuthService {
 
     // Create user with default tenant if not provided
     // Use the default tenant UUID from database (sahool-demo tenant)
-    const defaultTenantId = tenantId || "a0000000-0000-0000-0000-000000000001";
+    const defaultTenantId = tenantId || DEFAULT_TENANT_ID;
 
     const user = await this.prisma.user.create({
       data: {

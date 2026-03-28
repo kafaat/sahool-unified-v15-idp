@@ -41,19 +41,44 @@ try:
 except ImportError:
     HAS_PROMETHEUS = False
 
-# Prometheus metric definitions
+# Prometheus metric definitions (guarded against re-registration during test re-imports)
 if HAS_PROMETHEUS:
-    REQUEST_COUNT = Counter(
+    import prometheus_client as _prom_client
+
+    def _get_or_create_metric(metric_cls, name, description, labels):
+        """Get existing metric or create new one, avoiding duplicate registration."""
+        # Check persistent cache on prometheus_client module (survives module re-imports)
+        cache = getattr(_prom_client, "_sahool_metrics", None)
+        if cache is None:
+            cache = {}
+            _prom_client._sahool_metrics = cache
+        if name in cache:
+            return cache[name]
+        try:
+            metric = metric_cls(name, description, labels)
+        except ValueError:
+            # Already in registry from previous import - retrieve it
+            collectors = getattr(_prom_client.REGISTRY, "_names_to_collectors", {})
+            metric = collectors.get(name)
+            if metric is None:
+                raise
+        cache[name] = metric
+        return metric
+
+    REQUEST_COUNT = _get_or_create_metric(
+        Counter,
         "irrigation_requests_total",
         "Total irrigation API requests",
         ["endpoint", "status"],
     )
-    REQUEST_LATENCY = Histogram(
+    REQUEST_LATENCY = _get_or_create_metric(
+        Histogram,
         "irrigation_request_duration_seconds",
         "Irrigation API request latency",
         ["endpoint"],
     )
-    IRRIGATION_CALCULATIONS = Counter(
+    IRRIGATION_CALCULATIONS = _get_or_create_metric(
+        Counter,
         "irrigation_calculations_total",
         "Total irrigation calculations",
         ["method", "crop_type"],

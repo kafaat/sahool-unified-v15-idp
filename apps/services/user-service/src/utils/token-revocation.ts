@@ -116,13 +116,29 @@ export class RedisTokenRevocationStore
         url,
         socket: {
           connectTimeout: 5000,
-          keepAlive: 5000,
+          keepAlive: 30000,
+          reconnectStrategy: (retries: number) => {
+            if (retries > 20) {
+              this.logger.error('Redis max reconnection attempts exceeded');
+              return new Error('Max reconnection attempts exceeded');
+            }
+            const delay = Math.min(1000 * Math.pow(2, retries), 30000);
+            this.logger.log(`Redis reconnecting in ${delay}ms (attempt ${retries + 1})`);
+            return delay;
+          },
         },
+        pingInterval: 60000,
       });
 
       // Error handling
       this.redis.on("error", (err) => {
         this.logger.error(`Redis error: ${err.message}`);
+      });
+
+      this.redis.on("end", () => {
+        this.logger.warn("Redis connection ended, marking store as uninitialized");
+        this.initialized = false;
+        this.redis = null;
       });
 
       this.redis.on("connect", () => {

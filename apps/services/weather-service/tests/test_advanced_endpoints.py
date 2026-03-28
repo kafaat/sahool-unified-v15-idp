@@ -6,7 +6,7 @@ Covers: evapotranspiration, GDD, spray-window, frost-risk,
         drought-index, chill-hours, metrics, and input validation.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -518,7 +518,7 @@ class TestInputValidation:
         """Test days parameter clamped to 1-16"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = MagicMock()
-            mock_provider.get_daily_forecast = MagicMock(return_value=[])
+            mock_provider.get_daily_forecast = AsyncMock(return_value=[])
             mock_state.weather_provider = mock_provider
             mock_state.multi_provider = None
             mock_state.publisher = None

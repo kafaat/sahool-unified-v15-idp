@@ -33,7 +33,7 @@ import { Throttle, SkipThrottle } from "@nestjs/throttler";
 import { Request } from "express";
 import { AuthService, LoginDto, RegisterDto, ForgotPasswordDto, ResetPasswordDto, SendOtpDto, VerifyOtpDto } from "./auth.service";
 import { JwtAuthGuard } from "./jwt-auth.guard";
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength, IsIn, Matches, Length, IsUUID } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, MaxLength, IsIn, Matches, Length, IsUUID, ValidateIf } from "class-validator";
 import { IsStrongPassword, IsYemeniPhone, SanitizePlainText } from "../utils/validation";
 
 // Extend Express Request to include user property set by JWT guard
@@ -209,27 +209,40 @@ class RegisterRequestDto implements RegisterDto {
   @IsNotEmpty({ message: "Password is required" })
   password: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
+    description: "User full name (will be split into firstName and lastName)",
+    example: "أحمد محمد",
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: "Name must be at least 2 characters" })
+  @MaxLength(200, { message: "Name must not exceed 200 characters" })
+  @SanitizePlainText()
+  name?: string;
+
+  @ApiPropertyOptional({
     description: "User first name",
     example: "أحمد",
   })
+  @ValidateIf((o) => !o.name)
   @IsString()
-  @IsNotEmpty({ message: "First name is required" })
+  @IsNotEmpty({ message: "First name is required when name is not provided" })
   @MinLength(2, { message: "First name must be at least 2 characters" })
   @MaxLength(100, { message: "First name must not exceed 100 characters" })
   @SanitizePlainText()
-  firstName: string;
+  firstName?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "User last name",
     example: "محمد",
   })
+  @ValidateIf((o) => !o.name)
   @IsString()
-  @IsNotEmpty({ message: "Last name is required" })
+  @IsNotEmpty({ message: "Last name is required when name is not provided" })
   @MinLength(2, { message: "Last name must be at least 2 characters" })
   @MaxLength(100, { message: "Last name must not exceed 100 characters" })
   @SanitizePlainText()
-  lastName: string;
+  lastName?: string;
 
   @ApiPropertyOptional({
     description: "User phone number (Yemen format: +967XXXXXXXX or 7XXXXXXXX)",

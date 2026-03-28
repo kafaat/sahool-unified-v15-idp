@@ -1073,7 +1073,9 @@ class WeatherAlertGenerator:
             recommended_actions=list(actions_en),
             recommended_actions_ar=list(actions_ar),
             trigger_value=wind,
-            threshold_value=60.0 if severity == AlertSeverity.CRITICAL else (45.0 if severity == AlertSeverity.WARNING else 35.0),
+            threshold_value=60.0
+            if severity == AlertSeverity.CRITICAL
+            else (45.0 if severity == AlertSeverity.WARNING else 35.0),
             trigger_unit="km/h",
             confidence=forecast.confidence,
         )

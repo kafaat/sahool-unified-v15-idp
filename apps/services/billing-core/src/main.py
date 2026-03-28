@@ -24,7 +24,7 @@ from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum, StrEnum
-from pathlib import Path
+from pathlib import Path as FilePath
 from typing import Any
 
 import httpx
@@ -66,7 +66,7 @@ from . import models as db_models
 from .database import check_db_connection, close_db, db_health_check, get_db, init_db
 from .repository import BillingRepository
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+sys.path.insert(0, str(FilePath(__file__).parent.parent.parent / "shared"))
 
 # Configure logging early so it can be used in imports
 # FIX: Use force=True to reset handlers and prevent double logging with uvicorn's default handlers

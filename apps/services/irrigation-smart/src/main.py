@@ -48,7 +48,7 @@ if HAS_PROMETHEUS:
     def _get_or_create_metric(metric_cls, name, description, labels):
         """Get existing metric or create new one, avoiding duplicate registration."""
         # Check persistent cache on prometheus_client module (survives module re-imports)
-        cache = getattr(_prom_client, '_sahool_metrics', None)
+        cache = getattr(_prom_client, "_sahool_metrics", None)
         if cache is None:
             cache = {}
             _prom_client._sahool_metrics = cache
@@ -58,7 +58,7 @@ if HAS_PROMETHEUS:
             metric = metric_cls(name, description, labels)
         except ValueError:
             # Already in registry from previous import - retrieve it
-            collectors = getattr(_prom_client.REGISTRY, '_names_to_collectors', {})
+            collectors = getattr(_prom_client.REGISTRY, "_names_to_collectors", {})
             metric = collectors.get(name)
             if metric is None:
                 raise

@@ -3392,13 +3392,13 @@ def get_hijri_date(date_str: str | None = Query(None, description="التاري�
 
 
 @app.get("/v1/hijri-months", tags=["Reference"])
-def list_hijri_months():
+def list_hijri_months(user: User = Depends(get_current_user)):
     """قائمة الأشهر الهجرية"""
     return {"months": HIJRI_MONTHS}
 
 
 @app.get("/v1/zodiac", response_model=ZodiacInfo, tags=["Astronomy"])
-def get_zodiac(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")):
+def get_zodiac(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"), user: User = Depends(get_current_user)):
     """الحصول على البرج الشمسي"""
     if date_str:
         try:
@@ -3412,13 +3412,13 @@ def get_zodiac(date_str: str | None = Query(None, description="التاريخ (Y
 
 
 @app.get("/v1/zodiac-farming", tags=["Reference"])
-def list_zodiac_farming():
+def list_zodiac_farming(user: User = Depends(get_current_user)):
     """قائمة الأبراج مع معلومات الخصوبة الزراعية"""
     return {"zodiac_signs": ZODIAC_FARMING}
 
 
 @app.get("/v1/seasons", tags=["Reference"])
-def list_seasons():
+def list_seasons(user: User = Depends(get_current_user)):
     """قائمة المواسم الزراعية اليمنية"""
     return {"seasons": YEMENI_SEASONS}
 

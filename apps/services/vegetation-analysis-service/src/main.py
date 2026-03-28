@@ -528,12 +528,12 @@ class SatelliteImagery(BaseModel):
 
 
 class VegetationIndices(BaseModel):
-    ndvi: float = Field(..., description="Normalized Difference Vegetation Index")
-    ndwi: float = Field(..., description="Normalized Difference Water Index")
+    ndvi: float = Field(..., ge=-1.0, le=1.0, description="Normalized Difference Vegetation Index")
+    ndwi: float = Field(..., ge=-1.0, le=1.0, description="Normalized Difference Water Index")
     evi: float = Field(..., description="Enhanced Vegetation Index")
     savi: float = Field(..., description="Soil Adjusted Vegetation Index")
-    lai: float = Field(..., description="Leaf Area Index estimate")
-    ndmi: float = Field(..., description="Normalized Difference Moisture Index")
+    lai: float = Field(..., ge=0, description="Leaf Area Index estimate")
+    ndmi: float = Field(..., ge=-1.0, le=1.0, description="Normalized Difference Moisture Index")
 
 
 class FieldAnalysis(BaseModel):

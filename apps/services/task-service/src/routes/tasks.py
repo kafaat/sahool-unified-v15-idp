@@ -163,6 +163,9 @@ class TaskCreateRequest(BaseModel):
     priority: TaskPriority = TaskPriority.MEDIUM
     field_id: str | None = Field(None, max_length=100)
     zone_id: str | None = None
+    # TODO: assigned_to should be validated against the tenant's user list to prevent
+    # cross-tenant assignment. Currently accepts any string; a future enhancement should
+    # verify that the user exists within the same tenant before accepting the value.
     assigned_to: str | None = None
     due_date: datetime | None = None
     scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
@@ -379,6 +382,7 @@ async def create_task(
     data: TaskCreateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create a new task
@@ -399,7 +403,7 @@ async def create_task(
             raise HTTPException(status_code=400, detail=str(e))
 
     task_id = generate_task_id()
-    created_by = "user_system"  # Would come from auth in production
+    created_by = getattr(current_user, "id", "system")
 
     # Create task data object
     task_data = TaskCreateData(

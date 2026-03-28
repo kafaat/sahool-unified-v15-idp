@@ -139,7 +139,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         return null;
       }
 
-      return { userId, tenantId: decoded.tenant_id || '' };
+      const tenantId = decoded.tenant_id;
+      if (!tenantId) {
+        this.logger.warn("No tenant_id found in decoded token");
+        client.disconnect();
+        return null;
+      }
+
+      return { userId, tenantId };
     } catch (error) {
       this.logger.error(
         "Authentication verification failed",

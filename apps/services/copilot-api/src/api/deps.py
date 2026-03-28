@@ -37,7 +37,6 @@ def validate_jwt_config(environment: str | None = None) -> None:
             )
     elif not JWT_SECRET_KEY:
         import secrets
-
         JWT_SECRET_KEY = secrets.token_hex(32)
         logger.warning(
             "jwt_secret_random",

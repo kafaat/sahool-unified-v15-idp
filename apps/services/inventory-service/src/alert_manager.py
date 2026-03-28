@@ -66,6 +66,9 @@ class InventoryAlert:
     recommended_action_ar: str
     action_url: str | None = None
 
+    # Tenant isolation
+    tenant_id: str = ""
+
     # Timing
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     acknowledged_at: datetime | None = None
@@ -79,6 +82,7 @@ class InventoryAlert:
         """Convert to dictionary"""
         return {
             "id": self.id,
+            "tenant_id": self.tenant_id,
             "alert_type": self.alert_type.value,
             "priority": self.priority.value,
             "status": self.status.value,
@@ -138,7 +142,7 @@ class AlertManager:
 
         return alerts
 
-    async def check_low_stock(self) -> list[InventoryAlert]:
+    async def check_low_stock(self, tenant_id: str = "") -> list[InventoryAlert]:
         """
         Check items below reorder level.
         Priority based on how far below:
@@ -198,6 +202,7 @@ class AlertManager:
                     recommended_action_en=f"Order at least {int(reorder_level - quantity)} {item.get('unit', 'units')} to reach minimum stock level",
                     recommended_action_ar=f"اطلب على الأقل {int(reorder_level - quantity)} {item.get('unit', 'وحدة')} للوصول إلى الحد الأدنى للمخزون",
                     action_url=f"/inventory/{item_id}/reorder",
+                    tenant_id=tenant_id,
                 )
 
                 self.alerts_db[alert.id] = alert
@@ -206,7 +211,7 @@ class AlertManager:
         logger.info(f"Low stock check: Found {len(alerts)} alerts")
         return alerts
 
-    async def check_out_of_stock(self) -> list[InventoryAlert]:
+    async def check_out_of_stock(self, tenant_id: str = "") -> list[InventoryAlert]:
         """Check items with zero available quantity"""
         alerts = []
 
@@ -238,6 +243,7 @@ class AlertManager:
                     recommended_action_en="Place urgent order to restock this item",
                     recommended_action_ar="قم بطلب عاجل لإعادة تخزين هذا الصنف",
                     action_url=f"/inventory/{item_id}/reorder",
+                    tenant_id=tenant_id,
                 )
 
                 self.alerts_db[alert.id] = alert
@@ -246,7 +252,7 @@ class AlertManager:
         logger.info(f"Out of stock check: Found {len(alerts)} alerts")
         return alerts
 
-    async def check_expiring_items(self, warning_days: int = 30, critical_days: int = 7) -> list[InventoryAlert]:
+    async def check_expiring_items(self, warning_days: int = 30, critical_days: int = 7, tenant_id: str = "") -> list[InventoryAlert]:
         """
         Check items expiring soon.
         - 7-30 days: MEDIUM (warning)
@@ -341,6 +347,7 @@ class AlertManager:
                 recommended_action_en=action_en,
                 recommended_action_ar=action_ar,
                 action_url=f"/inventory/{item_id}",
+                tenant_id=tenant_id,
             )
 
             self.alerts_db[alert.id] = alert
@@ -514,8 +521,9 @@ class AlertManager:
         self,
         priority: AlertPriority | None = None,
         alert_type: AlertType | None = None,
+        tenant_id: str = "",
     ) -> list[InventoryAlert]:
-        """Get all active alerts"""
+        """Get all active alerts, optionally filtered by tenant_id"""
         now = datetime.now(UTC)
         alerts = []
 
@@ -526,6 +534,10 @@ class AlertManager:
 
             # Skip snoozed alerts that are still snoozed
             if alert.snooze_until and alert.snooze_until > now:
+                continue
+
+            # Filter by tenant_id if provided
+            if tenant_id and alert.tenant_id != tenant_id:
                 continue
 
             # Filter by priority if specified
@@ -549,10 +561,14 @@ class AlertManager:
 
         return alerts
 
-    async def acknowledge_alert(self, alert_id: str, acknowledged_by: str) -> InventoryAlert | None:
+    async def acknowledge_alert(self, alert_id: str, acknowledged_by: str, tenant_id: str = "") -> InventoryAlert | None:
         """Acknowledge an alert"""
         alert = self.alerts_db.get(alert_id)
         if not alert:
+            return None
+
+        # Verify tenant isolation
+        if tenant_id and alert.tenant_id != tenant_id:
             return None
 
         alert.status = AlertStatus.ACKNOWLEDGED
@@ -590,14 +606,14 @@ class AlertManager:
         logger.info(f"Alert {alert_id} snoozed for {snooze_hours} hours")
         return alert
 
-    async def get_alert_summary(self) -> dict:
+    async def get_alert_summary(self, tenant_id: str = "") -> dict:
         """
         Get summary counts:
         - Total active
         - By priority
         - By type
         """
-        active_alerts = await self.get_active_alerts()
+        active_alerts = await self.get_active_alerts(tenant_id=tenant_id)
 
         # Count by priority
         by_priority = {"critical": 0, "high": 0, "medium": 0, "low": 0}

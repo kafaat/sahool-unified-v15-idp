@@ -821,21 +821,27 @@ async def register_device(req: DeviceRegisterRequest, user: User = Depends(get_c
 
 
 @app.get("/device/{device_id}")
-def get_device(device_id: str):
+def get_device(device_id: str, user: User = Depends(get_current_user)):
     """Get device information"""
     device = registry.get(device_id)
     if not device:
         raise HTTPException(status_code=404, detail="Device not found")
 
+    # Enforce tenant isolation
+    _enforce_tenant(user, device.tenant_id)
+
     return device.to_dict()
 
 
 @app.get("/device/{device_id}/status")
-def get_device_status(device_id: str):
+def get_device_status(device_id: str, user: User = Depends(get_current_user)):
     """Get device status"""
     device = registry.get(device_id)
     if not device:
         raise HTTPException(status_code=404, detail="Device not found")
+
+    # Enforce tenant isolation
+    _enforce_tenant(user, device.tenant_id)
 
     return {
         "device_id": device_id,
@@ -854,14 +860,19 @@ async def list_devices(
     device_type: str | None = Query(None, description="Filter by device type"),
     limit: int = Query(default=50, ge=1, le=100, description="Maximum number of devices to return"),
     offset: int = Query(default=0, ge=0, description="Number of devices to skip"),
+    user: User = Depends(get_current_user),
 ):
     """List registered devices with pagination"""
+    tenant_id = user.tenant_id or ""
     if field_id:
-        all_devices = registry.get_by_field(field_id)
+        all_devices = registry.get_by_field(field_id, tenant_id=tenant_id)
     elif device_type:
-        all_devices = registry.get_by_type(device_type)
+        all_devices = registry.get_by_type(device_type, tenant_id=tenant_id)
     else:
-        all_devices = registry.list_all()
+        if tenant_id:
+            all_devices = registry.get_by_tenant(tenant_id)
+        else:
+            all_devices = registry.list_all()
 
     # Apply pagination
     total = len(all_devices)
@@ -902,9 +913,10 @@ async def delete_device(device_id: str, user: User = Depends(get_current_user)):
 
 
 @app.get("/field/{field_id}/devices")
-def get_field_devices(field_id: str):
+def get_field_devices(field_id: str, user: User = Depends(get_current_user)):
     """Get all devices for a field"""
-    devices = registry.get_by_field(field_id)
+    tenant_id = user.tenant_id or ""
+    devices = registry.get_by_field(field_id, tenant_id=tenant_id)
     return {
         "field_id": field_id,
         "devices": [d.to_dict() for d in devices],
@@ -913,9 +925,10 @@ def get_field_devices(field_id: str):
 
 
 @app.get("/field/{field_id}/latest")
-def get_field_latest_readings(field_id: str):
+def get_field_latest_readings(field_id: str, user: User = Depends(get_current_user)):
     """Get latest readings from all devices in a field"""
-    devices = registry.get_by_field(field_id)
+    tenant_id = user.tenant_id or ""
+    devices = registry.get_by_field(field_id, tenant_id=tenant_id)
 
     readings = []
     for device in devices:
@@ -940,7 +953,7 @@ def get_field_latest_readings(field_id: str):
 
 
 @app.get("/stats")
-def get_stats():
+def get_stats(user: User = Depends(get_current_user)):
     """Get gateway statistics"""
     pub_stats = publisher.get_stats() if publisher else {}
     reg_stats = registry.get_stats() if registry else {}

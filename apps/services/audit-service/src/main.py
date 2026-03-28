@@ -11,6 +11,7 @@ Provides hash chain integrity validation, field-level change tracking, and compl
 import json
 import logging
 import os
+import re
 import sys
 import uuid
 from contextlib import asynccontextmanager
@@ -145,6 +146,17 @@ class AuditStatsResponse(BaseModel):
     chain_coverage_percent: float
 
 
+class AuditLogCreate(BaseModel):
+    """Validated request body for creating audit log entries"""
+
+    action: str = Field(default="unknown", max_length=200)
+    category: str = Field(default="general", max_length=100)
+    severity: str = Field(default="info", pattern=r"^(info|warning|error|critical)$")
+    resource_type: str | None = Field(default=None, max_length=200)
+    resource_id: str | None = Field(default=None, max_length=200)
+    details: dict | None = None
+
+
 class PaginatedResponse(BaseModel):
     """Paginated response wrapper"""
 
@@ -180,6 +192,20 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
     return x_tenant_id
+
+
+def enforce_tenant_match(tenant_id: str, user: object) -> None:
+    """Verify X-Tenant-Id header matches the JWT tenant claim.
+
+    Raises HTTPException 403 if the authenticated user's tenant does not
+    match the tenant supplied via header, preventing cross-tenant access.
+    """
+    jwt_tenant = getattr(user, "tenant_id", None)
+    # Also check dict-style user mocks used in tests
+    if jwt_tenant is None and isinstance(user, dict):
+        jwt_tenant = user.get("tenant_id")
+    if jwt_tenant and tenant_id != str(jwt_tenant):
+        raise HTTPException(status_code=403, detail="Tenant mismatch")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -240,8 +266,15 @@ async def lifespan(app: FastAPI):
     if app.state.nc:
 
         async def handle_event(msg):
-            data = json.loads(msg.data.decode())
-            tenant_id = data.get("tenant_id", "system")
+            try:
+                data = json.loads(msg.data.decode())
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                logger.warning("invalid_nats_message", subject=getattr(msg, "subject", "unknown"))
+                return
+            tenant_id = data.get("tenant_id")
+            if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) < 5:
+                logger.warning("missing_or_invalid_tenant_in_event", subject=getattr(msg, "subject", "unknown"))
+                return
             if tenant_id not in _audit_logs:
                 _audit_logs[tenant_id] = []
             _audit_logs[tenant_id].append(
@@ -389,6 +422,7 @@ async def get_audit_logs(
 
     جلب سجلات التدقيق مع الفلاتر
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
 
     # Apply filters
@@ -424,6 +458,7 @@ async def get_audit_logs(
 
 @app.post("/api/v1/audit/logs", tags=["Audit Logs"])
 async def create_audit_log(
+    body: AuditLogCreate,
     request: Request,
     tenant_id: str = Depends(get_tenant_id),
     user: object = Depends(get_current_user),
@@ -433,37 +468,39 @@ async def create_audit_log(
 
     إنشاء سجل تدقيق جديد
     """
-    body = await request.json()
+    enforce_tenant_match(tenant_id, user)
 
-    user_id = getattr(user, "id", None) or getattr(user, "sub", None) or str(user)
-    log_tenant_id = getattr(user, "tenant_id", None) or getattr(user, "tid", None) or tenant_id
+    # Always use authenticated user's ID - never trust request body for user_id
+    user_id = getattr(user, "id", None) or getattr(user, "sub", None) or "unknown"
+    if isinstance(user, dict):
+        user_id = user.get("id") or user.get("sub") or "unknown"
 
     log_entry = {
         "id": str(uuid.uuid4()),
-        "tenant_id": log_tenant_id,
-        "user_id": body.get("user_id", user_id),
-        "action": body.get("action", "unknown"),
-        "category": body.get("category", "general"),
-        "severity": body.get("severity", "info"),
-        "resource_type": body.get("resource_type"),
-        "resource_id": body.get("resource_id"),
-        "correlation_id": body.get("correlation_id"),
-        "ip_address": body.get("ip_address", request.client.host if request.client else None),
-        "success": body.get("success", True),
-        "error_code": body.get("error_code"),
-        "error_message": body.get("error_message"),
-        "details": body.get("details"),
-        "old_value": body.get("old_value"),
-        "new_value": body.get("new_value"),
+        "tenant_id": tenant_id,
+        "user_id": user_id,
+        "action": body.action,
+        "category": body.category,
+        "severity": body.severity,
+        "resource_type": body.resource_type,
+        "resource_id": body.resource_id,
+        "correlation_id": None,
+        "ip_address": request.client.host if request.client else None,
+        "success": True,
+        "error_code": None,
+        "error_message": None,
+        "details": body.details,
+        "old_value": None,
+        "new_value": None,
         "created_at": datetime.now(UTC).isoformat(),
     }
 
-    logs = _get_logs_for_tenant(log_tenant_id)
+    logs = _get_logs_for_tenant(tenant_id)
     logs.append(log_entry)
 
     logger.info(
         f"Audit log created: action={sanitize_log_input(log_entry['action'])} "
-        f"tenant={sanitize_log_input(log_tenant_id)}"
+        f"tenant={sanitize_log_input(tenant_id)}"
     )
 
     return log_entry
@@ -480,6 +517,7 @@ async def get_audit_log(
 
     جلب سجل تدقيق محدد
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     for log in logs:
         if log.get("id") == log_id:
@@ -501,6 +539,7 @@ async def get_user_audit_trail(
 
     جلب مسار التدقيق لمستخدم محدد
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     filtered = [entry for entry in logs if entry.get("user_id") == user_id]
 
@@ -540,6 +579,7 @@ async def get_resource_audit_trail(
 
     جلب مسار التدقيق لمورد محدد
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     filtered = [
         entry
@@ -579,6 +619,7 @@ async def validate_hash_chain(
 
     التحقق من سلامة سلسلة التجزئة لسجلات التدقيق
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
 
     # Filter by date range
@@ -625,6 +666,7 @@ async def get_chain_summary(tenant_id: str = Depends(get_tenant_id), _current_us
 
     جلب ملخص سلسلة التجزئة للمستأجر
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     entries_with_hash = [entry for entry in logs if entry.get("entry_hash")]
 
@@ -660,6 +702,7 @@ async def get_compliance_report(
 
     إنشاء تقرير الامتثال
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
 
     # Filter by date range
@@ -728,6 +771,12 @@ async def get_audit_stats(
 
     جلب إحصائيات التدقيق
     """
+    enforce_tenant_match(tenant_id, _current_user)
+
+    # Validate period parameter to prevent injection
+    if not re.match(r"^(7|14|30|60|90|180|365)d$", period):
+        raise HTTPException(status_code=400, detail="Invalid period. Allowed values: 7d, 14d, 30d, 60d, 90d, 180d, 365d")
+
     logs = _get_logs_for_tenant(tenant_id)
 
     # Parse period
@@ -781,6 +830,7 @@ async def get_security_events(
 
     جلب أحداث الأمان الأخيرة
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     filtered = [entry for entry in logs if entry.get("category") == "security"]
 
@@ -812,6 +862,7 @@ async def get_failed_logins(
 
     جلب محاولات تسجيل الدخول الفاشلة
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     cutoff = (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
 
@@ -852,6 +903,7 @@ async def export_audit_logs(
 
     تصدير سجلات التدقيق
     """
+    enforce_tenant_match(tenant_id, _current_user)
     import json as json_module
 
     logs = _get_logs_for_tenant(tenant_id)

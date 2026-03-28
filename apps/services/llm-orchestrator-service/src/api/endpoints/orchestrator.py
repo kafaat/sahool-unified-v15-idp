@@ -11,6 +11,7 @@ intent classification, agent execution, and response synthesis.
 تصنيف النوايا، وتنفيذ الوكلاء، وتجميع الاستجابات.
 """
 
+import re
 import time
 import uuid
 from typing import Any
@@ -43,10 +44,15 @@ logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["orchestrator"])
 
 
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
+
+
 def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
     """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    if not _UUID_RE.match(x_tenant_id):
+        raise HTTPException(status_code=400, detail="X-Tenant-Id must be a valid UUID")
     return x_tenant_id
 
 
@@ -223,6 +229,7 @@ async def orchestrate_with_image(
     request: Request,
     registry: AgentRegistry = Depends(get_agent_registry),
     executor: AgentExecutor = Depends(get_executor),
+    tenant_id: str = Depends(get_tenant_id),
 ) -> OrchestratorResponse:
     """Orchestration endpoint for image-based queries."""
     # Validate image is provided
@@ -236,7 +243,7 @@ async def orchestrate_with_image(
     user_intent.context = user_intent.context or {}
     user_intent.context["force_image_analysis"] = True
 
-    return await orchestrate(user_intent, request, registry, executor)
+    return await orchestrate(user_intent, request, registry, executor, tenant_id)
 
 
 @router.get(

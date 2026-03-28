@@ -56,6 +56,7 @@ async def find_relationship_path(
     source_id: str = Query(..., description="Source entity ID"),
     target_type: str = Query(..., description="Target entity type (crop, disease, treatment)"),
     target_id: str = Query(..., description="Target entity ID"),
+    _user=Depends(get_current_user),
 ):
     """
     Find the shortest path between two entities
@@ -95,6 +96,7 @@ async def search_graph(
     q: str = Query(..., description="Search query"),
     entity_type: str | None = Query(None, description="Filter by entity type (crop, disease, treatment)"),
     limit: int = Query(20, ge=1, le=100, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Search for entities in the knowledge graph

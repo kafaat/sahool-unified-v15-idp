@@ -161,7 +161,7 @@ class Settings(BaseSettings):
 
     # JWT Authentication
     jwt_secret_key: str = Field(
-        default="development-secret-key-change-in-production-32chars",
+        default="",
         description="JWT secret key | مفتاح JWT السري",
     )
     jwt_algorithm: str = Field(default="HS256", description="JWT algorithm")

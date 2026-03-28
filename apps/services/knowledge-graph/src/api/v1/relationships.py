@@ -61,6 +61,7 @@ async def get_disease_treatments(
     request,
     disease_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get all treatments for a disease
@@ -86,6 +87,7 @@ async def get_compatible_treatments(
     request,
     crop_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get treatments compatible with a crop
@@ -111,6 +113,7 @@ async def get_diseases_by_crop(
     request,
     crop_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get diseases that affect a crop
@@ -136,6 +139,7 @@ async def get_preventive_treatments(
     request,
     disease_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get preventive treatments for a disease
@@ -162,6 +166,7 @@ async def get_all_related(
     entity_type: str = Path(..., description="Entity type (crop, disease, treatment)"),
     entity_id: str = Path(..., description="Entity ID"),
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get all entities related to a given entity
@@ -194,6 +199,7 @@ async def find_path(
     source_id: str = Query(..., description="Source entity ID"),
     target_type: str = Query(..., description="Target entity type"),
     target_id: str = Query(..., description="Target entity ID"),
+    _user=Depends(get_current_user),
 ):
     """
     Find the relationship path between two entities

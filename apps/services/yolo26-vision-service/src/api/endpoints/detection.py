@@ -740,6 +740,7 @@ async def detect_pests(
                 ],
                 processing_time_ms=processing_time,
                 model_variant=model_variant.value,
+                tenant_id=getattr(current_user, "tenant_id", None),
             )
 
         return PestDetectionResponse(
@@ -982,6 +983,7 @@ async def detect_diseases(
                 processing_time_ms=processing_time,
                 model_variant=model_variant.value,
                 health_score=health_score,
+                tenant_id=getattr(current_user, "tenant_id", None),
             )
 
         return DiseaseDetectionResponse(
@@ -1193,6 +1195,7 @@ async def detect_weeds(
                 processing_time_ms=processing_time,
                 model_variant=model_variant.value,
                 total_coverage_percent=total_coverage,
+                tenant_id=getattr(current_user, "tenant_id", None),
             )
 
         return WeedDetectionResponse(

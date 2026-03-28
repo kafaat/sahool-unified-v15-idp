@@ -448,6 +448,7 @@ def update_alert_rule(
     db: Session,
     *,
     rule_id: UUID,
+    tenant_id: UUID | str | None = None,
     **updates,
 ) -> AlertRule | None:
     """
@@ -456,12 +457,17 @@ def update_alert_rule(
     Args:
         db: SQLAlchemy session
         rule_id: Rule UUID
+        tenant_id: Optional tenant UUID/string for isolation
         **updates: Fields to update
 
     Returns:
         Updated rule or None if not found
     """
     query = select(AlertRule).where(AlertRule.id == rule_id)
+
+    if tenant_id is not None:
+        query = query.where(AlertRule.tenant_id == tenant_id)
+
     rule = db.execute(query).scalar_one_or_none()
 
     if not rule:
@@ -502,18 +508,23 @@ def delete_alert_rule(db: Session, rule_id: UUID, *, tenant_id: UUID | str | Non
     return True
 
 
-def mark_rule_triggered(db: Session, rule_id: UUID) -> AlertRule | None:
+def mark_rule_triggered(db: Session, rule_id: UUID, *, tenant_id: UUID | str | None = None) -> AlertRule | None:
     """
     Mark a rule as triggered (update last_triggered_at).
 
     Args:
         db: SQLAlchemy session
         rule_id: Rule UUID
+        tenant_id: Optional tenant UUID/string for isolation
 
     Returns:
         Updated rule or None if not found
     """
     query = select(AlertRule).where(AlertRule.id == rule_id)
+
+    if tenant_id is not None:
+        query = query.where(AlertRule.tenant_id == tenant_id)
+
     rule = db.execute(query).scalar_one_or_none()
 
     if not rule:

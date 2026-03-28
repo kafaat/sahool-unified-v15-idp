@@ -784,7 +784,7 @@ def liveness():
 
 
 @app.get("/models", response_model=list[ModelInfo])
-async def list_models():
+async def list_models(user: User = Depends(get_current_user)):
     """List available LLM models"""
     service = get_service()
     return service.get_available_models()
@@ -894,7 +894,7 @@ async def github_webhook(
 
 
 @app.get("/cache/stats", response_model=CacheStatsResponse)
-async def cache_stats():
+async def cache_stats(user: User = Depends(get_current_user)):
     """Get cache statistics"""
     service = get_service()
     if not service.cache:

@@ -251,9 +251,9 @@ export class ChatService {
           },
         });
 
-        // Update conversation's last message
-        await tx.conversation.update({
-          where: { id: dto.conversationId },
+        // Update conversation's last message (tenant-scoped)
+        await tx.conversation.updateMany({
+          where: { id: dto.conversationId, tenantId },
           data: {
             lastMessage: dto.content,
             lastMessageAt: new Date(),
@@ -261,9 +261,10 @@ export class ChatService {
           },
         });
 
-        // Update unread count for other participants
+        // Update unread count for other participants (tenant-scoped)
         await tx.participant.updateMany({
           where: {
+            tenantId,
             conversationId: dto.conversationId,
             userId: { not: dto.senderId },
           },
@@ -304,17 +305,18 @@ export class ChatService {
 
     // Only mark as read if user is not the sender
     if (message.senderId !== userId) {
-      await this.prisma.message.update({
-        where: { id: messageId },
+      await this.prisma.message.updateMany({
+        where: { id: messageId, tenantId },
         data: {
           isRead: true,
           readAt: new Date(),
         },
       });
 
-      // Update participant's last read time and reset unread count
+      // Update participant's last read time and reset unread count (tenant-scoped)
       await this.prisma.participant.updateMany({
         where: {
+          tenantId,
           conversationId: message.conversationId,
           userId,
         },

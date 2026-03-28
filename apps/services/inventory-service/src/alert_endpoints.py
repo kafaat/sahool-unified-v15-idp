@@ -134,7 +134,8 @@ async def get_alerts(
             except KeyError:
                 raise HTTPException(status_code=400, detail=f"Invalid alert type: {alert_type}")
 
-        alerts = await manager.get_active_alerts(priority=priority_enum, alert_type=type_enum)
+        tenant_id = getattr(_user, "tenant_id", "") or ""
+        alerts = await manager.get_active_alerts(priority=priority_enum, alert_type=type_enum, tenant_id=tenant_id)
 
         total = len(alerts)
         paginated = alerts[offset : offset + limit]
@@ -163,7 +164,8 @@ async def get_alerts_summary(_user: User = Depends(get_current_user)):
     """Get alert summary statistics"""
     try:
         manager = get_alert_manager()
-        return await manager.get_alert_summary()
+        tenant_id = getattr(_user, "tenant_id", "") or ""
+        return await manager.get_alert_summary(tenant_id=tenant_id)
     except RuntimeError as e:
         logger.error(f"Runtime error getting alert summary: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -177,7 +179,8 @@ async def acknowledge_alert(alert_id: str, data: AcknowledgeAlertRequest, _user:
     """Acknowledge an alert"""
     try:
         manager = get_alert_manager()
-        alert = await manager.acknowledge_alert(alert_id, data.acknowledged_by)
+        tenant_id = getattr(_user, "tenant_id", "") or ""
+        alert = await manager.acknowledge_alert(alert_id, data.acknowledged_by, tenant_id=tenant_id)
 
         if not alert:
             raise HTTPException(status_code=404, detail="Alert not found")

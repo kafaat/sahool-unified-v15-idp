@@ -1,0 +1,3842 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>تقرير فجوات Farmonaut مقابل SAHOOL - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#farmonaut-sahool" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير فجوات Farmonaut مقابل SAHOOL
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="farmonaut-sahool">تقرير فجوات Farmonaut مقابل SAHOOL<a class="headerlink" href="#farmonaut-sahool" title="Permanent link">&para;</a></h1>
+<h1 id="farmonaut-vs-sahool-gap-analysis-report">Farmonaut vs SAHOOL Gap Analysis Report<a class="headerlink" href="#farmonaut-vs-sahool-gap-analysis-report" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>التاريخ</strong>: 2026-03-27
+<strong>المصدر</strong>: تحليل فيديو Farmonaut + تدقيق كود SAHOOL
+<strong>الهدف</strong>: تحديد الفجوات الدقيقة وخطة التحسين</p>
+</blockquote>
+<hr />
+<h2 id="map-controls">أولاً: المؤشرات (Map Controls) — تحليل الفجوات<a class="headerlink" href="#map-controls" title="Permanent link">&para;</a></h2>
+<h3 id="_1">مجموعة صحة المحصول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Farmonaut</th>
+<th>SAHOOL - الكود الموجود</th>
+<th>الفجوة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hybrid Index</strong></td>
+<td>يجمع صحة المحصول + الري في صورة واحدة بـ 4 ألوان</td>
+<td>❌ غير موجود</td>
+<td><strong>يجب بناؤه</strong> — فكرة عبقرية للمزارع البسيط</td>
+<td>P0</td>
+</tr>
+<tr>
+<td><strong>NDVI</strong></td>
+<td>مراحل مبكرة + كثافة خفيفة</td>
+<td>✅ <strong>حقيقي</strong> — <code>vegetation_indices.py</code> يحسب NDVI بصيغة Sentinel-2 الحقيقية (B8-B4)/(B8+B4)</td>
+<td><strong>البيانات وهمية</strong> — sentinelhub غير مثبت في requirements.txt، يعود لـ mock data</td>
+<td>P0</td>
+</tr>
+<tr>
+<td><strong>NDRE</strong></td>
+<td>مراحل متأخرة / ذرة / فول صويا</td>
+<td>✅ <strong>حقيقي</strong> — محسوب في vegetation_indices.py باستخدام (B7-B5)/(B7+B5)</td>
+<td>نفس مشكلة NDVI — لا بيانات حقيقية</td>
+<td>P0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3">مجموعة الري (3 مؤشرات)<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Farmonaut</th>
+<th>SAHOOL - الكود الموجود</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NDWI</strong></td>
+<td>نقص الماء في النبات</td>
+<td>✅ <strong>حقيقي</strong> — محسوب (B3-B8)/(B3+B8) في vegetation_indices.py</td>
+<td>البيانات وهمية فقط</td>
+</tr>
+<tr>
+<td><strong>Evapotranspiration</strong></td>
+<td>تبخر الماء من التربة والنبات</td>
+<td>✅ <strong>حقيقي</strong> — irrigation-smart يحسب ET بطريقة Hargreaves: ET0 × Kc</td>
+<td><strong>يعمل فعلياً</strong> مع بيانات الطقس</td>
+</tr>
+<tr>
+<td><strong>NDMI</strong></td>
+<td>رطوبة التربة</td>
+<td>✅ <strong>حقيقي</strong> — محسوب (B8A-B11)/(B8A+B11)</td>
+<td>البيانات وهمية</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ملاحظة حاسمة</strong>: Farmonaut يدمج الثلاثة في توصية ري واحدة. SAHOOL لديه الحسابات منفصلة لكن <strong>لا يوجد دمج</strong>.</p>
+<h3 id="_2">مجموعة التربة والتضاريس<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Farmonaut</th>
+<th>SAHOOL - الكود الموجود</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SOC</strong> (كربون عضوي)</td>
+<td>يحدد مناطق انخفاض الكربون لأخذ العينات</td>
+<td>✅ <strong>حقيقي</strong> — <code>shared/process_models/soil_carbon.py</code> نموذج RothC بـ 3 أحواض كربون + دورة نيتروجين</td>
+<td><strong>غير مربوط</strong> بواجهة المستخدم</td>
+</tr>
+<tr>
+<td><strong>DEM</strong> (ارتفاع رقمي)</td>
+<td>تضاريس + مناطق تجمع المياه</td>
+<td>✅ <strong>حقيقي وممتاز</strong> — <code>terrain-core-service</code> يدعم 4 مصادر DEM + 7 مؤشرات تضاريس (slope, aspect, flow, TWI, curvature)</td>
+<td><strong>كشف تجمع المياه غير مطبق</strong> — البنية جاهزة (Flow Accumulation) لكن لا يوجد endpoint مخصص</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sar">مجموعة الرادار (SAR)<a class="headerlink" href="#sar" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>Farmonaut</th>
+<th>SAHOOL - الكود الموجود</th>
+<th>الفجوة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RVI</strong> (صحة بالرادار)</td>
+<td>يخترق السحب تلقائياً</td>
+<td>❌ <strong>غير موجود</strong> — <code>sar_processor.py</code> يبحث عن مشاهد Sentinel-1 لكن لا يحمّل البيانات ولا يحسب RVI</td>
+<td>يجب بناء خط أنابيب SAR حقيقي</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>RSM</strong> (رطوبة بالرادار)</td>
+<td>رطوبة التربة عبر السحب</td>
+<td>⚠️ <strong>جزئي</strong> — Water Cloud Model موجود بمعايرة يمنية (A=15.0, B=8.5, C=-0.3) لكن يستخدم <strong>بيانات محاكاة</strong></td>
+<td>تفعيل تحميل SAR الحقيقي</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>التحول التلقائي للرادار</strong></td>
+<td>يكتشف الغيوم ويتحول لـ SAR بدون تدخل</td>
+<td>❌ <strong>غير موجود تماماً</strong></td>
+<td><strong>P1 — مهم جداً لليمن</strong> بسبب الغيوم الموسمية</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">ثانياً: التقارير والتنبيهات — تحليل الفجوات<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تقرير 9 أقسام</strong> (بوصلة)</td>
+<td>الصفحة 2 من كل تقرير — خريطة مقسمة 9 اتجاهات</td>
+<td>❌ <strong>غير موجود</strong> — لا يوجد تقسيم مكاني للحقل</td>
+<td>فكرة ذكية جداً يجب تطبيقها</td>
+<td>P0</td>
+</tr>
+<tr>
+<td><strong>تقرير WhatsApp</strong></td>
+<td>كل 3-5 أيام تلقائياً</td>
+<td>✅ <strong>حقيقي</strong> — <code>whatsapp-bot-service</code> (port 8240) يدعم إرسال قوالب + صور + جلسات</td>
+<td><strong>الربط موجود</strong> — يحتاج فقط تنسيق التقرير بشكل 9 أقسام</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>تقرير متعدد اللغات</strong></td>
+<td>تغيير اللغة من داخل التقرير</td>
+<td>✅ <strong>جزئي</strong> — كل الخدمات ثنائية اللغة (AR/EN)</td>
+<td><strong>لا يوجد PDF</strong> — التقارير نصية فقط</td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>توقعات طقس ساعية 48 ساعة</strong></td>
+<td>ساعة بساعة</td>
+<td>✅ <strong>حقيقي</strong> — <code>weather-service</code> يدعم Open-Meteo + OpenWeatherMap + 48h hourly</td>
+<td><strong>يعمل</strong> — يحتاج ربط بالواجهة</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>توقعات يومية 8 أيام</strong></td>
+<td>يومياً</td>
+<td>✅ <strong>حقيقي</strong> — مدعوم في weather-service</td>
+<td>يحتاج ربط</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>نافذة الرش</strong> (Spray Window)</td>
+<td>ضمن الطقس</td>
+<td>✅ <strong>حقيقي</strong> — <code>shared/weather_alerts/</code> يحسب نوافذ الرش مع كشف الانعكاس الحراري</td>
+<td>يحتاج ربط</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="jeevn-ai">ثالثاً: JEEVN AI — تحليل الفجوات<a class="headerlink" href="#jeevn-ai" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>Farmonaut JEEVN AI</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تحليل N, P, K, Zn, S</strong></td>
+<td>مقاييس بصرية + توصيات كمية</td>
+<td>✅ <strong>حقيقي وشامل</strong> — <code>shared/soil_testing/interpreter.py</code> يحلل N, P, K, Ca, Mg, S, Zn, Fe, Mn, Cu, B (11 عنصر!) مع عتبات حسب نوع المحصول</td>
+<td><strong>أفضل من Farmonaut</strong> — يحتاج فقط ربط بالواجهة</td>
+</tr>
+<tr>
+<td><strong>pH والملوحة</strong></td>
+<td>مراقبة مع توصيات</td>
+<td>✅ <strong>حقيقي</strong> — تأثير pH على امتصاص العناصر + EC interpretation</td>
+<td>يحتاج ربط</td>
+</tr>
+<tr>
+<td><strong>SOC (كربون عضوي)</strong></td>
+<td>خريطة مناطق انخفاض</td>
+<td>✅ <strong>حقيقي</strong> — نموذج RothC مع 3 أحواض كربون</td>
+<td>يحتاج ربط + تصور مكاني</td>
+</tr>
+<tr>
+<td><strong>توصيات أسمدة</strong></td>
+<td>كميات محددة بالكيلو/هكتار</td>
+<td>✅ <strong>جزئي</strong> — <code>shared/fertilizer_management/</code> موجود لكن منطق الاختيار بسيط</td>
+<td>تحسين خوارزمية التوصية</td>
+</tr>
+<tr>
+<td><strong>توقع الآفات بالقمر الصناعي</strong></td>
+<td>NDVI anomaly → تنبؤ مبكر</td>
+<td>❌ <strong>STUB</strong> — pest-detection-service يقبل NDVI كمدخل لكن <strong>لا يوجد نموذج ML</strong> يربط الشذوذ بالآفات</td>
+<td>P1 — يحتاج نموذج ML</td>
+</tr>
+<tr>
+<td><strong>جدول ري ذكي (4 عوامل)</strong></td>
+<td>طقس + رطوبة + احتياج + تبخر</td>
+<td>✅ <strong>حقيقي</strong> — irrigation-smart يدمج الأربعة بطريقة Hargreaves</td>
+<td>يحتاج ربط بالواجهة</td>
+</tr>
+<tr>
+<td><strong>توقع الإنتاجية</strong></td>
+<td>ارتفاع + عائد/هكتار + موعد حصاد</td>
+<td>✅ <strong>حقيقي</strong> — <code>crop-intelligence-service/yield_prediction.py</code> (571 سطر) يدعم 14 محصول</td>
+<td><strong>موعد الحصاد STUB</strong> — حساب خطي بسيط، يحتاج نمذجة فينولوجية</td>
+</tr>
+<tr>
+<td><strong>استكشاف متعدد الحقول</strong></td>
+<td>تقرير واحد لعدة حقول</td>
+<td>❌ <strong>غير موجود</strong></td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_4">رابعاً: إدارة الحقول — تحليل الفجوات<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>بحث بالعنوان</strong></td>
+<td>✅</td>
+<td>❌ — لا يوجد geocoding</td>
+<td>يحتاج Google/OSM geocoding</td>
+</tr>
+<tr>
+<td><strong>إدخال إحداثيات</strong></td>
+<td>✅</td>
+<td>✅ — PostGIS يدعم</td>
+<td>UI ناقص</td>
+</tr>
+<tr>
+<td><strong>رفع KML/Shapefile</strong></td>
+<td>✅</td>
+<td>❌ <strong>غير موجود</strong> — لا يوجد كود parsing لملفات KML/SHP</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>رسم على الخريطة</strong></td>
+<td>✅</td>
+<td>❌ — لا يوجد أداة رسم Leaflet/MapLibre</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>حساب المساحة</strong></td>
+<td>✅ تلقائي</td>
+<td>✅ <strong>حقيقي</strong> — <code>shared/field_boundaries/geometry.py</code> يحسب Haversine + مساحة + محيط</td>
+<td>يحتاج ربط</td>
+</tr>
+<tr>
+<td><strong>Show All Farms (جدول)</strong></td>
+<td>Farm ID, وصف, مساحة, حالة, تاريخ</td>
+<td>✅ <strong>جزئي</strong> — الجدول موجود في FarmonautClient</td>
+<td>يحتاج إضافة: subscription status, وحدات</td>
+</tr>
+<tr>
+<td><strong>بحث + تجديد جماعي</strong></td>
+<td>✅</td>
+<td>❌ — لا يوجد batch operations</td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>تاريخي من 2017</strong></td>
+<td>✅ Time Lapse + Side-by-Side</td>
+<td>⚠️ <strong>البنية جاهزة</strong> — NDVI timeseries + multi-provider لكن <strong>لا يوجد تكوين أرشيف Sentinel-2 صريح</strong></td>
+<td>P1</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">خامساً: ملخص الأولويات<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="p0">P0 — حرج (يجب فوراً)<a class="headerlink" href="#p0" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>السبب</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>تفعيل Sentinel Hub</strong> — إضافة <code>sentinelhub</code> لـ requirements.txt + تكوين credentials</td>
+<td>كل المؤشرات تعتمد عليه — بدونه كل البيانات وهمية</td>
+<td>أسبوع واحد</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>بناء Hybrid Index</strong> — خوارزمية تجمع NDVI + NDWI في 4 ألوان</td>
+<td>أهم فكرة من Farmonaut — تبسيط للمزارع</td>
+<td>3 أيام</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>تقرير 9 أقسام</strong> — تقسيم مكاني + توليد تقرير عربي</td>
+<td>الفكرة الأذكى من Farmonaut</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>ربط weather-service بالواجهة</strong> — طقس ساعي 48h + يومي 8 أيام + spray windows</td>
+<td>الكود <strong>جاهز 100%</strong> — يحتاج فقط API call</td>
+<td>يومان</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p1">P1 — عالي (خلال شهر)<a class="headerlink" href="#p1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>السبب</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td><strong>SAR Fallback التلقائي</strong> — كشف غيوم → تحول لرادار</td>
+<td><strong>حاسم لليمن</strong> بسبب الغيوم الموسمية</td>
+<td>أسبوعان</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>ربط JEEVN AI</strong> — soil-analysis + irrigation-smart + pest-detection بالواجهة</td>
+<td>الكود الخلفي <strong>جاهز</strong> — يحتاج integration فقط</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>KML/Shapefile Import</strong> — إضافة parser + UI رفع ملفات</td>
+<td>ضروري لاستيراد حقول موجودة</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>رسم حدود على الخريطة</strong> — Leaflet Draw plugin</td>
+<td>ضروري لإنشاء حقول جديدة</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>نموذج ML للآفات</strong> — NDVI anomaly → pest prediction</td>
+<td>ميزة تنافسية مهمة</td>
+<td>أسبوعان</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>تقرير WhatsApp بـ 9 أقسام</strong> — ربط whatsapp-bot-service بالتقرير الجديد</td>
+<td>الخدمة <strong>جاهزة</strong> (port 8240)</td>
+<td>3 أيام</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p2-3">P2 — متوسط (خلال 3 أشهر)<a class="headerlink" href="#p2-3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11</td>
+<td>Historical Data من 2017 — تكوين Sentinel Hub Archive API</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Time Lapse — فيديو زمني لتطور الحقل</td>
+<td>أسبوعان</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Side-by-Side — مقارنة مؤشرين جنباً لجنب</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>14</td>
+<td>PDF Reports — تصدير تقارير PDF ثنائية اللغة</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Batch Farm Operations — تجديد جماعي</td>
+<td>3 أيام</td>
+</tr>
+<tr>
+<td>16</td>
+<td>موعد حصاد دقيق — نمذجة فينولوجية بـ GDD</td>
+<td>أسبوعان</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sahool">سادساً: الأفضلية التنافسية لـ SAHOOL<a class="headerlink" href="#sahool" title="Permanent link">&para;</a></h2>
+<h3 id="sahool-farmonaut">ما يتفوق فيه SAHOOL على Farmonaut (بالفعل)<a class="headerlink" href="#sahool-farmonaut" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>SAHOOL</th>
+<th>Farmonaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تحليل عناصر التربة</strong></td>
+<td>11 عنصر (N,P,K,Ca,Mg,S,Zn,Fe,Mn,Cu,B)</td>
+<td>5 فقط (N,P,K,Zn,S)</td>
+</tr>
+<tr>
+<td><strong>نموذج كربون التربة</strong></td>
+<td>RothC مع 3 أحواض + دورة نيتروجين</td>
+<td>خريطة SOC بسيطة</td>
+</tr>
+<tr>
+<td><strong>تحليل التضاريس</strong></td>
+<td>7 مؤشرات + 4 مصادر DEM + Copernicus GLO-30</td>
+<td>DEM أساسي فقط</td>
+</tr>
+<tr>
+<td><strong>مؤشرات الغطاء النباتي</strong></td>
+<td>25+ مؤشر (NDVI, EVI, SAVI, NDRE, LAI, MSAVI, GNDVI...)</td>
+<td>~10 مؤشرات</td>
+</tr>
+<tr>
+<td><strong>محاصيل التوقع</strong></td>
+<td>14 محصول (مع معايرة يمنية)</td>
+<td>عام — غير مخصص إقليمياً</td>
+</tr>
+<tr>
+<td><strong>WhatsApp Bot</strong></td>
+<td>محادثة ذكية + كشف أمراض بالصور + جلسات</td>
+<td>تقارير فقط</td>
+</tr>
+<tr>
+<td><strong>نظام الآفات</strong></td>
+<td>10+ آفات شرق أوسطية + عتبات اقتصادية + IPM</td>
+<td>تنبيهات عامة</td>
+</tr>
+<tr>
+<td><strong>تحليل NDVI الزمني</strong></td>
+<td>1600+ سطر — كشف شذوذ + اتجاهات + فينولوجيا + تنبؤ</td>
+<td>رسم بياني أساسي</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_6">سابعاً: خلاصة — الصورة الكبرى<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>الحسابات العلمية (محركات الحساب):  ██████████████████░░  90% جاهز
+بنية الخدمات (API + endpoints):    ██████████████████░░  90% جاهز
+بيانات الأقمار الصناعية الحقيقية:   ██░░░░░░░░░░░░░░░░░░  10% (mock فقط)
+الربط بين الخدمات والواجهة:         ████░░░░░░░░░░░░░░░░  20%
+واجهة المستخدم Farmonaut:          ████████████████░░░░  80% جاهز
+SAR/Radar:                         ██░░░░░░░░░░░░░░░░░░  10%
+تقارير ذكية (9 أقسام):             ░░░░░░░░░░░░░░░░░░░░   0%
+</code></pre></div>
+
+<h3 id="_7">الاستنتاج<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p><strong>SAHOOL لديه محركات حساب أقوى من Farmonaut</strong> — لكن المشكلة في 3 نقاط:
+1. <strong>لا بيانات أقمار صناعية حقيقية</strong> (sentinelhub غير مثبت)
+2. <strong>لا ربط بين الخلفية والواجهة</strong> (كل خدمة تعمل منفردة)
+3. <strong>لا تبسيط للمزارع</strong> (Hybrid Index + 9 أقسام)</p>
+<p><strong>إذا تم حل هذه الثلاث نقاط، SAHOOL يتفوق على Farmonaut تقنياً.</strong></p>
+<hr />
+<h2 id="endpoints">ثامناً: خريطة التكامل — الـ Endpoints الدقيقة لربط الواجهة بالخدمات<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>هذا القسم يوضح <strong>بالضبط</strong> أي endpoint يُستدعى لكل ميزة في واجهة Farmonaut.
+مبني على تدقيق الكود الفعلي وليس الوثائق.</p>
+</blockquote>
+<h3 id="vegetation-analysis-service-port-8090">خدمة تحليل الغطاء النباتي (vegetation-analysis-service — port 8090)<a class="headerlink" href="#vegetation-analysis-service-port-8090" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة Farmonaut</th>
+<th>Endpoint الحقيقي</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NDVI / EVI / SAVI / NDRE / NDWI / NDMI</strong></td>
+<td><code>GET /v1/indices/{field_id}</code></td>
+<td>✅ يعمل (mock)</td>
+<td>يُرجع 18+ مؤشر دفعة واحدة</td>
+</tr>
+<tr>
+<td><strong>مؤشر محدد</strong></td>
+<td><code>GET /v1/indices/{field_id}/{index_name}</code></td>
+<td>✅ يعمل (mock)</td>
+<td>مع تفسير حسب المحصول</td>
+</tr>
+<tr>
+<td><strong>السلسلة الزمنية</strong></td>
+<td><code>GET /v1/timeseries/{field_id}</code></td>
+<td>✅ يعمل (mock)</td>
+<td>NDVI عبر الزمن</td>
+</tr>
+<tr>
+<td><strong>تحليل زمني شامل</strong></td>
+<td><code>POST /v1/ndvi-timeseries/analyze/{field_id}</code></td>
+<td>✅ حقيقي</td>
+<td>كشف شذوذ + اتجاهات + فينولوجيا</td>
+</tr>
+<tr>
+<td><strong>رطوبة التربة SAR</strong></td>
+<td><code>GET /v1/soil-moisture/{field_id}</code></td>
+<td>⚠️ محاكاة</td>
+<td>Water Cloud Model يمني جاهز</td>
+</tr>
+<tr>
+<td><strong>سلسلة SAR الزمنية</strong></td>
+<td><code>GET /v1/sar-timeseries/{field_id}</code></td>
+<td>⚠️ محاكاة</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>كشف أحداث الري</strong></td>
+<td><code>GET /v1/irrigation-events/{field_id}</code></td>
+<td>⚠️ محاكاة</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>غطاء السحب</strong></td>
+<td><code>GET /v1/cloud-cover/{field_id}</code></td>
+<td>✅</td>
+<td>يُستخدم لتقرير SAR fallback</td>
+</tr>
+<tr>
+<td><strong>كشف حدود الحقل</strong></td>
+<td><code>POST /v1/boundaries/detect</code></td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>تصدير تحليل</strong></td>
+<td><code>GET /v1/export/analysis/{field_id}</code></td>
+<td>✅</td>
+<td>GeoJSON/CSV/KML</td>
+</tr>
+<tr>
+<td><strong>VRA (تطبيق متغير)</strong></td>
+<td><code>POST /v1/vra/generate</code></td>
+<td>✅</td>
+<td>خرائط وصفات</td>
+</tr>
+<tr>
+<td><strong>مرحلة النمو</strong></td>
+<td><code>GET /v1/phenology/{field_id}</code></td>
+<td>✅</td>
+<td>كشف مرحلة المحصول</td>
+</tr>
+<tr>
+<td><strong>نافذة الرش</strong></td>
+<td><code>GET /v1/spray/forecast</code></td>
+<td>✅</td>
+<td>أفضل وقت للرش</td>
+</tr>
+<tr>
+<td><strong>توقع المحصول</strong></td>
+<td><code>POST /v1/yield-prediction</code></td>
+<td>✅</td>
+<td>NDVI-based</td>
+</tr>
+</tbody>
+</table>
+<h3 id="weather-service-port-8092">خدمة الطقس (weather-service — port 8092)<a class="headerlink" href="#weather-service-port-8092" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة Farmonaut</th>
+<th>Endpoint</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>توقعات يومية 8 أيام</strong></td>
+<td><code>POST /weather/forecast</code> (body: lat, lon; query: days=8)</td>
+<td>✅ حقيقي</td>
+<td>Open-Meteo + OpenWeatherMap</td>
+</tr>
+<tr>
+<td><strong>توقعات ساعية 48 ساعة</strong></td>
+<td><code>POST /weather/forecast</code> (days=2)</td>
+<td>⚠️ يومي فقط</td>
+<td>الخدمة لا تدعم ساعي — يحتاج إضافة</td>
+</tr>
+<tr>
+<td><strong>تقييم نافذة الرش</strong></td>
+<td><code>POST /weather/spray-window</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>النتح التبخري</strong></td>
+<td><code>POST /weather/evapotranspiration</code></td>
+<td>✅ حقيقي</td>
+<td>Hargreaves ET0</td>
+</tr>
+<tr>
+<td><strong>خطر الصقيع</strong></td>
+<td><code>POST /weather/frost-risk</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>إجهاد حراري</strong></td>
+<td><code>POST /weather/heat-stress</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>GDD (أيام نمو حراري)</strong></td>
+<td><code>POST /weather/gdd</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>تقرير زراعي شامل</strong></td>
+<td><code>POST /weather/agricultural-report</code></td>
+<td>✅ حقيقي</td>
+<td>يجمع كل التحليلات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="irrigation-smart-port-8094">خدمة الري الذكي (irrigation-smart — port 8094)<a class="headerlink" href="#irrigation-smart-port-8094" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة Farmonaut</th>
+<th>Endpoint</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>حساب خطة الري</strong></td>
+<td><code>POST /v1/calculate</code></td>
+<td>✅ حقيقي</td>
+<td>ET + رطوبة + طقس + محصول</td>
+</tr>
+<tr>
+<td><strong>ميزان المياه</strong></td>
+<td><code>GET /v1/water-balance/{field_id}</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>قراءة مستشعر</strong></td>
+<td><code>POST /v1/sensor-reading</code></td>
+<td>✅ حقيقي</td>
+<td>رطوبة التربة</td>
+</tr>
+<tr>
+<td><strong>تقرير كفاءة</strong></td>
+<td><code>GET /v1/efficiency-report/{field_id}</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>لا يقبل NDVI/NDWI</strong></td>
+<td>—</td>
+<td>❌ فجوة</td>
+<td>يعتمد على رطوبة التربة فقط، ليس الأقمار الصناعية</td>
+</tr>
+</tbody>
+</table>
+<h3 id="soil-analysis-service-port-8134">خدمة تحليل التربة (soil-analysis-service — port 8134)<a class="headerlink" href="#soil-analysis-service-port-8134" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة Farmonaut</th>
+<th>Endpoint</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تفسير فحص التربة</strong></td>
+<td><code>POST /interpret</code></td>
+<td>✅ حقيقي</td>
+<td>11 عنصر مع عتبات حسب المحصول</td>
+</tr>
+<tr>
+<td><strong>خطة تعديل التربة</strong></td>
+<td><code>POST /recommendations/amendment-plan</code></td>
+<td>✅ حقيقي</td>
+<td>توصيات أسمدة بالكمية</td>
+</tr>
+<tr>
+<td><strong>حالة عنصر غذائي</strong></td>
+<td><code>POST /interpretation/nutrient-status</code></td>
+<td>✅ حقيقي</td>
+<td>N, P, K, etc.</td>
+</tr>
+<tr>
+<td><strong>حالة pH</strong></td>
+<td><code>POST /interpretation/ph-status</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>حالة EC (ملوحة)</strong></td>
+<td><code>POST /interpretation/ec-status</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>اتجاهات العناصر</strong></td>
+<td><code>POST /trends/nutrient</code></td>
+<td>✅ حقيقي</td>
+<td>تحليل زمني</td>
+</tr>
+<tr>
+<td><strong>حساب معدل سماد</strong></td>
+<td><code>POST /recommendations/calculate-rate</code></td>
+<td>✅ حقيقي</td>
+<td>كجم/هكتار</td>
+</tr>
+</tbody>
+</table>
+<h3 id="crop-intelligence-service-port-8095">خدمة ذكاء المحاصيل (crop-intelligence-service — port 8095)<a class="headerlink" href="#crop-intelligence-service-port-8095" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة Farmonaut</th>
+<th>Endpoint</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تشخيص شامل</strong></td>
+<td><code>GET /api/v1/fields/{field_id}/diagnosis</code></td>
+<td>✅ حقيقي</td>
+<td>أمراض + مغذيات + آفات + محصول</td>
+</tr>
+<tr>
+<td><strong>كشف أمراض</strong></td>
+<td><code>POST /api/v1/disease/detect</code></td>
+<td>✅ حقيقي</td>
+<td>يقبل NDVI, EVI, NDRE, NDWI</td>
+</tr>
+<tr>
+<td><strong>كشف نقص مغذيات</strong></td>
+<td><code>POST /api/v1/nutrients/detect</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>تقييم آفات</strong></td>
+<td><code>POST /api/v1/pests/assess</code></td>
+<td>✅ حقيقي</td>
+<td>يقبل مؤشرات + طقس + موقع</td>
+</tr>
+<tr>
+<td><strong>توقع محصول</strong></td>
+<td><code>POST /api/v1/yield/predict</code></td>
+<td>✅ حقيقي</td>
+<td>14 محصول</td>
+</tr>
+<tr>
+<td><strong>خط زمني للمنطقة</strong></td>
+<td><code>GET /api/v1/fields/{field_id}/zones/{zone_id}/timeline</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>تحليل شامل مدمج</strong></td>
+<td><code>POST /api/v1/comprehensive-analysis</code></td>
+<td>✅ حقيقي</td>
+<td><strong>الأهم</strong> — كل شيء دفعة واحدة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="terrain-core-service-port-8185">خدمة التضاريس (terrain-core-service — port 8185)<a class="headerlink" href="#terrain-core-service-port-8185" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة Farmonaut</th>
+<th>Endpoint</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تحليل تضاريس كامل</strong></td>
+<td><code>POST /api/v1/terrain/analyze</code></td>
+<td>✅ حقيقي</td>
+<td>7 مؤشرات + 4 مصادر DEM</td>
+</tr>
+<tr>
+<td><strong>الانحدار</strong></td>
+<td><code>GET /api/v1/terrain/slope/{field_id}</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>التدفق</strong></td>
+<td><code>GET /api/v1/terrain/flow/{field_id}</code></td>
+<td>✅ حقيقي</td>
+<td>كشف مجاري المياه</td>
+</tr>
+<tr>
+<td><strong>TWI (رطوبة طوبوغرافية)</strong></td>
+<td><code>GET /api/v1/terrain/twi/{field_id}</code></td>
+<td>✅ حقيقي</td>
+<td><strong>يحدد مناطق تجمع المياه</strong></td>
+</tr>
+<tr>
+<td><strong>خطوط الكنتور</strong></td>
+<td><code>GET /api/v1/terrain/contours/{field_id}</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="pest-detection-service-port-8125">خدمة الآفات (pest-detection-service — port 8125)<a class="headerlink" href="#pest-detection-service-port-8125" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة Farmonaut</th>
+<th>Endpoint</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تنبؤ موسمي</strong></td>
+<td><code>GET /api/v1/pests/seasonal?crop=wheat&amp;month=3</code></td>
+<td>✅ حقيقي</td>
+<td>10+ آفات شرق أوسطية</td>
+</tr>
+<tr>
+<td><strong>تعريف بالصورة</strong></td>
+<td><code>POST /api/v1/pests/identify</code> (upload image)</td>
+<td>✅ حقيقي</td>
+<td>YOLO26 vision</td>
+</tr>
+<tr>
+<td><strong>تعريف بالأعراض</strong></td>
+<td><code>POST /api/v1/pests/identify/symptoms</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>تقييم عتبة اقتصادية</strong></td>
+<td><code>POST /api/v1/thresholds/assess</code></td>
+<td>✅ حقيقي</td>
+<td>هل يستحق العلاج اقتصادياً؟</td>
+</tr>
+<tr>
+<td><strong>توصيات علاج</strong></td>
+<td><code>POST /api/v1/treatments/recommend</code></td>
+<td>✅ حقيقي</td>
+<td>IPM متكامل</td>
+</tr>
+<tr>
+<td><strong>تقويم IPM</strong></td>
+<td><code>GET /api/v1/treatments/ipm-calendar?crop=wheat</code></td>
+<td>✅ حقيقي</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="whatsapp-whatsapp-bot-service-port-8240">خدمة WhatsApp (whatsapp-bot-service — port 8240)<a class="headerlink" href="#whatsapp-whatsapp-bot-service-port-8240" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة Farmonaut</th>
+<th>Endpoint</th>
+<th>الحالة</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>إرسال تقرير</strong></td>
+<td><code>POST /api/v1/send</code></td>
+<td>✅ حقيقي</td>
+<td>نص + صور + موقع</td>
+</tr>
+<tr>
+<td><strong>إرسال قالب</strong></td>
+<td><code>POST /api/v1/send-template</code></td>
+<td>✅ حقيقي</td>
+<td>قوالب WhatsApp Business</td>
+</tr>
+<tr>
+<td><strong>استقبال رسائل</strong></td>
+<td><code>POST /webhook</code></td>
+<td>✅ حقيقي</td>
+<td>محادثة ذكية + AI</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_8">تاسعاً: خطة التنفيذ التقنية — ربط الواجهة بالخدمات<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h3 id="1">المرحلة 1: الربط الفوري (أسبوع واحد)<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف</strong>: ربط واجهة Farmonaut بـ 4 خدمات جاهزة بدون mock data</p>
+<div class="codehilite"><pre><span></span><code>FarmonautClient.tsx
+  ├── Weather Section ──→ POST weather-service:8092/weather/forecast (days=8)
+  ├── Spray Windows ──→ POST weather-service:8092/weather/spray-window
+  ├── Alerts ──→ GET alert-service:8113/api/v1/alerts
+  └── Field Stats ──→ GET crop-intelligence:8095/api/v1/fields/{id}/diagnosis
+
+FieldDetailClient.tsx
+  ├── Soil Tab ──→ POST soil-analysis:8134/interpret
+  ├── Irrigation Tab ──→ POST irrigation-smart:8094/v1/calculate
+  ├── Pests Tab ──→ POST crop-intelligence:8095/api/v1/pests/assess
+  ├── Yield Tab ──→ POST crop-intelligence:8095/api/v1/yield/predict
+  └── Overview ──→ POST crop-intelligence:8095/api/v1/comprehensive-analysis
+</code></pre></div>
+
+<h3 id="2">المرحلة 2: تفعيل الأقمار الصناعية (أسبوعان)<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">إضافة</span><span class="w"> </span><span class="n">sentinelhub</span><span class="o">&gt;=</span><span class="mf">3.10.0</span><span class="w"> </span><span class="n">لـ</span><span class="w"> </span><span class="n">requirements</span><span class="mf">.</span><span class="n">txt</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">تكوين</span><span class="w"> </span><span class="n">SENTINEL_HUB_CLIENT_ID</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">SECRET</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">تفعيل</span><span class="w"> </span><span class="kr">GET</span><span class="w"> </span><span class="n">vegetation</span><span class="o">-</span><span class="n">analysis</span><span class="p">:</span><span class="mf">8090</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">indices</span><span class="o">/</span><span class="err">{</span><span class="n">field_id</span><span class="err">}</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">تفعيل</span><span class="w"> </span><span class="kr">GET</span><span class="w"> </span><span class="n">vegetation</span><span class="o">-</span><span class="n">analysis</span><span class="p">:</span><span class="mf">8090</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">timeseries</span><span class="o">/</span><span class="err">{</span><span class="n">field_id</span><span class="err">}</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">بناء</span><span class="w"> </span><span class="n">Hybrid</span><span class="w"> </span><span class="n">Index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">NDVI</span><span class="p">,</span><span class="w"> </span><span class="n">NDWI</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="mf">4</span><span class="w"> </span><span class="n">ألوان</span>
+</code></pre></div>
+
+<h3 id="3-sar-fallback">المرحلة 3: SAR Fallback (أسبوعان)<a class="headerlink" href="#3-sar-fallback" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="err">تفعيل</span><span class="w"> </span><span class="n">Sentinel</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="n">SAR</span><span class="w"> </span><span class="n">download</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="n">sar_processor</span><span class="o">.</span><span class="n">py</span>
+<span class="mf">2.</span><span class="w"> </span><span class="err">حساب</span><span class="w"> </span><span class="n">RVI</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">RSM</span><span class="w"> </span><span class="err">من</span><span class="w"> </span><span class="err">بيانات</span><span class="w"> </span><span class="n">SAR</span><span class="w"> </span><span class="err">حقيقية</span>
+<span class="mf">3.</span><span class="w"> </span><span class="err">كشف</span><span class="w"> </span><span class="n">cloud_cover</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">30</span><span class="o">%</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">تحول</span><span class="w"> </span><span class="err">تلقائي</span><span class="w"> </span><span class="err">لـ</span><span class="w"> </span><span class="n">SAR</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="n">vegetation</span><span class="o">-</span><span class="n">analysis</span><span class="p">:</span><span class="mi">8090</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">cloud</span><span class="o">-</span><span class="n">cover</span><span class="o">/</span><span class="p">{</span><span class="n">field_id</span><span class="p">}</span>
+<span class="w">   </span><span class="err">→</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cloud</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">30</span><span class="o">%</span><span class="p">:</span>
+<span class="w">     </span><span class="n">GET</span><span class="w"> </span><span class="n">vegetation</span><span class="o">-</span><span class="n">analysis</span><span class="p">:</span><span class="mi">8090</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">soil</span><span class="o">-</span><span class="n">moisture</span><span class="o">/</span><span class="p">{</span><span class="n">field_id</span><span class="p">}</span><span class="w"> </span><span class="p">(</span><span class="n">SAR</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="farmonaut-ui">عاشراً: هندسة عكسية كاملة لواجهة Farmonaut — مقارنة UI<a class="headerlink" href="#farmonaut-ui" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>تحليل مبني على لقطات الشاشة والفيديو — كل مكون واجهة مع مقابله في SAHOOL</p>
+</blockquote>
+<h3 id="1-header-bar">1. Header Bar (الشريط العلوي)<a class="headerlink" href="#1-header-bar" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="n">F</span><span class="w"> </span><span class="n">Logo</span><span class="p">]</span><span class="w"> </span><span class="n">Farmonaut</span><span class="err">®</span><span class="w">          </span><span class="p">[</span><span class="n">Download</span><span class="w"> </span><span class="n">Index</span><span class="w"> </span><span class="n">Results</span><span class="p">]</span><span class="w">       </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">Satellite</span><span class="w"> </span><span class="n">Based</span><span class="w"> </span><span class="n">Crop</span><span class="w"> </span><span class="n">Health</span><span class="w">  </span><span class="p">[</span><span class="n">VIDEO</span><span class="w"> </span><span class="n">TUTORIALS</span><span class="p">]</span><span class="w">              </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                              </span><span class="p">[</span><span class="n">Search</span><span class="o">:</span><span class="w"> </span><span class="n">demo</span><span class="p">@</span><span class="n">farmona</span><span class="w"> </span><span class="err">🔍</span><span class="p">]</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                              </span><span class="p">[</span><span class="n">My</span><span class="w"> </span><span class="n">Profile</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">My</span><span class="w"> </span><span class="n">Fields</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Log</span><span class="w"> </span><span class="n">Out</span><span class="p">]</span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>مكون</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logo + Tagline</td>
+<td>✅ "Satellite Based Crop Health"</td>
+<td>✅ موجود في sidebar</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Download Index Results (تصدير جماعي)</td>
+<td>✅ تصدير كل الحقول دفعة واحدة</td>
+<td>❌ غائب</td>
+<td>P1 — يحتاج batch export endpoint</td>
+</tr>
+<tr>
+<td>VIDEO TUTORIALS</td>
+<td>✅ onboarding مدمج</td>
+<td>❌ غائب</td>
+<td>P2 — محتوى تعليمي</td>
+</tr>
+<tr>
+<td>Search بالبريد الإلكتروني</td>
+<td>✅ بحث سريع عن حقل</td>
+<td>✅ <strong>أضفنا بحث</strong> في FarmonautClient</td>
+<td>مكتمل</td>
+</tr>
+<tr>
+<td>My Profile / My Fields</td>
+<td>✅</td>
+<td>✅ sidebar navigation</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-field-info-bar">2. Field Info Bar (شريط معلومات الحقل)<a class="headerlink" href="#2-field-info-bar" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Map</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">Satellite</span><span class="o">]</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="nl">Owner</span><span class="p">:</span><span class="w"> </span><span class="n">undefined</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nl">Area</span><span class="p">:</span><span class="w"> </span><span class="mf">.83</span><span class="w"> </span><span class="n">Ha</span><span class="p">,</span><span class="w"> </span><span class="mi">207</span><span class="w"> </span><span class="n">acres</span><span class="w"> </span><span class="o">|</span>
+<span class="w">                     </span><span class="nc">Date</span><span class="err">:</span><span class="w"> </span><span class="mi">24</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">2023</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nc">Image</span><span class="w"> </span><span class="nl">Type</span><span class="p">:</span><span class="w"> </span><span class="n">HYBRID</span><span class="w"> </span><span class="o">|</span>
+<span class="w">                     </span><span class="o">[</span><span class="n">Pause Monitoring 🟢</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">Delete This Field 🔴</span><span class="o">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>مكون</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Map / Satellite toggle</td>
+<td>✅ تبديل خلفية الخريطة</td>
+<td>❌ غائب — خريطة placeholder</td>
+<td>P1 — يحتاج Leaflet + tile layers</td>
+<td></td>
+</tr>
+<tr>
+<td>Owner field</td>
+<td>✅</td>
+<td>❌ — لا يُعرض المالك</td>
+<td>P2</td>
+<td></td>
+</tr>
+<tr>
+<td>Area بوحدتين (Ha + acres)</td>
+<td>✅</td>
+<td>⚠️ هكتار فقط</td>
+<td>إضافة تحويل dunams/acres</td>
+<td></td>
+</tr>
+<tr>
+<td>Date آخر صورة</td>
+<td>✅</td>
+<td>✅ موجود في الجدول</td>
+<td>—</td>
+<td></td>
+</tr>
+<tr>
+<td>Image Type (المؤشر النشط)</td>
+<td>✅ يُعرض في شريط المعلومات</td>
+<td>✅ يُعرض في عنوان الخريطة</td>
+<td>—</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Pause Monitoring</strong></td>
+<td>✅ إيقاف مؤقت للاشتراك</td>
+<td>❌ <strong>غائب تماماً</strong></td>
+<td>P1 — business logic</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Delete This Field</strong></td>
+<td>✅ حذف نهائي</td>
+<td>❌ غائب في واجهة Farmonaut</td>
+<td>P2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-left-sidebar-map-controls">3. Left Sidebar — Map Controls (القائمة الجانبية)<a class="headerlink" href="#3-left-sidebar-map-controls" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">For</span><span class="w"> </span><span class="n">Basic</span><span class="w"> </span><span class="n">Analysis</span><span class="o">:</span><span class="w">       </span><span class="p">[</span><span class="n">Hybrid</span><span class="p">]</span>
+<span class="n">For</span><span class="w"> </span><span class="n">Colorblind</span><span class="o">:</span><span class="w">           </span><span class="p">[</span><span class="n">Colorblind</span><span class="w"> </span><span class="n">Visualization</span><span class="p">]</span>
+<span class="n">For</span><span class="w"> </span><span class="n">Satellite</span><span class="w"> </span><span class="n">Image</span><span class="o">:</span><span class="w">      </span><span class="p">[</span><span class="n">TCI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">ETCI</span><span class="p">]</span>
+<span class="n">For</span><span class="w"> </span><span class="n">Crop</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="p">(</span><span class="n">Early</span><span class="p">)</span><span class="o">:</span><span class="w">  </span><span class="p">[</span><span class="n">NDVI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">EVI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">SAVI</span><span class="p">]</span>
+<span class="n">For</span><span class="w"> </span><span class="n">Crop</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="p">(</span><span class="n">Late</span><span class="p">)</span><span class="o">:</span><span class="w">   </span><span class="p">[</span><span class="n">NDRE</span><span class="p">]</span>
+<span class="n">For</span><span class="w"> </span><span class="n">Irrigation</span><span class="o">:</span><span class="w">           </span><span class="p">[</span><span class="n">NDWI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Evapotranspiration</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">NDMI</span><span class="p">]</span>
+<span class="n">For</span><span class="w"> </span><span class="n">Soil</span><span class="w"> </span><span class="n">Health</span><span class="o">:</span><span class="w">          </span><span class="p">[</span><span class="n">SOC</span><span class="p">]</span>
+<span class="n">For</span><span class="w"> </span><span class="n">Advanced</span><span class="o">:</span><span class="w">             </span><span class="p">[</span><span class="n">Erosion</span><span class="p">]</span>
+<span class="n">For</span><span class="w"> </span><span class="n">Topography</span><span class="o">:</span><span class="w">           </span><span class="p">[</span><span class="n">DEM</span><span class="p">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>مكون</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9 مجموعات مؤشرات</td>
+<td>✅</td>
+<td>✅ <strong>مطابق</strong> — LAYER_GROUPS في FarmonautClient</td>
+<td>—</td>
+</tr>
+<tr>
+<td>16 مؤشر</td>
+<td>✅ (+ SAR RVI/RSM)</td>
+<td>✅ <strong>مطابق</strong> — MAP_LAYERS في api.ts</td>
+<td>—</td>
+</tr>
+<tr>
+<td>"Use This When Vegetation is Small" نص تعليمي</td>
+<td>✅</td>
+<td>❌ غائب</td>
+<td>P2 — tooltips تعليمية</td>
+</tr>
+<tr>
+<td>Analysis Scale Bar في الأعلى</td>
+<td>✅ شريط متدرج</td>
+<td>❌ غائب</td>
+<td>P1 — مقياس بصري</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-field-analysis-panel">4. Field Analysis Panel (البطاقة التحليلية)<a class="headerlink" href="#4-field-analysis-panel" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌──────────────────────────────────────────┐
+│ Field Analysis ⚙️                        │
+│ Crop inspection required in NW direction │
+│ Irrigation inspection required in        │
+│ NW, NE, SW directions                   │
+└──────────────────────────────────────────┘
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>مكون</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>9-Direction Text Analysis</strong></td>
+<td>✅ "اذهب شمال غرب وافحص"</td>
+<td>❌ <strong>غائب</strong></td>
+<td><strong>P0 — أهم ميزة مفقودة</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>تمييز بين مشكلة صحة ومشكلة ري</td>
+<td>✅</td>
+<td>❌</td>
+<td>يحتاج خوارزمية NDVI + NDWI → اتجاه</td>
+<td></td>
+</tr>
+<tr>
+<td>Crop / Irrigation toggle</td>
+<td>✅ زران منفصلان</td>
+<td>❌</td>
+<td>P1</td>
+<td></td>
+</tr>
+<tr>
+<td>Field Directions button</td>
+<td>✅ يعرض شبكة 9 أقسام</td>
+<td>✅ <strong>موجود</strong> في FarmonautClient</td>
+<td>—</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-analysis-scale-hybrid">5. Analysis Scale (HYBRID) — مفتاح الألوان<a class="headerlink" href="#5-analysis-scale-hybrid" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>🟢 Good Crop Health &amp; Irrigation
+⬜ No Crop / Clouds
+🟠 Requires Crop Health Attention
+🟣 Requires Irrigation Attention
+🔴 Requires Both / No Crop / Cloud
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>مكون</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5 ألوان Hybrid</td>
+<td>✅</td>
+<td>✅ <strong>مطابق</strong> — HYBRID_COLORS في api.ts</td>
+<td>—</td>
+</tr>
+<tr>
+<td>مفتاح ألوان ديناميكي يتغير حسب المؤشر</td>
+<td>✅</td>
+<td>✅ <strong>مطابق</strong> — colorStops لكل layer</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-main-map">6. Main Map (الخريطة الرئيسية)<a class="headerlink" href="#6-main-map" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>مكون</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>خريطة تفاعلية Mapbox/Leaflet</td>
+<td>✅ حقيقية</td>
+<td>❌ <strong>placeholder فقط</strong></td>
+<td><strong>P0</strong> — يحتاج Leaflet/MapLibre</td>
+<td></td>
+</tr>
+<tr>
+<td>حدود الحقل بنقاط خضراء</td>
+<td>✅</td>
+<td>❌</td>
+<td>مع تفعيل الخريطة</td>
+<td></td>
+</tr>
+<tr>
+<td>تلوين الحقل حسب المؤشر</td>
+<td>✅ GeoTIFF overlay</td>
+<td>❌</td>
+<td>يحتاج tile server أو COG</td>
+<td></td>
+</tr>
+<tr>
+<td>بقع بيضاء = غيوم</td>
+<td>✅</td>
+<td>❌</td>
+<td>مع cloud masking</td>
+<td></td>
+</tr>
+<tr>
+<td>[Crop] [Irrigation] toggle على الخريطة</td>
+<td>✅</td>
+<td>❌</td>
+<td>P1</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-bottom-field-tags">7. Bottom Field Tags (شريط التنقل السفلي)<a class="headerlink" href="#7-bottom-field-tags" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Chennai</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">Unavailable</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">Vikas</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">Bhirari</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">India</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">India</span><span class="o">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>مكون</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quick Navigation Tags</td>
+<td>✅ نقرة واحدة للتنقل بين الحقول</td>
+<td>❌ غائب — dropdown فقط</td>
+<td>P2 — tag chips</td>
+</tr>
+</tbody>
+</table>
+<h3 id="8-right-side-actions">8. Right Side Actions (أزرار يمين)<a class="headerlink" href="#8-right-side-actions" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">[</span><span class="n">Partner</span><span class="w"> </span><span class="n">Fields</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">KML</span><span class="o">/</span><span class="n">SHP</span><span class="w"> </span><span class="n">file</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Add</span><span class="w"> </span><span class="n">Polygon</span><span class="w"> </span><span class="n">within</span><span class="w"> </span><span class="n">Field</span><span class="p">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>مكون</th>
+<th>Farmonaut</th>
+<th>SAHOOL</th>
+<th>الفجوة</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Partner Fields</td>
+<td>✅ حقول الشركاء/الموزعين</td>
+<td>❌ غائب</td>
+<td>P3 — multi-tenant</td>
+<td></td>
+</tr>
+<tr>
+<td>KML/SHP Upload</td>
+<td>✅</td>
+<td>⚠️ UI موجود لكن <strong>بدون file handler</strong></td>
+<td>P1 — إكمال AddFieldClient</td>
+<td></td>
+</tr>
+<tr>
+<td>Add Polygon within Field</td>
+<td>✅ مناطق فرعية داخل الحقل</td>
+<td>✅ <strong>PostGIS قادر</strong> — <code>ST_Subdivide</code></td>
+<td>P1 — يحتاج UI</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_9">حادي عشر: ملخص فجوات الواجهة — مرتّب بالأولوية<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<h3 id="p0_1">P0 — حرج (يجب فوراً)<a class="headerlink" href="#p0_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المكون</th>
+<th>الوصف</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>خريطة تفاعلية حقيقية</strong></td>
+<td>Leaflet/MapLibre بدلاً من placeholder</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Field Analysis Panel</strong></td>
+<td>بطاقة تحليل 9 اتجاهات بنص عربي بسيط</td>
+<td>3 أيام</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Crop / Irrigation Toggle</strong></td>
+<td>زران على الخريطة لتبديل عرض المشكلة</td>
+<td>يوم</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p1_1">P1 — عالي (خلال شهر)<a class="headerlink" href="#p1_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المكون</th>
+<th>الوصف</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>Map/Satellite toggle</td>
+<td>تبديل خلفية الخريطة (OSM vs Satellite tiles)</td>
+<td>يومان</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Analysis Scale Bar</td>
+<td>شريط تدرج لوني أعلى القائمة الجانبية</td>
+<td>يوم</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Pause Monitoring</td>
+<td>زر إيقاف/تشغيل المراقبة (subscription logic)</td>
+<td>3 أيام</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Download Index Results</td>
+<td>تصدير جماعي لكل الحقول (CSV/PDF)</td>
+<td>3 أيام</td>
+</tr>
+<tr>
+<td>8</td>
+<td>KML/SHP Upload Handler</td>
+<td>إكمال رفع الملفات في AddFieldClient</td>
+<td>3 أيام</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Add Polygon within Field</td>
+<td>رسم مناطق فرعية داخل حقل موجود</td>
+<td>أسبوع</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Area بوحدات متعددة</td>
+<td>Ha + acres + dunams + feddan</td>
+<td>يوم</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p2">P2 — متوسط<a class="headerlink" href="#p2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المكون</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11</td>
+<td>Bottom Field Tags (quick navigation)</td>
+<td>يومان</td>
+</tr>
+<tr>
+<td>12</td>
+<td>VIDEO TUTORIALS section</td>
+<td>أسبوع (محتوى)</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Tooltips تعليمية على المؤشرات</td>
+<td>يومان</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Colorblind accessibility mode</td>
+<td>3 أيام</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Owner field display</td>
+<td>يوم</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Delete This Field</td>
+<td>يوم + confirmation dialog</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_10">ثاني عشر: مقارنة شاملة مع المنصات المنافسة<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<h3 id="_11">جدول المقارنة الرئيسي<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>Farmonaut</th>
+<th>OneSoil</th>
+<th>EOSDA</th>
+<th>Planet Labs</th>
+<th>Cropio</th>
+<th>Trimble Ag</th>
+<th>John Deere</th>
+<th><strong>SAHOOL</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>عربي أولاً</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td><strong>✅ ثنائي</strong></td>
+</tr>
+<tr>
+<td><strong>يعمل بدون إنترنت</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>جزئي</td>
+<td>جزئي</td>
+<td><strong>✅ Offline-first</strong></td>
+</tr>
+<tr>
+<td><strong>مؤشرات نباتية</strong></td>
+<td>~10</td>
+<td>NDVI, MSAVI</td>
+<td>5+</td>
+<td>NDVI, NDRE, NDWI, EVI, SAVI</td>
+<td>NDVI, MSAVI, ReCI, NDRE</td>
+<td>NDVI, NDRE, CCCI</td>
+<td>NDVI</td>
+<td><strong>25+ مؤشر</strong></td>
+</tr>
+<tr>
+<td><strong>Hybrid Index</strong></td>
+<td><strong>✅ فكرة أصيلة</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌ <strong>فجوة P0</strong></td>
+</tr>
+<tr>
+<td><strong>SAR Radar Fallback</strong></td>
+<td><strong>✅ تلقائي</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌ <strong>فجوة P1</strong></td>
+</tr>
+<tr>
+<td><strong>تقرير 9 اتجاهات</strong></td>
+<td><strong>✅ فكرة أصيلة</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌ <strong>فجوة P0</strong></td>
+</tr>
+<tr>
+<td><strong>دقة الصور</strong></td>
+<td>Sentinel (10m)</td>
+<td>Sentinel (10m)</td>
+<td>Sentinel+Landsat</td>
+<td><strong>3m يومياً</strong></td>
+<td>Sentinel (10m)</td>
+<td>Sentinel+تجاري</td>
+<td>Sentinel</td>
+<td>Sentinel (10m)</td>
+</tr>
+<tr>
+<td><strong>تكرار الزيارة</strong></td>
+<td>3-5 أيام</td>
+<td>5 أيام</td>
+<td>5 أيام</td>
+<td><strong>يومياً</strong></td>
+<td>5 أيام</td>
+<td>5 أيام</td>
+<td>5 أيام</td>
+<td>5 أيام</td>
+</tr>
+<tr>
+<td><strong>ذكاء اصطناعي</strong></td>
+<td>JEEVN AI</td>
+<td>أساسي</td>
+<td>كشف شذوذ + تصنيف</td>
+<td>custom ML pipelines</td>
+<td>كشف شذوذ + محصول</td>
+<td>VRA prescriptions</td>
+<td>تنبؤ محصول</td>
+<td><strong>شامل (11 وكيل AI)</strong></td>
+</tr>
+<tr>
+<td><strong>تحليل تربة</strong></td>
+<td>5 عناصر</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td><strong>11 عنصر + RothC</strong></td>
+</tr>
+<tr>
+<td><strong>DEM/تضاريس</strong></td>
+<td>أساسي</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>RTK GPS</td>
+<td>❌</td>
+<td><strong>7 مؤشرات + 4 مصادر</strong></td>
+</tr>
+<tr>
+<td><strong>تكامل آلات</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td><strong>✅ الأفضل</strong></td>
+<td><strong>✅ الأفضل</strong></td>
+<td>IoT + Jetson Orin</td>
+</tr>
+<tr>
+<td><strong>WhatsApp Bot</strong></td>
+<td>تقارير فقط</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td><strong>✅ محادثة ذكية + AI</strong></td>
+</tr>
+<tr>
+<td><strong>API مفتوح</strong></td>
+<td>محدود</td>
+<td>محدود</td>
+<td>REST</td>
+<td><strong>REST/GraphQL/STAC</strong></td>
+<td>REST</td>
+<td>CNH integration</td>
+<td>ISO-XML</td>
+<td><strong>105 route</strong></td>
+</tr>
+<tr>
+<td><strong>تطبيق جوال</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>أساسي</td>
+<td>❌</td>
+<td>❌</td>
+<td>in-cab</td>
+<td>✅</td>
+<td><strong>✅ Flutter كامل</strong></td>
+</tr>
+<tr>
+<td><strong>Edge Computing</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td><strong>✅ Jetson Orin</strong></td>
+</tr>
+<tr>
+<td><strong>شرق أوسط</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>شراكات خليجية</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td><strong>✅ معاير لليمن</strong></td>
+</tr>
+<tr>
+<td><strong>السعر</strong></td>
+<td>per field</td>
+<td><strong>مجاني</strong></td>
+<td>freemium</td>
+<td>per km²</td>
+<td>per hectare</td>
+<td>مع الأجهزة</td>
+<td>freemium</td>
+<td>proprietary</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sahool_1">التمركز التنافسي لـ SAHOOL<a class="headerlink" href="#sahool_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>                    بسيط ←──────────────────────────→ متقدم
+                         │                          │
+  للمزارع البسيط         │    Farmonaut             │
+  (Hybrid Index)         │    OneSoil               │
+                         │                          │
+                         │              SAHOOL ◄──── │  الموقع المستهدف
+                         │              EOSDA        │
+  للمحترف               │              Cropio       │
+  (25+ مؤشر)            │                          │
+                         │         Planet Labs       │
+  للمطور               │         Trimble           │
+  (API + ML)            │         John Deere        │
+                         │                          │
+                    محلي ←──────────────────────────→ عالمي
+</code></pre></div>
+
+<p><strong>موقع SAHOOL الفريد</strong>: الوحيد الذي يجمع:
+1. <strong>عربي + offline-first</strong> — لا يوجد منافس بهذا المزيج
+2. <strong>25+ مؤشر نباتي</strong> — أكثر من أي منصة مقارنة
+3. <strong>11 عنصر تربة</strong> — لا يوجد منافس يقدم هذا
+4. <strong>WhatsApp Bot ذكي</strong> — تقارير + محادثة + كشف أمراض بالصور
+5. <strong>Edge Computing (Jetson Orin)</strong> — لا يوجد منافس</p>
+<p><strong>ما ينقص SAHOOL مقارنة بالمنافسين</strong>:
+1. <strong>Hybrid Index</strong> (من Farmonaut) — أهم فجوة
+2. <strong>SAR Fallback التلقائي</strong> (من Farmonaut) — أهم للبيئة الغائمة
+3. <strong>صور يومية 3m</strong> (من Planet) — تحتاج شراكة/ميزانية
+4. <strong>تكامل آلات حقيقي</strong> (من Trimble/Deere) — طويل المدى
+5. <strong>OneSoil مجاني</strong> — ضغط سعري</p>
+<hr />
+<h2 id="_12">ثالث عشر: خطة التحسين الشاملة النهائية<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h3 id="0">المرحلة 0: أساسيات (أسبوعان) — بدون بيانات أقمار صناعية<a class="headerlink" href="#0" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>يعتمد على</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.1</td>
+<td><strong>خريطة Leaflet حقيقية</strong> بدلاً من placeholder</td>
+<td>Leaflet 1.9.4 (مثبت)</td>
+<td>خريطة تفاعلية مع OSM/Satellite tiles</td>
+</tr>
+<tr>
+<td>0.2</td>
+<td><strong>Hybrid Index Algorithm</strong></td>
+<td>NDVI + NDWI mock data → 5 ألوان</td>
+<td>أول بناء للمؤشر الهجين</td>
+</tr>
+<tr>
+<td>0.3</td>
+<td><strong>Field Analysis Panel</strong> بنص 9 اتجاهات عربي</td>
+<td>ST_Azimuth + PostGIS</td>
+<td>"اذهب شمال غرب وافحص المحصول"</td>
+</tr>
+<tr>
+<td>0.4</td>
+<td><strong>ربط weather-service</strong> بالواجهة</td>
+<td>POST weather:8092/weather/forecast</td>
+<td>طقس حقيقي 8 أيام + spray windows</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td><strong>إكمال AddFieldClient</strong></td>
+<td>useCreateField + file upload</td>
+<td>نموذج إضافة حقل يعمل</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1_1">المرحلة 1: بيانات حقيقية (شهر)<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>يعتمد على</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.1</td>
+<td><strong>تفعيل Sentinel Hub</strong></td>
+<td>sentinelhub في requirements + credentials</td>
+<td>بيانات NDVI/NDRE/NDWI/NDMI حقيقية</td>
+</tr>
+<tr>
+<td>1.2</td>
+<td><strong>ربط crop-intelligence</strong></td>
+<td>POST crop-intelligence:8095/comprehensive-analysis</td>
+<td>تشخيص شامل (أمراض + مغذيات + آفات + محصول)</td>
+</tr>
+<tr>
+<td>1.3</td>
+<td><strong>ربط soil-analysis</strong></td>
+<td>POST soil-analysis:8134/interpret</td>
+<td>تحليل تربة حقيقي 11 عنصر</td>
+</tr>
+<tr>
+<td>1.4</td>
+<td><strong>ربط irrigation-smart</strong></td>
+<td>POST irrigation:8094/v1/calculate</td>
+<td>جدول ري ذكي مع ET</td>
+</tr>
+<tr>
+<td>1.5</td>
+<td><strong>SAR Fallback</strong></td>
+<td>cloud-cover &gt; 30% → SAR data</td>
+<td>تحول تلقائي للرادار</td>
+</tr>
+<tr>
+<td>1.6</td>
+<td><strong>KML/Shapefile parser</strong></td>
+<td>ogr2ogr أو turf.js</td>
+<td>استيراد حدود حقول</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-3">المرحلة 2: ميزات متقدمة (3 أشهر)<a class="headerlink" href="#2-3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.1</td>
+<td>تقرير 9 أقسام عبر WhatsApp</td>
+<td>تقرير تلقائي كل 3-5 أيام</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Historical data من 2017</td>
+<td>أرشيف Sentinel-2</td>
+</tr>
+<tr>
+<td>2.3</td>
+<td>Time Lapse + Side-by-Side</td>
+<td>مقارنة زمنية بصرية</td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>PDF Reports ثنائية اللغة</td>
+<td>تصدير تقارير احترافية</td>
+</tr>
+<tr>
+<td>2.5</td>
+<td>نموذج ML آفات (NDVI anomaly → pest)</td>
+<td>تنبؤ مبكر بالآفات</td>
+</tr>
+<tr>
+<td>2.6</td>
+<td>Add Polygon within Field</td>
+<td>مناطق فرعية داخل حقل</td>
+</tr>
+<tr>
+<td>2.7</td>
+<td>Pause/Resume Monitoring</td>
+<td>business logic</td>
+</tr>
+<tr>
+<td>2.8</td>
+<td>Batch Farm Operations</td>
+<td>تجديد/تصدير جماعي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-6">المرحلة 3: تمييز تنافسي (6 أشهر)<a class="headerlink" href="#3-6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.1</td>
+<td><strong>VRA Maps</strong> — خرائط تطبيق متغير</td>
+<td>وصفات سماد/مبيد حسب المنطقة</td>
+</tr>
+<tr>
+<td>3.2</td>
+<td><strong>Erosion Index</strong></td>
+<td>تقييم مخاطر تآكل التربة</td>
+</tr>
+<tr>
+<td>3.3</td>
+<td><strong>Colorblind Mode</strong></td>
+<td>إمكانية وصول</td>
+</tr>
+<tr>
+<td>3.4</td>
+<td><strong>Multi-field Survey View</strong></td>
+<td>تقرير واحد لعدة حقول</td>
+</tr>
+<tr>
+<td>3.5</td>
+<td><strong>Partner Fields</strong></td>
+<td>رؤية حقول الموزعين/الشركاء</td>
+</tr>
+<tr>
+<td>3.6</td>
+<td><strong>Video Tutorials</strong></td>
+<td>محتوى تعليمي مدمج</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="fieldview-onesoil-eosda">رابع عشر: هندسة عكسية لواجهات المنافسين — FieldView, OneSoil, EOSDA<a class="headerlink" href="#fieldview-onesoil-eosda" title="Permanent link">&para;</a></h2>
+<h3 id="a-climate-fieldview-bayer-250">A. Climate FieldView (Bayer) — 250+ مليون فدان<a class="headerlink" href="#a-climate-fieldview-bayer-250" title="Permanent link">&para;</a></h3>
+<p><strong>هيكل الواجهة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">┌──────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w"> </span><span class="n">HEADER</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="n">Radar</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Rainfall</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Field</span><span class="w"> </span><span class="n">Health</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Yield</span><span class="p">]</span><span class="err">│</span>
+<span class="err">│</span><span class="w">         </span><span class="p">[</span><span class="n">Reports</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Notifications</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Activities</span><span class="p">]</span><span class="w">    </span><span class="err">│</span>
+<span class="err">├──────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">                                                  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">┌──────────────────────────────────────┐</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">         </span><span class="n">MAIN</span><span class="w"> </span><span class="n">MAP</span><span class="w"> </span><span class="n">VIEW</span><span class="w">                </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">Full</span><span class="o">-</span><span class="n">screen</span><span class="w"> </span><span class="n">interactive</span><span class="w"> </span><span class="n">map</span><span class="p">)</span><span class="w">       </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">                                      </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">┌─────┐</span><span class="w">  </span><span class="n">Field</span><span class="w"> </span><span class="n">colored</span><span class="w"> </span><span class="n">by</span><span class="w">           </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="n">COLOR</span><span class="err">│</span><span class="w">  </span><span class="n">Climate</span><span class="w"> </span><span class="n">Crop</span><span class="w"> </span><span class="n">Index</span><span class="w">         </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">└─────┘</span><span class="w">                             </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">                                      </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">📍</span><span class="w"> </span><span class="n">Scouting</span><span class="w"> </span><span class="n">Pins</span><span class="w"> </span><span class="p">(</span><span class="n">color</span><span class="o">-</span><span class="n">coded</span><span class="p">)</span><span class="w">     </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">✏️</span><span class="w"> </span><span class="n">Region</span><span class="w"> </span><span class="n">Drawing</span><span class="w"> </span><span class="n">Tools</span><span class="w">            </span><span class="err">│</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──────────────────────────────────────┘</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">FIELD</span><span class="w"> </span><span class="n">HEALTH</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="n">Scouting</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Vegetation</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">TrueColor</span><span class="p">]</span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">SIDE</span><span class="o">-</span><span class="n">BY</span><span class="o">-</span><span class="n">SIDE</span><span class="o">:</span><span class="w"> </span><span class="n">Compare</span><span class="w"> </span><span class="n">yield</span><span class="w"> </span><span class="n">vs</span><span class="w"> </span><span class="n">hybrid</span><span class="o">/</span><span class="n">population</span><span class="w"> </span><span class="err">│</span>
+<span class="err">├──────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w"> </span><span class="n">BOTTOM</span><span class="o">:</span><span class="w"> </span><span class="n">Reports</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Yield</span><span class="w"> </span><span class="n">Analysis</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Seed</span><span class="w"> </span><span class="n">Scripts</span><span class="w">  </span><span class="err">│</span>
+<span class="err">└──────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<p><strong>الميزات الفريدة لـ FieldView:</strong></p>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>موجود في SAHOOL؟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FieldView Drive</strong></td>
+<td>جهاز in-cab يتصل بـ 60+ معدة مختلفة</td>
+<td>❌ — SAHOOL يعتمد IoT + Jetson Orin</td>
+</tr>
+<tr>
+<td><strong>Scouting Pins</strong></td>
+<td>دبابيس ملونة على الخريطة مع صور + ملاحظات + GPS</td>
+<td>❌ — يحتاج بناء</td>
+</tr>
+<tr>
+<td><strong>Region Drawing</strong></td>
+<td>رسم دائرة/حر/مضلع/مستطيل على الخريطة</td>
+<td>❌ — placeholder</td>
+</tr>
+<tr>
+<td><strong>Climate Crop Index</strong></td>
+<td>مؤشر خاص بـ Bayer (ليس NDVI القياسي)</td>
+<td>SAHOOL: 25+ مؤشر (أقوى)</td>
+</tr>
+<tr>
+<td><strong>Seed Scripts</strong></td>
+<td>وصفات بذور مبنية على بيانات تاريخية + صور</td>
+<td>❌ — ليس في النطاق</td>
+</tr>
+<tr>
+<td><strong>Side-by-Side (Cab)</strong></td>
+<td>مقارنة yield vs planting أثناء القيادة</td>
+<td>❌ — يحتاج تطبيق cab</td>
+</tr>
+<tr>
+<td><strong>Spray Insights</strong></td>
+<td>توصيات رش مبنية على الطقس</td>
+<td>✅ — weather-service جاهز</td>
+</tr>
+<tr>
+<td><strong>3 Image Types</strong></td>
+<td>Scouting + Vegetation + True Color</td>
+<td>⚠️ — TCI/ETCI موجود، Scouting لا</td>
+</tr>
+<tr>
+<td><strong>Profit Analysis</strong></td>
+<td>ربط إنفاق المدخلات بالعائد</td>
+<td>❌ — P3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ما يستحق النسخ من FieldView:</strong>
+1. <strong>Scouting Pins</strong> — نظام دبابيس ملونة مع صور وملاحظات وGPS
+2. <strong>Region Drawing</strong> — 4 أدوات رسم (دائرة، حر، مضلع، مستطيل)
+3. <strong>3 أنواع صور</strong> — فصل Scouting عن Vegetation عن True Color</p>
+<hr />
+<h3 id="b-onesoil">B. OneSoil — مجاني + أوسع انتشار<a class="headerlink" href="#b-onesoil" title="Permanent link">&para;</a></h3>
+<p><strong>هيكل الواجهة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">┌──────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w"> </span><span class="n">HEADER</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="n">Fields</span><span class="w"> </span><span class="err">▼</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Upload</span><span class="w"> </span><span class="n">Data</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Profile</span><span class="p">]</span><span class="w">       </span><span class="err">│</span>
+<span class="err">├──────────┬───────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w"> </span><span class="n">LEFT</span><span class="w">     </span><span class="err">│</span><span class="w">                                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">SIDEBAR</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="n">MAIN</span><span class="w"> </span><span class="n">MAP</span><span class="w"> </span><span class="p">(</span><span class="n">Google</span><span class="o">/</span><span class="n">MapBox</span><span class="p">)</span><span class="w">        </span><span class="err">│</span>
+<span class="err">│</span><span class="w">          </span><span class="err">│</span><span class="w">                                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">Fields</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">┌─────────────────────────────────┐</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">List</span><span class="w">     </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">Field</span><span class="w"> </span><span class="n">colored</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">selected</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">          </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                                 </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="n">Sort</span><span class="p">]</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">NDVI</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Contrasted</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Average</span><span class="w">     </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="n">Filter</span><span class="p">]</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">Heterogeneous</span><span class="w">                    </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="n">Group</span><span class="p">]</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">                                 </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">          </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">        </span><span class="p">[</span><span class="n">Split</span><span class="w"> </span><span class="n">View</span><span class="w"> </span><span class="err">📐</span><span class="p">]</span><span class="w">          </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">          </span><span class="err">│</span><span class="w">  </span><span class="err">└─────────────────────────────────┘</span><span class="w">  </span><span class="err">│</span>
+<span class="err">├──────────┴───────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w"> </span><span class="n">STATUS</span><span class="w"> </span><span class="n">TAB</span><span class="o">:</span><span class="w">                                      </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="n">NDVI</span><span class="w"> </span><span class="n">Chart</span><span class="w"> </span><span class="err">📈</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Weather</span><span class="w"> </span><span class="mi">7</span><span class="n">d</span><span class="w"> </span><span class="err">☁️</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Precipitation</span><span class="p">]</span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="n">GDD</span><span class="w"> </span><span class="err">🌡️</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Productivity</span><span class="w"> </span><span class="n">Zones</span><span class="p">]</span><span class="w">                  </span><span class="err">│</span>
+<span class="err">├──────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w"> </span><span class="n">TOOLS</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="n">VRA</span><span class="w"> </span><span class="n">Maps</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Crop</span><span class="w"> </span><span class="n">Rotation</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Yield</span><span class="w"> </span><span class="n">Report</span><span class="p">]</span><span class="w"> </span><span class="err">│</span>
+<span class="err">└──────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<p><strong>مؤشرات OneSoil (محدّثة أبريل 2025):</strong></p>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>المؤشرات</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>نمو مبكر</td>
+<td><strong>MSAVI</strong>, SMI</td>
+<td>تقليل تأثير التربة العارية</td>
+</tr>
+<tr>
+<td>موسم متوسط→متأخر</td>
+<td><strong>NDRE</strong>, RECI</td>
+<td>أدق من NDVI في الكثافة العالية</td>
+</tr>
+<tr>
+<td>كشف إجهاد مبكر</td>
+<td><strong>PRI</strong></td>
+<td>يكشف الإجهاد قبل ظهوره على NDVI</td>
+</tr>
+<tr>
+<td>تتبع رطوبة</td>
+<td><strong>NDMI</strong>, NDWI</td>
+<td>قبل وبعد الري/المطر</td>
+</tr>
+<tr>
+<td>أساسي</td>
+<td><strong>NDVI</strong> (4 أوضاع: Basic, Contrasted, Average, Heterogeneous)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>أوضاع NDVI الأربعة (ميزة فريدة):</strong></p>
+<table>
+<thead>
+<tr>
+<th>الوضع</th>
+<th>الوصف</th>
+<th>موجود في SAHOOL؟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Basic NDVI</strong></td>
+<td>تدرج بني→أخضر (0→1)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Contrasted NDVI</strong></td>
+<td>ألوان زاهية بين min/max الحقل الفعلي</td>
+<td>❌ <strong>فجوة مهمة</strong></td>
+</tr>
+<tr>
+<td><strong>Average NDVI</strong></td>
+<td>يُظهر المتوسط فقط</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Heterogeneous</strong></td>
+<td>يُظهر تباين الحقل الداخلي</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ما يستحق النسخ من OneSoil:</strong>
+1. <strong>Contrasted NDVI</strong> — تدرج ألوان بين min/max الحقل (ليس 0-1 العام)
+2. <strong>Productivity Zones</strong> — مناطق إنتاجية مبنية على 6 سنوات NDVI تاريخي
+3. <strong>Split View</strong> — مقارنة مؤشرين أو تاريخين جنباً لجنب
+4. <strong>NDVI CSV Download</strong> — تصدير قيم NDVI مع min/max/avg لكل تاريخ
+5. <strong>Auto Field Detection</strong> — كشف حدود الحقل تلقائياً من الصور</p>
+<hr />
+<h3 id="c-eosda-crop-monitoring-10-planetscope-3m">C. EOSDA Crop Monitoring — 10 مؤشرات + PlanetScope 3m<a class="headerlink" href="#c-eosda-crop-monitoring-10-planetscope-3m" title="Permanent link">&para;</a></h3>
+<p><strong>هيكل الواجهة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">┌──────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w"> </span><span class="n">HEADER</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="n">Search</span><span class="w"> </span><span class="err">🔍</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Fields</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Scouting</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Team</span><span class="p">]</span><span class="w">  </span><span class="err">│</span>
+<span class="err">├──────┬───────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w"> </span><span class="n">LEFT</span><span class="w"> </span><span class="err">│</span><span class="w">                                           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">      </span><span class="err">│</span><span class="w">           </span><span class="n">MAIN</span><span class="w"> </span><span class="n">MAP</span><span class="w">                        </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="err">📏</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">┌────────────────────────────────┐</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">Dist</span><span class="w"> </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="n">Field</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">vegetation</span><span class="w"> </span><span class="n">overlay</span><span class="w">  </span><span class="err">│</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">      </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">                                </span><span class="err">│</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="err">📐</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="p">[</span><span class="n">Standard</span><span class="w"> </span><span class="err">◉</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Contrast</span><span class="w"> </span><span class="err">○</span><span class="p">]</span><span class="w">   </span><span class="err">│</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">Draw</span><span class="w"> </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">                                </span><span class="err">│</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">      </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">🔲</span><span class="w"> </span><span class="n">Split</span><span class="w"> </span><span class="n">View</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="n">panels</span><span class="p">)</span><span class="w">     </span><span class="err">│</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="err">✂️</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">                                </span><span class="err">│</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="n">Cut</span><span class="w">  </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="n">Timeline</span><span class="o">:</span><span class="w"> </span><span class="err">◀</span><span class="w"> </span><span class="err">●──────●</span><span class="w"> </span><span class="err">▶</span><span class="w">       </span><span class="err">│</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w">      </span><span class="err">│</span><span class="w">   </span><span class="err">└────────────────────────────────┘</span><span class="w">     </span><span class="err">│</span>
+<span class="err">├──────┤</span><span class="w">                                           </span><span class="err">│</span>
+<span class="err">│</span><span class="n">INDEX</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="p">[</span><span class="n">NDVI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">NDRE</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">MSAVI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">ReCI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Meta</span><span class="p">]</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="n">SELECT</span><span class="err">│</span><span class="w">  </span><span class="p">[</span><span class="n">GNDVI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">EVI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">ARVI</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">PSI</span><span class="p">]</span><span class="w">   </span><span class="p">(</span><span class="n">add</span><span class="o">-</span><span class="n">ons</span><span class="p">)</span><span class="w"> </span><span class="err">│</span>
+<span class="err">├──────┴───────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w"> </span><span class="n">BOTTOM</span><span class="w"> </span><span class="n">PANEL</span><span class="o">:</span><span class="w">                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="n">Growth</span><span class="w"> </span><span class="n">Stages</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Weather</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Soil</span><span class="w"> </span><span class="n">Moisture</span><span class="p">]</span><span class="w">        </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="n">Field</span><span class="w"> </span><span class="n">Activities</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Crop</span><span class="w"> </span><span class="n">Rotation</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">Elevation</span><span class="p">]</span><span class="w">   </span><span class="err">│</span>
+<span class="err">└──────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<p><strong>الميزات الفريدة لـ EOSDA:</strong></p>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>موجود في SAHOOL؟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vegetation Meta Index</strong></td>
+<td>RGB مركب: R=MSAVI, G=NDRE, B=NDVI</td>
+<td>❌ — فكرة ذكية جداً</td>
+</tr>
+<tr>
+<td><strong>Disease Risk</strong> (2025)</td>
+<td>خوارزمية تنبؤ مخاطر الأمراض</td>
+<td>⚠️ SAHOOL لديه pest-detection لكن ليس disease risk model</td>
+</tr>
+<tr>
+<td><strong>Field Cutting Tool</strong></td>
+<td>قص جزء من حدود الحقل</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Team Account</strong></td>
+<td>مالك + كشّاف + مؤمّن + استشاري + مورد</td>
+<td>❌ — RBAC موجود لكن ليس بهذا التقسيم</td>
+</tr>
+<tr>
+<td><strong>Scouting App + Web Sync</strong></td>
+<td>تطبيق جوال GPS مع مزامنة تلقائية</td>
+<td>✅ Flutter app مع sync</td>
+</tr>
+<tr>
+<td><strong>Upload .shp/.kml/.kmz/.geojson</strong></td>
+<td>4 تنسيقات لاستيراد الحقول</td>
+<td>❌ — parser غير موجود</td>
+</tr>
+<tr>
+<td><strong>Latest Image Layer</strong></td>
+<td>آخر صورة أقمار صناعية كخلفية</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>PlanetScope 3m يومي</strong></td>
+<td>صور عالية الدقة</td>
+<td>❌ — Sentinel فقط (10m)</td>
+</tr>
+<tr>
+<td><strong>10 مؤشرات جاهزة</strong></td>
+<td>NDVI, NDRE, MSAVI, ReCI, Meta + 5 add-ons</td>
+<td>✅ SAHOOL 25+ (أقوى)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ما يستحق النسخ من EOSDA:</strong>
+1. <strong>Vegetation Meta Index</strong> — صورة واحدة تجمع 3 مؤشرات بألوان RGB
+2. <strong>Disease Risk Algorithm</strong> — تنبؤ مخاطر الأمراض
+3. <strong>Field Cutting Tool</strong> — قص حدود الحقل
+4. <strong>4 تنسيقات استيراد</strong> — .shp + .kml + .kmz + .geojson
+5. <strong>Standard vs Contrast toggle</strong> — تبديل سريع</p>
+<hr />
+<h2 id="_13">خامس عشر: ملخص الميزات المستحقة النسخ من كل منصة<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الأولوية</th>
+<th>الميزة</th>
+<th>المصدر</th>
+<th>التأثير على SAHOOL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0</strong></td>
+<td>Hybrid Index (5 ألوان)</td>
+<td>Farmonaut</td>
+<td>تبسيط جذري للمزارع البسيط</td>
+</tr>
+<tr>
+<td><strong>P0</strong></td>
+<td>9-Direction Analysis</td>
+<td>Farmonaut</td>
+<td>"اذهب شمال غرب وافحص" — أقوى من GPS</td>
+</tr>
+<tr>
+<td><strong>P0</strong></td>
+<td>خريطة تفاعلية حقيقية</td>
+<td>الكل</td>
+<td>بدونها لا معنى للتطبيق</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>Contrasted NDVI</td>
+<td>OneSoil</td>
+<td>كشف التباين الداخلي بوضوح</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>Split View</td>
+<td>OneSoil + EOSDA</td>
+<td>مقارنة تاريخين/مؤشرين</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>Scouting Pins + صور</td>
+<td>FieldView</td>
+<td>نظام استكشاف ميداني</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>Region Drawing (4 أدوات)</td>
+<td>FieldView</td>
+<td>رسم مناطق على الخريطة</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>SAR Fallback التلقائي</td>
+<td>Farmonaut</td>
+<td>حاسم لليمن والمرتفعات</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>Disease Risk Model</td>
+<td>EOSDA</td>
+<td>تنبؤ مخاطر الأمراض</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>4 تنسيقات استيراد</td>
+<td>EOSDA</td>
+<td>.shp + .kml + .kmz + .geojson</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>Vegetation Meta Index (RGB)</td>
+<td>EOSDA</td>
+<td>صورة واحدة = 3 مؤشرات</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>Productivity Zones (6 سنوات)</td>
+<td>OneSoil</td>
+<td>مناطق إنتاجية تاريخية</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>NDVI CSV Download</td>
+<td>OneSoil</td>
+<td>تصدير بيانات خام</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>Profit Analysis</td>
+<td>FieldView</td>
+<td>ربط إنفاق بعائد</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>Team Account (5 أدوار)</td>
+<td>EOSDA</td>
+<td>مالك/كشاف/مؤمن/استشاري/مورد</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td>PlanetScope 3m</td>
+<td>EOSDA/OneSoil</td>
+<td>صور يومية عالية الدقة (مكلف)</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td>Equipment Integration</td>
+<td>FieldView</td>
+<td>تكامل معدات (60+ شريك)</td>
+</tr>
+</tbody>
+</table>
+<p>Sources:
+- <a href="https://climate.com/en-us.html">Climate FieldView</a>
+- <a href="https://help.onesoil.ai/en/articles/5237493-how-to-monitor-vegetation-indexes-ndvi-msavi-ndre-etc">OneSoil Help Center - Vegetation Indices</a>
+- <a href="https://blog.onesoil.ai/en/how-we-added-contrasted-ndvi">OneSoil - Contrasted NDVI</a>
+- <a href="https://eos.com/user-guide/crop-monitoring/">EOSDA Crop Monitoring User Guide</a>
+- <a href="https://eos.com/products/crop-monitoring/">EOSDA Crop Monitoring Features</a>
+- <a href="https://climatefieldview.ca/blog/Work-smarter-with-Field-Health-Imagery-and-scouting-tools">FieldView Scouting Tools</a>
+- <a href="https://help.onesoil.ai/en/articles/5237584-how-the-onesoil-web-and-mobile-apps-differ">OneSoil Web vs Mobile</a>
+- <a href="https://eos.com/blog/eosda-crop-monitoring-gets-disease-risk-analytics/">EOSDA Disease Risk</a></p>
+<hr />
+<h2 id="_14">سادس عشر: تحليل المنصات المتخصصة + سوق الشرق الأوسط<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h2>
+<h3 id="d-farmers-edge">D. Farmers Edge — بيانات مزرعة متصلة<a class="headerlink" href="#d-farmers-edge" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>موجود في SAHOOL؟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>محطات طقس + telematics + حساسات تربة</td>
+<td>كل البيانات متصلة بالأقمار الصناعية</td>
+<td>✅ IoT + weather-service</td>
+</tr>
+<tr>
+<td>تقارير ربح</td>
+<td>خرائط ربحية لكل منطقة</td>
+<td>❌ P3</td>
+</tr>
+<tr>
+<td>تقارير كربون</td>
+<td>تتبع انبعاثات + شهادات كربون</td>
+<td>❌ P3</td>
+</tr>
+<tr>
+<td>تنبؤ آفات مبني على طقس</td>
+<td>نماذج weather-driven</td>
+<td>⚠️ pest-detection يقبل طقس لكن بدون ML model</td>
+</tr>
+</tbody>
+</table>
+<h3 id="e-arable-mark-weather-station-ground-truth">E. Arable (Mark Weather Station) — Ground-truth<a class="headerlink" href="#e-arable-mark-weather-station-ground-truth" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>موجود في SAHOOL؟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NDVI من جهاز حقلي (ليس قمر صناعي)</td>
+<td>spectrometer على الأرض يقيس مباشرة</td>
+<td>❌ — مختلف تماماً</td>
+</tr>
+<tr>
+<td>40+ معامل بيئي من جهاز واحد</td>
+<td>microclimate + ET + رطوبة + رياح</td>
+<td>✅ IoT sensor hub (port 8251)</td>
+</tr>
+<tr>
+<td>معايرة بيانات الأقمار الصناعية</td>
+<td>Ground-truth لتصحيح NDVI</td>
+<td>❌ — فكرة مهمة لتحسين الدقة</td>
+</tr>
+<tr>
+<td>REST API موثق</td>
+<td>تكامل سهل</td>
+<td>✅ 105 route</td>
+</tr>
+</tbody>
+</table>
+<h3 id="f-cropx">F. CropX — حساسات تربة متعددة الأعماق<a class="headerlink" href="#f-cropx" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>موجود في SAHOOL؟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>حساسات تربة بأعماق متعددة</td>
+<td>رطوبة + درجة حرارة بـ 3 أعماق</td>
+<td>✅ soil_sensors module موجود</td>
+</tr>
+<tr>
+<td>دمج حساسات + أقمار صناعية</td>
+<td>VRA maps من البيانين معاً</td>
+<td>❌ — لا يوجد دمج</td>
+</tr>
+<tr>
+<td>تحسين ري مبني على ET (Tule)</td>
+<td>قياس ET الحقيقي ميدانياً</td>
+<td>✅ ET بطريقة Hargreaves (حسابي وليس ميداني)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="g">G. سوق الشرق الأوسط والعربي<a class="headerlink" href="#g" title="Permanent link">&para;</a></h3>
+<p><strong>الوضع الحالي:</strong>
+- <strong>لا يوجد منصة زراعة دقيقة عربية أولاً</strong> في السوق
+- معظم الحلول المنشورة في الخليج إنجليزية مع ترجمة جزئية
+- ICBA (الإمارات) يستخدم أقمار صناعية لمراقبة الملوحة
+- NEOM (السعودية) استثمرت في الزراعة الذكية
+- Planet Labs لديها شراكات خليجية
+- <strong>التحديات الخاصة بالمنطقة:</strong>
+  - البيئة الجافة تجعل NDVI أقل فائدة (كثافة نباتية منخفضة)
+  - <strong>SAVI أهم من NDVI</strong> في البيئات الجافة (SAHOOL يدعمه ✅)
+  - مؤشرات الإجهاد المائي (NDMI, CWSI) أكثر أهمية من مؤشرات الخضرة
+  - <strong>SAHOOL هو الوحيد</strong> بتصميم عربي أولاً + offline-first + معايرة يمنية</p>
+<p><strong>الفرصة لـ SAHOOL:</strong></p>
+<div class="codehilite"><pre><span></span><code>┌────────────────────────────────────────────────────┐
+│           سوق الزراعة الذكية العربي                │
+│                                                    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │ الخليج   │  │ اليمن    │  │ شمال     │        │
+│  │ (NEOM,   │  │ (هدف    │  │ أفريقيا   │        │
+│  │  ICBA)   │  │  أساسي) │  │          │        │
+│  └─────┬────┘  └─────┬────┘  └─────┬────┘        │
+│        │             │             │               │
+│        └─────────────┼─────────────┘               │
+│                      │                             │
+│              ┌───────┴───────┐                     │
+│              │   SAHOOL      │                     │
+│              │ عربي + offline│                     │
+│              │ + 72 خدمة    │                     │
+│              └───────────────┘                     │
+│                                                    │
+│  المنافسون: لا أحد في هذا الموقع                    │
+└────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="5">سابع عشر: الخلاصة النهائية — 5 أفكار تحويلية<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<p>بناءً على تحليل <strong>5 منصات منافسة</strong> + <strong>تدقيق 72 خدمة SAHOOL</strong>:</p>
+<h3 id="1-hybrid-index-farmonaut">الفكرة 1: Hybrid Index (من Farmonaut)<a class="headerlink" href="#1-hybrid-index-farmonaut" title="Permanent link">&para;</a></h3>
+<p><strong>لماذا</strong>: يختصر 10+ مؤشرات في 5 ألوان — المزارع اليمني البسيط يفهمها فوراً
+<strong>كيف</strong>: <code>if (NDVI &gt; 0.6 &amp;&amp; NDWI &gt; 0.1) → أخضر</code> — الكود موجود، يحتاج خوارزمية دمج فقط</p>
+<h3 id="2-contrasted-ndvi-onesoil">الفكرة 2: Contrasted NDVI (من OneSoil)<a class="headerlink" href="#2-contrasted-ndvi-onesoil" title="Permanent link">&para;</a></h3>
+<p><strong>لماذا</strong>: التدرج العام (0→1) يُخفي التباين الداخلي — Contrasted يُظهره بوضوح
+<strong>كيف</strong>: <code>color = interpolate(fieldMin, fieldMax, value)</code> — تغيير في palette فقط</p>
+<h3 id="3-vegetation-meta-index-eosda">الفكرة 3: Vegetation Meta Index (من EOSDA)<a class="headerlink" href="#3-vegetation-meta-index-eosda" title="Permanent link">&para;</a></h3>
+<p><strong>لماذا</strong>: صورة RGB واحدة تُظهر 3 مؤشرات مختلفة — حل عبقري للشاشات الصغيرة
+<strong>كيف</strong>: <code>R = MSAVI, G = NDRE, B = NDVI</code> — كل بكسل = 3 معلومات</p>
+<h3 id="4-sar-fallback-farmonaut">الفكرة 4: SAR Fallback التلقائي (من Farmonaut)<a class="headerlink" href="#4-sar-fallback-farmonaut" title="Permanent link">&para;</a></h3>
+<p><strong>لماذا</strong>: غيوم اليمن الموسمية تحجب 30-60% من الصور — بدون SAR لا بيانات لأسابيع
+<strong>كيف</strong>: <code>if cloudCover &gt; 30%: useSAR()</code> — Water Cloud Model اليمني <strong>جاهز في الكود</strong></p>
+<h3 id="5-sahool-onesoil-farmonaut-fieldview">الفكرة 5: SAHOOL = OneSoil المجاني + Farmonaut الذكي + FieldView المحترف<a class="headerlink" href="#5-sahool-onesoil-farmonaut-fieldview" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع الفريد</strong>: لا يوجد منصة واحدة تجمع: عربي + offline + 25 مؤشر + 11 عنصر تربة + WhatsApp + Edge Computing
+<strong>الخطوة القادمة</strong>: ربط الخدمات الـ 72 الموجودة ببعضها عبر الواجهة — <strong>80% من العمل مكتمل فعلاً</strong></p>
+<hr />
+<h2 id="copilot-api-vs-jeevn-ai">ثامن عشر: Copilot-API vs JEEVN AI — تدقيق عميق<a class="headerlink" href="#copilot-api-vs-jeevn-ai" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>الاستنتاج</strong>: Copilot-API (port 8088) <strong>يغطي 100% من ميزات JEEVN AI ويتفوق عليه تقنياً</strong></p>
+</blockquote>
+<h3 id="_15">جدول المقارنة التفصيلي<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ميزة JEEVN AI</th>
+<th>Copilot-API</th>
+<th>التفاصيل</th>
+<th>الحكم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>تحليل تربة (N,P,K,Zn,S)</strong></td>
+<td>✅</td>
+<td><code>advisory.fertilizer</code> tool → soil-analysis-service:8134</td>
+<td><strong>مُغطى</strong> (11 عنصر vs 5)</td>
+</tr>
+<tr>
+<td><strong>توقع آفات/أمراض</strong></td>
+<td>✅</td>
+<td><code>DiseaseExpertAgent</code> + <code>ultrarag.diagnose_disease()</code> + pest-detection:8125</td>
+<td><strong>مُغطى</strong></td>
+</tr>
+<tr>
+<td><strong>ري ذكي 4 عوامل</strong></td>
+<td>✅</td>
+<td><code>IrrigationAdvisorAgent</code> + irrigation-smart:8094 + <code>ultrarag.recommend_irrigation()</code></td>
+<td><strong>مُغطى</strong></td>
+</tr>
+<tr>
+<td><strong>توقع إنتاجية</strong></td>
+<td>✅</td>
+<td><code>YieldPredictorAgent</code> + <code>ultrarag.predict_yield()</code></td>
+<td><strong>مُغطى</strong></td>
+</tr>
+<tr>
+<td><strong>تكامل طقس</strong></td>
+<td>✅</td>
+<td><code>weather.forecast</code> + <code>weather.alerts</code> → weather-service:8092</td>
+<td><strong>مُغطى</strong></td>
+</tr>
+<tr>
+<td><strong>دعم عربي</strong></td>
+<td>✅</td>
+<td>كشف لغة تلقائي (&gt;30% أحرف عربية) + system prompts ثنائية</td>
+<td><strong>أفضل من JEEVN</strong></td>
+</tr>
+<tr>
+<td><strong>واجهة محادثة</strong></td>
+<td>✅</td>
+<td><code>POST /api/v1/chat</code> + <code>POST /api/v1/chat/stream</code> (SSE)</td>
+<td><strong>مُغطى</strong></td>
+</tr>
+<tr>
+<td><strong>RAG</strong></td>
+<td>✅</td>
+<td><strong>Tri-RAG متقدم</strong>: Dense(0.4) + Sparse(0.3) + Knowledge Graph(0.3)</td>
+<td><strong>أفضل بكثير</strong></td>
+</tr>
+<tr>
+<td><strong>LLM متعدد</strong></td>
+<td>✅</td>
+<td>Ollama(offline) + Claude + OpenAI + Gemini + DeepSeek</td>
+<td><strong>أفضل بكثير</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="copilot-6">بنية وكلاء Copilot (6 وكلاء متخصصين)<a class="headerlink" href="#copilot-6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>copilot-api:8088
+├── 🌾 FIELD_ADVISOR (أولوية 8)
+│   └── كشف: field|crop|plant.*health|ndvi
+│   └── يستدعي: ai-advisor → FieldAnalystAgent
+│
+├── 🌧️ WEATHER_ADVISOR (أولوية 7)
+│   └── كشف: weather|forecast|temperature|rain
+│   └── يستدعي: weather-service:8092
+│
+├── 💧 IRRIGATION_ADVISOR (أولوية 7)
+│   └── كشف: irrigation|water.*schedule
+│   └── يستدعي: irrigation-smart:8094 + UltraRAG
+│
+├── 🐛 DISEASE_EXPERT (ضمن ai-advisor)
+│   └── كشف: disease|pest|مرض|آفة
+│   └── يستدعي: pest-detection:8125 + ultrarag.diagnose_disease()
+│
+├── 🔧 CODE_FIX (أولوية 10)
+│   └── يستدعي: code-fix-agent:8161
+│
+└── 🤖 GENERAL (fallback)
+    └── أي استفسار غير مصنف
+</code></pre></div>
+
+<h3 id="copilot-37">الأدوات المتاحة في Copilot (37+ أداة)<a class="headerlink" href="#copilot-37" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>📊 الحقول:     field.list | field.get | field.analyze | field.ndvi | field.boundaries
+🌤️ الطقس:     weather.forecast | weather.current | weather.alerts | weather.historical
+🧪 الاستشارات: advisory.irrigation | advisory.fertilizer | advisory.crop
+🔍 RAG:       rag.search | rag.add | rag.list | rag.delete
+📋 التدقيق:    audit.list | audit.search
+</code></pre></div>
+
+<h3 id="copilot-jeevn-ai">ما يتفوق فيه Copilot على JEEVN AI<a class="headerlink" href="#copilot-jeevn-ai" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>Copilot-API</th>
+<th>JEEVN AI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tri-RAG</strong> (3 مسترجعات)</td>
+<td>Dense + Sparse + Knowledge Graph</td>
+<td>RAG عادي</td>
+</tr>
+<tr>
+<td><strong>5 مزودي LLM</strong> مع fallback</td>
+<td>Ollama → Claude → OpenAI → Gemini → DeepSeek</td>
+<td>مزود واحد</td>
+</tr>
+<tr>
+<td><strong>Offline-first</strong></td>
+<td>Ollama محلي يعمل بدون إنترنت</td>
+<td>يحتاج إنترنت</td>
+</tr>
+<tr>
+<td><strong>Explainability</strong></td>
+<td>"لماذا هذه التوصية؟" مع عوامل مُسهمة</td>
+<td>غير موجود</td>
+</tr>
+<tr>
+<td><strong>Feedback Loop</strong></td>
+<td>تقييم 1-5 + تصحيح + تتبع نتائج</td>
+<td>غير موجود</td>
+</tr>
+<tr>
+<td><strong>Action Templates</strong></td>
+<td>أوامر تنفذ offline في الحقل</td>
+<td>غير موجود</td>
+</tr>
+<tr>
+<td><strong>أمان</strong></td>
+<td>كشف حقن + PII masking + guardrails + rate limiting</td>
+<td>أساسي</td>
+</tr>
+<tr>
+<td><strong>11 عنصر تربة</strong></td>
+<td>N,P,K,Ca,Mg,S,Zn,Fe,Mn,Cu,B</td>
+<td>5 فقط</td>
+</tr>
+</tbody>
+</table>
+<h3 id="copilot-jeevn-ai_1">ما ينقص Copilot مقارنة بـ JEEVN AI<a class="headerlink" href="#copilot-jeevn-ai_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفجوة</th>
+<th>التفاصيل</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>إنذار مبكر بالأقمار الصناعية</strong></td>
+<td>NDVI anomaly → pest alert pipeline غير مفعّل</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>واجهة مزارع مخصصة</strong></td>
+<td>Chat عام — ليس مصمم خصيصاً لتجربة المزارع البسيط</td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>نماذج ML خاصة بالمحصول</strong></td>
+<td>توقع إنتاجية عام وليس crop-specific ML</td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>تقارير امتثال</strong></td>
+<td>لا يولّد تقارير PDF تلقائية</td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_16">الخلاصة<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Copilot-API أقوى تقنياً من JEEVN AI بمراحل</strong> — لكنه مصمم كـ "مهندس زراعي AI" وليس كـ "مساعد مزارع بسيط".</p>
+<p><strong>المطلوب</strong>: ليس بناء JEEVN AI من الصفر — بل <strong>تبسيط واجهة Copilot</strong> لتكون مفهومة للمزارع اليمني البسيط.</p>
+<p>بمعنى آخر: الـ backend <strong>جاهز 100%</strong> — المشكلة في الـ frontend فقط.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

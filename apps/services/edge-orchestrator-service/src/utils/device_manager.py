@@ -588,9 +588,12 @@ class DeviceManager:
         """Get device by ID."""
         return self._devices.get(device_id)
 
-    async def get_all_devices(self) -> list[EdgeDevice]:
-        """Get all registered devices."""
-        return list(self._devices.values())
+    async def get_all_devices(self, tenant_id: UUID | None = None) -> list[EdgeDevice]:
+        """Get all registered devices, optionally filtered by tenant."""
+        devices = list(self._devices.values())
+        if tenant_id:
+            devices = [d for d in devices if d.tenant_id == tenant_id]
+        return devices
 
     async def update_device_status(
         self,

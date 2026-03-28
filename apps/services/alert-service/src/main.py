@@ -215,11 +215,17 @@ async def handle_ndvi_anomaly(data: dict):
     """معالجة شذوذ NDVI من خدمة NDVI"""
     logger.info(f"Received NDVI anomaly event: {data.get('event_id')}")
     # SECURITY: Reject events without tenant_id to maintain tenant isolation
-    if not data.get("tenant_id"):
+    tenant_id = data.get("tenant_id")
+    if not tenant_id:
         logger.warning(
             "Dropping NDVI anomaly event without tenant_id: event_id=%s",
             data.get("event_id"),
         )
+        return
+    try:
+        UUID(tenant_id)
+    except ValueError:
+        logger.warning("invalid_tenant_id_format", tenant_id=tenant_id)
         return
     try:
         alert = await create_alert_internal(
@@ -256,11 +262,17 @@ async def handle_weather_alert(data: dict):
     """معالجة تنبيه الطقس"""
     logger.info(f"Received weather alert event: {data.get('event_id')}")
     # SECURITY: Reject events without tenant_id to maintain tenant isolation
-    if not data.get("tenant_id"):
+    tenant_id = data.get("tenant_id")
+    if not tenant_id:
         logger.warning(
             "Dropping weather alert event without tenant_id: event_id=%s",
             data.get("event_id"),
         )
+        return
+    try:
+        UUID(tenant_id)
+    except ValueError:
+        logger.warning("invalid_tenant_id_format", tenant_id=tenant_id)
         return
     try:
         severity_map = {
@@ -295,11 +307,17 @@ async def handle_iot_threshold(data: dict):
     """معالجة تجاوز عتبة IoT"""
     logger.info(f"Received IoT threshold event: {data.get('event_id')}")
     # SECURITY: Reject events without tenant_id to maintain tenant isolation
-    if not data.get("tenant_id"):
+    tenant_id = data.get("tenant_id")
+    if not tenant_id:
         logger.warning(
             "Dropping IoT threshold event without tenant_id: event_id=%s",
             data.get("event_id"),
         )
+        return
+    try:
+        UUID(tenant_id)
+    except ValueError:
+        logger.warning("invalid_tenant_id_format", tenant_id=tenant_id)
         return
     try:
         metric = data.get("metric", "unknown")
@@ -527,6 +545,7 @@ async def get_stats(
     period: str = Query("30d", pattern=r"^\d{1,4}d$", description="الفترة الزمنية (7d, 30d, 90d)"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     إحصائيات التنبيهات
@@ -607,6 +626,7 @@ async def get_rules(
     enabled: bool | None = Query(None, description="تصفية حسب الحالة"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     جلب قواعد التنبيه
@@ -706,6 +726,7 @@ async def get_alerts_by_field_endpoint(
     limit: int = Query(50, ge=1, le=100),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     جلب تنبيهات حقل معين
@@ -738,6 +759,7 @@ async def get_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     جلب تنبيه محدد
@@ -783,7 +805,7 @@ async def update_alert_endpoint(
     old_status = alert.status
 
     if update_data and update_data.status:
-        user_id = update_data.acknowledged_by or update_data.dismissed_by or update_data.resolved_by
+        user_id = str(getattr(current_user, "id", ""))
 
         updated_alert = update_alert_status(
             db,
@@ -866,9 +888,9 @@ async def delete_alert_endpoint(
 )
 async def acknowledge_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    user_id: str = Query(..., description="معرف المستخدم"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     الإقرار بتنبيه
@@ -880,6 +902,8 @@ async def acknowledge_alert(
         alert_uuid = UUID(alert_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    user_id = str(current_user.id)
 
     alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
     if not alert:
@@ -958,7 +982,6 @@ async def resolve_alert(
 @app.post("/alerts/{alert_id}/dismiss", response_model=AlertResponse, tags=["Alert Actions"])
 async def dismiss_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    user_id: str = Query(..., description="معرف المستخدم"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -973,6 +996,8 @@ async def dismiss_alert(
         alert_uuid = UUID(alert_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    user_id = str(current_user.id)
 
     alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
     if not alert:

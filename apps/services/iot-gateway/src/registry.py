@@ -140,17 +140,23 @@ class DeviceRegistry:
         """Get device by ID"""
         return self._devices.get(device_id)
 
-    def get_by_field(self, field_id: str) -> list[Device]:
-        """Get all devices for a field"""
-        return [d for d in self._devices.values() if d.field_id == field_id]
+    def get_by_field(self, field_id: str, tenant_id: str = "") -> list[Device]:
+        """Get all devices for a field, optionally filtered by tenant"""
+        return [
+            d for d in self._devices.values() if d.field_id == field_id and (not tenant_id or d.tenant_id == tenant_id)
+        ]
 
     def get_by_tenant(self, tenant_id: str) -> list[Device]:
         """Get all devices for a tenant"""
         return [d for d in self._devices.values() if d.tenant_id == tenant_id]
 
-    def get_by_type(self, device_type: str) -> list[Device]:
-        """Get all devices of a specific type"""
-        return [d for d in self._devices.values() if d.device_type == device_type]
+    def get_by_type(self, device_type: str, tenant_id: str = "") -> list[Device]:
+        """Get all devices of a specific type, optionally filtered by tenant"""
+        return [
+            d
+            for d in self._devices.values()
+            if d.device_type == device_type and (not tenant_id or d.tenant_id == tenant_id)
+        ]
 
     def update_status(
         self,

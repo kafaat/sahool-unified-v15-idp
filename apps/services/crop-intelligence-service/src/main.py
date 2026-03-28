@@ -446,10 +446,11 @@ async def db_get_observations(
     field_id: str,
     zone_id: str,
     limit: int = 50,
+    tenant_id: str | None = None,
 ) -> list[dict[str, Any]]:
     """
-    Get observations from database
-    استرجاع الأرصاد من قاعدة البيانات
+    Get observations from database with optional tenant isolation.
+    استرجاع الأرصاد من قاعدة البيانات مع عزل اختياري للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -457,19 +458,35 @@ async def db_get_observations(
 
     try:
         async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT id, field_id, zone_id, captured_at, source, growth_stage,
-                       ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
-                FROM crop_health_observations
-                WHERE field_id = $1 AND zone_id = $2
-                ORDER BY captured_at DESC
-                LIMIT $3
-                """,
-                field_id,
-                zone_id,
-                limit,
-            )
+            if tenant_id:
+                rows = await conn.fetch(
+                    """
+                    SELECT id, field_id, zone_id, captured_at, source, growth_stage,
+                           ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
+                    FROM crop_health_observations
+                    WHERE field_id = $1 AND zone_id = $2 AND tenant_id = $3
+                    ORDER BY captured_at DESC
+                    LIMIT $4
+                    """,
+                    field_id,
+                    zone_id,
+                    tenant_id,
+                    limit,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT id, field_id, zone_id, captured_at, source, growth_stage,
+                           ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
+                    FROM crop_health_observations
+                    WHERE field_id = $1 AND zone_id = $2
+                    ORDER BY captured_at DESC
+                    LIMIT $3
+                    """,
+                    field_id,
+                    zone_id,
+                    limit,
+                )
             observations = []
             for row in rows:
                 observations.append(
@@ -496,10 +513,13 @@ async def db_get_observations(
         return []
 
 
-async def db_get_field_observations(field_id: str) -> dict[str, list[dict[str, Any]]]:
+async def db_get_field_observations(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> dict[str, list[dict[str, Any]]]:
     """
-    Get all observations for a field grouped by zone
-    استرجاع جميع أرصاد الحقل مجمعة حسب المنطقة
+    Get all observations for a field grouped by zone with optional tenant isolation.
+    استرجاع جميع أرصاد الحقل مجمعة حسب المنطقة مع عزل اختياري للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -507,16 +527,29 @@ async def db_get_field_observations(field_id: str) -> dict[str, list[dict[str, A
 
     try:
         async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT DISTINCT zone_id, field_id, captured_at, source, growth_stage,
-                       ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
-                FROM crop_health_observations
-                WHERE field_id = $1
-                ORDER BY zone_id, captured_at DESC
-                """,
-                field_id,
-            )
+            if tenant_id:
+                rows = await conn.fetch(
+                    """
+                    SELECT DISTINCT zone_id, field_id, captured_at, source, growth_stage,
+                           ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
+                    FROM crop_health_observations
+                    WHERE field_id = $1 AND tenant_id = $2
+                    ORDER BY zone_id, captured_at DESC
+                    """,
+                    field_id,
+                    tenant_id,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT DISTINCT zone_id, field_id, captured_at, source, growth_stage,
+                           ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
+                    FROM crop_health_observations
+                    WHERE field_id = $1
+                    ORDER BY zone_id, captured_at DESC
+                    """,
+                    field_id,
+                )
             result: dict[str, list[dict[str, Any]]] = {}
             for row in rows:
                 zone_id = row["zone_id"]
@@ -586,10 +619,13 @@ async def db_store_zone(
         return False
 
 
-async def db_get_zones(field_id: str) -> dict[str, dict[str, Any]]:
+async def db_get_zones(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> dict[str, dict[str, Any]]:
     """
-    Get zones for a field from database
-    استرجاع مناطق الحقل من قاعدة البيانات
+    Get zones for a field from database with optional tenant isolation.
+    استرجاع مناطق الحقل من قاعدة البيانات مع عزل اختياري للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -597,14 +633,25 @@ async def db_get_zones(field_id: str) -> dict[str, dict[str, Any]]:
 
     try:
         async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT zone_id, name, name_ar, geometry, area_hectares, created_at
-                FROM crop_zones
-                WHERE field_id = $1
-                """,
-                field_id,
-            )
+            if tenant_id:
+                rows = await conn.fetch(
+                    """
+                    SELECT zone_id, name, name_ar, geometry, area_hectares, created_at
+                    FROM crop_zones
+                    WHERE field_id = $1 AND tenant_id = $2
+                    """,
+                    field_id,
+                    tenant_id,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT zone_id, name, name_ar, geometry, area_hectares, created_at
+                    FROM crop_zones
+                    WHERE field_id = $1
+                    """,
+                    field_id,
+                )
             result = {}
             for row in rows:
                 geometry = None
@@ -1108,20 +1155,26 @@ async def publish_health_assessed(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-async def get_field_observations_data(field_id: str) -> dict[str, list[dict[str, Any]]]:
+async def get_field_observations_data(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> dict[str, list[dict[str, Any]]]:
     """Get observations for a field from database or memory"""
     # Try database first
-    db_obs = await db_get_field_observations(field_id)
+    db_obs = await db_get_field_observations(field_id, tenant_id=tenant_id)
     if db_obs:
         return db_obs
     # Fall back to memory
     return OBSERVATIONS.get(field_id, {})
 
 
-async def get_zones_data(field_id: str) -> dict[str, dict[str, Any]]:
+async def get_zones_data(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> dict[str, dict[str, Any]]:
     """Get zones for a field from database or memory"""
     # Try database first
-    db_zones = await db_get_zones(field_id)
+    db_zones = await db_get_zones(field_id, tenant_id=tenant_id)
     if db_zones:
         return db_zones
     # Fall back to memory
@@ -1140,6 +1193,10 @@ async def create_zone(
     user: User | None = Depends(get_current_user),
 ):
     """إنشاء منطقة جديدة في الحقل"""
+    if not user or not getattr(user, "tenant_id", None):
+        raise HTTPException(status_code=401, detail="Tenant context required")
+    tenant_id = str(user.tenant_id)
+
     zone_id = f"zone_{uuid4().hex[:8]}"
 
     zone_data = {
@@ -1151,7 +1208,6 @@ async def create_zone(
     }
 
     # Try to store in database first with tenant isolation
-    tenant_id = user.tenant_id if user else ""
     stored_in_db = await db_store_zone(field_id, zone_id, zone_data, tenant_id)
 
     # Always store in memory as fallback
@@ -1172,8 +1228,9 @@ async def list_zones(
     user: User | None = Depends(get_current_user),
 ):
     """قائمة المناطق في الحقل"""
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
     # Try to get from database first
-    db_zones = await db_get_zones(field_id)
+    db_zones = await db_get_zones(field_id, tenant_id=tenant_id)
     if db_zones:
         zones = [{"zone_id": zid, **zdata} for zid, zdata in db_zones.items()]
         return {"zones": zones, "count": len(zones), "source": "database"}
@@ -1192,8 +1249,9 @@ async def get_zones_geojson(
     user: User | None = Depends(get_current_user),
 ):
     """تصدير المناطق كـ GeoJSON"""
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
     # Try to get from database first
-    db_zones = await db_get_zones(field_id)
+    db_zones = await db_get_zones(field_id, tenant_id=tenant_id)
     zone_data = db_zones if db_zones else ZONES.get(field_id, {})
 
     if not zone_data:
@@ -1241,12 +1299,15 @@ async def ingest_observation(
 
     يستقبل بيانات من Sentinel-2 أو الدرونز أو مصادر أخرى
     """
+    if not user or not getattr(user, "tenant_id", None):
+        raise HTTPException(status_code=401, detail="Tenant context required")
+    tenant_id = str(user.tenant_id)
+
     obs = body.model_dump()
     obs["captured_at"] = body.captured_at.isoformat()
     obs["indices"] = body.indices.model_dump()
 
     # Try to store in database with tenant isolation
-    tenant_id = user.tenant_id if user else ""
     db_obs_id = await db_store_observation(
         field_id,
         zone_id,
@@ -1286,8 +1347,9 @@ async def list_observations(
     user: User | None = Depends(get_current_user),
 ):
     """قائمة الأرصاد للمنطقة"""
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
     # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, limit)
+    db_obs = await db_get_observations(field_id, zone_id, limit, tenant_id=tenant_id)
     if db_obs:
         return {"observations": db_obs, "count": len(db_obs), "source": "database"}
 
@@ -1318,13 +1380,15 @@ async def get_field_diagnosis(
     - قائمة الإجراءات المطلوبة مرتبة بالأولوية
     - روابط طبقات الخريطة
     """
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
+
     try:
         target = date.fromisoformat(date_str)
     except ValueError:
         raise HTTPException(status_code=400, detail="تنسيق تاريخ غير صالح، استخدم YYYY-MM-DD")
 
     # Get observations from database or memory
-    zones = await get_field_observations_data(field_id)
+    zones = await get_field_observations_data(field_id, tenant_id=tenant_id)
 
     if not zones:
         raise HTTPException(status_code=404, detail="الحقل غير موجود أو لا توجد أرصاد")
@@ -1419,6 +1483,8 @@ async def get_zone_timeline(
 
     مفيدة لتتبع التغيرات وعرضها في رسم بياني
     """
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
+
     try:
         start = date.fromisoformat(from_date)
         end = date.fromisoformat(to_date)
@@ -1426,7 +1492,7 @@ async def get_zone_timeline(
         raise HTTPException(status_code=400, detail="تنسيق تاريخ غير صالح")
 
     # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1000)
+    db_obs = await db_get_observations(field_id, zone_id, 1000, tenant_id=tenant_id)
     obs_list = db_obs if db_obs else OBSERVATIONS.get(field_id, {}).get(zone_id, [])
 
     if not obs_list:
@@ -1647,7 +1713,9 @@ async def detect_crop_diseases(
     health_en, health_ar = get_overall_health_status(detections)
 
     # Publish disease detection events to NATS and store in database
-    tenant_id = user.tenant_id if user else ""
+    if not user or not getattr(user, "tenant_id", None):
+        raise HTTPException(status_code=401, detail="Tenant context required")
+    tenant_id = str(user.tenant_id)
     if field_id and detections:
         for detection in detections:
             await publish_disease_detected(
@@ -1716,8 +1784,9 @@ async def analyze_zone_diseases(
     تحليل أمراض المنطقة من آخر رصد
     Analyze zone diseases from latest observation
     """
+    user_tenant_id = str(current_user.tenant_id) if getattr(current_user, "tenant_id", None) else None
     # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1)
+    db_obs = await db_get_observations(field_id, zone_id, 1, tenant_id=user_tenant_id)
     if db_obs:
         obs_list = db_obs
     else:
@@ -1772,7 +1841,7 @@ async def analyze_zone_diseases(
     )
 
     # Get zone metadata
-    zone_metadata = await get_zones_data(field_id)
+    zone_metadata = await get_zones_data(field_id, tenant_id=user_tenant_id)
     zone_meta = zone_metadata.get(zone_id, {})
 
     return {
@@ -1903,8 +1972,9 @@ async def analyze_zone_nutrients(
     current_user: User = Depends(get_current_user),
 ):
     """تحليل العناصر الغذائية في المنطقة من آخر رصد"""
+    user_tenant_id = str(current_user.tenant_id) if getattr(current_user, "tenant_id", None) else None
     # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1)
+    db_obs = await db_get_observations(field_id, zone_id, 1, tenant_id=user_tenant_id)
     if db_obs:
         obs_list = db_obs
     else:
@@ -1934,7 +2004,7 @@ async def analyze_zone_nutrients(
         field_area_hectares=field_area_hectares,
     )
 
-    zone_metadata = await get_zones_data(field_id)
+    zone_metadata = await get_zones_data(field_id, tenant_id=user_tenant_id)
     zone_meta = zone_metadata.get(zone_id, {})
 
     return {
@@ -2068,7 +2138,8 @@ async def predict_zone_yield(
     current_user: User = Depends(get_current_user),
 ):
     """تنبؤ محصول المنطقة من آخر رصد"""
-    db_obs = await db_get_observations(field_id, zone_id, 1)
+    user_tenant_id = str(current_user.tenant_id) if getattr(current_user, "tenant_id", None) else None
+    db_obs = await db_get_observations(field_id, zone_id, 1, tenant_id=user_tenant_id)
     if db_obs:
         obs_list = db_obs
     else:
@@ -2099,7 +2170,7 @@ async def predict_zone_yield(
         growth_stage_percent=growth_stage_percent,
     )
 
-    zone_metadata = await get_zones_data(field_id)
+    zone_metadata = await get_zones_data(field_id, tenant_id=user_tenant_id)
     zone_meta = zone_metadata.get(zone_id, {})
 
     return {
@@ -2177,7 +2248,8 @@ async def assess_zone_pests(
     current_user: User = Depends(get_current_user),
 ):
     """تقييم مخاطر الآفات في المنطقة"""
-    db_obs = await db_get_observations(field_id, zone_id, 1)
+    user_tenant_id = str(current_user.tenant_id) if getattr(current_user, "tenant_id", None) else None
+    db_obs = await db_get_observations(field_id, zone_id, 1, tenant_id=user_tenant_id)
     if db_obs:
         obs_list = db_obs
     else:
@@ -2200,7 +2272,7 @@ async def assess_zone_pests(
     )
 
     summary = get_pest_summary(risks)
-    zone_metadata = await get_zones_data(field_id)
+    zone_metadata = await get_zones_data(field_id, tenant_id=user_tenant_id)
     zone_meta = zone_metadata.get(zone_id, {})
 
     return {

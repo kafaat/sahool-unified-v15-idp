@@ -21,7 +21,8 @@ export class HealthController {
   @ApiResponse({ status: 200, description: "Service is healthy" })
   async health() {
     // Check MQTT connection by checking device stats
-    const deviceStats = await this.iotService.getDeviceStats();
+    // Health endpoint is public/system-level; use _system tenant for aggregate stats
+    const deviceStats = await this.iotService.getDeviceStats("_system");
     const totalDevices =
       deviceStats.online + deviceStats.offline + deviceStats.error;
 

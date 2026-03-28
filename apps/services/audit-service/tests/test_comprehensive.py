@@ -26,6 +26,7 @@ except ImportError:
 
 try:
     from src.main import (
+        AuditLogCreate,
         AuditLogQuery,
         AuditLogResponse,
         AuditStatsResponse,
@@ -35,6 +36,7 @@ try:
         _audit_logs,
         _get_logs_for_tenant,
         app,
+        enforce_tenant_match,
         get_tenant_id,
         sanitize_log_input,
     )

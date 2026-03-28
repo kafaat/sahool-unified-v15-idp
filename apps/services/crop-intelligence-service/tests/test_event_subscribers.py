@@ -405,6 +405,7 @@ class TestHandleCalibrationSucceeded:
             {
                 "run_id": "run-1",
                 "field_id": "field-1",
+                "tenant_id": "tenant-a",
                 "safe_for_decision": True,
                 "best_params": {"rue_g_mj": 3.5, "k_extinction": 0.6},
                 "objective_value": 0.95,
@@ -415,8 +416,9 @@ class TestHandleCalibrationSucceeded:
 
         msg.ack.assert_called_once()
         assert hasattr(app_state, "calibrated_params")
-        assert "field-1" in app_state.calibrated_params
-        params = app_state.calibrated_params["field-1"]
+        # Key is tenant-scoped: "tenant_id:field_id"
+        assert "tenant-a:field-1" in app_state.calibrated_params
+        params = app_state.calibrated_params["tenant-a:field-1"]
         assert params["run_id"] == "run-1"
         assert params["params"]["rue_g_mj"] == 3.5
         assert params["safe_for_decision"] is True
@@ -475,6 +477,7 @@ class TestHandleCalibrationSucceeded:
             {
                 "run_id": "run-5",
                 "field_id": "field-5",
+                "tenant_id": "tenant-b",
                 "safe_for_decision": True,
                 "best_params": {"a": 1},
             }
@@ -482,7 +485,7 @@ class TestHandleCalibrationSucceeded:
         app_state = _make_app_state(calibrated_params={"field-old": {"run_id": "old"}})
         await _handle_calibration_succeeded(msg, app_state)
         assert "field-old" in app_state.calibrated_params
-        assert "field-5" in app_state.calibrated_params
+        assert "tenant-b:field-5" in app_state.calibrated_params
 
     @pytest.mark.asyncio
     async def test_invalid_json_naks(self):
@@ -611,7 +614,7 @@ class TestTriggerAssimilation:
 
     @pytest.mark.asyncio
     async def test_with_calibrated_params(self):
-        """Should pass calibrated params when available."""
+        """Should pass calibrated params when available (tenant-scoped key)."""
         mock_pipeline = AsyncMock()
 
         with (
@@ -620,7 +623,7 @@ class TestTriggerAssimilation:
         ):
             app_state = _make_app_state(
                 db_pool=MagicMock(),
-                calibrated_params={"f1": {"params": {"rue": 3.0}}},
+                calibrated_params={"t1:f1": {"params": {"rue": 3.0}}},
             )
             await _trigger_assimilation(app_state, "t1", "f1", MagicMock())
 

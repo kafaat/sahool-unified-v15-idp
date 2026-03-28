@@ -93,6 +93,7 @@ class NATSPublisher:
             notification_data = {
                 "event_type": "inventory_alert",
                 "event_id": alert["id"],
+                "tenant_id": alert.get("tenant_id", ""),
                 "source_service": "inventory-service",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "alert": alert,

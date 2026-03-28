@@ -252,7 +252,9 @@ class AlertManager:
         logger.info(f"Out of stock check: Found {len(alerts)} alerts")
         return alerts
 
-    async def check_expiring_items(self, warning_days: int = 30, critical_days: int = 7, tenant_id: str = "") -> list[InventoryAlert]:
+    async def check_expiring_items(
+        self, warning_days: int = 30, critical_days: int = 7, tenant_id: str = ""
+    ) -> list[InventoryAlert]:
         """
         Check items expiring soon.
         - 7-30 days: MEDIUM (warning)
@@ -561,7 +563,9 @@ class AlertManager:
 
         return alerts
 
-    async def acknowledge_alert(self, alert_id: str, acknowledged_by: str, tenant_id: str = "") -> InventoryAlert | None:
+    async def acknowledge_alert(
+        self, alert_id: str, acknowledged_by: str, tenant_id: str = ""
+    ) -> InventoryAlert | None:
         """Acknowledge an alert"""
         alert = self.alerts_db.get(alert_id)
         if not alert:

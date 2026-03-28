@@ -499,8 +499,7 @@ async def create_audit_log(
     logs.append(log_entry)
 
     logger.info(
-        f"Audit log created: action={sanitize_log_input(log_entry['action'])} "
-        f"tenant={sanitize_log_input(tenant_id)}"
+        f"Audit log created: action={sanitize_log_input(log_entry['action'])} tenant={sanitize_log_input(tenant_id)}"
     )
 
     return log_entry
@@ -775,7 +774,9 @@ async def get_audit_stats(
 
     # Validate period parameter to prevent injection
     if not re.match(r"^(7|14|30|60|90|180|365)d$", period):
-        raise HTTPException(status_code=400, detail="Invalid period. Allowed values: 7d, 14d, 30d, 60d, 90d, 180d, 365d")
+        raise HTTPException(
+            status_code=400, detail="Invalid period. Allowed values: 7d, 14d, 30d, 60d, 90d, 180d, 365d"
+        )
 
     logs = _get_logs_for_tenant(tenant_id)
 

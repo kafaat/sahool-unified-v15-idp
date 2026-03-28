@@ -143,8 +143,7 @@ class DeviceRegistry:
     def get_by_field(self, field_id: str, tenant_id: str = "") -> list[Device]:
         """Get all devices for a field, optionally filtered by tenant"""
         return [
-            d for d in self._devices.values()
-            if d.field_id == field_id and (not tenant_id or d.tenant_id == tenant_id)
+            d for d in self._devices.values() if d.field_id == field_id and (not tenant_id or d.tenant_id == tenant_id)
         ]
 
     def get_by_tenant(self, tenant_id: str) -> list[Device]:
@@ -154,7 +153,8 @@ class DeviceRegistry:
     def get_by_type(self, device_type: str, tenant_id: str = "") -> list[Device]:
         """Get all devices of a specific type, optionally filtered by tenant"""
         return [
-            d for d in self._devices.values()
+            d
+            for d in self._devices.values()
             if d.device_type == device_type and (not tenant_id or d.tenant_id == tenant_id)
         ]
 

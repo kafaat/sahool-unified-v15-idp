@@ -217,9 +217,7 @@ class KnowledgeRetriever:
             # Add tenant isolation filter if provided
             # إضافة فلتر عزل المستأجر إذا تم توفيره
             if tenant_id:
-                conditions.append(
-                    FieldCondition(key="tenant_id", match=MatchValue(value=tenant_id))
-                )
+                conditions.append(FieldCondition(key="tenant_id", match=MatchValue(value=tenant_id)))
 
             # Build filter if provided
             # بناء الفلتر إذا تم توفيره

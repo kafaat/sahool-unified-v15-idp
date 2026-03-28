@@ -132,6 +132,16 @@ export const ERROR_CODES = {
   NOTIFICATION_PREFERENCES_NOT_FOUND: 'N1007',
   NOTIFICATION_BROADCAST_FAILED: 'N1008',
 
+  // ── Advisory Service (A1xxx) ───────────────────────────────────────
+  ADVISORY_NOT_FOUND: 'A1001',
+  ADVISORY_CROP_NOT_SUPPORTED: 'A1002',
+  ADVISORY_SOIL_DATA_MISSING: 'A1003',
+  ADVISORY_RECOMMENDATION_FAILED: 'A1004',
+  ADVISORY_FERTILIZER_CALC_ERROR: 'A1005',
+  ADVISORY_KNOWLEDGE_BASE_ERROR: 'A1006',
+  ADVISORY_WEATHER_DATA_UNAVAILABLE: 'A1007',
+  ADVISORY_RATE_LIMITED: 'A1008',
+
   // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────
   VEGETATION_FIELD_NOT_FOUND: 'V1001',
   VEGETATION_NDVI_DATA_UNAVAILABLE: 'V1002',
@@ -668,6 +678,64 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 500,
     en: 'Broadcast notification failed to send',
     ar: 'فشل إرسال الإشعار الجماعي',
+    retryable: true,
+  },
+
+  // ── Advisory Service (A1xxx) ───────────────────────────────────────
+  [ERROR_CODES.ADVISORY_NOT_FOUND]: {
+    code: ERROR_CODES.ADVISORY_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Advisory recommendation not found',
+    ar: 'التوصية الاستشارية غير موجودة',
+    retryable: false,
+  },
+  [ERROR_CODES.ADVISORY_CROP_NOT_SUPPORTED]: {
+    code: ERROR_CODES.ADVISORY_CROP_NOT_SUPPORTED,
+    httpStatus: 400,
+    en: 'Crop type is not supported by the advisory engine',
+    ar: 'نوع المحصول غير مدعوم من محرك الاستشارات',
+    retryable: false,
+  },
+  [ERROR_CODES.ADVISORY_SOIL_DATA_MISSING]: {
+    code: ERROR_CODES.ADVISORY_SOIL_DATA_MISSING,
+    httpStatus: 422,
+    en: 'Soil data is missing or incomplete for advisory generation',
+    ar: 'بيانات التربة مفقودة أو غير مكتملة لإنشاء الاستشارة',
+    retryable: false,
+  },
+  [ERROR_CODES.ADVISORY_RECOMMENDATION_FAILED]: {
+    code: ERROR_CODES.ADVISORY_RECOMMENDATION_FAILED,
+    httpStatus: 500,
+    en: 'Failed to generate advisory recommendation',
+    ar: 'فشل إنشاء التوصية الاستشارية',
+    retryable: true,
+  },
+  [ERROR_CODES.ADVISORY_FERTILIZER_CALC_ERROR]: {
+    code: ERROR_CODES.ADVISORY_FERTILIZER_CALC_ERROR,
+    httpStatus: 500,
+    en: 'Fertilizer calculation error - please verify soil test data',
+    ar: 'خطأ في حساب الأسمدة - يرجى التحقق من بيانات فحص التربة',
+    retryable: true,
+  },
+  [ERROR_CODES.ADVISORY_KNOWLEDGE_BASE_ERROR]: {
+    code: ERROR_CODES.ADVISORY_KNOWLEDGE_BASE_ERROR,
+    httpStatus: 503,
+    en: 'Agricultural knowledge base is currently unavailable',
+    ar: 'قاعدة المعرفة الزراعية غير متاحة حالياً',
+    retryable: true,
+  },
+  [ERROR_CODES.ADVISORY_WEATHER_DATA_UNAVAILABLE]: {
+    code: ERROR_CODES.ADVISORY_WEATHER_DATA_UNAVAILABLE,
+    httpStatus: 503,
+    en: 'Weather data required for advisory is unavailable',
+    ar: 'بيانات الطقس المطلوبة للاستشارة غير متاحة',
+    retryable: true,
+  },
+  [ERROR_CODES.ADVISORY_RATE_LIMITED]: {
+    code: ERROR_CODES.ADVISORY_RATE_LIMITED,
+    httpStatus: 429,
+    en: 'Advisory service rate limit exceeded. Please wait.',
+    ar: 'تم تجاوز حد معدل خدمة الاستشارات. يرجى الانتظار.',
     retryable: true,
   },
 

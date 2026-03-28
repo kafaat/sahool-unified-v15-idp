@@ -76,6 +76,14 @@ abstract final class ErrorCodes {
   static const String notificationRateLimited = 'N1006';
   static const String notificationPreferencesNotFound = 'N1007';
   static const String notificationBroadcastFailed = 'N1008';
+  static const String advisoryNotFound = 'A1001';
+  static const String advisoryCropNotSupported = 'A1002';
+  static const String advisorySoilDataMissing = 'A1003';
+  static const String advisoryRecommendationFailed = 'A1004';
+  static const String advisoryFertilizerCalcError = 'A1005';
+  static const String advisoryKnowledgeBaseError = 'A1006';
+  static const String advisoryWeatherDataUnavailable = 'A1007';
+  static const String advisoryRateLimited = 'A1008';
   static const String vegetationFieldNotFound = 'V1001';
   static const String vegetationNdviDataUnavailable = 'V1002';
   static const String vegetationSatelliteError = 'V1003';
@@ -610,6 +618,62 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 500,
     en: 'Broadcast notification failed to send',
     ar: 'فشل إرسال الإشعار الجماعي',
+    retryable: true,
+  ),
+  'A1001': ErrorMessage(
+    code: 'A1001',
+    httpStatus: 404,
+    en: 'Advisory recommendation not found',
+    ar: 'التوصية الاستشارية غير موجودة',
+    retryable: false,
+  ),
+  'A1002': ErrorMessage(
+    code: 'A1002',
+    httpStatus: 400,
+    en: 'Crop type is not supported by the advisory engine',
+    ar: 'نوع المحصول غير مدعوم من محرك الاستشارات',
+    retryable: false,
+  ),
+  'A1003': ErrorMessage(
+    code: 'A1003',
+    httpStatus: 422,
+    en: 'Soil data is missing or incomplete for advisory generation',
+    ar: 'بيانات التربة مفقودة أو غير مكتملة لإنشاء الاستشارة',
+    retryable: false,
+  ),
+  'A1004': ErrorMessage(
+    code: 'A1004',
+    httpStatus: 500,
+    en: 'Failed to generate advisory recommendation',
+    ar: 'فشل إنشاء التوصية الاستشارية',
+    retryable: true,
+  ),
+  'A1005': ErrorMessage(
+    code: 'A1005',
+    httpStatus: 500,
+    en: 'Fertilizer calculation error - please verify soil test data',
+    ar: 'خطأ في حساب الأسمدة - يرجى التحقق من بيانات فحص التربة',
+    retryable: true,
+  ),
+  'A1006': ErrorMessage(
+    code: 'A1006',
+    httpStatus: 503,
+    en: 'Agricultural knowledge base is currently unavailable',
+    ar: 'قاعدة المعرفة الزراعية غير متاحة حالياً',
+    retryable: true,
+  ),
+  'A1007': ErrorMessage(
+    code: 'A1007',
+    httpStatus: 503,
+    en: 'Weather data required for advisory is unavailable',
+    ar: 'بيانات الطقس المطلوبة للاستشارة غير متاحة',
+    retryable: true,
+  ),
+  'A1008': ErrorMessage(
+    code: 'A1008',
+    httpStatus: 429,
+    en: 'Advisory service rate limit exceeded. Please wait.',
+    ar: 'تم تجاوز حد معدل خدمة الاستشارات. يرجى الانتظار.',
     retryable: true,
   ),
   'V1001': ErrorMessage(

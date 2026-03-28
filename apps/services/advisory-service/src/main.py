@@ -7,12 +7,13 @@ Port: 8093
 # Service version - single source of truth
 VERSION = "16.0.0"
 
+import json
 import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 
 # Shared middleware imports - add apps/services/ to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -31,6 +32,51 @@ if str(SHARED_PATH) not in sys.path:
 # Import unified error handling
 # Import shared crop catalogs
 import structlog
+
+# Prometheus metrics
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
+
+# Prometheus metric definitions
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "advisory_requests_total",
+        "Total advisory API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "advisory_request_duration_seconds",
+        "Advisory API request latency",
+        ["endpoint"],
+    )
+    ADVISORY_EVENTS = Counter(
+        "advisory_events_published_total",
+        "Total advisory events published to NATS",
+        ["event_type"],
+    )
+
+
+# Prometheus middleware to record metrics per request
+if HAS_PROMETHEUS:
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            import time as _time
+
+            endpoint = request.url.path
+            start = _time.time()
+            response = await call_next(request)
+            duration = _time.time() - start
+            REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+            REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+            return response
+
+
 from crops import (
     ALL_CROPS,
     CATEGORIES_COUNT,
@@ -67,6 +113,7 @@ from .engine import (
     get_stage_timeline,
 )
 from .events import get_publisher
+from .rate_limiter import rate_limit
 from .kb import (
     get_deficiency,
     get_disease,
@@ -100,6 +147,60 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("nats_connection_failed", error=str(e))
 
+    # Subscribe to incoming events that should trigger advisory updates
+    app.state.subscriptions = []
+    if getattr(app.state, "publisher", None) and app.state.publisher.nc:
+        nc = app.state.publisher.nc
+
+        async def handle_weather_update(msg):
+            """Handle weather forecast events to update weather-dependent recommendations."""
+            try:
+                data = json.loads(msg.data.decode())
+                logger.info("weather_update_for_advisory", field_id=data.get("field_id"))
+                # TODO: Update weather-dependent recommendations
+            except Exception as exc:
+                logger.error("weather_update_handler_failed", error=str(exc))
+
+        async def handle_ndvi_update(msg):
+            """Handle NDVI computation events to update crop health recommendations."""
+            try:
+                data = json.loads(msg.data.decode())
+                logger.info("ndvi_update_for_advisory", field_id=data.get("field_id"))
+                # TODO: Update crop health recommendations based on NDVI changes
+            except Exception as exc:
+                logger.error("ndvi_update_handler_failed", error=str(exc))
+
+        async def handle_disease_detected(msg):
+            """Handle disease detection events to generate treatment recommendations."""
+            try:
+                data = json.loads(msg.data.decode())
+                logger.info("disease_detected_for_advisory", field_id=data.get("field_id"))
+                # TODO: Generate pest/disease treatment recommendation
+            except Exception as exc:
+                logger.error("disease_detected_handler_failed", error=str(exc))
+
+        try:
+            sub_weather = await nc.subscribe(
+                "sahool.weather.forecast.issued", cb=handle_weather_update
+            )
+            sub_ndvi = await nc.subscribe(
+                "sahool.satellite.ndvi.computed", cb=handle_ndvi_update
+            )
+            sub_disease = await nc.subscribe(
+                "sahool.health.disease.detected", cb=handle_disease_detected
+            )
+            app.state.subscriptions = [sub_weather, sub_ndvi, sub_disease]
+            logger.info(
+                "nats_subscriptions_active",
+                subjects=[
+                    "sahool.weather.forecast.issued",
+                    "sahool.satellite.ndvi.computed",
+                    "sahool.health.disease.detected",
+                ],
+            )
+        except Exception as sub_err:
+            logger.warning("nats_subscription_failed", error=str(sub_err))
+
     # Initialize token revocation store
     if REVOCATION_AVAILABLE:
         try:
@@ -112,7 +213,12 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # Shutdown
+    # Shutdown - unsubscribe from NATS events
+    for sub in getattr(app.state, "subscriptions", []):
+        try:
+            await sub.unsubscribe()
+        except Exception:
+            pass
     if getattr(app.state, "publisher", None):
         await app.state.publisher.close()
     if getattr(app.state, "revocation_store", None):
@@ -130,6 +236,10 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Prometheus request metrics middleware
+if HAS_PROMETHEUS:
+    app.add_middleware(PrometheusMiddleware)
 
 # CORS - Secure configuration
 try:
@@ -198,17 +308,30 @@ def health():
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    # Check if service is ready
+    # Check if advisory engine is loaded
     engine_loaded = bool(CROP_REQUIREMENTS)
     checks = {
-        "service": "ready",
         "engine": "loaded" if engine_loaded else "not_loaded",
     }
 
-    # Service is ready if engine is loaded
-    is_ready = engine_loaded
+    # Check NATS connection
+    publisher = getattr(app.state, "publisher", None)
+    if publisher is not None:
+        checks["nats"] = "connected" if getattr(publisher, "_connected", False) else "disconnected"
+    else:
+        checks["nats"] = "not_configured"
 
-    if not is_ready:
+    # Check Redis/revocation store
+    revocation_store = getattr(app.state, "revocation_store", None)
+    if revocation_store is not None:
+        checks["redis"] = "connected"
+    else:
+        checks["redis"] = "not_configured"
+
+    # Service is ready if engine is loaded (NATS/Redis are non-blocking)
+    all_ready = engine_loaded
+
+    if not all_ready:
         from fastapi.responses import JSONResponse
 
         return JSONResponse(
@@ -221,11 +344,23 @@ def readiness():
         )
 
     return {
-        "status": "ready",
+        "status": "ready" if all_ready else "degraded",
         "service": "advisory_service",
         "version": VERSION,
         "checks": checks,
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    if not HAS_PROMETHEUS:
+        from starlette.responses import Response
+
+        return Response(content="prometheus_client not installed", status_code=501)
+    from starlette.responses import Response
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 # ============== Request/Response Models ==============
@@ -304,7 +439,8 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 
 
 @app.post("/api/v1/disease/assess")
-async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_current_user)):
+@rate_limit(tier="disease_assess")
+async def assess_disease(request: Request, req: DiseaseAssessRequest, user: User = Depends(get_current_user)):
     """Assess disease from image classification result"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -347,7 +483,8 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
 
 
 @app.post("/api/v1/disease/symptoms")
-async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_current_user)):
+@rate_limit(tier="symptom_assess")
+async def assess_symptoms(request: Request, req: SymptomAssessRequest, user: User = Depends(get_current_user)):
     """Assess possible diseases from reported symptoms"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -390,22 +527,28 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
 
 # NOTE: Static routes MUST come before dynamic routes to avoid path matching issues
 @app.get("/api/v1/disease/search")
-def search_disease(q: str, lang: str = "ar"):
+@rate_limit(tier="lookup")
+def search_disease(request: Request, q: str, lang: str = "ar", user: User = Depends(get_current_user)):
     """Search diseases by name or symptoms"""
+    logger.info("disease_search", tenant_id=user.tenant_id, query=q, lang=lang)
     results = search_diseases(q, lang)
     return {"query": q, "results": results, "count": len(results)}
 
 
 @app.get("/api/v1/disease/crop/{crop}")
-def get_crop_diseases(crop: str):
+@rate_limit(tier="lookup")
+def get_crop_diseases(request: Request, crop: str, user: User = Depends(get_current_user)):
     """Get all diseases for a specific crop"""
+    logger.info("crop_diseases_lookup", tenant_id=user.tenant_id, crop=crop)
     diseases = get_diseases_by_crop(crop)
     return {"crop": crop, "diseases": diseases, "count": len(diseases)}
 
 
 @app.get("/api/v1/disease/{disease_id}")
-def get_disease_info(disease_id: str, lang: str = "ar"):
+@rate_limit(tier="lookup")
+def get_disease_info(request: Request, disease_id: str, lang: str = "ar", user: User = Depends(get_current_user)):
     """Get disease information by ID"""
+    logger.info("disease_info_lookup", tenant_id=user.tenant_id, disease_id=disease_id)
     disease = get_disease(disease_id)
     if not disease:
         raise HTTPException(status_code=404, detail=f"Disease not found: {disease_id}")
@@ -423,7 +566,8 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
 
 
 @app.post("/api/v1/nutrient/ndvi")
-async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends(get_current_user)):
+@rate_limit(tier="ndvi_assess")
+async def assess_from_ndvi_endpoint(request: Request, req: NDVIAssessRequest, user: User = Depends(get_current_user)):
     """Assess nutrient deficiency from NDVI data"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -460,7 +604,8 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends
 
 
 @app.post("/api/v1/nutrient/visual")
-async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(get_current_user)):
+@rate_limit(tier="symptom_assess")
+async def assess_visual_endpoint(request: Request, req: VisualAssessRequest, user: User = Depends(get_current_user)):
     """Assess nutrient deficiency from visual indicators"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -498,8 +643,10 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
 
 
 @app.get("/api/v1/nutrient/{deficiency_id}")
-def get_deficiency_info(deficiency_id: str):
+@rate_limit(tier="lookup")
+def get_deficiency_info(request: Request, deficiency_id: str, user: User = Depends(get_current_user)):
     """Get nutrient deficiency information by ID"""
+    logger.info("deficiency_info_lookup", tenant_id=user.tenant_id, deficiency_id=deficiency_id)
     deficiency = get_deficiency(deficiency_id)
     if not deficiency:
         raise HTTPException(status_code=404, detail=f"Deficiency not found: {deficiency_id}")
@@ -511,7 +658,8 @@ def get_deficiency_info(deficiency_id: str):
 
 
 @app.post("/api/v1/fertilizer/plan")
-async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depends(get_current_user)):
+@rate_limit(tier="fertilizer_plan")
+async def create_fertilizer_plan(request: Request, req: FertilizerPlanRequest, user: User = Depends(get_current_user)):
     """Generate fertilizer plan for crop and stage"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -545,8 +693,10 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
 
 
 @app.get("/api/v1/fertilizer/{fertilizer_id}")
-def get_fertilizer_info(fertilizer_id: str):
+@rate_limit(tier="lookup")
+def get_fertilizer_info(request: Request, fertilizer_id: str, user: User = Depends(get_current_user)):
     """Get fertilizer information by ID"""
+    logger.info("fertilizer_info_lookup", tenant_id=user.tenant_id, fertilizer_id=fertilizer_id)
     fert = get_fertilizer(fertilizer_id)
     if not fert:
         raise HTTPException(status_code=404, detail=f"Fertilizer not found: {fertilizer_id}")
@@ -555,8 +705,10 @@ def get_fertilizer_info(fertilizer_id: str):
 
 
 @app.get("/api/v1/fertilizer/nutrient/{nutrient}")
-def get_fertilizers_by_nutrient(nutrient: str):
+@rate_limit(tier="lookup")
+def get_fertilizers_by_nutrient(request: Request, nutrient: str, user: User = Depends(get_current_user)):
     """Get fertilizers that provide a specific nutrient"""
+    logger.info("fertilizers_by_nutrient_lookup", tenant_id=user.tenant_id, nutrient=nutrient)
     fertilizers = get_fertilizers_for_nutrient(nutrient.upper())
     return {"nutrient": nutrient, "fertilizers": fertilizers, "count": len(fertilizers)}
 
@@ -565,7 +717,8 @@ def get_fertilizers_by_nutrient(nutrient: str):
 
 
 @app.get("/api/v1/crops/categories")
-def list_categories():
+@rate_limit(tier="lookup")
+def list_categories(request: Request, user: User = Depends(get_current_user)):
     """List crop categories with counts"""
     categories = []
     for category in CropCategory:
@@ -587,8 +740,10 @@ def list_categories():
 
 
 @app.get("/api/v1/crops/search")
-def search_crops_endpoint(q: str):
+@rate_limit(tier="lookup")
+def search_crops_endpoint(request: Request, q: str, user: User = Depends(get_current_user)):
     """Search crops by Arabic or English name"""
+    logger.info("crops_search", tenant_id=user.tenant_id, query=q)
     if not q or len(q) < 2:
         raise HTTPException(status_code=422, detail="Query must be at least 2 characters")
 
@@ -617,9 +772,12 @@ def search_crops_endpoint(q: str):
 
 
 @app.get("/api/v1/crops")
+@rate_limit(tier="lookup")
 def list_all_crops(
+    request: Request,
     limit: int = Query(default=100, ge=1, le=500, description="Maximum number of crops per category"),
     offset: int = Query(default=0, ge=0, description="Number of crops to skip per category"),
+    user: User = Depends(get_current_user),
 ):
     """List all crops grouped by category with pagination"""
     crops_by_category = {}
@@ -655,7 +813,8 @@ def list_all_crops(
 
 
 @app.get("/api/v1/crops/{crop_code}")
-def get_crop_details(crop_code: str):
+@rate_limit(tier="lookup")
+def get_crop_details(request: Request, crop_code: str, user: User = Depends(get_current_user)):
     """Get single crop details with Yemen varieties"""
     crop = get_crop(crop_code)
     if not crop:
@@ -699,7 +858,8 @@ def get_crop_details(crop_code: str):
 
 
 @app.get("/api/v1/crops/{crop_code}/varieties")
-def get_crop_varieties(crop_code: str):
+@rate_limit(tier="lookup")
+def get_crop_varieties(request: Request, crop_code: str, user: User = Depends(get_current_user)):
     """Get Yemen-specific varieties for a crop"""
     # First check if crop exists
     crop = get_crop(crop_code)
@@ -744,7 +904,8 @@ def get_crop_varieties(crop_code: str):
 
 
 @app.get("/api/v1/crops/{crop}/stages")
-def get_crop_stages(crop: str):
+@rate_limit(tier="lookup")
+def get_crop_stages(request: Request, crop: str, user: User = Depends(get_current_user)):
     """Get growth stages for a crop"""
     timeline = get_stage_timeline(crop)
     if not timeline:
@@ -754,7 +915,8 @@ def get_crop_stages(crop: str):
 
 
 @app.get("/api/v1/crops/{crop}/requirements")
-def get_crop_requirements_legacy(crop: str):
+@rate_limit(tier="lookup")
+def get_crop_requirements_legacy(request: Request, crop: str, user: User = Depends(get_current_user)):
     """Get nutrient requirements for a crop (legacy endpoint)"""
     if crop not in CROP_REQUIREMENTS:
         raise HTTPException(status_code=404, detail=f"Crop not found: {crop}")
@@ -766,8 +928,10 @@ def get_crop_requirements_legacy(crop: str):
 
 
 @app.get("/api/v1/actions/{action_id}")
-def get_action(action_id: str, lang: str = "ar"):
+@rate_limit(tier="lookup")
+def get_action(request: Request, action_id: str, lang: str = "ar", user: User = Depends(get_current_user)):
     """Get detailed action instructions"""
+    logger.info("action_lookup", tenant_id=user.tenant_id, action_id=action_id)
     details = get_action_details(action_id, lang)
     return {"id": action_id, **details}
 

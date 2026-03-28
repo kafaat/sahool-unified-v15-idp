@@ -295,9 +295,11 @@ SAHOOL_RECOMMENDATION_ALL = "sahool.recommendation.*"
 # Advisory Subjects - موضوعات الاستشارات الزراعية
 # ─────────────────────────────────────────────────────────────────────────────
 
-SAHOOL_ADVISORY_RECOMMENDATION_ISSUED = "sahool.advisory.recommendation_issued"
+SAHOOL_ADVISORY_RECOMMENDATION_ISSUED = "sahool.advisory.recommendation.issued"
 SAHOOL_ADVISORY_FERTILIZER_PLAN_ISSUED = "sahool.advisory.fertilizer_plan_issued"
 SAHOOL_ADVISORY_NUTRIENT_ASSESSMENT_ISSUED = "sahool.advisory.nutrient_assessment_issued"
+SAHOOL_ADVISORY_FERTILIZER_RECOMMENDED = "sahool.advisory.fertilizer.recommended"
+SAHOOL_ADVISORY_PEST_TREATMENT_RECOMMENDED = "sahool.advisory.pest.treatment.recommended"
 
 SAHOOL_ADVISORY_ALL = "sahool.advisory.*"
 

@@ -3948,9 +3948,8 @@ async def detect_changes(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     crop_type: str | None = Query(None, description="Crop type (e.g., wheat, sorghum, coffee, qat)"),
-,
     user: User = Depends(get_current_user),
-)
+):
     """
     كشف التغييرات الزراعية | Detect Agricultural Changes
 
@@ -4023,9 +4022,8 @@ async def compare_dates(
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     date1: str = Query(..., description="First date (YYYY-MM-DD)"),
     date2: str = Query(..., description="Second date (YYYY-MM-DD)"),
-,
     user: User = Depends(get_current_user),
-)
+):
     """
     مقارنة تاريخين | Compare Two Dates
 
@@ -4090,9 +4088,8 @@ async def get_anomalies(
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     days: int = Query(90, description="Number of days to analyze (default: 90)", ge=1, le=365),
     crop_type: str | None = Query(None, description="Crop type for expected pattern"),
-,
     user: User = Depends(get_current_user),
-)
+):
     """
     كشف الشذوذ | Detect Anomalies
 

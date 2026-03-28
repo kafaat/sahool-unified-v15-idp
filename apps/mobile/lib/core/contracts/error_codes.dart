@@ -50,6 +50,16 @@ abstract final class ErrorCodes {
   static const String marketplacePinRequired = 'M1010';
   static const String marketplaceCreditScoreError = 'M1011';
   static const String marketplaceRateLimited = 'M1012';
+  static const String fieldNotFound = 'F1001';
+  static const String fieldBoundaryInvalid = 'F1002';
+  static const String fieldAreaTooLarge = 'F1003';
+  static const String fieldCoordinateInvalid = 'F1004';
+  static const String fieldDuplicateName = 'F1005';
+  static const String fieldTenantMismatch = 'F1006';
+  static const String fieldCropNotSupported = 'F1007';
+  static const String fieldSyncConflict = 'F1008';
+  static const String fieldGeojsonInvalid = 'F1009';
+  static const String fieldPostgisError = 'F1010';
   static const String unknown = 'UNKNOWN';
 
   // Vision Service (E-codes)
@@ -394,6 +404,76 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 429,
     en: 'Marketplace API rate limit exceeded. Please wait.',
     ar: 'تم تجاوز حد معدل واجهة برمجة السوق. يرجى الانتظار.',
+    retryable: true,
+  ),
+  'F1001': ErrorMessage(
+    code: 'F1001',
+    httpStatus: 404,
+    en: 'Field not found',
+    ar: 'الحقل غير موجود',
+    retryable: false,
+  ),
+  'F1002': ErrorMessage(
+    code: 'F1002',
+    httpStatus: 400,
+    en: 'Field boundary geometry is invalid',
+    ar: 'هندسة حدود الحقل غير صالحة',
+    retryable: false,
+  ),
+  'F1003': ErrorMessage(
+    code: 'F1003',
+    httpStatus: 400,
+    en: 'Field area exceeds maximum allowed size',
+    ar: 'مساحة الحقل تتجاوز الحد الأقصى المسموح به',
+    retryable: false,
+  ),
+  'F1004': ErrorMessage(
+    code: 'F1004',
+    httpStatus: 400,
+    en: 'Invalid field coordinates',
+    ar: 'إحداثيات الحقل غير صالحة',
+    retryable: false,
+  ),
+  'F1005': ErrorMessage(
+    code: 'F1005',
+    httpStatus: 409,
+    en: 'A field with this name already exists',
+    ar: 'يوجد حقل بهذا الاسم بالفعل',
+    retryable: false,
+  ),
+  'F1006': ErrorMessage(
+    code: 'F1006',
+    httpStatus: 403,
+    en: 'Field does not belong to the current tenant',
+    ar: 'الحقل لا ينتمي إلى المستأجر الحالي',
+    retryable: false,
+  ),
+  'F1007': ErrorMessage(
+    code: 'F1007',
+    httpStatus: 400,
+    en: 'Crop type is not supported for this field region',
+    ar: 'نوع المحصول غير مدعوم لمنطقة هذا الحقل',
+    retryable: false,
+  ),
+  'F1008': ErrorMessage(
+    code: 'F1008',
+    httpStatus: 409,
+    en: 'Field data sync conflict detected. Please resolve manually.',
+    ar: 'تم اكتشاف تعارض في مزامنة بيانات الحقل. يرجى الحل يدوياً.',
+    retryable: false,
+  ),
+  'F1009': ErrorMessage(
+    code: 'F1009',
+    httpStatus: 400,
+    en: 'Invalid GeoJSON format for field boundary',
+    ar: 'تنسيق GeoJSON غير صالح لحدود الحقل',
+    retryable: false,
+  ),
+  'F1010': ErrorMessage(
+    code: 'F1010',
+    httpStatus: 500,
+    en: 'PostGIS spatial operation failed',
+    ar: 'فشلت العملية المكانية في PostGIS',
     retryable: true,
   ),
   'UNKNOWN': ErrorMessage(

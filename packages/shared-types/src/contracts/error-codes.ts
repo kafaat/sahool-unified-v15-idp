@@ -100,6 +100,18 @@ export const ERROR_CODES = {
   MARKETPLACE_CREDIT_SCORE_ERROR: 'M1011',
   MARKETPLACE_RATE_LIMITED: 'M1012',
 
+  // ── Field Management Service (F1xxx) ───────────────────────────────
+  FIELD_NOT_FOUND: 'F1001',
+  FIELD_BOUNDARY_INVALID: 'F1002',
+  FIELD_AREA_TOO_LARGE: 'F1003',
+  FIELD_COORDINATE_INVALID: 'F1004',
+  FIELD_DUPLICATE_NAME: 'F1005',
+  FIELD_TENANT_MISMATCH: 'F1006',
+  FIELD_CROP_NOT_SUPPORTED: 'F1007',
+  FIELD_SYNC_CONFLICT: 'F1008',
+  FIELD_GEOJSON_INVALID: 'F1009',
+  FIELD_POSTGIS_ERROR: 'F1010',
+
   // ── Generic ──────────────────────────────────────────────────────────
   UNKNOWN: 'UNKNOWN',
 } as const;
@@ -438,6 +450,78 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 429,
     en: 'Marketplace API rate limit exceeded. Please wait.',
     ar: 'تم تجاوز حد معدل واجهة برمجة السوق. يرجى الانتظار.',
+    retryable: true,
+  },
+
+  // ── Field Management Service (F1xxx) ───────────────────────────────
+  [ERROR_CODES.FIELD_NOT_FOUND]: {
+    code: ERROR_CODES.FIELD_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Field not found',
+    ar: 'الحقل غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_BOUNDARY_INVALID]: {
+    code: ERROR_CODES.FIELD_BOUNDARY_INVALID,
+    httpStatus: 400,
+    en: 'Field boundary geometry is invalid',
+    ar: 'هندسة حدود الحقل غير صالحة',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_AREA_TOO_LARGE]: {
+    code: ERROR_CODES.FIELD_AREA_TOO_LARGE,
+    httpStatus: 400,
+    en: 'Field area exceeds maximum allowed size',
+    ar: 'مساحة الحقل تتجاوز الحد الأقصى المسموح به',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_COORDINATE_INVALID]: {
+    code: ERROR_CODES.FIELD_COORDINATE_INVALID,
+    httpStatus: 400,
+    en: 'Invalid field coordinates',
+    ar: 'إحداثيات الحقل غير صالحة',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_DUPLICATE_NAME]: {
+    code: ERROR_CODES.FIELD_DUPLICATE_NAME,
+    httpStatus: 409,
+    en: 'A field with this name already exists',
+    ar: 'يوجد حقل بهذا الاسم بالفعل',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_TENANT_MISMATCH]: {
+    code: ERROR_CODES.FIELD_TENANT_MISMATCH,
+    httpStatus: 403,
+    en: 'Field does not belong to the current tenant',
+    ar: 'الحقل لا ينتمي إلى المستأجر الحالي',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_CROP_NOT_SUPPORTED]: {
+    code: ERROR_CODES.FIELD_CROP_NOT_SUPPORTED,
+    httpStatus: 400,
+    en: 'Crop type is not supported for this field region',
+    ar: 'نوع المحصول غير مدعوم لمنطقة هذا الحقل',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_SYNC_CONFLICT]: {
+    code: ERROR_CODES.FIELD_SYNC_CONFLICT,
+    httpStatus: 409,
+    en: 'Field data sync conflict detected. Please resolve manually.',
+    ar: 'تم اكتشاف تعارض في مزامنة بيانات الحقل. يرجى الحل يدوياً.',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_GEOJSON_INVALID]: {
+    code: ERROR_CODES.FIELD_GEOJSON_INVALID,
+    httpStatus: 400,
+    en: 'Invalid GeoJSON format for field boundary',
+    ar: 'تنسيق GeoJSON غير صالح لحدود الحقل',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_POSTGIS_ERROR]: {
+    code: ERROR_CODES.FIELD_POSTGIS_ERROR,
+    httpStatus: 500,
+    en: 'PostGIS spatial operation failed',
+    ar: 'فشلت العملية المكانية في PostGIS',
     retryable: true,
   },
 

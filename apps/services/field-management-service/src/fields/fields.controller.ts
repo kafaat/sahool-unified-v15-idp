@@ -44,7 +44,7 @@ import {
   FieldResponseDto,
   PaginatedFieldsResponseDto,
 } from "./dto/field.dto";
-import { getRequestTenantId } from "../auth/tenant.utils";
+import { getRequestTenantId, assertTenantOwnership } from "../auth/tenant.utils";
 
 @ApiTags("Fields - الحقول")
 @Controller("api/v1/fields")
@@ -313,9 +313,13 @@ export class FieldsController {
   })
   @ApiParam({ name: "tenantId", type: String })
   @ApiResponse({ status: 200, description: "Statistics retrieved" })
-  async getStats(@Req() req: any) {
-    // Always use the authenticated tenant ID, ignore path param
+  async getStats(
+    @Req() req: any,
+    @Param("tenantId") pathTenantId: string,
+  ) {
     const tenantId = getRequestTenantId(req);
+    // Reject if the path param doesn't match the authenticated tenant
+    assertTenantOwnership(pathTenantId, tenantId, "stats");
     const stats = await this.fieldsService.getStats(tenantId);
     return {
       success: true,

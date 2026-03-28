@@ -204,10 +204,15 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
-# Tenant context middleware – exempt operational endpoints from tenant requirement
+# Tenant context middleware – exempt operational and self-authenticated endpoints
+# from the tenant requirement.  The /broadcast endpoint performs its own JWT
+# validation and tenant checks internally.
 app.add_middleware(
     TenantContextMiddleware,
-    exempt_paths=["/health", "/healthz", "/readyz", "/metrics", "/stats", "/docs", "/openapi.json"],
+    exempt_paths=[
+        "/health", "/healthz", "/readyz", "/metrics", "/stats",
+        "/broadcast", "/ws", "/docs", "/openapi.json",
+    ],
 )
 
 

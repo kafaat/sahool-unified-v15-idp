@@ -29,7 +29,7 @@ import pytest
 def mock_env_vars():
     """Mock environment variables"""
     env_vars = {
-        "JWT_SECRET_KEY": "test-secret-key-for-testing-only",
+        "JWT_SECRET_KEY": "test-secret-key-for-unit-tests-only-32chars",
         "JWT_ALGORITHM": "HS256",
         "NATS_URL": "nats://localhost:4222",
         "PORT": "8081",
@@ -42,30 +42,38 @@ def mock_env_vars():
 @pytest.fixture
 def sample_jwt_secret() -> str:
     """Sample JWT secret for testing"""
-    return "test-secret-key-for-testing-only"
+    return "test-secret-key-for-unit-tests-only-32chars"
 
 
 @pytest.fixture
 def sample_user_payload() -> dict[str, Any]:
     """Sample user payload for JWT"""
+    now = datetime.utcnow()
     return {
         "sub": "user-123",
         "user_id": "user-123",
         "tenant_id": "tenant-456",
         "roles": ["farmer"],
-        "exp": datetime.utcnow() + timedelta(hours=1),
+        "iss": "sahool-platform",
+        "aud": "sahool-api",
+        "iat": now,
+        "exp": now + timedelta(hours=1),
     }
 
 
 @pytest.fixture
 def sample_admin_payload() -> dict[str, Any]:
     """Sample admin payload for JWT"""
+    now = datetime.utcnow()
     return {
         "sub": "admin-789",
         "user_id": "admin-789",
         "tenant_id": "tenant-admin",
         "roles": ["super_admin"],
-        "exp": datetime.utcnow() + timedelta(hours=1),
+        "iss": "sahool-platform",
+        "aud": "sahool-api",
+        "iat": now,
+        "exp": now + timedelta(hours=1),
     }
 
 

@@ -57,6 +57,7 @@ const ADVISORY_URL = __ENV.ADVISORY_URL || "http://localhost:8093";
 const WEATHER_URL = __ENV.WEATHER_URL || "http://localhost:8092";
 const IRRIGATION_URL = __ENV.IRRIGATION_URL || "http://localhost:8094";
 const VISION_URL = __ENV.VISION_URL || "http://localhost:8150";
+const VEGETATION_URL = __ENV.VEGETATION_URL || "http://localhost:8090";
 const TRACEABILITY_URL = __ENV.TRACEABILITY_URL || "http://localhost:8123";
 const AUTH_TOKEN = __ENV.AUTH_TOKEN || "load-test-bearer-token";
 const TENANT_ID = __ENV.TENANT_ID || "tenant_loadtest_workflows";
@@ -262,7 +263,7 @@ export function advisoryWorkflow() {
     group("3. Request NDVI", () => {
       const today = new Date().toISOString().split("T")[0];
       const res = http.get(
-        `http://localhost:8090/api/v1/ndvi?field_id=${fieldId}&date=${today}`,
+        `${VEGETATION_URL}/api/v1/ndvi?field_id=${fieldId}&date=${today}`,
         { headers: hdrs },
       );
       checkAndRecord(res, [200, 202, 404, 503], advisorySuccessRate, "ndvi-analysis");
@@ -520,6 +521,7 @@ export function setup() {
   console.log(`Field URL : ${FIELD_URL}`);
   console.log(`Advisory  : ${ADVISORY_URL}`);
   console.log(`Weather   : ${WEATHER_URL}`);
+  console.log(`Vegetation: ${VEGETATION_URL}`);
   console.log(`Vision    : ${VISION_URL}`);
   console.log(`Irrigation: ${IRRIGATION_URL}`);
   console.log("=".repeat(65));

@@ -296,10 +296,14 @@ class TestCircuitBreaker:
         After ``failure_threshold`` consecutive failures the circuit opens.
         بعد عدد المخفقات المحدد يجب أن ينفتح قاطع الدائرة.
         """
+
+        def raise_service_error():
+            raise ValueError("service error")
+
         cb = CircuitBreaker(failure_threshold=3)
         for _ in range(3):
             with pytest.raises(ValueError):
-                cb.call(lambda: (_ for _ in ()).throw(ValueError("service error")))
+                cb.call(raise_service_error)
         assert cb.state == CircuitState.OPEN
 
     def test_open_circuit_rejects_calls_immediately(self):
@@ -308,9 +312,13 @@ class TestCircuitBreaker:
         the wrapped function (fail-fast behaviour).
         الدائرة المفتوحة يجب أن ترفض الاستدعاءات فوراً.
         """
+
+        def raise_value_error():
+            raise ValueError("fail")
+
         cb = CircuitBreaker(failure_threshold=1)
         with pytest.raises(ValueError):
-            cb.call(lambda: (_ for _ in ()).throw(ValueError("fail")))
+            cb.call(raise_value_error)
         assert cb.state == CircuitState.OPEN
 
         call_count = [0]
@@ -329,9 +337,13 @@ class TestCircuitBreaker:
         After the reset timeout, the state must move to HALF_OPEN.
         بعد انتهاء المهلة يجب الانتقال إلى الحالة نصف-المفتوحة.
         """
+
+        def raise_value_error():
+            raise ValueError("fail")
+
         cb = CircuitBreaker(failure_threshold=1, reset_timeout_seconds=0.05)
         with pytest.raises(ValueError):
-            cb.call(lambda: (_ for _ in ()).throw(ValueError("fail")))
+            cb.call(raise_value_error)
         assert cb.state == CircuitState.OPEN
 
         time.sleep(0.06)  # Wait past reset timeout
@@ -342,9 +354,13 @@ class TestCircuitBreaker:
         A successful call in HALF_OPEN state resets the circuit to CLOSED.
         نجاح استدعاء في الحالة نصف-المفتوحة يُعيد الدائرة إلى الحالة المغلقة.
         """
+
+        def raise_value_error():
+            raise ValueError("fail")
+
         cb = CircuitBreaker(failure_threshold=1, reset_timeout_seconds=0.05)
         with pytest.raises(ValueError):
-            cb.call(lambda: (_ for _ in ()).throw(ValueError("fail")))
+            cb.call(raise_value_error)
         time.sleep(0.06)
         assert cb.state == CircuitState.HALF_OPEN
 
@@ -357,13 +373,17 @@ class TestCircuitBreaker:
         A failure in HALF_OPEN re-opens the circuit.
         فشل في الحالة نصف-المفتوحة يُعيد فتح قاطع الدائرة.
         """
+
+        def raise_value_error(msg: str = "fail"):
+            raise ValueError(msg)
+
         cb = CircuitBreaker(failure_threshold=1, reset_timeout_seconds=0.05)
         with pytest.raises(ValueError):
-            cb.call(lambda: (_ for _ in ()).throw(ValueError("fail")))
+            cb.call(raise_value_error)
         time.sleep(0.06)
 
         with pytest.raises(ValueError):
-            cb.call(lambda: (_ for _ in ()).throw(ValueError("still failing")))
+            cb.call(lambda: raise_value_error("still failing"))
         assert cb.state == CircuitState.OPEN
 
     def test_reset_clears_all_state(self):
@@ -371,9 +391,13 @@ class TestCircuitBreaker:
         reset() must bring the circuit back to a clean CLOSED state.
         reset() يجب إعادة قاطع الدائرة إلى الحالة المغلقة.
         """
+
+        def raise_value_error():
+            raise ValueError("fail")
+
         cb = CircuitBreaker(failure_threshold=1)
         with pytest.raises(ValueError):
-            cb.call(lambda: (_ for _ in ()).throw(ValueError("fail")))
+            cb.call(raise_value_error)
         assert cb.state == CircuitState.OPEN
         cb.reset()
         assert cb.state == CircuitState.CLOSED
@@ -384,11 +408,15 @@ class TestCircuitBreaker:
         Two separate CircuitBreaker instances must have independent state.
         مثيلان منفصلان لقاطع الدائرة يجب أن يكون لهما حالة مستقلة.
         """
+
+        def raise_value_error():
+            raise ValueError("fail")
+
         cb1 = CircuitBreaker(failure_threshold=2)
         cb2 = CircuitBreaker(failure_threshold=2)
         for _ in range(2):
             with pytest.raises(ValueError):
-                cb1.call(lambda: (_ for _ in ()).throw(ValueError("fail")))
+                cb1.call(raise_value_error)
         assert cb1.state == CircuitState.OPEN
         assert cb2.state == CircuitState.CLOSED
 
@@ -445,7 +473,7 @@ class TestRetryWithBackoff:
             raise OSError("io error")
 
         max_retries = 3
-        with pytest.raises(IOError):
+        with pytest.raises(OSError):
             retry_with_backoff(fail, max_retries=max_retries, base_delay=0.001)
         assert calls[0] == max_retries + 1
 

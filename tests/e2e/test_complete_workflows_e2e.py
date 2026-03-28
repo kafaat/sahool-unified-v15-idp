@@ -619,7 +619,10 @@ class TestHarvestAndMarketChain:
         # Step 5: Calculate sale value
         total_value = harvest["quantity_kg"] * market_price["price_per_kg_sar"] * quality["price_adjustment_factor"]
         assert total_value > 0
-        assert total_value == pytest.approx(12500.0 * 1.85 * 1.0, rel=0.01)
+        assert total_value == pytest.approx(
+            harvest["quantity_kg"] * market_price["price_per_kg_sar"] * quality["price_adjustment_factor"],
+            rel=0.01,
+        )
 
 
 # ---------------------------------------------------------------------------

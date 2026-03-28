@@ -324,6 +324,7 @@ async def _handle_calibration_succeeded(msg: Any, app_state: Any) -> None:
         payload = json.loads(msg.data.decode())
         run_id = payload.get("run_id")
         field_id = payload.get("field_id")
+        tenant_id = payload.get("tenant_id", "")
         safe_for_decision = payload.get("safe_for_decision", False)
         best_params = payload.get("best_params")
 
@@ -331,18 +332,21 @@ async def _handle_calibration_succeeded(msg: Any, app_state: Any) -> None:
             "calibration_succeeded_event_received",
             run_id=run_id,
             field_id=field_id,
+            tenant_id=tenant_id,
             safe=safe_for_decision,
             objective=payload.get("objective_value"),
         )
 
         # Reload parameters into app_state for the twin pipeline
+        # Use tenant-scoped key to prevent cross-tenant parameter leakage
         if safe_for_decision and best_params and field_id:
             calibrated_params = getattr(app_state, "calibrated_params", None)
             if calibrated_params is None:
                 app_state.calibrated_params = {}
                 calibrated_params = app_state.calibrated_params
 
-            calibrated_params[field_id] = {
+            key = f"{tenant_id}:{field_id}" if tenant_id else field_id
+            calibrated_params[key] = {
                 "run_id": run_id,
                 "params": best_params,
                 "safe_for_decision": safe_for_decision,
@@ -350,6 +354,7 @@ async def _handle_calibration_succeeded(msg: Any, app_state: Any) -> None:
             logger.info(
                 "calibration_params_reloaded",
                 field_id=field_id,
+                tenant_id=tenant_id,
                 run_id=run_id,
             )
 
@@ -397,9 +402,10 @@ async def _trigger_assimilation(
             except Exception:
                 pass  # Run without weather; assimilation still useful
 
-        # Look up calibrated params if available
+        # Look up calibrated params if available (tenant-scoped key first, then bare field_id fallback)
         calibrated_params = getattr(app_state, "calibrated_params", {})
-        field_params = calibrated_params.get(field_id, {}).get("params")
+        scoped_key = f"{tenant_id}:{field_id}"
+        field_params = calibrated_params.get(scoped_key, calibrated_params.get(field_id, {})).get("params")
 
         await pipeline.step(
             tenant_id=tenant_id,

@@ -286,7 +286,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       if (parts.includes("sensor")) {
         this.handleSensorData(parts, payload, tenantId);
       } else if (parts.includes("actuator")) {
-        this.handleActuatorStatus(parts, payload);
+        this.handleActuatorStatus(parts, payload, tenantId);
       } else if (parts.includes("status")) {
         this.handleDeviceStatus(parts, payload, tenantId);
       }
@@ -339,7 +339,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     };
 
     // Cache latest reading in Redis
-    const key = `sensor:${fieldId}:${sensorType}`;
+    const key = `${tenantId}:sensor:${fieldId}:${sensorType}`;
     await this.cacheSensorReading(key, reading);
 
     // Persist to database for historical queries
@@ -356,12 +356,13 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private async handleActuatorStatus(
     topicParts: string[],
     payload: string,
+    tenantId: string,
   ): Promise<void> {
     const fieldId = topicParts[5];
     const actuatorType = topicParts[7];
 
     const data = JSON.parse(payload);
-    const key = `actuator:${fieldId}:${actuatorType}`;
+    const key = `${tenantId}:actuator:${fieldId}:${actuatorType}`;
 
     await this.cacheActuatorState(key, data.status === "ON");
 
@@ -387,7 +388,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       batteryLevel: data.battery,
     };
 
-    await this.cacheDeviceStatus(status);
+    await this.cacheDeviceStatus(status, tenantId);
 
     // Persist to database
     await this.persistDeviceStatus(status, tenantId);
@@ -429,7 +430,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     this.client.publish(topic, JSON.stringify(payload), { qos: 1 });
 
     // Update Redis state
-    await this.cacheActuatorState(`actuator:${fieldId}:pump`, status === "ON");
+    await this.cacheActuatorState(`${tenantId}:actuator:${fieldId}:pump`, status === "ON");
 
     const message =
       status === "ON"
@@ -470,7 +471,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     this.client.publish(topic, JSON.stringify(payload), { qos: 1 });
 
     // Cache valve state in Redis (fixing BUG-002)
-    await this.cacheActuatorState(`actuator:${fieldId}:valve:${valveId}`, status === "ON");
+    await this.cacheActuatorState(`${tenantId}:actuator:${fieldId}:valve:${valveId}`, status === "ON");
 
     return {
       success: true,
@@ -518,10 +519,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get latest sensor readings for a field
    */
-  async getFieldSensorData(fieldId: string, tenantId?: string): Promise<SensorReading[]> {
+  async getFieldSensorData(fieldId: string, tenantId: string): Promise<SensorReading[]> {
     if (!this.redis || !this.redisConnected) return [];
     const readings: SensorReading[] = [];
-    const pattern = `sensor:${fieldId}:*`;
+    const pattern = `${tenantId}:sensor:${fieldId}:*`;
 
     try {
       let cursor = "0";
@@ -555,10 +556,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   async getSensorReading(
     fieldId: string,
     sensorType: SensorType,
-    tenantId?: string,
+    tenantId: string,
   ): Promise<SensorReading | null> {
     if (!this.redis || !this.redisConnected) return null;
-    const key = `sensor:${fieldId}:${sensorType}`;
+    const key = `${tenantId}:sensor:${fieldId}:${sensorType}`;
 
     try {
       const data = await this.redis.get(key);
@@ -574,11 +575,11 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   async getFieldActuatorStates(
     fieldId: string,
-    tenantId?: string,
+    tenantId: string,
   ): Promise<Record<string, boolean>> {
     const states: Record<string, boolean> = {};
     if (!this.redis || !this.redisConnected) return states;
-    const pattern = `actuator:${fieldId}:*`;
+    const pattern = `${tenantId}:actuator:${fieldId}:*`;
 
     try {
       let cursor = "0";
@@ -595,7 +596,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         for (const key of keys) {
           const data = await this.redis.get(key);
           if (data !== null) {
-            const actuatorType = key.split(":")[2];
+            const actuatorType = key.split(":")[3];
             states[actuatorType] = data === "true";
           }
         }
@@ -610,10 +611,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get all connected devices
    */
-  async getConnectedDevices(tenantId?: string): Promise<DeviceStatus[]> {
+  async getConnectedDevices(tenantId: string): Promise<DeviceStatus[]> {
     if (!this.redis || !this.redisConnected) return [];
     const devices: DeviceStatus[] = [];
-    const pattern = "device:*";
+    const pattern = `${tenantId}:device:*`;
 
     try {
       let cursor = "0";
@@ -644,7 +645,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get device count by status
    */
-  async getDeviceStats(tenantId?: string): Promise<{
+  async getDeviceStats(tenantId: string): Promise<{
     online: number;
     offline: number;
     error: number;
@@ -693,10 +694,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Cache device status in Redis
    */
-  private async cacheDeviceStatus(status: DeviceStatus): Promise<void> {
+  private async cacheDeviceStatus(status: DeviceStatus, tenantId: string): Promise<void> {
     if (!this.redis || !this.redisConnected) return;
     try {
-      const key = `device:${status.deviceId}`;
+      const key = `${tenantId}:device:${status.deviceId}`;
       await this.redis.setex(
         key,
         this.DEVICE_STATUS_TTL,
@@ -873,7 +874,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   async getHistoricalReadings(
     fieldId: string,
-    tenantId?: string,
+    tenantId: string,
     sensorType?: string,
     hours: number = 24,
   ): Promise<any[]> {
@@ -883,10 +884,8 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       const where: any = {
         timestamp: { gte: since },
         device: { fieldId },
+        tenantId,
       };
-      if (tenantId) {
-        where.tenantId = tenantId;
-      }
       if (sensorType) {
         where.sensor = { sensorType: this.mapSensorType(sensorType as SensorType) };
       }
@@ -973,7 +972,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       quality,
     };
 
-    const key = `sensor:${fieldId}:${data.sensorType}`;
+    const key = `${tenantId}:sensor:${fieldId}:${data.sensorType}`;
     await this.cacheSensorReading(key, reading);
     await this.persistSensorReading(reading, tenantId);
     this.checkSensorAlerts(reading, tenantId);
@@ -1041,7 +1040,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn(
         `⚠️ Low ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
-      this.sendSensorAlertNotification(reading, "low", threshold.low);
+      this.sendSensorAlertNotification(reading, "low", threshold.low, tenantId);
       void this.persistAlert(reading, "low", threshold.low, tenantId);
     }
 
@@ -1049,7 +1048,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn(
         `⚠️ High ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
-      this.sendSensorAlertNotification(reading, "high", threshold.high);
+      this.sendSensorAlertNotification(reading, "high", threshold.high, tenantId);
       void this.persistAlert(reading, "high", threshold.high, tenantId);
     }
   }
@@ -1062,6 +1061,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     reading: SensorReading,
     alertType: "low" | "high",
     threshold: number,
+    tenantId: string,
   ): void {
     const sensorTypeAr = this.getSensorTypeArabic(reading.sensorType);
 
@@ -1085,6 +1085,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       subject,
       message,
       data: {
+        tenantId,
         alertType,
         sensorType: reading.sensorType,
         fieldId: reading.fieldId,

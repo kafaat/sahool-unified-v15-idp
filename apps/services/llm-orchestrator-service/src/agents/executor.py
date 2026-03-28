@@ -66,16 +66,18 @@ class AgentExecutor:
             self._owned_client = False
 
     def _get_cache_key(self, agent_call: AgentCall) -> str:
-        """Generate a cache key for an agent call."""
+        """Generate a cache key for an agent call, scoped by tenant_id for isolation."""
+        tenant_id = (agent_call.params or {}).get("tenant_id", "unknown")
         data = json.dumps(
             {
+                "tenant_id": tenant_id,
                 "agent": agent_call.agent_name,
                 "endpoint": agent_call.endpoint,
                 "params": agent_call.params,
             },
             sort_keys=True,
         )
-        return f"llm-orchestrator:cache:{hashlib.sha256(data.encode()).hexdigest()[:32]}"
+        return f"llm-orchestrator:cache:{tenant_id}:{hashlib.sha256(data.encode()).hexdigest()[:32]}"
 
     async def _get_cached_result(self, cache_key: str) -> dict[str, Any] | None:
         """Get cached result if available."""

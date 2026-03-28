@@ -48,7 +48,8 @@ class GitHubIntegration:
     def verify_webhook_signature(self, payload: bytes, signature: str) -> bool:
         """Verify GitHub webhook signature"""
         if not self.webhook_secret:
-            return True  # No secret configured, skip verification
+            logger.warning("webhook_secret_not_configured: rejecting unsigned webhook")
+            return False  # No secret configured, reject for security
 
         if not signature or not signature.startswith("sha256="):
             return False

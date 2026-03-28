@@ -323,7 +323,13 @@ async def analyze_code(request: Request, body: AnalyzeCodeRequest, user: User = 
     """
     agent: CodeFixAgent = request.app.state.agent
 
-    from .agent.code_fix_agent import AgentPercept
+    from .agent.code_fix_agent import AgentContext, AgentPercept
+
+    agent.context = AgentContext(
+        request_id=getattr(request.state, "request_id", ""),
+        user_id=str(user.id) if user else None,
+        tenant_id=getattr(user, "tenant_id", None),
+    )
 
     percept = AgentPercept(
         percept_type="code_snippet",
@@ -359,7 +365,13 @@ async def fix_code(request: Request, body: FixCodeRequest, user: User = Depends(
     """
     agent: CodeFixAgent = request.app.state.agent
 
-    from .agent.code_fix_agent import AgentPercept
+    from .agent.code_fix_agent import AgentContext, AgentPercept
+
+    agent.context = AgentContext(
+        request_id=getattr(request.state, "request_id", ""),
+        user_id=str(user.id) if user else None,
+        tenant_id=getattr(user, "tenant_id", None),
+    )
 
     # First perceive the code
     await agent.perceive(
@@ -404,7 +416,13 @@ async def review_pr(request: Request, body: ReviewPRRequest, user: User = Depend
     """
     agent: CodeFixAgent = request.app.state.agent
 
-    from .agent.code_fix_agent import AgentPercept
+    from .agent.code_fix_agent import AgentContext, AgentPercept
+
+    agent.context = AgentContext(
+        request_id=getattr(request.state, "request_id", ""),
+        user_id=str(user.id) if user else None,
+        tenant_id=getattr(user, "tenant_id", None),
+    )
 
     percept = AgentPercept(
         percept_type="pr_diff",
@@ -436,7 +454,13 @@ async def generate_tests(request: Request, body: GenerateTestsRequest, user: Use
     """
     agent: CodeFixAgent = request.app.state.agent
 
-    from .agent.code_fix_agent import AgentPercept
+    from .agent.code_fix_agent import AgentContext, AgentPercept
+
+    agent.context = AgentContext(
+        request_id=getattr(request.state, "request_id", ""),
+        user_id=str(user.id) if user else None,
+        tenant_id=getattr(user, "tenant_id", None),
+    )
 
     percept = AgentPercept(
         percept_type="code_snippet",
@@ -474,7 +498,13 @@ async def implement_feature(request: Request, body: ImplementFeatureRequest, use
     """
     agent: CodeFixAgent = request.app.state.agent
 
-    from .agent.code_fix_agent import AgentPercept
+    from .agent.code_fix_agent import AgentContext, AgentPercept
+
+    agent.context = AgentContext(
+        request_id=getattr(request.state, "request_id", ""),
+        user_id=str(user.id) if user else None,
+        tenant_id=getattr(user, "tenant_id", None),
+    )
 
     percept = AgentPercept(
         percept_type="specification",
@@ -497,7 +527,7 @@ async def implement_feature(request: Request, body: ImplementFeatureRequest, use
 
 
 @app.post("/api/v1/feedback", tags=["Agent"])
-async def submit_feedback(request: Request, feedback: dict[str, Any]):
+async def submit_feedback(request: Request, feedback: dict[str, Any], user: User = Depends(get_current_user)):
     """
     إرسال التغذية الراجعة للتعلم
     Submit feedback for learning
@@ -505,6 +535,14 @@ async def submit_feedback(request: Request, feedback: dict[str, Any]):
     Allows the agent to learn from fix results.
     """
     agent: CodeFixAgent = request.app.state.agent
+
+    from .agent.code_fix_agent import AgentContext
+
+    agent.context = AgentContext(
+        request_id=getattr(request.state, "request_id", ""),
+        user_id=str(user.id) if user else None,
+        tenant_id=getattr(user, "tenant_id", None),
+    )
 
     await agent.learn(feedback)
 

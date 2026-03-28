@@ -218,6 +218,11 @@ async def _setup_nats_subscriptions(nc, ws_manager: WebSocketManager) -> None:
             data = json.loads(msg.data.decode())
             if _is_duplicate(data.get("event_id")):
                 return
+            # Validate tenant context from message payload
+            tenant_id_str = data.get("tenant_id")
+            if not tenant_id_str:
+                logger.warning("nats_metrics_missing_tenant_id", subject=msg.subject)
+                return
             device_id = UUID(data.get("device_id"))
             await ws_manager.broadcast_device_metrics(device_id, data.get("metrics", {}))
         except Exception as e:
@@ -228,6 +233,11 @@ async def _setup_nats_subscriptions(nc, ws_manager: WebSocketManager) -> None:
         try:
             data = json.loads(msg.data.decode())
             if _is_duplicate(data.get("event_id")):
+                return
+            # Validate tenant context from message payload
+            tenant_id_str = data.get("tenant_id")
+            if not tenant_id_str:
+                logger.warning("nats_detection_missing_tenant_id", subject=msg.subject)
                 return
             device_id = UUID(data.get("device_id"))
             await ws_manager.broadcast_detection_result(device_id, data)
@@ -535,12 +545,23 @@ async def device_websocket_endpoint(
                     result = InferenceResult(**data.get("payload", {}))
                     await ws_manager.broadcast_detection_result(device_id, result)
 
-                    # Publish to NATS if connected
+                    # Publish to NATS if connected (tenant-scoped topic)
                     if hasattr(app.state, "nc") and app.state.nc:
-                        await app.state.nc.publish(
-                            f"sahool.edge.detection.{device_id}",
-                            json.dumps(data.get("payload", {})).encode(),
-                        )
+                        # Extract tenant_id from device registration
+                        device = await device_manager.get_device(device_id)
+                        tenant_id = device.tenant_id if device else None
+                        if tenant_id:
+                            nats_payload = data.get("payload", {})
+                            nats_payload["tenant_id"] = str(tenant_id)
+                            await app.state.nc.publish(
+                                f"sahool.tenant.{tenant_id}.edge.detection",
+                                json.dumps(nats_payload).encode(),
+                            )
+                        else:
+                            logger.warning(
+                                "nats_publish_skipped_no_tenant",
+                                device_id=str(device_id),
+                            )
 
                 elif message_type == "job_status":
                     # Broadcast job status update
@@ -554,11 +575,13 @@ async def device_websocket_endpoint(
                     )
 
                 elif message_type == "alert":
-                    # Broadcast alert
+                    # Broadcast alert with tenant context from device registration
                     payload = data.get("payload", {})
+                    device = await device_manager.get_device(device_id)
+                    alert_tenant_id = device.tenant_id if device else None
                     await ws_manager.broadcast_alert(
                         device_id=device_id,
-                        tenant_id=None,
+                        tenant_id=alert_tenant_id,
                         alert_type=payload.get("alert_type", "device_alert"),
                         message_en=payload.get("message", ""),
                         message_ar=payload.get("message_ar", ""),

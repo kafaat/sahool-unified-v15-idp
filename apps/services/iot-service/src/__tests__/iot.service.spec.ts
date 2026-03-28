@@ -133,7 +133,9 @@ describe("IotService", () => {
     });
 
     it("should turn pump ON successfully", async () => {
-      const result = await service.togglePump("field-123", "ON");
+      const result = await service.togglePump("field-123", "ON", {
+        tenantId: "tenant-1",
+      });
 
       expect(result.success).toBe(true);
       expect(result.message).toContain("field-123");
@@ -142,7 +144,9 @@ describe("IotService", () => {
     });
 
     it("should turn pump OFF successfully", async () => {
-      const result = await service.togglePump("field-456", "OFF");
+      const result = await service.togglePump("field-456", "OFF", {
+        tenantId: "tenant-1",
+      });
 
       expect(result.success).toBe(true);
       expect(result.message).toContain("إيقاف");
@@ -152,6 +156,7 @@ describe("IotService", () => {
     it("should include duration in message when provided", async () => {
       const result = await service.togglePump("field-123", "ON", {
         duration: 30,
+        tenantId: "tenant-1",
       });
 
       expect(result.success).toBe(true);
@@ -160,7 +165,9 @@ describe("IotService", () => {
     });
 
     it("should publish to correct MQTT topic", async () => {
-      await service.togglePump("field-123", "ON");
+      await service.togglePump("field-123", "ON", {
+        tenantId: "tenant-1",
+      });
 
       expect(mockMqttClient.publish).toHaveBeenCalledWith(
         expect.stringContaining("field-123"),
@@ -169,14 +176,23 @@ describe("IotService", () => {
       );
     });
 
-    it("should cache actuator state in Redis", async () => {
-      await service.togglePump("field-123", "ON");
+    it("should cache actuator state in Redis with tenant namespace", async () => {
+      await service.togglePump("field-123", "ON", {
+        tenantId: "tenant-1",
+      });
 
       expect(mockRedis.setex).toHaveBeenCalledWith(
-        "actuator:field-123:pump",
+        "tenant-1:actuator:field-123:pump",
         expect.any(Number),
         "true",
       );
+    });
+
+    it("should fail when tenantId is not provided", async () => {
+      const result = await service.togglePump("field-123", "ON");
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("tenantId is required");
     });
   });
 
@@ -190,7 +206,9 @@ describe("IotService", () => {
     });
 
     it("should open valve successfully", async () => {
-      const result = await service.toggleValve("field-123", "valve-1", "ON");
+      const result = await service.toggleValve("field-123", "valve-1", "ON", {
+        tenantId: "tenant-1",
+      });
 
       expect(result.success).toBe(true);
       expect(result.message).toContain("فتح");
@@ -198,20 +216,31 @@ describe("IotService", () => {
     });
 
     it("should close valve successfully", async () => {
-      const result = await service.toggleValve("field-123", "valve-1", "OFF");
+      const result = await service.toggleValve("field-123", "valve-1", "OFF", {
+        tenantId: "tenant-1",
+      });
 
       expect(result.success).toBe(true);
       expect(result.message).toContain("إغلاق");
     });
 
     it("should publish to correct MQTT topic with valve ID", async () => {
-      await service.toggleValve("field-123", "valve-2", "ON");
+      await service.toggleValve("field-123", "valve-2", "ON", {
+        tenantId: "tenant-1",
+      });
 
       expect(mockMqttClient.publish).toHaveBeenCalledWith(
         expect.stringContaining("valve/valve-2"),
         expect.any(String),
         expect.objectContaining({ qos: 1 }),
       );
+    });
+
+    it("should fail when tenantId is not provided", async () => {
+      const result = await service.toggleValve("field-123", "valve-1", "ON");
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("tenantId is required");
     });
   });
 
@@ -230,6 +259,7 @@ describe("IotService", () => {
         duration: 30,
         days: ["sunday", "tuesday", "thursday"],
         enabled: true,
+        tenantId: "tenant-1",
       };
 
       const result = service.setIrrigationSchedule("field-123", schedule);
@@ -244,6 +274,7 @@ describe("IotService", () => {
         duration: 30,
         days: ["sunday"],
         enabled: false,
+        tenantId: "tenant-1",
       };
 
       const result = service.setIrrigationSchedule("field-123", schedule);
@@ -258,6 +289,7 @@ describe("IotService", () => {
         duration: 30,
         days: ["sunday"],
         enabled: true,
+        tenantId: "tenant-1",
       };
 
       service.setIrrigationSchedule("field-123", schedule);
@@ -267,6 +299,20 @@ describe("IotService", () => {
         expect.any(String),
         expect.objectContaining({ retain: true }),
       );
+    });
+
+    it("should fail when tenantId is not provided", () => {
+      const schedule = {
+        startTime: "06:00",
+        duration: 30,
+        days: ["sunday"],
+        enabled: true,
+      };
+
+      const result = service.setIrrigationSchedule("field-123", schedule);
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("tenantId is required");
     });
   });
 
@@ -282,12 +328,12 @@ describe("IotService", () => {
     it("should return empty array when no data", async () => {
       mockRedis.scan.mockResolvedValue(["0", []]);
 
-      const result = await service.getFieldSensorData("field-123");
+      const result = await service.getFieldSensorData("field-123", "tenant-1");
 
       expect(result).toEqual([]);
     });
 
-    it("should return sensor readings from Redis", async () => {
+    it("should return sensor readings from Redis with tenant-scoped keys", async () => {
       const mockReading: SensorReading = {
         deviceId: "sensor-1",
         fieldId: "field-123",
@@ -299,21 +345,28 @@ describe("IotService", () => {
       };
 
       mockRedis.scan
-        .mockResolvedValueOnce(["0", ["sensor:field-123:soil_moisture"]])
+        .mockResolvedValueOnce(["0", ["tenant-1:sensor:field-123:soil_moisture"]])
         .mockResolvedValueOnce(["0", []]);
       mockRedis.get.mockResolvedValue(JSON.stringify(mockReading));
 
-      const result = await service.getFieldSensorData("field-123");
+      const result = await service.getFieldSensorData("field-123", "tenant-1");
 
       expect(result).toHaveLength(1);
       expect(result[0].deviceId).toBe("sensor-1");
       expect(result[0].value).toBe(45.5);
+      expect(mockRedis.scan).toHaveBeenCalledWith(
+        "0",
+        "MATCH",
+        "tenant-1:sensor:field-123:*",
+        "COUNT",
+        100,
+      );
     });
 
     it("should handle Redis errors gracefully", async () => {
       mockRedis.scan.mockRejectedValue(new Error("Redis error"));
 
-      const result = await service.getFieldSensorData("field-123");
+      const result = await service.getFieldSensorData("field-123", "tenant-1");
 
       expect(result).toEqual([]);
     });
@@ -344,11 +397,15 @@ describe("IotService", () => {
       const result = await service.getSensorReading(
         "field-123",
         SensorType.AIR_TEMPERATURE,
+        "tenant-1",
       );
 
       expect(result).not.toBeNull();
       expect(result?.value).toBe(28.5);
       expect(result?.sensorType).toBe(SensorType.AIR_TEMPERATURE);
+      expect(mockRedis.get).toHaveBeenCalledWith(
+        "tenant-1:sensor:field-123:air_temperature",
+      );
     });
 
     it("should return null when not found", async () => {
@@ -357,6 +414,7 @@ describe("IotService", () => {
       const result = await service.getSensorReading(
         "field-123",
         SensorType.WIND_SPEED,
+        "tenant-1",
       );
 
       expect(result).toBeNull();
@@ -368,6 +426,7 @@ describe("IotService", () => {
       const result = await service.getSensorReading(
         "field-123",
         SensorType.SOIL_MOISTURE,
+        "tenant-1",
       );
 
       expect(result).toBeNull();
@@ -386,26 +445,33 @@ describe("IotService", () => {
     it("should return empty object when no actuators", async () => {
       mockRedis.scan.mockResolvedValue(["0", []]);
 
-      const result = await service.getFieldActuatorStates("field-123");
+      const result = await service.getFieldActuatorStates("field-123", "tenant-1");
 
       expect(result).toEqual({});
     });
 
-    it("should return actuator states from Redis", async () => {
+    it("should return actuator states from Redis with tenant-scoped keys", async () => {
       mockRedis.scan
         .mockResolvedValueOnce([
           "0",
-          ["actuator:field-123:pump", "actuator:field-123:valve"],
+          ["tenant-1:actuator:field-123:pump", "tenant-1:actuator:field-123:valve"],
         ])
         .mockResolvedValueOnce(["0", []]);
       mockRedis.get
         .mockResolvedValueOnce("true")
         .mockResolvedValueOnce("false");
 
-      const result = await service.getFieldActuatorStates("field-123");
+      const result = await service.getFieldActuatorStates("field-123", "tenant-1");
 
       expect(result.pump).toBe(true);
       expect(result.valve).toBe(false);
+      expect(mockRedis.scan).toHaveBeenCalledWith(
+        "0",
+        "MATCH",
+        "tenant-1:actuator:field-123:*",
+        "COUNT",
+        100,
+      );
     });
   });
 
@@ -421,12 +487,12 @@ describe("IotService", () => {
     it("should return empty array when no devices", async () => {
       mockRedis.scan.mockResolvedValue(["0", []]);
 
-      const result = await service.getConnectedDevices();
+      const result = await service.getConnectedDevices("tenant-1");
 
       expect(result).toEqual([]);
     });
 
-    it("should return device statuses from Redis", async () => {
+    it("should return device statuses from Redis with tenant-scoped keys", async () => {
       const mockDevice: DeviceStatus = {
         deviceId: "device-1",
         fieldId: "field-123",
@@ -438,15 +504,22 @@ describe("IotService", () => {
       };
 
       mockRedis.scan
-        .mockResolvedValueOnce(["0", ["device:device-1"]])
+        .mockResolvedValueOnce(["0", ["tenant-1:device:device-1"]])
         .mockResolvedValueOnce(["0", []]);
       mockRedis.get.mockResolvedValue(JSON.stringify(mockDevice));
 
-      const result = await service.getConnectedDevices();
+      const result = await service.getConnectedDevices("tenant-1");
 
       expect(result).toHaveLength(1);
       expect(result[0].deviceId).toBe("device-1");
       expect(result[0].status).toBe("online");
+      expect(mockRedis.scan).toHaveBeenCalledWith(
+        "0",
+        "MATCH",
+        "tenant-1:device:*",
+        "COUNT",
+        100,
+      );
     });
   });
 
@@ -462,7 +535,7 @@ describe("IotService", () => {
     it("should return zeros when no devices", async () => {
       mockRedis.scan.mockResolvedValue(["0", []]);
 
-      const result = await service.getDeviceStats();
+      const result = await service.getDeviceStats("tenant-1");
 
       expect(result.online).toBe(0);
       expect(result.offline).toBe(0);
@@ -508,7 +581,7 @@ describe("IotService", () => {
       mockRedis.scan
         .mockResolvedValueOnce([
           "0",
-          ["device:d1", "device:d2", "device:d3", "device:d4"],
+          ["tenant-1:device:d1", "tenant-1:device:d2", "tenant-1:device:d3", "tenant-1:device:d4"],
         ])
         .mockResolvedValueOnce(["0", []]);
 
@@ -516,7 +589,7 @@ describe("IotService", () => {
         mockRedis.get.mockResolvedValueOnce(JSON.stringify(d));
       });
 
-      const result = await service.getDeviceStats();
+      const result = await service.getDeviceStats("tenant-1");
 
       expect(result.online).toBe(2);
       expect(result.offline).toBe(1);

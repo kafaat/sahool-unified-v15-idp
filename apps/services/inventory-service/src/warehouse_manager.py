@@ -122,13 +122,16 @@ class WarehouseManager:
 
         return self._warehouse_to_dataclass(warehouse)
 
-    async def get_warehouses(self, warehouse_type: str | None = None, is_active: bool = True) -> list[Warehouse]:
+    async def get_warehouses(
+        self, warehouse_type: str | None = None, is_active: bool = True, tenant_id: str | None = None
+    ) -> list[Warehouse]:
         """
         Get all warehouses, optionally filtered
 
         Args:
             warehouse_type: Filter by warehouse type
             is_active: Filter by active status
+            tenant_id: Tenant ID for isolation
 
         Returns:
             List of Warehouse objects
@@ -136,23 +139,25 @@ class WarehouseManager:
         where = {"isActive": is_active}
         if warehouse_type:
             where["warehouseType"] = warehouse_type
+        if tenant_id:
+            where["tenantId"] = tenant_id
 
         warehouses = await self.db.warehouse.find_many(where=where, include={"zones": True})
 
         return [self._warehouse_to_dataclass(w) for w in warehouses]
 
-    async def get_warehouse(self, warehouse_id: str, tenant_id: str | None = None) -> Warehouse | None:
+    async def get_warehouse(self, warehouse_id: str, tenant_id: str = "") -> Warehouse | None:
         """
-        Get a specific warehouse by ID with optional tenant isolation
+        Get a specific warehouse by ID with tenant isolation
 
         Args:
             warehouse_id: Warehouse ID
-            tenant_id: Tenant ID for isolation (recommended)
+            tenant_id: Tenant ID for isolation (required for proper tenant scoping)
 
         Returns:
             Warehouse object or None
         """
-        if tenant_id is not None:
+        if tenant_id:
             warehouse = await self.db.warehouse.find_first(
                 where={"id": warehouse_id, "tenantId": tenant_id}, include={"zones": True}
             )

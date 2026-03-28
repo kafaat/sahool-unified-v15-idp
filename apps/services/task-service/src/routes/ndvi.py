@@ -75,6 +75,18 @@ async def get_tenant_id(
             status_code=400,
             detail="X-Tenant-Id header is required | ترويسة معرّف المستأجر مطلوبة",
         )
+
+    # Validate UUID format to prevent injection of arbitrary strings
+    import uuid as _uuid_mod
+
+    try:
+        _uuid_mod.UUID(x_tenant_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="X-Tenant-Id must be a valid UUID",
+        )
+
     return x_tenant_id
 
 

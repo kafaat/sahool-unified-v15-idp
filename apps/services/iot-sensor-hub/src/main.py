@@ -244,6 +244,7 @@ class Alert(BaseModel):
     sensor_type: str
     node_id: str
     field_id: str | None
+    tenant_id: str = ""
     value: float
     threshold: float
     message: str
@@ -332,13 +333,14 @@ class IoTSensorEngine:
         self.alerts: deque[Alert] = deque(maxlen=5000)
         self.stats = {"total_readings": 0, "filtered_readings": 0, "alerts_generated": 0}
 
-    def register_node(self, reg: NodeRegistration) -> dict:
+    def register_node(self, reg: NodeRegistration, tenant_id: str = "") -> dict:
         self.nodes[reg.node_id] = {
             "node_id": reg.node_id,
             "node_type": reg.node_type.value,
             "name": reg.name,
             "name_ar": reg.name_ar,
             "field_id": reg.field_id,
+            "tenant_id": tenant_id,
             "sensors": [s.value for s in reg.sensors],
             "latitude": reg.latitude,
             "longitude": reg.longitude,
@@ -412,7 +414,9 @@ class IoTSensorEngine:
         if not thresholds:
             return alerts
 
-        field_id = self.nodes.get(reading.node_id, {}).get("field_id")
+        node_data = self.nodes.get(reading.node_id, {})
+        field_id = node_data.get("field_id")
+        node_tenant_id = node_data.get("tenant_id", "")
 
         if "critical_low" in thresholds and filtered_value < thresholds["critical_low"]:
             alert = Alert(
@@ -421,6 +425,7 @@ class IoTSensorEngine:
                 sensor_type=reading.sensor_type.value,
                 node_id=reading.node_id,
                 field_id=field_id,
+                tenant_id=node_tenant_id,
                 value=filtered_value,
                 threshold=thresholds["critical_low"],
                 message=f"CRITICAL: {reading.sensor_type.value} at {filtered_value:.1f} below critical threshold {thresholds['critical_low']}",
@@ -438,6 +443,7 @@ class IoTSensorEngine:
                 sensor_type=reading.sensor_type.value,
                 node_id=reading.node_id,
                 field_id=field_id,
+                tenant_id=node_tenant_id,
                 value=filtered_value,
                 threshold=thresholds["warning_low"],
                 message=f"WARNING: {reading.sensor_type.value} at {filtered_value:.1f} below warning threshold {thresholds['warning_low']}",
@@ -455,6 +461,7 @@ class IoTSensorEngine:
                 sensor_type=reading.sensor_type.value,
                 node_id=reading.node_id,
                 field_id=field_id,
+                tenant_id=node_tenant_id,
                 value=filtered_value,
                 threshold=thresholds["critical_high"],
                 message=f"CRITICAL: {reading.sensor_type.value} at {filtered_value:.1f} above critical threshold {thresholds['critical_high']}",
@@ -472,6 +479,7 @@ class IoTSensorEngine:
                 sensor_type=reading.sensor_type.value,
                 node_id=reading.node_id,
                 field_id=field_id,
+                tenant_id=node_tenant_id,
                 value=filtered_value,
                 threshold=thresholds["warning_high"],
                 message=f"WARNING: {reading.sensor_type.value} at {filtered_value:.1f} above warning threshold {thresholds['warning_high']}",
@@ -640,21 +648,25 @@ def readiness():
 @app.post("/api/v1/iot/nodes", status_code=201)
 async def register_node(reg: NodeRegistration, current_user: User = Depends(get_current_user)):
     """Register a new IoT sensor node."""
-    node = iot_engine.register_node(reg)
+    tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
+    node = iot_engine.register_node(reg, tenant_id=tenant_id)
     return {"status": "registered", "node": node}
 
 
 @app.get("/api/v1/iot/nodes")
-async def list_nodes(field_id: str | None = Query(None)):
+async def list_nodes(field_id: str | None = Query(None), user: User = Depends(get_current_user)):
     """List registered IoT nodes."""
+    user_tenant = getattr(user, "tenant_id", None)
     nodes = list(iot_engine.nodes.values())
+    if user_tenant:
+        nodes = [n for n in nodes if n.get("tenant_id") == user_tenant]
     if field_id:
         nodes = [n for n in nodes if n["field_id"] == field_id]
     return {"nodes": nodes, "total": len(nodes)}
 
 
 @app.get("/api/v1/iot/nodes/{node_id}")
-async def get_node(node_id: str):
+async def get_node(node_id: str, user: User = Depends(get_current_user)):
     """Get node status and recent readings."""
     if node_id not in iot_engine.nodes:
         raise HTTPException(status_code=404, detail=f"Node not found: {node_id}")
@@ -671,7 +683,7 @@ async def ingest_reading(reading: SensorReading, current_user: User = Depends(ge
 
     # Publish to NATS (subject: sahool.{tenant_id}.iot.reading.{type})
     nc = getattr(app.state, "nc", None)
-    tenant_id = os.getenv("TENANT_ID", "default")
+    tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
     if nc and result["status"] == "accepted":
         try:
             await nc.publish(
@@ -696,7 +708,7 @@ async def ingest_batch(batch: SensorReadingBatch, current_user: User = Depends(g
     """Ingest a batch of sensor readings."""
     results = []
     nc = getattr(app.state, "nc", None)
-    tenant_id = os.getenv("TENANT_ID", "default")
+    tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
 
     for reading in batch.readings:
         result = iot_engine.process_reading(reading)
@@ -743,7 +755,7 @@ async def calculate_wdi(req: WDIRequest, current_user: User = Depends(get_curren
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
-            tenant_id = os.getenv("TENANT_ID", "default")
+            tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.iot.wdi_calculated",
                 json.dumps(
@@ -767,9 +779,13 @@ async def get_alerts(
     severity: AlertSeverity | None = Query(None),
     field_id: str | None = Query(None),
     limit: int = Query(default=50, le=500),
+    user: User = Depends(get_current_user),
 ):
     """Get recent IoT alerts."""
+    user_tenant = getattr(user, "tenant_id", None)
     alerts = list(iot_engine.alerts)
+    if user_tenant:
+        alerts = [a for a in alerts if a.tenant_id == user_tenant]
     if severity:
         alerts = [a for a in alerts if a.severity == severity]
     if field_id:
@@ -780,7 +796,7 @@ async def get_alerts(
 
 # Offline cache
 @app.get("/api/v1/iot/cache/status")
-async def cache_status():
+async def cache_status(user: User = Depends(get_current_user)):
     """Get offline cache status."""
     return {
         "cache_size": iot_engine.offline_cache.size,
@@ -814,7 +830,7 @@ async def sync_cache(
 
 # Statistics
 @app.get("/api/v1/iot/stats")
-async def get_stats():
+async def get_stats(user: User = Depends(get_current_user)):
     """Get IoT hub statistics."""
     return {
         "nodes_registered": len(iot_engine.nodes),

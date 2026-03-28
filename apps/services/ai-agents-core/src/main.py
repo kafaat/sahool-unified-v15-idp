@@ -30,7 +30,7 @@ from fastapi import Depends, FastAPI, HTTPException
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
@@ -103,8 +103,8 @@ feedback_learner = FeedbackLearnerAgent()
 
 # Request/Response Models
 class AnalysisRequest(BaseModel):
-    field_id: str
-    crop_type: str
+    field_id: str = Field(..., max_length=100)
+    crop_type: str = Field(..., max_length=50)
     sensor_data: dict[str, Any] | None = None
     weather_data: dict[str, Any] | None = None
     image_data: dict[str, Any] | None = None
@@ -114,10 +114,10 @@ class FeedbackRequest(BaseModel):
     recommendation_id: str
     agent_id: str
     action_type: str
-    rating: float  # -1 to 1
+    rating: float = Field(..., ge=-1, le=1)
     success: bool
     actual_result: dict[str, Any] | None = None
-    comments: str | None = None
+    comments: str | None = Field(None, max_length=2000)
 
 
 class SensorDataRequest(BaseModel):
@@ -259,7 +259,7 @@ async def submit_feedback(request: FeedbackRequest, user: User = Depends(get_cur
 
 # System status
 @app.get("/api/v1/system/status")
-async def get_system_status():
+async def get_system_status(user: User = Depends(get_current_user)):
     """حالة النظام"""
     return {
         "coordinator": coordinator.get_system_status(),
@@ -275,7 +275,7 @@ async def get_system_status():
 
 # Agent metrics
 @app.get("/api/v1/agents/{agent_id}/metrics")
-async def get_agent_metrics(agent_id: str):
+async def get_agent_metrics(agent_id: str, user: User = Depends(get_current_user)):
     """مقاييس وكيل محدد"""
     agents = {
         "coordinator": coordinator,

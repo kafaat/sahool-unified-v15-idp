@@ -184,6 +184,7 @@ class KnowledgeRetriever:
         top_k: int = None,
         score_threshold: float = None,
         filters: dict[str, Any] | None = None,
+        tenant_id: str | None = None,
     ) -> list[Document]:
         """
         Retrieve relevant documents
@@ -194,6 +195,7 @@ class KnowledgeRetriever:
             top_k: Number of documents to retrieve | عدد المستندات المراد استرجاعها
             score_threshold: Minimum similarity score | الحد الأدنى لدرجة التشابه
             filters: Metadata filters | فلاتر البيانات الوصفية
+            tenant_id: Tenant ID for isolation | معرف المستأجر للعزل
 
         Returns:
             List of retrieved documents | قائمة المستندات المستردة
@@ -208,17 +210,22 @@ class KnowledgeRetriever:
             top_k = top_k or settings.rag_top_k
             score_threshold = score_threshold or settings.rag_score_threshold
 
+            # Build filter conditions
+            # بناء شروط الفلتر
+            conditions = []
+
+            # Add tenant isolation filter if provided
+            # إضافة فلتر عزل المستأجر إذا تم توفيره
+            if tenant_id:
+                conditions.append(FieldCondition(key="tenant_id", match=MatchValue(value=tenant_id)))
+
             # Build filter if provided
             # بناء الفلتر إذا تم توفيره
-            query_filter = None
             if filters:
-                # Simple implementation - extend as needed
-                # تنفيذ بسيط - قم بالتوسيع حسب الحاجة
-                conditions = []
                 for key, value in filters.items():
                     conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
-                if conditions:
-                    query_filter = Filter(must=conditions)
+
+            query_filter = Filter(must=conditions) if conditions else None
 
             # Search in Qdrant
             # البحث في Qdrant

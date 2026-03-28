@@ -976,6 +976,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                 error=response.error,
                 completed_at=response.completed_at,
                 total_duration_ms=response.total_duration_ms,
+                tenant_id=request.tenant_id,
             )
 
         # Publish completion/failure event
@@ -1030,7 +1031,7 @@ async def get_execution(
 
     # Then check database for persisted executions
     if _use_database():
-        db_exec = await db.get_execution(execution_id)
+        db_exec = await db.get_execution(execution_id, tenant_id=user.tenant_id)
         if db_exec:
             # Validate tenant access
             if user.tenant_id != db_exec.get("tenant_id"):

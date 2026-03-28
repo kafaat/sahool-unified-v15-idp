@@ -63,6 +63,7 @@ async def list_crops(
 async def get_crop(
     request,
     crop_id: str,
+    _user=Depends(get_current_user),
 ):
     """
     Get a specific crop by ID
@@ -124,6 +125,7 @@ async def create_crop(
 async def list_diseases(
     request,
     limit: int = Query(100, ge=1, le=500, description="Maximum diseases to return"),
+    _user=Depends(get_current_user),
 ):
     """
     List all diseases in the knowledge graph
@@ -147,6 +149,7 @@ async def list_diseases(
 async def get_disease(
     request,
     disease_id: str,
+    _user=Depends(get_current_user),
 ):
     """
     Get a specific disease by ID
@@ -208,6 +211,7 @@ async def create_disease(
 async def list_treatments(
     request,
     limit: int = Query(100, ge=1, le=500, description="Maximum treatments to return"),
+    _user=Depends(get_current_user),
 ):
     """
     List all treatments in the knowledge graph
@@ -231,6 +235,7 @@ async def list_treatments(
 async def get_treatment(
     request,
     treatment_id: str,
+    _user=Depends(get_current_user),
 ):
     """
     Get a specific treatment by ID
@@ -294,6 +299,7 @@ async def search_entities(
     q: str = Query(..., description="Search query"),
     entity_type: str | None = Query(None, description="Filter by type (crop, disease, treatment)"),
     limit: int = Query(20, ge=1, le=100, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Search for entities by name or description

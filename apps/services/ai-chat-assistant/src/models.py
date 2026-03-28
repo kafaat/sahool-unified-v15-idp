@@ -12,9 +12,10 @@ from pydantic import BaseModel, Field
 class AIQuery(BaseModel):
     """AI query from chat service."""
 
-    query: str = Field(..., description="User question in Arabic or English")
+    query: str = Field(..., min_length=3, max_length=1000, description="User question in Arabic or English")
     language: str = Field(default="ar", description="Query language (ar/en)")
     user_id: str = Field(..., description="User ID")
+    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenant isolation")
     conversation_id: str = Field(..., description="Conversation ID")
     field_id: str | None = Field(None, description="Field ID for context")
     context: dict[str, Any] | None = Field(default_factory=dict, description="Additional context")

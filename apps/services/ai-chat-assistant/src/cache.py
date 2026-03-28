@@ -48,22 +48,28 @@ class CacheManager:
             await self.redis_client.close()
             logger.info("Redis connection closed")
 
-    def _generate_cache_key(self, query: str, language: str, field_id: str | None = None) -> str:
-        """Generate cache key from query parameters."""
+    def _generate_cache_key(
+        self, query: str, language: str, field_id: str | None = None, tenant_id: str | None = None
+    ) -> str:
+        """Generate cache key from query parameters, scoped by tenant_id."""
         # Normalize query (lowercase, strip)
         normalized_query = query.lower().strip()
 
-        # Create hash input
-        hash_input = f"{normalized_query}:{language}"
+        # Create hash input - tenant_id first for proper isolation
+        hash_input = f"{tenant_id or 'global'}:{normalized_query}:{language}"
         if field_id:
             hash_input += f":{field_id}"
 
         # Generate hash
         cache_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
 
-        return f"{self.namespace}:exact:{cache_hash}"
+        # Include tenant_id in key prefix for easy per-tenant invalidation
+        tenant_prefix = f"t:{tenant_id}" if tenant_id else "t:global"
+        return f"{self.namespace}:{tenant_prefix}:exact:{cache_hash}"
 
-    async def get(self, query: str, language: str, field_id: str | None = None) -> CachedResponse | None:
+    async def get(
+        self, query: str, language: str, field_id: str | None = None, tenant_id: str | None = None
+    ) -> CachedResponse | None:
         """
         Get cached response if exists.
 
@@ -71,6 +77,7 @@ class CacheManager:
             query: User query
             language: Query language
             field_id: Optional field ID for context
+            tenant_id: Optional tenant ID for isolation
 
         Returns:
             CachedResponse if found, None otherwise
@@ -79,7 +86,7 @@ class CacheManager:
             return None
 
         try:
-            cache_key = self._generate_cache_key(query, language, field_id)
+            cache_key = self._generate_cache_key(query, language, field_id, tenant_id)
 
             # Get from Redis
             cached_data = await self.redis_client.get(cache_key)
@@ -111,6 +118,7 @@ class CacheManager:
         answer_en: str | None,
         metadata: ResponseMetadata,
         field_id: str | None = None,
+        tenant_id: str | None = None,
     ) -> bool:
         """
         Cache AI response.
@@ -122,6 +130,7 @@ class CacheManager:
             answer_en: English translation (if applicable)
             metadata: Response metadata
             field_id: Optional field ID
+            tenant_id: Optional tenant ID for isolation
 
         Returns:
             True if cached successfully, False otherwise
@@ -130,7 +139,7 @@ class CacheManager:
             return False
 
         try:
-            cache_key = self._generate_cache_key(query, language, field_id)
+            cache_key = self._generate_cache_key(query, language, field_id, tenant_id)
 
             # Create cached response
             cached_response = CachedResponse(
@@ -171,10 +180,10 @@ class CacheManager:
         except Exception as e:
             logger.error(f"Error updating hit count: {e}")
 
-    async def invalidate(self, query: str, language: str, field_id: str | None = None):
+    async def invalidate(self, query: str, language: str, field_id: str | None = None, tenant_id: str | None = None):
         """Invalidate cache for a specific query."""
         try:
-            cache_key = self._generate_cache_key(query, language, field_id)
+            cache_key = self._generate_cache_key(query, language, field_id, tenant_id)
             await self.redis_client.delete(cache_key)
             logger.info(f"Invalidated cache for query: {query[:50]}...")
         except Exception as e:

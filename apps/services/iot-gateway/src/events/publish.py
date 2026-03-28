@@ -174,6 +174,7 @@ class IoTPublisher:
         Publishes to both general and sensor-specific subjects
         """
         payload = {
+            "tenant_id": tenant_id,
             "device_id": device_id,
             "field_id": field_id,
             "sensor_type": sensor_type,
@@ -218,6 +219,7 @@ class IoTPublisher:
     ) -> str:
         """Publish device status change event"""
         payload = {
+            "tenant_id": tenant_id,
             "device_id": device_id,
             "field_id": field_id,
             "status": status,
@@ -255,6 +257,7 @@ class IoTPublisher:
     ) -> str:
         """Publish device registration event"""
         payload = {
+            "tenant_id": tenant_id,
             "device_id": device_id,
             "field_id": field_id,
             "device_type": device_type,
@@ -287,6 +290,7 @@ class IoTPublisher:
     ) -> str:
         """Publish device alert event"""
         payload = {
+            "tenant_id": tenant_id,
             "device_id": device_id,
             "field_id": field_id,
             "alert_type": alert_type,

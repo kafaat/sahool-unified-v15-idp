@@ -75,18 +75,24 @@ _deploy_operations: dict[UUID, DeployResponse] = {}
 def get_tenant_id(request: Request) -> UUID:
     """Extract tenant ID from request."""
     tenant_header = request.headers.get("X-Tenant-ID")
-    if tenant_header:
-        try:
-            return UUID(tenant_header)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "error": "Invalid tenant ID format",
-                    "error_ar": "تنسيق معرف المستأجر غير صالح",
-                },
-            )
-    return UUID("00000000-0000-0000-0000-000000000001")
+    if not tenant_header:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "X-Tenant-ID header is required",
+                "error_ar": "رأس X-Tenant-ID مطلوب",
+            },
+        )
+    try:
+        return UUID(tenant_header)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "Invalid tenant ID format",
+                "error_ar": "تنسيق معرف المستأجر غير صالح",
+            },
+        )
 
 
 # =============================================================================

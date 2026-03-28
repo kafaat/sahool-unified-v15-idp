@@ -431,17 +431,19 @@ class ResultCache:
         confidence: float,
         iou: float,
         image_size: int,
+        tenant_id: str | None = None,
     ) -> str:
         """
         Generate cache key from image content and parameters.
 
         Uses perceptual hashing for similar image matching.
+        Cache keys are scoped by tenant_id when provided.
         """
         # Get image hash
         image_hash = self._compute_image_hash(image)
 
-        # Combine with parameters
-        params_str = f"{task}_{variant}_{confidence:.2f}_{iou:.2f}_{image_size}"
+        # Combine with parameters (include tenant_id for isolation)
+        params_str = f"{tenant_id or ''}_{task}_{variant}_{confidence:.2f}_{iou:.2f}_{image_size}"
         params_hash = hashlib.md5(params_str.encode(), usedforsecurity=False).hexdigest()[:8]
 
         return f"{image_hash}_{params_hash}"
@@ -486,13 +488,14 @@ class ResultCache:
         confidence: float,
         iou: float,
         image_size: int,
+        tenant_id: str | None = None,
     ) -> Any | None:
         """
         Get cached result for image and parameters.
 
         Checks memory cache first, then Redis.
         """
-        key = self.generate_cache_key(image, task, variant, confidence, iou, image_size)
+        key = self.generate_cache_key(image, task, variant, confidence, iou, image_size, tenant_id=tenant_id)
 
         # Check memory cache
         if self.enable_memory:
@@ -524,13 +527,14 @@ class ResultCache:
         image_size: int,
         result: Any,
         ttl_seconds: int | None = None,
+        tenant_id: str | None = None,
     ) -> bool:
         """
         Cache inference result.
 
         Stores in both memory and Redis caches.
         """
-        key = self.generate_cache_key(image, task, variant, confidence, iou, image_size)
+        key = self.generate_cache_key(image, task, variant, confidence, iou, image_size, tenant_id=tenant_id)
 
         success = True
 

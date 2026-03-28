@@ -384,6 +384,54 @@ export class RedisTokenRevocationStore
     return { isRevoked: false };
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  // OTP Brute-Force Protection
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Get OTP verification attempts count
+   */
+  async getOtpAttempts(key: string): Promise<number> {
+    if (!this.initialized) await this.initialize();
+    try {
+      const value = await this.redis!.get(key);
+      if (!value) return 0;
+      const attempts = parseInt(value, 10);
+      return Number.isFinite(attempts) ? attempts : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  /**
+   * Increment OTP verification attempts (expires after 15 minutes)
+   */
+  async incrementOtpAttempts(key: string): Promise<void> {
+    if (!this.initialized) await this.initialize();
+    try {
+      const exists = await this.redis!.exists(key);
+      await this.redis!.incr(key);
+      if (!exists) {
+        await this.redis!.expire(key, 900); // 15 minutes TTL
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to increment OTP attempts: ${message}`);
+    }
+  }
+
+  /**
+   * Reset OTP verification attempts (after successful verification)
+   */
+  async resetOtpAttempts(key: string): Promise<void> {
+    if (!this.initialized) await this.initialize();
+    try {
+      await this.redis!.del(key);
+    } catch {
+      // Best effort
+    }
+  }
+
   /**
    * Check if Redis connection is healthy
    */

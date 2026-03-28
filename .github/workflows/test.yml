@@ -208,8 +208,10 @@ jobs:
             # fail-under threshold is meaningful (not diluted by all 72 services).
             COV_ARGS="--cov=apps/services/$svc"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
+            # FIX: Use --import-mode=importlib to prevent src module namespace
+            # collisions between services when running sequentially in the loop
             PYTHONPATH=$PWD python -m pytest "apps/services/$svc/tests/" -v --tb=short \
-              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=5 || {
+              -c pyproject.toml --import-mode=importlib $COV_ARGS --cov-report= --cov-fail-under=5 || {
               rc=$?
               echo "⚠ pytest exited with code $rc for $svc"
               FAILED="$FAILED $svc(rc=$rc)"

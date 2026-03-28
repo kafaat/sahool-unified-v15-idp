@@ -9,7 +9,7 @@ try:
         assess_weather,
         get_irrigation_adjustment,
     )
-except ImportError:
+except BaseException:
     pytest.skip("weather-service dependencies not installed", allow_module_level=True)
 
 

@@ -53,5 +53,5 @@ ALTER TABLE "tasks" ALTER COLUMN "updated_at" SET DEFAULT now();
 -- on an existing table. This is acceptable as it uses SET NULL on delete and
 -- the column was nullable, so no existing rows would violate the constraint.
 --
--- All subsequent migrations (20260207000000+) use CREATE INDEX CONCURRENTLY.
+-- All subsequent migrations (20260207000000+) use CREATE INDEX.
 -- ═══════════════════════════════════════════════════════════════════════════════

@@ -89,7 +89,7 @@ async def run_tool(request: ToolCallRequest, req: Request, user: dict = Depends(
     # Execute tool
     try:
         http_client = _get_http_client(req)
-        result = await _execute_tool(request.tool, request.args, http_client=http_client)
+        result = await _execute_tool(request.tool, request.args, http_client=http_client, user=user)
         execution_time = (time.time() - start_time) * 1000
 
         logger.info(
@@ -145,7 +145,7 @@ async def check_guard(request: ToolCallRequest, user: dict = Depends(get_current
 
 
 @router.get("/list")
-async def list_tools():
+async def list_tools(user: dict = Depends(get_current_user)):
     """
     List available tools.
     عرض قائمة الأدوات المتاحة
@@ -170,7 +170,7 @@ async def list_tools():
 
 
 @router.get("/check-domain/{domain}")
-async def check_domain(domain: str):
+async def check_domain(domain: str, user: dict = Depends(get_current_user)):
     """
     Check if a domain is allowed.
     فحص ما إذا كان النطاق مسموحاً
@@ -182,7 +182,7 @@ async def check_domain(domain: str):
     }
 
 
-async def _execute_tool(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None) -> Any:
+async def _execute_tool(tool: str, args: dict[str, Any], http_client: httpx.AsyncClient | None = None, user: dict | None = None) -> Any:
     """
     Execute a tool by name.
     تنفيذ أداة بالاسم
@@ -205,6 +205,7 @@ async def _execute_tool(tool: str, args: dict[str, Any], http_client: httpx.Asyn
         results = await rag_service.search(
             query=args.get("query", ""),
             top_k=args.get("k", 5),
+            tenant_id=user.get("tenant_id", "") if user else "",
         )
         return [
             {

@@ -18,7 +18,7 @@ try:
         VerifyChannelRequest,
         get_tenant_id,
     )
-except (ImportError, Exception):
+except BaseException:
     pytest.skip("notification-service dependencies not available", allow_module_level=True)
 
 

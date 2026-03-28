@@ -39,17 +39,17 @@ ALTER TABLE "experiment_audit_log" ALTER COLUMN "tenant_id" DROP DEFAULT;
 -- Step 3: Create indexes for tenant isolation queries
 -- الخطوة 3: إنشاء فهارس لاستعلامات عزل المستأجر
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_germplasm_tenant" ON "germplasm" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_germplasm_tenant_available" ON "germplasm" ("tenant_id", "is_available");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_seed_lot_tenant" ON "seed_lots" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_planting_tenant" ON "plantings" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_experiment_tenant" ON "experiments" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_experiment_tenant_status" ON "experiments" ("tenant_id", "status");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_protocol_tenant" ON "research_protocols" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_plot_tenant" ON "research_plots" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_treatment_tenant" ON "treatments" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_daily_log_tenant" ON "research_daily_logs" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_lab_sample_tenant" ON "lab_samples" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_signature_tenant" ON "digital_signatures" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_collaborator_tenant" ON "experiment_collaborators" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_log_tenant" ON "experiment_audit_log" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_germplasm_tenant" ON "germplasm" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_germplasm_tenant_available" ON "germplasm" ("tenant_id", "is_available");
+CREATE INDEX IF NOT EXISTS "idx_seed_lot_tenant" ON "seed_lots" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_planting_tenant" ON "plantings" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_experiment_tenant" ON "experiments" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_experiment_tenant_status" ON "experiments" ("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_protocol_tenant" ON "research_protocols" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_plot_tenant" ON "research_plots" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_treatment_tenant" ON "treatments" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_daily_log_tenant" ON "research_daily_logs" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_lab_sample_tenant" ON "lab_samples" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_signature_tenant" ON "digital_signatures" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_collaborator_tenant" ON "experiment_collaborators" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_audit_log_tenant" ON "experiment_audit_log" ("tenant_id");

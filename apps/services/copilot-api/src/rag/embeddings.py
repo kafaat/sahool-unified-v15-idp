@@ -171,13 +171,14 @@ class EmbeddingService:
         self.config.provider = EmbeddingProvider.SENTENCE_TRANSFORMERS
         return True
 
-    async def embed(self, text: str) -> EmbeddingResult:
+    async def embed(self, text: str, tenant_id: str = "") -> EmbeddingResult:
         """
         Generate embedding for text.
         توليد تضمين للنص
 
         Args:
             text: Text to embed
+            tenant_id: Tenant ID for cache isolation
 
         Returns:
             EmbeddingResult with vector
@@ -188,7 +189,7 @@ class EmbeddingService:
         start_time = time.time()
 
         # Check cache
-        cache_key = self._get_cache_key(text)
+        cache_key = self._get_cache_key(text, tenant_id)
         if self.config.cache_enabled and cache_key in self._cache:
             embedding, cached_time = self._cache[cache_key]
             if time.time() - cached_time < self.config.cache_ttl_seconds:
@@ -243,7 +244,7 @@ class EmbeddingService:
             model=self.config.model,
         )
 
-    async def embed_batch(self, texts: list[str]) -> list[EmbeddingResult]:
+    async def embed_batch(self, texts: list[str], tenant_id: str = "") -> list[EmbeddingResult]:
         """
         Generate embeddings for multiple texts.
         توليد تضمينات لنصوص متعددة
@@ -252,7 +253,7 @@ class EmbeddingService:
         for i in range(0, len(texts), self.config.batch_size):
             batch = texts[i : i + self.config.batch_size]
             for text in batch:
-                result = await self.embed(text)
+                result = await self.embed(text, tenant_id=tenant_id)
                 results.append(result)
         return results
 
@@ -338,10 +339,10 @@ class EmbeddingService:
 
         return embedding
 
-    def _get_cache_key(self, text: str) -> str:
-        """Generate cache key for text"""
+    def _get_cache_key(self, text: str, tenant_id: str = "") -> str:
+        """Generate cache key for text, scoped by tenant"""
         return hashlib.md5(
-            f"{self.config.provider}:{self.config.model}:{text}".encode(), usedforsecurity=False
+            f"{self.config.provider}:{self.config.model}:{tenant_id}:{text}".encode(), usedforsecurity=False
         ).hexdigest()
 
     @property

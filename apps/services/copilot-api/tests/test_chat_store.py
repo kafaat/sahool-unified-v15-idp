@@ -147,7 +147,7 @@ class TestGetSessionMessages:
 
         cs._pool = None
         cs._initialized = False
-        result = await cs.get_session_messages("s1")
+        result = await cs.get_session_messages("s1", tenant_id="t1")
         assert result == []
 
 

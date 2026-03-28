@@ -5,7 +5,9 @@ Phase 4 of Component Unification Plan (PR #1344)
 """
 
 import structlog
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+
+from ..deps import get_current_user
 
 logger = structlog.get_logger()
 router = APIRouter(prefix="/encyclopedia", tags=["encyclopedia"])
@@ -97,7 +99,13 @@ CROP_KNOWLEDGE = {
 
 
 @router.get("/search")
-async def search_encyclopedia(q: str = Query(..., min_length=2), lang: str = Query("ar", regex="^(ar|en)$")):
+async def search_encyclopedia(
+    q: str = Query(..., min_length=2, max_length=1000),
+    lang: str = Query("ar", regex="^(ar|en)$"),
+    user: dict = Depends(get_current_user),
+):
+    tenant_id = user.get("tenant_id", "")
+    logger.info("encyclopedia_search", query=q, lang=lang, tenant_id=tenant_id, user_id=user.get("user_id"))
     results = []
     q_lower = q.lower()
     for crop_type, data in CROP_KNOWLEDGE.items():
@@ -125,7 +133,9 @@ async def search_encyclopedia(q: str = Query(..., min_length=2), lang: str = Que
 
 
 @router.get("/{crop_type}")
-async def get_crop_encyclopedia(crop_type: str):
+async def get_crop_encyclopedia(crop_type: str, user: dict = Depends(get_current_user)):
+    tenant_id = user.get("tenant_id", "")
+    logger.info("encyclopedia_crop_lookup", crop_type=crop_type, tenant_id=tenant_id, user_id=user.get("user_id"))
     crop = CROP_KNOWLEDGE.get(crop_type.lower())
     if not crop:
         available = list(CROP_KNOWLEDGE.keys())
@@ -141,7 +151,9 @@ async def get_crop_encyclopedia(crop_type: str):
 
 
 @router.get("/")
-async def list_crops():
+async def list_crops(user: dict = Depends(get_current_user)):
+    tenant_id = user.get("tenant_id", "")
+    logger.info("encyclopedia_list_crops", tenant_id=tenant_id, user_id=user.get("user_id"))
     crops = [
         {"crop_type": k, "name": v["name"], "name_ar": v["name_ar"], "family_ar": v["family_ar"]}
         for k, v in CROP_KNOWLEDGE.items()

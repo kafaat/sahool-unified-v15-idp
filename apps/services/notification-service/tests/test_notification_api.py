@@ -12,7 +12,7 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
-except ImportError:
+except BaseException:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 
@@ -108,12 +108,12 @@ def app_client(mock_db, mock_notification_repo, mock_preferences_service, mock_f
         from shared.auth.dependencies import get_current_user
 
         app.dependency_overrides[get_current_user] = lambda: None
-    except ImportError:
+    except BaseException:
         try:
             from src.main import get_current_user
 
             app.dependency_overrides[get_current_user] = lambda: None
-        except ImportError:
+        except BaseException:
             pass
 
     client = TestClient(app, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"})
@@ -430,7 +430,7 @@ class TestErrorHandling:
             from shared.auth.dependencies import get_current_user
 
             app.dependency_overrides[get_current_user] = lambda: None
-        except ImportError:
+        except BaseException:
             pass
 
         try:

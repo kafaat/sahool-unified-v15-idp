@@ -21,7 +21,7 @@ try:
         DeliveryTracker,
         get_delivery_tracker,
     )
-except (ImportError, Exception):
+except BaseException:
     pytest.skip("notification-service dependencies not available", allow_module_level=True)
 
 

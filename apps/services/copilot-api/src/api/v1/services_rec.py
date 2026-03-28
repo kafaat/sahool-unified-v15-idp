@@ -5,15 +5,17 @@ Phase 4 of Component Unification Plan (PR #1344)
 """
 
 import structlog
-from fastapi import APIRouter, Body
-from pydantic import BaseModel
+from fastapi import APIRouter, Body, Depends
+from pydantic import BaseModel, Field
+
+from ..deps import get_current_user
 
 logger = structlog.get_logger()
 router = APIRouter(prefix="/services", tags=["services"])
 
 
 class ServiceRecommendRequest(BaseModel):
-    query: str
+    query: str = Field(min_length=1, max_length=1000)
     field_id: str | None = None
     location: dict | None = None
     crop_type: str | None = None
@@ -135,7 +137,8 @@ def _calculate_relevance(query: str, keywords_ar: list, keywords_en: list) -> fl
 
 
 @router.post("/recommend")
-async def recommend_services(req: ServiceRecommendRequest = Body(...)):
+async def recommend_services(req: ServiceRecommendRequest = Body(...), user: dict = Depends(get_current_user)):
+    tenant_id = user.get("tenant_id", "")
     recommendations = []
     for cat_key, cat_data in SERVICE_CATALOG.items():
         relevance = _calculate_relevance(req.query, cat_data["keywords_ar"], cat_data["keywords_en"])

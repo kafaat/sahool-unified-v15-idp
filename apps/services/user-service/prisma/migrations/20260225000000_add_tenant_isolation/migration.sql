@@ -31,6 +31,7 @@ ALTER TABLE "refresh_tokens" ALTER COLUMN "tenant_id" DROP DEFAULT;
 
 -- Step 4: Create tenant isolation indexes
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_profile_tenant" ON "user_profiles" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_session_tenant" ON "user_sessions" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_refresh_token_tenant" ON "refresh_tokens" ("tenant_id");
+-- Note: Cannot use CONCURRENTLY inside Prisma transaction block
+CREATE INDEX IF NOT EXISTS "idx_profile_tenant" ON "user_profiles" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_session_tenant" ON "user_sessions" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_refresh_token_tenant" ON "refresh_tokens" ("tenant_id");

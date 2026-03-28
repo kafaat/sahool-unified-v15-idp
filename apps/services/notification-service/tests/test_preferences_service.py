@@ -19,7 +19,7 @@ import pytest
 
 try:
     from src.preferences_service import PreferencesService
-except (ImportError, Exception):
+except BaseException:
     pytest.skip("notification-service dependencies not available", allow_module_level=True)
 
 

@@ -22,7 +22,9 @@ try:
         heavy_rain_risk,
         wind_risk,
     )
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("weather-service risks not importable", allow_module_level=True)
 
 try:
@@ -53,7 +55,9 @@ try:
     from src.providers.multi_provider import HourlyForecast as HourlyForecast
 
     FORECAST_AVAILABLE = True
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     FORECAST_AVAILABLE = False
 
 

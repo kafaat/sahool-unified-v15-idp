@@ -30,14 +30,12 @@ ALTER TABLE "sync_status" ALTER COLUMN "updated_at" SET DEFAULT now();
 -- tasks.updated_at: NOT NULL without DEFAULT (Prisma @updatedAt)
 ALTER TABLE "tasks" ALTER COLUMN "updated_at" SET DEFAULT now();
 
--- Fix non-concurrent indexes: recreate with CONCURRENTLY where safe
--- Note: Initial migration indexes are already applied and cannot be recreated
--- without downtime. Adding concurrent alternatives for future safety.
--- The following indexes from 0001_init_postgis were non-concurrent:
+-- Note on indexes from initial migration (0001_init_postgis):
+-- The following indexes were created non-concurrently on empty tables, which is safe:
 --   idx_field_tenant, idx_field_sync, idx_field_status, idx_field_crop,
 --   idx_field_boundary (GIST), idx_field_centroid (GIST),
 --   idx_history_field, idx_history_date,
 --   idx_task_field, idx_task_status, idx_task_due,
 --   idx_ndvi_field_date
 -- These are acceptable for initial schema creation (empty tables).
--- All subsequent migrations use CONCURRENTLY.
+-- All subsequent migrations use standard CREATE INDEX within Prisma transaction wrapper.

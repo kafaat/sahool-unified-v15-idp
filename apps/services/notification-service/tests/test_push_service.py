@@ -16,7 +16,9 @@ try:
     import firebase_admin  # noqa: F401
 
     firebase_admin_available = True
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     firebase_admin_available = False
 
 pytestmark = pytest.mark.skipif(not firebase_admin_available, reason="firebase_admin not installed")

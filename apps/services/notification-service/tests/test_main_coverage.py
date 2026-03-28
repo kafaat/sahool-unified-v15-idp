@@ -41,7 +41,9 @@ try:
         sanitize_log_input,
         send_notification_via_channel,
     )
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("notification-service dependencies not available", allow_module_level=True)
 
 

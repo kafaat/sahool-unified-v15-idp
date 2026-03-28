@@ -12,7 +12,9 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 

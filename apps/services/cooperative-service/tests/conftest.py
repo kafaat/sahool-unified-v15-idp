@@ -17,13 +17,29 @@ os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 
 
 @pytest.fixture
-def client():
+def mock_auth_user():
+    """Create a mock authenticated user."""
+    user = MagicMock()
+    user.id = "test-user-001"
+    user.username = "test_farmer"
+    user.email = "farmer@sahool.app"
+    user.tenant_id = "00000000-0000-0000-0000-000000000001"
+    user.roles = ["user"]
+    return user
+
+
+@pytest.fixture
+def client(mock_auth_user):
     """Create test client with tenant header."""
     from src.main import app
 
+    from src.api.v1.cooperatives import get_current_user
+
+    app.dependency_overrides[get_current_user] = lambda: mock_auth_user
     c = TestClient(app)
     c.headers["X-Tenant-Id"] = "00000000-0000-0000-0000-000000000001"
-    return c
+    yield c
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 @pytest.fixture
@@ -46,15 +62,19 @@ def mock_nats():
 
 
 @pytest.fixture
-def app_with_db(mock_db_pool, mock_nats):
+def app_with_db(mock_db_pool, mock_nats, mock_auth_user):
     """Create FastAPI app with mocked DB and NATS."""
     from src.main import app
 
+    from src.api.v1.cooperatives import get_current_user
+
+    app.dependency_overrides[get_current_user] = lambda: mock_auth_user
     app.state.db_pool = mock_db_pool
     app.state.db_connected = True
     app.state.nc = mock_nats
     app.state.nats_connected = True
-    return app
+    yield app
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 @pytest.fixture

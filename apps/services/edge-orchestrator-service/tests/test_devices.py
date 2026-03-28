@@ -29,7 +29,12 @@ def client():
         User = None
 
     if get_current_user and User:
-        mock_user = User(id="test-user", tenant_id="00000000-0000-0000-0000-000000000001", email="test@test.com", roles=["admin"])
+        mock_user = User(
+            id="test-user",
+            tenant_id="00000000-0000-0000-0000-000000000001",
+            email="test@test.com",
+            roles=["admin"],
+        )
         app.dependency_overrides[get_current_user] = lambda: mock_user
 
     client = TestClient(app, headers={"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"})

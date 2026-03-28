@@ -52,14 +52,24 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
 # =============================================================================
 
 
+ALLOWED_CHANNEL_TYPES = {"email", "sms", "push", "whatsapp", "in_app"}
+
+
 class AddChannelRequest(BaseModel):
     """طلب إضافة قناة - Add Channel Request"""
 
-    user_id: str = Field(..., description="User ID")
-    channel_type: str = Field(..., description="Channel type: email, sms, push, whatsapp, in_app")
-    address: str = Field(..., description="Channel address (email, phone, FCM token, etc.)")
-    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
+    user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
+    channel_type: str = Field(..., min_length=1, max_length=20, description="Channel type: email, sms, push, whatsapp, in_app")
+    address: str = Field(..., min_length=1, max_length=500, description="Channel address (email, phone, FCM token, etc.)")
+    tenant_id: str | None = Field(None, max_length=100, description="Tenant ID for multi-tenancy")
     metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
+
+    @field_validator("channel_type")
+    @classmethod
+    def validate_channel_type(cls, v: str) -> str:
+        if v not in ALLOWED_CHANNEL_TYPES:
+            raise ValueError(f"channel_type must be one of: {', '.join(sorted(ALLOWED_CHANNEL_TYPES))}")
+        return v
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -77,9 +87,9 @@ class AddChannelRequest(BaseModel):
 class VerifyChannelRequest(BaseModel):
     """طلب تحقق من قناة - Verify Channel Request"""
 
-    channel_id: str = Field(..., description="Channel ID")
-    verification_code: str = Field(..., description="Verification code")
-    user_id: str = Field(..., description="User ID")
+    channel_id: str = Field(..., min_length=1, max_length=100, description="Channel ID")
+    verification_code: str = Field(..., min_length=4, max_length=10, description="Verification code")
+    user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -95,8 +105,8 @@ class VerifyChannelRequest(BaseModel):
 class UpdateChannelStatusRequest(BaseModel):
     """طلب تحديث حالة قناة - Update Channel Status Request"""
 
-    channel_id: str = Field(..., description="Channel ID")
-    user_id: str = Field(..., description="User ID")
+    channel_id: str = Field(..., min_length=1, max_length=100, description="Channel ID")
+    user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
     enabled: bool = Field(..., description="Whether channel should be enabled")
 
     model_config = ConfigDict(

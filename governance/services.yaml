@@ -1085,6 +1085,7 @@ services:
     category: integration
     layer: business
     path: "apps/services/ws-gateway"
+    helm_chart: "helm/charts/ws-gateway"
     port: 8081
     protocol: websocket
     health_endpoint: "/healthz"
@@ -1655,6 +1656,7 @@ services:
     category: core
     layer: business
     path: "apps/services/inventory-service"
+    helm_chart: "helm/services/inventory-service"
     port: 8116
     protocol: http
     health_endpoint: "/healthz"
@@ -2858,6 +2860,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/hydrology-service"
+    helm_chart: "helm/services/hydrology-service"
     port: 8165
     protocol: http
     health_endpoint: "/healthz"
@@ -2929,6 +2932,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/edge-orchestrator-service"
+    helm_chart: "helm/services/edge-orchestrator-service"
     port: 8180  # Matches Dockerfile EXPOSE and ENV PORT
     protocol: http
     health_endpoint: "/healthz"

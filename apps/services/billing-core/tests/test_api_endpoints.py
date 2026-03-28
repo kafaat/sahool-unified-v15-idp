@@ -4,6 +4,7 @@ Covers: health endpoints, plans, tenants, subscriptions, usage, invoices, paymen
 All database and external dependencies are mocked.
 """
 
+import asyncio
 import os
 import uuid
 from datetime import UTC, date, datetime, timedelta
@@ -118,32 +119,29 @@ class TestHealthEndpoints:
 class TestNatsPublishing:
     """Test NATS event publishing function"""
 
-    @pytest.mark.asyncio
-    async def test_publish_event_with_jetstream(self):
+    def test_publish_event_with_jetstream(self):
         from src.main import publish_event
 
         mock_js = AsyncMock()
         with patch("src.main.js", mock_js):
-            await publish_event("sahool.billing.test", {"key": "value"})
+            asyncio.run(publish_event("sahool.billing.test", {"key": "value"}))
             mock_js.publish.assert_awaited_once()
 
-    @pytest.mark.asyncio
-    async def test_publish_event_without_jetstream(self):
+    def test_publish_event_without_jetstream(self):
         from src.main import publish_event
 
         with patch("src.main.js", None):
             # Should not raise, just log
-            await publish_event("sahool.billing.test", {"key": "value"})
+            asyncio.run(publish_event("sahool.billing.test", {"key": "value"}))
 
-    @pytest.mark.asyncio
-    async def test_publish_event_jetstream_error(self):
+    def test_publish_event_jetstream_error(self):
         from src.main import publish_event
 
         mock_js = AsyncMock()
         mock_js.publish.side_effect = Exception("NATS down")
         with patch("src.main.js", mock_js):
             # Should not raise
-            await publish_event("sahool.billing.test", {"key": "value"})
+            asyncio.run(publish_event("sahool.billing.test", {"key": "value"}))
 
 
 # ============================================================
@@ -300,8 +298,7 @@ class TestInitModule:
 class TestAsyncHelpers:
     """Test async helper functions from main.py"""
 
-    @pytest.mark.asyncio
-    async def test_check_usage_limit_db_tenant_not_found(self):
+    def test_check_usage_limit_db_tenant_not_found(self):
         from src.main import check_usage_limit_db
 
         mock_db = AsyncMock()
@@ -313,12 +310,11 @@ class TestAsyncHelpers:
             repo_instance.tenants.get_by_tenant_id = AsyncMock(return_value=None)
             MockRepo.return_value = repo_instance
 
-            result = await check_usage_limit_db(mock_db, "t-001", "fields")
+            result = asyncio.run(check_usage_limit_db(mock_db, "t-001", "fields"))
             assert result["allowed"] is False
             assert "Tenant not found" in result["reason"]
 
-    @pytest.mark.asyncio
-    async def test_check_usage_limit_db_no_subscription(self):
+    def test_check_usage_limit_db_no_subscription(self):
         from src.main import check_usage_limit_db
 
         mock_db = AsyncMock()
@@ -329,12 +325,11 @@ class TestAsyncHelpers:
             repo_instance.subscriptions.get_by_tenant = AsyncMock(return_value=None)
             MockRepo.return_value = repo_instance
 
-            result = await check_usage_limit_db(mock_db, "t-001", "fields")
+            result = asyncio.run(check_usage_limit_db(mock_db, "t-001", "fields"))
             assert result["allowed"] is False
             assert "No active subscription" in result["reason"]
 
-    @pytest.mark.asyncio
-    async def test_check_usage_limit_db_unlimited(self):
+    def test_check_usage_limit_db_unlimited(self):
         from src.main import check_usage_limit_db
 
         mock_db = AsyncMock()
@@ -348,12 +343,11 @@ class TestAsyncHelpers:
             repo_instance.plans.get_by_plan_id = AsyncMock(return_value=mock_plan)
             MockRepo.return_value = repo_instance
 
-            result = await check_usage_limit_db(mock_db, "t-001", "fields")
+            result = asyncio.run(check_usage_limit_db(mock_db, "t-001", "fields"))
             assert result["allowed"] is True
             assert result["remaining"] == "unlimited"
 
-    @pytest.mark.asyncio
-    async def test_check_usage_limit_db_within_limit(self):
+    def test_check_usage_limit_db_within_limit(self):
         from src.main import check_usage_limit_db
 
         mock_db = AsyncMock()
@@ -368,13 +362,12 @@ class TestAsyncHelpers:
             repo_instance.usage_records.get_metric_count = AsyncMock(return_value=5)
             MockRepo.return_value = repo_instance
 
-            result = await check_usage_limit_db(mock_db, "t-001", "fields")
+            result = asyncio.run(check_usage_limit_db(mock_db, "t-001", "fields"))
             assert result["allowed"] is True
             assert result["used"] == 5
             assert result["remaining"] == 5
 
-    @pytest.mark.asyncio
-    async def test_check_usage_limit_db_exceeded(self):
+    def test_check_usage_limit_db_exceeded(self):
         from src.main import check_usage_limit_db
 
         mock_db = AsyncMock()
@@ -389,20 +382,18 @@ class TestAsyncHelpers:
             repo_instance.usage_records.get_metric_count = AsyncMock(return_value=15)
             MockRepo.return_value = repo_instance
 
-            result = await check_usage_limit_db(mock_db, "t-001", "fields")
+            result = asyncio.run(check_usage_limit_db(mock_db, "t-001", "fields"))
             assert result["allowed"] is False
             assert result["used"] == 15
 
-    @pytest.mark.asyncio
-    async def test_calculate_overage_charges_empty_limits(self):
+    def test_calculate_overage_charges_empty_limits(self):
         from src.main import calculate_overage_charges_db
 
         mock_db = AsyncMock()
-        result = await calculate_overage_charges_db(mock_db, "t-001", {})
+        result = asyncio.run(calculate_overage_charges_db(mock_db, "t-001", {}))
         assert result == []
 
-    @pytest.mark.asyncio
-    async def test_calculate_overage_charges_no_overage(self):
+    def test_calculate_overage_charges_no_overage(self):
         from src.main import calculate_overage_charges_db
 
         mock_db = AsyncMock()
@@ -412,11 +403,10 @@ class TestAsyncHelpers:
             repo_instance.usage_records.get_metric_count = AsyncMock(return_value=3)
             MockRepo.return_value = repo_instance
 
-            result = await calculate_overage_charges_db(mock_db, "t-001", {"fields": 10})
+            result = asyncio.run(calculate_overage_charges_db(mock_db, "t-001", {"fields": 10}))
             assert result == []
 
-    @pytest.mark.asyncio
-    async def test_calculate_overage_charges_with_overage(self):
+    def test_calculate_overage_charges_with_overage(self):
         from src.main import calculate_overage_charges_db
 
         mock_db = AsyncMock()
@@ -426,13 +416,12 @@ class TestAsyncHelpers:
             repo_instance.usage_records.get_metric_count = AsyncMock(return_value=15)
             MockRepo.return_value = repo_instance
 
-            result = await calculate_overage_charges_db(mock_db, "t-001", {"fields": 10})
+            result = asyncio.run(calculate_overage_charges_db(mock_db, "t-001", {"fields": 10}))
             assert len(result) == 1
             assert result[0].quantity == 5  # 15 - 10 = 5 excess
             assert result[0].is_usage_based is True
 
-    @pytest.mark.asyncio
-    async def test_calculate_overage_charges_unlimited_skipped(self):
+    def test_calculate_overage_charges_unlimited_skipped(self):
         from src.main import calculate_overage_charges_db
 
         mock_db = AsyncMock()
@@ -441,7 +430,7 @@ class TestAsyncHelpers:
             repo_instance = MagicMock()
             MockRepo.return_value = repo_instance
 
-            result = await calculate_overage_charges_db(mock_db, "t-001", {"fields": -1})
+            result = asyncio.run(calculate_overage_charges_db(mock_db, "t-001", {"fields": -1}))
             assert result == []
             # get_metric_count should NOT have been called for unlimited
             repo_instance.usage_records.get_metric_count.assert_not_called()

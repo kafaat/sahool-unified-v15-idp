@@ -13,9 +13,13 @@ spec:
     - Ingress
     - Egress
   ingress:
-    # Allow inbound traffic on service port
-    - ports:
-        - port: 8119
+    # Allow inbound traffic on service port from SAHOOL platform pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: sahool
+      ports:
+        - port: {{ .Values.service.port }}
           protocol: TCP
   egress:
     # DNS resolution

@@ -104,8 +104,7 @@ def make_mock_pool_with_transaction():
 # IrrigationDatabase Tests
 # ============================================================================
 class TestGetFieldIrrigationHistory:
-    @pytest.mark.asyncio
-    async def test_returns_history(self):
+    def test_returns_history(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetch.return_value = [
             {"id": "1", "field_id": "f1", "amount_mm": 25, "executed_at": datetime.now(UTC)},
@@ -113,24 +112,22 @@ class TestGetFieldIrrigationHistory:
         ]
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_field_irrigation_history("f1", days=30, limit=100)
+        result = asyncio.run(db.get_field_irrigation_history("f1", days=30, limit=100))
 
         assert len(result) == 2
         assert result[0]["amount_mm"] == 25
 
-    @pytest.mark.asyncio
-    async def test_returns_empty_on_error(self):
+    def test_returns_empty_on_error(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetch.side_effect = Exception("connection error")
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_field_irrigation_history("f1")
+        result = asyncio.run(db.get_field_irrigation_history("f1"))
         assert result == []
 
 
 class TestGetSensorReadingsSummary:
-    @pytest.mark.asyncio
-    async def test_returns_summary(self):
+    def test_returns_summary(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetchrow.return_value = {
             "reading_count": 10,
@@ -141,23 +138,21 @@ class TestGetSensorReadingsSummary:
         }
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_sensor_readings_summary("f1", hours=24)
+        result = asyncio.run(db.get_sensor_readings_summary("f1", hours=24))
 
         assert result["reading_count"] == 10
         assert result["avg_moisture"] == 45.68  # rounded
         assert result["min_moisture"] == 30.12
 
-    @pytest.mark.asyncio
-    async def test_returns_empty_when_no_data(self):
+    def test_returns_empty_when_no_data(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetchrow.return_value = None
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_sensor_readings_summary("f1")
+        result = asyncio.run(db.get_sensor_readings_summary("f1"))
         assert result == {}
 
-    @pytest.mark.asyncio
-    async def test_handles_null_values(self):
+    def test_handles_null_values(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetchrow.return_value = {
             "reading_count": None,
@@ -168,23 +163,21 @@ class TestGetSensorReadingsSummary:
         }
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_sensor_readings_summary("f1")
+        result = asyncio.run(db.get_sensor_readings_summary("f1"))
         assert result["reading_count"] == 0
         assert result["avg_moisture"] == 0
 
-    @pytest.mark.asyncio
-    async def test_returns_empty_on_error(self):
+    def test_returns_empty_on_error(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetchrow.side_effect = Exception("db error")
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_sensor_readings_summary("f1")
+        result = asyncio.run(db.get_sensor_readings_summary("f1"))
         assert result == {}
 
 
 class TestSaveIrrigationPlan:
-    @pytest.mark.asyncio
-    async def test_saves_plan_successfully(self):
+    def test_saves_plan_successfully(self):
         mock_pool, mock_conn = make_mock_pool_with_transaction()
 
         db = IrrigationDatabase(mock_pool)
@@ -200,7 +193,7 @@ class TestSaveIrrigationPlan:
             }
         ]
 
-        result = await db.save_irrigation_plan(
+        result = asyncio.run(db.save_irrigation_plan(
             plan_id="p1",
             field_id="f1",
             crop="wheat",
@@ -209,11 +202,10 @@ class TestSaveIrrigationPlan:
             estimated_cost=750.0,
             schedules=schedules,
             tenant_id="t1",
-        )
+        ))
         assert result is True
 
-    @pytest.mark.asyncio
-    async def test_returns_false_on_error(self):
+    def test_returns_false_on_error(self):
         mock_pool = MagicMock()
 
         class FailingCtx:
@@ -226,17 +218,16 @@ class TestSaveIrrigationPlan:
         mock_pool.acquire.return_value = FailingCtx()
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.save_irrigation_plan("p1", "f1", "wheat", "veg", 5.0, 750.0, [])
+        result = asyncio.run(db.save_irrigation_plan("p1", "f1", "wheat", "veg", 5.0, 750.0, []))
         assert result is False
 
 
 class TestSaveIrrigationExecution:
-    @pytest.mark.asyncio
-    async def test_saves_execution(self):
+    def test_saves_execution(self):
         mock_pool, mock_conn = make_mock_pool()
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.save_irrigation_execution(
+        result = asyncio.run(db.save_irrigation_execution(
             execution_id="e1",
             field_id="f1",
             plan_id="p1",
@@ -246,22 +237,20 @@ class TestSaveIrrigationExecution:
             method="drip",
             executed_at=datetime.now(UTC),
             tenant_id="t1",
-        )
+        ))
         assert result is True
 
-    @pytest.mark.asyncio
-    async def test_returns_false_on_error(self):
+    def test_returns_false_on_error(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.execute.side_effect = Exception("db error")
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.save_irrigation_execution("e1", "f1", None, None, 25.0, 45, "drip", datetime.now(UTC))
+        result = asyncio.run(db.save_irrigation_execution("e1", "f1", None, None, 25.0, 45, "drip", datetime.now(UTC)))
         assert result is False
 
 
 class TestBatchSaveSensorReadings:
-    @pytest.mark.asyncio
-    async def test_saves_batch(self):
+    def test_saves_batch(self):
         mock_pool, mock_conn = make_mock_pool_with_transaction()
 
         db = IrrigationDatabase(mock_pool)
@@ -286,18 +275,16 @@ class TestBatchSaveSensorReadings:
             },
         ]
 
-        result = await db.batch_save_sensor_readings(readings)
+        result = asyncio.run(db.batch_save_sensor_readings(readings))
         assert result == 2
 
-    @pytest.mark.asyncio
-    async def test_empty_readings_returns_zero(self):
+    def test_empty_readings_returns_zero(self):
         mock_pool = MagicMock()
         db = IrrigationDatabase(mock_pool)
-        result = await db.batch_save_sensor_readings([])
+        result = asyncio.run(db.batch_save_sensor_readings([]))
         assert result == 0
 
-    @pytest.mark.asyncio
-    async def test_returns_zero_on_error(self):
+    def test_returns_zero_on_error(self):
         mock_pool = MagicMock()
 
         class FailingCtx:
@@ -310,13 +297,12 @@ class TestBatchSaveSensorReadings:
         mock_pool.acquire.return_value = FailingCtx()
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.batch_save_sensor_readings([{"id": "r1"}])
+        result = asyncio.run(db.batch_save_sensor_readings([{"id": "r1"}]))
         assert result == 0
 
 
 class TestGetWaterBalanceSummary:
-    @pytest.mark.asyncio
-    async def test_returns_summary(self):
+    def test_returns_summary(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetchrow.return_value = {
             "total_et": 70.5,
@@ -326,7 +312,7 @@ class TestGetWaterBalanceSummary:
         }
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_water_balance_summary("f1", days=14)
+        result = asyncio.run(db.get_water_balance_summary("f1", days=14))
 
         assert result["total_et_mm"] == 70.5
         assert result["total_rainfall_mm"] == 15.2
@@ -334,17 +320,15 @@ class TestGetWaterBalanceSummary:
         assert result["cumulative_deficit_mm"] == 15.3
         assert result["period_days"] == 14
 
-    @pytest.mark.asyncio
-    async def test_returns_empty_when_no_data(self):
+    def test_returns_empty_when_no_data(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetchrow.return_value = None
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_water_balance_summary("f1")
+        result = asyncio.run(db.get_water_balance_summary("f1"))
         assert result == {}
 
-    @pytest.mark.asyncio
-    async def test_handles_null_values(self):
+    def test_handles_null_values(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetchrow.return_value = {
             "total_et": None,
@@ -354,17 +338,16 @@ class TestGetWaterBalanceSummary:
         }
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_water_balance_summary("f1")
+        result = asyncio.run(db.get_water_balance_summary("f1"))
         assert result["total_et_mm"] == 0
         assert result["cumulative_deficit_mm"] == 0
 
-    @pytest.mark.asyncio
-    async def test_returns_empty_on_error(self):
+    def test_returns_empty_on_error(self):
         mock_pool, mock_conn = make_mock_pool()
         mock_conn.fetchrow.side_effect = Exception("db error")
 
         db = IrrigationDatabase(mock_pool)
-        result = await db.get_water_balance_summary("f1")
+        result = asyncio.run(db.get_water_balance_summary("f1"))
         assert result == {}
 
 
@@ -372,32 +355,28 @@ class TestGetWaterBalanceSummary:
 # with_retry Tests
 # ============================================================================
 class TestWithRetry:
-    @pytest.mark.asyncio
-    async def test_succeeds_first_try(self):
+    def test_succeeds_first_try(self):
         func = AsyncMock(return_value="ok")
-        result = await with_retry(func, max_attempts=3, delay=0.01)
+        result = asyncio.run(with_retry(func, max_attempts=3, delay=0.01))
         assert result == "ok"
         assert func.call_count == 1
 
-    @pytest.mark.asyncio
-    async def test_retries_on_failure_then_succeeds(self):
+    def test_retries_on_failure_then_succeeds(self):
         func = AsyncMock(side_effect=[Exception("fail"), Exception("fail"), "ok"])
-        result = await with_retry(func, max_attempts=3, delay=0.01)
+        result = asyncio.run(with_retry(func, max_attempts=3, delay=0.01))
         assert result == "ok"
         assert func.call_count == 3
 
-    @pytest.mark.asyncio
-    async def test_raises_after_max_attempts(self):
+    def test_raises_after_max_attempts(self):
         func = AsyncMock(side_effect=Exception("persistent failure"))
         with pytest.raises(Exception, match="persistent failure"):
-            await with_retry(func, max_attempts=3, delay=0.01)
+            asyncio.run(with_retry(func, max_attempts=3, delay=0.01))
         assert func.call_count == 3
 
-    @pytest.mark.asyncio
-    async def test_single_attempt(self):
+    def test_single_attempt(self):
         func = AsyncMock(side_effect=Exception("fail"))
         with pytest.raises(Exception, match="fail"):
-            await with_retry(func, max_attempts=1, delay=0.01)
+            asyncio.run(with_retry(func, max_attempts=1, delay=0.01))
         assert func.call_count == 1
 
 
@@ -405,8 +384,7 @@ class TestWithRetry:
 # create_pool Tests
 # ============================================================================
 class TestCreatePool:
-    @pytest.mark.asyncio
-    async def test_creates_pool_successfully(self):
+    def test_creates_pool_successfully(self):
         mock_pool = AsyncMock()
         with patch("src.database_utils.asyncpg", create=True) as mock_asyncpg:
             # We need to handle the import inside create_pool
@@ -416,35 +394,32 @@ class TestCreatePool:
             mock_asyncpg_module.create_pool = AsyncMock(return_value=mock_pool)
 
             with patch.dict(sys.modules, {"asyncpg": mock_asyncpg_module}):
-                result = await create_pool("postgresql://localhost/test")
+                result = asyncio.run(create_pool("postgresql://localhost/test"))
                 # Result should be the mock pool or None depending on import
                 # The function tries to import asyncpg internally
 
-    @pytest.mark.asyncio
-    async def test_returns_none_when_asyncpg_missing(self):
+    def test_returns_none_when_asyncpg_missing(self):
         # Force ImportError for asyncpg
         with patch.dict(sys.modules, {"asyncpg": None}):
             # Remove asyncpg from modules to trigger ImportError
             saved = sys.modules.pop("asyncpg", None)
             try:
                 # The import inside create_pool will fail
-                result = await create_pool("postgresql://localhost/test")
+                result = asyncio.run(create_pool("postgresql://localhost/test"))
                 assert result is None
             finally:
                 if saved is not None:
                     sys.modules["asyncpg"] = saved
 
-    @pytest.mark.asyncio
-    async def test_returns_none_on_connection_error(self):
+    def test_returns_none_on_connection_error(self):
         mock_asyncpg = MagicMock()
         mock_asyncpg.create_pool = AsyncMock(side_effect=Exception("connection refused"))
 
         with patch.dict(sys.modules, {"asyncpg": mock_asyncpg}):
-            result = await create_pool("postgresql://badhost/test")
+            result = asyncio.run(create_pool("postgresql://badhost/test"))
             assert result is None
 
-    @pytest.mark.asyncio
-    async def test_uses_custom_config(self):
+    def test_uses_custom_config(self):
         mock_asyncpg = MagicMock()
         mock_pool = AsyncMock()
         mock_asyncpg.create_pool = AsyncMock(return_value=mock_pool)
@@ -452,6 +427,6 @@ class TestCreatePool:
         config = PoolConfig(min_connections=5, max_connections=20, command_timeout=120)
 
         with patch.dict(sys.modules, {"asyncpg": mock_asyncpg}):
-            result = await create_pool("postgresql://localhost/test", config=config)
+            result = asyncio.run(create_pool("postgresql://localhost/test", config=config))
             if result is not None:
                 mock_asyncpg.create_pool.assert_called_once()

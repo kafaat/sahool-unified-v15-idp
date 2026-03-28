@@ -3,6 +3,7 @@ Tests for billing-core database module.
 Covers: Engine creation, session management, health checks, init/drop/close.
 """
 
+import asyncio
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -143,29 +144,27 @@ class TestEngineCreation:
 class TestCloseDb:
     """Test database close/dispose"""
 
-    @pytest.mark.asyncio
-    async def test_close_db_disposes_engine(self):
+    def test_close_db_disposes_engine(self):
         import src.database as db_mod
 
         mock_engine = AsyncMock()
         db_mod._engine = mock_engine
         db_mod._session_factory = MagicMock()
 
-        await db_mod.close_db()
+        asyncio.run(db_mod.close_db())
 
         mock_engine.dispose.assert_awaited_once()
         assert db_mod._engine is None
         assert db_mod._session_factory is None
 
-    @pytest.mark.asyncio
-    async def test_close_db_noop_when_no_engine(self):
+    def test_close_db_noop_when_no_engine(self):
         import src.database as db_mod
 
         db_mod._engine = None
         db_mod._session_factory = None
 
         # Should not raise
-        await db_mod.close_db()
+        asyncio.run(db_mod.close_db())
         assert db_mod._engine is None
 
 

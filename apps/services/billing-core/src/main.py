@@ -1994,9 +1994,9 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
 
 @app.get("/api/v1/plans/{plan_id}")
 async def get_plan(plan_id: str = Path(min_length=1, max_length=100), db: AsyncSession = Depends(get_db)):
-    """تفاصيل خ��ة محددة"""
+    """تفاصيل الخطة"""
     if not plan_id or len(plan_id) > 100:
-        raise HTTPException(400, "معرف الخط�� غير صالح")
+        raise HTTPException(400, "معرف الخطة غير صالح")
     repo = BillingRepository(db)
     plan = await repo.plans.get_by_plan_id(plan_id)
 

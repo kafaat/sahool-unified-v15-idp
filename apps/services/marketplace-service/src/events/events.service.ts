@@ -114,6 +114,13 @@ const EventSubjects = {
   ORDER_CANCELLED: "sahool.marketplace.order.cancelled",
   INVENTORY_LOW_STOCK: "sahool.marketplace.inventory.low_stock",
   INVENTORY_MOVEMENT: "sahool.marketplace.inventory.movement",
+
+  /**
+   * @deprecated Legacy subject kept for backward compatibility with existing consumers
+   * that subscribe to "sahool.marketplace.order.placed" (including shared-events ORDER_PLACED).
+   * Will be removed in v17.0.0. Consumers should migrate to ORDER_CREATED ("sahool.marketplace.order.created").
+   */
+  ORDER_PLACED_LEGACY: "sahool.marketplace.order.placed",
 } as const;
 
 type EventSubject = (typeof EventSubjects)[keyof typeof EventSubjects];
@@ -487,7 +494,14 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Publish order placed event
+   * Publish order placed event.
+   *
+   * Publishes to both the current subject ("sahool.marketplace.order.created") and the
+   * legacy subject ("sahool.marketplace.order.placed") for backward compatibility with
+   * existing consumers (shared-events ORDER_PLACED, notification-service, billing-core, etc.).
+   *
+   * TODO: Remove dual-publish once all consumers have migrated to "order.created".
+   * Legacy subject will be removed in v17.0.0.
    */
   async publishOrderPlaced(orderData: {
     orderId: string;
@@ -510,8 +524,18 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       orderId: this.sanitizeForLog(orderData.orderId),
     });
 
+    // Publish to the current subject
     await this.publishEvent<OrderPlacedEvent>(
       EventSubjects.ORDER_CREATED,
+      orderData,
+    );
+
+    // Also publish to the legacy subject for backward compatibility (remove in v17.0.0)
+    this.logger.log(`Publishing legacy order.placed event for backward compatibility`, {
+      orderId: this.sanitizeForLog(orderData.orderId),
+    });
+    await this.publishEvent<OrderPlacedEvent>(
+      EventSubjects.ORDER_PLACED_LEGACY,
       orderData,
     );
   }

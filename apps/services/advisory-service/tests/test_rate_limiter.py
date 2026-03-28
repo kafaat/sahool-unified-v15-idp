@@ -2,6 +2,7 @@
 Tests for Rate Limiter - advisory-service
 """
 
+import asyncio
 import time
 from unittest.mock import MagicMock, PropertyMock
 
@@ -151,8 +152,7 @@ class TestAdvisoryRateLimiter:
 class TestRateLimitDecorator:
     """Tests for rate_limit decorator"""
 
-    @pytest.mark.asyncio
-    async def test_async_decorator_allows(self):
+    def test_async_decorator_allows(self):
         import src.rate_limiter as rl
 
         rl._rate_limiter = None
@@ -162,7 +162,7 @@ class TestRateLimitDecorator:
             return {"ok": True}
 
         request = _make_mock_request(tenant_id="t1")
-        result = await my_endpoint(request)
+        result = asyncio.run(my_endpoint(request))
         assert result == {"ok": True}
 
     def test_sync_decorator_allows(self):
@@ -178,13 +178,12 @@ class TestRateLimitDecorator:
         result = my_sync_endpoint(request)
         assert result == {"ok": True}
 
-    @pytest.mark.asyncio
-    async def test_async_decorator_no_request_skips(self):
+    def test_async_decorator_no_request_skips(self):
         @rate_limit(tier="lookup")
         async def no_request_endpoint():
             return {"ok": True}
 
-        result = await no_request_endpoint()
+        result = asyncio.run(no_request_endpoint())
         assert result == {"ok": True}
 
     def test_sync_decorator_no_request_skips(self):

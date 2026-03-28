@@ -3,6 +3,7 @@ Comprehensive Weather Service API Tests
 Tests for weather API endpoints, external provider integration, and error handling
 """
 
+import asyncio
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -119,8 +120,7 @@ class TestHealthEndpoint:
 class TestCurrentWeatherEndpoint:
     """Test current weather endpoint"""
 
-    @pytest.mark.asyncio
-    async def test_get_current_weather_success(self, client):
+    def test_get_current_weather_success(self, client):
         """Test successful current weather retrieval"""
         with patch("src.main.app.state") as mock_state:
             # Mock weather provider
@@ -157,8 +157,7 @@ class TestCurrentWeatherEndpoint:
             assert "current" in data
             assert data["field_id"] == "field-456"
 
-    @pytest.mark.asyncio
-    async def test_get_current_weather_invalid_coordinates(self, client):
+    def test_get_current_weather_invalid_coordinates(self, client):
         """Test current weather with invalid coordinates"""
         response = client.post(
             "/weather/current",
@@ -171,8 +170,7 @@ class TestCurrentWeatherEndpoint:
         )
         assert response.status_code == 422  # Validation error
 
-    @pytest.mark.asyncio
-    async def test_get_current_weather_multi_provider(self, client):
+    def test_get_current_weather_multi_provider(self, client):
         """Test current weather with multi-provider service"""
         with patch("src.main.app.state") as mock_state:
             # Mock multi-provider
@@ -224,8 +222,7 @@ class TestCurrentWeatherEndpoint:
 class TestForecastEndpoint:
     """Test weather forecast endpoint"""
 
-    @pytest.mark.asyncio
-    async def test_get_forecast_success(self, client, mock_daily_forecast):
+    def test_get_forecast_success(self, client, mock_daily_forecast):
         """Test successful forecast retrieval"""
         with patch("src.main.app.state") as mock_state:
             # Mock weather provider
@@ -251,8 +248,7 @@ class TestForecastEndpoint:
             assert "forecast" in data
             assert data["days"] >= 1
 
-    @pytest.mark.asyncio
-    async def test_get_forecast_custom_days(self, client):
+    def test_get_forecast_custom_days(self, client):
         """Test forecast with custom number of days"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
@@ -274,8 +270,7 @@ class TestForecastEndpoint:
                 )
                 assert response.status_code == 200
 
-    @pytest.mark.asyncio
-    async def test_get_forecast_max_days_limit(self, client):
+    def test_get_forecast_max_days_limit(self, client):
         """Test forecast respects maximum days limit"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
@@ -537,8 +532,7 @@ class TestHeatStressEndpoint:
 class TestExternalAPIIntegration:
     """Test external weather API integration"""
 
-    @pytest.mark.asyncio
-    async def test_open_meteo_api_call(self):
+    def test_open_meteo_api_call(self):
         """Test Open-Meteo API integration"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -566,16 +560,15 @@ class TestExternalAPIIntegration:
             mock_client_getter.return_value = mock_client
 
             # Test API call
-            weather = await provider.get_current(15.35, 44.20)
+            weather = asyncio.run(provider.get_current(15.35, 44.20))
 
             assert weather.temperature_c == 28.5
             assert weather.humidity_pct == 55
             assert weather.wind_speed_kmh == 12
 
-        await provider.close()
+        asyncio.run(provider.close())
 
-    @pytest.mark.asyncio
-    async def test_open_meteo_forecast_call(self):
+    def test_open_meteo_forecast_call(self):
         """Test Open-Meteo forecast API integration"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -602,16 +595,15 @@ class TestExternalAPIIntegration:
             mock_client_getter.return_value = mock_client
 
             # Test API call
-            forecast = await provider.get_daily_forecast(15.35, 44.20, 7)
+            forecast = asyncio.run(provider.get_daily_forecast(15.35, 44.20, 7))
 
             assert len(forecast) == 2
             assert forecast[0].temp_max_c == 32.5
             assert forecast[1].temp_max_c == 33.8
 
-        await provider.close()
+        asyncio.run(provider.close())
 
-    @pytest.mark.asyncio
-    async def test_api_error_handling(self):
+    def test_api_error_handling(self):
         """Test API error handling"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -624,16 +616,15 @@ class TestExternalAPIIntegration:
 
             # Should raise exception
             with pytest.raises((ValueError, Exception)):
-                await provider.get_current(15.35, 44.20)
+                asyncio.run(provider.get_current(15.35, 44.20))
 
-        await provider.close()
+        asyncio.run(provider.close())
 
 
 class TestCorrelationID:
     """Test correlation ID handling"""
 
-    @pytest.mark.asyncio
-    async def test_correlation_id_in_request(self, client):
+    def test_correlation_id_in_request(self, client):
         """Test correlation ID is accepted in requests"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()

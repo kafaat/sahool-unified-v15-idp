@@ -2,6 +2,7 @@
 Tests for Event Publisher - advisory-service
 """
 
+import asyncio
 import json
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -60,79 +61,72 @@ class TestEventEnvelope:
 class TestAdvisorPublisher:
     """Tests for AdvisorPublisher"""
 
-    @pytest.mark.asyncio
-    async def test_connect(self):
+    def test_connect(self):
         publisher = AdvisorPublisher(nats_url="nats://test:4222")
         mock_nc = AsyncMock()
         with patch("src.events.publish.NATS", return_value=mock_nc):
-            await publisher.connect()
+            asyncio.run(publisher.connect())
             mock_nc.connect.assert_called_once_with("nats://test:4222")
             assert publisher._connected is True
 
-    @pytest.mark.asyncio
-    async def test_connect_already_connected(self):
+    def test_connect_already_connected(self):
         publisher = AdvisorPublisher()
         publisher._connected = True
         publisher.nc = AsyncMock()
         # Should not reconnect
-        await publisher.connect()
+        asyncio.run(publisher.connect())
         publisher.nc.connect.assert_not_called()
 
-    @pytest.mark.asyncio
-    async def test_close(self):
+    def test_close(self):
         publisher = AdvisorPublisher()
         publisher.nc = AsyncMock()
         publisher._connected = True
-        await publisher.close()
+        asyncio.run(publisher.close())
         publisher.nc.close.assert_called_once()
         assert publisher._connected is False
 
-    @pytest.mark.asyncio
-    async def test_close_when_not_connected(self):
+    def test_close_when_not_connected(self):
         publisher = AdvisorPublisher()
         publisher._connected = False
         publisher.nc = None
-        await publisher.close()  # Should not raise
+        asyncio.run(publisher.close())  # Should not raise
 
-    @pytest.mark.asyncio
-    async def test_publish(self):
+    def test_publish(self):
         publisher = AdvisorPublisher()
         publisher.nc = AsyncMock()
         publisher._connected = True
 
-        event_id = await publisher.publish(
+        event_id = asyncio.run(publisher.publish(
             event_type="recommendation_issued",
             tenant_id="t1",
             aggregate_id="f1",
             payload={"test": True},
-        )
+        ))
         assert event_id is not None
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
         subject = call_args[0][0]
         assert subject == "sahool.tenant.t1.advisory.recommendation_issued"
 
-    @pytest.mark.asyncio
-    async def test_publish_auto_connects(self):
+    def test_publish_auto_connects(self):
         publisher = AdvisorPublisher(nats_url="nats://test:4222")
         publisher._connected = False
         mock_nc = AsyncMock()
         with patch("src.events.publish.NATS", return_value=mock_nc):
-            event_id = await publisher.publish(
+            event_id = asyncio.run(publisher.publish(
                 event_type="test",
                 tenant_id="t1",
                 aggregate_id="a1",
                 payload={},
-            )
+            ))
             mock_nc.connect.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_publish_recommendation(self):
+    def test_publish_recommendation(self):
         publisher = AdvisorPublisher()
         publisher.nc = AsyncMock()
         publisher._connected = True
 
-        event_id = await publisher.publish_recommendation(
+        event_id = asyncio.run(publisher.publish_recommendation(
             tenant_id="t1",
             field_id="f1",
             category="disease",
@@ -141,33 +135,31 @@ class TestAdvisorPublisher:
             title_en="Suspected",
             actions=["spray_copper"],
             confidence=0.85,
-        )
+        ))
         assert event_id is not None
         publisher.nc.publish.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_publish_fertilizer_plan(self):
+    def test_publish_fertilizer_plan(self):
         publisher = AdvisorPublisher()
         publisher.nc = AsyncMock()
         publisher._connected = True
 
-        event_id = await publisher.publish_fertilizer_plan(
+        event_id = asyncio.run(publisher.publish_fertilizer_plan(
             tenant_id="t1",
             field_id="f1",
             crop="tomato",
             stage="vegetative",
             plan=[{"product": "Urea", "dose_kg_per_ha": 50}],
             notes=["Apply after irrigation"],
-        )
+        ))
         assert event_id is not None
 
-    @pytest.mark.asyncio
-    async def test_publish_nutrient_assessment(self):
+    def test_publish_nutrient_assessment(self):
         publisher = AdvisorPublisher()
         publisher.nc = AsyncMock()
         publisher._connected = True
 
-        event_id = await publisher.publish_nutrient_assessment(
+        event_id = asyncio.run(publisher.publish_nutrient_assessment(
             tenant_id="t1",
             field_id="f1",
             deficiency_id="nitrogen_deficiency",
@@ -177,5 +169,5 @@ class TestAdvisorPublisher:
             title_en="Nitrogen Deficiency",
             corrections=[],
             confidence=0.7,
-        )
+        ))
         assert event_id is not None

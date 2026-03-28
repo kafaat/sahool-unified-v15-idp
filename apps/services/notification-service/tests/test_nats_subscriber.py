@@ -11,6 +11,7 @@ Covers:
 - Singleton subscriber management
 """
 
+import asyncio
 import json
 import os
 from datetime import UTC, datetime
@@ -199,39 +200,43 @@ class TestNATSSubscriber:
         assert "test.event" in subscriber._handlers
         assert subscriber._handlers["test.event"] is handler
 
-    @pytest.mark.asyncio
-    async def test_connect_without_nats_available(self):
-        subscriber = NATSSubscriber()
-        with patch("src.nats_subscriber._nats_available", False):
-            result = await subscriber.connect()
+    def test_connect_without_nats_available(self):
+        async def _run():
+            subscriber = NATSSubscriber()
+            with patch("src.nats_subscriber._nats_available", False):
+                result = await subscriber.connect()
+                assert result is False
+        asyncio.run(_run())
+
+    def test_subscribe_when_not_connected(self):
+        async def _run():
+            subscriber = NATSSubscriber()
+            result = await subscriber.subscribe()
             assert result is False
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_subscribe_when_not_connected(self):
-        subscriber = NATSSubscriber()
-        result = await subscriber.subscribe()
-        assert result is False
+    def test_close_without_connection(self):
+        async def _run():
+            subscriber = NATSSubscriber()
+            await subscriber.close()
+            assert subscriber._connected is False
+        asyncio.run(_run())
 
-    @pytest.mark.asyncio
-    async def test_close_without_connection(self):
-        subscriber = NATSSubscriber()
-        await subscriber.close()
-        assert subscriber._connected is False
+    def test_close_with_subscriptions(self):
+        async def _run():
+            subscriber = NATSSubscriber()
+            mock_sub = AsyncMock()
+            subscriber._subscriptions = [mock_sub]
+            subscriber._nc = AsyncMock()
+            subscriber._connected = True
 
-    @pytest.mark.asyncio
-    async def test_close_with_subscriptions(self):
-        subscriber = NATSSubscriber()
-        mock_sub = AsyncMock()
-        subscriber._subscriptions = [mock_sub]
-        subscriber._nc = AsyncMock()
-        subscriber._connected = True
+            await subscriber.close()
 
-        await subscriber.close()
-
-        mock_sub.unsubscribe.assert_called_once()
-        subscriber._nc.close.assert_called_once()
-        assert subscriber._connected is False
-        assert subscriber._subscriptions == []
+            mock_sub.unsubscribe.assert_called_once()
+            subscriber._nc.close.assert_called_once()
+            assert subscriber._connected is False
+            assert subscriber._subscriptions == []
+        asyncio.run(_run())
 
 
 # ─────────────────────────────────────────────────────────────────────────────

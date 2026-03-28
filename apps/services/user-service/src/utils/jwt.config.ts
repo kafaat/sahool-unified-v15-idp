@@ -22,7 +22,13 @@ export class JWTConfig {
    */
   static readonly SECRET: string = (() => {
     const secret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET;
+    const env = process.env.ENVIRONMENT || process.env.NODE_ENV || '';
+    const isDevOrTest = ['development', 'test'].includes(env.toLowerCase());
+
     if (!secret || secret.length < 32) {
+      if (isDevOrTest) {
+        return 'test-secret-key-for-unit-tests-only-32chars';
+      }
       throw new Error(
         'JWT_SECRET_KEY must be set and at least 32 characters. ' +
         'Current length: ' + (secret?.length ?? 0),

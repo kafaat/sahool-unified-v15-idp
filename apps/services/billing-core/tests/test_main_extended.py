@@ -3,6 +3,7 @@ Extended tests for billing-core main.py.
 Covers: API endpoints, scheduled jobs, startup initialization, payment processing.
 """
 
+import asyncio
 import json
 import os
 import sys
@@ -115,8 +116,7 @@ def _mock_payment(status="pending"):
 class TestInitNats:
     """Test NATS initialization"""
 
-    @pytest.mark.asyncio
-    async def test_init_nats_success(self):
+    def test_init_nats_success(self):
         from src.main import init_nats
 
         mock_nc = AsyncMock()
@@ -125,7 +125,7 @@ class TestInitNats:
 
         with patch("src.main.nats") as mock_nats_mod:
             mock_nats_mod.connect = AsyncMock(return_value=mock_nc)
-            await init_nats()
+            asyncio.run(init_nats())
 
         # Restore globals
         import src.main
@@ -133,13 +133,12 @@ class TestInitNats:
         src.main.nats_client = None
         src.main.js = None
 
-    @pytest.mark.asyncio
-    async def test_init_nats_failure(self):
+    def test_init_nats_failure(self):
         from src.main import init_nats
 
         with patch("src.main.nats") as mock_nats_mod:
             mock_nats_mod.connect = AsyncMock(side_effect=Exception("Connection refused"))
-            await init_nats()  # Should not raise
+            asyncio.run(init_nats())  # Should not raise
 
         import src.main
 
@@ -153,8 +152,7 @@ class TestInitNats:
 class TestScheduledJobs:
     """Test scheduled billing jobs"""
 
-    @pytest.mark.asyncio
-    async def test_job_generate_invoices_no_due(self):
+    def test_job_generate_invoices_no_due(self):
         from src.main import job_generate_invoices
 
         mock_db = AsyncMock()
@@ -167,10 +165,9 @@ class TestScheduledJobs:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             with patch("src.main.BillingRepository", return_value=mock_repo):
-                await job_generate_invoices()
+                asyncio.run(job_generate_invoices())
 
-    @pytest.mark.asyncio
-    async def test_job_generate_invoices_with_subs(self):
+    def test_job_generate_invoices_with_subs(self):
         from src.main import job_generate_invoices
 
         mock_sub = _mock_subscription()
@@ -192,10 +189,9 @@ class TestScheduledJobs:
                 ):
                     with patch("src.main.get_billing_period_end", return_value=date(2025, 3, 1)):
                         with patch("src.main.publish_event", new_callable=AsyncMock):
-                            await job_generate_invoices()
+                            asyncio.run(job_generate_invoices())
 
-    @pytest.mark.asyncio
-    async def test_job_generate_invoices_error_handling(self):
+    def test_job_generate_invoices_error_handling(self):
         from src.main import job_generate_invoices
 
         mock_ctx = AsyncMock()
@@ -203,10 +199,9 @@ class TestScheduledJobs:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            await job_generate_invoices()  # Should not raise
+            asyncio.run(job_generate_invoices())  # Should not raise
 
-    @pytest.mark.asyncio
-    async def test_job_mark_overdue_invoices(self):
+    def test_job_mark_overdue_invoices(self):
         from src.main import job_mark_overdue_invoices
         from src.models import InvoiceStatus
 
@@ -225,10 +220,9 @@ class TestScheduledJobs:
         with patch("src.database.get_db_context", return_value=mock_ctx):
             with patch("src.main.BillingRepository", return_value=mock_repo):
                 with patch("src.main.publish_event", new_callable=AsyncMock):
-                    await job_mark_overdue_invoices()
+                    asyncio.run(job_mark_overdue_invoices())
 
-    @pytest.mark.asyncio
-    async def test_job_mark_overdue_error(self):
+    def test_job_mark_overdue_error(self):
         from src.main import job_mark_overdue_invoices
 
         mock_ctx = AsyncMock()
@@ -236,10 +230,9 @@ class TestScheduledJobs:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            await job_mark_overdue_invoices()  # Should not raise
+            asyncio.run(job_mark_overdue_invoices())  # Should not raise
 
-    @pytest.mark.asyncio
-    async def test_job_handle_trial_expiry_no_trials(self):
+    def test_job_handle_trial_expiry_no_trials(self):
         from src.main import job_handle_trial_expiry
 
         mock_db = AsyncMock()
@@ -252,10 +245,9 @@ class TestScheduledJobs:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             with patch("src.main.BillingRepository", return_value=mock_repo):
-                await job_handle_trial_expiry()
+                asyncio.run(job_handle_trial_expiry())
 
-    @pytest.mark.asyncio
-    async def test_job_handle_trial_expiry_error(self):
+    def test_job_handle_trial_expiry_error(self):
         from src.main import job_handle_trial_expiry
 
         mock_ctx = AsyncMock()
@@ -263,10 +255,9 @@ class TestScheduledJobs:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            await job_handle_trial_expiry()  # Should not raise
+            asyncio.run(job_handle_trial_expiry())  # Should not raise
 
-    @pytest.mark.asyncio
-    async def test_job_suspend_past_due(self):
+    def test_job_suspend_past_due(self):
         from src.main import job_suspend_past_due
 
         mock_db = AsyncMock()
@@ -280,10 +271,9 @@ class TestScheduledJobs:
         with patch("src.database.get_db_context", return_value=mock_ctx):
             with patch("src.main.BillingRepository", return_value=mock_repo):
                 with patch("src.main.publish_event", new_callable=AsyncMock):
-                    await job_suspend_past_due()
+                    asyncio.run(job_suspend_past_due())
 
-    @pytest.mark.asyncio
-    async def test_job_suspend_past_due_with_overdue_tenants(self):
+    def test_job_suspend_past_due_with_overdue_tenants(self):
         from src.main import job_suspend_past_due
         from src.models import SubscriptionStatus
 
@@ -306,10 +296,9 @@ class TestScheduledJobs:
         with patch("src.database.get_db_context", return_value=mock_ctx):
             with patch("src.main.BillingRepository", return_value=mock_repo):
                 with patch("src.main.publish_event", new_callable=AsyncMock):
-                    await job_suspend_past_due()
+                    asyncio.run(job_suspend_past_due())
 
-    @pytest.mark.asyncio
-    async def test_job_suspend_past_due_error(self):
+    def test_job_suspend_past_due_error(self):
         from src.main import job_suspend_past_due
 
         mock_ctx = AsyncMock()
@@ -317,7 +306,7 @@ class TestScheduledJobs:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            await job_suspend_past_due()  # Should not raise
+            asyncio.run(job_suspend_past_due())  # Should not raise
 
 
 # ============================================================
@@ -369,8 +358,7 @@ class TestScheduler:
 class TestInvoiceGeneration:
     """Test generate_invoice_for_subscription"""
 
-    @pytest.mark.asyncio
-    async def test_generate_invoice_plan_not_found(self):
+    def test_generate_invoice_plan_not_found(self):
         from src.main import generate_invoice_for_subscription
 
         mock_db = AsyncMock()
@@ -381,11 +369,10 @@ class TestInvoiceGeneration:
             repo.plans.get_by_plan_id = AsyncMock(return_value=None)
             MockRepo.return_value = repo
 
-            result = await generate_invoice_for_subscription(mock_db, mock_sub)
+            result = asyncio.run(generate_invoice_for_subscription(mock_db, mock_sub))
             assert result is None
 
-    @pytest.mark.asyncio
-    async def test_generate_invoice_success(self):
+    def test_generate_invoice_success(self):
         import src.models as db_models
         from src.main import generate_invoice_for_subscription
 
@@ -405,7 +392,7 @@ class TestInvoiceGeneration:
             MockRepo.return_value = repo
 
             with patch("src.main.get_next_invoice_number", new_callable=AsyncMock, return_value="SAH-2025-0001"):
-                result = await generate_invoice_for_subscription(mock_db, mock_sub)
+                result = asyncio.run(generate_invoice_for_subscription(mock_db, mock_sub))
                 assert result is not None
 
 
@@ -415,8 +402,7 @@ class TestInvoiceGeneration:
 class TestInvoiceSequence:
     """Test invoice number sequence"""
 
-    @pytest.mark.asyncio
-    async def test_init_invoice_sequence(self):
+    def test_init_invoice_sequence(self):
         import src.main
         from src.main import init_invoice_sequence
 
@@ -428,27 +414,25 @@ class TestInvoiceSequence:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            await init_invoice_sequence()
+            asyncio.run(init_invoice_sequence())
             assert src.main._invoice_sequence_initialized is True
 
         # Cleanup
         src.main._invoice_sequence_initialized = False
 
-    @pytest.mark.asyncio
-    async def test_init_invoice_sequence_already_initialized(self):
+    def test_init_invoice_sequence_already_initialized(self):
         import src.main
         from src.main import init_invoice_sequence
 
         src.main._invoice_sequence_initialized = True
 
         # Should return immediately
-        await init_invoice_sequence()
+        asyncio.run(init_invoice_sequence())
 
         # Cleanup
         src.main._invoice_sequence_initialized = False
 
-    @pytest.mark.asyncio
-    async def test_init_invoice_sequence_error(self):
+    def test_init_invoice_sequence_error(self):
         import src.main
         from src.main import init_invoice_sequence
 
@@ -459,11 +443,10 @@ class TestInvoiceSequence:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            await init_invoice_sequence()  # Should not raise
+            asyncio.run(init_invoice_sequence())  # Should not raise
             assert src.main._invoice_sequence_initialized is False
 
-    @pytest.mark.asyncio
-    async def test_get_next_invoice_number_success(self):
+    def test_get_next_invoice_number_success(self):
         from src.main import get_next_invoice_number
 
         mock_db = AsyncMock()
@@ -476,12 +459,11 @@ class TestInvoiceSequence:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            result = await get_next_invoice_number()
+            result = asyncio.run(get_next_invoice_number())
             year = datetime.now(UTC).year
             assert result == f"SAH-{year}-0042"
 
-    @pytest.mark.asyncio
-    async def test_get_next_invoice_number_fallback(self):
+    def test_get_next_invoice_number_fallback(self):
         from src.main import get_next_invoice_number
 
         mock_ctx = AsyncMock()
@@ -489,7 +471,7 @@ class TestInvoiceSequence:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            result = await get_next_invoice_number()
+            result = asyncio.run(get_next_invoice_number())
             year = datetime.now(UTC).year
             assert result.startswith(f"SAH-{year}-")
             # Fallback uses 8-char hex suffix
@@ -503,8 +485,7 @@ class TestInvoiceSequence:
 class TestInitDefaultPlans:
     """Test default plans initialization"""
 
-    @pytest.mark.asyncio
-    async def test_init_default_plans_success(self):
+    def test_init_default_plans_success(self):
         from src.main import init_default_plans_in_db
 
         mock_db = AsyncMock()
@@ -517,12 +498,11 @@ class TestInitDefaultPlans:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             with patch("src.main.BillingRepository", return_value=mock_repo):
-                await init_default_plans_in_db()
+                asyncio.run(init_default_plans_in_db())
                 # Should have called upsert 4 times (free, starter, pro, enterprise)
                 assert mock_repo.plans.upsert.await_count == 4
 
-    @pytest.mark.asyncio
-    async def test_init_default_plans_partial_failure(self):
+    def test_init_default_plans_partial_failure(self):
         from src.main import init_default_plans_in_db
 
         mock_db = AsyncMock()
@@ -544,10 +524,9 @@ class TestInitDefaultPlans:
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
             with patch("src.main.BillingRepository", return_value=mock_repo):
-                await init_default_plans_in_db()  # Should not raise
+                asyncio.run(init_default_plans_in_db())  # Should not raise
 
-    @pytest.mark.asyncio
-    async def test_init_default_plans_db_error(self):
+    def test_init_default_plans_db_error(self):
         from src.main import init_default_plans_in_db
 
         mock_ctx = AsyncMock()
@@ -555,7 +534,7 @@ class TestInitDefaultPlans:
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
 
         with patch("src.database.get_db_context", return_value=mock_ctx):
-            await init_default_plans_in_db()  # Should not raise
+            asyncio.run(init_default_plans_in_db())  # Should not raise
 
 
 # ============================================================
@@ -564,8 +543,7 @@ class TestInitDefaultPlans:
 class TestTharwattApi:
     """Test Tharwatt payment gateway"""
 
-    @pytest.mark.asyncio
-    async def test_call_tharwatt_api_success(self):
+    def test_call_tharwatt_api_success(self):
         from src.main import call_tharwatt_api
 
         mock_payment = MagicMock()
@@ -584,11 +562,10 @@ class TestTharwattApi:
             mock_client.__aexit__ = AsyncMock(return_value=False)
             MockClient.return_value = mock_client
 
-            result = await call_tharwatt_api(mock_payment, "+967123456789")
+            result = asyncio.run(call_tharwatt_api(mock_payment, "+967123456789"))
             assert result["transaction_id"] == "TXN-001"
 
-    @pytest.mark.asyncio
-    async def test_call_tharwatt_api_error(self):
+    def test_call_tharwatt_api_error(self):
         import httpx
         from fastapi import HTTPException
         from src.main import call_tharwatt_api
@@ -606,7 +583,7 @@ class TestTharwattApi:
             MockClient.return_value = mock_client
 
             with pytest.raises(HTTPException) as exc_info:
-                await call_tharwatt_api(mock_payment, "+967123456789")
+                asyncio.run(call_tharwatt_api(mock_payment, "+967123456789"))
             assert exc_info.value.status_code == 502
 
 
@@ -616,8 +593,7 @@ class TestTharwattApi:
 class TestStripeApi:
     """Test Stripe payment API"""
 
-    @pytest.mark.asyncio
-    async def test_call_stripe_api_error(self):
+    def test_call_stripe_api_error(self):
         from fastapi import HTTPException
         from src.main import call_stripe_api
 
@@ -634,7 +610,7 @@ class TestStripeApi:
         with patch.dict("sys.modules", {"stripe": mock_stripe}):
             with patch("src.main.STRIPE_API_KEY", "sk_test_123"):
                 with pytest.raises(HTTPException) as exc_info:
-                    await call_stripe_api(mock_payment, "tok_123")
+                    asyncio.run(call_stripe_api(mock_payment, "tok_123"))
                 assert exc_info.value.status_code == 502
 
 
@@ -644,28 +620,26 @@ class TestStripeApi:
 class TestPublishEventEdgeCases:
     """Test publish_event with various data types"""
 
-    @pytest.mark.asyncio
-    async def test_publish_event_with_non_dict_data(self):
+    def test_publish_event_with_non_dict_data(self):
         from src.main import publish_event
 
         with patch("src.main.js", None):
             # Should handle non-dict data gracefully
-            await publish_event("sahool.test", "simple string data")
+            asyncio.run(publish_event("sahool.test", "simple string data"))
 
-    @pytest.mark.asyncio
-    async def test_publish_event_with_datetime_data(self):
+    def test_publish_event_with_datetime_data(self):
         from src.main import publish_event
 
         mock_js = AsyncMock()
         with patch("src.main.js", mock_js):
-            await publish_event(
+            asyncio.run(publish_event(
                 "sahool.test",
                 {
                     "timestamp": datetime.now(UTC),
                     "amount": Decimal("29.00"),
                     "id": uuid.uuid4(),
                 },
-            )
+            ))
             mock_js.publish.assert_awaited_once()
 
 
@@ -712,8 +686,7 @@ class TestDbModelTableArgs:
 class TestCheckUsageLimitPlanNotFound:
     """Test check_usage_limit_db when plan is not found"""
 
-    @pytest.mark.asyncio
-    async def test_plan_not_found(self):
+    def test_plan_not_found(self):
         from src.main import check_usage_limit_db
 
         mock_db = AsyncMock()
@@ -724,7 +697,7 @@ class TestCheckUsageLimitPlanNotFound:
             repo.plans.get_by_plan_id = AsyncMock(return_value=None)
             MockRepo.return_value = repo
 
-            result = await check_usage_limit_db(mock_db, "t-001", "fields")
+            result = asyncio.run(check_usage_limit_db(mock_db, "t-001", "fields"))
             assert result["allowed"] is False
             assert "Plan not found" in result["reason"]
 
@@ -735,8 +708,7 @@ class TestCheckUsageLimitPlanNotFound:
 class TestSubscriptionGetByTenant:
     """Test subscription get_by_tenant with various params"""
 
-    @pytest.mark.asyncio
-    async def test_get_by_tenant_with_status(self):
+    def test_get_by_tenant_with_status(self):
         from src.models import SubscriptionStatus
         from src.repository import SubscriptionRepository
 
@@ -746,11 +718,10 @@ class TestSubscriptionGetByTenant:
         mock_db.execute.return_value = mock_result
 
         repo = SubscriptionRepository(mock_db)
-        result = await repo.get_by_tenant("t-001", status=SubscriptionStatus.ACTIVE)
+        result = asyncio.run(repo.get_by_tenant("t-001", status=SubscriptionStatus.ACTIVE))
         assert result is not None
 
-    @pytest.mark.asyncio
-    async def test_get_by_tenant_no_status(self):
+    def test_get_by_tenant_no_status(self):
         from src.repository import SubscriptionRepository
 
         mock_db = AsyncMock()
@@ -759,7 +730,7 @@ class TestSubscriptionGetByTenant:
         mock_db.execute.return_value = mock_result
 
         repo = SubscriptionRepository(mock_db)
-        result = await repo.get_by_tenant("t-001")
+        result = asyncio.run(repo.get_by_tenant("t-001"))
         assert result is None
 
 
@@ -769,8 +740,7 @@ class TestSubscriptionGetByTenant:
 class TestInvoiceListFilters:
     """Test invoice listing with various filters"""
 
-    @pytest.mark.asyncio
-    async def test_list_by_tenant_all(self):
+    def test_list_by_tenant_all(self):
         from src.repository import InvoiceRepository
 
         mock_db = AsyncMock()
@@ -781,11 +751,10 @@ class TestInvoiceListFilters:
         mock_db.execute.return_value = mock_result
 
         repo = InvoiceRepository(mock_db)
-        result = await repo.list_by_tenant(None)  # All tenants
+        result = asyncio.run(repo.list_by_tenant(None))  # All tenants
         assert len(result) == 1
 
-    @pytest.mark.asyncio
-    async def test_list_by_tenant_with_status(self):
+    def test_list_by_tenant_with_status(self):
         from src.models import InvoiceStatus
         from src.repository import InvoiceRepository
 
@@ -797,11 +766,10 @@ class TestInvoiceListFilters:
         mock_db.execute.return_value = mock_result
 
         repo = InvoiceRepository(mock_db)
-        result = await repo.list_by_tenant("t-001", status=InvoiceStatus.PAID)
+        result = asyncio.run(repo.list_by_tenant("t-001", status=InvoiceStatus.PAID))
         assert result == []
 
-    @pytest.mark.asyncio
-    async def test_list_by_subscription(self):
+    def test_list_by_subscription(self):
         from src.repository import InvoiceRepository
 
         mock_db = AsyncMock()
@@ -812,5 +780,5 @@ class TestInvoiceListFilters:
         mock_db.execute.return_value = mock_result
 
         repo = InvoiceRepository(mock_db)
-        result = await repo.list_by_subscription(uuid.uuid4())
+        result = asyncio.run(repo.list_by_subscription(uuid.uuid4()))
         assert result == []

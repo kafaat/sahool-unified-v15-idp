@@ -101,7 +101,7 @@ async def publish_event(subject: str, data: dict):
         except Exception as e:
             logger.warning("nats_publish_failed", subject=subject, error=str(e))
     else:
-        logger.info("nats_event_local", subject=subject, data=data)
+        logger.info("nats_event_local", subject=subject, data_keys=list(data.keys()))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

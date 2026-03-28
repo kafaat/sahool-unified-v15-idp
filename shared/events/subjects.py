@@ -304,7 +304,7 @@ SAHOOL_ADVISORY_NUTRIENT_ASSESSMENT_ISSUED = "sahool.advisory.nutrient_assessmen
 SAHOOL_ADVISORY_FERTILIZER_RECOMMENDED = "sahool.advisory.fertilizer.recommended"
 SAHOOL_ADVISORY_PEST_TREATMENT_RECOMMENDED = "sahool.advisory.pest.treatment.recommended"
 
-SAHOOL_ADVISORY_ALL = "sahool.advisory.*"
+SAHOOL_ADVISORY_ALL = "sahool.advisory.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -371,7 +371,7 @@ describe("IotService - MQTT Message Processing", () => {
       }).not.toThrow();
     });
 
-    it("should log errors for message processing failures", () => {
+    it("should log errors for message processing failures", async () => {
       const loggerErrorSpy = jest.spyOn((service as any).logger, "error");
 
       mockRedis.setex.mockRejectedValue(new Error("Processing failed"));
@@ -384,10 +384,10 @@ describe("IotService - MQTT Message Processing", () => {
         messageCallback(topic, message);
       }
 
-      // Error should be caught and logged
-      setTimeout(() => {
-        expect(loggerErrorSpy).toHaveBeenCalled();
-      }, 100);
+      // Wait for async error to be caught and logged
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(loggerErrorSpy).toHaveBeenCalled();
     });
   });
 

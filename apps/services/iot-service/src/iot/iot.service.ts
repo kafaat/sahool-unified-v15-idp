@@ -236,7 +236,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.client.on("message", (topic, message) => {
-      this.handleMessage(topic, message.toString());
+      this.handleMessage(topic, message ? message.toString() : "");
     });
 
     this.client.on("error", (error) => {

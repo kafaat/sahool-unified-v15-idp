@@ -387,6 +387,55 @@ export class RedisTokenRevocationStore
   /**
    * Check if Redis connection is healthy
    */
+  // ═══════════════════════════════════════════════════════════════
+  // OTP Brute-Force Protection
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Get OTP verification attempts count
+   */
+  async getOtpAttempts(key: string): Promise<number> {
+    if (!this.initialized) await this.initialize();
+    try {
+      const value = await this.redis!.get(key);
+      return value ? parseInt(value, 10) : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  /**
+   * Increment OTP verification attempts (expires after 15 minutes)
+   */
+  async incrementOtpAttempts(key: string): Promise<void> {
+    if (!this.initialized) await this.initialize();
+    try {
+      const exists = await this.redis!.exists(key);
+      await this.redis!.incr(key);
+      if (!exists) {
+        await this.redis!.expire(key, 900); // 15 minutes TTL
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to increment OTP attempts: ${message}`);
+    }
+  }
+
+  /**
+   * Reset OTP verification attempts (after successful verification)
+   */
+  async resetOtpAttempts(key: string): Promise<void> {
+    if (!this.initialized) await this.initialize();
+    try {
+      await this.redis!.del(key);
+    } catch {
+      // Best effort
+    }
+  }
+
+  /**
+   * Check if Redis connection is healthy
+   */
   async healthCheck(): Promise<boolean> {
     try {
       if (!this.initialized) {

@@ -546,6 +546,7 @@ services:
     category: core
     layer: business
     path: "apps/services/billing-core"
+    helm_chart: "helm/charts/billing-core"
     port: 8089
     protocol: http
     health_endpoint: "/healthz"
@@ -665,6 +666,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/indicators-service"
+    helm_chart: "helm/charts/indicators-service"
     port: 8091
     protocol: http
     health_endpoint: "/healthz"
@@ -980,6 +982,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/crop-intelligence-service"
+    helm_chart: "helm/charts/crop-intelligence-service"
     port: 8095
     protocol: http
     health_endpoint: "/healthz"
@@ -1385,6 +1388,7 @@ services:
     category: core
     layer: business
     path: "apps/services/field-management-service"
+    helm_chart: "helm/charts/field-management-service"
     port: 3000
     protocol: http
     health_endpoint: "/healthz"
@@ -1489,6 +1493,7 @@ services:
     category: core
     layer: business
     path: "apps/services/audit-service"
+    helm_chart: "helm/charts/audit-service"
     port: 8114
     protocol: http
     health_endpoint: "/healthz"
@@ -3255,6 +3260,7 @@ services:
     category: core
     layer: business
     path: "apps/services/copilot-api"
+    helm_chart: "helm/charts/copilot-api"
     port: 8088
     protocol: http
     health_endpoint: "/healthz"

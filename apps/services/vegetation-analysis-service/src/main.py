@@ -1432,13 +1432,12 @@ async def analyze_field_real(
     }
 
 
-@app.get("/v1/timeseries/{field_id}")
-async def get_timeseries(
+async def _get_timeseries_data(
     field_id: str,
-    days: int = Query(default=30, ge=7, le=365),
+    days: int = 30,
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
-):
-    """الحصول على سلسلة زمنية للمؤشرات النباتية"""
+) -> dict:
+    """Internal helper for timeseries data generation (no auth required)."""
     _validate_field_id(field_id)
 
     import random
@@ -1471,6 +1470,22 @@ async def get_timeseries(
         "timeseries": timeseries,
         "trend": ("improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining"),
     }
+
+
+
+@app.get("/v1/timeseries/{field_id}")
+async def get_timeseries(
+    field_id: str,
+    days: int = Query(default=30, ge=7, le=365),
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
+):
+    """الحصول على سلسلة زمنية للمؤشرات النباتية"""
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="timeseries")
+
+    return await _get_timeseries_data(field_id, days, satellite)
 
 
 # =============================================================================
@@ -1696,6 +1711,9 @@ async def get_phenology(
     """
     _validate_field_id(field_id)
     _validate_crop_type(crop_type)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="phenology")
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -1774,6 +1792,9 @@ async def get_phenology_timeline(
     """
     _validate_field_id(field_id)
     _validate_crop_type(crop_type)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="phenology_timeline")
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -2128,6 +2149,9 @@ async def get_soil_moisture(
     Works in all weather conditions (cloud-independent).
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="soil_moisture")
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2267,6 +2291,9 @@ async def get_sar_timeseries(
     Sentinel-1 revisit: every 6 days
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="sar_timeseries")
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2362,6 +2389,9 @@ async def get_all_indices(
     - Corrected: MSAVI, OSAVI, ARVI
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="indices")
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -2407,6 +2437,7 @@ async def get_specific_index(
     crop_type: str | None = Query(default="unknown", description="نوع المحصول"),
     growth_stage: str | None = Query(default="vegetative", description="مرحلة النمو"),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
 ):
     """
     Get a specific vegetation index with interpretation
@@ -2418,6 +2449,9 @@ async def get_specific_index(
     - growth_stage: emergence, vegetative, reproductive, maturation
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="specific_index")
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -3011,6 +3045,7 @@ async def get_yield_history(
     field_id: str,
     seasons: int = Query(default=5, ge=1, le=20, description="Number of past seasons to retrieve"),
     crop_code: str | None = Query(None, description="Filter by crop code"),
+    user: User = Depends(get_current_user),
 ):
     """
     الحصول على سجل التنبؤات السابقة | Get Yield Prediction History
@@ -3019,6 +3054,9 @@ async def get_yield_history(
     In production, this would fetch from a database. Currently returns simulated data.
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="yield_history")
 
     import random
 
@@ -3227,6 +3265,7 @@ async def get_cloud_cover(
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     date: str | None = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
+    user: User = Depends(get_current_user),
 ):
     """
     Analyze cloud cover for a field location using Sentinel-2 SCL
@@ -3245,6 +3284,9 @@ async def get_cloud_cover(
         GET /v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-01-15
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="cloud_cover")
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3284,6 +3326,7 @@ async def find_clear_observations(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     max_cloud: float = Query(20.0, ge=0, le=100, description="Maximum cloud cover %"),
+    user: User = Depends(get_current_user),
 ):
     """
     Find all clear (low cloud) observations in date range
@@ -3296,6 +3339,9 @@ async def find_clear_observations(
         GET /v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="clear_observations")
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3347,6 +3393,7 @@ async def get_best_observation(
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     target_date: str = Query(..., description="Target date (YYYY-MM-DD)"),
     tolerance_days: int = Query(15, ge=1, le=90, description="Days before/after to search"),
+    user: User = Depends(get_current_user),
 ):
     """
     Find the best (lowest cloud) observation near target date
@@ -3359,6 +3406,9 @@ async def get_best_observation(
         GET /v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10
     """
     _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        logger.warning("missing_tenant_context", field_id=field_id, endpoint="best_observation")
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3707,6 +3757,8 @@ async def export_report(
     - summary: High-level health metrics
     - changes: Change detection over time
     """
+    _validate_field_id(field_id)
+
     try:
         export_format = ExportFormat(format.lower())
     except ValueError:
@@ -3893,6 +3945,8 @@ async def detect_changes(
     Example:
         GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat
     """
+    _validate_field_id(field_id)
+
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
 
@@ -3954,6 +4008,8 @@ async def compare_dates(
     Example:
         GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01
     """
+    _validate_field_id(field_id)
+
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
 
@@ -4014,6 +4070,8 @@ async def get_anomalies(
     Example:
         GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat
     """
+    _validate_field_id(field_id)
+
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
 

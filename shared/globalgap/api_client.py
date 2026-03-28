@@ -38,6 +38,18 @@ except (ImportError, ModuleNotFoundError, BaseException):
     stop_after_attempt = None  # type: ignore[assignment]
     wait_exponential = None  # type: ignore[assignment]
 
+
+def _http_retry(func):
+    """Apply tenacity retry decorator if available, otherwise return function as-is."""
+    if retry is not None:
+        return retry(
+            stop=stop_after_attempt(3),
+            wait=wait_exponential(multiplier=1, min=2, max=10),
+            retry=retry_if_exception_type(httpx.HTTPStatusError),
+        )(func)
+    return func
+
+
 logger = structlog.get_logger()
 
 
@@ -452,11 +464,6 @@ class GlobalGAPClient:
         if not clean_ggn.isdigit() or len(clean_ggn) != 13 or not clean_ggn.startswith("4"):
             raise InvalidGGN(ggn)
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type(httpx.HTTPStatusError),
-    )
     async def _make_request(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
         """
         Make HTTP request with retry logic

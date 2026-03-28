@@ -308,8 +308,25 @@ if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
 # Tenant context middleware - عزل المستأجرين
+# Exempt webhook paths (called by Meta, not authenticated users) and public endpoints
 if TENANT_MIDDLEWARE_AVAILABLE:
-    app.add_middleware(TenantContextMiddleware)
+    app.add_middleware(
+        TenantContextMiddleware,
+        exempt_paths=[
+            "/health",
+            "/healthz",
+            "/readyz",
+            "/metrics",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/webhook",
+            "/api/v1/send",
+            "/api/v1/send-template",
+            "/api/v1/mark-read",
+            "/",
+        ],
+    )
 
 # Include routers
 app.include_router(webhook_router)

@@ -28,7 +28,7 @@ def client():
     from shared.auth.models import User
 
     # Override auth dependency so protected endpoints work without a real JWT
-    mock_user = User(id="test-user-id", email="test@sahool.app", role="admin")
+    mock_user = User(id="test-user-id", email="test@sahool.app", roles=["admin"])
     app.dependency_overrides[get_current_user] = lambda: mock_user
 
     app.state.db_pool = None

@@ -199,6 +199,21 @@ describe("Health Endpoints", () => {
   });
 
   describe("GET /readyz", () => {
+    let originalNatsUrl: string | undefined;
+
+    beforeEach(() => {
+      originalNatsUrl = process.env.NATS_URL;
+      process.env.NATS_URL = "nats://localhost:4222";
+    });
+
+    afterEach(() => {
+      if (originalNatsUrl === undefined) {
+        delete process.env.NATS_URL;
+      } else {
+        process.env.NATS_URL = originalNatsUrl;
+      }
+    });
+
     it("should return readiness status with dependency checks", async () => {
       const result = await controller.readinessCheck();
 

@@ -284,7 +284,7 @@ class FarmerProfile(BaseModel):
     field_ids: list[str] = []
     phone: str | None = Field(None, max_length=20)
     email: str | None = Field(None, max_length=254)
-    fcm_token: str | None = Field(None, min_length=10, max_length=500)  # Firebase Cloud Messaging
+    fcm_token: str | None = Field(None, min_length=5, max_length=500)  # Firebase Cloud Messaging
     device_platform: DevicePlatform | None = None
     notification_channels: list[NotificationChannel] = [NotificationChannel.IN_APP]
     language: str = Field("ar", max_length=10)

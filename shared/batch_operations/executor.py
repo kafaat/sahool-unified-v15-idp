@@ -507,6 +507,11 @@ class BatchExecutor:
         if not batch.tenant_id:
             raise BatchExecutionError("tenant_id is required for batch execution")
 
+        # Verify all items belong to same tenant
+        for item in batch.items:
+            if hasattr(item, 'tenant_id') and item.tenant_id and item.tenant_id != batch.tenant_id:
+                raise BatchExecutionError(f"Item tenant_id mismatch: {item.tenant_id} != {batch.tenant_id}")
+
         start_time = time.time()
         items = batch.get_items()
         total_items = len(items)

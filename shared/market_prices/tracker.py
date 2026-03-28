@@ -1043,10 +1043,15 @@ class MarketPriceTracker:
 
 # Convenience functions
 _trackers: dict[str, MarketPriceTracker] = {}
+MAX_TRACKERS = 100
 
 
 def get_price_tracker(tenant_id: str) -> MarketPriceTracker:
     """Get or create a price tracker for a tenant"""
+    if len(_trackers) >= MAX_TRACKERS:
+        # Remove oldest tracker
+        oldest = next(iter(_trackers))
+        del _trackers[oldest]
     if tenant_id not in _trackers:
         _trackers[tenant_id] = MarketPriceTracker(tenant_id)
     return _trackers[tenant_id]

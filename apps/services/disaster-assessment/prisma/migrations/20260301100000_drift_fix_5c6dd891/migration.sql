@@ -82,5 +82,5 @@ ALTER TABLE "alert_subscriptions" ALTER COLUMN "updated_at" SET DEFAULT now();
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Note: All indexes in 20260207000000_add_composite_indexes already use
--- CREATE INDEX. No non-concurrent index patterns to fix.
+-- Note: All indexes use standard CREATE INDEX (required by Prisma transaction wrapper). For zero-downtime on large production tables, consider running CONCURRENTLY outside Prisma migrate.
 -- ═══════════════════════════════════════════════════════════════════════════════

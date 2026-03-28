@@ -112,7 +112,7 @@ class TestGetFieldIrrigationHistory:
         ]
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_field_irrigation_history("f1", days=30, limit=100))
+        result = asyncio.run(db.get_field_irrigation_history("f1", tenant_id="t1", days=30, limit=100))
 
         assert len(result) == 2
         assert result[0]["amount_mm"] == 25
@@ -122,7 +122,7 @@ class TestGetFieldIrrigationHistory:
         mock_conn.fetch.side_effect = Exception("connection error")
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_field_irrigation_history("f1"))
+        result = asyncio.run(db.get_field_irrigation_history("f1", tenant_id="t1"))
         assert result == []
 
 
@@ -138,7 +138,7 @@ class TestGetSensorReadingsSummary:
         }
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_sensor_readings_summary("f1", hours=24))
+        result = asyncio.run(db.get_sensor_readings_summary("f1", tenant_id="t1", hours=24))
 
         assert result["reading_count"] == 10
         assert result["avg_moisture"] == 45.68  # rounded
@@ -149,7 +149,7 @@ class TestGetSensorReadingsSummary:
         mock_conn.fetchrow.return_value = None
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_sensor_readings_summary("f1"))
+        result = asyncio.run(db.get_sensor_readings_summary("f1", tenant_id="t1"))
         assert result == {}
 
     def test_handles_null_values(self):
@@ -163,7 +163,7 @@ class TestGetSensorReadingsSummary:
         }
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_sensor_readings_summary("f1"))
+        result = asyncio.run(db.get_sensor_readings_summary("f1", tenant_id="t1"))
         assert result["reading_count"] == 0
         assert result["avg_moisture"] == 0
 
@@ -172,7 +172,7 @@ class TestGetSensorReadingsSummary:
         mock_conn.fetchrow.side_effect = Exception("db error")
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_sensor_readings_summary("f1"))
+        result = asyncio.run(db.get_sensor_readings_summary("f1", tenant_id="t1"))
         assert result == {}
 
 
@@ -316,7 +316,7 @@ class TestGetWaterBalanceSummary:
         }
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_water_balance_summary("f1", days=14))
+        result = asyncio.run(db.get_water_balance_summary("f1", tenant_id="t1", days=14))
 
         assert result["total_et_mm"] == 70.5
         assert result["total_rainfall_mm"] == 15.2
@@ -329,7 +329,7 @@ class TestGetWaterBalanceSummary:
         mock_conn.fetchrow.return_value = None
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_water_balance_summary("f1"))
+        result = asyncio.run(db.get_water_balance_summary("f1", tenant_id="t1"))
         assert result == {}
 
     def test_handles_null_values(self):
@@ -342,7 +342,7 @@ class TestGetWaterBalanceSummary:
         }
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_water_balance_summary("f1"))
+        result = asyncio.run(db.get_water_balance_summary("f1", tenant_id="t1"))
         assert result["total_et_mm"] == 0
         assert result["cumulative_deficit_mm"] == 0
 
@@ -351,7 +351,7 @@ class TestGetWaterBalanceSummary:
         mock_conn.fetchrow.side_effect = Exception("db error")
 
         db = IrrigationDatabase(mock_pool)
-        result = asyncio.run(db.get_water_balance_summary("f1"))
+        result = asyncio.run(db.get_water_balance_summary("f1", tenant_id="t1"))
         assert result == {}
 
 

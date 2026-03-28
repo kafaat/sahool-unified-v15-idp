@@ -36,10 +36,12 @@ def validate_jwt_config(environment: str | None = None) -> None:
                 "يجب أن يكون JWT_SECRET_KEY 32 حرفاً على الأقل في بيئة الإنتاج/التجهيز."
             )
     elif not JWT_SECRET_KEY:
-        JWT_SECRET_KEY = "test-secret-key-for-unit-tests-only-32chars"
+        import secrets
+
+        JWT_SECRET_KEY = secrets.token_hex(32)
         logger.warning(
-            "jwt_secret_default",
-            msg="Using default JWT_SECRET_KEY for development/test",
+            "jwt_secret_random",
+            msg="Generated random JWT_SECRET_KEY for development/test",
         )
 
 

@@ -12,7 +12,9 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 
@@ -108,12 +110,16 @@ def app_client(mock_db, mock_notification_repo, mock_preferences_service, mock_f
         from shared.auth.dependencies import get_current_user
 
         app.dependency_overrides[get_current_user] = lambda: None
-    except BaseException:
+    except BaseException as e:
+        if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+            raise
         try:
             from src.main import get_current_user
 
             app.dependency_overrides[get_current_user] = lambda: None
-        except BaseException:
+        except BaseException as e:
+            if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+                raise
             pass
 
     client = TestClient(app, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"})
@@ -430,7 +436,9 @@ class TestErrorHandling:
             from shared.auth.dependencies import get_current_user
 
             app.dependency_overrides[get_current_user] = lambda: None
-        except BaseException:
+        except BaseException as e:
+            if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+                raise
             pass
 
         try:

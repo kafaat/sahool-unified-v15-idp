@@ -139,6 +139,7 @@ def _calculate_relevance(query: str, keywords_ar: list, keywords_en: list) -> fl
 @router.post("/recommend")
 async def recommend_services(req: ServiceRecommendRequest = Body(...), user: dict = Depends(get_current_user)):
     tenant_id = user.get("tenant_id", "")
+    logger.info("service_recommendation_request", tenant_id=tenant_id, query=req.query[:100])
     recommendations = []
     for cat_key, cat_data in SERVICE_CATALOG.items():
         relevance = _calculate_relevance(req.query, cat_data["keywords_ar"], cat_data["keywords_en"])

@@ -31,7 +31,9 @@ try:
         OTPResult,
         OTPService,
     )
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("OTP service dependencies not available", allow_module_level=True)
 
 

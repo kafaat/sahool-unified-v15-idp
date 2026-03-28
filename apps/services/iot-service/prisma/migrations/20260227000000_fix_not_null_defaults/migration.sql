@@ -24,5 +24,5 @@ ALTER TABLE "device_alerts" ALTER COLUMN "updatedAt" SET DEFAULT now();
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Note on non-concurrent indexes from initial migration (20260214000000_init):
 -- All indexes were created in the initial schema on empty tables, which is safe.
--- Future migrations MUST use CREATE INDEX for online index creation.
+-- Future migrations should use CREATE INDEX. For zero-downtime on large tables, run CONCURRENTLY outside Prisma migrate.
 -- ═══════════════════════════════════════════════════════════════════════════════

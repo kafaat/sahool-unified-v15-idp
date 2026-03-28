@@ -225,6 +225,7 @@ async def _execute_tool(
             text_ar=args.get("text_ar"),
             metadata=args.get("metadata"),
             doc_id=args.get("id"),
+            tenant_id=user.get("tenant_id", "") if user else "",
         )
         return {"id": doc.id, "created": True}
 

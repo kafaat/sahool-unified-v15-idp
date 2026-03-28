@@ -20,7 +20,9 @@ try:
         sanitize_dict_for_log,
         sanitize_for_log,
     )
-except BaseException:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("notification-service src not available", allow_module_level=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════

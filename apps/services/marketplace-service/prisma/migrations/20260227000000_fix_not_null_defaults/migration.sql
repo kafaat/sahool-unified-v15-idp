@@ -52,5 +52,5 @@ ALTER TABLE "review_responses"  ALTER COLUMN "updated_at" SET DEFAULT now();
 -- Note on non-concurrent indexes from initial migrations:
 -- idx_products_deleted_at, idx_orders_deleted_at, idx_audit_tenant_created
 -- were created on low-volume tables during maintenance windows.
--- All tenant isolation indexes (20260225000000) already use CONCURRENTLY.
+-- All tenant isolation indexes (20260225000000) use standard CREATE INDEX.
 -- ═══════════════════════════════════════════════════════════════════════════════

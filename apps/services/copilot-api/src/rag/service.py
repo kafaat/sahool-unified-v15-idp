@@ -207,6 +207,9 @@ class CopilotRAGService:
         # Resolve tenant_id from parameter or metadata
         effective_tenant_id = tenant_id or metadata.get("tenant_id", "")
 
+        if effective_tenant_id:
+            metadata["tenant_id"] = effective_tenant_id
+
         # Generate embedding
         embedding_result = await self.embedding_service.embed(text, tenant_id=effective_tenant_id)
 

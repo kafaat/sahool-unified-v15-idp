@@ -955,7 +955,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/agro-rules"
-    port: null
+    port: 8151
     protocol: nats
     service_type: worker
     health_endpoint: null
@@ -2787,6 +2787,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/yolo26-vision-service"
+    helm_chart: "helm/services/yolo26-vision-service"
     port: 8150
     protocol: http
     health_endpoint: "/healthz"
@@ -2825,6 +2826,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/terrain-core-service"
+    helm_chart: "helm/services/terrain-core-service"
     port: 8185
     protocol: http
     health_endpoint: "/healthz"
@@ -2897,6 +2899,7 @@ services:
     category: analytics
     layer: decision
     path: "apps/services/leveling-optimizer-service"
+    helm_chart: "helm/services/leveling-optimizer-service"
     port: 8170
     protocol: http
     health_endpoint: "/healthz"

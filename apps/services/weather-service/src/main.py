@@ -12,7 +12,7 @@ Multi-Provider Support:
 import os
 import sys
 from contextlib import asynccontextmanager
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -897,7 +897,7 @@ class HeatStressRequest(BaseModel):
     wind_speed_kmh: float = Field(default=10.0, ge=0, description="Wind speed km/h")
 
 
-class ChillModel(str, Enum):
+class ChillModel(StrEnum):
     SIMPLE = "simple"
     UTAH = "utah"
     DYNAMIC = "dynamic"

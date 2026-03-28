@@ -523,6 +523,7 @@ async def identify_pest_from_image(
                         "severity": result.severity.value,
                         "is_quarantine": pest_info.is_quarantine if pest_info else False,
                         "detection_id": str(uuid4()),
+                        "tenant_id": current_user.tenant_id,
                         "source": "pest-detection-service",
                         "timestamp": datetime.now(UTC).isoformat(),
                     },

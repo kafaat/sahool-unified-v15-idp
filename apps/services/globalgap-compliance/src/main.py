@@ -383,8 +383,10 @@ async def get_checklist_items(
     Get checklist items (control points)
     الحصول على عناصر قائمة المراجعة (نقاط التحكم)
     """
-    # Filter items | تصفية العناصر
-    filtered = [item for item in _checklist_items.values() if item.get("is_active", True)]
+    # Filter items by tenant | تصفية العناصر حسب المستأجر
+    filtered = [
+        item for item in _checklist_items.values() if item.get("is_active", True) and item.get("tenant_id") == tenant_id
+    ]
 
     if category:
         filtered = [item for item in filtered if item.get("category") == category.value]

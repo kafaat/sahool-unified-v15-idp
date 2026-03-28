@@ -164,30 +164,22 @@ services:
   redis:
     image: redis:7.4-alpine
     container_name: sahool-redis
-    command:
-      [
-        "redis-server",
-        "/usr/local/etc/redis/redis.conf",
-        "--requirepass",
-        "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
-        "--maxmemory",
-        "512mb"
-          # TLS Configuration (uncomment to enable):
-          # "--port", "0",
-          # "--tls-port", "6379",
-          # "--tls-cert-file", "/etc/redis/certs/server.crt",
-          # "--tls-key-file", "/etc/redis/certs/server.key",
-          # "--tls-ca-cert-file", "/etc/redis/certs/ca.crt",
-          # "--tls-auth-clients", "optional"
-      ]
+    # FIX: Removed --requirepass and --maxmemory from command line.
+    # These are now set in redis-secure.conf to avoid conflicts with
+    # rename-command CONFIG (which can break command-line arg processing on some Redis builds).
+    # Password is passed via REDIS_PASSWORD env var and set in entrypoint.
+    entrypoint:
+      - sh
+      - -c
+      - |
+        # Inject password and maxmemory into config at runtime
+        cp /usr/local/etc/redis/redis.conf /tmp/redis.conf
+        echo "" >> /tmp/redis.conf
+        echo "requirepass $$REDIS_PASSWORD" >> /tmp/redis.conf
+        echo "maxmemory 512mb" >> /tmp/redis.conf
+        exec redis-server /tmp/redis.conf
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
-      - REDIS_MAXMEMORY=512mb
-      # ACL User Passwords (set these for enhanced security)
-      - REDIS_APP_PASSWORD=${REDIS_APP_PASSWORD:-${REDIS_PASSWORD}}
-      - REDIS_ADMIN_PASSWORD=${REDIS_ADMIN_PASSWORD:-${REDIS_PASSWORD}}
-      - REDIS_KONG_PASSWORD=${REDIS_KONG_PASSWORD:-${REDIS_PASSWORD}}
-      - REDIS_READONLY_PASSWORD=${REDIS_READONLY_PASSWORD:-${REDIS_PASSWORD}}
     volumes:
       - redis_data:/data
       # Use secure configuration with TLS and ACL support

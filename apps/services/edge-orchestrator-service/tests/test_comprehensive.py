@@ -841,7 +841,13 @@ def api_client():
     try:
         from shared.auth.dependencies import get_current_user
         from shared.auth.models import User
-        mock_user = User(id="test-user", tenant_id="00000000-0000-0000-0000-000000000001", email="test@test.com", roles=["admin"])
+
+        mock_user = User(
+            id="test-user",
+            tenant_id="00000000-0000-0000-0000-000000000001",
+            email="test@test.com",
+            roles=["admin"],
+        )
         app.dependency_overrides[get_current_user] = lambda: mock_user
     except ImportError:
         pass

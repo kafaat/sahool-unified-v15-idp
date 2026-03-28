@@ -5,7 +5,6 @@ Tests for VRA API endpoints - اختبارات نقاط نهاية التطبي�
 import pytest
 from fastapi import HTTPException
 from httpx import ASGITransport, AsyncClient
-from shared.errors_py import NotFoundException
 from src.api.v1.vra import (
     BoundsInput,
     Coordinate,
@@ -15,6 +14,8 @@ from src.api.v1.vra import (
     _raise_not_found,
     router,
 )
+
+from shared.errors_py import NotFoundException
 
 
 class TestVRAModels:

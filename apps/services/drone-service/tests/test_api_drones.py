@@ -5,7 +5,6 @@ Tests for drone management API endpoints - اختبارات نقاط نهاية 
 import pytest
 from fastapi import HTTPException
 from httpx import ASGITransport, AsyncClient
-from shared.errors_py import NotFoundException
 from src.api.v1.drones import (
     DroneCreate,
     DroneResponse,
@@ -15,6 +14,8 @@ from src.api.v1.drones import (
     _raise_not_found,
     router,
 )
+
+from shared.errors_py import NotFoundException
 
 
 class TestDroneModels:

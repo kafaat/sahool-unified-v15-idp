@@ -60,6 +60,14 @@ abstract final class ErrorCodes {
   static const String fieldSyncConflict = 'F1008';
   static const String fieldGeojsonInvalid = 'F1009';
   static const String fieldPostgisError = 'F1010';
+  static const String irrigationFieldNotFound = 'I1001';
+  static const String irrigationScheduleNotFound = 'I1002';
+  static const String irrigationInvalidWaterVolume = 'I1003';
+  static const String irrigationSensorDataInvalid = 'I1004';
+  static const String irrigationCalculationError = 'I1005';
+  static const String irrigationMethodNotSupported = 'I1006';
+  static const String irrigationCropNotFound = 'I1007';
+  static const String irrigationEfficiencyOutOfRange = 'I1008';
   static const String vegetationFieldNotFound = 'V1001';
   static const String vegetationNdviDataUnavailable = 'V1002';
   static const String vegetationSatelliteError = 'V1003';
@@ -483,6 +491,62 @@ const Map<String, ErrorMessage> errorMessages = {
     en: 'PostGIS spatial operation failed',
     ar: 'فشلت العملية المكانية في PostGIS',
     retryable: true,
+  ),
+  'I1001': ErrorMessage(
+    code: 'I1001',
+    httpStatus: 404,
+    en: 'Field not found for irrigation scheduling',
+    ar: 'الحقل غير موجود لجدولة الري',
+    retryable: false,
+  ),
+  'I1002': ErrorMessage(
+    code: 'I1002',
+    httpStatus: 404,
+    en: 'Irrigation schedule not found',
+    ar: 'جدول الري غير موجود',
+    retryable: false,
+  ),
+  'I1003': ErrorMessage(
+    code: 'I1003',
+    httpStatus: 400,
+    en: 'Invalid water volume - must be a positive value',
+    ar: 'حجم المياه غير صالح - يجب أن يكون قيمة موجبة',
+    retryable: false,
+  ),
+  'I1004': ErrorMessage(
+    code: 'I1004',
+    httpStatus: 400,
+    en: 'Soil moisture sensor data is invalid or out of range',
+    ar: 'بيانات مستشعر رطوبة التربة غير صالحة أو خارج النطاق',
+    retryable: false,
+  ),
+  'I1005': ErrorMessage(
+    code: 'I1005',
+    httpStatus: 500,
+    en: 'Irrigation calculation failed - please try again',
+    ar: 'فشل حساب الري - يرجى المحاولة مرة أخرى',
+    retryable: true,
+  ),
+  'I1006': ErrorMessage(
+    code: 'I1006',
+    httpStatus: 400,
+    en: 'Irrigation method is not supported for this field configuration',
+    ar: 'طريقة الري غير مدعومة لتكوين هذا الحقل',
+    retryable: false,
+  ),
+  'I1007': ErrorMessage(
+    code: 'I1007',
+    httpStatus: 404,
+    en: 'Crop not found for irrigation water requirement calculation',
+    ar: 'المحصول غير موجود لحساب الاحتياج المائي للري',
+    retryable: false,
+  ),
+  'I1008': ErrorMessage(
+    code: 'I1008',
+    httpStatus: 400,
+    en: 'Irrigation efficiency must be between 0 and 100 percent',
+    ar: 'كفاءة الري يجب أن تكون بين 0 و100 بالمائة',
+    retryable: false,
   ),
   'V1001': ErrorMessage(
     code: 'V1001',

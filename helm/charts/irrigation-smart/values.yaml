@@ -1,4 +1,4 @@
-# SAHOOL Irrigation Smart - Microservice
+# SAHOOL Irrigation Smart Service - Smart Irrigation Scheduling & Optimization
 # Version: 16.0.0
 
 replicaCount: 2
@@ -113,3 +113,7 @@ securityContext:
     drop:
       - ALL
   readOnlyRootFilesystem: true
+
+# Network policy
+networkPolicy:
+  enabled: true

@@ -1268,6 +1268,8 @@ async def analyze_field_with_action(
     Field-First: ينتج قالب إجراء للتطبيق المحمول
     ينشر الحدث عبر NATS للإشعارات الفورية
     """
+    _validate_field_id(request.field_id)
+
     # Enforce tenant isolation
     if request.tenant_id:
         _enforce_tenant(user, request.tenant_id)
@@ -2535,6 +2537,8 @@ async def interpret_indices(request: InterpretRequest, user: User = Depends(get_
         "growth_stage": "reproductive"
     }
     """
+    _validate_field_id(request.field_id)
+
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
 

@@ -112,6 +112,16 @@ export const ERROR_CODES = {
   FIELD_GEOJSON_INVALID: 'F1009',
   FIELD_POSTGIS_ERROR: 'F1010',
 
+  // ── Irrigation Service (I1xxx) ─────────────────────────────────────
+  IRRIGATION_FIELD_NOT_FOUND: 'I1001',
+  IRRIGATION_SCHEDULE_NOT_FOUND: 'I1002',
+  IRRIGATION_INVALID_WATER_VOLUME: 'I1003',
+  IRRIGATION_SENSOR_DATA_INVALID: 'I1004',
+  IRRIGATION_CALCULATION_ERROR: 'I1005',
+  IRRIGATION_METHOD_NOT_SUPPORTED: 'I1006',
+  IRRIGATION_CROP_NOT_FOUND: 'I1007',
+  IRRIGATION_EFFICIENCY_OUT_OF_RANGE: 'I1008',
+
   // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────
   VEGETATION_FIELD_NOT_FOUND: 'V1001',
   VEGETATION_NDVI_DATA_UNAVAILABLE: 'V1002',
@@ -533,6 +543,64 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'PostGIS spatial operation failed',
     ar: 'فشلت العملية المكانية في PostGIS',
     retryable: true,
+  },
+
+  // ── Irrigation Service (I1xxx) ─────────────────────────────────────
+  [ERROR_CODES.IRRIGATION_FIELD_NOT_FOUND]: {
+    code: ERROR_CODES.IRRIGATION_FIELD_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Field not found for irrigation scheduling',
+    ar: 'الحقل غير موجود لجدولة الري',
+    retryable: false,
+  },
+  [ERROR_CODES.IRRIGATION_SCHEDULE_NOT_FOUND]: {
+    code: ERROR_CODES.IRRIGATION_SCHEDULE_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Irrigation schedule not found',
+    ar: 'جدول الري غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.IRRIGATION_INVALID_WATER_VOLUME]: {
+    code: ERROR_CODES.IRRIGATION_INVALID_WATER_VOLUME,
+    httpStatus: 400,
+    en: 'Invalid water volume - must be a positive value',
+    ar: 'حجم المياه غير صالح - يجب أن يكون قيمة موجبة',
+    retryable: false,
+  },
+  [ERROR_CODES.IRRIGATION_SENSOR_DATA_INVALID]: {
+    code: ERROR_CODES.IRRIGATION_SENSOR_DATA_INVALID,
+    httpStatus: 400,
+    en: 'Soil moisture sensor data is invalid or out of range',
+    ar: 'بيانات مستشعر رطوبة التربة غير صالحة أو خارج النطاق',
+    retryable: false,
+  },
+  [ERROR_CODES.IRRIGATION_CALCULATION_ERROR]: {
+    code: ERROR_CODES.IRRIGATION_CALCULATION_ERROR,
+    httpStatus: 500,
+    en: 'Irrigation calculation failed - please try again',
+    ar: 'فشل حساب الري - يرجى المحاولة مرة أخرى',
+    retryable: true,
+  },
+  [ERROR_CODES.IRRIGATION_METHOD_NOT_SUPPORTED]: {
+    code: ERROR_CODES.IRRIGATION_METHOD_NOT_SUPPORTED,
+    httpStatus: 400,
+    en: 'Irrigation method is not supported for this field configuration',
+    ar: 'طريقة الري غير مدعومة لتكوين هذا الحقل',
+    retryable: false,
+  },
+  [ERROR_CODES.IRRIGATION_CROP_NOT_FOUND]: {
+    code: ERROR_CODES.IRRIGATION_CROP_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Crop not found for irrigation water requirement calculation',
+    ar: 'المحصول غير موجود لحساب الاحتياج المائي للري',
+    retryable: false,
+  },
+  [ERROR_CODES.IRRIGATION_EFFICIENCY_OUT_OF_RANGE]: {
+    code: ERROR_CODES.IRRIGATION_EFFICIENCY_OUT_OF_RANGE,
+    httpStatus: 400,
+    en: 'Irrigation efficiency must be between 0 and 100 percent',
+    ar: 'كفاءة الري يجب أن تكون بين 0 و100 بالمائة',
+    retryable: false,
   },
 
   // ── Vegetation & NDVI Service (V1xxx) ──────────────────────────────

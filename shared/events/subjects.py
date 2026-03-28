@@ -643,6 +643,8 @@ SAHOOL_CHAT_ALL = "sahool.chat.*"
 # Irrigation Extended Subjects - موضوعات الري الإضافية
 # ─────────────────────────────────────────────────────────────────────────────
 
+SAHOOL_IRRIGATION_CALCULATED = "sahool.irrigation.calculated"
+SAHOOL_IRRIGATION_SCHEDULED = "sahool.irrigation.scheduled"
 SAHOOL_IRRIGATION_APPLIED = "sahool.irrigation.applied"
 SAHOOL_IRRIGATION_ALERT = "sahool.irrigation.alert"
 SAHOOL_IRRIGATION_HMC = "sahool.irrigation.hmc"
@@ -935,6 +937,8 @@ SUBJECT_REGISTRY = {
     "chat.ai_query": SAHOOL_CHAT_AI_QUERY,
     "chat.ai_response": SAHOOL_CHAT_AI_RESPONSE,
     # Irrigation (extended)
+    "irrigation.calculated": SAHOOL_IRRIGATION_CALCULATED,
+    "irrigation.scheduled": SAHOOL_IRRIGATION_SCHEDULED,
     "irrigation.applied": SAHOOL_IRRIGATION_APPLIED,
     "irrigation.alert": SAHOOL_IRRIGATION_ALERT,
     "irrigation.hmc": SAHOOL_IRRIGATION_HMC,

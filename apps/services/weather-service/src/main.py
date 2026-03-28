@@ -113,6 +113,23 @@ if HAS_PROMETHEUS:
     )
 
 
+# Prometheus middleware to record metrics per request
+if HAS_PROMETHEUS:
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            import time as _time
+
+            endpoint = request.url.path
+            start = _time.time()
+            response = await call_next(request)
+            duration = _time.time() - start
+            REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+            REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+            return response
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("service_starting", service="weather-service")
@@ -172,6 +189,10 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Prometheus request metrics middleware
+if HAS_PROMETHEUS:
+    app.add_middleware(PrometheusMiddleware)
 
 # CORS - Secure configuration
 try:
@@ -253,8 +274,9 @@ def readiness():
         checks["nats"] = "not_configured"
 
     # Check if providers are available
-    provider_manager = getattr(app.state, "provider_manager", None)
-    if provider_manager is not None:
+    multi_provider = getattr(app.state, "multi_provider", None)
+    weather_provider = getattr(app.state, "weather_provider", None)
+    if multi_provider is not None or weather_provider is not None:
         checks["providers"] = "available"
     else:
         checks["providers"] = "not_initialized"
@@ -666,13 +688,11 @@ async def calculate_et(req: ETRequest, user: User = Depends(get_current_user)):
     if app.state.publisher and et0_mm > 7.0:
         try:
             await app.state.publisher.publish_weather_alert(
-                {
-                    "alert_type": "high_evapotranspiration",
-                    "severity": "warning",
-                    "et0_mm": et0_mm,
-                    "tenant_id": req.tenant_id,
-                    "field_id": req.field_id,
-                }
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                alert_type="high_evapotranspiration",
+                severity="warning",
+                window_hours=24,
             )
         except Exception as e:
             logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
@@ -736,13 +756,11 @@ async def assess_spray_window(req: SprayWindowRequest, user: User = Depends(get_
     if app.state.publisher and not result.get("suitable", True):
         try:
             await app.state.publisher.publish_weather_alert(
-                {
-                    "alert_type": "spray_window_unsuitable",
-                    "severity": "advisory",
-                    "tenant_id": req.tenant_id,
-                    "field_id": req.field_id,
-                    "reason": result.get("reason", ""),
-                }
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                alert_type="spray_window_unsuitable",
+                severity="advisory",
+                window_hours=6,
             )
         except Exception as e:
             logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
@@ -847,12 +865,8 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
     if app.state.publisher:
         try:
             await app.state.publisher.publish_forecast_issued(
-                {
-                    "report_type": "agricultural",
-                    "tenant_id": req.tenant_id,
-                    "field_id": req.field_id,
-                    "alerts_count": len(report.get("alerts", [])),
-                }
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
             )
         except Exception as e:
             logger.error("nats_publish_failed", subject="forecast_issued", error=str(e))

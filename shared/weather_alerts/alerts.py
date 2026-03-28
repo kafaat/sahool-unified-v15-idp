@@ -705,7 +705,8 @@ class WeatherAlertGenerator:
 
             # Drought alerts (multi-day analysis)
             drought_alert = self._check_drought(forecasts, i)
-            if drought_alert:
+            # Only emit drought alert once (at the first day of the dry window)
+            if drought_alert and not any(a.alert_type == AlertType.DROUGHT for a in alerts):
                 drought_alert.field_id = field_id
                 drought_alert.farm_id = farm_id
                 drought_alert.location_name = location_name
@@ -1072,7 +1073,7 @@ class WeatherAlertGenerator:
             recommended_actions=list(actions_en),
             recommended_actions_ar=list(actions_ar),
             trigger_value=wind,
-            threshold_value=60.0 if severity == AlertSeverity.CRITICAL else 45.0,
+            threshold_value=60.0 if severity == AlertSeverity.CRITICAL else (45.0 if severity == AlertSeverity.WARNING else 35.0),
             trigger_unit="km/h",
             confidence=forecast.confidence,
         )

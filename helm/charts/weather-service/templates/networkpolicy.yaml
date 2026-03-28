@@ -24,8 +24,14 @@ spec:
         - protocol: TCP
           port: {{ .Values.service.port }}
   egress:
-    # DNS resolution
-    - to: []
+    # DNS resolution (kube-system CoreDNS)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
       ports:
         - protocol: UDP
           port: 53

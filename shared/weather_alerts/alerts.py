@@ -1123,7 +1123,7 @@ class WeatherAlertGenerator:
             return None
 
         # Check 5 consecutive days with no significant precipitation
-        upcoming = forecasts[current_index:current_index + 5]
+        upcoming = forecasts[current_index : current_index + 5]
         total_precip = sum(getattr(f, "precipitation_amount", 0) or 0 for f in upcoming)
         avg_humidity = sum(f.humidity for f in upcoming) / len(upcoming)
         avg_temp = sum(f.temperature for f in upcoming) / len(upcoming)
@@ -1260,7 +1260,7 @@ class WeatherAlertGenerator:
         if adjustment_factor < 1.0 and planned_irrigation_mm > 0:
             water_saved_mm = planned_irrigation_mm - recommended_amount
             water_saved_liters = water_saved_mm * field_area_ha * 10000  # Convert to liters
-            water_cost_per_liter = getattr(self.config, 'water_cost_per_liter', 0.003)
+            water_cost_per_liter = getattr(self.config, "water_cost_per_liter", 0.003)
             cost_saved = water_saved_liters * water_cost_per_liter
 
         return IrrigationSchedule(

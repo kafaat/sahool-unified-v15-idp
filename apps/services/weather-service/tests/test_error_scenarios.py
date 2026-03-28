@@ -210,9 +210,7 @@ class TestProviderFailover:
         """Single provider mode raises error on network failure"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
-            mock_provider.get_current = AsyncMock(
-                side_effect=httpx.RequestError("Connection refused")
-            )
+            mock_provider.get_current = AsyncMock(side_effect=httpx.RequestError("Connection refused"))
             mock_state.weather_provider = mock_provider
             mock_state.multi_provider = None
             mock_state.publisher = None
@@ -572,9 +570,7 @@ class TestNATSFailures:
 
             # Publisher exists but publish raises an error
             mock_publisher = AsyncMock()
-            mock_publisher.publish_weather_alert = AsyncMock(
-                side_effect=Exception("NATS connection lost")
-            )
+            mock_publisher.publish_weather_alert = AsyncMock(side_effect=Exception("NATS connection lost"))
             mock_state.publisher = mock_publisher
 
             response = client.post("/weather/current", json=_location_payload())
@@ -613,9 +609,7 @@ class TestNATSFailures:
         """NATS failure on assess endpoint does not break the response"""
         with patch("src.main.app.state") as mock_state:
             mock_publisher = AsyncMock()
-            mock_publisher.publish_weather_alert = AsyncMock(
-                side_effect=Exception("NATS timeout")
-            )
+            mock_publisher.publish_weather_alert = AsyncMock(side_effect=Exception("NATS timeout"))
             mock_state.publisher = mock_publisher
 
             response = client.post(

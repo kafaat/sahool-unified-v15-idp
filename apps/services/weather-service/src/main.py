@@ -59,7 +59,7 @@ except ImportError:
 
 # Shared weather alerts module integration
 try:
-    from shared.weather_alerts import WeatherAlertGenerator, AlertGeneratorConfig
+    from shared.weather_alerts import AlertGeneratorConfig, WeatherAlertGenerator
 
     HAS_SHARED_ALERTS = True
 except ImportError:
@@ -665,13 +665,15 @@ async def calculate_et(req: ETRequest, user: User = Depends(get_current_user)):
     et0_mm = result.get("et0_mm", 0)
     if app.state.publisher and et0_mm > 7.0:
         try:
-            await app.state.publisher.publish_weather_alert({
-                "alert_type": "high_evapotranspiration",
-                "severity": "warning",
-                "et0_mm": et0_mm,
-                "tenant_id": req.tenant_id,
-                "field_id": req.field_id,
-            })
+            await app.state.publisher.publish_weather_alert(
+                {
+                    "alert_type": "high_evapotranspiration",
+                    "severity": "warning",
+                    "et0_mm": et0_mm,
+                    "tenant_id": req.tenant_id,
+                    "field_id": req.field_id,
+                }
+            )
         except Exception as e:
             logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
 
@@ -733,13 +735,15 @@ async def assess_spray_window(req: SprayWindowRequest, user: User = Depends(get_
 
     if app.state.publisher and not result.get("suitable", True):
         try:
-            await app.state.publisher.publish_weather_alert({
-                "alert_type": "spray_window_unsuitable",
-                "severity": "advisory",
-                "tenant_id": req.tenant_id,
-                "field_id": req.field_id,
-                "reason": result.get("reason", ""),
-            })
+            await app.state.publisher.publish_weather_alert(
+                {
+                    "alert_type": "spray_window_unsuitable",
+                    "severity": "advisory",
+                    "tenant_id": req.tenant_id,
+                    "field_id": req.field_id,
+                    "reason": result.get("reason", ""),
+                }
+            )
         except Exception as e:
             logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
 
@@ -842,12 +846,14 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
     }
     if app.state.publisher:
         try:
-            await app.state.publisher.publish_forecast_issued({
-                "report_type": "agricultural",
-                "tenant_id": req.tenant_id,
-                "field_id": req.field_id,
-                "alerts_count": len(report.get("alerts", [])),
-            })
+            await app.state.publisher.publish_forecast_issued(
+                {
+                    "report_type": "agricultural",
+                    "tenant_id": req.tenant_id,
+                    "field_id": req.field_id,
+                    "alerts_count": len(report.get("alerts", [])),
+                }
+            )
         except Exception as e:
             logger.error("nats_publish_failed", subject="forecast_issued", error=str(e))
 

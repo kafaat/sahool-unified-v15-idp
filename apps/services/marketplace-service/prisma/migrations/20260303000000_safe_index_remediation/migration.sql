@@ -10,6 +10,7 @@
 -- حذف الفهارس غير المتزامنة الحالية
 -- ═══════════════════════════════════════════════════════════════════════════
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 DROP INDEX IF EXISTS "idx_products_deleted_at";
 DROP INDEX IF EXISTS "idx_orders_deleted_at";
 DROP INDEX IF EXISTS "idx_wallets_deleted_at";

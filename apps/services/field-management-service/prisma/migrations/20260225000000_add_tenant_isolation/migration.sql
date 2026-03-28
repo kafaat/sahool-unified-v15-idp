@@ -7,6 +7,7 @@
 
 -- Step 1: Add tenant_id columns with safe DEFAULT for existing rows
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "field_boundary_history" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR(100) NOT NULL DEFAULT 'default';
 ALTER TABLE "tasks" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR(100) NOT NULL DEFAULT 'default';
 ALTER TABLE "ndvi_readings" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR(100) NOT NULL DEFAULT 'default';

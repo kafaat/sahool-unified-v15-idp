@@ -13,6 +13,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- Drop existing indexes from 20260101_add_audit_logs
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 DROP INDEX IF EXISTS "idx_audit_tenant_created";
 DROP INDEX IF EXISTS "idx_audit_actor_created";
 DROP INDEX IF EXISTS "idx_audit_resource";

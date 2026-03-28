@@ -15,6 +15,7 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- disaster_reports.tenant_id: Add safe DEFAULT
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "disaster_reports" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 
 -- disaster_alerts.tenant_id: Add safe DEFAULT

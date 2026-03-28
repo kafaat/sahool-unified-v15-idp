@@ -7,6 +7,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- devices.updatedAt: NOT NULL without DEFAULT (Prisma @updatedAt)
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "devices" ALTER COLUMN "updatedAt" SET DEFAULT now();
 
 -- sensors.updatedAt: NOT NULL without DEFAULT

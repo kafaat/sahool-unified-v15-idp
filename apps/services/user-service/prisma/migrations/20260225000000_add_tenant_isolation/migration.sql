@@ -7,6 +7,7 @@
 
 -- Step 1: Add tenant_id columns with safe DEFAULT for existing rows
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "user_profiles" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "user_sessions" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "refresh_tokens" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';

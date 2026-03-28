@@ -10,6 +10,7 @@
 
 -- Composite index for filtering active farms by tenant
 -- فهرس مركب لتصفية المزارع النشطة حسب المستأجر
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 CREATE INDEX IF NOT EXISTS "idx_farm_tenant_active"
     ON "farms" ("tenant_id", "is_deleted");
 

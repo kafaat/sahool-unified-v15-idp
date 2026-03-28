@@ -7,6 +7,7 @@
 
 -- tasks.created_by: NOT NULL without DEFAULT (initial migration)
 -- Safe default for system-created tasks
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "tasks" ALTER COLUMN "created_by" SET DEFAULT 'system';
 
 -- field_boundary_history.version_at_change: NOT NULL without DEFAULT

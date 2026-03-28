@@ -525,7 +525,7 @@ function UserFormModal({
   title: string;
   user?: User;
   onClose: () => void;
-  onSubmit: (data: CreateUserData | UpdateUserData) => void;
+  onSubmit: (data: Omit<CreateUserData, 'tenantId'> | UpdateUserData) => void;
   isSubmitting: boolean;
 }) {
   const { toast } = useToast();
@@ -547,7 +547,7 @@ function UserFormModal({
         toast.warning('Please enter a password', 'يرجى إدخال كلمة المرور');
         return;
       }
-      onSubmit(formData as CreateUserData);
+      onSubmit(formData as Omit<CreateUserData, 'tenantId'>);
     } else {
       // Edit mode - password optional
       const updateData: UpdateUserData = {

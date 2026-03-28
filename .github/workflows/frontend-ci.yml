@@ -110,7 +110,9 @@ jobs:
         run: |
           npm run lint --workspaces --if-present 2>&1 | tee lint-output.txt || true
           # Check if there are actual errors (not just warnings)
-          if grep -q "error" lint-output.txt; then
+          # Use a pattern that matches ESLint error lines (e.g. "  10:31  error  ...")
+          # but not the summary line "0 errors, 4 warnings"
+          if grep -qP '^\s+\d+:\d+\s+error\s' lint-output.txt; then
             echo "has_errors=true" >> $GITHUB_OUTPUT
           else
             echo "has_errors=false" >> $GITHUB_OUTPUT

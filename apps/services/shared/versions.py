@@ -68,6 +68,7 @@ SERVICE_PORTS = {
     "vegetation-analysis-service": 8090,
     "indicators-service": 8091,
     "weather-service": 8092,
+    "weather-core": 8092,  # Deprecated alias → weather-service
     "advisory-service": 8093,
     "irrigation-smart": 8094,
     "crop-intelligence-service": 8095,

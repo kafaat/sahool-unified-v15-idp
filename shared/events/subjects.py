@@ -61,6 +61,8 @@ SAHOOL_WEATHER_ALERT_STORM = "sahool.weather.alert.storm"
 SAHOOL_WEATHER_ALERT_RAIN = "sahool.weather.alert.rain"
 SAHOOL_WEATHER_ALERT_DROUGHT = "sahool.weather.alert.drought"
 SAHOOL_WEATHER_ALERT_WIND = "sahool.weather.alert.wind"
+SAHOOL_WEATHER_FORECAST_ISSUED = "sahool.weather.forecast.issued"
+SAHOOL_WEATHER_IRRIGATION_ADJUSTMENT = "sahool.weather.irrigation.adjustment"
 
 # Wildcards
 SAHOOL_WEATHER_ALL = "sahool.weather.>"

@@ -14,34 +14,34 @@
 
 -- Drop existing non-concurrent indexes from 20260101_add_audit_logs
 -- Using CONCURRENTLY to avoid blocking queries during drop
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_tenant_created";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_actor_created";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_resource";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_correlation";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_category_created";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_severity";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_action";
+DROP INDEX IF EXISTS "idx_audit_tenant_created";
+DROP INDEX IF EXISTS "idx_audit_actor_created";
+DROP INDEX IF EXISTS "idx_audit_resource";
+DROP INDEX IF EXISTS "idx_audit_correlation";
+DROP INDEX IF EXISTS "idx_audit_category_created";
+DROP INDEX IF EXISTS "idx_audit_severity";
+DROP INDEX IF EXISTS "idx_audit_action";
 
 -- Recreate with CONCURRENTLY (no table locks)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_tenant_created"
+CREATE INDEX IF NOT EXISTS "idx_audit_tenant_created"
     ON "audit_logs"("tenant_id", "created_at" DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_actor_created"
+CREATE INDEX IF NOT EXISTS "idx_audit_actor_created"
     ON "audit_logs"("actor_id", "created_at" DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_resource"
+CREATE INDEX IF NOT EXISTS "idx_audit_resource"
     ON "audit_logs"("resource_type", "resource_id");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_correlation"
+CREATE INDEX IF NOT EXISTS "idx_audit_correlation"
     ON "audit_logs"("correlation_id");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_category_created"
+CREATE INDEX IF NOT EXISTS "idx_audit_category_created"
     ON "audit_logs"("category", "created_at" DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_severity"
+CREATE INDEX IF NOT EXISTS "idx_audit_severity"
     ON "audit_logs"("severity", "created_at" DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_action"
+CREATE INDEX IF NOT EXISTS "idx_audit_action"
     ON "audit_logs"("action", "created_at" DESC);
 
 -- ═══════════════════════════════════════════════════════════════════════════

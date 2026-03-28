@@ -288,6 +288,7 @@ async def save_message(
 
 async def get_session_messages(
     session_id: str,
+    tenant_id: str,
     limit: int = 50,
 ) -> list[dict[str, Any]]:
     """
@@ -296,6 +297,7 @@ async def get_session_messages(
 
     Args:
         session_id: Client-provided session identifier.
+        tenant_id: Tenant ID for isolation (required).
         limit: Maximum number of messages to return (default 50).
 
     Returns:
@@ -306,9 +308,21 @@ async def get_session_messages(
         return []
 
     try:
-        session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{session_id}")
+        # Deterministic UUID from tenant_id + session_id (matches _ensure_session)
+        # معرف UUID حتمي من معرف المستأجر + معرف الجلسة (يطابق _ensure_session)
+        session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{tenant_id}:{session_id}")
 
         async with _pool.acquire() as conn:
+            # Verify session belongs to tenant before returning messages
+            # التحقق من أن الجلسة تنتمي إلى المستأجر قبل إرجاع الرسائل
+            session_check = await conn.fetchrow(
+                "SELECT id FROM copilot_sessions WHERE id = $1 AND tenant_id = $2",
+                session_uuid,
+                tenant_id,
+            )
+            if not session_check:
+                return []
+
             rows = await conn.fetch(
                 """
                 SELECT id, role, content, rag_context, agent_type, created_at

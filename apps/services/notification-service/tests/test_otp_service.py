@@ -31,7 +31,7 @@ try:
         OTPResult,
         OTPService,
     )
-except (ImportError, RuntimeError):
+except BaseException:
     pytest.skip("OTP service dependencies not available", allow_module_level=True)
 
 

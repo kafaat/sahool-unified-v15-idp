@@ -10,11 +10,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Depends, Request, Response
 
 from ...core.config import SERVICE_VERSION, get_settings
 from ...models.schemas import CopilotMode, HealthResponse
 from ...rag import get_rag_service
+from ..deps import get_current_user
 
 router = APIRouter(tags=["Health"])
 
@@ -92,7 +93,7 @@ async def health(request: Request):
 
 
 @router.get("/metrics")
-async def metrics():
+async def metrics(user: dict = Depends(get_current_user)):
     """
     Prometheus metrics endpoint.
     نقطة نهاية مقاييس Prometheus

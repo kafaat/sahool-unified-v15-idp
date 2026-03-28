@@ -27,16 +27,19 @@ def validate_jwt_config(environment: str | None = None) -> None:
     Called during application startup (lifespan) rather than at import time.
     التحقق من تكوين JWT للبيئة المحددة. يُستدعى أثناء بدء التطبيق.
     """
+    global JWT_SECRET_KEY
     env = (environment or os.getenv("ENVIRONMENT", "development")).lower()
-    if env == "production" and len(JWT_SECRET_KEY) < 32:
-        raise RuntimeError(
-            "JWT_SECRET_KEY must be at least 32 characters in production. "
-            "يجب أن يكون JWT_SECRET_KEY 32 حرفاً على الأقل في بيئة الإنتاج."
-        )
+    if env in ("production", "staging"):
+        if not JWT_SECRET_KEY or len(JWT_SECRET_KEY) < 32:
+            raise RuntimeError(
+                "JWT_SECRET_KEY must be at least 32 characters in production/staging. "
+                "يجب أن يكون JWT_SECRET_KEY 32 حرفاً على الأقل في بيئة الإنتاج/التجهيز."
+            )
     elif not JWT_SECRET_KEY:
+        JWT_SECRET_KEY = "test-secret-key-for-unit-tests-only-32chars"
         logger.warning(
-            "jwt_secret_missing",
-            msg="JWT_SECRET_KEY not set - authentication will reject all tokens",
+            "jwt_secret_default",
+            msg="Using default JWT_SECRET_KEY for development/test",
         )
 
 

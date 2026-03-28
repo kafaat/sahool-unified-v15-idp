@@ -158,6 +158,41 @@ class TestEmbeddingService:
         k2 = service._get_cache_key("world")
         assert k1 != k2
 
+    def test_get_cache_key_different_tenant(self):
+        from src.rag.embeddings import EmbeddingService
+
+        service = EmbeddingService()
+        k1 = service._get_cache_key("hello", tenant_id="tenant-a")
+        k2 = service._get_cache_key("hello", tenant_id="tenant-b")
+        assert k1 != k2
+
+    def test_get_cache_key_same_tenant(self):
+        from src.rag.embeddings import EmbeddingService
+
+        service = EmbeddingService()
+        k1 = service._get_cache_key("hello", tenant_id="tenant-a")
+        k2 = service._get_cache_key("hello", tenant_id="tenant-a")
+        assert k1 == k2
+
+    @pytest.mark.asyncio
+    async def test_embed_cache_tenant_isolation(self):
+        from src.rag.embeddings import EmbeddingConfig, EmbeddingService
+
+        config = EmbeddingConfig(cache_enabled=True)
+        service = EmbeddingService(config)
+        await service._fallback_init()
+
+        r1 = await service.embed("hello", tenant_id="tenant-a")
+        assert r1.cached is False
+
+        # Same text, different tenant should not hit cache
+        r2 = await service.embed("hello", tenant_id="tenant-b")
+        assert r2.cached is False
+
+        # Same text, same tenant should hit cache
+        r3 = await service.embed("hello", tenant_id="tenant-a")
+        assert r3.cached is True
+
     @pytest.mark.asyncio
     async def test_embed_fallback_produces_normalized_vector(self):
         import math

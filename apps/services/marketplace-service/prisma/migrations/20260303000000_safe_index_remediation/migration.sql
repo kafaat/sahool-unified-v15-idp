@@ -20,14 +20,14 @@ DROP INDEX IF EXISTS "idx_loans_deleted_at";
 -- إعادة إنشاء الفهارس بشكل متزامن (بدون قفل الجداول)
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_products_deleted_at"
+CREATE INDEX IF NOT EXISTS "idx_products_deleted_at"
     ON "products"("deleted_at");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_orders_deleted_at"
+CREATE INDEX IF NOT EXISTS "idx_orders_deleted_at"
     ON "orders"("deleted_at");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_wallets_deleted_at"
+CREATE INDEX IF NOT EXISTS "idx_wallets_deleted_at"
     ON "wallets"("deleted_at");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_loans_deleted_at"
+CREATE INDEX IF NOT EXISTS "idx_loans_deleted_at"
     ON "loans"("deleted_at");

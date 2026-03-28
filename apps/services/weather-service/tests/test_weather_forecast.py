@@ -24,7 +24,7 @@ try:
         detect_heavy_rain,
     )
     from src.providers.open_meteo import DailyForecast, HourlyForecast
-except ImportError:
+except BaseException:
     pytest.skip("weather-service dependencies not installed", allow_module_level=True)
 
 

@@ -64,8 +64,10 @@ export class RedisTokenRevocationStore
   constructor(private readonly redisUrl?: string) {}
 
   /**
-   * Initialize on module startup
+   * Initialize on module startup.
    * Failure is non-fatal: service starts in degraded mode and retries in background.
+   * Security posture: FAIL-CLOSED — when Redis is unreachable, isTokenRevoked()
+   * returns true (denies access) so no revoked token can be accepted while Redis is down.
    */
   async onModuleInit(): Promise<void> {
     try {
@@ -74,7 +76,7 @@ export class RedisTokenRevocationStore
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warn(
         `Redis unavailable at startup, running in degraded mode: ${message}. ` +
-        `Token revocation checks will fail-closed until Redis is reachable.`,
+        `All token revocation checks will DENY access (fail-closed) until Redis is reachable.`,
       );
     }
   }

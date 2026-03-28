@@ -315,23 +315,24 @@ class TestNATSIntegration:
         assert response.status_code == 200
         assert response.json()["nats"] is True
 
-    @patch("src.main.nats_bridge")
-    @patch("src.main.room_manager")
-    def test_nats_stats(self, mock_room_manager, mock_nats, client):
+    def test_nats_stats(self, client):
         """Test NATS statistics"""
+        mock_nats = Mock()
         mock_nats.get_stats.return_value = {
             "connected": True,
             "subscriptions": 5,
             "messages_received": 100,
         }
-        mock_room_manager.get_stats.return_value = {
+        mock_room = Mock()
+        mock_room.get_stats.return_value = {
             "total_connections": 0,
             "total_rooms": 0,
             "rooms": {},
             "connections_by_room_type": {},
         }
 
-        response = client.get("/stats")
+        with patch("src.main.nats_bridge", mock_nats), patch("src.main.room_manager", mock_room):
+            response = client.get("/stats")
 
         assert response.status_code == 200
         assert "nats" in response.json()

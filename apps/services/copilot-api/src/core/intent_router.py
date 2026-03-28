@@ -107,8 +107,9 @@ class IntentRouter:
                 {
                     "tenant_id": tenant_id,
                     "field_id": field_id,
-                    "lat": (context or {}).get("lat", 15.37),
-                    "lon": (context or {}).get("lon", 44.19),
+                    # Derive coordinates from context; fall back to Sana'a (15.37, 44.19) only if unavailable
+                    "lat": (context or {}).get("lat") or (context or {}).get("location", {}).get("lat", 15.37),
+                    "lon": (context or {}).get("lon") or (context or {}).get("location", {}).get("lng", 44.19),
                 },
             ),
             AgriIntent.MARKET_PRICE: (

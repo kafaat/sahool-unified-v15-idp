@@ -96,15 +96,6 @@ CROP_KNOWLEDGE = {
 }
 
 
-@router.get("/")
-async def list_crops():
-    crops = [
-        {"crop_type": k, "name": v["name"], "name_ar": v["name_ar"], "family_ar": v["family_ar"]}
-        for k, v in CROP_KNOWLEDGE.items()
-    ]
-    return {"crops": crops, "count": len(crops)}
-
-
 @router.get("/search")
 async def search_encyclopedia(q: str = Query(..., min_length=2), lang: str = Query("ar", regex="^(ar|en)$")):
     results = []
@@ -144,3 +135,12 @@ async def get_crop_encyclopedia(crop_type: str):
             "available_crops": available,
         }
     return {"crop": crop_type, "data": crop}
+
+
+@router.get("/")
+async def list_crops():
+    crops = [
+        {"crop_type": k, "name": v["name"], "name_ar": v["name_ar"], "family_ar": v["family_ar"]}
+        for k, v in CROP_KNOWLEDGE.items()
+    ]
+    return {"crops": crops, "count": len(crops)}

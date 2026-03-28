@@ -558,8 +558,8 @@ class TestNATSSubjectUtilities:
         except ImportError:
             pytest.skip("Module not available")
             return
-        assert get_wildcard_subject("field") == "sahool.field.*"
-        assert get_wildcard_subject("billing") == "sahool.billing.*"
+        assert get_wildcard_subject("field") == "sahool.field.>"
+        assert get_wildcard_subject("billing") == "sahool.billing.>"
 
     def test_is_valid_subject_positive(self):
         """Valid subjects must pass validation."""

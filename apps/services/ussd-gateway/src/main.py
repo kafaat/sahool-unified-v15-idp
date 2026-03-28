@@ -14,7 +14,6 @@ import os
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 
-import asyncpg
 import nats
 from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -112,6 +111,8 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {SERVICE_NAME} v{SERVICE_VERSION}")
 
     # Database connection
+    import asyncpg
+
     db_url = os.getenv("DATABASE_URL")
     # Enforce sslmode for non-development database connections
     if db_url and os.getenv("ENVIRONMENT", "development") != "development":

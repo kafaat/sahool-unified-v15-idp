@@ -127,9 +127,10 @@ def init_tracer(
 
     # Add OTLP exporter for production tracing
     try:
+        otlp_insecure = os.getenv("OTLP_INSECURE", "false").lower() == "true"
         otlp_exporter = OTLPSpanExporter(
             endpoint=otlp_endpoint,
-            insecure=True,  # Use TLS in production
+            insecure=otlp_insecure,  # Default: secure (TLS)
         )
         _tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter, max_export_batch_size=512))
         logger.info(f"OTLP trace exporter configured: {otlp_endpoint}")

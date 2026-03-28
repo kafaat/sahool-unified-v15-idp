@@ -275,8 +275,8 @@ export class RedisTokenRevocationStore
       return exists > 0;
     } catch (error) {
       this.logger.error(`Error checking token revocation: ${error.message}`);
-      // Fail open: don't block access on Redis errors
-      return false;
+      // Fail closed: block access on Redis errors (security-critical)
+      throw new Error('Token revocation check failed');
     }
   }
 

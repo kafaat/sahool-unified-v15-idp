@@ -36,9 +36,9 @@ class Alert(Base):
     )
 
     # Multi-tenancy
-    tenant_id: Mapped[UUID | None] = mapped_column(
+    tenant_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True),
-        nullable=True,
+        nullable=False,
         comment="Tenant that owns this alert",
     )
 
@@ -249,9 +249,9 @@ class AlertRule(Base):
     )
 
     # Multi-tenancy
-    tenant_id: Mapped[UUID | None] = mapped_column(
+    tenant_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True),
-        nullable=True,
+        nullable=False,
         comment="Tenant that owns this rule",
     )
 

@@ -3,7 +3,8 @@ Comprehensive Tests for WebSocket Gateway Service
 اختبارات شاملة لخدمة بوابة WebSocket
 """
 
-from unittest.mock import AsyncMock, patch
+import os
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
@@ -14,10 +15,30 @@ except ImportError:
     pytest.skip("ws-gateway dependencies not installed", allow_module_level=True)
 
 
+class _FakeUser:
+    """Minimal user object returned by the mocked ``get_current_user`` dependency."""
+
+    def __init__(self, user_id: str = "user_123", tenant_id: str = "tenant_123"):
+        self.id = user_id
+        self.tenant_id = tenant_id
+
+
 @pytest.fixture
 def client():
-    """Create test client"""
-    return TestClient(app)
+    """Create test client with mocked NATS bridge so health returns 'healthy'."""
+    mock_nats = AsyncMock()
+    mock_nats.is_connected = True
+    mock_nats.connect = AsyncMock()
+    mock_nats.disconnect = AsyncMock()
+    mock_nats.get_stats = Mock(return_value={"connected": True, "subscriptions": 0})
+    mock_nats.get_subscription_health = Mock(return_value={"healthy": True})
+
+    with (
+        patch.dict(os.environ, {"NATS_URL": ""}, clear=False),
+        patch("src.main.nats_bridge", mock_nats),
+    ):
+        with TestClient(app) as test_client:
+            yield test_client
 
 
 @pytest.fixture
@@ -58,7 +79,7 @@ class TestWebSocketConnection:
     @patch("src.main.validate_jwt_token")
     def test_websocket_connection_success(self, mock_validate, client):
         """Test successful WebSocket connection (query param - deprecated)"""
-        mock_validate.return_value = AsyncMock(return_value={"sub": "user_123", "tenant_id": "tenant_123"})
+        mock_validate.return_value = {"sub": "user_123", "tenant_id": "tenant_123"}
 
         with client.websocket_connect("/ws?tenant_id=tenant_123&token=valid_token") as websocket:
             data = websocket.receive_json()
@@ -70,7 +91,7 @@ class TestWebSocketConnection:
     @patch("src.main.validate_jwt_token")
     def test_websocket_connection_with_auth_header(self, mock_validate, client):
         """Test successful WebSocket connection with Authorization header (preferred)"""
-        mock_validate.return_value = AsyncMock(return_value={"sub": "user_123", "tenant_id": "tenant_123"})
+        mock_validate.return_value = {"sub": "user_123", "tenant_id": "tenant_123"}
 
         # Note: TestClient may not support custom headers for websocket_connect
         # This is a placeholder for the expected behavior
@@ -106,12 +127,10 @@ class TestWebSocketConnection:
     @patch("src.main.validate_jwt_token")
     def test_websocket_tenant_mismatch(self, mock_validate, client):
         """Test WebSocket connection with tenant mismatch"""
-        mock_validate.return_value = AsyncMock(
-            return_value={
-                "sub": "user_123",
-                "tenant_id": "tenant_456",  # Different tenant
-            }
-        )
+        mock_validate.return_value = {
+            "sub": "user_123",
+            "tenant_id": "tenant_456",  # Different tenant
+        }
 
         with pytest.raises((ValueError, Exception)):
             with client.websocket_connect("/ws?tenant_id=tenant_123&token=token"):
@@ -125,7 +144,7 @@ class TestWebSocketMessaging:
     @patch("src.main.room_manager")
     def test_send_message_to_room(self, mock_room_manager, mock_validate, client):
         """Test sending message to a room"""
-        mock_validate.return_value = AsyncMock(return_value={"sub": "user_123", "tenant_id": "tenant_123"})
+        mock_validate.return_value = {"sub": "user_123", "tenant_id": "tenant_123"}
 
         mock_room_manager.broadcast_to_room = AsyncMock(return_value=5)
 
@@ -143,7 +162,7 @@ class TestWebSocketMessaging:
     @patch("src.main.validate_jwt_token")
     def test_websocket_message_echo(self, mock_validate, client):
         """Test message echo functionality"""
-        mock_validate.return_value = AsyncMock(return_value={"sub": "user_123", "tenant_id": "tenant_123"})
+        mock_validate.return_value = {"sub": "user_123", "tenant_id": "tenant_123"}
 
         with client.websocket_connect("/ws?tenant_id=tenant_123&token=token") as websocket:
             # Receive connection confirmation
@@ -159,6 +178,18 @@ class TestWebSocketMessaging:
 
 class TestBroadcastAPI:
     """Test broadcast REST API"""
+
+    @pytest.fixture(autouse=True)
+    def _override_auth_dep(self):
+        """Override the get_current_user FastAPI dependency for broadcast tests."""
+        from src.main import get_current_user as _real_dep
+
+        async def _fake_user():
+            return _FakeUser()
+
+        app.dependency_overrides[_real_dep] = _fake_user
+        yield
+        app.dependency_overrides.pop(_real_dep, None)
 
     @patch("src.main.validate_jwt_token")
     @patch("src.main.room_manager")
@@ -271,6 +302,7 @@ class TestNATSIntegration:
     def test_nats_connected_status(self, mock_nats, client):
         """Test NATS connection status"""
         mock_nats.is_connected = True
+        mock_nats.get_subscription_health = Mock(return_value={"healthy": True})
 
         response = client.get("/readyz")
 

@@ -39,13 +39,16 @@ class ChannelResponse:
     actions: list[dict] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)
 
-    def format_for_channel(self, channel: ChannelType) -> str:
+    def format_for_channel(self, channel: ChannelType, language: str = "ar") -> str:
         """Format response for specific channel constraints."""
         if channel == ChannelType.USSD:
+            # USSD is Arabic-first and has strict length limits
             return self.text_ar[:140]
         if channel == ChannelType.WHATSAPP:
+            # WhatsApp currently uses the Arabic variant and appends sources
             sections = [self.text_ar]
             if self.sources:
                 sections.append(f"\n📋 المصادر: {', '.join(s.get('name', '') for s in self.sources[:3])}")
             return "\n".join(sections)
-        return self.text
+        # For WEB, MOBILE, WECHAT: select language based on caller preference
+        return self.text_ar if language == "ar" else self.text

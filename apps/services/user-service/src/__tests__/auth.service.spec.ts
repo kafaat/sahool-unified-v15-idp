@@ -47,7 +47,7 @@ describe("AuthService", () => {
     updatedAt: new Date(),
   };
 
-  const mockPrismaService = {
+  const mockPrismaService: any = {
     user: {
       findUnique: jest.fn(),
       findFirst: jest.fn(),
@@ -62,6 +62,8 @@ describe("AuthService", () => {
       updateMany: jest.fn(),
     },
   };
+  // $transaction executes the callback passing the mock itself as the tx client
+  mockPrismaService.$transaction = jest.fn((cb: (tx: any) => Promise<any>) => cb(mockPrismaService));
 
   const mockJwtService = {
     sign: jest.fn().mockReturnValue("mock-jwt-token"),

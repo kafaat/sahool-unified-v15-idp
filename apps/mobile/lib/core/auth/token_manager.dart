@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -189,7 +190,15 @@ class TokenManager {
       if (result.success) {
         await _storeRefreshedTokens(result);
         _lastRefreshTime = DateTime.now();
-        _scheduleBackgroundRefresh(result.expiresIn ?? 3600);
+        // Schedule refresh using JWT exp claim when available (consistent with storeTokens)
+        int effectiveExpiresIn = result.expiresIn ?? 3600;
+        if (result.accessToken != null) {
+          final parsed = JwtValidator.parse(result.accessToken!);
+          if (parsed.isValid && parsed.claims?.timeUntilExpiry != null) {
+            effectiveExpiresIn = parsed.claims!.timeUntilExpiry!.inSeconds;
+          }
+        }
+        _scheduleBackgroundRefresh(effectiveExpiresIn);
         AppLogger.i('Token refresh successful', tag: 'TOKEN_MANAGER');
       } else {
         throw TokenRefreshException(
@@ -248,12 +257,20 @@ class TokenManager {
     }
   }
 
-  /// Mock refresh for development
+  /// Mock refresh for development - returns structurally valid JWT
   Future<TokenRefreshResult> _mockRefresh() async {
     await Future.delayed(const Duration(milliseconds: 300));
+    // Build a structurally valid JWT with required claims (header.payload.signature)
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final exp = now + 3600;
+    final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
+    final payload = base64Url.encode(utf8.encode(
+      '{"sub":"mock-user-${now}","email":"dev@sahool.app","roles":["FARMER"],"type":"access","iat":$now,"exp":$exp}',
+    ));
+    final mockJwt = '$header.$payload.mock_signature';
     return TokenRefreshResult.success(
-      accessToken: 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      accessToken: mockJwt,
+      refreshToken: 'mock_refresh_token_$now',
       expiresIn: 3600,
     );
   }

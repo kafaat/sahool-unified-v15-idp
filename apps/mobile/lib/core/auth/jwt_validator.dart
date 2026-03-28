@@ -8,7 +8,8 @@ import 'dart:convert';
 /// This validator checks:
 /// - Token structure (3 base64 parts)
 /// - Expiry claim (exp)
-/// - Required claims (sub, email)
+/// - Required claims (sub)
+/// - Optional claims (email, roles, tenantId, tokenType, jti)
 /// - Token type (access vs refresh)
 
 class JwtClaims {
@@ -166,7 +167,14 @@ class JwtValidator {
 
     final claims = result.claims!;
 
-    // Check expiry
+    // Check expiry claim presence
+    if (claims.expiresAt == null) {
+      return const JwtValidationResult.invalid(
+        'Invalid JWT: missing exp claim',
+      );
+    }
+
+    // Check expiry time
     if (claims.isExpired()) {
       return const JwtValidationResult.invalid('Token has expired');
     }

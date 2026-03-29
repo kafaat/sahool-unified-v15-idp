@@ -282,7 +282,7 @@ export const dashboardApi = {
         return alerts;
       }
 
-      return [];
+      throw new Error('API returned unexpected format for alerts');
     });
   },
 

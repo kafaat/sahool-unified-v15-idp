@@ -44,41 +44,57 @@ export interface TokenPayload extends JWTPayload {
  * @throws Error if token is invalid, expired, or signature verification fails
  */
 export async function verifyToken(token: string): Promise<TokenPayload> {
+  // Configuration check must happen outside try-catch so the helpful error is
+  // never swallowed into the generic "Token verification failed" message.
+  // SECURITY: Never use NEXT_PUBLIC_* for secrets - they are exposed to the client
+  const secret = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY;
+  if (!secret) {
+    throw new Error(
+      'JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable.'
+    );
+  }
+
+  let payload: JWTPayload;
   try {
-    // Get JWT secret from environment
-    // SECURITY: Never use NEXT_PUBLIC_* for secrets - they are exposed to the client
-    const secret = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY;
-
-    if (!secret) {
-      throw new Error(
-        'JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable.'
-      );
-    }
-
     // Verify token signature, expiry, issuer, and audience
-    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
+    const result = await jwtVerify(token, new TextEncoder().encode(secret), {
       issuer: 'sahool-platform',
       audience: 'sahool-api',
     });
-
-    // Validate required fields
-    if (!payload.sub || !payload.email) {
-      throw new Error('Invalid token payload: missing required fields');
-    }
-
-    return payload as TokenPayload;
+    payload = result.payload;
   } catch (error) {
     if (error instanceof Error) {
-      // Handle specific JWT errors
-      if (error.message.includes('expired')) {
+      // Use jose error codes for reliable classification — message text varies
+      // across jose versions and must not be the only detection mechanism.
+      const code = (error as { code?: string }).code;
+
+      if (code === 'ERR_JWT_EXPIRED' || error.message.includes('expired')) {
         throw new Error('Token has expired');
       }
-      if (error.message.includes('signature')) {
+      if (
+        code === 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED' ||
+        error.message.includes('signature')
+      ) {
         throw new Error('Invalid token signature');
       }
+      if (code === 'ERR_JWT_CLAIM_VALIDATION_FAILED' || code === 'ERR_JWT_INVALID_CLAIM_VALUE') {
+        // Use a generic message to avoid leaking token structure details;
+        // attach the original error as `cause` for dev-mode diagnostics.
+        throw new Error('Token claim validation failed', { cause: error });
+      }
+      // Preserve cause for all other jose/runtime errors without leaking details.
+      throw new Error('Token verification failed', { cause: error });
     }
     throw new Error('Token verification failed');
   }
+
+  // Validate required fields outside the jose try-catch so that a missing
+  // field produces a clear, specific error rather than "Token verification failed".
+  if (!payload.sub || !payload.email) {
+    throw new Error('Invalid token payload: missing required fields');
+  }
+
+  return payload as TokenPayload;
 }
 
 /**

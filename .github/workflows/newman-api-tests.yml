@@ -169,11 +169,10 @@ jobs:
     name: Newman Live Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Only run live tests on schedule, manual trigger with URL, or main/develop push
+    # Only run live tests on schedule or manual trigger with URL (no push trigger configured)
     if: >-
       github.event_name == 'schedule' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.target_url != '') ||
-      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.target_url != '')
 
     steps:
       - uses: actions/checkout@v6
@@ -190,9 +189,14 @@ jobs:
         id: target
         run: |
           TARGET="${{ github.event.inputs.target_url }}"
+          # Fall back to staging URL for scheduled runs
+          if [ -z "$TARGET" ]; then
+            TARGET="${{ vars.STAGING_API_BASE_URL }}"
+          fi
           if [ -z "$TARGET" ]; then
             echo "url=" >> "$GITHUB_OUTPUT"
             echo "⚠️ No target URL — live tests skipped"
+            echo "   Set vars.STAGING_API_BASE_URL or provide URL via workflow_dispatch."
           else
             echo "url=$TARGET" >> "$GITHUB_OUTPUT"
             echo "🎯 Target: $TARGET"
@@ -233,7 +237,8 @@ jobs:
           echo "   Environment: $ENV_FILE"
           [ -n "$FOLDER" ] && echo "   Folder: $FOLDER"
 
-          newman run "${NEWMAN_ARGS[@]}" 2>&1 | tee /tmp/newman-output.log || true
+          set -o pipefail
+          newman run "${NEWMAN_ARGS[@]}" 2>&1 | tee /tmp/newman-output.log
 
       - name: Upload Newman report
         if: always() && steps.target.outputs.url != ''

@@ -125,7 +125,8 @@ jobs:
           echo "🧪 Running Schemathesis static analysis on $SPEC"
 
           # Validate that all examples in the spec are valid against their schemas
-          st validate "$SPEC" 2>&1 | tee /tmp/schemathesis-validate.log || true
+          set -o pipefail
+          st validate "$SPEC" 2>&1 | tee /tmp/schemathesis-validate.log
 
           echo "✅ Static analysis complete for $SPEC"
 
@@ -137,51 +138,12 @@ jobs:
     name: Live Fuzz Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Only run live tests on schedule, manual trigger, or main/develop push
+    # Only run live tests on schedule or manual trigger (no push trigger configured)
     if: >-
       github.event_name == 'schedule' ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
-
-    services:
-      postgres:
-        image: postgis/postgis:16-3.4
-        env:
-          POSTGRES_USER: sahool
-          POSTGRES_PASSWORD: sahool_test
-          POSTGRES_DB: sahool_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      nats:
-        image: nats:2.10-alpine
-        ports:
-          - 4222:4222
-        options: >-
-          --health-cmd "wget -q --spider http://localhost:8222/healthz || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+      github.event_name == 'workflow_dispatch'
 
     env:
-      DATABASE_URL: postgresql://sahool:sahool_test@localhost:5432/sahool_test
-      REDIS_URL: redis://localhost:6379
-      NATS_URL: nats://localhost:4222
       JWT_SECRET_KEY: test-secret-key-for-schemathesis-only-32chars
       JWT_ALGORITHM: HS256
       ENVIRONMENT: test
@@ -202,10 +164,14 @@ jobs:
         id: target
         run: |
           TARGET="${{ github.event.inputs.target_url }}"
+          # Fall back to staging URL for scheduled runs
+          if [ -z "$TARGET" ]; then
+            TARGET="${{ vars.STAGING_API_BASE_URL }}"
+          fi
           if [ -z "$TARGET" ]; then
             echo "url=" >> "$GITHUB_OUTPUT"
             echo "⚠️ No target URL provided. Live tests will be skipped."
-            echo "   Provide a URL via workflow_dispatch or set up services first."
+            echo "   Provide a URL via workflow_dispatch or set vars.STAGING_API_BASE_URL."
           else
             echo "url=$TARGET" >> "$GITHUB_OUTPUT"
             echo "🎯 Target URL: $TARGET"
@@ -214,6 +180,7 @@ jobs:
       - name: Run Schemathesis against live API
         if: steps.target.outputs.url != ''
         run: |
+          set -o pipefail
           TARGET="${{ steps.target.outputs.url }}"
           SPEC="${{ github.event.inputs.spec_file || 'api/gateway-openapi.yaml' }}"
           MAX_EXAMPLES="${{ github.event.inputs.max_examples || '50' }}"
@@ -232,7 +199,7 @@ jobs:
             --header="Authorization: Bearer ${TEST_JWT_TOKEN:-mock-jwt-for-contract-tests}" \
             --header="X-Tenant-ID: 00000000-0000-0000-0000-000000000001" \
             --junit-xml=/tmp/schemathesis-results.xml \
-            2>&1 | tee /tmp/schemathesis-output.log || true
+            2>&1 | tee /tmp/schemathesis-output.log
 
       - name: Upload Schemathesis results
         if: always() && steps.target.outputs.url != ''
@@ -272,6 +239,8 @@ jobs:
           JWT_SECRET_KEY: test-secret-key-for-contract-tests-only32
           JWT_ALGORITHM: HS256
         run: |
+          set -o pipefail
+          mkdir -p reports
           echo "🧪 Running pytest contract tests..."
           python -m pytest tests/contract/ \
             -v \

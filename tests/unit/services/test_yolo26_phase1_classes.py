@@ -18,23 +18,47 @@ Updated: February 2026
 """
 
 import importlib.util
+import sys
 from pathlib import Path
 
 import pytest
 
-# Load schemas module directly to avoid pulling in torch/GPU dependencies
-_SCHEMAS_PATH = (
+# ---------------------------------------------------------------------------
+# Load schemas module directly to avoid pulling in torch/GPU dependencies.
+# We temporarily add the service root to sys.path so that
+# ``from src.core.vlm_verifier import ...`` inside schemas.py resolves.
+# ---------------------------------------------------------------------------
+_SERVICE_ROOT = str(
     Path(__file__).parent.parent.parent.parent
     / "apps"
     / "services"
     / "yolo26-vision-service"
-    / "src"
-    / "api"
-    / "schemas.py"
 )
-_spec = importlib.util.spec_from_file_location("yolo26_schemas", str(_SCHEMAS_PATH))
-_schemas = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_schemas)
+_SCHEMAS_PATH = Path(_SERVICE_ROOT) / "src" / "api" / "schemas.py"
+
+# Snapshot existing src.* entries so only newly-introduced ones are cleaned up,
+# preventing import pollution across services in the same pytest session.
+_pre_src_modules = {k for k in sys.modules if k == "src" or k.startswith("src.")}
+# Insert at front so local src/ takes precedence; restore afterwards.
+_inserted = _SERVICE_ROOT not in sys.path
+if _inserted:
+    sys.path.insert(0, _SERVICE_ROOT)
+try:
+    if not _SCHEMAS_PATH.is_file():
+        raise FileNotFoundError(f"YOLO26 schemas file not found at {_SCHEMAS_PATH}")
+    _spec = importlib.util.spec_from_file_location("yolo26_schemas", str(_SCHEMAS_PATH))
+    if _spec is None or _spec.loader is None:
+        raise ImportError(f"Could not create import spec for YOLO26 schemas from {_SCHEMAS_PATH}")
+    _schemas = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_schemas)
+finally:
+    if _inserted and _SERVICE_ROOT in sys.path:
+        sys.path.remove(_SERVICE_ROOT)
+    # Remove src.* entries introduced by exec_module to avoid polluting imports
+    # for other services tested in the same pytest session.
+    for _mod_name in list(sys.modules.keys()):
+        if (_mod_name == "src" or _mod_name.startswith("src.")) and _mod_name not in _pre_src_modules:
+            sys.modules.pop(_mod_name, None)
 
 DISEASE_CLASSES = _schemas.DISEASE_CLASSES
 PEST_CLASSES = _schemas.PEST_CLASSES

@@ -17,6 +17,7 @@
 -- حذف الفهارس غير المتزامنة الحالية
 -- ═══════════════════════════════════════════════════════════════════════════
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 DROP INDEX IF EXISTS "idx_field_farm";
 DROP INDEX IF EXISTS "idx_field_tenant_status";
 DROP INDEX IF EXISTS "idx_field_tenant_crop";

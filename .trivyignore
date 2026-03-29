@@ -18,28 +18,10 @@ helm/
 # Example:
 #   CVE-2024-XXXXX
 
-# ─────────────────────────────────────────────────────────────────────────────
-# npm-bundled tool CVEs (minimatch, tar inside /usr/local/lib/node_modules/npm)
-# These packages are npm's own INTERNAL dependencies used during package
-# management operations, not the application's runtime code.
-# The application (NestJS) does not call minimatch or tar directly at runtime;
-# they are only reached by npm/npx for the Prisma migration step on startup.
-# Accepted risk: these tools are not exposed to untrusted input in production.
-# Revisit when npm 11.x ships with minimatch>=10.2.3 and tar>=7.5.11 bundled.
-# Last reviewed: 2026-03-29
-# ─────────────────────────────────────────────────────────────────────────────
-
-# minimatch ReDoS / path-traversal (CVE-2026-26996, CVE-2026-27903, CVE-2026-27904)
-# Affects minimatch 9.0.5 and 10.1.1 bundled inside npm@11.7.0
-CVE-2026-26996
-CVE-2026-27903
-CVE-2026-27904
-
-# tar path-traversal / symlink / permissions chain (npm@11.7.0 bundles tar 7.5.2)
-# Fixed in tar 7.5.3 -> 7.5.11; requires npm to ship updated bundled tar
-CVE-2026-23745
-CVE-2026-23950
-CVE-2026-24842
-CVE-2026-26960
-CVE-2026-29786
-CVE-2026-31802
+# NOTE: Do not add service- or tool-specific CVE IDs to this repo-wide
+# .trivyignore, as it is passed to all image scans via --ignorefile and would
+# suppress findings for every service. Service-specific accepted-risk CVEs
+# must be placed in a per-service ignore file (e.g.,
+# apps/services/<service>/.trivyignore). The security workflow merges the
+# repo-wide file with the per-service file at scan time.
+# See .github/workflows/security.yml for implementation details.

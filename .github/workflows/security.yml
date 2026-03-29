@@ -460,6 +460,18 @@ jobs:
           echo "🔍 Running Trivy vulnerability scanner..."
           mkdir -p trivy-results
 
+          # Build the effective ignore file by merging the repo-wide .trivyignore
+          # with any per-service ignore file. This allows service-specific CVE
+          # exemptions (e.g., for npm-bundled internal packages) to be scoped
+          # to the service that needs them rather than suppressing findings
+          # globally across all image scans.
+          MERGED_IGNORE=$(mktemp)
+          cat .trivyignore > "$MERGED_IGNORE"
+          if [ -f "apps/services/${{ matrix.service }}/.trivyignore" ]; then
+            echo "" >> "$MERGED_IGNORE"
+            cat "apps/services/${{ matrix.service }}/.trivyignore" >> "$MERGED_IGNORE"
+          fi
+
           # Step 1/2: Generate SARIF report for GitHub Security tab.
           # Uses --exit-code 0 so Trivy always exits successfully and the
           # SARIF file is guaranteed to be written regardless of findings.
@@ -470,7 +482,7 @@ jobs:
             --severity CRITICAL,HIGH \
             --exit-code 0 \
             --ignore-unfixed \
-            --ignorefile .trivyignore \
+            --ignorefile "$MERGED_IGNORE" \
             --scanners vuln \
             --timeout 10m \
             ${{ matrix.service }}:scan
@@ -495,11 +507,17 @@ jobs:
         # new fixable CRITICAL/HIGH CVEs will block the pipeline.
         if: steps.install_trivy.outputs.installed == 'true' && steps.docker_build.outputs.built == 'true'
         run: |
+          MERGED_IGNORE=$(mktemp)
+          cat .trivyignore > "$MERGED_IGNORE"
+          if [ -f "apps/services/${{ matrix.service }}/.trivyignore" ]; then
+            echo "" >> "$MERGED_IGNORE"
+            cat "apps/services/${{ matrix.service }}/.trivyignore" >> "$MERGED_IGNORE"
+          fi
           trivy image \
             --severity CRITICAL,HIGH \
             --exit-code 1 \
             --ignore-unfixed \
-            --ignorefile .trivyignore \
+            --ignorefile "$MERGED_IGNORE" \
             --scanners vuln \
             --timeout 10m \
             ${{ matrix.service }}:scan

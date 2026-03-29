@@ -1,22 +1,43 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Trivy CVE Suppressions for field-management-service
-# ─────────────────────────────────────────────────────────────────────────────
+# Per-service Trivy ignore file for field-management-service
 #
-# The CVEs below affect the `tar` npm package which is bundled as a transitive
-# dependency of npm itself (used only during `npm install` inside the build
-# stage). The field-management-service does NOT use `tar` as a runtime
-# dependency — it is not imported or invoked by any application code.
-#
-# Because the production image uses a multi-stage build and only copies the
-# final artifacts (node_modules production deps + dist), the vulnerable `tar`
-# binary is not present in the runtime container. Even in the build stage,
-# `tar` is only exercised when npm unpacks .tgz packages, which are fetched
-# from a trusted registry.
-#
-# These CVEs are therefore not exploitable in this service's runtime context.
+# These CVE IDs are scoped here (not in the repo-wide .trivyignore) so that
+# the exemptions apply ONLY when scanning this service's container image.
+# See .github/workflows/security.yml for how per-service ignore files are
+# merged with the repo-wide .trivyignore at scan time.
 #
 # Last reviewed: 2026-03-29
 # ─────────────────────────────────────────────────────────────────────────────
+
+# minimatch ReDoS / path-traversal (CVE-2026-26996, CVE-2026-27903, CVE-2026-27904)
+# Package: minimatch 9.0.5 and 10.1.1 bundled inside npm@11.7.0's own
+# /usr/local/lib/node_modules/npm/node_modules/minimatch (npm-internal tooling).
+# These are NOT part of the application's runtime dependency tree; they are
+# only reachable when npm/npx itself processes packages (e.g., during the
+# Prisma migration step on container startup).
+# Accepted risk: npm's internal modules are not exposed to untrusted input
+# at application runtime.
+# Revisit: remove once npm ships a release bundling minimatch>=10.2.3.
+CVE-2026-26996
+CVE-2026-27903
+CVE-2026-27904
+
+# tar path-traversal / symlink / permission-modification chain
+# (CVE-2026-23745, CVE-2026-23950, CVE-2026-24842, CVE-2026-26960,
+#  CVE-2026-29786, CVE-2026-31802)
+# Package: tar 7.5.2 bundled inside npm@11.7.0's own
+# /usr/local/lib/node_modules/npm/node_modules/tar (npm-internal tooling).
+# Note: tar does not currently appear in the repo root or this service's
+# package-lock.json as an application dependency, and npm's bundled tar is
+# not affected by package.json "overrides". This ignore is an accepted-risk
+# exception for npm-internal tooling CVEs only.
+# Revisit: remove once npm ships a release bundling tar>=7.5.11.
+CVE-2026-23745
+CVE-2026-23950
+CVE-2026-24842
+CVE-2026-26960
+CVE-2026-29786
+CVE-2026-31802
 
 # tar <6.2.1 — arbitrary file creation via insufficient symlink checks
 CVE-2024-28863

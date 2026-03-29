@@ -17,3 +17,12 @@ helm/
 # have no fix in Debian bookworm / Ubuntu 22.04 base images.
 # Example:
 #   CVE-2024-XXXXX
+
+# NOTE: Do not add service- or tool-specific CVE IDs to this repo-wide
+# .trivyignore. Its contents are included in a merged temporary ignore file
+# that is passed to all image scans via --ignorefile, which would suppress
+# those findings for every service. Service-specific accepted-risk CVEs must
+# be placed in a per-service ignore file (e.g.,
+# apps/services/<service>/.trivyignore). The security workflow merges this
+# repo-wide file with each per-service file at scan time.
+# See .github/workflows/security.yml for implementation details.

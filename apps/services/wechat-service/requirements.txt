@@ -2,8 +2,8 @@
 # Port: 8135
 
 # Web Framework
-fastapi==0.135.1
-uvicorn[standard]==0.41.0
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
 
 # Data Validation
 pydantic>=2.10.0,<3.0.0

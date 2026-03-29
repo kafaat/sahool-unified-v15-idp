@@ -4,6 +4,7 @@
  */
 
 import { createApiClient, logger } from '@/lib/api/factory';
+import { ContractError } from '@/lib/api/safe-fetch';
 import { ALERT_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   Alert,
@@ -128,11 +129,16 @@ export const alertsApi = {
         return data;
       }
 
-      logger.warn('API returned unexpected format for alerts, using mock data');
-      return MOCK_ALERTS;
+      // Surface the contract violation so React Query / error boundaries can
+      // catch it instead of silently masking a backend format regression.
+      const received = data === null ? 'null' : typeof data;
+      throw new ContractError('UNEXPECTED_FORMAT', `expected array, got ${received}`);
     } catch (error) {
-      logger.warn('Failed to fetch alerts from API, using mock data:', error);
-      return MOCK_ALERTS;
+      // Re-throw so React Query propagates the error to the error boundary /
+      // onError handler.  ContractError is caught here too, so log once and
+      // always re-throw — never swallow or substitute mock data.
+      logger.critical('Failed to fetch alerts from API:', error);
+      throw error;
     }
   },
 

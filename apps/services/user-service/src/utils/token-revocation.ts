@@ -158,7 +158,11 @@ export class RedisTokenRevocationStore
       this.redis.on("end", () => {
         this.logger.warn("Redis connection ended, marking store as uninitialized");
         this.initialized = false;
-        this.initializing = false;
+        // Do NOT reset this.initializing here: if initialize() is still running
+        // (awaiting connect() during the retry loop), resetting initializing would
+        // allow a concurrent initialize() call to start, creating a race where the
+        // catch block could null/disconnect the wrong (newly created) Redis client.
+        // The initialize() finally block is solely responsible for clearing initializing.
         this.redis = null;
       });
 

@@ -20,7 +20,7 @@ pydantic-settings==2.13.1
 python-dotenv==1.2.2
 
 # Logging
-structlog==24.4.0
+structlog==25.5.0
 
 # Testing
 pytest==8.4.2

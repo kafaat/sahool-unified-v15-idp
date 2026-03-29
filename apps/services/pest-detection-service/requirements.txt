@@ -24,7 +24,7 @@ nats-py==2.14.0
 redis[hiredis]>=7.1.0,<8.0.0
 
 # Logging
-structlog>=24.1.0,<25.0.0
+structlog>=24.1.0,<26.0.0
 
 # Testing
 pytest>=8.0.0,<9.0.0

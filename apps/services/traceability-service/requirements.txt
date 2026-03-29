@@ -20,4 +20,4 @@ prometheus-client>=0.21.0
 
 # Traceability-specific
 qrcode[pil]>=7.4.2,<9.0.0
-python-barcode==0.15.1
+python-barcode==0.16.1

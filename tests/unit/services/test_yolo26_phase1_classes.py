@@ -36,6 +36,9 @@ _SERVICE_ROOT = str(
 )
 _SCHEMAS_PATH = Path(_SERVICE_ROOT) / "src" / "api" / "schemas.py"
 
+# Snapshot existing src.* entries so only newly-introduced ones are cleaned up,
+# preventing import pollution across services in the same pytest session.
+_pre_src_modules = {k for k in sys.modules if k == "src" or k.startswith("src.")}
 # Insert at front so local src/ takes precedence; restore afterwards.
 _inserted = _SERVICE_ROOT not in sys.path
 if _inserted:
@@ -47,6 +50,11 @@ try:
 finally:
     if _inserted and _SERVICE_ROOT in sys.path:
         sys.path.remove(_SERVICE_ROOT)
+    # Remove src.* entries introduced by exec_module to avoid polluting imports
+    # for other services tested in the same pytest session.
+    for _mod_name in list(sys.modules.keys()):
+        if (_mod_name == "src" or _mod_name.startswith("src.")) and _mod_name not in _pre_src_modules:
+            sys.modules.pop(_mod_name, None)
 
 DISEASE_CLASSES = _schemas.DISEASE_CLASSES
 PEST_CLASSES = _schemas.PEST_CLASSES

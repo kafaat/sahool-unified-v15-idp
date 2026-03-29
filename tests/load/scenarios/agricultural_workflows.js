@@ -219,9 +219,8 @@ function makeFieldPolygon() {
 
 function checkAndRecord(response, expectedStatuses, metricRate, description) {
   const acceptable = expectedStatuses.includes(response.status);
-  const success = response.status >= 200 && response.status < 300;
-  metricRate.add(success ? 1 : 0);
-  workflowSuccessRate.add(success ? 1 : 0);
+  metricRate.add(acceptable ? 1 : 0);
+  workflowSuccessRate.add(acceptable ? 1 : 0);
   check(response, {
     [`${description} - acceptable status`]: () => acceptable,
   });

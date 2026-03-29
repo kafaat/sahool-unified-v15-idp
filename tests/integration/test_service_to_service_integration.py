@@ -45,11 +45,31 @@ except ImportError:
 # ---------------------------------------------------------------------------
 import os
 
-try:
-    import sys
+import importlib.util
+from pathlib import Path
 
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "apps", "services"))
-    from shared.versions import get_service_url  # type: ignore[import]
+try:
+    # Load versions.py via importlib so it registers under a unique module name
+    # instead of being imported as the top-level ``shared`` package, which would
+    # shadow the repo-root shared/ package for the rest of the pytest session.
+    _VERSIONS_PATH = (
+        Path(__file__).resolve().parent.parent.parent
+        / "apps"
+        / "services"
+        / "shared"
+        / "versions.py"
+    )
+    if not _VERSIONS_PATH.is_file():
+        raise FileNotFoundError(_VERSIONS_PATH)
+    _spec = importlib.util.spec_from_file_location(
+        "_apps_services_shared_versions_integration",
+        _VERSIONS_PATH,
+    )
+    if _spec is None or _spec.loader is None:
+        raise ImportError("Cannot load spec for shared/versions.py")
+    _versions_mod = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_versions_mod)  # type: ignore[union-attr]
+    get_service_url = _versions_mod.get_service_url  # type: ignore[attr-defined]
 
     def _svc(name: str, fallback_port: int) -> str:
         host = os.getenv("SERVICE_HOST", "localhost")

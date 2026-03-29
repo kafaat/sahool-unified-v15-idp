@@ -47,7 +47,11 @@ _inserted = _SERVICE_ROOT not in sys.path
 if _inserted:
     sys.path.insert(0, _SERVICE_ROOT)
 try:
+    if not _SCHEMAS_PATH.is_file():
+        raise FileNotFoundError(f"YOLO26 schemas file not found at {_SCHEMAS_PATH}")
     _spec = importlib.util.spec_from_file_location("yolo26_schemas_p2", str(_SCHEMAS_PATH))
+    if _spec is None or _spec.loader is None:
+        raise ImportError(f"Could not create import spec for YOLO26 schemas from {_SCHEMAS_PATH}")
     _schemas = importlib.util.module_from_spec(_spec)
     _spec.loader.exec_module(_schemas)
 finally:

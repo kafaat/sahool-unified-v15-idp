@@ -167,11 +167,18 @@ export async function middleware(request: NextRequest) {
       userRole = 'viewer'; // Default for farmer, viewer, or any other role
     }
   } catch (error) {
-    // Token verification failed — log the specific reason (and cause when present)
-    // so the root cause is visible in development mode.
+    // Token verification failed — log the original error object so stack traces
+    // are preserved in dev tools, then also surface the extracted reason and
+    // any attached cause for quick diagnosis.
     const reason = error instanceof Error ? error.message : String(error);
     const cause = error instanceof Error && (error as { cause?: unknown }).cause;
-    edgeLogger.error('Token verification failed:', reason, ...(cause ? ['cause:', cause] : []));
+    edgeLogger.error(
+      'Token verification failed:',
+      error,
+      'reason:',
+      reason,
+      ...(cause ? ['cause:', cause] : [])
+    );
 
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('returnTo', pathname);

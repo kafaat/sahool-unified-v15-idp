@@ -15,6 +15,7 @@
 -- restored it as 'unassigned'. Re-affirm to prevent drift scanner gaps.
 -- ─────────────────────────────────────────────────────────────────────────────
 
+-- drift:safe reason=Idempotent SET DEFAULT on existing columns only; no rows are rewritten and no indexes are created or modified. Safe to re-run during drift reconciliation.
 ALTER TABLE "field_boundary_history" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "tasks" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "ndvi_readings" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';

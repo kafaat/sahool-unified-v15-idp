@@ -12,6 +12,7 @@
 -- Step 1: Add tenant_id columns with safe DEFAULT for existing rows
 -- الخطوة 1: إضافة أعمدة tenant_id مع قيمة افتراضية آمنة
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "order_items" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';

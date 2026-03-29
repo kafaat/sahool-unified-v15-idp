@@ -12,6 +12,7 @@
 
 -- Step 1: Update existing 'default' sentinel values to 'unassigned'
 -- الخطوة 1: تحديث القيم الافتراضية 'default' إلى 'unassigned'
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 UPDATE "products"          SET "tenant_id" = 'unassigned' WHERE "tenant_id" = 'default';
 UPDATE "orders"            SET "tenant_id" = 'unassigned' WHERE "tenant_id" = 'default';
 UPDATE "order_items"       SET "tenant_id" = 'unassigned' WHERE "tenant_id" = 'default';

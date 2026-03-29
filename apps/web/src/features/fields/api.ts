@@ -143,7 +143,7 @@ export const fieldsApi = {
       const response = await api.get(`${FIELD_ENDPOINTS.LIST}?${params.toString()}`);
       const fields = response.data.data || response.data;
       if (Array.isArray(fields)) return fields.map(mapApiFieldToField);
-      return [];
+      throw new Error('Invalid response format for fields');
     });
   },
 

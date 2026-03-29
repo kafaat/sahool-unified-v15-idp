@@ -15,6 +15,25 @@ import axios from 'axios';
 import { logger } from '@/lib/logger';
 
 /**
+ * Module-level status message map to avoid re-allocating on every error conversion.
+ * خريطة رسائل الحالة على مستوى الوحدة لتجنب إعادة التخصيص عند كل تحويل خطأ.
+ */
+const HTTP_ERROR_MESSAGES: Readonly<Record<number, { en: string; ar: string }>> = {
+  0: { en: 'Network error. Please check your connection.', ar: 'خطأ في الشبكة. يرجى التحقق من الاتصال.' },
+  400: { en: 'Invalid request. Please check your input.', ar: 'طلب غير صالح. يرجى التحقق من البيانات المدخلة.' },
+  401: { en: 'Session expired. Please log in again.', ar: 'انتهت الجلسة. يرجى تسجيل الدخول مجدداً.' },
+  403: { en: 'You do not have permission to access this resource.', ar: 'ليس لديك صلاحية للوصول إلى هذا المورد.' },
+  404: { en: 'The requested resource was not found.', ar: 'لم يتم العثور على المورد المطلوب.' },
+  409: { en: 'Conflict. The requested operation cannot be completed.', ar: 'تعارض في الطلب. لا يمكن إتمام العملية المطلوبة.' },
+  422: { en: 'Validation error. Please review the entered data.', ar: 'خطأ في التحقق من البيانات. يرجى مراجعة البيانات المدخلة.' },
+  429: { en: 'Too many requests. Please try again later.', ar: 'طلبات كثيرة جداً. يرجى المحاولة لاحقاً.' },
+  500: { en: 'Server error. Please try again later.', ar: 'خطأ في الخادم. يرجى المحاولة لاحقاً.' },
+  502: { en: 'Service temporarily unavailable.', ar: 'الخدمة غير متاحة مؤقتاً.' },
+  503: { en: 'Service temporarily unavailable.', ar: 'الخدمة غير متاحة مؤقتاً.' },
+  504: { en: 'The server is taking too long to respond. Please try again later.', ar: 'الخادم يستغرق وقتاً طويلاً في الاستجابة. يرجى المحاولة لاحقاً.' },
+} as const;
+
+/**
  * API Error class with bilingual messages and structured metadata
  * خطأ API مع رسائل ثنائية اللغة وبيانات وصفية منظمة
  */
@@ -53,22 +72,7 @@ function toApiError(error: unknown, endpoint: string): ApiError {
     const serverMessage = responseData?.message as string | undefined;
     const serverMessageAr = (responseData?.messageAr ?? responseData?.message_ar) as string | undefined;
 
-    const messages: Record<number, { en: string; ar: string }> = {
-      0: { en: 'Network error. Please check your connection.', ar: 'خطأ في الشبكة. يرجى التحقق من الاتصال.' },
-      400: { en: 'Invalid request. Please check your input.', ar: 'طلب غير صالح. يرجى التحقق من البيانات المدخلة.' },
-      401: { en: 'Session expired. Please log in again.', ar: 'انتهت الجلسة. يرجى تسجيل الدخول مجدداً.' },
-      403: { en: 'You do not have permission to access this resource.', ar: 'ليس لديك صلاحية للوصول إلى هذا المورد.' },
-      404: { en: 'The requested resource was not found.', ar: 'لم يتم العثور على المورد المطلوب.' },
-      409: { en: 'Conflict. The requested operation cannot be completed.', ar: 'تعارض في الطلب. لا يمكن إتمام العملية المطلوبة.' },
-      422: { en: 'Validation error. Please review the entered data.', ar: 'خطأ في التحقق من البيانات. يرجى مراجعة البيانات المدخلة.' },
-      429: { en: 'Too many requests. Please try again later.', ar: 'طلبات كثيرة جداً. يرجى المحاولة لاحقاً.' },
-      500: { en: 'Server error. Please try again later.', ar: 'خطأ في الخادم. يرجى المحاولة لاحقاً.' },
-      502: { en: 'Service temporarily unavailable.', ar: 'الخدمة غير متاحة مؤقتاً.' },
-      503: { en: 'Service temporarily unavailable.', ar: 'الخدمة غير متاحة مؤقتاً.' },
-      504: { en: 'The server is taking too long to respond. Please try again later.', ar: 'الخادم يستغرق وقتاً طويلاً في الاستجابة. يرجى المحاولة لاحقاً.' },
-    };
-
-    const fallback = messages[status] ?? messages[500]!;
+    const fallback = HTTP_ERROR_MESSAGES[status] ?? HTTP_ERROR_MESSAGES[500]!;
 
     return new ApiError({
       message: serverMessage ?? fallback.en,

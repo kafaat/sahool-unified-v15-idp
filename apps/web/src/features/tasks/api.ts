@@ -142,7 +142,7 @@ export const tasksApi = {
       const response = await api.get(`${TASK_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data.map(mapApiTaskToTask);
-      return [];
+      throw new Error('Invalid response format for tasks');
     });
   },
 

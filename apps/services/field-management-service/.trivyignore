@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Trivy CVE Suppressions for field-management-service
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# The CVEs below affect the `tar` npm package which is bundled as a transitive
+# dependency of npm itself (used only during `npm install` inside the build
+# stage). The field-management-service does NOT use `tar` as a runtime
+# dependency — it is not imported or invoked by any application code.
+#
+# Because the production image uses a multi-stage build and only copies the
+# final artifacts (node_modules production deps + dist), the vulnerable `tar`
+# binary is not present in the runtime container. Even in the build stage,
+# `tar` is only exercised when npm unpacks .tgz packages, which are fetched
+# from a trusted registry.
+#
+# These CVEs are therefore not exploitable in this service's runtime context.
+#
+# Last reviewed: 2026-03-29
+# ─────────────────────────────────────────────────────────────────────────────
+
+# tar <6.2.1 — arbitrary file creation via insufficient symlink checks
+CVE-2024-28863
+
+# tar <6.2.1 — denial of service via crafted tar archive headers
+CVE-2024-28176

@@ -454,23 +454,26 @@ jobs:
             echo "built=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run Trivy vulnerability scanner
+      - name: Build merged Trivy ignore file
+        id: build_merged_ignore
         if: steps.install_trivy.outputs.installed == 'true' && steps.docker_build.outputs.built == 'true'
         run: |
-          echo "🔍 Running Trivy vulnerability scanner..."
-          mkdir -p trivy-results
-
-          # Build the effective ignore file by merging the repo-wide .trivyignore
-          # with any per-service ignore file. This allows service-specific CVE
-          # exemptions (e.g., for npm-bundled internal packages) to be scoped
-          # to the service that needs them rather than suppressing findings
-          # globally across all image scans.
           MERGED_IGNORE=$(mktemp)
+          # Merge repo-wide .trivyignore with an optional per-service ignore file.
+          # This scopes service-specific CVE exemptions to the service that needs
+          # them instead of suppressing findings globally across all image scans.
           cat .trivyignore > "$MERGED_IGNORE"
           if [ -f "apps/services/${{ matrix.service }}/.trivyignore" ]; then
             echo "" >> "$MERGED_IGNORE"
             cat "apps/services/${{ matrix.service }}/.trivyignore" >> "$MERGED_IGNORE"
           fi
+          echo "MERGED_TRIVY_IGNORE=$MERGED_IGNORE" >> "$GITHUB_ENV"
+
+      - name: Run Trivy vulnerability scanner
+        if: steps.install_trivy.outputs.installed == 'true' && steps.docker_build.outputs.built == 'true'
+        run: |
+          echo "🔍 Running Trivy vulnerability scanner..."
+          mkdir -p trivy-results
 
           # Step 1/2: Generate SARIF report for GitHub Security tab.
           # Uses --exit-code 0 so Trivy always exits successfully and the
@@ -482,7 +485,7 @@ jobs:
             --severity CRITICAL,HIGH \
             --exit-code 0 \
             --ignore-unfixed \
-            --ignorefile "$MERGED_IGNORE" \
+            --ignorefile "$MERGED_TRIVY_IGNORE" \
             --scanners vuln \
             --timeout 10m \
             ${{ matrix.service }}:scan
@@ -507,17 +510,11 @@ jobs:
         # new fixable CRITICAL/HIGH CVEs will block the pipeline.
         if: steps.install_trivy.outputs.installed == 'true' && steps.docker_build.outputs.built == 'true'
         run: |
-          MERGED_IGNORE=$(mktemp)
-          cat .trivyignore > "$MERGED_IGNORE"
-          if [ -f "apps/services/${{ matrix.service }}/.trivyignore" ]; then
-            echo "" >> "$MERGED_IGNORE"
-            cat "apps/services/${{ matrix.service }}/.trivyignore" >> "$MERGED_IGNORE"
-          fi
           trivy image \
             --severity CRITICAL,HIGH \
             --exit-code 1 \
             --ignore-unfixed \
-            --ignorefile "$MERGED_IGNORE" \
+            --ignorefile "$MERGED_TRIVY_IGNORE" \
             --scanners vuln \
             --timeout 10m \
             ${{ matrix.service }}:scan
@@ -538,6 +535,10 @@ jobs:
           image: ${{ matrix.service }}:scan
           fail-build: false
           severity-cutoff: high
+
+      - name: Cleanup merged Trivy ignore file
+        if: always() && steps.build_merged_ignore.outcome != 'skipped'
+        run: rm -f "$MERGED_TRIVY_IGNORE"
 
   dockerfile-scan:
     name: Dockerfile Security Scan

@@ -47,6 +47,10 @@ export interface RevocationStats {
  * Redis-based token revocation service
  * خدمة إلغاء الرموز القائمة على Redis
  */
+// Redis reconnect tuning constants
+const MAX_RECONNECT_ATTEMPTS = 5;
+const MAX_RECONNECT_DELAY_MS = 5_000;
+
 @Injectable()
 export class RedisTokenRevocationStore
   implements OnModuleInit, OnModuleDestroy
@@ -130,16 +134,16 @@ export class RedisTokenRevocationStore
           connectTimeout: 5000,
           keepAlive: 30000,
           reconnectStrategy: (retries: number) => {
-            // Fail after 5 retries (~17 s total with exponential back-off capped at 5 s).
+            // Fail after MAX_RECONNECT_ATTEMPTS retries (~17 s total with exponential back-off capped at MAX_RECONNECT_DELAY_MS).
             // The caller (initialize) catches the resulting ReconnectStrategyError; subsequent
             // Redis operations will trigger a fresh connect() attempt, so the service
             // auto-recovers as soon as Redis becomes available again.
-            if (retries >= 5) {
+            if (retries >= MAX_RECONNECT_ATTEMPTS) {
               this.logger.error(`Redis max reconnection attempts (${retries}) exceeded`);
               return new Error('Max reconnection attempts exceeded');
             }
-            const delay = Math.min(1000 * Math.pow(2, retries), 5000);
-            this.logger.warn(`Redis reconnecting in ${delay}ms (attempt ${retries + 1}/5)`);
+            const delay = Math.min(1000 * Math.pow(2, retries), MAX_RECONNECT_DELAY_MS);
+            this.logger.warn(`Redis reconnecting in ${delay}ms (attempt ${retries + 1}/${MAX_RECONNECT_ATTEMPTS})`);
             return delay;
           },
         },

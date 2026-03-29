@@ -104,7 +104,10 @@ RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
            /home/sahool/venv/lib/python*/site-packages/setuptools* \
            /home/sahool/venv/lib/python*/site-packages/wheel* \
            /home/sahool/venv/lib/python*/site-packages/_distutils_hack* \
-           /home/sahool/venv/lib/python*/site-packages/pkg_resources* 2>/dev/null || true && \
+           /home/sahool/venv/lib/python*/site-packages/pkg_resources* \
+           /home/sahool/venv/lib/python*/site-packages/jaraco* \
+           /usr/local/lib/python*/dist-packages/wheel* \
+           /usr/local/lib/python*/dist-packages/jaraco* 2>/dev/null || true && \
     if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
 
 # Copy shared modules

@@ -881,35 +881,42 @@ The AI Advisor service is a multi-agent AI system for agricultural advisory that
 
 ### Python Dependencies (requirements.txt)
 
+> **Note:** Exact versions may drift — always refer to
+> [`apps/services/ai-advisor/requirements.txt`](../../apps/services/ai-advisor/requirements.txt)
+> as the source of truth.
+
 | Package | Version | Purpose |
 |---------|---------|---------|
-| fastapi | 0.126.0 | Web framework |
+| fastapi | 0.135.1 | Web framework |
 | starlette | >=0.49.1 | ASGI framework |
-| uvicorn[standard] | >=0.30.0,<1.0.0 | ASGI server |
+| uvicorn[standard] | 0.41.0 | ASGI server |
 | httpx | 0.28.1 | Async HTTP client |
-| pydantic | 2.9.2 | Data validation |
-| pydantic-settings | 2.7.1 | Settings management |
-| langchain | >=0.3.26 | LLM framework |
-| langchain-anthropic | 0.3.1 | Anthropic integration |
-| langchain-community | 0.3.27 | Community integrations (CVE fix) |
-| langchain-core | 0.3.81 | Core abstractions (CVE fix) |
+| pydantic | 2.12.5 | Data validation |
+| pydantic-settings | 2.13.1 | Settings management |
+| langchain | >=0.3.26,<0.4.0 | LLM framework |
+| langchain-anthropic | 0.3.22 | Anthropic integration |
+| langchain-community | 0.3.31 | Community integrations (CVE fix) |
+| langchain-core | 0.3.83 | Core abstractions (CVE fix) |
 | anthropic | >=0.41.0,<1.0.0 | Anthropic Claude API |
-| openai | >=1.0.0 | OpenAI GPT API |
+| openai | >=1.0.0,<2.0.0 | OpenAI GPT API |
 | google-generativeai | >=0.3.0 | Google Gemini API |
-| sentence-transformers | 2.7.0 | Embeddings |
+| sentence-transformers | 5.2.3 | Embeddings |
 | qdrant-client | 1.17.0 | Vector database |
-| nats-py | 2.9.0 | NATS messaging |
-| python-dotenv | 1.0.1 | Environment loading |
-| python-multipart | 0.0.18 | File uploads (CVE fix) |
+| a2a | >=0.1.0 | Agent-to-Agent protocol |
+| nats-py | 2.14.0 | NATS messaging |
+| python-dotenv | 1.2.2 | Environment loading |
+| python-multipart | 0.0.22 | File uploads (CVE fix) |
 | aiofiles | 24.1.0 | Async file I/O |
 | tenacity | 8.5.0 | Retry logic |
-| prometheus-client | 0.21.1 | Metrics |
+| prometheus-client | 0.24.1 | Metrics |
 | structlog | 24.4.0 | Structured logging |
-| numpy | 1.26.4 | Numerical computing |
+| numpy | >=1.26.0,<2.0.0 | Numerical computing |
 | pandas | 2.2.2 | Data processing |
-| pytest | 8.3.4 | Testing |
-| pytest-asyncio | 0.24.0 | Async testing |
-| redis[hiredis] | 5.2.1 | Token revocation |
+| pytest | 8.4.2 | Testing |
+| pytest-asyncio | 0.26.0 | Async testing |
+| PyJWT | >=2.10.1,<3.0.0 | JWT authentication |
+| cryptography | >=44.0.1,<47.0.0 | Cryptographic operations |
+| redis[hiredis] | >=7.1.0,<8.0.0 | Token revocation |
 
 ### Internal Dependencies
 

@@ -626,9 +626,9 @@ SAHOOL_GLOBALGAP_INTEGRATION_FIELD_OPS_SYNCED = "sahool.globalgap.integration.fi
 
 # Wildcards
 SAHOOL_GLOBALGAP_ALL = "sahool.globalgap.>"
-SAHOOL_GLOBALGAP_COMPLIANCE_ALL = "sahool.globalgap.compliance.*"
-SAHOOL_GLOBALGAP_AUDIT_ALL = "sahool.globalgap.audit.*"
-SAHOOL_GLOBALGAP_CERTIFICATE_ALL = "sahool.globalgap.certificate.*"
+SAHOOL_GLOBALGAP_COMPLIANCE_ALL = "sahool.globalgap.compliance.>"
+SAHOOL_GLOBALGAP_AUDIT_ALL = "sahool.globalgap.audit.>"
+SAHOOL_GLOBALGAP_CERTIFICATE_ALL = "sahool.globalgap.certificate.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

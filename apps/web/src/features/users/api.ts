@@ -20,7 +20,7 @@ export const usersApi = {
       const response = await api.get(`${USER_ENDPOINTS.LIST}?${params.toString()}`);
       const data = extractData<User[]>(response);
       if (Array.isArray(data)) return data;
-      return [];
+      throw new Error('Invalid response format for users');
     });
   },
 

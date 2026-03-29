@@ -37,12 +37,13 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip and build tools with multi-mirror fallback
 # setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
+# jaraco.context>=6.1.0 for CVE-2026-23949 (pinned here as constraints.txt is not yet copied)
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" "jaraco.context>=6.1.0" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" "jaraco.context>=6.1.0"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
@@ -104,8 +105,14 @@ RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
            /home/sahool/venv/lib/python*/site-packages/setuptools* \
            /home/sahool/venv/lib/python*/site-packages/wheel* \
            /home/sahool/venv/lib/python*/site-packages/_distutils_hack* \
-           /home/sahool/venv/lib/python*/site-packages/pkg_resources* 2>/dev/null || true && \
-    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
+           /home/sahool/venv/lib/python*/site-packages/pkg_resources* \
+           /home/sahool/venv/lib/python*/site-packages/jaraco/context* \
+           /home/sahool/venv/lib/python*/site-packages/jaraco.context-*.dist-info \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/jaraco/context* \
+           /usr/local/lib/python*/site-packages/jaraco.context-*.dist-info 2>/dev/null || true && \
+    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi && \
+    if python -c "import jaraco.context" 2>/dev/null; then echo "ERROR: jaraco.context still present after stripping" >&2; exit 1; fi
 
 # Copy shared modules
 COPY --chown=sahool:sahool shared/ /app/shared/

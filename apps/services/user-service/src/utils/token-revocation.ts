@@ -163,10 +163,13 @@ export class RedisTokenRevocationStore
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to initialize Redis: ${message}`);
-      // Clean up any partially-initialized client to prevent resource leaks on retry
+      // Clean up any partially-initialized client to prevent resource leaks on retry.
+      // Use disconnect() (immediate force-close) rather than quit() (async QUIT command)
+      // because initialization has already failed — Redis may be unreachable, so quit()
+      // could hang waiting for a server response that never arrives.
       if (this.redis) {
         try {
-          await this.redis.quit();
+          this.redis.disconnect();
         } catch {
           // ignore cleanup errors
         }

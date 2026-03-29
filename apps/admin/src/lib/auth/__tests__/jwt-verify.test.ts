@@ -8,7 +8,7 @@
  * @vitest-environment node
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SignJWT } from 'jose';
 
 // We test the actual functions without mocking jose
@@ -167,8 +167,26 @@ describe('verifyToken', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('verifyToken — error classification', () => {
+  let savedSecret: string | undefined;
+  let savedSecretKey: string | undefined;
+
   beforeEach(() => {
+    savedSecret = process.env.JWT_SECRET;
+    savedSecretKey = process.env.JWT_SECRET_KEY;
     process.env.JWT_SECRET = TEST_SECRET;
+  });
+
+  afterEach(() => {
+    if (savedSecret === undefined) {
+      delete process.env.JWT_SECRET;
+    } else {
+      process.env.JWT_SECRET = savedSecret;
+    }
+    if (savedSecretKey === undefined) {
+      delete process.env.JWT_SECRET_KEY;
+    } else {
+      process.env.JWT_SECRET_KEY = savedSecretKey;
+    }
   });
 
   it('throws "JWT_SECRET is not configured" when secret is absent', async () => {
@@ -180,8 +198,6 @@ describe('verifyToken — error classification', () => {
     await expect(verifyToken(token)).rejects.toThrow(
       'JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable.'
     );
-
-    process.env.JWT_SECRET = TEST_SECRET;
   });
 
   it('throws "Token has expired" for an expired token and preserves cause', async () => {

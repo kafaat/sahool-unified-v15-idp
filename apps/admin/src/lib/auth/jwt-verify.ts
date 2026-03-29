@@ -54,7 +54,7 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
     );
   }
 
-  let payload: JWTPayload;
+  let payload!: JWTPayload;
   try {
     // Verify token signature, expiry, issuer, and audience
     const result = await jwtVerify(token, new TextEncoder().encode(secret), {

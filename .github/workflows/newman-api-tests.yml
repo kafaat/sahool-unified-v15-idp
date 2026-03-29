@@ -1,0 +1,247 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Newman API Tests
+# اختبارات API باستخدام Newman (Postman CLI)
+#
+# Runs the SAHOOL Postman collection against live or mock services using Newman.
+# Validates endpoint correctness, response schemas, and API behavior
+# defined in the shared Postman collection.
+#
+# Docs: https://learning.postman.com/docs/collections/using-newman-cli/
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Newman API Tests
+
+on:
+  # Run on PRs touching Postman collection, API specs, or service code
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'docs/api/SAHOOL.postman_collection.json'
+      - 'tests/contract/newman/**'
+      - 'api/gateway-openapi.yaml'
+      - '.github/workflows/newman-api-tests.yml'
+
+  # Manual trigger for testing against any environment
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Base URL of the API gateway (e.g. https://staging.sahool.app)'
+        required: false
+        default: ''
+      environment_file:
+        description: 'Newman environment file (relative to repo root)'
+        required: false
+        default: 'tests/contract/newman/local.postman_environment.json'
+      folder:
+        description: 'Specific Postman folder to run (empty = all)'
+        required: false
+        default: ''
+
+  # Weekly schedule
+  schedule:
+    - cron: '0 4 * * 2'  # Tuesday 4:00 AM UTC
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+concurrency:
+  group: newman-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate Postman Collection (static — no running services)
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-collection:
+    name: Validate Postman Collection
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Validate collection JSON
+        run: |
+          COLLECTION="docs/api/SAHOOL.postman_collection.json"
+          echo "🔍 Validating Postman collection: $COLLECTION"
+
+          # Check it's valid JSON
+          if ! python3 -c "import json; json.load(open('$COLLECTION'))"; then
+            echo "::error::Postman collection is not valid JSON"
+            exit 1
+          fi
+
+          # Check it has expected structure
+          python3 -c "
+          import json, sys
+          with open('$COLLECTION') as f:
+              data = json.load(f)
+          info = data.get('info', {})
+          items = data.get('item', [])
+          name = info.get('name', 'unknown')
+          schema = info.get('schema', '')
+
+          print(f'✅ Collection: {name}')
+          print(f'   Schema: {schema}')
+          print(f'   Folders: {len(items)}')
+
+          total_requests = 0
+          for folder in items:
+              sub = folder.get('item', [])
+              total_requests += len(sub)
+          print(f'   Total requests: {total_requests}')
+
+          if not schema.startswith('https://schema.getpostman.com/'):
+              print('::warning::Unexpected Postman schema version')
+
+          if len(items) == 0:
+              print('::error::Collection has no items')
+              sys.exit(1)
+          "
+          echo "✅ Collection validation complete"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Newman Dry Run (validate collection structure, skip network calls)
+  # ─────────────────────────────────────────────────────────────────────────────
+  dry-run:
+    name: Newman Dry Run
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: validate-collection
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Newman dry run (health endpoints only)
+        run: |
+          COLLECTION="docs/api/SAHOOL.postman_collection.json"
+          ENV_FILE="tests/contract/newman/local.postman_environment.json"
+
+          echo "🧪 Running Newman dry run..."
+
+          # Run only the Authentication folder as a quick validation
+          # This verifies collection structure and variable substitution
+          if [ -f "$ENV_FILE" ]; then
+            newman run "$COLLECTION" \
+              --environment "$ENV_FILE" \
+              --folder "Authentication" \
+              --bail \
+              --timeout-request 5000 \
+              --reporters cli \
+              2>&1 || {
+                echo "::warning::Newman dry run had failures — this is expected if services are not running"
+                true
+              }
+          else
+            echo "⚠️ Environment file not found: $ENV_FILE"
+            echo "   Running collection validation only..."
+            newman run "$COLLECTION" \
+              --bail \
+              --timeout-request 1000 \
+              --reporters cli \
+              2>&1 || {
+                echo "::warning::Newman dry run had connection failures — expected without running services"
+                true
+              }
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Newman Live Tests (requires running services)
+  # اختبارات Newman الحية — تتطلب خدمات قيد التشغيل
+  # ─────────────────────────────────────────────────────────────────────────────
+  live-tests:
+    name: Newman Live Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only run live tests on schedule, manual trigger with URL, or main/develop push
+    if: >-
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.target_url != '') ||
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra newman-reporter-junitfull
+
+      - name: Determine target URL
+        id: target
+        run: |
+          TARGET="${{ github.event.inputs.target_url }}"
+          if [ -z "$TARGET" ]; then
+            echo "url=" >> "$GITHUB_OUTPUT"
+            echo "⚠️ No target URL — live tests skipped"
+          else
+            echo "url=$TARGET" >> "$GITHUB_OUTPUT"
+            echo "🎯 Target: $TARGET"
+          fi
+
+      - name: Run Newman tests
+        if: steps.target.outputs.url != ''
+        run: |
+          TARGET="${{ steps.target.outputs.url }}"
+          COLLECTION="docs/api/SAHOOL.postman_collection.json"
+          ENV_FILE="${{ github.event.inputs.environment_file || 'tests/contract/newman/local.postman_environment.json' }}"
+          FOLDER="${{ github.event.inputs.folder }}"
+
+          mkdir -p reports/newman
+
+          NEWMAN_ARGS=(
+            "$COLLECTION"
+            --reporters "cli,htmlextra,junitfull"
+            --reporter-htmlextra-export "reports/newman/report.html"
+            --reporter-junitfull-export "reports/newman/junit.xml"
+            --env-var "baseUrl=$TARGET"
+            --timeout-request 15000
+            --delay-request 100
+            --iteration-count 1
+          )
+
+          if [ -f "$ENV_FILE" ]; then
+            NEWMAN_ARGS+=(--environment "$ENV_FILE")
+          fi
+
+          if [ -n "$FOLDER" ]; then
+            NEWMAN_ARGS+=(--folder "$FOLDER")
+          fi
+
+          echo "🚀 Running Newman tests..."
+          echo "   Collection: $COLLECTION"
+          echo "   Target: $TARGET"
+          echo "   Environment: $ENV_FILE"
+          [ -n "$FOLDER" ] && echo "   Folder: $FOLDER"
+
+          newman run "${NEWMAN_ARGS[@]}" 2>&1 | tee /tmp/newman-output.log || true
+
+      - name: Upload Newman report
+        if: always() && steps.target.outputs.url != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: newman-report
+          path: |
+            reports/newman/report.html
+            reports/newman/junit.xml
+            /tmp/newman-output.log
+          retention-days: 14

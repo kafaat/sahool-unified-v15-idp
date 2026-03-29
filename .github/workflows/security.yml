@@ -506,7 +506,8 @@ jobs:
         # This is intentionally separate from SARIF generation above so that
         # the SARIF report is always uploaded even when vulnerabilities exist.
         # Uses --ignore-unfixed to skip CVEs with no available patch, and
-        # .trivyignore for any accepted-risk CVEs. This step is a HARD gate:
+        # the merged ignore file (repo-wide .trivyignore + optional per-service
+        # .trivyignore) for any accepted-risk CVEs. This step is a HARD gate:
         # new fixable CRITICAL/HIGH CVEs will block the pipeline.
         if: steps.install_trivy.outputs.installed == 'true' && steps.docker_build.outputs.built == 'true'
         run: |

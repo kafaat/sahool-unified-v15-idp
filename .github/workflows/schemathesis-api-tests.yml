@@ -238,6 +238,11 @@ jobs:
           ENVIRONMENT: test
           JWT_SECRET_KEY: test-secret-key-for-contract-tests-only32
           JWT_ALGORITHM: HS256
+          # On schedule/dispatch, point at staging so tests actually run.
+          # On PR, these default to localhost and tests skip gracefully.
+          KONG_BASE_URL: ${{ vars.STAGING_API_BASE_URL || 'http://localhost:8000' }}
+          GRAPHQL_URL: ${{ vars.STAGING_API_BASE_URL && format('{0}/graphql', vars.STAGING_API_BASE_URL) || 'http://localhost:8000/graphql' }}
+          FIELD_SERVICE_OPENAPI_URL: ${{ vars.STAGING_API_BASE_URL && format('{0}/api-json', vars.STAGING_API_BASE_URL) || 'http://localhost:3000/api-json' }}
         run: |
           set -o pipefail
           mkdir -p reports
@@ -248,6 +253,11 @@ jobs:
             --tb=short \
             --junit-xml=reports/contract-tests.xml \
             2>&1 | tee /tmp/pytest-contract.log
+
+          # Warn if all tests were skipped (services unreachable)
+          if grep -q "0 passed" /tmp/pytest-contract.log && grep -q "skipped" /tmp/pytest-contract.log; then
+            echo "::warning::All contract tests were skipped — services are unreachable. Set vars.STAGING_API_BASE_URL for meaningful test execution."
+          fi
 
           echo "✅ Pytest contract tests complete"
 

@@ -217,7 +217,7 @@ jobs:
             --reporters "cli,htmlextra,junitfull"
             --reporter-htmlextra-export "reports/newman/report.html"
             --reporter-junitfull-export "reports/newman/junit.xml"
-            --env-var "baseUrl=$TARGET"
+            --env-var "base_url=$TARGET"
             --timeout-request 15000
             --delay-request 100
             --iteration-count 1

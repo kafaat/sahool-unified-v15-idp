@@ -5,6 +5,7 @@
 
 import { type AxiosError } from 'axios';
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import type {
   HealthSummary,
   HealthRecord,
@@ -403,7 +404,7 @@ export const cropHealthApi = {
    * Get diagnosis requests
    */
   getDiagnosisRequests: async (): Promise<DiagnosisRequest[]> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST, async () => {
       const response = await api.get(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST);
       const diagnoses = response.data.data || response.data;
 
@@ -411,12 +412,8 @@ export const cropHealthApi = {
         return diagnoses.map(mapApiDiagnosisToDiagnosis);
       }
 
-      logger.warn('API returned unexpected format for diagnoses');
-      return [];
-    } catch (error) {
-      logger.warn('Failed to fetch diagnosis requests from API:', error);
-      return [];
-    }
+      throw new Error('API returned unexpected format for diagnoses');
+    });
   },
 
   /**
@@ -553,7 +550,7 @@ export const cropHealthApi = {
    * Get expert consultations
    */
   getConsultations: async (): Promise<ExpertConsultation[]> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW, async () => {
       const response = await api.get(CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW);
       const consultations = response.data.data || response.data;
 
@@ -561,11 +558,7 @@ export const cropHealthApi = {
         return consultations;
       }
 
-      logger.warn('API returned unexpected format for consultations');
-      return [];
-    } catch (error) {
-      logger.warn('Failed to fetch consultations from API:', error);
-      return [];
-    }
+      throw new Error('API returned unexpected format for consultations');
+    });
   },
 };

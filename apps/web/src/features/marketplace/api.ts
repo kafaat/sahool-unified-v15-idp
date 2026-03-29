@@ -4,6 +4,7 @@
  */
 
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { MARKETPLACE_ENDPOINTS, buildUrl, API_PREFIX } from '@sahool/shared-types/contracts';
 import type { Product, ProductFilters, Order, OrderFilters, CartItem } from './types';
 
@@ -236,7 +237,7 @@ export const marketplaceApi = {
    * Get orders list
    */
   async getOrders(filters?: OrderFilters): Promise<Order[]> {
-    try {
+    return safeFetch(MARKETPLACE_ENDPOINTS.ORDERS, async () => {
       const params = new URLSearchParams();
       if (filters?.status) params.append('status', filters.status);
       if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
@@ -244,10 +245,7 @@ export const marketplaceApi = {
 
       const response = await api.get(`${MARKETPLACE_ENDPOINTS.ORDERS}?${params.toString()}`);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Orders API not available:', error);
-      return [];
-    }
+    });
   },
 
   /**
@@ -318,13 +316,10 @@ export const marketplaceApi = {
    * Get cart items
    */
   async getCart(): Promise<CartItem[]> {
-    try {
+    return safeFetch(`${API_PREFIX}/marketplace/cart`, async () => {
       const response = await api.get(`${API_PREFIX}/marketplace/cart`);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Cart API not available:', error);
-      return [];
-    }
+    });
   },
 
   /**
@@ -410,15 +405,15 @@ export const marketplaceApi = {
       createdAt: string;
     }>
   > {
-    try {
-      const response = await api.get(
-        `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`
-      );
-      return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Reviews API not available:', error);
-      return [];
-    }
+    return safeFetch(
+      `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`,
+      async () => {
+        const response = await api.get(
+          `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`
+        );
+        return response.data.data || response.data;
+      }
+    );
   },
 
   /**

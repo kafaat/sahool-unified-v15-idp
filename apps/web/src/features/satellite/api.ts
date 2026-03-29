@@ -4,6 +4,7 @@
  */
 
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { API_PREFIX } from '@sahool/shared-types/contracts';
 import type {
   SatelliteField,
@@ -163,7 +164,7 @@ export const satelliteApi = {
     fieldId: string,
     filters?: { dateFrom?: string; dateTo?: string }
   ): Promise<SatelliteImage[]> => {
-    try {
+    return safeFetch(`${API_PREFIX}/satellite/images`, async () => {
       const params = new URLSearchParams();
       params.set('field_id', fieldId);
       if (filters?.dateFrom) params.set('date_from', filters.dateFrom);
@@ -171,10 +172,7 @@ export const satelliteApi = {
 
       const response = await api.get(`${API_PREFIX}/satellite/images?${params.toString()}`);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn(`Failed to fetch images for field ${fieldId}:`, error);
-      return [];
-    }
+    });
   },
 
   getTimeSeries: async (
@@ -182,7 +180,7 @@ export const satelliteApi = {
     indexType: string,
     period: { from: string; to: string }
   ): Promise<TimeSeriesData[]> => {
-    try {
+    return safeFetch(`${API_PREFIX}/satellite/timeseries`, async () => {
       const params = new URLSearchParams();
       params.set('field_id', fieldId);
       params.set('index_type', indexType);
@@ -191,20 +189,14 @@ export const satelliteApi = {
 
       const response = await api.get(`${API_PREFIX}/satellite/timeseries?${params.toString()}`);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn(`Failed to fetch time series for field ${fieldId}:`, error);
-      return [];
-    }
+    });
   },
 
   getZoneAnalysis: async (fieldId: string): Promise<ZoneAnalysis[]> => {
-    try {
+    return safeFetch(`${API_PREFIX}/satellite/fields/${fieldId}/zones`, async () => {
       const response = await api.get(`${API_PREFIX}/satellite/fields/${fieldId}/zones`);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn(`Failed to fetch zone analysis for field ${fieldId}:`, error);
-      return [];
-    }
+    });
   },
 
   requestNewCapture: async (

@@ -11,6 +11,7 @@ import {
   API_PREFIX,
 } from '@sahool/shared-types/contracts';
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 
 /**
  * Dashboard Data Interface
@@ -64,67 +65,47 @@ export const ERROR_MESSAGES = {
   },
 };
 
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_DASHBOARD_DATA } from './api.mock';
-
 // API Functions
 export const dashboardApi = {
   /**
    * Get dashboard data
    */
   getDashboard: async (): Promise<DashboardData> => {
-    try {
+    return safeFetch(DASHBOARD_ENDPOINTS.SUMMARY, async () => {
       const response = await api.get(DASHBOARD_ENDPOINTS.SUMMARY);
-
-      // Handle different response formats
       const data = response.data.data || response.data;
-
-      // Validate response structure
       if (data && typeof data === 'object' && 'stats' in data) {
         return data as DashboardData;
       }
-
-      logger.warn('API returned unexpected format, using mock data');
-      return MOCK_DASHBOARD_DATA;
-    } catch (error) {
-      logger.warn('Failed to fetch dashboard data from API, using mock data:', error);
-      return MOCK_DASHBOARD_DATA;
-    }
+      throw new Error('API returned unexpected format');
+    });
   },
 
   /**
    * Get dashboard statistics only
    */
   getStats: async (): Promise<DashboardData['stats']> => {
-    try {
+    return safeFetch(DASHBOARD_ENDPOINTS.STATS, async () => {
       const response = await api.get(DASHBOARD_ENDPOINTS.STATS);
-      const stats = response.data.data || response.data;
-      return stats;
-    } catch (error) {
-      logger.warn('Failed to fetch dashboard stats from API, using mock data:', error);
-      return MOCK_DASHBOARD_DATA.stats;
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
    * Get weather data for dashboard
    */
   getWeather: async (): Promise<DashboardData['weather']> => {
-    try {
+    return safeFetch(DASHBOARD_ENDPOINTS.WEATHER_WIDGET, async () => {
       const response = await api.get(DASHBOARD_ENDPOINTS.WEATHER_WIDGET);
-      const weather = response.data.data || response.data;
-      return weather;
-    } catch (error) {
-      logger.warn('Failed to fetch weather data from API, using mock data:', error);
-      return MOCK_DASHBOARD_DATA.weather;
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
    * Get recent activity
    */
   getRecentActivity: async (limit: number = 10): Promise<DashboardData['recentActivity']> => {
-    try {
+    return safeFetch(DASHBOARD_ENDPOINTS.RECENT_ACTIVITY, async () => {
       const params = new URLSearchParams();
       params.set('limit', limit.toString());
 
@@ -135,19 +116,15 @@ export const dashboardApi = {
         return activity;
       }
 
-      logger.warn('API returned unexpected format for activity, using mock data');
-      return MOCK_DASHBOARD_DATA.recentActivity;
-    } catch (error) {
-      logger.warn('Failed to fetch recent activity from API, using mock data:', error);
-      return MOCK_DASHBOARD_DATA.recentActivity;
-    }
+      throw new Error('API returned unexpected format for activity');
+    });
   },
 
   /**
    * Get upcoming tasks
    */
   getUpcomingTasks: async (limit: number = 5): Promise<DashboardData['upcomingTasks']> => {
-    try {
+    return safeFetch(`${API_PREFIX}/dashboard/tasks/upcoming`, async () => {
       const params = new URLSearchParams();
       params.set('limit', limit.toString());
       params.set('status', 'pending');
@@ -159,12 +136,8 @@ export const dashboardApi = {
         return tasks;
       }
 
-      logger.warn('API returned unexpected format for tasks, using mock data');
-      return MOCK_DASHBOARD_DATA.upcomingTasks;
-    } catch (error) {
-      logger.warn('Failed to fetch upcoming tasks from API, using mock data:', error);
-      return MOCK_DASHBOARD_DATA.upcomingTasks;
-    }
+      throw new Error('API returned unexpected format for tasks');
+    });
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -297,7 +270,7 @@ export const dashboardApi = {
       createdAt: string;
     }>
   > => {
-    try {
+    return safeFetch(DASHBOARD_ENDPOINTS.ALERTS_WIDGET, async () => {
       const params = new URLSearchParams();
       if (options?.limit) params.set('limit', options.limit.toString());
       if (options?.severity) params.set('severity', options.severity);
@@ -310,10 +283,7 @@ export const dashboardApi = {
       }
 
       return [];
-    } catch (error) {
-      logger.warn('Failed to fetch alerts from API:', error);
-      return [];
-    }
+    });
   },
 
   /**
@@ -340,13 +310,9 @@ export const dashboardApi = {
       };
     };
   }> => {
-    try {
+    return safeFetch(`${DASHBOARD_ENDPOINTS.STATS}/enhanced`, async () => {
       const response = await api.get(`${DASHBOARD_ENDPOINTS.STATS}/enhanced`);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn('Failed to fetch enhanced stats, falling back to basic stats:', error);
-      return { stats: MOCK_DASHBOARD_DATA.stats };
-    }
+      return response.data.data || response.data;
+    });
   },
 };

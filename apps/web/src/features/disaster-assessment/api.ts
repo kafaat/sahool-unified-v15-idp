@@ -5,6 +5,7 @@
 
 import { DISASTER_ENDPOINTS, API_PREFIX } from '@sahool/shared-types/contracts';
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import type {
   RiskAssessment,
   DisasterEvent,
@@ -135,13 +136,10 @@ export const disasterApi = {
   },
 
   getWeatherAlerts: async (): Promise<WeatherAlert[]> => {
-    try {
+    return safeFetch(DISASTER_ENDPOINTS.ALERTS, async () => {
       const response = await api.get(DISASTER_ENDPOINTS.ALERTS);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Failed to fetch weather alerts:', error);
-      return [];
-    }
+    });
   },
 
   getStats: async (): Promise<DisasterStats> => {

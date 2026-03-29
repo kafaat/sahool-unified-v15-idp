@@ -552,14 +552,14 @@ class TestNATSSubjectUtilities:
         assert get_subject_for_event("field.created") == "sahool.field.created"
 
     def test_get_wildcard_subject(self):
-        """Wildcard subjects should follow sahool.{domain}.* pattern."""
+        """Wildcard subjects should follow sahool.{domain}.> pattern (NATS multi-level)."""
         try:
             from shared.events.subjects import get_wildcard_subject
         except ImportError:
             pytest.skip("Module not available")
             return
-        assert get_wildcard_subject("field") == "sahool.field.*"
-        assert get_wildcard_subject("billing") == "sahool.billing.*"
+        assert get_wildcard_subject("field") == "sahool.field.>"
+        assert get_wildcard_subject("billing") == "sahool.billing.>"
 
     def test_is_valid_subject_positive(self):
         """Valid subjects must pass validation."""

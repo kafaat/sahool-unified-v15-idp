@@ -5,6 +5,8 @@
 # the exemptions apply ONLY when scanning this service's container image.
 # See .github/workflows/security.yml for how per-service ignore files are
 # merged with the repo-wide .trivyignore at scan time.
+#
+# Last reviewed: 2026-03-29
 # ─────────────────────────────────────────────────────────────────────────────
 
 # minimatch ReDoS / path-traversal (CVE-2026-26996, CVE-2026-27903, CVE-2026-27904)
@@ -35,3 +37,9 @@ CVE-2026-24842
 CVE-2026-26960
 CVE-2026-29786
 CVE-2026-31802
+
+# tar <6.2.1 — arbitrary file creation via insufficient symlink checks
+CVE-2024-28863
+
+# tar <6.2.1 — denial of service via crafted tar archive headers
+CVE-2024-28176

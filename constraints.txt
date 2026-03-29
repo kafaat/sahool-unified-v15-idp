@@ -59,7 +59,7 @@ redis>=7.1.0,<8.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Authentication
 # ─────────────────────────────────────────────────────────────────────────────
-PyJWT[crypto]>=2.10.1,<3.0.0  # CVE-2024-53861 (issuer validation bypass) fixed in 2.10.1; replaces python-jose (CVE-2024-33663, CVE-2024-33664)
+PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861 (issuer validation bypass) fixed in 2.10.1; replaces python-jose (CVE-2024-33663, CVE-2024-33664)
 python-jose>=3.5.0,<4.0.0  # Deprecated: migrating to PyJWT. Kept for docker/constraints-ai.txt compatibility.
 passlib==1.7.4
 bcrypt>=4.2.0,<5.0.0  # Required by passlib[bcrypt] for secure password hashing

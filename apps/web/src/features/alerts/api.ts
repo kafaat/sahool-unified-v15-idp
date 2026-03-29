@@ -126,7 +126,7 @@ export const alertsApi = {
         return data;
       }
 
-      return [];
+      throw new Error('Unexpected alerts response format');
     });
   },
 

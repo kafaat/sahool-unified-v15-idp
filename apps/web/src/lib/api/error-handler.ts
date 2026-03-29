@@ -15,7 +15,12 @@ interface ApiResponseData {
   error?: string;
 }
 
-export interface ApiError {
+/**
+ * @deprecated Use the ApiError class from safe-fetch instead.
+ * Renamed to LegacyApiError to avoid naming conflict with the safe-fetch ApiError class.
+ * @internal
+ */
+export interface LegacyApiError {
   message: string;
   messageAr?: string;
   code?: string;
@@ -28,7 +33,7 @@ export class ApiErrorHandler {
   /**
    * Handle Axios errors and convert to standardized format
    */
-  static handleAxiosError(error: AxiosError<ApiResponseData>): ApiError {
+  static handleAxiosError(error: AxiosError<ApiResponseData>): LegacyApiError {
     const timestamp = new Date().toISOString();
 
     // Network error (no response)
@@ -143,7 +148,7 @@ export class ApiErrorHandler {
   /**
    * Handle generic errors (non-Axios)
    */
-  static handleGenericError(error: Error): ApiError {
+  static handleGenericError(error: Error): LegacyApiError {
     logger.error('Generic error:', error);
 
     return {
@@ -157,7 +162,7 @@ export class ApiErrorHandler {
   /**
    * Format error for user display
    */
-  static formatErrorMessage(error: ApiError, locale: 'en' | 'ar' = 'en'): string {
+  static formatErrorMessage(error: LegacyApiError, locale: 'en' | 'ar' = 'en'): string {
     if (locale === 'ar' && error.messageAr) {
       return error.messageAr;
     }
@@ -167,7 +172,7 @@ export class ApiErrorHandler {
   /**
    * Check if error is retryable
    */
-  static isRetryable(error: ApiError): boolean {
+  static isRetryable(error: LegacyApiError): boolean {
     const retryableCodes = ['NETWORK_ERROR', 'SERVER_ERROR'];
     const retryableStatuses = [408, 429, 500, 502, 503, 504];
 
@@ -180,7 +185,7 @@ export class ApiErrorHandler {
   /**
    * Get retry delay based on error
    */
-  static getRetryDelay(error: ApiError, attempt: number): number {
+  static getRetryDelay(error: LegacyApiError, attempt: number): number {
     // Exponential backoff: 1s, 2s, 4s
     if (error.code === 'NETWORK_ERROR') {
       return Math.min(1000 * Math.pow(2, attempt - 1), 4000);
@@ -200,7 +205,7 @@ export class ApiErrorHandler {
  * Hook for error handling in components
  */
 export function useApiErrorHandler() {
-  const handleError = (error: unknown): ApiError => {
+  const handleError = (error: unknown): LegacyApiError => {
     if (error instanceof AxiosError) {
       return ApiErrorHandler.handleAxiosError(error);
     }

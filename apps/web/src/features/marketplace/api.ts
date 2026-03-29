@@ -4,9 +4,22 @@
  */
 
 import { createApiClient } from '@/lib/api/factory';
-import { safeFetch } from '@/lib/api/safe-fetch';
+import { safeFetch, safeFetchResult } from '@/lib/api/safe-fetch';
 import { MARKETPLACE_ENDPOINTS, buildUrl, API_PREFIX } from '@sahool/shared-types/contracts';
 import type { Product, ProductFilters, Order, OrderFilters, CartItem } from './types';
+
+/**
+ * Marketplace category type returned by the categories endpoint
+ * نوع فئة السوق المُرجَعة من نقطة نهاية الفئات
+ */
+export interface MarketplaceCategory {
+  id: string;
+  name: string;
+  nameAr: string;
+  slug?: string;
+  icon?: string;
+  productCount?: number;
+}
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
@@ -106,7 +119,7 @@ export const marketplaceApi = {
     });
   },
 
-  async getCategories(): Promise<unknown[]> {
+  async getCategories(): Promise<MarketplaceCategory[]> {
     return safeFetch(`${MARKETPLACE_ENDPOINTS.PRODUCTS}/categories`, async () => {
       const response = await api.get(`${MARKETPLACE_ENDPOINTS.PRODUCTS}/categories`);
       return response.data.data || response.data;
@@ -145,7 +158,7 @@ export const marketplaceApi = {
   /**
    * Get order by ID
    */
-  async getOrderById(id: string): Promise<Order | null> {
+  async getOrderById(id: string): Promise<Order> {
     return safeFetch(`${MARKETPLACE_ENDPOINTS.ORDERS}/${id}`, async () => {
       const response = await api.get(`${MARKETPLACE_ENDPOINTS.ORDERS}/${id}`);
       return response.data.data || response.data;
@@ -164,10 +177,14 @@ export const marketplaceApi = {
   },
 
   async cancelOrder(id: string): Promise<{ success: boolean; error?: string }> {
-    return safeFetch(`${MARKETPLACE_ENDPOINTS.ORDERS}/${id}/cancel`, async () => {
+    const result = await safeFetchResult(`${MARKETPLACE_ENDPOINTS.ORDERS}/${id}/cancel`, async () => {
       const response = await api.post(`${MARKETPLACE_ENDPOINTS.ORDERS}/${id}/cancel`);
       return { success: true, ...response.data };
     });
+    if (!result.ok) {
+      return { success: false, error: result.error.message };
+    }
+    return result.data as { success: boolean; error?: string };
   },
 
   /**

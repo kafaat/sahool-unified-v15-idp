@@ -13,7 +13,6 @@
  * S2: Smart Irrigation Workflow    (sensor → weather → calculate → schedule)
  * S3: Pest Detection Workflow      (image → detect → alert → advisory)
  * S4: Harvest & Market Workflow    (harvest → quality → traceability → market)
- * S5: Auth & Tenant Onboarding     (register → verify → create field)
  *
  * SLOs (Service Level Objectives)
  * --------------------------------
@@ -37,21 +36,24 @@
  *   IRRIGATION_URL   – Irrigation service URL  (default: http://localhost:8094)
  *   VISION_URL       – Vision service URL      (default: http://localhost:8150)
  *   TRACEABILITY_URL – Traceability service URL (default: http://localhost:8123)
- *   AUTH_TOKEN       – Bearer JWT token (optional, uses fallback mock if absent)
+ *   ALERT_URL        – Alert service URL       (default: http://localhost:8113)
+ *   IOT_URL          – IoT service URL         (default: http://localhost:8117)
+ *   TASK_URL         – Task service URL        (default: http://localhost:8103)
+ *   MARKETPLACE_URL  – Marketplace service URL (default: http://localhost:3010)
+ *   AUTH_TOKEN       – Bearer JWT token (optional; omitted when absent)
  *   TENANT_ID        – Tenant ID for the test run
  *
  * Author: SAHOOL Platform Team
  */
 
 import http from "k6/http";
-import { check, group, sleep, fail } from "k6";
+import { check, group, sleep } from "k6";
 import { Rate, Trend, Counter } from "k6/metrics";
 
 // =============================================================================
 // Service URLs
 // =============================================================================
 
-const BASE_URL = __ENV.BASE_URL || "http://localhost:8000";
 const FIELD_URL = __ENV.FIELD_URL || "http://localhost:3000";
 const ADVISORY_URL = __ENV.ADVISORY_URL || "http://localhost:8093";
 const WEATHER_URL = __ENV.WEATHER_URL || "http://localhost:8092";
@@ -59,7 +61,11 @@ const IRRIGATION_URL = __ENV.IRRIGATION_URL || "http://localhost:8094";
 const VISION_URL = __ENV.VISION_URL || "http://localhost:8150";
 const VEGETATION_URL = __ENV.VEGETATION_URL || "http://localhost:8090";
 const TRACEABILITY_URL = __ENV.TRACEABILITY_URL || "http://localhost:8123";
-const AUTH_TOKEN = __ENV.AUTH_TOKEN || "load-test-bearer-token";
+const ALERT_URL = __ENV.ALERT_URL || "http://localhost:8113";
+const IOT_URL = __ENV.IOT_URL || "http://localhost:8117";
+const TASK_URL = __ENV.TASK_URL || "http://localhost:8103";
+const MARKETPLACE_URL = __ENV.MARKETPLACE_URL || "http://localhost:3010";
+const AUTH_TOKEN = __ENV.AUTH_TOKEN || "";
 const TENANT_ID = __ENV.TENANT_ID || "tenant_loadtest_workflows";
 
 // =============================================================================
@@ -176,14 +182,17 @@ function randomChoice(arr) {
 }
 
 function defaultHeaders(tenantId) {
-  return {
+  const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
-    Authorization: `Bearer ${AUTH_TOKEN}`,
     "X-Tenant-ID": tenantId || TENANT_ID,
     "X-User-ID": randomUUID(),
     "X-Request-ID": randomUUID(),
   };
+  if (AUTH_TOKEN) {
+    headers.Authorization = `Bearer ${AUTH_TOKEN}`;
+  }
+  return headers;
 }
 
 const CROP_TYPES = ["wheat", "barley", "tomato", "cucumber", "date_palm", "corn"];
@@ -209,16 +218,17 @@ function makeFieldPolygon() {
 }
 
 function checkAndRecord(response, expectedStatuses, metricRate, description) {
-  const ok = expectedStatuses.includes(response.status);
-  metricRate.add(ok ? 1 : 0);
-  workflowSuccessRate.add(ok ? 1 : 0);
+  const acceptable = expectedStatuses.includes(response.status);
+  const success = response.status >= 200 && response.status < 300;
+  metricRate.add(success ? 1 : 0);
+  workflowSuccessRate.add(success ? 1 : 0);
   check(response, {
-    [`${description} - acceptable status`]: () => ok,
+    [`${description} - acceptable status`]: () => acceptable,
   });
-  if (!ok) {
+  if (!acceptable) {
     console.warn(`[WARN] ${description} returned HTTP ${response.status}`);
   }
-  return ok;
+  return acceptable;
 }
 
 // =============================================================================
@@ -227,7 +237,7 @@ function checkAndRecord(response, expectedStatuses, metricRate, description) {
 
 export function advisoryWorkflow() {
   const tenantId = TENANT_ID;
-  const fieldId = randomUUID();
+  let fieldId = randomUUID(); // fallback if creation fails
   const hdrs = defaultHeaders(tenantId);
   const cropType = randomChoice(CROP_TYPES);
   const stage = randomChoice(CROP_STAGES);
@@ -246,8 +256,19 @@ export function advisoryWorkflow() {
       });
 
       const res = http.post(`${FIELD_URL}/api/v1/fields`, payload, { headers: hdrs });
-      checkAndRecord(res, [200, 201, 400, 409, 422], advisorySuccessRate, "create-field");
+      const ok = checkAndRecord(res, [200, 201, 400, 409, 422], advisorySuccessRate, "create-field");
       fieldCreations.add(1);
+      // Use the server-assigned ID so subsequent steps operate on a real field.
+      if (ok && (res.status === 200 || res.status === 201)) {
+        try {
+          const body = res.json();
+          if (body && body.id) {
+            fieldId = body.id;
+          }
+        } catch (_) {
+          // Body not JSON — keep the pre-generated fallback ID
+        }
+      }
     });
     sleep(0.3);
 
@@ -316,7 +337,7 @@ export function irrigationWorkflow() {
         unit: "percent",
         timestamp: new Date().toISOString(),
       });
-      const res = http.post("http://localhost:8117/api/v1/readings", payload, { headers: hdrs });
+      const res = http.post(`${IOT_URL}/api/v1/readings`, payload, { headers: hdrs });
       checkAndRecord(res, [200, 201, 400, 422, 503], irrigationSuccessRate, "iot-sensor-reading");
     });
     sleep(0.2);
@@ -364,7 +385,7 @@ export function irrigationWorkflow() {
         instructions_ar: "ري الحقل بمقدار 25 مم",
       });
 
-      const res = http.post("http://localhost:8103/api/v1/tasks", payload, { headers: hdrs });
+      const res = http.post(`${TASK_URL}/api/v1/tasks`, payload, { headers: hdrs });
       checkAndRecord(res, [200, 201, 400, 422, 503], irrigationSuccessRate, "create-irrigation-task");
     });
     sleep(0.5);
@@ -408,7 +429,6 @@ export function pestDetectionWorkflow() {
         timeout: "20s", // GPU inference can be slow
       });
       checkAndRecord(res, [200, 400, 422, 503], visionSuccessRate, `vision-detect-${task}`);
-      visionSuccessRate.add(res.status === 200 ? 1 : 0);
     });
     sleep(0.5);
 
@@ -424,7 +444,7 @@ export function pestDetectionWorkflow() {
         detected_at: new Date().toISOString(),
       });
 
-      const res = http.post("http://localhost:8113/api/v1/alerts", payload, { headers: hdrs });
+      const res = http.post(`${ALERT_URL}/api/v1/alerts`, payload, { headers: hdrs });
       checkAndRecord(res, [200, 201, 400, 422, 503], visionSuccessRate, "create-alert");
       alertsGenerated.add(1);
     });
@@ -471,7 +491,7 @@ export function harvestMarketWorkflow() {
         harvested_at: new Date().toISOString(),
       });
 
-      const res = http.post("http://localhost:3000/api/v1/harvests", payload, { headers: hdrs });
+      const res = http.post(`${FIELD_URL}/api/v1/harvests`, payload, { headers: hdrs });
       checkAndRecord(res, [200, 201, 400, 404, 422, 503], advisorySuccessRate, "record-harvest");
     });
     sleep(0.2);
@@ -496,7 +516,7 @@ export function harvestMarketWorkflow() {
     group("3. Check Market Prices", () => {
       const crop = randomChoice(CROP_TYPES);
       const res = http.get(
-        `http://localhost:3010/api/v1/prices?crop_type=${crop}`,
+        `${MARKETPLACE_URL}/api/v1/prices?crop_type=${crop}`,
         { headers: hdrs },
       );
       checkAndRecord(res, [200, 404, 503], advisorySuccessRate, "market-prices");

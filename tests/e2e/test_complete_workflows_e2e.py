@@ -50,23 +50,42 @@ except ImportError:
     HAS_HTTPX = False
 
 # ---------------------------------------------------------------------------
-# Service URLs (canonical ports from versions.py)
+# Service URLs derived from the shared registry
+# (apps/services/shared/versions.py) with env-override support.
 # ---------------------------------------------------------------------------
+import os
+
+try:
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "apps", "services"))
+    from shared.versions import get_service_url  # type: ignore[import]
+
+    def _svc(name: str, fallback_port: int) -> str:
+        host = os.getenv("SERVICE_HOST", "localhost")
+        return os.getenv(f"{name.upper().replace('-', '_')}_URL") or get_service_url(name, host)
+
+except Exception:
+    def _svc(name: str, fallback_port: int) -> str:  # type: ignore[misc]
+        host = os.getenv("SERVICE_HOST", "localhost")
+        return os.getenv(f"{name.upper().replace('-', '_')}_URL") or f"http://{host}:{fallback_port}"
+
+
 SVCURL: dict[str, str] = {
-    "auth": "http://localhost:3025",
-    "field": "http://localhost:3000",
-    "weather": "http://localhost:8092",
-    "vegetation": "http://localhost:8090",
-    "advisory": "http://localhost:8093",
-    "irrigation": "http://localhost:8094",
-    "vision": "http://localhost:8150",
-    "alert": "http://localhost:8113",
-    "notification": "http://localhost:8110",
-    "task": "http://localhost:8103",
-    "marketplace": "http://localhost:3010",
-    "traceability": "http://localhost:8123",
-    "billing": "http://localhost:8089",
-    "iot": "http://localhost:8117",
+    "auth": _svc("user-service", 3025),
+    "field": _svc("field-management-service", 3000),
+    "weather": _svc("weather-service", 8092),
+    "vegetation": _svc("vegetation-analysis-service", 8090),
+    "advisory": _svc("advisory-service", 8093),
+    "irrigation": _svc("irrigation-smart", 8094),
+    "vision": _svc("yolo26-vision-service", 8150),
+    "alert": _svc("alert-service", 8113),
+    "notification": _svc("notification-service", 8110),
+    "task": _svc("task-service", 8103),
+    "marketplace": _svc("marketplace-service", 3010),
+    "traceability": _svc("traceability-service", 8123),
+    "billing": _svc("billing-core", 8089),
+    "iot": _svc("iot-service", 8117),
 }
 
 pytestmark = [pytest.mark.e2e, pytest.mark.asyncio]
@@ -77,10 +96,13 @@ pytestmark = [pytest.mark.e2e, pytest.mark.asyncio]
 
 
 def _headers(tenant_id: str | None = None, user_id: str | None = None) -> dict[str, str]:
+    # Use AUTH_TOKEN env var when provided (allows real JWT in CI/staging),
+    # otherwise fall back to a placeholder only accepted by the test middleware.
+    token = os.getenv("E2E_AUTH_TOKEN", "e2e-test-token")
     return {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": "Bearer e2e-test-token",
+        "Authorization": f"Bearer {token}",
         "X-Tenant-ID": tenant_id or str(uuid.uuid4()),
         "X-User-ID": user_id or str(uuid.uuid4()),
         "X-Request-ID": str(uuid.uuid4()),

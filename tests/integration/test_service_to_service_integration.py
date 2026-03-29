@@ -25,17 +25,14 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import asyncio
-import json
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 try:
-    import httpx
     from httpx import AsyncClient
 
     HAS_HTTPX = True
@@ -43,21 +40,41 @@ except ImportError:
     HAS_HTTPX = False
 
 # ---------------------------------------------------------------------------
-# Canonical service ports (mirrors apps/services/shared/versions.py)
+# Canonical service URLs derived from the shared registry
+# (apps/services/shared/versions.py) with env-override support.
 # ---------------------------------------------------------------------------
+import os
+
+try:
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "apps", "services"))
+    from shared.versions import get_service_url, SERVICE_PORTS  # type: ignore[import]
+
+    def _svc(name: str, fallback_port: int) -> str:
+        host = os.getenv("SERVICE_HOST", "localhost")
+        return os.getenv(f"{name.upper().replace('-', '_')}_URL") or get_service_url(name, host)
+
+except Exception:
+    # Fallback when shared registry is not importable (e.g., plain pytest run)
+    def _svc(name: str, fallback_port: int) -> str:  # type: ignore[misc]
+        host = os.getenv("SERVICE_HOST", "localhost")
+        return os.getenv(f"{name.upper().replace('-', '_')}_URL") or f"http://{host}:{fallback_port}"
+
+
 SERVICE_URLS: dict[str, str] = {
-    "field_management": "http://localhost:3000",
-    "user_service": "http://localhost:3025",
-    "advisory": "http://localhost:8093",
-    "weather": "http://localhost:8092",
-    "irrigation_smart": "http://localhost:8094",
-    "vegetation_analysis": "http://localhost:8090",
-    "indicators": "http://localhost:8091",
-    "alert": "http://localhost:8113",
-    "notification": "http://localhost:8110",
-    "yolo26_vision": "http://localhost:8150",
-    "iot": "http://localhost:8117",
-    "crop_intelligence": "http://localhost:8095",
+    "field_management": _svc("field-management-service", 3000),
+    "user_service": _svc("user-service", 3025),
+    "advisory": _svc("advisory-service", 8093),
+    "weather": _svc("weather-service", 8092),
+    "irrigation_smart": _svc("irrigation-smart", 8094),
+    "vegetation_analysis": _svc("vegetation-analysis-service", 8090),
+    "indicators": _svc("indicators-service", 8091),
+    "alert": _svc("alert-service", 8113),
+    "notification": _svc("notification-service", 8110),
+    "yolo26_vision": _svc("yolo26-vision-service", 8150),
+    "iot": _svc("iot-service", 8117),
+    "crop_intelligence": _svc("crop-intelligence-service", 8095),
 }
 
 pytestmark = pytest.mark.integration
@@ -81,14 +98,16 @@ def db_cursor():
 
 def _make_jwt_headers(tenant_id: str | None = None, user_id: str | None = None) -> dict[str, str]:
     """Build JWT-like test headers accepted by all SAHOOL services."""
+    token = os.getenv("INTEGRATION_AUTH_TOKEN", "test-integration-token")
     return {
         "Content-Type": "application/json",
         "Accept": "application/json",
         "X-Tenant-ID": tenant_id or str(uuid.uuid4()),
         "X-User-ID": user_id or str(uuid.uuid4()),
         "X-Request-ID": str(uuid.uuid4()),
-        # Minimal bearer token accepted by test middleware
-        "Authorization": "Bearer test-integration-token",
+        # Use env-provided token (real JWT) when running against a live stack,
+        # falling back to a placeholder accepted by the test middleware.
+        "Authorization": f"Bearer {token}",
     }
 
 
@@ -121,8 +140,7 @@ async def _get_or_skip(url: str, headers: dict, timeout: float = 5.0) -> dict[st
             if resp.status_code == 200:
                 return resp.json()
     except Exception:
-        pass
-    return None
+        pass  # service unreachable — result stays None
 
 
 # ---------------------------------------------------------------------------
@@ -670,8 +688,11 @@ class TestAuthPropagationIntegration:
         """
 
         def build_nats_event(domain: str, action: str, tenant_id: str, data: dict) -> dict:
+            # Subject follows the canonical pattern: sahool.{domain}.{action}
+            # tenant_id belongs in the payload, not the subject, so that
+            # existing wildcard subscribers (sahool.*.*) continue to match.
             return {
-                "subject": f"sahool.{tenant_id}.{domain}.{action}",
+                "subject": f"sahool.{domain}.{action}",
                 "data": {
                     "tenant_id": tenant_id,
                     "event_type": f"{domain}.{action}",
@@ -684,4 +705,4 @@ class TestAuthPropagationIntegration:
         event = build_nats_event("field", "created", tenant_id, {"field_id": str(uuid.uuid4())})
         assert event["data"]["tenant_id"] == tenant_id
         assert event["subject"].startswith("sahool.")
-        assert tenant_id in event["subject"]
+        assert event["subject"] == "sahool.field.created"

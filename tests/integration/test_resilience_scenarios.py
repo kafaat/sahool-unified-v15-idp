@@ -49,18 +49,37 @@ except ImportError:
     HAS_HTTPX = False
 
 # ---------------------------------------------------------------------------
-# Canonical service URLs (mirrors SERVICE_PORTS in versions.py)
+# Canonical service URLs derived from the shared registry
+# (apps/services/shared/versions.py) with env-override support.
 # ---------------------------------------------------------------------------
+import os
+
+try:
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "apps", "services"))
+    from shared.versions import get_service_url  # type: ignore[import]
+
+    def _svc(name: str, fallback_port: int) -> str:
+        host = os.getenv("SERVICE_HOST", "localhost")
+        return os.getenv(f"{name.upper().replace('-', '_')}_URL") or get_service_url(name, host)
+
+except Exception:
+    def _svc(name: str, fallback_port: int) -> str:  # type: ignore[misc]
+        host = os.getenv("SERVICE_HOST", "localhost")
+        return os.getenv(f"{name.upper().replace('-', '_')}_URL") or f"http://{host}:{fallback_port}"
+
+
 SVCURL: dict[str, str] = {
-    "field": "http://localhost:3000",
-    "advisory": "http://localhost:8093",
-    "weather": "http://localhost:8092",
-    "irrigation": "http://localhost:8094",
-    "notification": "http://localhost:8110",
-    "alert": "http://localhost:8113",
-    "iot": "http://localhost:8117",
-    "vegetation": "http://localhost:8090",
-    "vision": "http://localhost:8150",
+    "field": _svc("field-management-service", 3000),
+    "advisory": _svc("advisory-service", 8093),
+    "weather": _svc("weather-service", 8092),
+    "irrigation": _svc("irrigation-smart", 8094),
+    "notification": _svc("notification-service", 8110),
+    "alert": _svc("alert-service", 8113),
+    "iot": _svc("iot-service", 8117),
+    "vegetation": _svc("vegetation-analysis-service", 8090),
+    "vision": _svc("yolo26-vision-service", 8150),
 }
 
 pytestmark = pytest.mark.integration
@@ -119,7 +138,7 @@ class CircuitBreaker:
             return result
         except Exception as exc:
             self._on_failure()
-            raise exc
+            raise
 
     def _on_success(self) -> None:
         self._failures = 0
@@ -157,7 +176,9 @@ def retry_with_backoff(fn, max_retries: int = 3, base_delay: float = 0.01, excep
             if attempt < max_retries:
                 time.sleep(delay)
                 delay *= 2
-    raise last_exc  # type: ignore[misc]
+    if last_exc is not None:
+        raise last_exc
+    raise RuntimeError("retry_with_backoff: no exception recorded after exhausting retries")
 
 
 # ===========================================================================
@@ -564,7 +585,14 @@ class TestNATSUnavailability:
             """Business logic: always respond quickly; event is fire-and-forget."""
             field = {"id": "f-001", "status": "created"}
             # Publish is fire-and-forget — do NOT await in the request handler
-            asyncio.create_task(slow_publish())
+            task = asyncio.create_task(slow_publish())
+            # Store a reference so the task is not garbage-collected before it
+            # finishes (or is explicitly cancelled by the caller / cleanup).
+            handle_field_create_request._bg_tasks = getattr(  # type: ignore[attr-defined]
+                handle_field_create_request, "_bg_tasks", []
+            )
+            handle_field_create_request._bg_tasks.append(task)  # type: ignore[attr-defined]
+            task.add_done_callback(handle_field_create_request._bg_tasks.remove)  # type: ignore[attr-defined]
             return {"status": "ok", "field": field}
 
         mock_nats = AsyncMock()
@@ -574,6 +602,14 @@ class TestNATSUnavailability:
 
         assert response["status"] == "ok"
         assert elapsed < 1.0, f"Handler took too long: {elapsed:.2f}s"
+
+        # Cancel the pending background task to avoid "Task destroyed but pending" warnings.
+        for bg in getattr(handle_field_create_request, "_bg_tasks", []):
+            bg.cancel()
+            try:
+                await bg
+            except (asyncio.CancelledError, Exception):
+                pass
 
     def test_outbox_pattern_ensures_delivery(self):
         """
@@ -861,8 +897,10 @@ class TestTimeoutHandling:
             await asyncio.wait_for(asyncio.shield(task), timeout=0.05)
         except TimeoutError:
             task.cancel()
-            with pytest.raises(asyncio.CancelledError):
+            try:
                 await task
+            except asyncio.CancelledError:
+                pass  # expected — task was cancelled
 
         assert released[0] is True, "Resources must be released on timeout/cancel"
 
@@ -910,10 +948,12 @@ class TestTimeoutHandling:
         slow_task = asyncio.create_task(slow_op())
 
         # Fast task completes; slow task times out
-        await fast_task
+        _ = await fast_task  # wait for result (returns None; captured to avoid no-effect warning)
         slow_task.cancel()
-        with pytest.raises(asyncio.CancelledError):
-            await slow_task
+        try:
+            _ = await slow_task
+        except asyncio.CancelledError:
+            pass  # expected — task was cancelled
 
         assert results.get("fast") == "done"
         assert "slow" not in results

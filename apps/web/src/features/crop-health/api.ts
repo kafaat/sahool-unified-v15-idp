@@ -3,8 +3,8 @@
  * طبقة API لميزة صحة المحصول
  */
 
-import { type AxiosError } from 'axios';
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import type {
   HealthSummary,
   HealthRecord,
@@ -139,14 +139,6 @@ export const ERROR_MESSAGES = {
   },
 };
 
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import {
-  MOCK_HEALTH_SUMMARY,
-  MOCK_HEALTH_RECORDS,
-  MOCK_DISEASES,
-  MOCK_DISEASE_ALERTS,
-} from './api.mock';
-
 /**
  * Map API health record to feature health record
  */
@@ -206,7 +198,7 @@ export const cropHealthApi = {
    * Get health summary with optional filters
    */
   getHealthSummary: async (filters?: HealthFilters): Promise<HealthSummary> => {
-    try {
+    return safeFetch(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/summary`, async () => {
       const params = new URLSearchParams();
       if (filters?.fieldIds?.length) params.set('field_ids', filters.fieldIds.join(','));
       if (filters?.cropTypes?.length) params.set('crop_types', filters.cropTypes.join(','));
@@ -217,19 +209,15 @@ export const cropHealthApi = {
       const response = await api.get(
         `${CROP_HEALTH_ENDPOINTS.ANALYZE}/summary?${params.toString()}`
       );
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn('Failed to fetch health summary from API, using mock data:', error);
-      return MOCK_HEALTH_SUMMARY;
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
    * Get health records with optional filters
    */
   getHealthRecords: async (filters?: HealthFilters): Promise<HealthRecord[]> => {
-    try {
+    return safeFetch(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records`, async () => {
       const params = new URLSearchParams();
       if (filters?.fieldIds?.length) params.set('field_ids', filters.fieldIds.join(','));
       if (filters?.cropTypes?.length) params.set('crop_types', filters.cropTypes.join(','));
@@ -247,127 +235,59 @@ export const cropHealthApi = {
         return records.map(mapApiHealthRecordToHealthRecord);
       }
 
-      logger.warn('API returned unexpected format, using mock data');
-      return MOCK_HEALTH_RECORDS;
-    } catch (error) {
-      logger.warn('Failed to fetch health records from API, using mock data:', error);
-      return MOCK_HEALTH_RECORDS;
-    }
+      return [];
+    });
   },
 
   /**
    * Get health record by ID
    */
   getHealthRecord: async (id: string): Promise<HealthRecord> => {
-    try {
+    return safeFetch(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records/${id}`, async () => {
       const response = await api.get(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records/${id}`);
       const record = response.data.data || response.data;
       return mapApiHealthRecordToHealthRecord(record);
-    } catch (error) {
-      logger.warn(`Failed to fetch health record ${id} from API, using mock data:`, error);
-
-      // Fallback to mock data
-      const mockRecord = MOCK_HEALTH_RECORDS.find((r) => r.id === id);
-      if (mockRecord) {
-        return mockRecord;
-      }
-
-      throw new Error(ERROR_MESSAGES.NOT_FOUND.en);
-    }
+    });
   },
 
   /**
    * Create new health record
    */
   createHealthRecord: async (data: Partial<HealthRecord>): Promise<HealthRecord> => {
-    try {
+    return safeFetch(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records`, async () => {
       const response = await api.post(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records`, data);
       const record = response.data.data || response.data;
       return mapApiHealthRecordToHealthRecord(record);
-    } catch (error) {
-      logger.error('Failed to create health record:', error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.CREATE_RECORD_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.CREATE_RECORD_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
    * Update health record
    */
   updateHealthRecord: async (id: string, data: Partial<HealthRecord>): Promise<HealthRecord> => {
-    try {
+    return safeFetch(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records/${id}`, async () => {
       const response = await api.put(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records/${id}`, data);
       const record = response.data.data || response.data;
       return mapApiHealthRecordToHealthRecord(record);
-    } catch (error) {
-      logger.error(`Failed to update health record ${id}:`, error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.UPDATE_RECORD_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.UPDATE_RECORD_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
    * Submit diagnosis request
    */
   submitDiagnosis: async (data: Partial<DiagnosisRequest>): Promise<DiagnosisRequest> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST, async () => {
       const response = await api.post(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST, data);
       const diagnosis = response.data.data || response.data;
       return mapApiDiagnosisToDiagnosis(diagnosis);
-    } catch (error) {
-      logger.error('Failed to submit diagnosis request:', error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.SUBMIT_DIAGNOSIS_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.SUBMIT_DIAGNOSIS_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
    * Upload diagnosis images
    */
   uploadDiagnosisImages: async (files: File[]): Promise<string[]> => {
-    try {
+    return safeFetch(`${CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST}/upload`, async () => {
       const formData = new FormData();
       files.forEach((file) => formData.append('images', file));
 
@@ -378,32 +298,14 @@ export const cropHealthApi = {
       });
 
       return response.data.urls || response.data.data?.urls || [];
-    } catch (error) {
-      logger.error('Failed to upload diagnosis images:', error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.UPLOAD_IMAGES_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.UPLOAD_IMAGES_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
    * Get diagnosis requests
    */
   getDiagnosisRequests: async (): Promise<DiagnosisRequest[]> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST, async () => {
       const response = await api.get(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST);
       const diagnoses = response.data.data || response.data;
 
@@ -411,110 +313,66 @@ export const cropHealthApi = {
         return diagnoses.map(mapApiDiagnosisToDiagnosis);
       }
 
-      logger.warn('API returned unexpected format for diagnoses');
-      return [];
-    } catch (error) {
-      logger.warn('Failed to fetch diagnosis requests from API:', error);
-      return [];
-    }
+      throw new Error('API returned unexpected format for diagnoses');
+    });
   },
 
   /**
    * Get diagnosis request by ID
    */
   getDiagnosisRequest: async (id: string): Promise<DiagnosisRequest> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, async () => {
       const response = await api.get(
         buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id })
       );
       const diagnosis = response.data.data || response.data;
       return mapApiDiagnosisToDiagnosis(diagnosis);
-    } catch (error) {
-      logger.error(`Failed to fetch diagnosis request ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.FETCH_DIAGNOSIS_FAILED.en);
-    }
+    });
   },
 
   /**
    * Get diagnosis result
    */
   getDiagnosisResult: async (requestId: string): Promise<DiagnosisResult> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, async () => {
       const response = await api.get(
         `${buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: requestId })}/result`
       );
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to fetch diagnosis result for ${requestId}:`, error);
-      throw new Error(ERROR_MESSAGES.FETCH_DIAGNOSIS_FAILED.en);
-    }
+    });
   },
 
   /**
    * Get disease database
    */
   getDiseases: async (): Promise<Disease[]> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.DISEASES, async () => {
       const response = await api.get(CROP_HEALTH_ENDPOINTS.DISEASES);
       const diseases = response.data.data || response.data;
-
-      if (Array.isArray(diseases)) {
-        return diseases;
-      }
-
-      logger.warn('API returned unexpected format, using mock diseases');
-      return MOCK_DISEASES;
-    } catch (error) {
-      logger.warn('Failed to fetch diseases from API, using mock data:', error);
-      return MOCK_DISEASES;
-    }
+      if (Array.isArray(diseases)) return diseases;
+      return [];
+    });
   },
 
   /**
    * Get disease alerts
    */
   getDiseaseAlerts: async (): Promise<DiseaseAlert[]> => {
-    try {
+    return safeFetch(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/alerts`, async () => {
       const response = await api.get(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/alerts`);
       const alerts = response.data.data || response.data;
-
-      if (Array.isArray(alerts)) {
-        return alerts;
-      }
-
-      logger.warn('API returned unexpected format, using mock alerts');
-      return MOCK_DISEASE_ALERTS;
-    } catch (error) {
-      logger.warn('Failed to fetch disease alerts from API, using mock data:', error);
-      return MOCK_DISEASE_ALERTS;
-    }
+      if (Array.isArray(alerts)) return alerts;
+      return [];
+    });
   },
 
   /**
    * Dismiss disease alert
    */
   dismissAlert: async (alertId: string): Promise<void> => {
-    try {
+    return safeFetch(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/alerts/${alertId}/dismiss`, async () => {
       await api.post(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/alerts/${alertId}/dismiss`);
-    } catch (error) {
-      logger.error(`Failed to dismiss alert ${alertId}:`, error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.DISMISS_ALERT_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.DISMISS_ALERT_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
@@ -525,35 +383,17 @@ export const cropHealthApi = {
     question?: string;
     questionAr?: string;
   }): Promise<ExpertConsultation> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW, async () => {
       const response = await api.post(CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to request expert consultation:', error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.REQUEST_CONSULTATION_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.REQUEST_CONSULTATION_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
    * Get expert consultations
    */
   getConsultations: async (): Promise<ExpertConsultation[]> => {
-    try {
+    return safeFetch(CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW, async () => {
       const response = await api.get(CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW);
       const consultations = response.data.data || response.data;
 
@@ -561,11 +401,7 @@ export const cropHealthApi = {
         return consultations;
       }
 
-      logger.warn('API returned unexpected format for consultations');
-      return [];
-    } catch (error) {
-      logger.warn('Failed to fetch consultations from API:', error);
-      return [];
-    }
+      throw new Error('API returned unexpected format for consultations');
+    });
   },
 };

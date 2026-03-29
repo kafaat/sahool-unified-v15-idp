@@ -3,7 +3,8 @@
  * طبقة API لميزة المساعد الذكي
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { AI_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type { ChatMessage, ChatHistory, CopilotTool, RagDocument, RagSearchResult } from './types';
 
@@ -36,87 +37,46 @@ export const ERROR_MESSAGES = {
   },
 };
 
-const MOCK_HISTORY: ChatHistory[] = [];
-
-const MOCK_TOOLS: CopilotTool[] = [
-  {
-    name: 'weather_lookup',
-    nameAr: 'البحث عن الطقس',
-    description: 'Get current weather and forecast for a location',
-    descriptionAr: 'الحصول على الطقس الحالي والتوقعات لموقع معين',
-    category: 'data',
-    enabled: true,
-  },
-  {
-    name: 'crop_diagnosis',
-    nameAr: 'تشخيص المحصول',
-    description: 'Diagnose crop health issues from description or images',
-    descriptionAr: 'تشخيص مشاكل صحة المحصول من الوصف أو الصور',
-    category: 'ai',
-    enabled: true,
-  },
-  {
-    name: 'irrigation_calculator',
-    nameAr: 'حاسبة الري',
-    description: 'Calculate optimal irrigation schedule',
-    descriptionAr: 'حساب جدول الري الأمثل',
-    category: 'calculation',
-    enabled: true,
-  },
-];
-
 export const copilotApi = {
   sendMessage: async (message: string, context?: Record<string, unknown>): Promise<ChatMessage> => {
-    try {
+    return safeFetch(AI_ENDPOINTS.COPILOT_CHAT, async () => {
       const response = await api.post(AI_ENDPOINTS.COPILOT_CHAT, {
         message,
         context,
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to send message to copilot:', error);
-      throw new Error(ERROR_MESSAGES.CHAT_FAILED.en);
-    }
+    });
   },
 
   getChatHistory: async (limit?: number): Promise<ChatHistory[]> => {
-    try {
+    return safeFetch(AI_ENDPOINTS.COPILOT_HISTORY, async () => {
       const params = limit ? `?limit=${limit}` : '';
       const response = await api.get(`${AI_ENDPOINTS.COPILOT_HISTORY}${params}`);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
-      return MOCK_HISTORY;
-    } catch (error) {
-      logger.warn('Failed to fetch chat history, using mock data:', error);
-      return MOCK_HISTORY;
-    }
+      return [];
+    });
   },
 
   getTools: async (): Promise<CopilotTool[]> => {
-    try {
+    return safeFetch(AI_ENDPOINTS.COPILOT_TOOLS, async () => {
       const response = await api.get(AI_ENDPOINTS.COPILOT_TOOLS);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
-      return MOCK_TOOLS;
-    } catch (error) {
-      logger.warn('Failed to fetch tools, using mock data:', error);
-      return MOCK_TOOLS;
-    }
+      return [];
+    });
   },
 
   executeTool: async (toolName: string, params: Record<string, unknown>): Promise<unknown> => {
-    try {
+    return safeFetch(AI_ENDPOINTS.COPILOT_EXECUTE_TOOL, async () => {
       const url = buildUrl(AI_ENDPOINTS.COPILOT_EXECUTE_TOOL, { toolName });
       const response = await api.post(url, params);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to execute tool ${toolName}:`, error);
-      throw error;
-    }
+    });
   },
 
   uploadDocument: async (file: File, metadata?: Record<string, string>): Promise<RagDocument> => {
-    try {
+    return safeFetch(AI_ENDPOINTS.RAG_DOCUMENTS, async () => {
       const formData = new FormData();
       formData.append('document', file);
       if (metadata) {
@@ -126,46 +86,34 @@ export const copilotApi = {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to upload document:', error);
-      throw new Error(ERROR_MESSAGES.UPLOAD_DOCUMENT_FAILED.en);
-    }
+    });
   },
 
   searchKnowledge: async (query: string, topK?: number): Promise<RagSearchResult[]> => {
-    try {
+    return safeFetch(AI_ENDPOINTS.RAG_SEARCH, async () => {
       const response = await api.post(AI_ENDPOINTS.RAG_SEARCH, { query, top_k: topK || 5 });
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       return [];
-    } catch (error) {
-      logger.warn('Failed to search knowledge base:', error);
-      return [];
-    }
+    });
   },
 
   queryAdvisor: async (query: string, fieldId?: string): Promise<ChatMessage> => {
-    try {
+    return safeFetch(AI_ENDPOINTS.AI_ADVISOR_QUERY, async () => {
       const response = await api.post(AI_ENDPOINTS.AI_ADVISOR_QUERY, {
         query,
         field_id: fieldId,
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to query AI advisor:', error);
-      throw new Error(ERROR_MESSAGES.CHAT_FAILED.en);
-    }
+    });
   },
 
   getAdvisorHistory: async (): Promise<ChatHistory[]> => {
-    try {
+    return safeFetch(AI_ENDPOINTS.AI_ADVISOR_HISTORY, async () => {
       const response = await api.get(AI_ENDPOINTS.AI_ADVISOR_HISTORY);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       return [];
-    } catch (error) {
-      logger.warn('Failed to fetch advisor history:', error);
-      return [];
-    }
+    });
   },
 };

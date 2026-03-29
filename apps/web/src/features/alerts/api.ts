@@ -3,7 +3,8 @@
  * طبقة API لميزة التنبيهات
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { ALERT_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   Alert,
@@ -84,9 +85,6 @@ export const ERROR_MESSAGES: AlertErrorMessages = {
   },
 };
 
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_ALERTS, MOCK_STATS, MOCK_COUNT } from './api.mock';
-
 // ═══════════════════════════════════════════════════════════════════════════
 // API Functions
 // ═══════════════════════════════════════════════════════════════════════════
@@ -97,7 +95,7 @@ export const alertsApi = {
    * جلب جميع التنبيهات مع الفلاتر
    */
   getAlerts: async (filters?: AlertFilters): Promise<Alert[]> => {
-    try {
+    return safeFetch(ALERT_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
 
       if (filters?.severity) {
@@ -128,12 +126,8 @@ export const alertsApi = {
         return data;
       }
 
-      logger.warn('API returned unexpected format for alerts, using mock data');
-      return MOCK_ALERTS;
-    } catch (error) {
-      logger.warn('Failed to fetch alerts from API, using mock data:', error);
-      return MOCK_ALERTS;
-    }
+      return [];
+    });
   },
 
   /**
@@ -141,14 +135,10 @@ export const alertsApi = {
    * جلب عدد التنبيهات النشطة
    */
   getActiveCount: async (): Promise<AlertCount> => {
-    try {
+    return safeFetch(`${ALERT_ENDPOINTS.LIST}/count`, async () => {
       const response = await api.get(`${ALERT_ENDPOINTS.LIST}/count`);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn('Failed to fetch alert count from API, using mock data:', error);
-      return MOCK_COUNT;
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -156,18 +146,10 @@ export const alertsApi = {
    * جلب تنبيه بواسطة المعرف
    */
   getAlertById: async (id: string): Promise<Alert> => {
-    try {
+    return safeFetch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }), async () => {
       const response = await api.get(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }));
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn(`Failed to fetch alert ${id} from API, using mock data:`, error);
-      const mockAlert = MOCK_ALERTS.find((a) => a.id === id);
-      if (mockAlert) {
-        return mockAlert;
-      }
-      throw new Error(ERROR_MESSAGES.NOT_FOUND.en);
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -175,14 +157,10 @@ export const alertsApi = {
    * إنشاء تنبيه جديد
    */
   createAlert: async (payload: CreateAlertPayload): Promise<Alert> => {
-    try {
+    return safeFetch(ALERT_ENDPOINTS.CREATE, async () => {
       const response = await api.post(ALERT_ENDPOINTS.CREATE, payload);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.error('Failed to create alert:', error);
-      throw new Error(ERROR_MESSAGES.CREATE_FAILED.en);
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -190,14 +168,10 @@ export const alertsApi = {
    * تحديث تنبيه
    */
   updateAlert: async (id: string, payload: UpdateAlertPayload): Promise<Alert> => {
-    try {
+    return safeFetch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }), async () => {
       const response = await api.patch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }), payload);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.error('Failed to update alert:', error);
-      throw new Error(ERROR_MESSAGES.UPDATE_FAILED.en);
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -205,14 +179,10 @@ export const alertsApi = {
    * الإقرار بالتنبيه
    */
   acknowledgeAlert: async (id: string): Promise<Alert> => {
-    try {
+    return safeFetch(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId: id }), async () => {
       const response = await api.post(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId: id }));
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.error('Failed to acknowledge alert:', error);
-      throw new Error(ERROR_MESSAGES.ACKNOWLEDGE_FAILED.en);
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -220,17 +190,13 @@ export const alertsApi = {
    * حل التنبيه
    */
   resolveAlert: async (id: string, resolution?: string): Promise<Alert> => {
-    try {
+    return safeFetch(buildUrl(ALERT_ENDPOINTS.RESOLVE, { alertId: id }), async () => {
       const response = await api.post(buildUrl(ALERT_ENDPOINTS.RESOLVE, { alertId: id }), {
         resolution,
         resolvedAt: new Date().toISOString(),
       });
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.error('Failed to resolve alert:', error);
-      throw new Error(ERROR_MESSAGES.RESOLVE_FAILED.en);
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -238,15 +204,12 @@ export const alertsApi = {
    * تجاهل التنبيه
    */
   dismissAlert: async (id: string, reason?: string): Promise<void> => {
-    try {
+    return safeFetch(`${buildUrl(ALERT_ENDPOINTS.GET, { alertId: id })}/dismiss`, async () => {
       await api.post(`${buildUrl(ALERT_ENDPOINTS.GET, { alertId: id })}/dismiss`, {
         reason,
         dismissedAt: new Date().toISOString(),
       });
-    } catch (error) {
-      logger.error('Failed to dismiss alert:', error);
-      throw new Error(ERROR_MESSAGES.DISMISS_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -254,12 +217,9 @@ export const alertsApi = {
    * حذف تنبيه (حذف نهائي)
    */
   deleteAlert: async (id: string): Promise<void> => {
-    try {
+    return safeFetch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }), async () => {
       await api.delete(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }));
-    } catch (error) {
-      logger.error('Failed to delete alert:', error);
-      throw new Error(ERROR_MESSAGES.DELETE_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -267,15 +227,12 @@ export const alertsApi = {
    * جلب إحصائيات التنبيهات
    */
   getStats: async (governorate?: string): Promise<AlertStats> => {
-    try {
+    const endpoint = `${ALERT_ENDPOINTS.LIST}/stats`;
+    return safeFetch(endpoint, async () => {
       const params = governorate ? `?governorate=${governorate}` : '';
-      const response = await api.get(`${ALERT_ENDPOINTS.LIST}/stats${params}`);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn('Failed to fetch alert stats from API, using mock data:', error);
-      return MOCK_STATS;
-    }
+      const response = await api.get(`${endpoint}${params}`);
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -283,15 +240,10 @@ export const alertsApi = {
    * الإقرار بالتنبيهات بشكل جماعي
    */
   bulkAcknowledge: async (alertIds: string[]): Promise<{ success: boolean; updated: number }> => {
-    try {
-      const response = await api.post(`${ALERT_ENDPOINTS.LIST}/bulk/acknowledge`, {
-        alertIds,
-      });
+    return safeFetch(`${ALERT_ENDPOINTS.LIST}/bulk/acknowledge`, async () => {
+      const response = await api.post(`${ALERT_ENDPOINTS.LIST}/bulk/acknowledge`, { alertIds });
       return response.data;
-    } catch (error) {
-      logger.error('Failed to bulk acknowledge alerts:', error);
-      throw new Error(ERROR_MESSAGES.ACKNOWLEDGE_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -302,16 +254,13 @@ export const alertsApi = {
     alertIds: string[],
     reason?: string
   ): Promise<{ success: boolean; updated: number }> => {
-    try {
+    return safeFetch(`${ALERT_ENDPOINTS.LIST}/bulk/dismiss`, async () => {
       const response = await api.post(`${ALERT_ENDPOINTS.LIST}/bulk/dismiss`, {
         alertIds,
         reason,
       });
       return response.data;
-    } catch (error) {
-      logger.error('Failed to bulk dismiss alerts:', error);
-      throw new Error(ERROR_MESSAGES.DISMISS_FAILED.en);
-    }
+    });
   },
 
   /**

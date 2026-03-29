@@ -4,6 +4,7 @@
  */
 
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { NOTIFICATION_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type { Notification, NotificationPreferences, NotificationFilters } from './types';
 
@@ -58,7 +59,7 @@ const MOCK_NOTIFICATIONS: Notification[] = [
 
 export const notificationsApi = {
   getNotifications: async (filters?: NotificationFilters): Promise<Notification[]> => {
-    try {
+    return safeFetch(NOTIFICATION_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
       if (filters?.type) params.set('type', filters.type);
       if (filters?.read !== undefined) params.set('read', String(filters.read));
@@ -67,11 +68,8 @@ export const notificationsApi = {
       const response = await api.get(`${NOTIFICATION_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
-      return MOCK_NOTIFICATIONS;
-    } catch (error) {
-      logger.warn('Failed to fetch notifications, using mock data:', error);
-      return MOCK_NOTIFICATIONS;
-    }
+      throw new Error('API returned unexpected format for notifications');
+    });
   },
 
   getById: async (id: string): Promise<Notification> => {
@@ -107,13 +105,10 @@ export const notificationsApi = {
   },
 
   getPreferences: async (): Promise<NotificationPreferences> => {
-    try {
+    return safeFetch(NOTIFICATION_ENDPOINTS.PREFERENCES, async () => {
       const response = await api.get(NOTIFICATION_ENDPOINTS.PREFERENCES);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Failed to fetch notification preferences:', error);
-      return { push: true, email: true, sms: false, inApp: true, channels: {} };
-    }
+    });
   },
 
   updatePreferences: async (

@@ -538,7 +538,10 @@ jobs:
 
       - name: Cleanup merged Trivy ignore file
         if: always() && steps.build_merged_ignore.outcome != 'skipped'
-        run: rm -f "$MERGED_TRIVY_IGNORE"
+        run: |
+          if [ -n "$MERGED_TRIVY_IGNORE" ]; then
+            rm -f "$MERGED_TRIVY_IGNORE"
+          fi
 
   dockerfile-scan:
     name: Dockerfile Security Scan

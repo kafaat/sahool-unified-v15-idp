@@ -184,22 +184,26 @@ describe('verifyToken — error classification', () => {
     process.env.JWT_SECRET = TEST_SECRET;
   });
 
-  it('throws "Token has expired" for an expired token', async () => {
+  it('throws "Token has expired" for an expired token and preserves cause', async () => {
     const token = await createTestToken(
       { sub: 'u1', email: 'a@b.com' },
       { expiresIn: '-1s' } // already expired
     );
 
-    await expect(verifyToken(token)).rejects.toThrow('Token has expired');
+    const err = await verifyToken(token).catch((e: unknown) => e as Error);
+    expect(err.message).toBe('Token has expired');
+    expect(err.cause).toBeInstanceOf(Error);
   });
 
-  it('throws "Invalid token signature" when signed with a different secret', async () => {
+  it('throws "Invalid token signature" when signed with a different secret and preserves cause', async () => {
     const token = await createTestToken(
       { sub: 'u1', email: 'a@b.com' },
       { secret: 'different-secret-key-that-wont-match!!' }
     );
 
-    await expect(verifyToken(token)).rejects.toThrow('Invalid token signature');
+    const err = await verifyToken(token).catch((e: unknown) => e as Error);
+    expect(err.message).toBe('Invalid token signature');
+    expect(err.cause).toBeInstanceOf(Error);
   });
 
   it('throws "Token claim validation failed" for wrong issuer', async () => {

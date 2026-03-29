@@ -69,13 +69,13 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
       const code = (error as { code?: string }).code;
 
       if (code === 'ERR_JWT_EXPIRED' || error.message.includes('expired')) {
-        throw new Error('Token has expired');
+        throw new Error('Token has expired', { cause: error });
       }
       if (
         code === 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED' ||
         error.message.includes('signature')
       ) {
-        throw new Error('Invalid token signature');
+        throw new Error('Invalid token signature', { cause: error });
       }
       if (code === 'ERR_JWT_CLAIM_VALIDATION_FAILED' || code === 'ERR_JWT_INVALID_CLAIM_VALUE') {
         // Use a generic message to avoid leaking token structure details;

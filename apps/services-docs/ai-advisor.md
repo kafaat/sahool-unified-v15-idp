@@ -897,7 +897,7 @@ The AI Advisor service is a multi-agent AI system for agricultural advisory that
 | openai | >=1.0.0 | OpenAI GPT API |
 | google-generativeai | >=0.3.0 | Google Gemini API |
 | sentence-transformers | 2.7.0 | Embeddings |
-| qdrant-client | 1.11.1 | Vector database |
+| qdrant-client | 1.17.0 | Vector database |
 | nats-py | 2.9.0 | NATS messaging |
 | python-dotenv | 1.0.1 | Environment loading |
 | python-multipart | 0.0.18 | File uploads (CVE fix) |

@@ -21,23 +21,35 @@ Updated: February 2026
 """
 
 import importlib.util
+import sys
 from pathlib import Path
 
 import pytest
 
-# Load schemas module directly to avoid pulling in torch/GPU dependencies
-_SCHEMAS_PATH = (
+# ---------------------------------------------------------------------------
+# Load schemas module directly to avoid pulling in torch/GPU dependencies.
+# We temporarily add the service root to sys.path so that
+# ``from src.core.vlm_verifier import ...`` inside schemas.py resolves.
+# ---------------------------------------------------------------------------
+_SERVICE_ROOT = str(
     Path(__file__).parent.parent.parent.parent
     / "apps"
     / "services"
     / "yolo26-vision-service"
-    / "src"
-    / "api"
-    / "schemas.py"
 )
-_spec = importlib.util.spec_from_file_location("yolo26_schemas_p2", str(_SCHEMAS_PATH))
-_schemas = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_schemas)
+_SCHEMAS_PATH = Path(_SERVICE_ROOT) / "src" / "api" / "schemas.py"
+
+# Insert at front so local src/ takes precedence; restore afterwards.
+_inserted = _SERVICE_ROOT not in sys.path
+if _inserted:
+    sys.path.insert(0, _SERVICE_ROOT)
+try:
+    _spec = importlib.util.spec_from_file_location("yolo26_schemas_p2", str(_SCHEMAS_PATH))
+    _schemas = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_schemas)
+finally:
+    if _inserted and _SERVICE_ROOT in sys.path:
+        sys.path.remove(_SERVICE_ROOT)
 
 DISEASE_CLASSES = _schemas.DISEASE_CLASSES
 PEST_CLASSES = _schemas.PEST_CLASSES

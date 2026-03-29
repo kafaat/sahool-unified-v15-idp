@@ -7,7 +7,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- devices.updatedAt: NOT NULL without DEFAULT (Prisma @updatedAt)
--- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
+-- drift:safe reason=This migration only sets NOW() as the DEFAULT on existing NOT NULL updatedAt columns to align with Prisma @updatedAt; it does not rewrite existing rows, create or modify any indexes, and is safe to run inside a Prisma-managed transaction.
 ALTER TABLE "devices" ALTER COLUMN "updatedAt" SET DEFAULT now();
 
 -- sensors.updatedAt: NOT NULL without DEFAULT

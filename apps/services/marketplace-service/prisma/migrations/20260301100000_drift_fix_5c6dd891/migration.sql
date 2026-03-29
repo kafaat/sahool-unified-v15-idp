@@ -11,7 +11,7 @@
 -- 'unassigned'. Re-affirm to close drift scanner gap.
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
+-- drift:safe reason=This section only reasserts column DEFAULTs for existing tables; it is idempotent, does not rewrite existing rows, and creates no indexes — safe to re-run during drift reconciliation inside a Prisma-managed transaction.
 ALTER TABLE "products" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "orders" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "order_items" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';

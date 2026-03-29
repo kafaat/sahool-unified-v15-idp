@@ -25,21 +25,21 @@
  * Run
  * ---
  *   k6 run tests/load/scenarios/agricultural_workflows.js
- *   k6 run --env BASE_URL=http://gateway:8000 tests/load/scenarios/agricultural_workflows.js
+ *   k6 run --env FIELD_URL=http://field:3000 tests/load/scenarios/agricultural_workflows.js
  *
  * Environment Variables
  * ---------------------
- *   BASE_URL         – API gateway base URL (default: http://localhost:8000)
- *   FIELD_URL        – Field service direct URL (default: http://localhost:3000)
- *   ADVISORY_URL     – Advisory service URL    (default: http://localhost:8093)
- *   WEATHER_URL      – Weather service URL     (default: http://localhost:8092)
- *   IRRIGATION_URL   – Irrigation service URL  (default: http://localhost:8094)
- *   VISION_URL       – Vision service URL      (default: http://localhost:8150)
- *   TRACEABILITY_URL – Traceability service URL (default: http://localhost:8123)
- *   ALERT_URL        – Alert service URL       (default: http://localhost:8113)
- *   IOT_URL          – IoT service URL         (default: http://localhost:8117)
- *   TASK_URL         – Task service URL        (default: http://localhost:8103)
- *   MARKETPLACE_URL  – Marketplace service URL (default: http://localhost:3010)
+ *   FIELD_URL        – Field service direct URL      (default: http://localhost:3000)
+ *   ADVISORY_URL     – Advisory service URL          (default: http://localhost:8093)
+ *   WEATHER_URL      – Weather service URL           (default: http://localhost:8092)
+ *   IRRIGATION_URL   – Irrigation service URL        (default: http://localhost:8094)
+ *   VISION_URL       – Vision service URL            (default: http://localhost:8150)
+ *   VEGETATION_URL   – Vegetation analysis URL       (default: http://localhost:8090)
+ *   TRACEABILITY_URL – Traceability service URL      (default: http://localhost:8123)
+ *   ALERT_URL        – Alert service URL             (default: http://localhost:8113)
+ *   IOT_URL          – IoT service URL               (default: http://localhost:8117)
+ *   TASK_URL         – Task service URL              (default: http://localhost:8103)
+ *   MARKETPLACE_URL  – Marketplace service URL       (default: http://localhost:3010)
  *   AUTH_TOKEN       – Bearer JWT token (optional; omitted when absent)
  *   TENANT_ID        – Tenant ID for the test run
  *

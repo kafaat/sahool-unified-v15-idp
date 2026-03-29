@@ -49,7 +49,7 @@ try:
     import sys
 
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "apps", "services"))
-    from shared.versions import get_service_url, SERVICE_PORTS  # type: ignore[import]
+    from shared.versions import get_service_url  # type: ignore[import]
 
     def _svc(name: str, fallback_port: int) -> str:
         host = os.getenv("SERVICE_HOST", "localhost")

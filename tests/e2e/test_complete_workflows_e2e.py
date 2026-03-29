@@ -96,7 +96,7 @@ pytestmark = [pytest.mark.e2e, pytest.mark.asyncio]
 
 
 def _headers(tenant_id: str | None = None, user_id: str | None = None) -> dict[str, str]:
-    # Use AUTH_TOKEN env var when provided (allows real JWT in CI/staging),
+    # Use E2E_AUTH_TOKEN env var when provided (allows real JWT in CI/staging),
     # otherwise fall back to a placeholder only accepted by the test middleware.
     token = os.getenv("E2E_AUTH_TOKEN", "e2e-test-token")
     return {

@@ -604,12 +604,17 @@ class TestNATSUnavailability:
         assert elapsed < 1.0, f"Handler took too long: {elapsed:.2f}s"
 
         # Cancel the pending background task to avoid "Task destroyed but pending" warnings.
-        for bg in getattr(handle_field_create_request, "_bg_tasks", []):
+        # Iterate over a snapshot of the list — done-callbacks invoke list.remove()
+        # concurrently, which could skip entries if we iterated the live list.
+        bg_tasks = getattr(handle_field_create_request, "_bg_tasks", [])  # type: ignore[attr-defined]
+        for bg in list(bg_tasks):
             bg.cancel()
             try:
                 await bg
             except (asyncio.CancelledError, Exception):
                 pass
+        # Drop all references so no stale task objects linger after the test.
+        bg_tasks.clear()
 
     def test_outbox_pattern_ensures_delivery(self):
         """

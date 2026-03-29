@@ -64,10 +64,13 @@ export class RedisTokenRevocationStore
   constructor(private readonly redisUrl?: string) {}
 
   /**
-   * Initialize on module startup
+   * Initialize on module startup (fire-and-forget — never blocks NestJS startup).
+   * Security posture: FAIL-CLOSED — when Redis is unreachable, isTokenRevoked()
+   * returns true (denies access) so no revoked token can be accepted while Redis is down.
+   * Errors are handled inside initialize() and logged there; this call will never reject.
    */
-  async onModuleInit(): Promise<void> {
-    await this.initialize();
+  onModuleInit(): void {
+    void this.initialize();
   }
 
   /**
@@ -160,7 +163,22 @@ export class RedisTokenRevocationStore
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to initialize Redis: ${message}`);
-      throw error;
+      // Clean up any partially-initialized client to prevent resource leaks on retry.
+      // Use disconnect() (immediate force-close) rather than quit() (async QUIT command)
+      // because initialization has already failed — Redis may be unreachable, so quit()
+      // could hang waiting for a server response that never arrives.
+      if (this.redis) {
+        try {
+          this.redis.disconnect();
+        } catch {
+          // ignore cleanup errors
+        }
+        this.redis = null;
+      }
+      // Do NOT re-throw: callers rely on fail-closed semantics (isTokenRevoked returns true,
+      // write operations return false) when Redis is unavailable. Throwing here would bypass
+      // those per-method catch blocks and propagate the error unexpectedly.
+      this.initialized = false;
     }
   }
 

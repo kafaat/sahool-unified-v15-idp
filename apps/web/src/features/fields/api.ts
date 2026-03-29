@@ -3,9 +3,9 @@
  * طبقة API لميزة الحقول
  */
 
-import { type AxiosError } from 'axios';
 import type { Field, FieldFormData, FieldFilters, GeoPolygon } from './types';
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { FIELD_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 
 /**
@@ -66,9 +66,6 @@ export const ERROR_MESSAGES = {
     ar: 'الحقل غير موجود.',
   },
 };
-
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_FIELDS } from './api.mock';
 
 /**
  * Map API field to feature field
@@ -134,7 +131,7 @@ export const fieldsApi = {
    * Get all fields with filters
    */
   getFields: async (filters?: FieldFilters): Promise<Field[]> => {
-    try {
+    return safeFetch(FIELD_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
       if (filters?.search) params.set('search', filters.search);
       if (filters?.farmId) params.set('tenantId', filters.farmId);
@@ -144,71 +141,33 @@ export const fieldsApi = {
       if (filters?.status) params.set('status', filters.status);
 
       const response = await api.get(`${FIELD_ENDPOINTS.LIST}?${params.toString()}`);
-
-      // Handle different response formats
       const fields = response.data.data || response.data;
-
-      if (Array.isArray(fields)) {
-        return fields.map(mapApiFieldToField);
-      }
-
-      logger.warn('API returned unexpected format, using mock data');
-      return MOCK_FIELDS;
-    } catch (error) {
-      logger.warn('Failed to fetch fields from API, using mock data:', error);
-      return MOCK_FIELDS;
-    }
+      if (Array.isArray(fields)) return fields.map(mapApiFieldToField);
+      return [];
+    });
   },
 
   /**
    * Get field by ID
    */
   getFieldById: async (id: string): Promise<Field> => {
-    try {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.GET, { fieldId: id }), async () => {
       const response = await api.get(buildUrl(FIELD_ENDPOINTS.GET, { fieldId: id }));
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error) {
-      logger.warn(`Failed to fetch field ${id} from API, using mock data:`, error);
-
-      // Fallback to mock data
-      const mockField = MOCK_FIELDS.find((f) => f.id === id);
-      if (mockField) {
-        return mockField;
-      }
-
-      throw new Error(ERROR_MESSAGES.NOT_FOUND.en);
-    }
+    });
   },
 
   /**
    * Create new field
    */
   createField: async (data: FieldFormData, tenantId?: string): Promise<Field> => {
-    try {
+    return safeFetch(FIELD_ENDPOINTS.CREATE, async () => {
       const apiData = mapFieldToApiField(data, tenantId);
       const response = await api.post(FIELD_ENDPOINTS.CREATE, apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error) {
-      logger.error('Failed to create field:', error);
-
-      // Return error with Arabic message
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.CREATE_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.CREATE_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
@@ -219,57 +178,21 @@ export const fieldsApi = {
     data: Partial<FieldFormData>,
     tenantId?: string
   ): Promise<Field> => {
-    try {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), async () => {
       const apiData = mapFieldToApiField(data as FieldFormData, tenantId);
       const response = await api.put(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error) {
-      logger.error(`Failed to update field ${id}:`, error);
-
-      // Return error with Arabic message
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.UPDATE_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.UPDATE_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
    * Delete field
    */
   deleteField: async (id: string): Promise<void> => {
-    try {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId: id }), async () => {
       await api.delete(buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId: id }));
-    } catch (error) {
-      logger.error(`Failed to delete field ${id}:`, error);
-
-      // Return error with Arabic message
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.DELETE_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.DELETE_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
@@ -282,28 +205,11 @@ export const fieldsApi = {
     totalArea: number;
     byCrop: Record<string, number>;
   }> => {
-    try {
+    return safeFetch(`${FIELD_ENDPOINTS.LIST}/stats`, async () => {
       const params = new URLSearchParams();
       if (farmId) params.set('tenantId', farmId);
-
       const response = await api.get(`${FIELD_ENDPOINTS.LIST}/stats?${params.toString()}`);
       return response.data.data || response.data;
-    } catch {
-      logger.warn('Failed to fetch field stats from API, calculating from mock data');
-
-      // Calculate stats from mock data
-      const total = MOCK_FIELDS.length;
-      const totalArea = MOCK_FIELDS.reduce((sum, f) => sum + f.area, 0);
-      const byCrop = MOCK_FIELDS.reduce(
-        (acc, f) => {
-          const crop = f.crop || 'unknown';
-          acc[crop] = (acc[crop] || 0) + 1;
-          return acc;
-        },
-        {} as Record<string, number>
-      );
-
-      return { total, totalArea, byCrop };
-    }
+    });
   },
 };

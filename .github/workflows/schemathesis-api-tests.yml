@@ -71,14 +71,14 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install Schemathesis
-        run: pip install --no-cache-dir schemathesis>=3.38.0
+      - name: Install validators
+        run: pip install --no-cache-dir openapi-spec-validator>=0.7.0 pyyaml>=6.0
 
       - name: Validate spec syntax
         run: |
           SPEC_FILE="${{ github.event.inputs.spec_file || 'api/gateway-openapi.yaml' }}"
           echo "🔍 Validating OpenAPI spec: $SPEC_FILE"
-          st validate "$SPEC_FILE" || {
+          python3 -m openapi_spec_validator "$SPEC_FILE" || {
             echo "::warning::Spec validation found issues — review the output above"
             # Don't fail here; some issues may be acceptable (e.g., unused components)
             true
@@ -111,8 +111,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install Schemathesis
-        run: pip install --no-cache-dir schemathesis>=3.38.0
+      - name: Install validators
+        run: pip install --no-cache-dir openapi-spec-validator>=0.7.0 pyyaml>=6.0
 
       - name: Run static analysis on ${{ matrix.spec }}
         run: |
@@ -122,11 +122,11 @@ jobs:
             exit 0
           fi
 
-          echo "🧪 Running Schemathesis static analysis on $SPEC"
+          echo "🧪 Running OpenAPI spec validation on $SPEC"
 
-          # Validate that all examples in the spec are valid against their schemas
+          # Validate that the spec conforms to the OpenAPI schema
           set -o pipefail
-          st validate "$SPEC" 2>&1 | tee /tmp/schemathesis-validate.log
+          python3 -m openapi_spec_validator "$SPEC" 2>&1 | tee /tmp/schemathesis-validate.log
 
           echo "✅ Static analysis complete for $SPEC"
 

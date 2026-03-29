@@ -3,7 +3,8 @@
  * طبقة API لميزة الاستشعار الافتراضي
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { VIRTUAL_SENSOR_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   ET0Result,
@@ -39,13 +40,10 @@ export const virtualSensorsApi = {
     latitude: number;
     date?: string;
   }): Promise<ET0Result> => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.ET0_CALCULATE, async () => {
       const response = await api.post(VIRTUAL_SENSOR_ENDPOINTS.ET0_CALCULATE, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to calculate ET0:', error);
-      throw new Error(ERROR_MESSAGES.ET0_FAILED.en);
-    }
+    });
   },
 
   calculateETC: async (data: {
@@ -55,48 +53,36 @@ export const virtualSensorsApi = {
     latitude?: number;
     date?: string;
   }): Promise<ETCResult> => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.ETC_CALCULATE, async () => {
       const response = await api.post(VIRTUAL_SENSOR_ENDPOINTS.ETC_CALCULATE, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to calculate ETc:', error);
-      throw new Error(ERROR_MESSAGES.ETC_FAILED.en);
-    }
+    });
   },
 
   getCrops: async (): Promise<CropInfo[]> => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.CROPS, async () => {
       const response = await api.get(VIRTUAL_SENSOR_ENDPOINTS.CROPS);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       return [];
-    } catch (error) {
-      logger.warn('Failed to fetch crops:', error);
-      return [];
-    }
+    });
   },
 
   getCropKc: async (cropType: string): Promise<Record<string, number>> => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.CROP_KC, async () => {
       const url = buildUrl(VIRTUAL_SENSOR_ENDPOINTS.CROP_KC, { cropType });
       const response = await api.get(url);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn(`Failed to fetch Kc for ${cropType}:`, error);
-      return {};
-    }
+    });
   },
 
   getSoils: async (): Promise<SoilInfo[]> => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.SOILS, async () => {
       const response = await api.get(VIRTUAL_SENSOR_ENDPOINTS.SOILS);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       return [];
-    } catch (error) {
-      logger.warn('Failed to fetch soils:', error);
-      return [];
-    }
+    });
   },
 
   estimateSoilMoisture: async (data: {
@@ -105,13 +91,10 @@ export const virtualSensorsApi = {
     et0?: number;
     rainfall?: number;
   }): Promise<SoilMoistureEstimate> => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.SOIL_MOISTURE, async () => {
       const response = await api.post(VIRTUAL_SENSOR_ENDPOINTS.SOIL_MOISTURE, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to estimate soil moisture:', error);
-      throw error;
-    }
+    });
   },
 
   getIrrigationRecommendation: async (data: {
@@ -119,13 +102,10 @@ export const virtualSensorsApi = {
     cropType: string;
     soilType?: string;
   }): Promise<IrrigationRecommendation> => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.IRRIGATION_RECOMMEND, async () => {
       const response = await api.post(VIRTUAL_SENSOR_ENDPOINTS.IRRIGATION_RECOMMEND, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to get irrigation recommendation:', error);
-      throw new Error(ERROR_MESSAGES.RECOMMENDATION_FAILED.en);
-    }
+    });
   },
 
   quickIrrigationCheck: async (data: {
@@ -133,26 +113,20 @@ export const virtualSensorsApi = {
     soilMoisture: number;
     temperature: number;
   }): Promise<IrrigationQuickCheck> => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.IRRIGATION_QUICK_CHECK, async () => {
       const response = await api.post(VIRTUAL_SENSOR_ENDPOINTS.IRRIGATION_QUICK_CHECK, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Failed to perform quick irrigation check:', error);
-      throw error;
-    }
+    });
   },
 
   getIrrigationMethods: async (): Promise<
     Array<{ id: string; name: string; nameAr: string; efficiency: number }>
   > => {
-    try {
+    return safeFetch(VIRTUAL_SENSOR_ENDPOINTS.IRRIGATION_METHODS, async () => {
       const response = await api.get(VIRTUAL_SENSOR_ENDPOINTS.IRRIGATION_METHODS);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       return [];
-    } catch (error) {
-      logger.warn('Failed to fetch irrigation methods:', error);
-      return [];
-    }
+    });
   },
 };

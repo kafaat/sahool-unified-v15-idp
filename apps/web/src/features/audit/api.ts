@@ -3,7 +3,8 @@
  * طبقة API لميزة التدقيق
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { AUDIT_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type { AuditLog, AuditStats, AuditFilters } from './types';
 
@@ -24,51 +25,9 @@ export const ERROR_MESSAGES = {
   },
 };
 
-const MOCK_LOGS: AuditLog[] = [
-  {
-    id: 'log-1',
-    action: 'field.created',
-    actionAr: 'إنشاء حقل',
-    userId: 'user-1',
-    userName: 'Ahmad Ali',
-    userNameAr: 'أحمد علي',
-    resource: 'field',
-    resourceId: 'field-1',
-    details: "Created field 'North Field'",
-    detailsAr: "تم إنشاء الحقل 'الحقل الشمالي'",
-    ipAddress: '192.168.1.1',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-  {
-    id: 'log-2',
-    action: 'user.login',
-    actionAr: 'تسجيل دخول',
-    userId: 'user-2',
-    userName: 'Sara Mohammed',
-    userNameAr: 'سارة محمد',
-    resource: 'auth',
-    resourceId: 'session-1',
-    details: 'User logged in successfully',
-    detailsAr: 'تم تسجيل الدخول بنجاح',
-    ipAddress: '192.168.1.2',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-  },
-];
-
-const MOCK_STATS: AuditStats = {
-  totalLogs: 1250,
-  todayLogs: 45,
-  byAction: { 'field.created': 12, 'user.login': 89, 'task.updated': 34 },
-  byResource: { field: 120, auth: 450, task: 200 },
-  topUsers: [
-    { userId: 'user-1', userName: 'Ahmad Ali', count: 120 },
-    { userId: 'user-2', userName: 'Sara Mohammed', count: 89 },
-  ],
-};
-
 export const auditApi = {
   getLogs: async (filters?: AuditFilters): Promise<AuditLog[]> => {
-    try {
+    return safeFetch(AUDIT_ENDPOINTS.LOGS, async () => {
       const params = new URLSearchParams();
       if (filters?.action) params.set('action', filters.action);
       if (filters?.userId) params.set('user_id', filters.userId);
@@ -80,33 +39,22 @@ export const auditApi = {
       const response = await api.get(`${AUDIT_ENDPOINTS.LOGS}?${params.toString()}`);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
-      return MOCK_LOGS;
-    } catch (error) {
-      logger.warn('Failed to fetch audit logs, using mock data:', error);
-      return MOCK_LOGS;
-    }
+      return [];
+    });
   },
 
   getLogById: async (id: string): Promise<AuditLog> => {
-    try {
+    return safeFetch(AUDIT_ENDPOINTS.LOG_GET, async () => {
       const url = buildUrl(AUDIT_ENDPOINTS.LOG_GET, { logId: id });
       const response = await api.get(url);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn(`Failed to fetch audit log ${id}:`, error);
-      const mock = MOCK_LOGS.find((l) => l.id === id);
-      if (mock) return mock;
-      throw new Error(ERROR_MESSAGES.FETCH_LOGS_FAILED.en);
-    }
+    });
   },
 
   getStats: async (): Promise<AuditStats> => {
-    try {
+    return safeFetch(AUDIT_ENDPOINTS.STATS, async () => {
       const response = await api.get(AUDIT_ENDPOINTS.STATS);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Failed to fetch audit stats, using mock data:', error);
-      return MOCK_STATS;
-    }
+    });
   },
 };

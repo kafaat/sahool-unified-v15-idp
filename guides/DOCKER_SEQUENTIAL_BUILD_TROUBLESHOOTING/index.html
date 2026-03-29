@@ -1150,8 +1150,8 @@ ls<span class="w"> </span>-l<span class="w"> </span>docker-one-by-one.sh
 <hr />
 <h3 id="2-docker-compose-not-found">2. Docker Compose Not Found<a class="headerlink" href="#2-docker-compose-not-found" title="Permanent link">&para;</a></h3>
 <h4 id="symptoms_1">Symptoms<a class="headerlink" href="#symptoms_1" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">docker</span><span class="w"> </span><span class="n">compose</span><span class="w"> </span><span class="n">command</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">available</span>
-<span class="n">Please</span><span class="w"> </span><span class="n">ensure</span><span class="w"> </span><span class="n">Docker</span><span class="w"> </span><span class="n">Desktop</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">installed</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">running</span>
+<div class="codehilite"><pre><span></span><code>ERROR: docker compose command not available
+Please ensure Docker Desktop is installed and running
 </code></pre></div>
 
 <h4 id="solution_1">Solution<a class="headerlink" href="#solution_1" title="Permanent link">&para;</a></h4>
@@ -1186,7 +1186,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>version
 <hr />
 <h3 id="3-docker-composeyml-not-found">3. docker-compose.yml Not Found<a class="headerlink" href="#3-docker-composeyml-not-found" title="Permanent link">&para;</a></h3>
 <h4 id="symptoms_2">Symptoms<a class="headerlink" href="#symptoms_2" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">.</span><span class="na">yml</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">found</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">directory</span>
+<div class="codehilite"><pre><span></span><code>ERROR: docker-compose.yml not found in current directory
 </code></pre></div>
 
 <h4 id="solution_2">Solution<a class="headerlink" href="#solution_2" title="Permanent link">&para;</a></h4>
@@ -1203,7 +1203,7 @@ ls<span class="w"> </span>-la<span class="w"> </span>docker-compose*.yml
 <hr />
 <h3 id="4-no-services-found">4. No Services Found<a class="headerlink" href="#4-no-services-found" title="Permanent link">&para;</a></h3>
 <h4 id="symptoms_3">Symptoms<a class="headerlink" href="#symptoms_3" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">No</span><span class="w"> </span><span class="n">services</span><span class="w"> </span><span class="n">found</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">.</span><span class="na">yml</span>
+<div class="codehilite"><pre><span></span><code>ERROR: No services found in docker-compose.yml
 </code></pre></div>
 
 <h4 id="solution_3">Solution<a class="headerlink" href="#solution_3" title="Permanent link">&para;</a></h4>
@@ -1304,9 +1304,9 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <hr />
 <h3 id="7-memoryresource-issues">7. Memory/Resource Issues<a class="headerlink" href="#7-memoryresource-issues" title="Permanent link">&para;</a></h3>
 <h4 id="symptoms_6">Symptoms<a class="headerlink" href="#symptoms_6" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">Container</span><span class="w"> </span><span class="n">killed</span><span class="w"> </span><span class="n">due</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">OOM</span><span class="w"> </span><span class="o">(</span><span class="n">Out</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">Memory</span><span class="o">)</span>
-<span class="err">#</span><span class="w"> </span><span class="n">OR</span>
-<span class="n">Build</span><span class="w"> </span><span class="n">takes</span><span class="w"> </span><span class="n">extremely</span><span class="w"> </span><span class="n">long</span><span class="w"> </span><span class="n">time</span>
+<div class="codehilite"><pre><span></span><code>ERROR: Container killed due to OOM (Out of Memory)
+# OR
+Build takes extremely long time
 </code></pre></div>
 
 <h4 id="solutions_2">Solutions<a class="headerlink" href="#solutions_2" title="Permanent link">&para;</a></h4>

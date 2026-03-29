@@ -1633,17 +1633,17 @@
 <hr />
 <h2 id="troubleshooting-quick-reference">Troubleshooting Quick Reference<a class="headerlink" href="#troubleshooting-quick-reference" title="Permanent link">&para;</a></h2>
 <h3 id="issue-connection-timeout">Issue: Connection Timeout<a class="headerlink" href="#issue-connection-timeout" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Timed</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">trying</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">acquire</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">connection</span>
+<div class="codehilite"><pre><span></span><code>Error: Timed out trying to acquire a connection
 </code></pre></div>
 
 <p><strong>Solution:</strong> Increase <code>connection_limit</code> or optimize queries</p>
 <h3 id="issue-too-many-connections">Issue: Too Many Connections<a class="headerlink" href="#issue-too-many-connections" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">FATAL</span><span class="o">:</span><span class="w"> </span><span class="n">remaining</span><span class="w"> </span><span class="n">connection</span><span class="w"> </span><span class="n">slots</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">reserved</span>
+<div class="codehilite"><pre><span></span><code>Error: FATAL: remaining connection slots are reserved
 </code></pre></div>
 
 <p><strong>Solution:</strong> Check PgBouncer config, reduce connection limits</p>
 <h3 id="issue-stale-connections">Issue: Stale Connections<a class="headerlink" href="#issue-stale-connections" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Connection</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="n">unexpectedly</span>
+<div class="codehilite"><pre><span></span><code>Error: Connection terminated unexpectedly
 </code></pre></div>
 
 <p><strong>Solution:</strong> TCP keepalive already enabled, check firewall settings</p>

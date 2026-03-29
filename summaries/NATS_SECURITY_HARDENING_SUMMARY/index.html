@@ -1250,16 +1250,16 @@
 <h3 id="14-system-account-for-monitoring-high-priority">1.4 System Account for Monitoring (High Priority)<a class="headerlink" href="#14-system-account-for-monitoring-high-priority" title="Permanent link">&para;</a></h3>
 <p><strong>Issue:</strong> No dedicated monitoring account, limited observability</p>
 <p><strong>Solution:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">system_account</span><span class="o">:</span><span class="w"> </span><span class="n">SYS</span>
+<div class="codehilite"><pre><span></span><code>system_account: SYS
 
-<span class="n">accounts</span><span class="w"> </span><span class="o">{</span>
-<span class="w">    </span><span class="n">SYS</span><span class="o">:</span><span class="w"> </span><span class="o">{</span>
-<span class="w">        </span><span class="n">users</span><span class="o">:</span><span class="w"> </span><span class="o">[{</span>
-<span class="w">            </span><span class="n">user</span><span class="o">:</span><span class="w"> </span><span class="n">$NATS_SYSTEM_USER</span>
-<span class="w">            </span><span class="n">password</span><span class="o">:</span><span class="w"> </span><span class="n">$NATS_SYSTEM_PASSWORD</span>
-<span class="w">        </span><span class="o">}]</span>
-<span class="w">    </span><span class="o">}</span>
-<span class="o">}</span>
+accounts {
+    SYS: {
+        users: [{
+            user: $NATS_SYSTEM_USER
+            password: $NATS_SYSTEM_PASSWORD
+        }]
+    }
+}
 </code></pre></div>
 
 <p><strong>Impact:</strong></p>

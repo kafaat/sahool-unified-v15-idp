@@ -1270,24 +1270,24 @@ full URL: &#39;/api/v1/advice/recommendations&#39; (relative path)
 <hr />
 <h2 id="test-scenarios-validated">Test Scenarios Validated<a class="headerlink" href="#test-scenarios-validated" title="Permanent link">&para;</a></h2>
 <h3 id="scenario-1-production-with-kong-gateway">Scenario 1: Production with Kong Gateway<a class="headerlink" href="#scenario-1-production-with-kong-gateway" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Environment</span><span class="o">:</span><span class="w"> </span><span class="n">NEXT_PUBLIC_API_URL</span><span class="o">=</span><span class="n">https</span><span class="o">://</span><span class="n">kong</span><span class="o">.</span><span class="na">sahool</span><span class="o">.</span><span class="na">io</span>
-<span class="n">Request</span><span class="o">:</span><span class="w"> </span><span class="n">advisorApi</span><span class="o">.</span><span class="na">getRecommendations</span><span class="o">()</span>
-<span class="n">Expected</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="n">https</span><span class="o">://</span><span class="n">kong</span><span class="o">.</span><span class="na">sahool</span><span class="o">.</span><span class="na">io</span><span class="sr">/api/v1/advice/</span><span class="n">recommendations</span>
-<span class="n">Result</span><span class="o">:</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="n">PASS</span>
+<div class="codehilite"><pre><span></span><code>Environment: NEXT_PUBLIC_API_URL=https://kong.sahool.io
+Request: advisorApi.getRecommendations()
+Expected: GET https://kong.sahool.io/api/v1/advice/recommendations
+Result: ✅ PASS
 </code></pre></div>
 
 <h3 id="scenario-2-development-with-local-backend">Scenario 2: Development with Local Backend<a class="headerlink" href="#scenario-2-development-with-local-backend" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Environment</span><span class="o">:</span><span class="w"> </span><span class="n">NEXT_PUBLIC_API_URL</span><span class="o">=</span><span class="n">http</span><span class="o">://</span><span class="n">localhost</span><span class="o">:</span><span class="mi">8000</span>
-<span class="n">Request</span><span class="o">:</span><span class="w"> </span><span class="n">fieldMapApi</span><span class="o">.</span><span class="na">getFields</span><span class="o">()</span>
-<span class="n">Expected</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="n">http</span><span class="o">://</span><span class="n">localhost</span><span class="o">:</span><span class="mi">8000</span><span class="sr">/api/v1/</span><span class="n">fields</span>
-<span class="n">Result</span><span class="o">:</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="n">PASS</span>
+<div class="codehilite"><pre><span></span><code>Environment: NEXT_PUBLIC_API_URL=http://localhost:8000
+Request: fieldMapApi.getFields()
+Expected: GET http://localhost:8000/api/v1/fields
+Result: ✅ PASS
 </code></pre></div>
 
 <h3 id="scenario-3-development-without-environment-variable">Scenario 3: Development without Environment Variable<a class="headerlink" href="#scenario-3-development-without-environment-variable" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Environment</span><span class="o">:</span><span class="w"> </span><span class="n">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="kd">set</span>
-<span class="n">Request</span><span class="o">:</span><span class="w"> </span><span class="n">ndviApi</span><span class="o">.</span><span class="na">getLatestNDVI</span><span class="o">()</span>
-<span class="n">Expected</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/ndvi/</span><span class="n">latest</span><span class="w"> </span><span class="o">(</span><span class="n">relative</span><span class="o">)</span>
-<span class="n">Result</span><span class="o">:</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="n">PASS</span>
+<div class="codehilite"><pre><span></span><code>Environment: NEXT_PUBLIC_API_URL not set
+Request: ndviApi.getLatestNDVI()
+Expected: GET /api/v1/ndvi/latest (relative)
+Result: ✅ PASS
 </code></pre></div>
 
 <h3 id="scenario-4-build-time-server-side">Scenario 4: Build-time (Server-side)<a class="headerlink" href="#scenario-4-build-time-server-side" title="Permanent link">&para;</a></h3>

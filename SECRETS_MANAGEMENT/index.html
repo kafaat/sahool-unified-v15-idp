@@ -1803,7 +1803,7 @@ chmod<span class="w"> </span><span class="m">700</span><span class="w"> </span>s
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="issue-cannot-connect-to-vault">Issue: "Cannot connect to Vault"<a class="headerlink" href="#issue-cannot-connect-to-vault" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">ConnectionError</span><span class="o">:</span><span class="w"> </span><span class="n">Cannot</span><span class="w"> </span><span class="n">connect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">Vault</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">https</span><span class="o">://</span><span class="n">vault</span><span class="o">:</span><span class="mi">8200</span>
+<div class="codehilite"><pre><span></span><code><span class="nv">ConnectionError</span>:<span class="w"> </span><span class="nv">Cannot</span><span class="w"> </span><span class="k">connect</span><span class="w"> </span><span class="nv">to</span><span class="w"> </span><span class="nv">Vault</span><span class="w"> </span><span class="nv">at</span><span class="w"> </span><span class="nv">https</span>:<span class="o">//</span><span class="nv">vault</span>:<span class="mi">8200</span>
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1838,7 +1838,7 @@ telnet<span class="w"> </span>vault<span class="w"> </span><span class="m">8200<
 <hr />
 <h3 id="issue-invalid-vault-token">Issue: "Invalid Vault token"<a class="headerlink" href="#issue-invalid-vault-token" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">ConnectionError</span><span class="o">:</span><span class="w"> </span><span class="n">Invalid</span><span class="w"> </span><span class="n">Vault</span><span class="w"> </span><span class="n">token</span>
+<div class="codehilite"><pre><span></span><code>ConnectionError: Invalid Vault token
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1871,7 +1871,7 @@ telnet<span class="w"> </span>vault<span class="w"> </span><span class="m">8200<
 <hr />
 <h3 id="issue-secret-not-found">Issue: "Secret not found"<a class="headerlink" href="#issue-secret-not-found" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">KeyError</span><span class="o">:</span><span class="w"> </span><span class="n">Secret</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">found</span><span class="o">:</span><span class="w"> </span><span class="n">database</span><span class="o">/</span><span class="n">password</span>
+<div class="codehilite"><pre><span></span><code>KeyError: Secret not found: database/password
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>

@@ -1213,7 +1213,7 @@ cat<span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><
 <hr />
 <h3 id="issue-python-dependencies-fail-to-install">Issue: Python dependencies fail to install<a class="headerlink" href="#issue-python-dependencies-fail-to-install" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">Could</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">find</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">satisfies</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">requirement</span>
+<div class="codehilite"><pre><span></span><code>ERROR: Could not find a version that satisfies the requirement
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1311,7 +1311,7 @@ sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </sp
 <hr />
 <h3 id="issue-no-space-left-on-device">Issue: "No space left on device"<a class="headerlink" href="#issue-no-space-left-on-device" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">Could</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">packages</span><span class="w"> </span><span class="n">due</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">OSError</span><span class="o">:</span><span class="w"> </span><span class="o">[</span><span class="n">Errno</span><span class="w"> </span><span class="mi">28</span><span class="o">]</span><span class="w"> </span><span class="n">No</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">device</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">ERROR</span><span class="p">:</span><span class="w"> </span><span class="nx">Could</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nx">packages</span><span class="w"> </span><span class="nx">due</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">an</span><span class="w"> </span><span class="nx">OSError</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Errno</span><span class="w"> </span><span class="mi">28</span><span class="p">]</span><span class="w"> </span><span class="nx">No</span><span class="w"> </span><span class="nx">space</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">device</span>
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1373,8 +1373,8 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <h2 id="database-issues">Database Issues | مشاكل قاعدة البيانات<a class="headerlink" href="#database-issues" title="Permanent link">&para;</a></h2>
 <h3 id="issue-cannot-connect-to-postgresql">Issue: Cannot connect to PostgreSQL<a class="headerlink" href="#issue-cannot-connect-to-postgresql" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">FATAL</span><span class="o">:</span><span class="w"> </span><span class="n">password</span><span class="w"> </span><span class="n">authentication</span><span class="w"> </span><span class="n">failed</span>
-<span class="n">connection</span><span class="w"> </span><span class="n">refused</span>
+<div class="codehilite"><pre><span></span><code>FATAL: password authentication failed
+connection refused
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1405,8 +1405,8 @@ psql<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DATA
 <hr />
 <h3 id="issue-migration-failures">Issue: Migration failures<a class="headerlink" href="#issue-migration-failures" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Migration</span><span class="w"> </span><span class="n">failed</span>
-<span class="n">relation</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="n">exists</span>
+<div class="codehilite"><pre><span></span><code>Error: Migration failed
+relation already exists
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1441,7 +1441,7 @@ ls<span class="w"> </span>-la<span class="w"> </span>apps/services/*/prisma/migr
 <hr />
 <h3 id="issue-postgis-extension-not-available">Issue: PostGIS extension not available<a class="headerlink" href="#issue-postgis-extension-not-available" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">ERROR</span><span class="o">:</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="s2">&quot;geometry&quot;</span><span class="w"> </span><span class="n">does</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">exist</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">ERROR</span><span class="p">:</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="s">&quot;geometry&quot;</span><span class="w"> </span><span class="nx">does</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">exist</span>
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1821,7 +1821,7 @@ flutter<span class="w"> </span>build<span class="w"> </span>apk
 <hr />
 <h3 id="issue-drift-database-errors">Issue: Drift database errors<a class="headerlink" href="#issue-drift-database-errors" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Getter</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">found</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TasksCompanion&#39;</span>
+<div class="codehilite"><pre><span></span><code>Error: Getter not found: &#39;TasksCompanion&#39;
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>

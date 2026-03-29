@@ -1430,36 +1430,36 @@ Storage + Real-time Consumers
 <hr />
 <h3 id="33-tharwatt-payment-flow-tharwatt">3.3 تدفق الدفع (Tharwatt) | Payment Flow (Tharwatt)<a class="headerlink" href="#33-tharwatt-payment-flow-tharwatt" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
-    <span class="n">participant</span> <span class="n">U</span> <span class="n">as</span> <span class="n">User</span>
-    <span class="n">participant</span> <span class="n">W</span> <span class="n">as</span> <span class="n">Web</span> <span class="n">App</span>
-    <span class="n">participant</span> <span class="n">B</span> <span class="n">as</span> <span class="n">billing</span><span class="o">-</span><span class="n">core</span>
-    <span class="n">participant</span> <span class="n">T</span> <span class="n">as</span> <span class="n">Tharwatt</span> <span class="n">Gateway</span>
-    <span class="n">participant</span> <span class="n">D</span> <span class="n">as</span> <span class="n">Database</span>
-    <span class="n">participant</span> <span class="n">N</span> <span class="n">as</span> <span class="n">NATS</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">User</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Web</span><span class="w"> </span><span class="n">App</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">billing</span><span class="o">-</span><span class="n">core</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Tharwatt</span><span class="w"> </span><span class="n">Gateway</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Database</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">NATS</span>
 
-    <span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="p">:</span> <span class="n">Select</span> <span class="n">Plan</span> <span class="o">&amp;</span> <span class="n">Pay</span>
-    <span class="n">W</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="p">:</span> <span class="n">POST</span> <span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">payments</span>
-    <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="p">:</span> <span class="n">Create</span> <span class="n">Payment</span> <span class="n">Record</span> <span class="p">(</span><span class="n">PENDING</span><span class="p">)</span>
-    <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Initiate</span> <span class="n">Payment</span>
-    <span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="p">:</span> <span class="n">Redirect</span> <span class="n">to</span> <span class="n">Payment</span> <span class="n">Page</span>
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="n">Select</span><span class="w"> </span><span class="n">Plan</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Pay</span>
+<span class="w">    </span><span class="n">W</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="o">:</span><span class="w"> </span><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">payments</span>
+<span class="w">    </span><span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="o">:</span><span class="w"> </span><span class="n">Create</span><span class="w"> </span><span class="n">Payment</span><span class="w"> </span><span class="kd">Record </span><span class="p">(</span><span class="n">PENDING</span><span class="p">)</span>
+<span class="w">    </span><span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="n">Initiate</span><span class="w"> </span><span class="n">Payment</span>
+<span class="w">    </span><span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="n">Redirect</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">Payment</span><span class="w"> </span><span class="n">Page</span>
 
-    <span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Enter</span> <span class="n">Payment</span> <span class="n">Details</span>
-    <span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Process</span> <span class="n">Payment</span>
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="n">Enter</span><span class="w"> </span><span class="n">Payment</span><span class="w"> </span><span class="n">Details</span>
+<span class="w">    </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="nf">Process</span><span class="w"> </span><span class="n">Payment</span>
 
-    <span class="n">alt</span> <span class="n">Success</span>
-        <span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="p">:</span> <span class="n">Webhook</span><span class="p">:</span> <span class="n">Payment</span> <span class="n">Success</span>
-        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="p">:</span> <span class="n">Update</span> <span class="n">Payment</span> <span class="p">(</span><span class="n">SUCCEEDED</span><span class="p">)</span>
-        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="p">:</span> <span class="n">Activate</span> <span class="n">Subscription</span>
-        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">N</span><span class="p">:</span> <span class="n">Publish</span> <span class="n">sahool</span><span class="p">.</span><span class="n">billing</span><span class="p">.</span><span class="n">payment</span><span class="p">.</span><span class="n">succeeded</span>
-        <span class="n">N</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="p">:</span> <span class="n">Notify</span> <span class="n">User</span> <span class="p">(</span><span class="n">WebSocket</span><span class="p">)</span>
-        <span class="n">B</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="mi">200</span> <span class="n">OK</span>
-    <span class="n">else</span> <span class="n">Failure</span>
-        <span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="p">:</span> <span class="n">Webhook</span><span class="p">:</span> <span class="n">Payment</span> <span class="n">Failed</span>
-        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="p">:</span> <span class="n">Update</span> <span class="n">Payment</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">)</span>
-        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">N</span><span class="p">:</span> <span class="n">Publish</span> <span class="n">sahool</span><span class="p">.</span><span class="n">billing</span><span class="p">.</span><span class="n">payment</span><span class="p">.</span><span class="n">failed</span>
-        <span class="n">N</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="p">:</span> <span class="n">Notify</span> <span class="n">User</span>
-        <span class="n">B</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="mi">200</span> <span class="n">OK</span>
-    <span class="n">end</span>
+<span class="w">    </span><span class="n">alt</span><span class="w"> </span><span class="kr">Success</span>
+<span class="w">        </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="o">:</span><span class="w"> </span><span class="n">Webhook</span><span class="o">:</span><span class="w"> </span><span class="n">Payment</span><span class="w"> </span><span class="kr">Success</span>
+<span class="w">        </span><span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="o">:</span><span class="w"> </span><span class="n">Update</span><span class="w"> </span><span class="n">Payment</span><span class="w"> </span><span class="p">(</span><span class="n">SUCCEEDED</span><span class="p">)</span>
+<span class="w">        </span><span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="o">:</span><span class="w"> </span><span class="n">Activate</span><span class="w"> </span><span class="n">Subscription</span>
+<span class="w">        </span><span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">N</span><span class="o">:</span><span class="w"> </span><span class="n">Publish</span><span class="w"> </span><span class="n">sahool</span><span class="p">.</span><span class="n">billing</span><span class="p">.</span><span class="n">payment</span><span class="p">.</span><span class="n">succeeded</span>
+<span class="w">        </span><span class="n">N</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="kr">Notify</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="p">(</span><span class="n">WebSocket</span><span class="p">)</span>
+<span class="w">        </span><span class="n">B</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="mi">200</span><span class="w"> </span><span class="n">OK</span>
+<span class="w">    </span><span class="n">else</span><span class="w"> </span><span class="kr">Failure</span>
+<span class="w">        </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="o">:</span><span class="w"> </span><span class="n">Webhook</span><span class="o">:</span><span class="w"> </span><span class="n">Payment</span><span class="w"> </span><span class="n">Failed</span>
+<span class="w">        </span><span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="o">:</span><span class="w"> </span><span class="n">Update</span><span class="w"> </span><span class="n">Payment</span><span class="w"> </span><span class="p">(</span><span class="n">FAILED</span><span class="p">)</span>
+<span class="w">        </span><span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">N</span><span class="o">:</span><span class="w"> </span><span class="n">Publish</span><span class="w"> </span><span class="n">sahool</span><span class="p">.</span><span class="n">billing</span><span class="p">.</span><span class="n">payment</span><span class="p">.</span><span class="n">failed</span>
+<span class="w">        </span><span class="n">N</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="kr">Notify</span><span class="w"> </span><span class="n">User</span>
+<span class="w">        </span><span class="n">B</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="mi">200</span><span class="w"> </span><span class="n">OK</span>
+<span class="w">    </span><span class="kd">end</span>
 </code></pre></div>
 
 <p><strong>مزودو الدفع | Payment Providers:</strong></p>
@@ -3196,9 +3196,9 @@ THARWATT_WEBHOOK_SECRET=your_webhook_secret
 </code></pre></div>
 
 <p><strong>رؤوس HTTP | HTTP Headers:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">Authorization</span><span class="o">:</span><span class="w"> </span><span class="n">Bearer</span><span class="w"> </span><span class="o">{</span><span class="n">jwt_token</span><span class="o">}</span>
-<span class="n">X</span><span class="o">-</span><span class="n">Tenant</span><span class="o">-</span><span class="n">Id</span><span class="o">:</span><span class="w"> </span><span class="o">{</span><span class="n">tenant_id</span><span class="o">}</span>
-<span class="n">X</span><span class="o">-</span><span class="n">User</span><span class="o">-</span><span class="n">Id</span><span class="o">:</span><span class="w"> </span><span class="o">{</span><span class="n">user_id</span><span class="o">}</span>
+<div class="codehilite"><pre><span></span><code>Authorization: Bearer {jwt_token}
+X-Tenant-Id: {tenant_id}
+X-User-Id: {user_id}
 </code></pre></div>
 
 <hr />

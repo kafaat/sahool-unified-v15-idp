@@ -1327,13 +1327,13 @@
 </tbody>
 </table>
 <p><strong>Key configuration</strong> (from <code>dlq_config.py</code>):</p>
-<div class="codehilite"><pre><span></span><code><span class="n">max_retry_attempts</span><span class="o">:</span><span class="w"> </span><span class="mi">3</span>
-<span class="n">initial_retry_delay</span><span class="o">:</span><span class="w"> </span><span class="mf">1.0</span><span class="n">s</span>
-<span class="n">backoff_multiplier</span><span class="o">:</span><span class="w"> </span><span class="mf">2.0</span>
-<span class="n">max_retry_delay</span><span class="o">:</span><span class="w"> </span><span class="mf">60.0</span><span class="n">s</span>
-<span class="n">DLQ</span><span class="w"> </span><span class="n">stream</span><span class="o">:</span><span class="w"> </span><span class="n">SAHOOL_DLQ</span>
-<span class="n">subjects</span><span class="o">:</span><span class="w"> </span><span class="n">sahool</span><span class="o">.</span><span class="na">dlq</span><span class="o">.&gt;</span>
-<span class="n">retention</span><span class="o">:</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="sr">/ 100K msgs /</span><span class="w"> </span><span class="mi">10</span><span class="n">GB</span>
+<div class="codehilite"><pre><span></span><code>max_retry_attempts: 3
+initial_retry_delay: 1.0s
+backoff_multiplier: 2.0
+max_retry_delay: 60.0s
+DLQ stream: SAHOOL_DLQ
+subjects: sahool.dlq.&gt;
+retention: 30 days / 100K msgs / 10GB
 </code></pre></div>
 
 <p><strong>Critical gap</strong>: DLQ messages accumulate but are never replayed or monitored. No DLQ consumer service exists to process dead letters.</p>

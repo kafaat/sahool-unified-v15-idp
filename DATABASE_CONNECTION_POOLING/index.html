@@ -1436,7 +1436,7 @@ prisma_client_queries_total 1547
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="issue-too-many-connections-error">Issue: "Too many connections" Error<a class="headerlink" href="#issue-too-many-connections-error" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">P1001</span><span class="o">:</span><span class="w"> </span><span class="n">Can</span><span class="err">&#39;</span><span class="n">t</span><span class="w"> </span><span class="n">reach</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="err">`</span><span class="n">pgbouncer</span><span class="o">:</span><span class="mi">6432</span><span class="err">`</span>
+<div class="codehilite"><pre><span></span><code>Error: P1001: Can&#39;t reach database server at `pgbouncer:6432`
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1456,7 +1456,7 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 
 <h3 id="issue-connection-timeouts">Issue: Connection Timeouts<a class="headerlink" href="#issue-connection-timeouts" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Timed</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">trying</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">acquire</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">connection</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">pool</span>
+<div class="codehilite"><pre><span></span><code>Error: Timed out trying to acquire a connection from the pool
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1474,7 +1474,7 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 
 <h3 id="issue-stale-connections">Issue: Stale Connections<a class="headerlink" href="#issue-stale-connections" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Connection</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="n">unexpectedly</span>
+<div class="codehilite"><pre><span></span><code>Error: Connection terminated unexpectedly
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>

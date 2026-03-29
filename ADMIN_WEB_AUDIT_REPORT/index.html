@@ -1852,37 +1852,37 @@
 <hr />
 <h2 id="4-api-endpoint-patterns">4. API Endpoint Patterns<a class="headerlink" href="#4-api-endpoint-patterns" title="Permanent link">&para;</a></h2>
 <p>Both apps use consistent API endpoint patterns through Kong Gateway:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">Authentication</span><span class="o">:</span>
-<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/auth/</span><span class="n">login</span>
-<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/auth/</span><span class="n">logout</span>
-<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/auth/</span><span class="n">refresh</span>
-<span class="w">  </span><span class="n">GET</span><span class="w">  </span><span class="sr">/api/v1/auth/</span><span class="n">me</span>
+<div class="codehilite"><pre><span></span><code>Authentication:
+  POST /api/v1/auth/login
+  POST /api/v1/auth/logout
+  POST /api/v1/auth/refresh
+  GET  /api/v1/auth/me
 
-<span class="n">Fields</span><span class="o">:</span>
-<span class="w">  </span><span class="n">GET</span><span class="w">    </span><span class="sr">/api/v1/</span><span class="n">fields</span>
-<span class="w">  </span><span class="n">GET</span><span class="w">    </span><span class="sr">/api/v1/fields/</span><span class="o">:</span><span class="n">id</span>
-<span class="w">  </span><span class="n">POST</span><span class="w">   </span><span class="sr">/api/v1/</span><span class="n">fields</span>
-<span class="w">  </span><span class="n">PUT</span><span class="w">    </span><span class="sr">/api/v1/fields/</span><span class="o">:</span><span class="n">id</span>
-<span class="w">  </span><span class="n">DELETE</span><span class="w"> </span><span class="sr">/api/v1/fields/</span><span class="o">:</span><span class="n">id</span>
+Fields:
+  GET    /api/v1/fields
+  GET    /api/v1/fields/:id
+  POST   /api/v1/fields
+  PUT    /api/v1/fields/:id
+  DELETE /api/v1/fields/:id
 
-<span class="n">Weather</span><span class="w"> </span><span class="o">(</span><span class="n">weather</span><span class="o">-</span><span class="n">core</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">POST</span><span class="o">-</span><span class="n">based</span><span class="o">):</span>
-<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/weather-core/weather/</span><span class="n">current</span>
-<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/weather-core/weather/</span><span class="n">forecast</span>
-<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/weather-core/weather/</span><span class="n">agricultural</span><span class="o">-</span><span class="n">report</span>
+Weather (weather-core - POST-based):
+  POST /api/v1/weather-core/weather/current
+  POST /api/v1/weather-core/weather/forecast
+  POST /api/v1/weather-core/weather/agricultural-report
 
-<span class="n">Weather</span><span class="w"> </span><span class="o">(</span><span class="n">weather</span><span class="o">-</span><span class="n">advanced</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">GET</span><span class="o">-</span><span class="n">based</span><span class="o">):</span>
-<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/weather/v1/current/</span><span class="o">:</span><span class="n">locationId</span>
-<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/weather/v1/forecast/</span><span class="o">:</span><span class="n">locationId</span>
-<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/weather/v1/</span><span class="n">locations</span>
+Weather (weather-advanced - GET-based):
+  GET /api/v1/weather/v1/current/:locationId
+  GET /api/v1/weather/v1/forecast/:locationId
+  GET /api/v1/weather/v1/locations
 
-<span class="n">Satellite</span><span class="o">:</span>
-<span class="w">  </span><span class="n">GET</span><span class="w">  </span><span class="sr">/api/v1/satellite/v1/timeseries/</span><span class="o">:</span><span class="n">fieldId</span>
-<span class="w">  </span><span class="n">POST</span><span class="w"> </span><span class="sr">/api/v1/satellite/v1/</span><span class="n">analyze</span>
-<span class="w">  </span><span class="n">GET</span><span class="w">  </span><span class="sr">/api/v1/satellite/v1/indices/</span><span class="o">:</span><span class="n">fieldId</span>
+Satellite:
+  GET  /api/v1/satellite/v1/timeseries/:fieldId
+  POST /api/v1/satellite/v1/analyze
+  GET  /api/v1/satellite/v1/indices/:fieldId
 
-<span class="n">IoT</span><span class="o">:</span>
-<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/iot/fields/:fieldId/s</span><span class="n">ensors</span>
-<span class="w">  </span><span class="n">GET</span><span class="w"> </span><span class="sr">/api/v1/iot/sensors/:sensorId/</span><span class="n">history</span>
+IoT:
+  GET /api/v1/iot/fields/:fieldId/sensors
+  GET /api/v1/iot/sensors/:sensorId/history
 </code></pre></div>
 
 <hr />

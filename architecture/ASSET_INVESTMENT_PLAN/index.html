@@ -1303,11 +1303,11 @@
 <hr />
 <h4 id="12-nats-as-notification-spine">1.2 NATS as Notification Spine<a class="headerlink" href="#12-nats-as-notification-spine" title="Permanent link">&para;</a></h4>
 <p><strong>الهدف:</strong> تفعيل NATS للتنبيهات بدلاً من REST المباشر</p>
-<div class="codehilite"><pre><span></span><code><span class="err">قبل</span><span class="o">:</span>
-<span class="w">  </span><span class="n">analysis</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">REST</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">notification</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">mobile</span>
+<div class="codehilite"><pre><span></span><code>قبل:
+  analysis-service → REST → notification-service → mobile
 
-<span class="err">بعد</span><span class="o">:</span>
-<span class="w">  </span><span class="n">analysis</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">NATS</span><span class="w"> </span><span class="o">(</span><span class="n">analysis</span><span class="o">.</span><span class="na">completed</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">notification</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">mobile</span>
+بعد:
+  analysis-service → NATS (analysis.completed) → notification-service → mobile
 </code></pre></div>
 
 <p><strong>التنفيذ:</strong></p>

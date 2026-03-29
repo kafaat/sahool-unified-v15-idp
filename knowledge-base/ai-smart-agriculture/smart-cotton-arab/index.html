@@ -1427,13 +1427,13 @@
 </blockquote>
 <h3 id="2-smart-salinity-management">2. إدارة الملوحة الذكية | Smart Salinity Management<a class="headerlink" href="#2-smart-salinity-management" title="Permanent link">&para;</a></h3>
 <p>دمج قراءات EC اللحظية مع حسابات FAO-29 الموجودة في <code>shared/salinity/module.py</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">القطن</span><span class="o">:</span><span class="w"> </span><span class="err">عتبة</span><span class="w"> </span><span class="n">ECe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">7.7</span><span class="w"> </span><span class="n">dS</span><span class="sr">/m | منحدر = 5.2%/dS/</span><span class="n">m</span>
+<div class="codehilite"><pre><span></span><code>القطن: عتبة ECe = 7.7 dS/m | منحدر = 5.2%/dS/m
 
-<span class="err">مثال</span><span class="w"> </span><span class="err">عملي</span><span class="w"> </span><span class="o">(</span><span class="err">تهامة</span><span class="o">):</span>
-<span class="o">-</span><span class="w"> </span><span class="err">ملوحة</span><span class="w"> </span><span class="err">ماء</span><span class="w"> </span><span class="err">الري</span><span class="o">:</span><span class="w"> </span><span class="mf">3.5</span><span class="w"> </span><span class="n">dS</span><span class="o">/</span><span class="n">m</span>
-<span class="o">-</span><span class="w"> </span><span class="err">ملوحة</span><span class="w"> </span><span class="err">التربة</span><span class="w"> </span><span class="err">الحالية</span><span class="o">:</span><span class="w"> </span><span class="mf">6.0</span><span class="w"> </span><span class="n">dS</span><span class="o">/</span><span class="n">m</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">لا</span><span class="w"> </span><span class="err">فقد</span><span class="w"> </span><span class="err">إنتاج</span><span class="w"> </span><span class="o">(&lt;</span><span class="w"> </span><span class="mf">7.7</span><span class="o">)</span>
-<span class="o">-</span><span class="w"> </span><span class="err">كسر</span><span class="w"> </span><span class="err">الغسيل</span><span class="w"> </span><span class="err">المطلوب</span><span class="o">:</span><span class="w"> </span><span class="mi">15</span><span class="o">%</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">ري</span><span class="w"> </span><span class="err">إضافي</span><span class="w"> </span><span class="mi">15</span><span class="o">%</span>
-<span class="o">-</span><span class="w"> </span><span class="err">تنبيه</span><span class="o">:</span><span class="w"> </span><span class="err">إذا</span><span class="w"> </span><span class="err">ارتفعت</span><span class="w"> </span><span class="n">EC</span><span class="w"> </span><span class="err">التربة</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">7.0</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="err">زيادة</span><span class="w"> </span><span class="err">كسر</span><span class="w"> </span><span class="err">الغسيل</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="mi">20</span><span class="o">%</span>
+مثال عملي (تهامة):
+- ملوحة ماء الري: 3.5 dS/m
+- ملوحة التربة الحالية: 6.0 dS/m → لا فقد إنتاج (&lt; 7.7)
+- كسر الغسيل المطلوب: 15% → ري إضافي 15%
+- تنبيه: إذا ارتفعت EC التربة &gt; 7.0 → زيادة كسر الغسيل إلى 20%
 </code></pre></div>
 
 <h3 id="3-ndvi-weekly-ndvi-monitoring">3. مراقبة NDVI الأسبوعية | Weekly NDVI Monitoring<a class="headerlink" href="#3-ndvi-weekly-ndvi-monitoring" title="Permanent link">&para;</a></h3>

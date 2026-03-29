@@ -1138,9 +1138,9 @@
 <li><code>sahool-research-core</code>: Restarting (database connection failure)</li>
 </ul>
 <p>Both services show:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">PrismaClientInitializationError</span><span class="o">:</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="n">querying</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">database</span><span class="o">:</span>
-<span class="n">FATAL</span><span class="o">:</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="n">been</span><span class="w"> </span><span class="n">failing</span><span class="o">,</span><span class="w"> </span><span class="n">cached</span><span class="w"> </span><span class="n">error</span><span class="o">:</span>
-<span class="n">password</span><span class="w"> </span><span class="n">authentication</span><span class="w"> </span><span class="n">failed</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="s2">&quot;pgbouncer&quot;</span><span class="w"> </span><span class="o">(</span><span class="n">server_login_retry</span><span class="o">)</span>
+<div class="codehilite"><pre><span></span><code>PrismaClientInitializationError: Error querying the database:
+FATAL: server login has been failing, cached error:
+password authentication failed for user &quot;pgbouncer&quot; (server_login_retry)
 </code></pre></div>
 
 <h2 id="kong-configuration">Kong Configuration<a class="headerlink" href="#kong-configuration" title="Permanent link">&para;</a></h2>

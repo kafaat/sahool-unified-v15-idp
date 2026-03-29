@@ -1710,28 +1710,28 @@
 <h3 id="2">المرحلة 2: دمج الخدمات المتشابهة<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
 <p><strong>المهام:</strong></p>
 <h4 id="21-field-service-field-core">2.1 دمج field-service في field-core<a class="headerlink" href="#21-field-service-field-core" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="err">الخطوات</span><span class="o">:</span>
-<span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="err">مراجعة</span><span class="w"> </span><span class="n">endpoints</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="n">service</span>
-<span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="err">نقل</span><span class="w"> </span><span class="err">أي</span><span class="w"> </span><span class="n">endpoints</span><span class="w"> </span><span class="err">فريدة</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="n">core</span>
-<span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="err">تحديث</span><span class="w"> </span><span class="err">المستهلكين</span><span class="w"> </span><span class="err">للاستخدام</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="n">core</span>
-<span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="err">حذف</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="n">service</span>
+<div class="codehilite"><pre><span></span><code>الخطوات:
+1. مراجعة endpoints في field-service
+2. نقل أي endpoints فريدة إلى field-core
+3. تحديث المستهلكين للاستخدام field-core
+4. حذف field-service
 </code></pre></div>
 
 <h4 id="22-ndvi-services">2.2 دمج NDVI Services<a class="headerlink" href="#22-ndvi-services" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="err">الخطوات</span><span class="o">:</span>
-<span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="err">إنشاء</span><span class="w"> </span><span class="n">ndvi</span><span class="o">-</span><span class="n">unified</span><span class="w"> </span><span class="o">(</span><span class="err">اختياري</span><span class="o">)</span><span class="w"> </span><span class="err">أو</span><span class="o">:</span>
-<span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="err">إضافة</span><span class="w"> </span><span class="err">مصادر</span><span class="w"> </span><span class="n">Sentinel</span><span class="sr">/Landsat/</span><span class="n">MODIS</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="n">ndvi</span><span class="o">-</span><span class="n">engine</span>
-<span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="err">الإبقاء</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="n">ndvi</span><span class="o">-</span><span class="n">processor</span><span class="w"> </span><span class="err">للمعالجة</span><span class="w"> </span><span class="err">الثقيلة</span>
-<span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="err">تحديد</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="err">موحد</span>
+<div class="codehilite"><pre><span></span><code>الخطوات:
+1. إنشاء ndvi-unified (اختياري) أو:
+2. إضافة مصادر Sentinel/Landsat/MODIS إلى ndvi-engine
+3. الإبقاء على ndvi-processor للمعالجة الثقيلة
+4. تحديد API موحد
 </code></pre></div>
 
 <h4 id="23-crop-health-agro-advisor">2.3 دمج Crop Health + Agro Advisor<a class="headerlink" href="#23-crop-health-agro-advisor" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="err">الخطوات</span><span class="o">:</span>
-<span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="err">إنشاء</span><span class="w"> </span><span class="n">agro</span><span class="o">-</span><span class="n">intelligence</span><span class="w"> </span><span class="n">service</span>
-<span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="err">نقل</span><span class="w"> </span><span class="n">AI</span><span class="w"> </span><span class="n">diagnosis</span><span class="w"> </span><span class="err">من</span><span class="w"> </span><span class="n">crop</span><span class="o">-</span><span class="n">health</span><span class="o">-</span><span class="n">ai</span>
-<span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="err">نقل</span><span class="w"> </span><span class="n">fertilizer</span><span class="w"> </span><span class="n">planning</span><span class="w"> </span><span class="err">من</span><span class="w"> </span><span class="n">agro</span><span class="o">-</span><span class="n">advisor</span>
-<span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="err">إنشاء</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="err">موحد</span>
-<span class="mi">5</span><span class="o">.</span><span class="w"> </span><span class="err">حذف</span><span class="w"> </span><span class="err">الخدمتين</span><span class="w"> </span><span class="err">القديمتين</span>
+<div class="codehilite"><pre><span></span><code>الخطوات:
+1. إنشاء agro-intelligence service
+2. نقل AI diagnosis من crop-health-ai
+3. نقل fertilizer planning من agro-advisor
+4. إنشاء API موحد
+5. حذف الخدمتين القديمتين
 </code></pre></div>
 
 <hr />

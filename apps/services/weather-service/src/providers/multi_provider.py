@@ -7,6 +7,9 @@ Supported Providers:
 - OpenWeatherMap (Requires API key)
 - WeatherAPI (Requires API key)
 - Visual Crossing (Requires API key)
+
+Sanitizes API key query parameters from provider error messages to prevent
+credential leakage in logs (see _sanitize_error_msg helper calls below).
 """
 
 import os

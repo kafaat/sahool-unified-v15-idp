@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Add tenant_id to field-management models missing tenant isolation
 -- إضافة معرف المستأجر لجداول إدارة الحقول

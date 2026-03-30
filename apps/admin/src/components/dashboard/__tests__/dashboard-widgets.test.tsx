@@ -5,7 +5,7 @@
  * Tests for: AlertsPanel, ActivityFeed, MapOverview, RealTimeActivityFeed
  */
 
-import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import React from 'react';
 import fs from 'fs';
 import path from 'path';

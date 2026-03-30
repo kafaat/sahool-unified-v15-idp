@@ -304,7 +304,8 @@ function calculateHydrationScore(sensors: SensorReading[] | undefined, weather: 
 
   // Adjust based on weather conditions
   if (weather) {
-    const { humidity, temperature } = weather;
+    const humidity = weather.humidity ?? 0;
+    const temperature = weather.temperature ?? 0;
 
     // High temperature + low humidity = increased water stress
     if (temperature > 35 && humidity < 30) {
@@ -681,7 +682,8 @@ function generateRecommendations(
 
   // Astronomical recommendations
   if (astronomicalData?.recommendations && astronomicalData.recommendations.length > 0) {
-    const astroRec = astronomicalData.recommendations[0]; // Take the top recommendation
+    const astroRec = astronomicalData.recommendations[0];
+    if (!astroRec) return recommendations;
 
     if (astroRec.suitability_score > 70) {
       recommendations.push({
@@ -706,7 +708,8 @@ function generateRecommendations(
 
   // Weather-based recommendations
   if (weatherData) {
-    const { temperature, humidity } = weatherData;
+    const temperature = weatherData.temperature ?? 0;
+    const humidity = weatherData.humidity ?? 0;
 
     if (temperature > 35 && humidity < 30) {
       recommendations.push({

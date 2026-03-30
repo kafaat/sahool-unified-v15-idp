@@ -192,7 +192,7 @@ export const weatherApi = {
       return alerts.map((alert: ApiWeatherAlert) => ({
         id: alert.id || crypto.randomUUID(),
         type: alert.type || alert.alert_type || 'weather',
-        severity: alert.severity || 'warning',
+        severity: (alert.severity || 'warning') as WeatherAlert['severity'],
         title: alert.title_en || alert.title || 'Weather Alert',
         titleAr: alert.title_ar || alert.titleAr || 'تنبيه طقس',
         description: alert.description || '',

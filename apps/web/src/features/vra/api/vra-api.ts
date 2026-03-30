@@ -16,6 +16,8 @@ import type {
   PrescriptionSummary,
   ExportFormat,
   ZoneResult,
+  VRAType,
+  ZoneLevel,
 } from '../types/vra';
 
 const api = createApiClient();
@@ -243,7 +245,7 @@ export async function getPrescriptionHistory(
       prescriptions: data.prescriptions.map((p: BackendPrescriptionSummary): PrescriptionSummary => ({
         id: p.id,
         fieldId: p.field_id,
-        vraType: p.vra_type,
+        vraType: p.vra_type as VRAType,
         createdAt: p.created_at,
         targetRate: p.target_rate,
         unit: p.unit,
@@ -301,7 +303,7 @@ export async function getPrescriptionDetails(
         zoneId: zone.zone_id,
         zoneName: zone.zone_name,
         zoneNameAr: zone.zone_name_ar,
-        zoneLevel: zone.zone_level,
+        zoneLevel: zone.zone_level as ZoneLevel,
         ndviMin: zone.ndvi_min,
         ndviMax: zone.ndvi_max,
         areaHa: zone.area_ha,

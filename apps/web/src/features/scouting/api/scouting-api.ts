@@ -137,7 +137,7 @@ function isValidCachedObservation(item: unknown): item is CachedObservation {
 /**
  * Store observation in offline cache
  */
-function cacheObservation(observation: Observation): void {
+function _cacheObservation(observation: Observation): void {
   if (typeof window === 'undefined') return;
 
   try {

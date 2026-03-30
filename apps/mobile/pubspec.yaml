@@ -69,7 +69,7 @@ dependencies:
   fl_chart: ^0.69.2
   
   # Calendar
-  table_calendar: ^3.2.0  # For spray calendar and scheduling views
+  table_calendar: ^3.1.2  # For spray calendar and scheduling views (3.2.0 requires intl ^0.20.0, conflicts with Flutter 3.27.1)
 
   # Maps - Multiple Providers Support
   # دعم متعدد لمزودي الخرائط
@@ -105,7 +105,7 @@ dependencies:
 
   # Utils
   uuid: ^4.5.1
-  intl: 0.20.2  # Pinned for flutter_localizations SDK compatibility
+  intl: 0.19.0  # Pinned for flutter_localizations SDK compatibility (Flutter 3.27.1 pins intl 0.19.0)
   equatable: ^2.0.7
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0

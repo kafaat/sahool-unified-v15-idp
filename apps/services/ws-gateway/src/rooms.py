@@ -26,6 +26,8 @@ class RoomType:
     ALERTS = "alerts"
     WEATHER = "weather"
     CHAT = "chat"
+    IRRIGATION = "irrigation"
+    FERTILIZER = "fertilizer"
     GLOBAL = "global"
 
 

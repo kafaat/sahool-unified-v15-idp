@@ -1336,6 +1336,254 @@ services:
           size_unit: megabytes
 
   # -----------------------------
+  # Health endpoints for JWT-protected services (no auth, no rate limit)
+  # نقاط فحص الصحة للخدمات المحمية بـ JWT (بدون مصادقة، بدون تحديد معدل)
+  # Required for K8s liveness/readiness probes to succeed
+  # مطلوب لنجاح فحوصات الحياة/الجاهزية في Kubernetes
+  # Added: 2026-03-30
+  # -----------------------------
+
+  - name: field-management-service-health
+    host: field-management-service
+    port: 3000
+    protocol: http
+    routes:
+      - name: field-management-service-health-route
+        paths:
+          - /api/v1/fields/healthz
+          - /api/v1/fields/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: chat-service-health
+    host: chat-service
+    port: 8115
+    protocol: http
+    routes:
+      - name: chat-service-health-route
+        paths:
+          - /api/v1/chat/healthz
+          - /api/v1/chat/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: equipment-service-health
+    host: equipment-service
+    port: 8101
+    protocol: http
+    routes:
+      - name: equipment-service-health-route
+        paths:
+          - /api/v1/equipment/healthz
+          - /api/v1/equipment/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: task-service-health
+    host: task-service
+    port: 8103
+    protocol: http
+    routes:
+      - name: task-service-health-route
+        paths:
+          - /api/v1/tasks/healthz
+          - /api/v1/tasks/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: notification-service-health
+    host: notification-service
+    port: 8110
+    protocol: http
+    routes:
+      - name: notification-service-health-route
+        paths:
+          - /api/v1/notifications/healthz
+          - /api/v1/notifications/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: inventory-service-health
+    host: inventory-service
+    port: 8116
+    protocol: http
+    routes:
+      - name: inventory-service-health-route
+        paths:
+          - /api/v1/inventory/healthz
+          - /api/v1/inventory/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: crm-service-health
+    host: crm-service
+    port: 8131
+    protocol: http
+    routes:
+      - name: crm-service-health-route
+        paths:
+          - /api/v1/crm/healthz
+          - /api/v1/crm/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: marketplace-service-health
+    host: marketplace-service
+    port: 3010
+    protocol: http
+    routes:
+      - name: marketplace-service-health-route
+        paths:
+          - /api/v1/marketplace/healthz
+          - /api/v1/marketplace/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: billing-core-health
+    host: billing-core
+    port: 8089
+    protocol: http
+    routes:
+      - name: billing-core-health-route
+        paths:
+          - /api/v1/billing/healthz
+          - /api/v1/billing/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: supply-chain-service-health
+    host: supply-chain-service
+    port: 8230
+    protocol: http
+    routes:
+      - name: supply-chain-service-health-route
+        paths:
+          - /api/v1/supply-chain/healthz
+          - /api/v1/supply-chain/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: iot-service-health
+    host: iot-service
+    port: 8117
+    protocol: http
+    routes:
+      - name: iot-service-health-route
+        paths:
+          - /api/v1/iot/healthz
+          - /api/v1/iot/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: iot-gateway-health
+    host: iot-gateway
+    port: 8106
+    protocol: http
+    routes:
+      - name: iot-gateway-health-route
+        paths:
+          - /api/v1/iot-gateway/healthz
+          - /api/v1/iot-gateway/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: vegetation-analysis-service-health
+    host: vegetation-analysis-service
+    port: 8090
+    protocol: http
+    routes:
+      - name: vegetation-analysis-service-health-route
+        paths:
+          - /api/v1/vegetation/healthz
+          - /api/v1/vegetation/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: advisory-service-health
+    host: advisory-service
+    port: 8093
+    protocol: http
+    routes:
+      - name: advisory-service-health-route
+        paths:
+          - /api/v1/advisory/healthz
+          - /api/v1/advisory/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: crop-intelligence-service-health
+    host: crop-intelligence-service
+    port: 8095
+    protocol: http
+    routes:
+      - name: crop-intelligence-service-health-route
+        paths:
+          - /api/v1/crop-health/healthz
+          - /api/v1/crop-health/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: yield-prediction-service-health
+    host: yield-prediction-service
+    port: 8152
+    protocol: http
+    routes:
+      - name: yield-prediction-service-health-route
+        paths:
+          - /api/v1/yield/healthz
+          - /api/v1/yield/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: field-intelligence-health
+    host: field-intelligence
+    port: 8120
+    protocol: http
+    routes:
+      - name: field-intelligence-health-route
+        paths:
+          - /api/v1/field-intelligence/healthz
+          - /api/v1/field-intelligence/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: ai-chat-assistant-health
+    host: ai-chat-assistant
+    port: 8260
+    protocol: http
+    routes:
+      - name: ai-chat-assistant-health-route
+        paths:
+          - /api/v1/ai-chat/healthz
+          - /api/v1/ai-chat/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: iot-sensor-hub-health
+    host: iot-sensor-hub
+    port: 8251
+    protocol: http
+    routes:
+      - name: iot-sensor-hub-health-route
+        paths:
+          - /api/v1/iot-sensor-hub/healthz
+          - /api/v1/iot-sensor-hub/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: audit-service-health
+    host: audit-service
+    port: 8114
+    protocol: http
+    routes:
+      - name: audit-service-health-route
+        paths:
+          - /api/v1/audit/healthz
+          - /api/v1/audit/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  # -----------------------------
   # Platform endpoints
   # -----------------------------
   - name: root-endpoint

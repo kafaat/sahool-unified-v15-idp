@@ -374,7 +374,7 @@ class WebSocketMessageHandler:
         topic_type = parts[0]
 
         # Global topics - always allowed
-        if topic_type in ["alerts", "weather", RoomType.GLOBAL]:
+        if topic_type in ["alerts", "weather", RoomType.GLOBAL, RoomType.IRRIGATION, RoomType.FERTILIZER]:
             return True
 
         # Tenant topic - check tenant match

@@ -23,6 +23,7 @@ export interface PestDetection {
   imageUrl?: string;
   processedAt: string;
   visualizationBase64?: string;
+  visualization_base64?: string; // backend snake_case alias
 }
 
 export interface DiseaseDetection {
@@ -38,6 +39,7 @@ export interface DiseaseDetection {
   imageUrl?: string;
   processedAt: string;
   visualizationBase64?: string;
+  visualization_base64?: string; // backend snake_case alias
 }
 
 export interface WeedDetection {
@@ -52,6 +54,7 @@ export interface WeedDetection {
   imageUrl?: string;
   processedAt: string;
   visualizationBase64?: string;
+  visualization_base64?: string; // backend snake_case alias
 }
 
 export interface PlantCount {

@@ -131,12 +131,9 @@ const BACKEND_ERROR_MESSAGES: Record<string, { message: string; messageAr: strin
 
 export class ApiErrorHandler {
   /**
-   * Extract the backend error code (e.g. "E1001") from the response body.
+   * Extract structured fields from the backend error envelope.
    * The backend returns errors in the shape:
    *   { success: false, error: { code: "E1001", message: "...", ... }, request_id: "..." }
-   */
-  /**
-   * Extract structured fields from the backend error envelope.
    */
   private static extractBackendError(data: ApiResponseData | undefined): {
     code?: string;

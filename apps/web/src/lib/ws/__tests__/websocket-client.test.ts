@@ -107,7 +107,7 @@ describe('WebSocket Client', () => {
       expect(ws?.send).toHaveBeenCalledWith(
         JSON.stringify({
           type: 'subscribe',
-          subjects: ['tasks.*', 'weather.*'],
+          topics: ['tasks.*', 'weather.*'],
         })
       );
     });

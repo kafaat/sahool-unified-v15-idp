@@ -152,7 +152,7 @@ class WebSocketClient {
         // Rejoin rooms on reconnect
         for (const roomId of this.subscribedRooms) {
           this.ws?.send(
-            JSON.stringify({ type: 'join_room', room_id: roomId })
+            JSON.stringify({ type: 'join_room', room: roomId })
           );
         }
       };
@@ -236,7 +236,7 @@ class WebSocketClient {
       this.ws.send(
         JSON.stringify({
           type: 'join_room',
-          room_id: roomId,
+          room: roomId,
         })
       );
       logger.log(`Joined room: ${roomId}`);
@@ -255,7 +255,7 @@ class WebSocketClient {
       this.ws.send(
         JSON.stringify({
           type: 'leave_room',
-          room_id: roomId,
+          room: roomId,
         })
       );
       logger.log(`Left room: ${roomId}`);

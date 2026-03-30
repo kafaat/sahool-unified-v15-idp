@@ -87,7 +87,7 @@ class ChatApi {
   /// Get all conversations for current user
   Future<List<Conversation>> getConversations() async {
     try {
-      final response = await _dio.get('/api/v1/conversations');
+      final response = await _dio.get('/api/v1/chat/conversations');
       final data = response.data as List<dynamic>;
       return data
           .map((json) => Conversation.fromJson(
@@ -103,7 +103,7 @@ class ChatApi {
   /// Get conversation by ID
   Future<Conversation> getConversation(String conversationId) async {
     try {
-      final response = await _dio.get('/api/v1/conversations/$conversationId');
+      final response = await _dio.get('/api/v1/chat/conversations/$conversationId');
       return Conversation.fromJson(
         response.data as Map<String, dynamic>,
         currentUserId: _currentUserId,
@@ -125,7 +125,7 @@ class ChatApi {
       if (before != null) queryParams['before'] = before;
 
       final response = await _dio.get(
-        '/api/v1/conversations/$conversationId/messages',
+        '/api/v1/chat/conversations/$conversationId/messages',
         queryParameters: queryParams,
       );
 
@@ -168,7 +168,7 @@ class ChatApi {
       );
 
       final response = await _dio.post(
-        '/api/v1/conversations/$conversationId/messages',
+        '/api/v1/chat/conversations/$conversationId/messages',
         data: {
           'content': sanitizedContent,
           'type': type.name,
@@ -200,7 +200,7 @@ class ChatApi {
           : null;
 
       final response = await _dio.post(
-        '/api/v1/conversations',
+        '/api/v1/chat/conversations',
         data: {
           'participantId': participantId,
           'productId': productId,
@@ -221,7 +221,7 @@ class ChatApi {
   /// Mark conversation as read
   Future<void> markAsRead(String conversationId) async {
     try {
-      await _dio.put('/api/v1/conversations/$conversationId/read');
+      await _dio.put('/api/v1/chat/conversations/$conversationId/read');
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -230,7 +230,7 @@ class ChatApi {
   /// Get unread count
   Future<int> getUnreadCount() async {
     try {
-      final response = await _dio.get('/api/v1/conversations/unread-count');
+      final response = await _dio.get('/api/v1/chat/conversations/unread-count');
       return response.data['count'] as int? ?? 0;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -250,7 +250,7 @@ class ChatApi {
   Future<void> muteConversation(String conversationId,
       {bool mute = true}) async {
     try {
-      await _dio.put('/api/v1/conversations/$conversationId/mute', data: {
+      await _dio.put('/api/v1/chat/conversations/$conversationId/mute', data: {
         'muted': mute,
       });
     } on DioException catch (e) {
@@ -265,7 +265,7 @@ class ChatApi {
     String? description,
   }) async {
     try {
-      await _dio.post('/api/v1/conversations/$conversationId/report', data: {
+      await _dio.post('/api/v1/chat/conversations/$conversationId/report', data: {
         'reason': reason,
         'description': description != null
             ? InputSanitizer.sanitizeForStorage(description)
@@ -279,7 +279,7 @@ class ChatApi {
   /// Clear chat history for a conversation
   Future<void> clearChatHistory(String conversationId) async {
     try {
-      await _dio.delete('/api/v1/conversations/$conversationId/messages');
+      await _dio.delete('/api/v1/chat/conversations/$conversationId/messages');
     } on DioException catch (e) {
       throw _handleError(e);
     }

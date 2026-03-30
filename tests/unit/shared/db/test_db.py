@@ -684,10 +684,13 @@ class TestTenantConnectionContextManager:
         """Should raise when no tenant_id and no middleware context."""
         from shared.db.tenant_connection import tenant_connection
 
+        # Ensure the module is imported so the patch target exists
+        import shared.middleware.tenant_context  # noqa: F401
+
         mock_pool = AsyncMock()
 
         with patch(
-            "shared.db.tenant_connection.get_current_tenant",
+            "shared.middleware.tenant_context.get_current_tenant",
             side_effect=RuntimeError("No context"),
         ):
             with pytest.raises(RuntimeError, match="tenant_id is required"):

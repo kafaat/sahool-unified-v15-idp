@@ -1,10 +1,17 @@
 /**
- * NDVI Feature - API Layer
- * طبقة API لميزة مؤشر NDVI
+ * NDVI & Vegetation Indices Feature - API Layer
+ * طبقة API لميزة مؤشرات NDVI والغطاء النباتي
  */
 
 import { createApiClient } from '@/lib/api/factory';
 import { SATELLITE_ENDPOINTS, buildUrl, API_PREFIX } from '@sahool/shared-types/contracts';
+import type {
+  VegetationIndex,
+  IndicesResult,
+  SingleIndexResult,
+  IndicesInterpretation,
+  IndexTimeSeries,
+} from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
@@ -154,6 +161,102 @@ export const ndviApi = {
   }> => {
     const params = governorate ? `?governorate=${governorate}` : '';
     const response = await api.get(`${SATELLITE_ENDPOINTS.NDVI_SUMMARY}/regional${params}`);
+    return response.data;
+  },
+};
+
+// =============================================================================
+// Vegetation Indices API (all 41 indices)
+// واجهة برمجة المؤشرات النباتية (41 مؤشر)
+// =============================================================================
+
+export const vegetationIndicesApi = {
+  /**
+   * Get all vegetation indices for a field
+   * الحصول على جميع المؤشرات النباتية لحقل
+   *
+   * @param fieldId - Field identifier
+   * @param indexNames - Optional subset of indices to retrieve
+   * @param date - Optional specific date (ISO 8601)
+   */
+  getFieldIndices: async (
+    fieldId: string,
+    indexNames?: VegetationIndex[],
+    date?: string
+  ): Promise<IndicesResult> => {
+    const params = new URLSearchParams();
+    if (indexNames?.length) params.set('indices', indexNames.join(','));
+    if (date) params.set('date', date);
+    const qs = params.toString();
+
+    const response = await api.get(
+      `${buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId })}${qs ? `?${qs}` : ''}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Get a specific vegetation index for a field
+   * الحصول على مؤشر نباتي محدد لحقل
+   *
+   * @param fieldId - Field identifier
+   * @param indexName - Vegetation index name (e.g. 'ndvi', 'evi', 'ndre')
+   * @param date - Optional specific date (ISO 8601)
+   */
+  getSpecificIndex: async (
+    fieldId: string,
+    indexName: VegetationIndex | string,
+    date?: string
+  ): Promise<SingleIndexResult> => {
+    const params = date ? `?date=${date}` : '';
+    const response = await api.get(
+      `${buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId })}/${indexName}${params}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Get interpreted indices with recommendations for a field
+   * الحصول على تفسير المؤشرات مع التوصيات لحقل
+   *
+   * @param fieldId - Field identifier
+   * @param date - Optional specific date (ISO 8601)
+   */
+  interpretIndices: async (
+    fieldId: string,
+    date?: string
+  ): Promise<IndicesInterpretation> => {
+    const params = new URLSearchParams();
+    params.set('field_id', fieldId);
+    if (date) params.set('date', date);
+
+    const response = await api.get(
+      `${API_PREFIX}/satellite/v1/indices/interpret?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Get time series data for a specific vegetation index
+   * الحصول على بيانات السلاسل الزمنية لمؤشر نباتي محدد
+   *
+   * @param fieldId - Field identifier
+   * @param indexName - Vegetation index name
+   * @param dateRange - Optional date range { startDate, endDate } (ISO 8601)
+   */
+  getTimeSeries: async (
+    fieldId: string,
+    indexName: VegetationIndex | string,
+    dateRange?: { startDate?: string; endDate?: string }
+  ): Promise<IndexTimeSeries> => {
+    const params = new URLSearchParams();
+    if (dateRange?.startDate) params.set('start_date', dateRange.startDate);
+    if (dateRange?.endDate) params.set('end_date', dateRange.endDate);
+    const qs = params.toString();
+
+    const response = await api.get(
+      `${buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId })}/${indexName}/timeseries${qs ? `?${qs}` : ''}`
+    );
     return response.data;
   },
 };

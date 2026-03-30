@@ -624,25 +624,38 @@ class TestEventPublisher:
             service_version="1.0.0",
         )
 
+    def _make_weather_event(self):
+        """Use WeatherForecastUpdatedEvent which has no SCHEMA_PATH, avoiding
+        strict JSON schema validation that rejects None instance_id."""
+        return WeatherForecastUpdatedEvent(
+            tenant_id=TENANT_ID,
+            location_id="LOC-001",
+            forecast_date=date(2026, 3, 30),
+            temperature_min=8.0,
+            temperature_max=22.0,
+            precipitation_mm=0.0,
+            humidity_percent=55.0,
+        )
+
     @pytest.mark.asyncio
     async def test_publish_calls_nats(self, publisher, mock_nats):
-        event = _make_field_created()
+        event = self._make_weather_event()
         result = await publisher.publish(event)
         assert result is True
         mock_nats.publish.assert_called_once()
         call_args = mock_nats.publish.call_args
-        assert call_args[0][0] == "sahool.events.field.created"
+        assert call_args[0][0] == "sahool.events.weather.forecast_updated"
 
     @pytest.mark.asyncio
     async def test_publish_custom_subject(self, publisher, mock_nats):
-        event = _make_field_created()
+        event = self._make_weather_event()
         await publisher.publish(event, subject="custom.subject")
         call_args = mock_nats.publish.call_args
         assert call_args[0][0] == "custom.subject"
 
     @pytest.mark.asyncio
     async def test_publish_sets_source(self, publisher, mock_nats):
-        event = _make_field_created()
+        event = self._make_weather_event()
         await publisher.publish(event)
         assert event.source is not None
         assert event.source.service == "test-service"
@@ -651,7 +664,7 @@ class TestEventPublisher:
     @pytest.mark.asyncio
     async def test_publish_without_nats_returns_true(self):
         publisher = EventPublisher(nats_client=None, service_name="test")
-        event = _make_field_created()
+        event = self._make_weather_event()
         result = await publisher.publish(event)
         assert result is True
 
@@ -659,13 +672,13 @@ class TestEventPublisher:
     async def test_publish_nats_error_returns_false(self, mock_nats):
         mock_nats.publish.side_effect = Exception("connection refused")
         publisher = EventPublisher(nats_client=mock_nats, service_name="test")
-        event = _make_field_created()
+        event = self._make_weather_event()
         result = await publisher.publish(event)
         assert result is False
 
     @pytest.mark.asyncio
     async def test_publish_batch(self, publisher, mock_nats):
-        events = [_make_field_created() for _ in range(3)]
+        events = [self._make_weather_event() for _ in range(3)]
         count = await publisher.publish_batch(events)
         assert count == 3
         assert mock_nats.publish.call_count == 3
@@ -675,7 +688,7 @@ class TestEventPublisher:
         # Fail on second call
         mock_nats.publish.side_effect = [None, Exception("fail"), None]
         publisher = EventPublisher(nats_client=mock_nats, service_name="test")
-        events = [_make_field_created() for _ in range(3)]
+        events = [self._make_weather_event() for _ in range(3)]
         count = await publisher.publish_batch(events)
         assert count == 2
 

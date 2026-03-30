@@ -681,18 +681,24 @@ class TestTenantConnectionContextManager:
 
     @pytest.mark.asyncio
     async def test_raises_runtime_error_without_tenant_or_context(self):
-        """Should raise when no tenant_id and no middleware context."""
-        from shared.db.tenant_connection import tenant_connection
+        """Should raise when no tenant_id and no middleware context.
 
-        # Ensure the module is imported so the patch target exists
-        import shared.middleware.tenant_context  # noqa: F401
+        When tenant_id is not provided, tenant_connection tries to import
+        get_current_tenant from shared.middleware.tenant_context. If that
+        raises RuntimeError (no context set), tenant_connection should
+        raise RuntimeError with 'tenant_id is required'.
+        """
+        from shared.db.tenant_connection import tenant_connection
 
         mock_pool = AsyncMock()
 
-        with patch(
-            "shared.middleware.tenant_context.get_current_tenant",
+        # Mock the entire import path so we don't need fastapi installed
+        mock_tenant_ctx = MagicMock()
+        mock_tenant_ctx.get_current_tenant = MagicMock(
             side_effect=RuntimeError("No context"),
-        ):
+        )
+
+        with patch.dict("sys.modules", {"shared.middleware.tenant_context": mock_tenant_ctx}):
             with pytest.raises(RuntimeError, match="tenant_id is required"):
                 async with tenant_connection(mock_pool) as conn:
                     pass

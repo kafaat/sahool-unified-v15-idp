@@ -22,7 +22,7 @@ export interface PestDetection {
   >;
   imageUrl?: string;
   processedAt: string;
-  visualization_base64?: string;
+  visualizationBase64?: string;
 }
 
 export interface DiseaseDetection {
@@ -37,7 +37,7 @@ export interface DiseaseDetection {
   >;
   imageUrl?: string;
   processedAt: string;
-  visualization_base64?: string;
+  visualizationBase64?: string;
 }
 
 export interface WeedDetection {
@@ -51,7 +51,7 @@ export interface WeedDetection {
   totalCoverage: number;
   imageUrl?: string;
   processedAt: string;
-  visualization_base64?: string;
+  visualizationBase64?: string;
 }
 
 export interface PlantCount {

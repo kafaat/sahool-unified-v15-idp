@@ -329,7 +329,10 @@ export const marketplaceApi = {
       async () => {
         const params = new URLSearchParams();
         if (timeRange) params.append('timeRange', timeRange);
-        const url = `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/price-history?${params.toString()}`;
+        const qs = params.toString();
+        const url = qs
+          ? `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/price-history?${qs}`
+          : `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/price-history`;
         const response = await api.get(url);
         return response.data.data || response.data;
       }

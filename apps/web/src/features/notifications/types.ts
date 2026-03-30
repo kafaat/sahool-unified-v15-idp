@@ -189,12 +189,12 @@ const LEGACY_TYPE_FALLBACK: Record<LegacyNotificationType, BackendNotificationTy
  */
 export function getNotificationConfig(type: NotificationType): NotificationTypeConfig {
   // Direct match against backend types
-  if (type in NOTIFICATION_TYPE_CONFIGS) {
+  if (Object.hasOwn(NOTIFICATION_TYPE_CONFIGS, type)) {
     return NOTIFICATION_TYPE_CONFIGS[type as BackendNotificationType];
   }
 
   // Fallback for legacy generic types
-  if (type in LEGACY_TYPE_FALLBACK) {
+  if (Object.hasOwn(LEGACY_TYPE_FALLBACK, type)) {
     return NOTIFICATION_TYPE_CONFIGS[LEGACY_TYPE_FALLBACK[type as LegacyNotificationType]];
   }
 

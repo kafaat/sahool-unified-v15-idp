@@ -172,14 +172,22 @@ class EquipmentRepository {
 
       return ApiResult.success(equipment);
     } on DioException catch (e) {
-      // Enqueue for offline sync so it can be created when back online
-      await OfflineSyncEngine.instance.enqueueCreate(
-        entityType: 'equipment',
-        data: equipmentData,
-        priority: SyncPriority.medium,
-      );
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
 
-      AppLogger.w('Equipment creation queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'equipment',
+          data: equipmentData,
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Equipment creation queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      }
 
       return ApiResult.failure(
         e.message ?? 'Failed to create equipment',
@@ -211,15 +219,23 @@ class EquipmentRepository {
         return ApiResult.failure('Equipment not found', 'المعدة غير موجودة');
       }
 
-      // Enqueue for offline sync so update can be applied when back online
-      await OfflineSyncEngine.instance.enqueueUpdate(
-        entityType: 'equipment',
-        entityId: equipmentId,
-        data: updates,
-        priority: SyncPriority.medium,
-      );
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
 
-      AppLogger.w('Equipment update queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'equipment',
+          entityId: equipmentId,
+          data: updates,
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Equipment update queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      }
 
       return ApiResult.failure(
         e.message ?? 'Failed to update equipment',
@@ -247,15 +263,23 @@ class EquipmentRepository {
 
       return ApiResult.success(equipment);
     } on DioException catch (e) {
-      // Enqueue for offline sync so status update can be applied when back online
-      await OfflineSyncEngine.instance.enqueueUpdate(
-        entityType: 'equipment',
-        entityId: equipmentId,
-        data: {'status': status.value},
-        priority: SyncPriority.medium,
-      );
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
 
-      AppLogger.w('Equipment status update queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'equipment',
+          entityId: equipmentId,
+          data: {'status': status.value},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Equipment status update queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      }
 
       return ApiResult.failure(
         e.message ?? 'Failed to update status',
@@ -341,14 +365,22 @@ class EquipmentRepository {
         return ApiResult.failure('Equipment not found', 'المعدة غير موجودة');
       }
 
-      // Enqueue for offline sync so deletion can be applied when back online
-      await OfflineSyncEngine.instance.enqueueDelete(
-        entityType: 'equipment',
-        entityId: equipmentId,
-        priority: SyncPriority.medium,
-      );
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
 
-      AppLogger.w('Equipment deletion queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueDelete(
+          entityType: 'equipment',
+          entityId: equipmentId,
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Equipment deletion queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      }
 
       return ApiResult.failure(
         e.message ?? 'Failed to delete equipment',
@@ -482,14 +514,22 @@ class EquipmentRepository {
 
       return ApiResult.success(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      // Enqueue for offline sync so maintenance record can be created when back online
-      await OfflineSyncEngine.instance.enqueueCreate(
-        entityType: 'equipment',
-        data: {'type': 'maintenance_record', ...maintenanceData},
-        priority: SyncPriority.medium,
-      );
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
 
-      AppLogger.w('Maintenance record queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'equipment',
+          data: {'type': 'maintenance_record', ...maintenanceData},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Maintenance record queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+      }
 
       return ApiResult.failure(
         e.message ?? 'Failed to add maintenance record',

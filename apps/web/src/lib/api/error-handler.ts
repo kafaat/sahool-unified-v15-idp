@@ -186,7 +186,7 @@ export class ApiErrorHandler {
     const backendCode = backendError.code;
 
     // --- Backend error code handling (E1001-E5003) ---
-    if (backendCode && backendCode in BACKEND_ERROR_MESSAGES) {
+    if (backendCode && Object.hasOwn(BACKEND_ERROR_MESSAGES, backendCode)) {
       const mapped = BACKEND_ERROR_MESSAGES[backendCode];
       const codeNum = Number(backendCode.slice(1));
 

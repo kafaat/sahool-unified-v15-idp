@@ -472,20 +472,28 @@ class IrrigationRepository {
 
       return ApiResult.success(schedule);
     } on DioException catch (e) {
-      // Enqueue for offline sync even on failure so it can be retried
-      await OfflineSyncEngine.instance.enqueueCreate(
-        entityType: 'irrigation',
-        data: {
-          'field_id': fieldId,
-          'crop_id': cropId,
-          'method_id': methodId,
-          'days': days,
-          'created_at': DateTime.now().toIso8601String(),
-        },
-        priority: SyncPriority.medium,
-      );
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
 
-      AppLogger.w('Irrigation schedule queued for offline sync (API unavailable)', tag: 'IrrigationRepo');
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'irrigation',
+          data: {
+            'field_id': fieldId,
+            'crop_id': cropId,
+            'method_id': methodId,
+            'days': days,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Irrigation schedule queued for offline sync (API unavailable)', tag: 'IrrigationRepo');
+      }
 
       return ApiResult.failure(
         e.message ?? 'Failed to generate irrigation schedule',
@@ -527,24 +535,32 @@ class IrrigationRepository {
 
       return ApiResult.success(null);
     } on DioException catch (e) {
-      final timestamp = DateTime.now().toIso8601String();
-      final sensorData = {
-        'type': 'sensor_reading',
-        'field_id': fieldId,
-        'sensor_type': sensorType,
-        'value': value,
-        'unit': unit,
-        'timestamp': timestamp,
-      };
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
 
-      // Enqueue to OfflineSyncEngine for reliable sync when back online
-      await OfflineSyncEngine.instance.enqueueCreate(
-        entityType: 'irrigation',
-        data: sensorData,
-        priority: SyncPriority.medium,
-      );
+      if (isTransient) {
+        final timestamp = DateTime.now().toIso8601String();
+        final sensorData = {
+          'type': 'sensor_reading',
+          'field_id': fieldId,
+          'sensor_type': sensorType,
+          'value': value,
+          'unit': unit,
+          'timestamp': timestamp,
+        };
 
-      AppLogger.w('Sensor reading queued for offline sync (API unavailable)', tag: 'IrrigationRepo');
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'irrigation',
+          data: sensorData,
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Sensor reading queued for offline sync (API unavailable)', tag: 'IrrigationRepo');
+      }
 
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.connectionError) {

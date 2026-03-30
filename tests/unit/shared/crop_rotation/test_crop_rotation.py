@@ -843,7 +843,7 @@ class TestMultiYearPlan:
 
     def test_creation_defaults(self):
         plan = MultiYearPlan()
-        assert plan.start_year == 2026
+        assert plan.start_year == date.today().year
         assert plan.total_years == 5
         assert plan.overall_risk_level == "medium"
 

@@ -592,6 +592,13 @@ services:
         paths: ["/api/v1/farmers"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Notification data is private user data
+      # مصادقة JWT - بيانات الإشعارات خاصة بالمستخدمين
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   - name: astronomical-calendar
     host: astronomical-calendar

@@ -5,6 +5,7 @@
 
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
+import { API_PREFIX, BILLING_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   BillingPlan,
   Subscription,
@@ -18,7 +19,7 @@ import type {
 
 const api = createApiClient();
 
-const BILLING_BASE = '/api/v1';
+const BILLING_BASE = `${API_PREFIX}/billing`;
 
 export const billingApi = {
   // =========================================================================
@@ -30,8 +31,8 @@ export const billingApi = {
    * جلب جميع خطط الفوترة
    */
   getPlans: async (): Promise<BillingPlan[]> => {
-    return safeFetch(`${BILLING_BASE}/plans`, async () => {
-      const response = await api.get(`${BILLING_BASE}/plans`);
+    return safeFetch(BILLING_ENDPOINTS.PLANS, async () => {
+      const response = await api.get(BILLING_ENDPOINTS.PLANS);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       if (data?.plans && Array.isArray(data.plans)) return data.plans;
@@ -44,8 +45,9 @@ export const billingApi = {
    * جلب خطة واحدة بالمعرف
    */
   getPlanById: async (planId: string): Promise<BillingPlan> => {
-    return safeFetch(`${BILLING_BASE}/plans/${planId}`, async () => {
-      const response = await api.get(`${BILLING_BASE}/plans/${planId}`);
+    const url = `${BILLING_ENDPOINTS.PLANS}/${planId}`;
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
@@ -59,8 +61,9 @@ export const billingApi = {
    * جلب اشتراك المستأجر
    */
   getSubscription: async (tenantId: string): Promise<Subscription> => {
-    return safeFetch(`${BILLING_BASE}/tenants/${tenantId}/subscription`, async () => {
-      const response = await api.get(`${BILLING_BASE}/tenants/${tenantId}/subscription`);
+    const url = buildUrl(BILLING_ENDPOINTS.TENANT_SUBSCRIPTION, { tenantId });
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
@@ -73,8 +76,9 @@ export const billingApi = {
     tenantId: string,
     data: UpdateSubscriptionRequest
   ): Promise<Subscription> => {
-    return safeFetch(`${BILLING_BASE}/tenants/${tenantId}/subscription`, async () => {
-      const response = await api.patch(`${BILLING_BASE}/tenants/${tenantId}/subscription`, data);
+    const url = buildUrl(BILLING_ENDPOINTS.TENANT_SUBSCRIPTION, { tenantId });
+    return safeFetch(url, async () => {
+      const response = await api.patch(url, data);
       return response.data.data || response.data;
     });
   },
@@ -84,8 +88,9 @@ export const billingApi = {
    * إلغاء اشتراك المستأجر
    */
   cancelSubscription: async (tenantId: string): Promise<Subscription> => {
-    return safeFetch(`${BILLING_BASE}/tenants/${tenantId}/cancel`, async () => {
-      const response = await api.post(`${BILLING_BASE}/tenants/${tenantId}/cancel`);
+    const url = `${BILLING_BASE}/tenants/${tenantId}/cancel`;
+    return safeFetch(url, async () => {
+      const response = await api.post(url);
       return response.data.data || response.data;
     });
   },
@@ -99,8 +104,9 @@ export const billingApi = {
    * جلب سجلات استخدام المستأجر
    */
   getUsage: async (tenantId: string): Promise<UsageRecord[]> => {
-    return safeFetch(`${BILLING_BASE}/tenants/${tenantId}/usage`, async () => {
-      const response = await api.get(`${BILLING_BASE}/tenants/${tenantId}/usage`);
+    const url = buildUrl(BILLING_ENDPOINTS.TENANT_USAGE, { tenantId });
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       if (data?.usage && Array.isArray(data.usage)) return data.usage;
@@ -113,8 +119,9 @@ export const billingApi = {
    * جلب معلومات حصة المستأجر
    */
   getQuota: async (tenantId: string): Promise<QuotaInfo> => {
-    return safeFetch(`${BILLING_BASE}/tenants/${tenantId}/quota`, async () => {
-      const response = await api.get(`${BILLING_BASE}/tenants/${tenantId}/quota`);
+    const url = `${BILLING_BASE}/tenants/${tenantId}/quota`;
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
@@ -128,8 +135,9 @@ export const billingApi = {
    * جلب فواتير المستأجر
    */
   getInvoices: async (tenantId: string): Promise<Invoice[]> => {
-    return safeFetch(`${BILLING_BASE}/tenants/${tenantId}/invoices`, async () => {
-      const response = await api.get(`${BILLING_BASE}/tenants/${tenantId}/invoices`);
+    const url = buildUrl(BILLING_ENDPOINTS.TENANT_INVOICES, { tenantId });
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       if (data?.invoices && Array.isArray(data.invoices)) return data.invoices;
@@ -142,8 +150,9 @@ export const billingApi = {
    * جلب فاتورة واحدة بالمعرف
    */
   getInvoiceById: async (invoiceId: string): Promise<Invoice> => {
-    return safeFetch(`${BILLING_BASE}/invoices/${invoiceId}`, async () => {
-      const response = await api.get(`${BILLING_BASE}/invoices/${invoiceId}`);
+    const url = buildUrl(BILLING_ENDPOINTS.INVOICE_GET, { invoiceId });
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
@@ -153,8 +162,9 @@ export const billingApi = {
    * توليد فاتورة جديدة للمستأجر
    */
   generateInvoice: async (tenantId: string): Promise<Invoice> => {
-    return safeFetch(`${BILLING_BASE}/tenants/${tenantId}/invoices/generate`, async () => {
-      const response = await api.post(`${BILLING_BASE}/tenants/${tenantId}/invoices/generate`);
+    const url = `${buildUrl(BILLING_ENDPOINTS.TENANT_INVOICES, { tenantId })}/generate`;
+    return safeFetch(url, async () => {
+      const response = await api.post(url);
       return response.data.data || response.data;
     });
   },
@@ -168,8 +178,9 @@ export const billingApi = {
    * إنشاء دفعة جديدة
    */
   createPayment: async (data: CreatePaymentRequest): Promise<Payment> => {
-    return safeFetch(`${BILLING_BASE}/payments`, async () => {
-      const response = await api.post(`${BILLING_BASE}/payments`, data);
+    const url = `${BILLING_BASE}/payments`;
+    return safeFetch(url, async () => {
+      const response = await api.post(url, data);
       return response.data.data || response.data;
     });
   },
@@ -179,8 +190,9 @@ export const billingApi = {
    * جلب مدفوعات المستأجر
    */
   getPayments: async (tenantId: string): Promise<Payment[]> => {
-    return safeFetch(`${BILLING_BASE}/tenants/${tenantId}/payments`, async () => {
-      const response = await api.get(`${BILLING_BASE}/tenants/${tenantId}/payments`);
+    const url = `${BILLING_BASE}/tenants/${tenantId}/payments`;
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       if (data?.payments && Array.isArray(data.payments)) return data.payments;

@@ -383,12 +383,12 @@ class TestMultiYearPlanning:
             field_name_ar="حقل الاختبار",
             area_ha=5.0,
             starting_crop=CropType.WHEAT,
-            start_year=2026,
+            start_year=date.today().year,
             years=3,
         )
 
         assert plan.field_id == "FIELD-001"
-        assert plan.start_year == 2026
+        assert plan.start_year == date.today().year
         assert plan.total_years == 3
         assert len(plan.yearly_recommendations) > 0
 

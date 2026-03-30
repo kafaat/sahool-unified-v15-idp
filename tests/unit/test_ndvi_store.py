@@ -12,6 +12,7 @@ import importlib.util
 import os
 import sys
 import types
+from datetime import date
 
 import pytest
 
@@ -98,10 +99,11 @@ class TestCreateCompositeStore:
 
         monkeypatch.setattr(_store, "save_composite", _noop)
 
+        current_year = date.today().year
         result = await create_composite(
             tenant_id="t1",
             field_id="f1",
-            year=2026,
+            year=current_year,
             month=3,
             method=CompositeMethod.MAX_NDVI,
             source=SatelliteSource.LANDSAT_8,
@@ -121,7 +123,7 @@ class TestCreateCompositeStore:
         ):
             assert key in result, f"Missing key: {key}"
 
-        assert result["year"] == 2026
+        assert result["year"] == current_year
         assert result["month"] == 3
         assert result["method"] == CompositeMethod.MAX_NDVI.value
         assert result["source"] == SatelliteSource.LANDSAT_8.value

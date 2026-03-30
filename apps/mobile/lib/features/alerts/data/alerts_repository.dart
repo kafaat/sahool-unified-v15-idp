@@ -7,6 +7,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/network/api_result.dart';
+import '../../../core/offline/offline_sync_engine.dart';
+import '../../../core/utils/app_logger.dart';
 import '../domain/alert_models.dart';
 
 // =============================================================================
@@ -141,6 +143,25 @@ class AlertsRepository {
       await _dio.post('/api/v1/alerts/$alertId/acknowledge');
       return const Success(null);
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'alert',
+          entityId: alertId,
+          data: {'acknowledged': true},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Alert acknowledgement queued for offline sync (API unavailable)', tag: 'AlertsRepo');
+        return const Success(null);
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل تحديث التنبيه'),
         statusCode: e.response?.statusCode,
@@ -157,6 +178,25 @@ class AlertsRepository {
       await _dio.post('/api/v1/alerts/acknowledge-all');
       return const Success(null);
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'alert',
+          entityId: 'all',
+          data: {'acknowledge_all': true},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Acknowledge all alerts queued for offline sync (API unavailable)', tag: 'AlertsRepo');
+        return const Success(null);
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل تحديث التنبيهات'),
         statusCode: e.response?.statusCode,

@@ -453,7 +453,7 @@ class TestSeasonalCalendar:
     def test_creation(self):
         cal = SeasonalCalendar(region=Region.RIYADH)
         assert cal.region == Region.RIYADH
-        assert cal.year == 2026
+        assert cal.year == date.today().year
 
     def test_get_current_season(self):
         spring = SeasonDefinition(
@@ -510,7 +510,7 @@ class TestSeasonalCalendar:
         d = cal.to_dict()
         assert d["region"] == "riyadh"
         assert d["region_name_ar"] == "الرياض"
-        assert d["year"] == 2026
+        assert d["year"] == date.today().year
 
 
 # =============================================================================

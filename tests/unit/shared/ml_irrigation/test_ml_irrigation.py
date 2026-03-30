@@ -232,7 +232,8 @@ class TestWeatherFeatures:
         assert wf.wind_speed == 0.0  # default
 
     def test_from_dict_with_timestamp_string(self):
-        ts = "2026-01-15T10:00:00+00:00"
+        current_year = datetime.now().year
+        ts = f"{current_year}-01-15T10:00:00+00:00"
         data = {
             "temperature_current": 25.0,
             "temperature_max": 30.0,
@@ -241,7 +242,7 @@ class TestWeatherFeatures:
             "timestamp": ts,
         }
         wf = WeatherFeatures.from_dict(data)
-        assert wf.timestamp.year == 2026
+        assert wf.timestamp.year == current_year
 
     def test_to_feature_vector(self, weather_features):
         vec = weather_features.to_feature_vector()

@@ -135,6 +135,14 @@ services:
         config:
           claims_to_verify:
             - exp
+      # Rate limiting for field management operations
+      # تحديد المعدل لعمليات إدارة الحقول
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   # User Service - Public Authentication Routes (no JWT required)
   # مسارات المصادقة العامة - لا تتطلب رمز JWT
@@ -275,6 +283,14 @@ services:
         config:
           claims_to_verify:
             - exp
+      # Rate limiting for real-time chat operations (higher limit)
+      # تحديد المعدل لعمليات المحادثة في الوقت الفعلي (حد أعلى)
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   - name: iot-service
     host: iot-service
@@ -285,6 +301,13 @@ services:
         paths: ["/api/v1/iot", "/iot"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - IoT device management requires authentication
+      # مصادقة JWT - إدارة أجهزة إنترنت الأشياء تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   # REMOVED: community-chat (deprecated → chat-service port 8115)
   # REMOVED: field-ops (deprecated → field-management-service port 3000)
@@ -361,6 +384,12 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Satellite and NDVI data requires authentication
+      # مصادقة JWT - بيانات الأقمار الصناعية و NDVI تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
       # Cache NDVI and satellite data (updates every few hours)
       # تخزين بيانات NDVI والأقمار الصناعية مؤقتًا
       - name: proxy-cache
@@ -416,6 +445,13 @@ services:
         paths: ["/api/v1/advisory", "/api/v1/fertilizer", "/advisory", "/fertilizer"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Advisory recommendations require authentication
+      # مصادقة JWT - التوصيات الاستشارية تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   - name: irrigation-smart
     host: irrigation-smart
@@ -436,6 +472,13 @@ services:
         paths: ["/api/v1/crop-health", "/api/v1/crop", "/crop"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Proprietary crop analysis requires authentication
+      # مصادقة JWT - تحليل المحاصيل الخاص يتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   - name: virtual-sensors
     host: virtual-sensors
@@ -456,6 +499,13 @@ services:
         paths: ["/api/v1/yield", "/yield"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - ML model predictions require authentication
+      # مصادقة JWT - تنبؤات نماذج التعلم الآلي تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   # REMOVED: field-chat (deprecated → chat-service port 8115)
 
@@ -528,6 +578,12 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Device control requires authentication
+      # مصادقة JWT - التحكم في الأجهزة يتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
       # IP Restriction - IoT Gateway access control
       # قيود IP - التحكم في الوصول لبوابة IoT
       - name: ip-restriction
@@ -662,6 +718,13 @@ services:
         paths: ["/api/v1/field-intelligence", "/field-intelligence"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Field analysis data requires authentication
+      # مصادقة JWT - بيانات تحليل الحقول تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   - name: mcp-server
     host: mcp-server
@@ -812,6 +875,12 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - User conversations contain private data
+      # مصادقة JWT - محادثات المستخدمين تحتوي بيانات خاصة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
       - name: rate-limiting
         config:
           minute: 30
@@ -1028,6 +1097,12 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Sensor data requires authentication
+      # مصادقة JWT - بيانات المستشعرات تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
       - name: rate-limiting
         config:
           minute: 120

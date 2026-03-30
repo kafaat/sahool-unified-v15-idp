@@ -4,6 +4,7 @@
  */
 
 import { createApiClient, logger } from '@/lib/api/factory';
+import { API_PREFIX } from '@sahool/shared-types/contracts';
 import type {
   HydrologyAnalysisResult,
   HydrologyAnalysisParams,
@@ -25,13 +26,15 @@ const api = createApiClient({ timeout: 60000 });
 // Endpoint Constants - ثوابت نقاط النهاية
 // ═══════════════════════════════════════════════════════════════════════════
 
+const HYDROLOGY_BASE = `${API_PREFIX}/hydrology`;
+
 const HYDROLOGY_ENDPOINTS = {
-  ANALYZE: '/api/v1/hydrology/analyze',
-  DRAINAGE: '/api/v1/hydrology/drainage',
-  WETNESS: '/api/v1/hydrology/wetness',
-  DEPRESSIONS: '/api/v1/hydrology/depressions',
-  STREAMS: '/api/v1/hydrology/streams',
-  BASINS: '/api/v1/hydrology/basins',
+  ANALYZE: `${HYDROLOGY_BASE}/analyze`,
+  DRAINAGE: `${HYDROLOGY_BASE}/drainage`,
+  WETNESS: `${HYDROLOGY_BASE}/wetness`,
+  DEPRESSIONS: `${HYDROLOGY_BASE}/depressions`,
+  STREAMS: `${HYDROLOGY_BASE}/streams`,
+  BASINS: `${HYDROLOGY_BASE}/basins`,
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════

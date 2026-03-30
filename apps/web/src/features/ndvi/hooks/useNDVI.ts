@@ -115,7 +115,7 @@ export function useNDVIComparison(fieldId: string, date1: string, date2: string)
 export const indicesKeys = {
   all: ['vegetation-indices'] as const,
   field: (fieldId: string, indexNames?: VegetationIndex[]) =>
-    [...indicesKeys.all, 'field', fieldId, indexNames] as const,
+    [...indicesKeys.all, 'field', fieldId, indexNames ? [...indexNames].sort().join(',') : undefined] as const,
   specific: (fieldId: string, indexName: string) =>
     [...indicesKeys.all, 'specific', fieldId, indexName] as const,
   interpret: (fieldId: string) =>

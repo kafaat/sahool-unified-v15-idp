@@ -350,6 +350,8 @@ export function ExplanationPanel({
         <button
           type="button"
           onClick={() => setDetailsOpen((prev) => !prev)}
+          aria-expanded={detailsOpen}
+          aria-controls="explanation-details"
           className="flex w-full items-center justify-between px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
         >
           <span>
@@ -359,7 +361,7 @@ export function ExplanationPanel({
         </button>
 
         {detailsOpen && (
-          <div className="space-y-4 px-5 pb-5">
+          <div id="explanation-details" className="space-y-4 px-5 pb-5">
             {/* Rules */}
             {matchedRules.length > 0 && (
               <div>

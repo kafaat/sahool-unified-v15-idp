@@ -16,7 +16,7 @@ Tests cover:
 """
 
 import pytest
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, patch
 
 from shared.satellite.sentinel_ndvi import (

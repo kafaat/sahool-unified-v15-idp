@@ -133,6 +133,7 @@ services:
       # مصادقة JWT - بيانات الحقول حساسة (جغرافية مكانية، محاصيل، ملكية)
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Rate limiting for field management operations
@@ -190,6 +191,7 @@ services:
       # مصادقة JWT - المسارات المحمية للمستخدمين تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: rate-limiting
@@ -228,6 +230,7 @@ services:
       # مصادقة JWT - معاملات السوق تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Rate limiting for marketplace operations
@@ -281,6 +284,7 @@ services:
       # مصادقة JWT - رسائل المحادثة بيانات خاصة للمستخدمين
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Rate limiting for real-time chat operations (higher limit)
@@ -306,6 +310,7 @@ services:
       # مصادقة JWT - إدارة أجهزة إنترنت الأشياء تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
 
@@ -342,6 +347,7 @@ services:
       # مصادقة JWT - عمليات الفوترة تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: ip-restriction
@@ -388,6 +394,7 @@ services:
       # مصادقة JWT - بيانات الأقمار الصناعية و NDVI تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Cache NDVI and satellite data (updates every few hours)
@@ -450,6 +457,7 @@ services:
       # مصادقة JWT - التوصيات الاستشارية تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
 
@@ -477,6 +485,7 @@ services:
       # مصادقة JWT - تحليل المحاصيل الخاص يتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
 
@@ -504,6 +513,7 @@ services:
       # مصادقة JWT - تنبؤات نماذج التعلم الآلي تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
 
@@ -523,6 +533,7 @@ services:
       # مصادقة JWT - بيانات أصول المعدات تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Rate limiting for equipment operations
@@ -559,6 +570,7 @@ services:
       # مصادقة JWT - تعيينات المهام تحتوي بيانات المستخدمين والحقول
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Rate limiting for task operations
@@ -598,6 +610,7 @@ services:
       # مصادقة JWT - التحكم في الأجهزة يتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # IP Restriction - IoT Gateway access control
@@ -669,6 +682,7 @@ services:
       # مصادقة JWT - بيانات الإشعارات خاصة بالمستخدمين
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Rate limiting for notification operations
@@ -728,6 +742,7 @@ services:
       # مصادقة JWT - بيانات المخزون تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Rate limiting for inventory operations
@@ -755,6 +770,7 @@ services:
       # مصادقة JWT - بيانات تحليل الحقول تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
 
@@ -797,6 +813,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: rate-limiting
@@ -823,6 +840,7 @@ services:
       # مصادقة JWT - نظام إدارة العلاقات يحتوي بيانات شخصية حساسة للمزارعين
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       # Rate limiting for CRM operations
@@ -919,6 +937,7 @@ services:
       # مصادقة JWT - محادثات المستخدمين تحتوي بيانات خاصة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: rate-limiting
@@ -1141,6 +1160,7 @@ services:
       # مصادقة JWT - بيانات المستشعرات تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: rate-limiting
@@ -1233,6 +1253,7 @@ services:
       # مصادقة JWT - بيانات سلسلة التوريد تتطلب مصادقة
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: rate-limiting
@@ -1670,6 +1691,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl
@@ -1736,6 +1758,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl
@@ -1786,6 +1809,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl
@@ -1836,6 +1860,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl
@@ -1886,6 +1911,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl

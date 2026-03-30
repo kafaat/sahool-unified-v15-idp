@@ -73,7 +73,7 @@ export function useAnalyzeFieldLeveling() {
  */
 export function useGetLevelingPlan(fieldId: string | undefined) {
   return useQuery({
-    queryKey: levelingKeys.plan(fieldId!),
+    queryKey: levelingKeys.plan(fieldId ?? ''),
     queryFn: () => levelingApi.getLevelingPlan(fieldId!),
     enabled: !!fieldId,
   });

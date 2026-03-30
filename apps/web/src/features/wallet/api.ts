@@ -3,8 +3,8 @@
  * واجهة برمجية لميزة المحفظة
  */
 
-import { isAxiosError } from 'axios';
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { BILLING_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type {
   Wallet,

@@ -13,7 +13,6 @@ from shared.field_boundaries.models import (
     ConflictType,
     Point,
     Polygon,
-    MultiPolygon,
     BoundaryPoint,
     FieldBoundary,
 )

@@ -52,7 +52,7 @@ export interface BoundaryHistoryEntry {
 /**
  * NDVI data for a field
  */
-export interface NdviData {
+export interface FieldNdviData {
   fieldId: string;
   value: number;
   timestamp: string;
@@ -63,7 +63,7 @@ export interface NdviData {
 /**
  * NDVI summary across tenant fields
  */
-export interface NdviSummary {
+export interface FieldNdviSummary {
   totalFields: number;
   averageNdvi: number;
   healthDistribution: Record<string, number>;
@@ -321,7 +321,7 @@ export const fieldsApi = {
    * Get NDVI analysis for a field
    * جلب تحليل NDVI للحقل
    */
-  getFieldNdvi: async (fieldId: string): Promise<NdviData> => {
+  getFieldNdvi: async (fieldId: string): Promise<FieldNdviData> => {
     return safeFetch(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), async () => {
       const response = await api.get(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }));
       return response.data.data || response.data;
@@ -332,7 +332,7 @@ export const fieldsApi = {
    * Update NDVI value for a field
    * تحديث مؤشر NDVI للحقل
    */
-  updateFieldNdvi: async (fieldId: string, data: { value: number; source?: string; cloudCover?: number }): Promise<NdviData> => {
+  updateFieldNdvi: async (fieldId: string, data: { value: number; source?: string; cloudCover?: number }): Promise<FieldNdviData> => {
     return safeFetch(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), async () => {
       const response = await api.put(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), data);
       return response.data.data || response.data;
@@ -343,7 +343,7 @@ export const fieldsApi = {
    * Get NDVI summary for the tenant
    * جلب ملخص NDVI للمستأجر
    */
-  getNdviSummary: async (): Promise<NdviSummary> => {
+  getNdviSummary: async (): Promise<FieldNdviSummary> => {
     return safeFetch(SATELLITE_ENDPOINTS.NDVI_SUMMARY, async () => {
       const response = await api.get(SATELLITE_ENDPOINTS.NDVI_SUMMARY);
       return response.data.data || response.data;

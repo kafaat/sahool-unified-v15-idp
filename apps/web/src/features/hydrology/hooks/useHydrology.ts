@@ -80,7 +80,7 @@ export function useAnalyzeHydrology() {
  */
 export function useGetDrainage(fieldId: string | undefined, params?: DrainageParams) {
   return useQuery({
-    queryKey: hydrologyKeys.drainage(fieldId!),
+    queryKey: hydrologyKeys.drainage(fieldId ?? ''),
     queryFn: () => hydrologyApi.getDrainage(fieldId!, params),
     enabled: !!fieldId,
   });
@@ -99,7 +99,7 @@ export function useGetDrainage(fieldId: string | undefined, params?: DrainagePar
  */
 export function useGetWetness(fieldId: string | undefined, params?: WetnessParams) {
   return useQuery({
-    queryKey: hydrologyKeys.wetness(fieldId!),
+    queryKey: hydrologyKeys.wetness(fieldId ?? ''),
     queryFn: () => hydrologyApi.getWetness(fieldId!, params),
     enabled: !!fieldId,
   });
@@ -118,7 +118,7 @@ export function useGetWetness(fieldId: string | undefined, params?: WetnessParam
  */
 export function useGetDepressions(fieldId: string | undefined, params?: DepressionParams) {
   return useQuery({
-    queryKey: hydrologyKeys.depressions(fieldId!),
+    queryKey: hydrologyKeys.depressions(fieldId ?? ''),
     queryFn: () => hydrologyApi.getDepressions(fieldId!, params),
     enabled: !!fieldId,
   });
@@ -136,7 +136,7 @@ export function useGetDepressions(fieldId: string | undefined, params?: Depressi
  */
 export function useGetStreams(fieldId: string | undefined, params?: StreamParams) {
   return useQuery({
-    queryKey: hydrologyKeys.streams(fieldId!),
+    queryKey: hydrologyKeys.streams(fieldId ?? ''),
     queryFn: () => hydrologyApi.getStreams(fieldId!, params),
     enabled: !!fieldId,
   });
@@ -155,7 +155,7 @@ export function useGetStreams(fieldId: string | undefined, params?: StreamParams
  */
 export function useGetBasins(fieldId: string | undefined, params?: BasinParams) {
   return useQuery({
-    queryKey: hydrologyKeys.basins(fieldId!),
+    queryKey: hydrologyKeys.basins(fieldId ?? ''),
     queryFn: () => hydrologyApi.getBasins(fieldId!, params),
     enabled: !!fieldId,
   });

@@ -240,7 +240,7 @@ class Loan {
   double get remainingAmount => totalDue - paidAmount;
 
   /// نسبة السداد
-  double get paymentProgress => paidAmount / totalDue;
+  double get paymentProgress => totalDue > 0 ? paidAmount / totalDue : 0.0;
 }
 
 // =============================================================================

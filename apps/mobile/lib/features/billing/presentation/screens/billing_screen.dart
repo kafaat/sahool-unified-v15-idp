@@ -205,7 +205,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
   }
 
   Widget _buildUsageRow(String label, int used, int total, Color color) {
-    final percentage = used / total;
+    final percentage = total > 0 ? used / total : 0.0;
     return Column(
       children: [
         Row(

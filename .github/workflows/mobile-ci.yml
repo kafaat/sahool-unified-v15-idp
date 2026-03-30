@@ -481,6 +481,9 @@ jobs:
     defaults:
       run:
         working-directory: apps/mobile/sahool_field_app
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
     steps:
       - name: Checkout repository

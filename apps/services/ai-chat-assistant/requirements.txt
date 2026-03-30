@@ -26,6 +26,6 @@ pytest-cov>=6.0.0
 pytest-mock==3.15.1
 
 # Development
-ruff==0.15.5
+ruff==0.15.8
 black==24.10.0
 mypy==1.19.1

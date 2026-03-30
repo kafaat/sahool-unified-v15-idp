@@ -492,16 +492,22 @@ class TestGPSTrackModel:
 
     def test_gps_track_close(self):
         track = GPSTrack(user_id="user-001", start_time=_NOW)
+        # Add three distinct points; track is not yet closed.
         track.add_point(_bp((46.7, 24.7)))
         track.add_point(_bp((46.71, 24.7)))
         track.add_point(_bp((46.71, 24.71)))
-        # Pre-close by adding the closing point explicitly because
-        # GPSTrack.close_track() creates a BoundaryPoint internally
-        # using a non-callable default_factory (datetime object instead of lambda).
-        track.add_point(_bp((46.7, 24.7)))
+        assert len(track.points) == 3
+
+        # close_track should append a closing point matching the first point
+        # without raising, relying on BoundaryPoint.captured_at's callable default_factory.
         track.close_track()
         assert track.is_closed is True
+        # One new point should be appended
+        assert len(track.points) == 4
+        # Last point should close the loop by matching the first point's coordinates
         assert track.points[-1].coordinates == track.points[0].coordinates
+        # The auto-created closing point should have a captured_at timestamp
+        assert getattr(track.points[-1], "captured_at", None) is not None
 
     def test_gps_track_close_already_closed(self):
         track = GPSTrack(user_id="user-001", start_time=_NOW)

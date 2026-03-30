@@ -98,6 +98,15 @@ export const ERROR_MESSAGES = {
   },
 };
 
+/**
+ * Append query string to base URL only when params are non-empty.
+ * إضافة سلسلة الاستعلام إلى عنوان URL فقط عندما تكون المعلمات غير فارغة
+ */
+function appendQuery(baseUrl: string, params: URLSearchParams): string {
+  const qs = params.toString();
+  return qs ? `${baseUrl}?${qs}` : baseUrl;
+}
+
 export const marketplaceApi = {
   /**
    * Get products list
@@ -112,11 +121,7 @@ export const marketplaceApi = {
       if (filters?.status) params.append('status', filters.status);
       if (filters?.sortBy) params.append('sortBy', filters.sortBy);
 
-      const qs = params.toString();
-      const url = qs
-        ? `${MARKETPLACE_ENDPOINTS.PRODUCTS}?${qs}`
-        : MARKETPLACE_ENDPOINTS.PRODUCTS;
-      const response = await api.get(url);
+      const response = await api.get(appendQuery(MARKETPLACE_ENDPOINTS.PRODUCTS, params));
       return response.data.data || response.data;
     });
   },
@@ -184,11 +189,7 @@ export const marketplaceApi = {
       if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
       if (filters?.dateTo) params.append('dateTo', filters.dateTo);
 
-      const qs = params.toString();
-      const url = qs
-        ? `${MARKETPLACE_ENDPOINTS.ORDERS}?${qs}`
-        : MARKETPLACE_ENDPOINTS.ORDERS;
-      const response = await api.get(url);
+      const response = await api.get(appendQuery(MARKETPLACE_ENDPOINTS.ORDERS, params));
       return response.data.data || response.data;
     });
   },
@@ -337,11 +338,8 @@ export const marketplaceApi = {
       async () => {
         const params = new URLSearchParams();
         if (timeRange) params.append('timeRange', timeRange);
-        const qs = params.toString();
-        const url = qs
-          ? `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/price-history?${qs}`
-          : `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/price-history`;
-        const response = await api.get(url);
+        const baseUrl = `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/price-history`;
+        const response = await api.get(appendQuery(baseUrl, params));
         return response.data.data || response.data;
       }
     );
@@ -361,11 +359,9 @@ export const marketplaceApi = {
         const params = new URLSearchParams();
         if (category) params.append('category', category);
         if (region) params.append('region', region);
-        const qs = params.toString();
-        const analyticsUrl = qs
-          ? `${API_PREFIX}/marketplace/prices/analytics?${qs}`
-          : `${API_PREFIX}/marketplace/prices/analytics`;
-        const response = await api.get(analyticsUrl);
+        const response = await api.get(
+          appendQuery(`${API_PREFIX}/marketplace/prices/analytics`, params)
+        );
         return response.data.data || response.data;
       }
     );

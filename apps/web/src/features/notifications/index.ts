@@ -8,13 +8,19 @@ export { notificationsApi, ERROR_MESSAGES } from './api';
 
 // Types
 export type {
+  BackendNotificationType,
+  LegacyNotificationType,
   Notification,
   NotificationType,
+  NotificationTypeConfig,
   NotificationPriority,
   NotificationChannel,
   NotificationPreferences,
   NotificationFilters,
 } from './types';
+
+// Helpers
+export { getNotificationConfig } from './types';
 
 // Hooks - Query
 export {

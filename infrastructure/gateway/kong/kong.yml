@@ -128,6 +128,13 @@ services:
         paths: ["/api/v1/fields", "/api/v1/field", "/field"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Field data is sensitive (geospatial, crop, ownership)
+      # مصادقة JWT - بيانات الحقول حساسة (جغرافية مكانية، محاصيل، ملكية)
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   # User Service - Public Authentication Routes (no JWT required)
   # مسارات المصادقة العامة - لا تتطلب رمز JWT
@@ -171,6 +178,12 @@ services:
         strip_path: false
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Protected user routes require authentication
+      # مصادقة JWT - المسارات المحمية للمستخدمين تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
       - name: rate-limiting
         config:
           minute: 100
@@ -203,6 +216,12 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Marketplace transactions require authentication
+      # مصادقة JWT - معاملات السوق تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
       # Rate limiting for marketplace operations
       # تحديد المعدل لعمليات السوق
       - name: rate-limiting
@@ -249,6 +268,13 @@ services:
         paths: ["/api/v1/chat", "/chat"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Chat messages are private user data
+      # مصادقة JWT - رسائل المحادثة بيانات خاصة للمستخدمين
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   - name: iot-service
     host: iot-service
@@ -289,6 +315,12 @@ services:
     plugins:
       # IP Restriction - Billing access only from internal networks
       # قيود IP - الوصول للفوترة فقط من الشبكات الداخلية
+      # JWT Authentication - Billing operations require authentication
+      # مصادقة JWT - عمليات الفوترة تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
       - name: ip-restriction
         config:
           allow:
@@ -436,6 +468,13 @@ services:
         paths: ["/api/v1/equipment", "/equipment"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Equipment asset data requires authentication
+      # مصادقة JWT - بيانات أصول المعدات تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   # gpu profile (only if enabled)
   - name: code-review-service
@@ -457,6 +496,13 @@ services:
         paths: ["/api/v1/tasks", "/api/v1/task", "/task"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Task assignments contain user and field data
+      # مصادقة JWT - تعيينات المهام تحتوي بيانات المستخدمين والحقول
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   - name: provider-config
     host: provider-config
@@ -590,6 +636,13 @@ services:
         paths: ["/api/v1/inventory", "/inventory"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Inventory data requires authentication
+      # مصادقة JWT - بيانات المخزون تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   # REMOVED: ndvi-processor route (deprecated → vegetation-analysis-service, sunset 2026-02)
 

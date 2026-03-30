@@ -284,24 +284,20 @@ class SatelliteRepository {
     String fieldId, {
     bool forceRefresh = false,
   }) async {
-    try {
-      // Fetch all data in parallel
-      final results = await Future.wait([
-        getFieldHealth(fieldId, forceRefresh: forceRefresh),
-        getNdviAnalysis(fieldId, forceRefresh: forceRefresh),
-        getWeatherForecast(fieldId, forceRefresh: forceRefresh),
-        getPhenologyData(fieldId, forceRefresh: forceRefresh),
-      ]);
+    // Fetch all data in parallel - handle partial failures gracefully
+    final results = await Future.wait<dynamic>([
+      getFieldHealth(fieldId, forceRefresh: forceRefresh).catchError((_) => null),
+      getNdviAnalysis(fieldId, forceRefresh: forceRefresh).catchError((_) => null),
+      getWeatherForecast(fieldId, forceRefresh: forceRefresh).catchError((_) => null),
+      getPhenologyData(fieldId, forceRefresh: forceRefresh).catchError((_) => null),
+    ]);
 
-      return SatelliteDashboardData(
-        fieldHealth: results[0] as FieldHealth,
-        ndviAnalysis: results[1] as NdviAnalysis,
-        weatherSummary: results[2] as WeatherSummary,
-        phenologyData: results[3] as PhenologyData,
-      );
-    } catch (e) {
-      rethrow;
-    }
+    return SatelliteDashboardData(
+      fieldHealth: results[0] as FieldHealth?,
+      ndviAnalysis: results[1] as NdviAnalysis?,
+      weatherSummary: results[2] as WeatherSummary?,
+      phenologyData: results[3] as PhenologyData?,
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

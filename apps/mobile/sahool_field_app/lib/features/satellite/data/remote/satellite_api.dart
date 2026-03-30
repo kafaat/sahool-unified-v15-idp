@@ -41,8 +41,15 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return NdviAnalysis.fromJson(json);
+      try {
+        final json = jsonDecode(response.body);
+        return NdviAnalysis.fromJson(json);
+      } catch (e) {
+        throw SatelliteApiException(
+          'فشل تحليل استجابة NDVI: $e',
+          statusCode: response.statusCode,
+        );
+      }
     } else {
       throw SatelliteApiException(
         'فشل جلب تحليل NDVI',
@@ -247,19 +254,26 @@ class SatelliteApi {
   /// Get complete satellite dashboard data for a field
   /// جلب بيانات لوحة الأقمار الصناعية الكاملة للحقل
   Future<SatelliteDashboardData> getDashboardData(String fieldId) async {
-    // Fetch all data in parallel for better performance
-    final results = await Future.wait([
-      getFieldHealth(fieldId),
-      getNdviAnalysis(fieldId),
-      getWeatherForecast(fieldId),
-      getPhenologyData(fieldId),
+    // Fetch all data in parallel - handle partial failures gracefully
+    final results = await Future.wait<dynamic>([
+      getFieldHealth(fieldId).catchError((_) => null),
+      getNdviAnalysis(fieldId).catchError((_) => null),
+      getWeatherForecast(fieldId).catchError((_) => null),
+      getPhenologyData(fieldId).catchError((_) => null),
     ]);
 
+    if (results[0] == null && results[1] == null) {
+      throw SatelliteApiException(
+        'فشل جلب بيانات الحقل الأساسية',
+        statusCode: 0,
+      );
+    }
+
     return SatelliteDashboardData(
-      fieldHealth: results[0] as FieldHealth,
-      ndviAnalysis: results[1] as NdviAnalysis,
-      weatherSummary: results[2] as WeatherSummary,
-      phenologyData: results[3] as PhenologyData,
+      fieldHealth: results[0] as FieldHealth?,
+      ndviAnalysis: results[1] as NdviAnalysis?,
+      weatherSummary: results[2] as WeatherSummary?,
+      phenologyData: results[3] as PhenologyData?,
     );
   }
 
@@ -271,17 +285,20 @@ class SatelliteApi {
 /// Satellite Dashboard Data
 /// بيانات لوحة الأقمار الصناعية
 class SatelliteDashboardData {
-  final FieldHealth fieldHealth;
-  final NdviAnalysis ndviAnalysis;
-  final WeatherSummary weatherSummary;
-  final PhenologyData phenologyData;
+  final FieldHealth? fieldHealth;
+  final NdviAnalysis? ndviAnalysis;
+  final WeatherSummary? weatherSummary;
+  final PhenologyData? phenologyData;
 
   SatelliteDashboardData({
-    required this.fieldHealth,
-    required this.ndviAnalysis,
-    required this.weatherSummary,
-    required this.phenologyData,
+    this.fieldHealth,
+    this.ndviAnalysis,
+    this.weatherSummary,
+    this.phenologyData,
   });
+
+  /// Whether essential data is available
+  bool get hasEssentialData => fieldHealth != null || ndviAnalysis != null;
 }
 
 /// Satellite API Exception

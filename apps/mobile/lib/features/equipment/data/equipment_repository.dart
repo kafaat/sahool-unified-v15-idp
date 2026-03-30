@@ -168,14 +168,7 @@ class EquipmentRepository {
 
       final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
 
-      // Enqueue to OfflineSyncEngine for reliable sync tracking
-      await OfflineSyncEngine.instance.enqueueCreate(
-        entityType: 'equipment',
-        data: equipmentData,
-        priority: SyncPriority.medium,
-      );
-
-      AppLogger.i('Equipment created and enqueued for offline sync', tag: 'EquipmentRepo', data: {'name': name});
+      AppLogger.i('Equipment created via API', tag: 'EquipmentRepo', data: {'name': name});
 
       return ApiResult.success(equipment);
     } on DioException catch (e) {
@@ -210,15 +203,7 @@ class EquipmentRepository {
 
       final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
 
-      // Enqueue to OfflineSyncEngine for reliable sync tracking
-      await OfflineSyncEngine.instance.enqueueUpdate(
-        entityType: 'equipment',
-        entityId: equipmentId,
-        data: updates,
-        priority: SyncPriority.medium,
-      );
-
-      AppLogger.i('Equipment updated and enqueued for offline sync', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
+      AppLogger.i('Equipment updated via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
 
       return ApiResult.success(equipment);
     } on DioException catch (e) {
@@ -258,15 +243,7 @@ class EquipmentRepository {
 
       final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
 
-      // Enqueue to OfflineSyncEngine for reliable sync tracking
-      await OfflineSyncEngine.instance.enqueueUpdate(
-        entityType: 'equipment',
-        entityId: equipmentId,
-        data: {'status': status.value},
-        priority: SyncPriority.medium,
-      );
-
-      AppLogger.i('Equipment status updated and enqueued for offline sync', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId, 'status': status.value});
+      AppLogger.i('Equipment status updated via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId, 'status': status.value});
 
       return ApiResult.success(equipment);
     } on DioException catch (e) {
@@ -356,14 +333,7 @@ class EquipmentRepository {
     try {
       await _dio.delete('/api/v1/equipment/$equipmentId');
 
-      // Enqueue to OfflineSyncEngine for reliable sync tracking
-      await OfflineSyncEngine.instance.enqueueDelete(
-        entityType: 'equipment',
-        entityId: equipmentId,
-        priority: SyncPriority.medium,
-      );
-
-      AppLogger.i('Equipment deleted and enqueued for offline sync', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
+      AppLogger.i('Equipment deleted via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
 
       return ApiResult.success(null);
     } on DioException catch (e) {
@@ -508,14 +478,7 @@ class EquipmentRepository {
         },
       );
 
-      // Enqueue to OfflineSyncEngine for reliable sync tracking
-      await OfflineSyncEngine.instance.enqueueCreate(
-        entityType: 'equipment',
-        data: {'type': 'maintenance_record', ...maintenanceData},
-        priority: SyncPriority.medium,
-      );
-
-      AppLogger.i('Maintenance record added and enqueued for offline sync', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
+      AppLogger.i('Maintenance record added via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
 
       return ApiResult.success(response.data as Map<String, dynamic>);
     } on DioException catch (e) {

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../core/offline/offline_sync_engine.dart';
 import '../../../../core/storage/database.dart';
 import '../../../../core/sync/network_status.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -101,20 +100,6 @@ class TasksRepo {
       }),
     );
 
-    // 4. Enqueue to OfflineSyncEngine for reliable sync
-    await OfflineSyncEngine.instance.enqueueUpdate(
-      entityType: 'task',
-      entityId: taskId,
-      data: {
-        'task_id': taskId,
-        'tenant_id': task.tenantId,
-        'status': 'completed',
-        'evidence_notes': notes,
-        'evidence_photos': photos ?? [],
-      },
-      priority: SyncPriority.high,
-    );
-
     AppLogger.i('Task marked done locally and queued for sync', tag: 'TasksRepo', data: {'taskId': taskId});
   }
 
@@ -151,19 +136,7 @@ class TasksRepo {
       }),
     );
 
-    // 4. Enqueue to OfflineSyncEngine for reliable sync
-    await OfflineSyncEngine.instance.enqueueUpdate(
-      entityType: 'task',
-      entityId: taskId,
-      data: {
-        'task_id': taskId,
-        'tenant_id': task.tenantId,
-        'status': status.value,
-      },
-      priority: SyncPriority.high,
-    );
-
-    AppLogger.i('Task status updated and enqueued for offline sync', tag: 'TasksRepo', data: {'taskId': taskId, 'status': status.value});
+    AppLogger.i('Task status updated and queued for sync', tag: 'TasksRepo', data: {'taskId': taskId, 'status': status.value});
   }
 
   /// Create new task (offline-first)
@@ -220,14 +193,7 @@ class TasksRepo {
       payload: jsonEncode(task.toJson()),
     );
 
-    // 3. Enqueue to OfflineSyncEngine for reliable sync
-    await OfflineSyncEngine.instance.enqueueCreate(
-      entityType: 'task',
-      data: task.toJson(),
-      priority: SyncPriority.high,
-    );
-
-    AppLogger.i('Task created and enqueued for offline sync', tag: 'TasksRepo', data: {'taskId': taskId});
+    AppLogger.i('Task created and queued for sync', tag: 'TasksRepo', data: {'taskId': taskId});
 
     return task;
   }

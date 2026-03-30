@@ -468,21 +468,7 @@ class IrrigationRepository {
       // Cache new schedule
       await _cacheData(_CacheKeys.schedule(fieldId), rawData);
 
-      // Enqueue to OfflineSyncEngine for reliable sync
-      await OfflineSyncEngine.instance.enqueueCreate(
-        entityType: 'irrigation',
-        data: {
-          'field_id': fieldId,
-          'crop_id': cropId,
-          'method_id': methodId,
-          'days': days,
-          'schedule': rawData,
-          'created_at': DateTime.now().toIso8601String(),
-        },
-        priority: SyncPriority.medium,
-      );
-
-      AppLogger.i('Irrigation schedule generated and enqueued for offline sync', tag: 'IrrigationRepo', data: {'fieldId': fieldId});
+      AppLogger.i('Irrigation schedule generated via API', tag: 'IrrigationRepo', data: {'fieldId': fieldId});
 
       return ApiResult.success(schedule);
     } on DioException catch (e) {
@@ -537,14 +523,7 @@ class IrrigationRepository {
         data: sensorData,
       );
 
-      // Enqueue to OfflineSyncEngine for reliable sync tracking
-      await OfflineSyncEngine.instance.enqueueCreate(
-        entityType: 'irrigation',
-        data: {'type': 'sensor_reading', ...sensorData},
-        priority: SyncPriority.medium,
-      );
-
-      AppLogger.i('Sensor reading recorded and enqueued for offline sync', tag: 'IrrigationRepo', data: {'fieldId': fieldId, 'sensorType': sensorType});
+      AppLogger.i('Sensor reading recorded via API', tag: 'IrrigationRepo', data: {'fieldId': fieldId, 'sensorType': sensorType});
 
       return ApiResult.success(null);
     } on DioException catch (e) {
@@ -558,10 +537,7 @@ class IrrigationRepository {
         'timestamp': timestamp,
       };
 
-      // Queue for later sync when offline (legacy)
-      await _queuePendingOperation(sensorData);
-
-      // Enqueue to OfflineSyncEngine for reliable sync
+      // Enqueue to OfflineSyncEngine for reliable sync when back online
       await OfflineSyncEngine.instance.enqueueCreate(
         entityType: 'irrigation',
         data: sensorData,

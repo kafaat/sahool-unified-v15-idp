@@ -188,6 +188,7 @@ export class ApiErrorHandler {
     // --- Backend error code handling (E1001-E5003) ---
     if (backendCode && backendCode in BACKEND_ERROR_MESSAGES) {
       const mapped = BACKEND_ERROR_MESSAGES[backendCode];
+      const codeNum = Number(backendCode.slice(1));
 
       // Trigger re-authentication for auth-related backend codes
       if (
@@ -198,7 +199,7 @@ export class ApiErrorHandler {
       }
 
       // For AI/ML errors, log additional diagnostics
-      if (backendCode >= 'E5001' && backendCode <= 'E5003') {
+      if (codeNum >= 5001 && codeNum <= 5003) {
         logger.error('AI/ML service error:', {
           code: backendCode,
           status,
@@ -208,7 +209,7 @@ export class ApiErrorHandler {
       }
 
       // For infrastructure errors, log for operational visibility
-      if (backendCode >= 'E4001' && backendCode <= 'E4004') {
+      if (codeNum >= 4001 && codeNum <= 4004) {
         logger.error('Infrastructure error:', {
           code: backendCode,
           status,
@@ -218,7 +219,7 @@ export class ApiErrorHandler {
       }
 
       // For business rule violations, include details so the UI can surface specifics
-      if (backendCode >= 'E3001' && backendCode <= 'E3003') {
+      if (codeNum >= 3001 && codeNum <= 3003) {
         logger.warn('Business rule violation:', {
           code: backendCode,
           details: backendError.details,

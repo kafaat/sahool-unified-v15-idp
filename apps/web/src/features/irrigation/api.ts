@@ -24,6 +24,19 @@ import type {
 
 const api = createApiClient();
 
+/**
+ * Smart Irrigation ML endpoints
+ * نقاط نهاية الري الذكي
+ */
+const SMART_IRRIGATION_ENDPOINTS = {
+  CALCULATE: '/api/v1/irrigation/calculate',
+  WATER_BALANCE: '/api/v1/water-balance',
+  EFFICIENCY_REPORT: '/api/v1/efficiency-report',
+  SENSOR_READING: '/api/v1/irrigation/sensor-reading',
+  IRRIGATION_EXECUTED: '/api/v1/irrigation/irrigation-executed',
+  CALCULATE_WITH_ACTION: '/api/v1/irrigation/calculate-with-action',
+} as const;
+
 export const irrigationApi = {
   /**
    * Fetch irrigation schedules list
@@ -133,7 +146,7 @@ export const irrigationApi = {
   calculateIrrigation: async (
     params: CalculateIrrigationRequest
   ): Promise<IrrigationPrediction> => {
-    const response = await api.post('/api/v1/irrigation/calculate', params);
+    const response = await api.post(SMART_IRRIGATION_ENDPOINTS.CALCULATE, params);
     return response.data.data || response.data;
   },
 
@@ -150,7 +163,7 @@ export const irrigationApi = {
     const params: Record<string, string | number> = {};
     if (options?.crop) params.crop = options.crop;
     if (options?.days) params.days = options.days;
-    const response = await api.get(`/api/v1/water-balance/${fieldId}`, { params });
+    const response = await api.get(`${SMART_IRRIGATION_ENDPOINTS.WATER_BALANCE}/${fieldId}`, { params });
     return response.data.data || response.data;
   },
 
@@ -167,7 +180,7 @@ export const irrigationApi = {
     const params: Record<string, string | number> = {};
     if (options?.current_method) params.current_method = options.current_method;
     if (options?.area_hectares) params.area_hectares = options.area_hectares;
-    const response = await api.get(`/api/v1/efficiency-report/${fieldId}`, { params });
+    const response = await api.get(`${SMART_IRRIGATION_ENDPOINTS.EFFICIENCY_REPORT}/${fieldId}`, { params });
     return response.data.data || response.data;
   },
 
@@ -180,7 +193,7 @@ export const irrigationApi = {
   recordSensorReading: async (
     data: SensorReadingRequest
   ): Promise<SensorReadingResponse> => {
-    const response = await api.post('/api/v1/irrigation/sensor-reading', data);
+    const response = await api.post(SMART_IRRIGATION_ENDPOINTS.SENSOR_READING, data);
     return response.data.data || response.data;
   },
 

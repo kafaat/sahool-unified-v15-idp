@@ -142,7 +142,7 @@ export const tasksApi = {
       const response = await api.get(`${TASK_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data.map(mapApiTaskToTask);
-      throw new Error('Invalid response format for tasks');
+      throw new Error('Invalid response format for tasks | تنسيق الاستجابة غير صالح للمهام');
     });
   },
 
@@ -155,7 +155,7 @@ export const tasksApi = {
       const response = await api.get(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }));
       const data = response.data.data || response.data;
       if (data && typeof data === 'object') return mapApiTaskToTask(data as ApiTask);
-      throw new Error('Invalid response format');
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
     });
   },
 
@@ -181,7 +181,7 @@ export const tasksApi = {
       const response = await api.post(TASK_ENDPOINTS.CREATE, payload);
       const taskData = response.data.data || response.data;
       if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
-      throw new Error('Invalid response format');
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
     });
   },
 
@@ -205,7 +205,7 @@ export const tasksApi = {
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
       const taskData = response.data.data || response.data;
       if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
-      throw new Error('Invalid response format');
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
     });
   },
 
@@ -236,7 +236,7 @@ export const tasksApi = {
       const response = await api.post(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), payload);
       const taskData = response.data.data || response.data;
       if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
-      throw new Error('Invalid response format');
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
     });
   },
 
@@ -250,7 +250,7 @@ export const tasksApi = {
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
       const taskData = response.data.data || response.data;
       if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
-      throw new Error('Invalid response format');
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
     });
   },
 
@@ -264,7 +264,7 @@ export const tasksApi = {
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
       const taskData = response.data.data || response.data;
       if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
-      throw new Error('Invalid response format');
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
     });
   },
 

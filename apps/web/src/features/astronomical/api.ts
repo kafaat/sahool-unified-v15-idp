@@ -21,45 +21,35 @@ import type {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { ASTRONOMICAL_ENDPOINTS } from '@sahool/shared-types/contracts';
-import { logger } from '@/lib/logger';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const api = createApiClient();
 
-// تحذير في التطوير فقط - Only warn during development
-if (!API_BASE_URL && typeof window !== 'undefined') {
-  logger.warn('NEXT_PUBLIC_API_URL environment variable is not set');
-}
-
-const ASTRONOMICAL_API_BASE = `${API_BASE_URL}${ASTRONOMICAL_ENDPOINTS.CALENDAR.replace('/calendar', '')}`;
+const ASTRONOMICAL_API_BASE = ASTRONOMICAL_ENDPOINTS.CALENDAR.replace('/calendar', '');
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// دوال مساعدة - Helper Functions
+// رسائل الخطأ - Error Messages
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/**
- * معالج الطلبات مع معالجة الأخطاء
- * Request handler with error handling
- */
-async function fetchFromAPI<T>(endpoint: string): Promise<T> {
-  try {
-    const response = await fetch(`${ASTRONOMICAL_API_BASE}${endpoint}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`فشل الحصول على البيانات الفلكية: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    logger.error('خطأ في الاتصال بخدمة التقويم الفلكي:', error);
-    throw error;
-  }
-}
+export const ERROR_MESSAGES = {
+  FETCH_FAILED: {
+    en: 'Failed to fetch astronomical data.',
+    ar: 'فشل الحصول على البيانات الفلكية.',
+  },
+  NETWORK_ERROR: {
+    en: 'Network error. Astronomical calendar service unavailable.',
+    ar: 'خطأ في الاتصال. خدمة التقويم الفلكي غير متاحة.',
+  },
+  CALENDAR_FAILED: {
+    en: 'Failed to fetch calendar data.',
+    ar: 'فشل في جلب بيانات التقويم.',
+  },
+  PROVERBS_FAILED: {
+    en: 'Failed to fetch proverbs.',
+    ar: 'فشل في جلب الأمثال.',
+  },
+};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // واجهات برمجة التطبيقات الرئيسية - Main API Functions
@@ -70,7 +60,10 @@ async function fetchFromAPI<T>(endpoint: string): Promise<T> {
  * Get astronomical data for today
  */
 export async function getToday(): Promise<DailyAstronomicalData> {
-  return fetchFromAPI<DailyAstronomicalData>('/today');
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/today`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/today`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -79,7 +72,10 @@ export async function getToday(): Promise<DailyAstronomicalData> {
  * @param date - التاريخ بصيغة YYYY-MM-DD
  */
 export async function getDate(date: string): Promise<DailyAstronomicalData> {
-  return fetchFromAPI<DailyAstronomicalData>(`/date/${date}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/date/${date}`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/date/${date}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**

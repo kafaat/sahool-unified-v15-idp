@@ -195,7 +195,7 @@ export const fieldsApi = {
       const response = await api.get(`${FIELD_ENDPOINTS.LIST}?${params.toString()}`);
       const fields = response.data.data || response.data;
       if (Array.isArray(fields)) return fields.map(mapApiFieldToField);
-      throw new Error('Invalid response format for fields');
+      throw new Error('Invalid response format for fields | تنسيق الاستجابة غير صالح للحقول');
     });
   },
 
@@ -313,7 +313,7 @@ export const fieldsApi = {
       const response = await api.get(`${FIELD_ENDPOINTS.NEARBY}?${params.toString()}`);
       const fields = response.data.data || response.data;
       if (Array.isArray(fields)) return fields.map(mapApiFieldToField);
-      throw new Error('Invalid response format for nearby fields');
+      throw new Error('Invalid response format for nearby fields | تنسيق الاستجابة غير صالح للحقول القريبة');
     });
   },
 

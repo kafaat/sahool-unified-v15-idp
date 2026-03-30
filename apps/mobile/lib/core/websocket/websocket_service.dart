@@ -79,6 +79,7 @@ class WebSocketService {
 
   StreamSubscription? _streamSubscription;
   final Set<String> _subscribedRooms = {};
+  bool _disposed = false;
 
   WebSocketService({
     required this.baseUrl,
@@ -339,6 +340,8 @@ class WebSocketService {
 
   /// Schedule reconnection
   void _scheduleReconnect() {
+    if (_disposed) return;
+
     if (_reconnectAttempts >= _maxReconnectAttempts) {
       AppLogger.e('Max reconnection attempts reached');
       _updateState(ConnectionState.error);
@@ -354,7 +357,7 @@ class WebSocketService {
     _updateState(ConnectionState.reconnecting);
 
     _reconnectTimer = Timer(delay, () {
-      connect();
+      if (!_disposed) connect();
     });
   }
 
@@ -387,6 +390,7 @@ class WebSocketService {
 
   /// Dispose resources
   void dispose() {
+    _disposed = true;
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
     _streamSubscription?.cancel();

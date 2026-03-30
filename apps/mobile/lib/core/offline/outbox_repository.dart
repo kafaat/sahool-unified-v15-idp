@@ -16,6 +16,7 @@ class OutboxRepository {
   static const String _storageKey = 'sahool_outbox';
   static const String _statsKey = 'sahool_outbox_stats';
   static const int _maxCompletedItems = 100;
+  static const int _maxPendingItems = 500;
 
   SharedPreferences? _prefs;
   List<OutboxEntry> _entries = [];
@@ -95,6 +96,25 @@ class OutboxRepository {
           AppLogger.d('Replaced duplicate ${entry.operation.name} for ${entry.entityType}/${entry.entityId}', tag: 'OUTBOX');
           return;
         }
+      }
+    }
+
+    // Prevent unbounded queue growth
+    final pendingCount = _entries.where(
+      (e) => e.status == OutboxStatus.pending || e.status == OutboxStatus.failed,
+    ).length;
+    if (pendingCount >= _maxPendingItems) {
+      AppLogger.w(
+        'Outbox queue full ($pendingCount items). Dropping oldest failed item.',
+        tag: 'OUTBOX',
+      );
+      // Remove oldest failed item to make room
+      final oldestFailedIndex = _entries.indexWhere((e) => e.status == OutboxStatus.failed);
+      if (oldestFailedIndex >= 0) {
+        _entries.removeAt(oldestFailedIndex);
+      } else {
+        AppLogger.e('Outbox queue full with no failed items to evict', tag: 'OUTBOX');
+        return;
       }
     }
 

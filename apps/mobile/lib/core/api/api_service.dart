@@ -265,6 +265,9 @@ class ApiService {
   bool _isOnline = true;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
+  // Token refresh lock to prevent concurrent refresh calls
+  Completer<bool>? _refreshCompleter;
+
   // Certificate pinning
   final List<String> _pinnedCertificates = [];
   bool _certificatePinningEnabled = false;
@@ -969,21 +972,40 @@ class ApiService {
     );
   }
 
-  /// Refresh access token
-  /// تجديد رمز الوصول
+  /// Refresh access token with concurrency lock
+  /// تجديد رمز الوصول مع قفل التزامن
   Future<bool> _refreshAccessToken() async {
     if (_refreshToken == null) return false;
+
+    // If a refresh is already in progress, wait for its result
+    if (_refreshCompleter != null) {
+      AppLogger.d('Token refresh already in progress, waiting...', tag: 'ApiService');
+      return _refreshCompleter!.future;
+    }
+
+    _refreshCompleter = Completer<bool>();
 
     try {
       final response = await _dio.post(
         '/api/v1/auth/refresh',
         data: {'refresh_token': _refreshToken},
-        options: Options(headers: {'Authorization': null}),
+        options: Options(
+          headers: {'Authorization': null},
+          receiveTimeout: const Duration(seconds: 10),
+          sendTimeout: const Duration(seconds: 10),
+        ),
       );
 
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
-        _accessToken = data['access_token'] as String?;
+        final newAccessToken = data['access_token'] as String?;
+        if (newAccessToken == null || newAccessToken.isEmpty) {
+          AppLogger.e('Token refresh returned empty access token', tag: 'ApiService');
+          _refreshCompleter!.complete(false);
+          return false;
+        }
+
+        _accessToken = newAccessToken;
         _refreshToken = data['refresh_token'] as String? ?? _refreshToken;
 
         await _storage.setAccessToken(_accessToken!);
@@ -992,13 +1014,19 @@ class ApiService {
         }
 
         AppLogger.i('Token refreshed successfully', tag: 'ApiService');
+        _refreshCompleter!.complete(true);
         return true;
       }
+
+      _refreshCompleter!.complete(false);
+      return false;
     } catch (e) {
       AppLogger.e('Token refresh failed', tag: 'ApiService', error: e);
+      _refreshCompleter!.complete(false);
+      return false;
+    } finally {
+      _refreshCompleter = null;
     }
-
-    return false;
   }
 
   // ==========================================================================

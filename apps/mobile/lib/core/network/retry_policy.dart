@@ -18,6 +18,9 @@ enum NetworkQuality {
   /// Connectivity present but slow
   slow,
 
+  /// Connectivity present but very slow (>2s latency)
+  verySlow,
+
   /// No network connectivity
   offline,
 
@@ -34,6 +37,8 @@ extension NetworkQualityExtension on NetworkQuality {
         return 'الاتصال جيد';
       case NetworkQuality.slow:
         return 'الاتصال بطيء';
+      case NetworkQuality.verySlow:
+        return 'الاتصال بطيء جداً';
       case NetworkQuality.offline:
         return 'لا يوجد اتصال';
       case NetworkQuality.unknown:
@@ -48,6 +53,8 @@ extension NetworkQualityExtension on NetworkQuality {
         return 'Good connection';
       case NetworkQuality.slow:
         return 'Slow connection';
+      case NetworkQuality.verySlow:
+        return 'Very slow connection';
       case NetworkQuality.offline:
         return 'Offline';
       case NetworkQuality.unknown:
@@ -59,7 +66,8 @@ extension NetworkQualityExtension on NetworkQuality {
   bool get shouldQueueRequests => this == NetworkQuality.offline;
 
   /// Check if retry delays should be extended
-  bool get shouldExtendDelays => this == NetworkQuality.slow;
+  bool get shouldExtendDelays =>
+      this == NetworkQuality.slow || this == NetworkQuality.verySlow;
 }
 
 /// Endpoint category for retry policy selection

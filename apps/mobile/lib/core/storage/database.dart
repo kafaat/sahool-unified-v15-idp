@@ -520,7 +520,8 @@ class AppDatabase extends _$AppDatabase {
 
           final geometry = item['geometry'] as Map<String, dynamic>?;
           if (geometry != null && geometry['type'] == 'Polygon') {
-            final coordinates = geometry['coordinates'] as List;
+            final coordinates = geometry['coordinates'] as List?;
+            if (coordinates == null || coordinates.isEmpty) continue;
             final coords = coordinates[0] as List;
             boundary = coords.map((c) {
               final coord = c as List;

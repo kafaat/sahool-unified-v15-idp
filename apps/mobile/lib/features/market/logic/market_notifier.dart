@@ -125,8 +125,10 @@ class MarketNotifier extends StateNotifier<MarketState> {
   /// إعادة الحالة للأولية بعد فترة
   void _resetStateAfterDelay() {
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
+      try {
         state = const MarketState();
+      } catch (_) {
+        // StateNotifier may already be disposed
       }
     });
   }

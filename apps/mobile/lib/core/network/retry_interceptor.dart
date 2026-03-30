@@ -88,7 +88,7 @@ class NetworkQualityMonitor {
     } else if (_averageLatencyMs < 2000) {
       _setQuality(NetworkQuality.slow);
     } else {
-      _setQuality(NetworkQuality.slow);
+      _setQuality(NetworkQuality.verySlow);
     }
   }
 

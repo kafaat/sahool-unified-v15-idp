@@ -96,7 +96,7 @@ class EquipmentApi {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final equipmentList = (data['equipment'] as List)
+      final equipmentList = (data['equipment'] as List? ?? [])
           .map((e) => Equipment.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -380,7 +380,7 @@ class EquipmentApi {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final records = (data['records'] as List)
+      final records = (data['records'] as List? ?? [])
           .map((e) => MaintenanceRecord.fromJson(e as Map<String, dynamic>))
           .toList();
 

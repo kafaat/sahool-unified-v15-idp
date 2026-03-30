@@ -418,6 +418,7 @@ enum SyncOperation {
 enum SyncPriority {
   low,
   normal,
+  medium,
   high,
   critical,
 }

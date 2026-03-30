@@ -18,10 +18,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Set up test environment before imports
+# NOTE: Issuer/audience must match config defaults (sahool-platform / sahool-api)
+# to avoid polluting JWTConfig class-level attributes for other test modules.
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
 os.environ.setdefault("JWT_ALGORITHM", "HS256")
-os.environ.setdefault("JWT_ISSUER", "sahool-idp")
-os.environ.setdefault("JWT_AUDIENCE", "sahool-platform")
+os.environ.setdefault("JWT_ISSUER", "sahool-platform")
+os.environ.setdefault("JWT_AUDIENCE", "sahool-api")
 
 from shared.auth.jwt_handler import (
     ALLOWED_ALGORITHMS,
@@ -360,8 +362,8 @@ class TestVerifyToken:
             "roles": ["admin"],
             "exp": datetime.now(UTC) + timedelta(hours=1),
             "iat": datetime.now(UTC),
-            "iss": "sahool-idp",
-            "aud": "sahool-platform",
+            "iss": "sahool-platform",
+            "aud": "sahool-api",
         }
 
         # This should NOT be accepted

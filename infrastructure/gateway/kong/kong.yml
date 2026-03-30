@@ -716,6 +716,13 @@ services:
         paths: ["/api/v1/crm", "/crm"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - CRM contains sensitive farmer personal data
+      # مصادقة JWT - نظام إدارة العلاقات يحتوي بيانات شخصية حساسة للمزارعين
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
 
   # Low-Code Engine - Application builder
   - name: lowcode-engine
@@ -1100,6 +1107,12 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Supply chain data requires authentication
+      # مصادقة JWT - بيانات سلسلة التوريد تتطلب مصادقة
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
       - name: rate-limiting
         config:
           minute: 60

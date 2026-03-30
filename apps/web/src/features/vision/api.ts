@@ -37,7 +37,8 @@ export const visionApi = {
       const formData = new FormData();
       formData.append('image', image);
       if (confidence) formData.append('confidence', confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_PEST, formData, {
+      const url = `${VISION_ENDPOINTS.DETECT_PEST}?return_visualization=true`;
+      const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
@@ -49,7 +50,8 @@ export const visionApi = {
       const formData = new FormData();
       formData.append('image', image);
       if (confidence) formData.append('confidence', confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_DISEASE, formData, {
+      const url = `${VISION_ENDPOINTS.DETECT_DISEASE}?return_visualization=true`;
+      const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
@@ -61,7 +63,8 @@ export const visionApi = {
       const formData = new FormData();
       formData.append('image', image);
       if (confidence) formData.append('confidence', confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_WEED, formData, {
+      const url = `${VISION_ENDPOINTS.DETECT_WEED}?return_visualization=true`;
+      const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;

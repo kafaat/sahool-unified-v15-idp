@@ -159,7 +159,14 @@ jobs:
 
       - name: Install Android SDK components
         run: |
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" || true
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install \
+            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+            "ndk;28.2.13676358" \
+            "platform-tools"
+          echo "Installed SDK components:"
+          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
 
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
@@ -417,7 +424,14 @@ jobs:
 
       - name: Install Android SDK components
         run: |
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" || true
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install \
+            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+            "ndk;28.2.13676358" \
+            "platform-tools"
+          echo "Installed SDK components:"
+          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
 
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2

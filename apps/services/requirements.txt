@@ -16,7 +16,7 @@ aiohttp>=3.13.3  # Security fix for CVE-2025-53643, CVE-2025-69223
 # Database & ORM
 tortoise-orm==1.1.7
 asyncpg==0.31.0
-# aerich removed: requires tortoise-orm<1.0.0, incompatible with 1.1.6
+# aerich removed: requires tortoise-orm<1.0.0, incompatible with 1.1.7
 
 # NATS Messaging
 nats-py==2.14.0

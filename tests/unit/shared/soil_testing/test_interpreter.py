@@ -37,7 +37,6 @@ from shared.soil_testing.models import (
     SampleLocation,
     SoilProperties,
     SoilTestResult,
-    SoilType,
 )
 
 

@@ -12,13 +12,12 @@ Covers:
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import pytest
 
 from shared.mobile_sync.delta import (
     DeltaSyncConfig,
-    DeltaSyncManager,
     apply_delta,
     compute_checksum,
     compute_delta,
@@ -28,30 +27,21 @@ from shared.mobile_sync.models import (
     ConflictResolutionStrategy,
     ConflictType,
     DeltaChange,
-    DeltaPacket,
     EntityType,
     SyncConflict,
     SyncDirection,
     SyncItem,
-    SyncMetadata,
     SyncOperationType,
     SyncPriority,
-    SyncProgress,
-    SyncResult,
-    SyncSession,
     SyncStatus,
 )
 from shared.mobile_sync.resolver import (
     ClientWinsResolver,
-    ConflictResolutionManager,
-    FieldLevelMergeResolver,
     LastWriteWinsResolver,
-    ManualMergeChoice,
     ResolutionConfig,
     ServerWinsResolver,
     detect_conflict,
     find_conflicting_fields,
-    is_auto_resolvable,
 )
 
 

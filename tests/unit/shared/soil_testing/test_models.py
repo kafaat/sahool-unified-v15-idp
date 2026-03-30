@@ -12,23 +12,14 @@ Covers:
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from decimal import Decimal
-
-import pytest
 
 from shared.soil_testing.models import (
-    AmendmentPlan,
-    AmendmentRecommendation,
     ExtractionMethod,
     HeavyMetals,
-    InterpretationReport,
     LabInfo,
     LabStatus,
     MacronutrientResults,
-    MicronutrientResults,
-    NutrientInterpretation,
     NutrientStatus,
-    NutrientTrend,
     SampleLocation,
     SampleType,
     SoilProperties,
@@ -36,8 +27,6 @@ from shared.soil_testing.models import (
     SoilTexture,
     SoilTextureClass,
     SoilType,
-    TrendDataPoint,
-    TrendReport,
 )
 
 

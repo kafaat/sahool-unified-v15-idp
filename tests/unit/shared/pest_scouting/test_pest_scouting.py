@@ -11,10 +11,6 @@ Covers:
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
-
-import pytest
-
 from shared.pest_scouting.identification import (
     PEST_DATABASE,
     assess_infestation_level,
@@ -24,29 +20,23 @@ from shared.pest_scouting.identification import (
     get_pests_by_category,
     get_pests_by_crop,
     get_quarantine_pests,
-    get_seasonal_pests,
     search_pests_by_name,
 )
 from shared.pest_scouting.models import (
     AlertPriority,
     CropType,
-    EconomicThreshold,
     InfestationLevel,
     OutbreakRecord,
     PestAlert,
     PestCategory,
-    PestIdentification,
     PestLifeStage,
     ScoutingMethod,
     ScoutObservation,
     ScoutReport,
-    TreatmentRecommendation,
     TreatmentType,
-    TreatmentUrgency,
 )
 from shared.pest_scouting.thresholds import (
     THRESHOLD_DATABASE,
-    ThresholdAssessment,
     assess_threshold,
     calculate_economic_injury_level,
     calculate_gain_threshold,

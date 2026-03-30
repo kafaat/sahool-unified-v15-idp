@@ -17,6 +17,7 @@ except ImportError:
     structlog = None  # type: ignore[assignment]
 
 from fastapi import (
+    Depends,
     FastAPI,
     Header,
     HTTPException,

@@ -525,6 +525,14 @@ services:
         config:
           claims_to_verify:
             - exp
+      # Rate limiting for equipment operations
+      # تحديد المعدل لعمليات المعدات
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   # gpu profile (only if enabled)
   - name: code-review-service
@@ -553,6 +561,14 @@ services:
         config:
           claims_to_verify:
             - exp
+      # Rate limiting for task operations
+      # تحديد المعدل لعمليات المهام
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   - name: provider-config
     host: provider-config
@@ -655,6 +671,14 @@ services:
         config:
           claims_to_verify:
             - exp
+      # Rate limiting for notification operations
+      # تحديد المعدل لعمليات الإشعارات
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   - name: astronomical-calendar
     host: astronomical-calendar
@@ -706,6 +730,14 @@ services:
         config:
           claims_to_verify:
             - exp
+      # Rate limiting for inventory operations
+      # تحديد المعدل لعمليات المخزون
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   # REMOVED: ndvi-processor route (deprecated → vegetation-analysis-service, sunset 2026-02)
 
@@ -793,6 +825,14 @@ services:
         config:
           claims_to_verify:
             - exp
+      # Rate limiting for CRM operations
+      # تحديد المعدل لعمليات إدارة العلاقات
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   # Low-Code Engine - Application builder
   - name: lowcode-engine

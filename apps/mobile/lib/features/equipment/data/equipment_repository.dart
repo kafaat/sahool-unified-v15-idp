@@ -187,6 +187,10 @@ class EquipmentRepository {
         );
 
         AppLogger.w('Equipment creation queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
       }
 
       return ApiResult.failure(

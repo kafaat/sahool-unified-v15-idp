@@ -493,6 +493,10 @@ class IrrigationRepository {
         );
 
         AppLogger.w('Irrigation schedule queued for offline sync (API unavailable)', tag: 'IrrigationRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
       }
 
       return ApiResult.failure(

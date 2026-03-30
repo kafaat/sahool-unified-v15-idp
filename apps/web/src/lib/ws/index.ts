@@ -191,7 +191,7 @@ class WebSocketClient {
       this.ws.send(
         JSON.stringify({
           type: 'subscribe',
-          subjects,
+          topics: subjects,
         })
       );
     }

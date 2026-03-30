@@ -137,7 +137,7 @@ class ProcessingMeta(BaseModel):
         default_factory=lambda: str(uuid.uuid4()),
         description="Unique request identifier | معرف الطلب الفريد",
     )
-    processed_at: str = Field(default_factory=lambda: datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S.%fZ'), description="Processing timestamp | وقت المعالجة")
+    processed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Processing timestamp | وقت المعالجة")
     processing_time_ms: float = Field(0.0, description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية")
     cached: bool = Field(False, description="Result was retrieved from cache | تم استرداد النتيجة من التخزين المؤقت")
     service_version: str = Field("16.0.0", description="Service version | إصدار الخدمة")

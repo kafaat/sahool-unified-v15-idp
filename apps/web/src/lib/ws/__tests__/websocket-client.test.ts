@@ -303,6 +303,52 @@ describe('WebSocket Client', () => {
     });
   });
 
+  describe('Room Subscriptions', () => {
+    it('should send join_room message when subscribing to a room', async () => {
+      const { wsClient } = await import('../index');
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0];
+      wsClient.subscribeToRoom('field:123');
+
+      expect(ws?.send).toHaveBeenCalledWith(
+        JSON.stringify({ type: 'join_room', room: 'field:123' })
+      );
+    });
+
+    it('should deduplicate repeated room subscriptions', async () => {
+      const { wsClient } = await import('../index');
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0];
+      wsClient.subscribeToRoom('field:123');
+      wsClient.subscribeToRoom('field:123');
+
+      const joinCalls = (ws?.send as ReturnType<typeof vi.fn>).mock.calls.filter(
+        (c: unknown[]) => {
+          try { return JSON.parse(c[0] as string).type === 'join_room'; } catch { return false; }
+        }
+      );
+      expect(joinCalls).toHaveLength(1);
+    });
+
+    it('should send leave_room message when unsubscribing', async () => {
+      const { wsClient } = await import('../index');
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0];
+      wsClient.subscribeToRoom('chat:456');
+      wsClient.unsubscribeFromRoom('chat:456');
+
+      expect(ws?.send).toHaveBeenCalledWith(
+        JSON.stringify({ type: 'leave_room', room: 'chat:456' })
+      );
+    });
+  });
+
   describe('Error Handling', () => {
     it('should handle malformed WebSocket messages gracefully', async () => {
       const { wsClient } = await import('../index');

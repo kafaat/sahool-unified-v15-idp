@@ -117,7 +117,9 @@ export const weatherApi = {
     if (lon !== undefined) params.set('lon', String(lon));
 
     return safeFetch(WEATHER_ENDPOINTS.CURRENT, async () => {
-      const response = await api.get(`${WEATHER_ENDPOINTS.CURRENT}?${params.toString()}`);
+      const qs = params.toString();
+      const url = qs ? `${WEATHER_ENDPOINTS.CURRENT}?${qs}` : WEATHER_ENDPOINTS.CURRENT;
+      const response = await api.get(url);
       const data = response.data.data || response.data;
 
       return {
@@ -151,7 +153,9 @@ export const weatherApi = {
     params.set('days', String(days));
 
     return safeFetch(WEATHER_ENDPOINTS.FORECAST, async () => {
-      const response = await api.get(`${WEATHER_ENDPOINTS.FORECAST}?${params.toString()}`);
+      const fqs = params.toString();
+      const furl = fqs ? `${WEATHER_ENDPOINTS.FORECAST}?${fqs}` : WEATHER_ENDPOINTS.FORECAST;
+      const response = await api.get(furl);
       const data = response.data.data || response.data;
       const forecastData = data.forecast || data.daily_forecast || [];
 
@@ -181,7 +185,9 @@ export const weatherApi = {
     if (lon !== undefined) params.set('lon', String(lon));
 
     return safeFetch(WEATHER_ENDPOINTS.ALERTS, async () => {
-      const response = await api.get(`${WEATHER_ENDPOINTS.ALERTS}?${params.toString()}`);
+      const aqs = params.toString();
+      const aurl = aqs ? `${WEATHER_ENDPOINTS.ALERTS}?${aqs}` : WEATHER_ENDPOINTS.ALERTS;
+      const response = await api.get(aurl);
       const data = response.data.data || response.data;
       const alerts = data.alerts || data;
 

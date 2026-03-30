@@ -3,7 +3,8 @@
  * طبقة API لميزة التضاريس والمياه
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { TERRAIN_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type {
   DEMAnalysis,
@@ -44,7 +45,7 @@ export const terrainApi = {
       return response.data.data || response.data;
     } catch (error) {
       logger.error('Failed to analyze DEM:', error);
-      throw new Error(ERROR_MESSAGES.DEM_FAILED.en);
+      throw new Error(`${ERROR_MESSAGES.DEM_FAILED.en} | ${ERROR_MESSAGES.DEM_FAILED.ar}`);
     }
   },
 
@@ -54,7 +55,7 @@ export const terrainApi = {
       return response.data.data || response.data;
     } catch (error) {
       logger.error('Failed to analyze slope:', error);
-      throw new Error(ERROR_MESSAGES.SLOPE_FAILED.en);
+      throw new Error(`${ERROR_MESSAGES.SLOPE_FAILED.en} | ${ERROR_MESSAGES.SLOPE_FAILED.ar}`);
     }
   },
 
@@ -74,7 +75,7 @@ export const terrainApi = {
       return response.data.data || response.data;
     } catch (error) {
       logger.error('Failed to analyze drainage:', error);
-      throw new Error(ERROR_MESSAGES.DRAINAGE_FAILED.en);
+      throw new Error(`${ERROR_MESSAGES.DRAINAGE_FAILED.en} | ${ERROR_MESSAGES.DRAINAGE_FAILED.ar}`);
     }
   },
 
@@ -107,7 +108,7 @@ export const terrainApi = {
       return response.data.data || response.data;
     } catch (error) {
       logger.error('Failed to optimize leveling:', error);
-      throw new Error(ERROR_MESSAGES.LEVELING_FAILED.en);
+      throw new Error(`${ERROR_MESSAGES.LEVELING_FAILED.en} | ${ERROR_MESSAGES.LEVELING_FAILED.ar}`);
     }
   },
 

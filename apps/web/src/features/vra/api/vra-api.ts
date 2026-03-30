@@ -193,11 +193,11 @@ export async function generatePrescription(
       unit: data.unit,
       numZones: data.num_zones,
       zoneMethod: data.zone_method,
-      zones: data.zones.map((zone: any) => ({
+      zones: data.zones.map((zone: BackendZone): ZoneResult => ({
         zoneId: zone.zone_id,
         zoneName: zone.zone_name,
         zoneNameAr: zone.zone_name_ar,
-        zoneLevel: zone.zone_level,
+        zoneLevel: zone.zone_level as ZoneResult['zoneLevel'],
         ndviMin: zone.ndvi_min,
         ndviMax: zone.ndvi_max,
         areaHa: zone.area_ha,
@@ -285,7 +285,7 @@ export async function getPrescriptionHistory(
     const history: PrescriptionHistoryResponse = {
       fieldId: data.field_id,
       count: data.count,
-      prescriptions: data.prescriptions.map((p: any) => ({
+      prescriptions: data.prescriptions.map((p: BackendPrescriptionSummary): PrescriptionSummary => ({
         id: p.id,
         fieldId: p.field_id,
         vraType: p.vra_type,
@@ -370,7 +370,7 @@ export async function getPrescriptionDetails(
       unit: data.unit,
       numZones: data.num_zones,
       zoneMethod: data.zone_method,
-      zones: data.zones.map((zone: any) => ({
+      zones: data.zones.map((zone: BackendZone): ZoneResult => ({
         zoneId: zone.zone_id,
         zoneName: zone.zone_name,
         zoneNameAr: zone.zone_name_ar,
@@ -429,7 +429,7 @@ export async function getPrescriptionDetails(
 export async function exportPrescription(
   prescriptionId: string,
   format: ExportFormat
-): Promise<ApiResponse<any>> {
+): Promise<ApiResponse<ExportData>> {
   if (!prescriptionId || typeof prescriptionId !== 'string' || prescriptionId.trim().length === 0) {
     return {
       success: false,

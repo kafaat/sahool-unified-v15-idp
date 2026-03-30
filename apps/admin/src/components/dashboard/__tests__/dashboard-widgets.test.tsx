@@ -5,7 +5,7 @@
  * Tests for: AlertsPanel, ActivityFeed, MapOverview, RealTimeActivityFeed
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import React from 'react';
 import fs from 'fs';
 import path from 'path';
@@ -114,7 +114,7 @@ vi.mock('@/components/ui/AlertBadge', () => ({
 import AlertsPanel, { type Alert } from '../AlertsPanel';
 import ActivityFeed, { type ActivityItem } from '../ActivityFeed';
 import MapOverview, { type MapFarm } from '../MapOverview';
-import { RealTimeActivityFeed } from '../RealTimeActivityFeed';
+// RealTimeActivityFeed tested via source analysis (fs.readFileSync) below
 
 // ═══════════════════════════════════════════════════════════════════════════
 // AlertsPanel Widget Tests | اختبارات أداة لوحة التنبيهات

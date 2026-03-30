@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from shared.ai.knowledge._logging import get_logger
@@ -120,7 +120,7 @@ class KnowledgeQualityGate:
     def _check_freshness(self, docs: list[BaseKnowledgeDocument]) -> tuple[bool, float, str]:
         """Check document freshness based on updated_at timestamps.
         فحص حداثة الوثائق بناء على تواريخ التحديث"""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         # Consider documents fresh if updated within the last 365 days
         freshness_threshold = now - timedelta(days=365)
         total = len(docs)

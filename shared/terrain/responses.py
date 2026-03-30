@@ -29,7 +29,7 @@ from __future__ import annotations
 import time
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 from pydantic import BaseModel, Field
@@ -226,7 +226,7 @@ def success_response(
         "meta": {
             "processing": {
                 "request_id": request_id or str(uuid.uuid4()),
-                "processed_at": datetime.utcnow().isoformat(),
+                "processed_at": datetime.now(UTC).isoformat(),
                 "processing_time_ms": processing_time_ms,
                 "cached": cached,
                 "service_version": "16.0.0",
@@ -364,7 +364,7 @@ def batch_response(
         "meta": {
             "processing": {
                 "request_id": request_id or str(uuid.uuid4()),
-                "processed_at": datetime.utcnow().isoformat(),
+                "processed_at": datetime.now(UTC).isoformat(),
                 "processing_time_ms": processing_time_ms,
                 "cached": False,
                 "service_version": "16.0.0",

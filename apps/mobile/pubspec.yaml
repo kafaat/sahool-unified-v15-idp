@@ -101,7 +101,7 @@ dependencies:
   mobile_scanner: ^6.0.2
 
   # Collections
-  collection: ^1.19.1  # DeepCollectionEquality for sync conflict resolution
+  collection: ^1.19.0  # DeepCollectionEquality for sync conflict resolution; SDK pins 1.19.0
 
   # Utils
   uuid: ^4.5.1

@@ -137,6 +137,7 @@ function isValidCachedObservation(item: unknown): item is CachedObservation {
 /**
  * Store observation in offline cache
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for offline-first fallback (planned integration with OfflineSyncEngine)
 function _cacheObservation(observation: Observation): void {
   if (typeof window === 'undefined') return;
 

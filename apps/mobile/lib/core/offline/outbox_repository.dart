@@ -104,18 +104,23 @@ class OutboxRepository {
       (e) => e.status == OutboxStatus.pending || e.status == OutboxStatus.failed,
     ).length;
     if (pendingCount >= _maxPendingItems) {
-      AppLogger.w(
-        'Outbox queue full ($pendingCount items). Dropping oldest failed item.',
-        tag: 'OUTBOX',
-      );
-      // Remove oldest failed item to make room
-      final oldestFailedIndex = _entries.indexWhere((e) => e.status == OutboxStatus.failed);
-      if (oldestFailedIndex >= 0) {
-        _entries.removeAt(oldestFailedIndex);
-      } else {
+      // Find the truly oldest failed item by creation time
+      final failedEntries = _entries
+          .where((e) => e.status == OutboxStatus.failed)
+          .toList();
+
+      if (failedEntries.isEmpty) {
         AppLogger.e('Outbox queue full with no failed items to evict', tag: 'OUTBOX');
         return;
       }
+
+      failedEntries.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      _entries.remove(failedEntries.first);
+
+      AppLogger.w(
+        'Outbox queue full ($pendingCount items). Dropped oldest failed item.',
+        tag: 'OUTBOX',
+      );
     }
 
     _entries.add(entry);

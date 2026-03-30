@@ -102,6 +102,8 @@ class WebSocketService {
   /// Connect to WebSocket server
   /// الاتصال بخادم WebSocket
   Future<void> connect() async {
+    if (_disposed) return;
+
     if (_state == ConnectionState.connected ||
         _state == ConnectionState.connecting) {
       AppLogger.i('Already connected or connecting');

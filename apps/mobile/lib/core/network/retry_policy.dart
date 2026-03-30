@@ -156,9 +156,11 @@ class RetryPolicy {
     // Cap at maximum delay
     var cappedDelay = min(exponentialDelay, maxDelayMs.toDouble());
 
-    // Extend delay for slow networks
+    // Extend delay for slow/very slow networks
     if (networkQuality == NetworkQuality.slow) {
       cappedDelay *= 1.5;
+    } else if (networkQuality == NetworkQuality.verySlow) {
+      cappedDelay *= 2.5;
     }
 
     // Add jitter if enabled

@@ -130,7 +130,7 @@ class SoilHealthChart extends StatelessWidget {
     final change = newValue - oldValue;
     final percentChange = oldValue != 0
         ? (change / oldValue * 100).toStringAsFixed(1)
-        : '0.0';
+        : (change != 0 ? 'N/A' : '0.0');
     final isImproving = change > 0;
     final isStable = change.abs() < 2;
 

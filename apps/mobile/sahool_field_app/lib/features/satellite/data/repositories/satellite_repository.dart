@@ -286,15 +286,34 @@ class SatelliteRepository {
   }) async {
     // Fetch all data in parallel - handle partial failures gracefully
     final results = await Future.wait<dynamic>([
-      getFieldHealth(fieldId, forceRefresh: forceRefresh).catchError((_) => null),
-      getNdviAnalysis(fieldId, forceRefresh: forceRefresh).catchError((_) => null),
-      getWeatherForecast(fieldId, forceRefresh: forceRefresh).catchError((_) => null),
-      getPhenologyData(fieldId, forceRefresh: forceRefresh).catchError((_) => null),
+      getFieldHealth(fieldId, forceRefresh: forceRefresh).catchError((e) {
+        AppLogger.w('getFieldHealth failed: $e', tag: 'SatelliteRepo');
+        return null;
+      }),
+      getNdviAnalysis(fieldId, forceRefresh: forceRefresh).catchError((e) {
+        AppLogger.w('getNdviAnalysis failed: $e', tag: 'SatelliteRepo');
+        return null;
+      }),
+      getWeatherForecast(fieldId, forceRefresh: forceRefresh).catchError((e) {
+        AppLogger.w('getWeatherForecast failed: $e', tag: 'SatelliteRepo');
+        return null;
+      }),
+      getPhenologyData(fieldId, forceRefresh: forceRefresh).catchError((e) {
+        AppLogger.w('getPhenologyData failed: $e', tag: 'SatelliteRepo');
+        return null;
+      }),
     ]);
 
+    final fieldHealth = results[0] as FieldHealth?;
+    final ndviAnalysis = results[1] as NdviAnalysis?;
+
+    if (fieldHealth == null && ndviAnalysis == null) {
+      throw Exception('Failed to load essential satellite dashboard data');
+    }
+
     return SatelliteDashboardData(
-      fieldHealth: results[0] as FieldHealth?,
-      ndviAnalysis: results[1] as NdviAnalysis?,
+      fieldHealth: fieldHealth,
+      ndviAnalysis: ndviAnalysis,
       weatherSummary: results[2] as WeatherSummary?,
       phenologyData: results[3] as PhenologyData?,
     );

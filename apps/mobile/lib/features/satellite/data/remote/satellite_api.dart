@@ -3,6 +3,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
 import '../models/ndvi_data.dart';
@@ -258,10 +259,22 @@ class SatelliteApi {
   Future<SatelliteDashboardData> getDashboardData(String fieldId) async {
     // Fetch all data in parallel - handle partial failures gracefully
     final results = await Future.wait<dynamic>([
-      getFieldHealth(fieldId).catchError((_) => null),
-      getNdviAnalysis(fieldId).catchError((_) => null),
-      getWeatherForecast(fieldId).catchError((_) => null),
-      getPhenologyData(fieldId).catchError((_) => null),
+      getFieldHealth(fieldId).catchError((e) {
+        developer.log('getFieldHealth failed: $e', name: 'SatelliteApi');
+        return null;
+      }),
+      getNdviAnalysis(fieldId).catchError((e) {
+        developer.log('getNdviAnalysis failed: $e', name: 'SatelliteApi');
+        return null;
+      }),
+      getWeatherForecast(fieldId).catchError((e) {
+        developer.log('getWeatherForecast failed: $e', name: 'SatelliteApi');
+        return null;
+      }),
+      getPhenologyData(fieldId).catchError((e) {
+        developer.log('getPhenologyData failed: $e', name: 'SatelliteApi');
+        return null;
+      }),
     ]);
 
     // Require at least field health or NDVI data

@@ -22,7 +22,7 @@ dependencies:
   sqflite: ^2.4.1  # Local notifications storage
   sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database (includes SQLite)
   path_provider: ^2.1.5
-  path: ^1.9.1  # Must match Flutter SDK version requirement
+  path: ^1.9.0  # Must match Flutter SDK version requirement (integration_test from SDK needs path 1.9.0)
 
   # Network
   dio: ^5.7.0

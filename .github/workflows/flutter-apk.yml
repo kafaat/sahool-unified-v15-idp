@@ -62,7 +62,12 @@ jobs:
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
             "ndk;28.2.13676358" \
-            "platform-tools" || echo "::warning::Some SDK components failed to install"
+            "platform-tools"
+          # Verify the critical platform was installed
+          if [ ! -d "$ANDROID_HOME/platforms/android-${{ env.ANDROID_COMPILE_SDK }}" ]; then
+            echo "::error::Android SDK platform ${{ env.ANDROID_COMPILE_SDK }} not found after install"
+            exit 1
+          fi
           echo "Installed SDK packages:"
           sdkmanager --list_installed 2>/dev/null | head -20 || true
 

@@ -22,6 +22,10 @@ pytest>=8.3.0                  # Testing framework
 pytest-cov>=6.0.0              # Coverage reporting
 pytest-asyncio==0.26.0         # Async test support
 pytest-xdist>=3.5.0            # Parallel test execution
+pytest-mock>=3.11.0            # Mock support
+sqlalchemy[asyncio]>=2.0.0     # SQLAlchemy with async support (needed by shared/libs/database.py tests)
+httpx>=0.24.0                  # HTTP client (needed by FastAPI TestClient)
+cffi>=1.15.0                   # C FFI (needed by cryptography/PyJWT)
 
 # Documentation
 pydoc-markdown>=4.8.0          # Generate markdown docs

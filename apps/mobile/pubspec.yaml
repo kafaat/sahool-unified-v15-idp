@@ -58,7 +58,7 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.8
   # google_fonts removed: using local IBM Plex Sans Arabic fonts instead
-  flutter_svg: ^2.2.4
+  flutter_svg: ^2.0.16
   cached_network_image: ^3.4.1
   flutter_cache_manager: ^3.4.1  # Image & file cache management
 

@@ -303,7 +303,7 @@ export const walletApi = {
 
       const transaction = mockTransactions.find((t) => t.id === id);
       if (!transaction) {
-        throw new Error(ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar);
+        throw new Error(`${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.en} | ${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar}`);
       }
       return transaction;
     } catch (error) {
@@ -311,7 +311,7 @@ export const walletApi = {
 
       const transaction = mockTransactions.find((t) => t.id === id);
       if (!transaction) {
-        throw new Error(ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar);
+        throw new Error(`${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.en} | ${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar}`);
       }
       return transaction;
     }
@@ -330,19 +330,19 @@ export const walletApi = {
         return result as Transaction;
       }
 
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     } catch (error) {
       logger.error('Failed to create deposit:', error);
 
       if (isAxiosError(error)) {
         if (error.response?.status === 400) {
-          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
+          throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
         } else if (error.response?.status === 401) {
-          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
+          throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
         }
       }
 
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     }
   },
 
@@ -359,21 +359,21 @@ export const walletApi = {
         return result as Transaction;
       }
 
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     } catch (error) {
       logger.error('Failed to create withdrawal:', error);
 
       if (isAxiosError(error)) {
         if (error.response?.status === 400) {
-          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
+          throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
         } else if (error.response?.status === 402) {
-          throw new Error(ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar);
+          throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
         } else if (error.response?.status === 401) {
-          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
+          throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
         }
       }
 
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     }
   },
 
@@ -390,21 +390,21 @@ export const walletApi = {
         return result as Transaction;
       }
 
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     } catch (error) {
       logger.error('Failed to create transfer:', error);
 
       if (isAxiosError(error)) {
         if (error.response?.status === 400) {
-          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
+          throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
         } else if (error.response?.status === 402) {
-          throw new Error(ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar);
+          throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
         } else if (error.response?.status === 401) {
-          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
+          throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
         }
       }
 
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     }
   },
 };

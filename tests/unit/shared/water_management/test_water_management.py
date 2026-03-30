@@ -57,6 +57,9 @@ from shared.water_management.monitoring import (
     WaterLevelTrend,
 )
 
+# Fixed timestamp for deterministic tests
+_NOW = datetime(2026, 1, 15, 12, 0, 0, tzinfo=UTC)
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Enum Tests - اختبارات التعدادات
@@ -494,7 +497,7 @@ class TestWaterQualityTest:
             id="qt-001",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             electrical_conductivity_ds_m=0.5,
         )
         assert test.classify_water() == WaterQualityClass.CLASS_A
@@ -504,7 +507,7 @@ class TestWaterQualityTest:
             id="qt-002",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             electrical_conductivity_ds_m=2.0,
         )
         assert test.classify_water() == WaterQualityClass.CLASS_B
@@ -514,7 +517,7 @@ class TestWaterQualityTest:
             id="qt-003",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             electrical_conductivity_ds_m=5.0,
         )
         assert test.classify_water() == WaterQualityClass.CLASS_C
@@ -524,7 +527,7 @@ class TestWaterQualityTest:
             id="qt-004",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             electrical_conductivity_ds_m=8.0,
         )
         assert test.classify_water() == WaterQualityClass.CLASS_D
@@ -534,7 +537,7 @@ class TestWaterQualityTest:
             id="qt-005",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             electrical_conductivity_ds_m=12.0,
         )
         assert test.classify_water() == WaterQualityClass.UNFIT
@@ -544,7 +547,7 @@ class TestWaterQualityTest:
             id="qt-006",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             tds_ppm=300.0,
         )
         assert test.classify_water() == WaterQualityClass.CLASS_A
@@ -554,7 +557,7 @@ class TestWaterQualityTest:
             id="qt-007",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             tds_ppm=1500.0,
         )
         assert test.classify_water() == WaterQualityClass.CLASS_B
@@ -564,7 +567,7 @@ class TestWaterQualityTest:
             id="qt-008",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             tds_ppm=7000.0,
         )
         assert test.classify_water() == WaterQualityClass.UNFIT
@@ -574,7 +577,7 @@ class TestWaterQualityTest:
             id="qt-009",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
         )
         assert test.classify_water() == WaterQualityClass.CLASS_B
 
@@ -583,7 +586,7 @@ class TestWaterQualityTest:
             id="qt-001",
             source_id="src-001",
             tenant_id="tenant-001",
-            tested_at=datetime.now(UTC),
+            tested_at=_NOW,
             ph=7.2,
             electrical_conductivity_ds_m=1.5,
             tds_ppm=1000.0,
@@ -861,7 +864,7 @@ class TestIrrigationEfficiencyMetrics:
             "tenant_id": "tenant-001",
             "farm_id": "farm-001",
             "field_id": "field-001",
-            "calculation_date": datetime.now(UTC),
+            "calculation_date": _NOW,
         }
         defaults.update(overrides)
         return IrrigationEfficiencyMetrics(**defaults)
@@ -1115,7 +1118,7 @@ class TestWaterLevelReading:
             id="rd-001",
             source_id="src-001",
             tenant_id="tenant-001",
-            timestamp=datetime.now(UTC),
+            timestamp=_NOW,
             level_m3=5000.0,
             level_percent=50.0,
         )
@@ -1128,7 +1131,7 @@ class TestWaterLevelReading:
             id="rd-001",
             source_id="src-001",
             tenant_id="tenant-001",
-            timestamp=datetime.now(UTC),
+            timestamp=_NOW,
             level_m3=5000.0,
             level_percent=50.0,
             sensor_id="sensor-001",
@@ -1150,8 +1153,8 @@ class TestWaterLevelTrend:
     def test_trend_creation(self):
         trend = WaterLevelTrend(
             source_id="src-001",
-            period_start=datetime.now(UTC) - timedelta(days=7),
-            period_end=datetime.now(UTC),
+            period_start=_NOW - timedelta(days=7),
+            period_end=_NOW,
             reading_count=100,
             valid_readings=95,
             avg_level_m3=5000.0,
@@ -1165,8 +1168,8 @@ class TestWaterLevelTrend:
     def test_trend_to_dict(self):
         trend = WaterLevelTrend(
             source_id="src-001",
-            period_start=datetime.now(UTC) - timedelta(days=7),
-            period_end=datetime.now(UTC),
+            period_start=_NOW - timedelta(days=7),
+            period_end=_NOW,
             change_rate_m3_day=-50.0,
             days_until_empty=100.0,
         )

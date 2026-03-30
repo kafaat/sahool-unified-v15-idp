@@ -221,7 +221,7 @@ class TestBoundaryPointModel:
     """Test BoundaryPoint model."""
 
     def test_boundary_point_creation(self):
-        bp = BoundaryPoint(coordinates=(46.7, 24.7), captured_at=datetime.now(UTC))
+        bp = BoundaryPoint(coordinates=(46.7, 24.7), captured_at=_NOW)
         assert bp.coordinates == (46.7, 24.7)
         assert bp.accuracy_m == 5.0
         assert bp.accuracy_level == CoordinateAccuracy.UNKNOWN
@@ -232,13 +232,13 @@ class TestBoundaryPointModel:
             coordinates=(46.7, 24.7),
             accuracy_m=0.5,
             accuracy_level=CoordinateAccuracy.HIGH,
-            captured_at=datetime.now(UTC),
+            captured_at=_NOW,
         )
         assert bp.accuracy_m == 0.5
         assert bp.accuracy_level == CoordinateAccuracy.HIGH
 
     def test_boundary_point_to_point(self):
-        bp = BoundaryPoint(coordinates=(46.7, 24.7), captured_at=datetime.now(UTC))
+        bp = BoundaryPoint(coordinates=(46.7, 24.7), captured_at=_NOW)
         point = bp.to_point()
         assert isinstance(point, Point)
         assert point.coordinates == (46.7, 24.7)
@@ -250,7 +250,7 @@ class TestBoundaryPointModel:
             device_id="gps-001",
             notes="Corner post",
             notes_ar="عمود الزاوية",
-            captured_at=datetime.now(UTC),
+            captured_at=_NOW,
         )
         assert bp.altitude_m == 600.0
         assert bp.device_id == "gps-001"
@@ -495,8 +495,9 @@ class TestGPSTrackModel:
         track.add_point(_bp((46.7, 24.7)))
         track.add_point(_bp((46.71, 24.7)))
         track.add_point(_bp((46.71, 24.71)))
-        # Add closing point manually (close_track creates BoundaryPoint internally
-        # which hits a default_factory bug in the source model)
+        # Pre-close by adding the closing point explicitly because
+        # GPSTrack.close_track() creates a BoundaryPoint internally
+        # using a non-callable default_factory (datetime object instead of lambda).
         track.add_point(_bp((46.7, 24.7)))
         track.close_track()
         assert track.is_closed is True

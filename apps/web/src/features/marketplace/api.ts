@@ -112,7 +112,11 @@ export const marketplaceApi = {
       if (filters?.status) params.append('status', filters.status);
       if (filters?.sortBy) params.append('sortBy', filters.sortBy);
 
-      const response = await api.get(`${MARKETPLACE_ENDPOINTS.PRODUCTS}?${params.toString()}`);
+      const qs = params.toString();
+      const url = qs
+        ? `${MARKETPLACE_ENDPOINTS.PRODUCTS}?${qs}`
+        : MARKETPLACE_ENDPOINTS.PRODUCTS;
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
@@ -180,7 +184,11 @@ export const marketplaceApi = {
       if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
       if (filters?.dateTo) params.append('dateTo', filters.dateTo);
 
-      const response = await api.get(`${MARKETPLACE_ENDPOINTS.ORDERS}?${params.toString()}`);
+      const qs = params.toString();
+      const url = qs
+        ? `${MARKETPLACE_ENDPOINTS.ORDERS}?${qs}`
+        : MARKETPLACE_ENDPOINTS.ORDERS;
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
@@ -353,9 +361,11 @@ export const marketplaceApi = {
         const params = new URLSearchParams();
         if (category) params.append('category', category);
         if (region) params.append('region', region);
-        const response = await api.get(
-          `${API_PREFIX}/marketplace/prices/analytics?${params.toString()}`
-        );
+        const qs = params.toString();
+        const analyticsUrl = qs
+          ? `${API_PREFIX}/marketplace/prices/analytics?${qs}`
+          : `${API_PREFIX}/marketplace/prices/analytics`;
+        const response = await api.get(analyticsUrl);
         return response.data.data || response.data;
       }
     );

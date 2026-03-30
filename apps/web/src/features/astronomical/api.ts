@@ -85,7 +85,10 @@ export async function getDate(date: string): Promise<DailyAstronomicalData> {
  */
 export async function getWeeklyForecast(startDate?: string): Promise<WeeklyForecast> {
   const params = startDate ? `?start_date=${startDate}` : '';
-  return fetchFromAPI<WeeklyForecast>(`/week${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/week`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/week${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -95,7 +98,10 @@ export async function getWeeklyForecast(startDate?: string): Promise<WeeklyForec
  */
 export async function getMoonPhase(date?: string): Promise<MoonPhase> {
   const params = date ? `?date_str=${date}` : '';
-  return fetchFromAPI<MoonPhase>(`/moon-phase${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/moon-phase`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/moon-phase${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -105,7 +111,10 @@ export async function getMoonPhase(date?: string): Promise<MoonPhase> {
  */
 export async function getLunarMansion(date?: string): Promise<LunarMansion> {
   const params = date ? `?date_str=${date}` : '';
-  return fetchFromAPI<LunarMansion>(`/lunar-mansion${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/lunar-mansion`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/lunar-mansion${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -115,7 +124,10 @@ export async function getLunarMansion(date?: string): Promise<LunarMansion> {
  */
 export async function getHijriDate(date?: string): Promise<HijriDate> {
   const params = date ? `?date_str=${date}` : '';
-  return fetchFromAPI<HijriDate>(`/hijri${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/hijri`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/hijri${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -124,7 +136,10 @@ export async function getHijriDate(date?: string): Promise<HijriDate> {
  * @param crop - اسم المحصول (قمح، طماطم، بن، إلخ)
  */
 export async function getCropCalendar(crop: string): Promise<CropCalendar> {
-  return fetchFromAPI<CropCalendar>(`/crop-calendar/${encodeURIComponent(crop)}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/crop-calendar`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/crop-calendar/${encodeURIComponent(crop)}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -141,7 +156,10 @@ export async function getBestDays(
     activity,
     days: days.toString(),
   });
-  return fetchFromAPI<BestDaysResult>(`/best-days?${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/best-days`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/best-days?${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -153,7 +171,10 @@ export async function getBestDays(
  * Get all Yemeni farming proverbs
  */
 export async function getProverbs(): Promise<AllProverbs> {
-  return fetchFromAPI<AllProverbs>('/proverbs');
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/proverbs`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/proverbs`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -161,7 +182,10 @@ export async function getProverbs(): Promise<AllProverbs> {
  * Get proverb of the day
  */
 export async function getProverbOfTheDay(): Promise<ProverbOfTheDay> {
-  return fetchFromAPI<ProverbOfTheDay>('/proverbs/today');
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/proverbs/today`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/proverbs/today`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -169,5 +193,8 @@ export async function getProverbOfTheDay(): Promise<ProverbOfTheDay> {
  * Get comprehensive daily wisdom
  */
 export async function getWisdomToday(): Promise<DailyWisdom> {
-  return fetchFromAPI<DailyWisdom>('/wisdom/today');
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/wisdom/today`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/wisdom/today`);
+    return response.data.data || response.data;
+  });
 }

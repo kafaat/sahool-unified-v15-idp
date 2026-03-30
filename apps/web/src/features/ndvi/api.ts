@@ -4,6 +4,7 @@
  */
 
 import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { SATELLITE_ENDPOINTS, buildUrl, API_PREFIX } from '@sahool/shared-types/contracts';
 import type {
   VegetationIndex,

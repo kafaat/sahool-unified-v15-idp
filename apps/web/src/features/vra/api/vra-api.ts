@@ -12,8 +12,54 @@ import type {
   PrescriptionRequest,
   PrescriptionResponse,
   PrescriptionHistoryResponse,
+  PrescriptionSummary,
   ExportFormat,
+  ZoneResult,
 } from '../types/vra';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Backend Response Shapes
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Raw zone object from backend API (snake_case) */
+interface BackendZone {
+  zone_id: number;
+  zone_name: string;
+  zone_name_ar: string;
+  zone_level: string;
+  ndvi_min: number;
+  ndvi_max: number;
+  area_ha: number;
+  percentage: number;
+  centroid: [number, number];
+  recommended_rate: number;
+  unit: string;
+  total_product: number;
+  color: string;
+}
+
+/** Raw prescription summary from backend API (snake_case) */
+interface BackendPrescriptionSummary {
+  id: string;
+  field_id: string;
+  vra_type: string;
+  created_at: string;
+  target_rate: number;
+  unit: string;
+  num_zones: number;
+  total_area_ha: number;
+  savings_percent: number;
+  savings_amount: number;
+  cost_savings?: number;
+}
+
+/** Export result data shape */
+interface ExportData {
+  url?: string;
+  filename?: string;
+  format: string;
+  content?: unknown;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Messages

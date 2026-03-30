@@ -460,8 +460,8 @@ function generateAlerts(
   health: number,
   _hydration: number,
   _attention: number,
-  _ndviData: any,
-  sensors: any[] | undefined,
+  _ndviData: NdviData | undefined,
+  sensors: SensorReading[] | undefined,
   tasks: Task[] | undefined
 ): FieldAlert[] {
   const alerts: FieldAlert[] = [];
@@ -588,9 +588,9 @@ function generateRecommendations(
   hydration: number,
   attention: number,
   _astral: number,
-  _ndviData: any,
-  weatherData: any,
-  astronomicalData: any
+  _ndviData: NdviData | undefined,
+  weatherData: WeatherData | undefined,
+  astronomicalData: AstronomicalData | undefined
 ): Recommendation[] {
   const recommendations: Recommendation[] = [];
 

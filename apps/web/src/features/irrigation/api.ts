@@ -206,7 +206,7 @@ export const irrigationApi = {
   recordIrrigationExecution: async (
     data: IrrigationExecutionRequest
   ): Promise<IrrigationExecutionResponse> => {
-    const response = await api.post('/api/v1/irrigation/irrigation-executed', data);
+    const response = await api.post(SMART_IRRIGATION_ENDPOINTS.IRRIGATION_EXECUTED, data);
     return response.data.data || response.data;
   },
 
@@ -219,7 +219,7 @@ export const irrigationApi = {
   calculateWithAction: async (
     params: CalculateIrrigationRequest
   ): Promise<CalculateWithActionResponse> => {
-    const response = await api.post('/api/v1/irrigation/calculate-with-action', params);
+    const response = await api.post(SMART_IRRIGATION_ENDPOINTS.CALCULATE_WITH_ACTION, params);
     return response.data.data || response.data;
   },
 };

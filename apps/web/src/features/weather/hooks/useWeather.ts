@@ -44,7 +44,8 @@ if (!API_BASE_URL && typeof window !== 'undefined') {
   logger.warn('NEXT_PUBLIC_API_URL environment variable is not set');
 }
 
-const WEATHER_API_BASE = `${API_BASE_URL}/api/v1/weather`;
+const WEATHER_ENDPOINT = '/api/v1/weather';
+const WEATHER_API_BASE = `${API_BASE_URL}${WEATHER_ENDPOINT}`;
 
 // Default coordinates for Yemen (Sana'a)
 const DEFAULT_COORDS = { lat: 15.3694, lon: 44.191 };

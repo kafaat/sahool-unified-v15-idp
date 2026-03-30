@@ -4,6 +4,7 @@ library;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import '../remote/satellite_api.dart';
 import '../models/ndvi_data.dart';
 import '../models/field_health.dart';
@@ -278,19 +279,19 @@ class SatelliteRepository {
     // Fetch all data in parallel - handle partial failures gracefully
     final results = await Future.wait<dynamic>([
       getFieldHealth(fieldId, forceRefresh: forceRefresh).catchError((e) {
-        AppLogger.w('getFieldHealth failed: $e', tag: 'SatelliteRepo');
+        developer.log('getFieldHealth failed: $e', name: 'SatelliteRepo');
         return null;
       }),
       getNdviAnalysis(fieldId, forceRefresh: forceRefresh).catchError((e) {
-        AppLogger.w('getNdviAnalysis failed: $e', tag: 'SatelliteRepo');
+        developer.log('getNdviAnalysis failed: $e', name: 'SatelliteRepo');
         return null;
       }),
       getWeatherForecast(fieldId, forceRefresh: forceRefresh).catchError((e) {
-        AppLogger.w('getWeatherForecast failed: $e', tag: 'SatelliteRepo');
+        developer.log('getWeatherForecast failed: $e', name: 'SatelliteRepo');
         return null;
       }),
       getPhenologyData(fieldId, forceRefresh: forceRefresh).catchError((e) {
-        AppLogger.w('getPhenologyData failed: $e', tag: 'SatelliteRepo');
+        developer.log('getPhenologyData failed: $e', name: 'SatelliteRepo');
         return null;
       }),
     ]);

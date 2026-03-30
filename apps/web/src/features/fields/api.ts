@@ -36,6 +36,58 @@ interface ApiFieldResponse {
   updatedAt?: string;
 }
 
+/**
+ * Boundary change history entry
+ */
+export interface BoundaryHistoryEntry {
+  id: string;
+  fieldId: string;
+  previousBoundary: GeoPolygon | null;
+  newBoundary: GeoPolygon;
+  changedBy: string;
+  changedAt: string;
+  reason?: string;
+}
+
+/**
+ * NDVI data for a field
+ */
+export interface NdviData {
+  fieldId: string;
+  value: number;
+  timestamp: string;
+  source?: string;
+  cloudCover?: number;
+}
+
+/**
+ * NDVI summary across tenant fields
+ */
+export interface NdviSummary {
+  totalFields: number;
+  averageNdvi: number;
+  healthDistribution: Record<string, number>;
+}
+
+/**
+ * Field sync status
+ */
+export interface SyncStatus {
+  fieldId: string;
+  lastSyncAt: string;
+  status: string;
+  pendingChanges: number;
+}
+
+/**
+ * Batch sync result
+ */
+export interface BatchSyncResult {
+  synced: number;
+  failed: number;
+  conflicts: number;
+}
+
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
 
@@ -217,7 +269,7 @@ export const fieldsApi = {
    * Get boundary change history for a field
    * جلب سجل تغييرات حدود الحقل
    */
-  getBoundaryHistory: async (fieldId: string): Promise<unknown[]> => {
+  getBoundaryHistory: async (fieldId: string): Promise<BoundaryHistoryEntry[]> => {
     return safeFetch(buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }), async () => {
       const response = await api.get(buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }));
       return response.data.data || response.data;
@@ -269,7 +321,7 @@ export const fieldsApi = {
    * Get NDVI analysis for a field
    * جلب تحليل NDVI للحقل
    */
-  getFieldNdvi: async (fieldId: string): Promise<unknown> => {
+  getFieldNdvi: async (fieldId: string): Promise<NdviData> => {
     return safeFetch(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), async () => {
       const response = await api.get(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }));
       return response.data.data || response.data;
@@ -280,7 +332,7 @@ export const fieldsApi = {
    * Update NDVI value for a field
    * تحديث مؤشر NDVI للحقل
    */
-  updateFieldNdvi: async (fieldId: string, data: { value: number; source?: string; cloudCover?: number }): Promise<unknown> => {
+  updateFieldNdvi: async (fieldId: string, data: { value: number; source?: string; cloudCover?: number }): Promise<NdviData> => {
     return safeFetch(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), async () => {
       const response = await api.put(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), data);
       return response.data.data || response.data;
@@ -291,7 +343,7 @@ export const fieldsApi = {
    * Get NDVI summary for the tenant
    * جلب ملخص NDVI للمستأجر
    */
-  getNdviSummary: async (): Promise<unknown> => {
+  getNdviSummary: async (): Promise<NdviSummary> => {
     return safeFetch(SATELLITE_ENDPOINTS.NDVI_SUMMARY, async () => {
       const response = await api.get(SATELLITE_ENDPOINTS.NDVI_SUMMARY);
       return response.data.data || response.data;
@@ -302,7 +354,7 @@ export const fieldsApi = {
    * Get field sync status (delta sync)
    * جلب حالة مزامنة الحقول
    */
-  getFieldSyncStatus: async (): Promise<unknown> => {
+  getFieldSyncStatus: async (): Promise<SyncStatus[]> => {
     return safeFetch(FIELD_ENDPOINTS.SYNC, async () => {
       const response = await api.get(FIELD_ENDPOINTS.SYNC);
       return response.data.data || response.data;
@@ -313,7 +365,7 @@ export const fieldsApi = {
    * Batch sync fields from mobile/offline
    * مزامنة مجموعة من الحقول
    */
-  batchSync: async (data: { deviceId: string; userId: string; fields: unknown[] }): Promise<unknown> => {
+  batchSync: async (data: { deviceId: string; userId: string; fields: unknown[] }): Promise<BatchSyncResult> => {
     return safeFetch(FIELD_ENDPOINTS.SYNC_BATCH, async () => {
       const response = await api.post(FIELD_ENDPOINTS.SYNC_BATCH, data);
       return response.data.data || response.data;

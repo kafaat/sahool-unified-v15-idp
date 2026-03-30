@@ -503,15 +503,7 @@ class EquipmentRepository {
     try {
       final response = await _dio.post(
         '/api/v1/equipment/$equipmentId/maintenance',
-        queryParameters: {
-          'maintenance_type': maintenanceType.value,
-          'description': description,
-          if (descriptionAr != null) 'description_ar': descriptionAr,
-          if (performedBy != null) 'performed_by': performedBy,
-          if (cost != null) 'cost': cost,
-          if (notes != null) 'notes': notes,
-          if (partsReplaced != null) 'parts_replaced': partsReplaced,
-        },
+        data: maintenanceData,
       );
 
       AppLogger.i('Maintenance record added via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});

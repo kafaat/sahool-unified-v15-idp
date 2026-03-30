@@ -48,6 +48,8 @@ export const ALL_EVENT_SUBSCRIPTIONS = [
   'system.*',
   'user.*',
   'satellite.*',
+  'irrigation.*',
+  'fertilizer.*',
 ] as const;
 
 /**
@@ -67,7 +69,9 @@ export type EventCategory =
   | 'iot'
   | 'system'
   | 'user'
-  | 'diagnosis';
+  | 'diagnosis'
+  | 'irrigation'
+  | 'fertilizer';
 
 export interface TimelineEvent {
   event_id: string;
@@ -186,12 +190,12 @@ class WebSocketClient {
     }
   }
 
-  private subscribe(subjects: string[]) {
+  private subscribe(topics: string[]) {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(
         JSON.stringify({
           type: 'subscribe',
-          topics: subjects,
+          topics,
         })
       );
     }

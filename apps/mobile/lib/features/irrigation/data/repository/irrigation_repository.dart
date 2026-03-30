@@ -564,6 +564,10 @@ class IrrigationRepository {
         );
 
         AppLogger.w('Sensor reading queued for offline sync (API unavailable)', tag: 'IrrigationRepo');
+        return ApiResult.failure(
+          'Saved offline, will sync when connected',
+          'تم الحفظ محلياً، سيتم المزامنة عند الاتصال',
+        );
       }
 
       if (e.type == DioExceptionType.connectionTimeout ||

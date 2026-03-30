@@ -32,12 +32,14 @@ export const ERROR_MESSAGES = {
 };
 
 export const visionApi = {
-  detectPest: async (image: File, confidence?: number): Promise<PestDetection> => {
+  detectPest: async (image: File, confidence?: number, includeVisualization = false): Promise<PestDetection> => {
     return safeFetch(VISION_ENDPOINTS.DETECT_PEST, async () => {
       const formData = new FormData();
       formData.append('image', image);
       if (confidence) formData.append('confidence', confidence.toString());
-      const url = `${VISION_ENDPOINTS.DETECT_PEST}?return_visualization=true`;
+      const url = includeVisualization
+        ? `${VISION_ENDPOINTS.DETECT_PEST}?return_visualization=true`
+        : VISION_ENDPOINTS.DETECT_PEST;
       const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -45,12 +47,14 @@ export const visionApi = {
     });
   },
 
-  detectDisease: async (image: File, confidence?: number): Promise<DiseaseDetection> => {
+  detectDisease: async (image: File, confidence?: number, includeVisualization = false): Promise<DiseaseDetection> => {
     return safeFetch(VISION_ENDPOINTS.DETECT_DISEASE, async () => {
       const formData = new FormData();
       formData.append('image', image);
       if (confidence) formData.append('confidence', confidence.toString());
-      const url = `${VISION_ENDPOINTS.DETECT_DISEASE}?return_visualization=true`;
+      const url = includeVisualization
+        ? `${VISION_ENDPOINTS.DETECT_DISEASE}?return_visualization=true`
+        : VISION_ENDPOINTS.DETECT_DISEASE;
       const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -58,12 +62,14 @@ export const visionApi = {
     });
   },
 
-  detectWeed: async (image: File, confidence?: number): Promise<WeedDetection> => {
+  detectWeed: async (image: File, confidence?: number, includeVisualization = false): Promise<WeedDetection> => {
     return safeFetch(VISION_ENDPOINTS.DETECT_WEED, async () => {
       const formData = new FormData();
       formData.append('image', image);
       if (confidence) formData.append('confidence', confidence.toString());
-      const url = `${VISION_ENDPOINTS.DETECT_WEED}?return_visualization=true`;
+      const url = includeVisualization
+        ? `${VISION_ENDPOINTS.DETECT_WEED}?return_visualization=true`
+        : VISION_ENDPOINTS.DETECT_WEED;
       const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });

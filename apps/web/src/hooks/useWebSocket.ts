@@ -334,6 +334,9 @@ const QUERY_KEYS_BY_CATEGORY: Record<string, string[]> = {
   user: ['users', 'user-status'],
   chat: ['chat', 'messages'],
   system: ['notifications'],
+  diagnosis: ['diagnosis', 'crop-health', 'disease'],
+  irrigation: ['irrigation', 'irrigation-schedules', 'water-balance'],
+  fertilizer: ['fertilizer', 'fertilizer-plans', 'nutrients'],
 };
 
 /**
@@ -437,6 +440,9 @@ export interface WebSocketEventHandlers {
   onIotEvent?: TimelineEventHandler;
   onSystemEvent?: TimelineEventHandler;
   onUserEvent?: TimelineEventHandler;
+  onDiagnosisEvent?: TimelineEventHandler;
+  onIrrigationEvent?: TimelineEventHandler;
+  onFertilizerEvent?: TimelineEventHandler;
 }
 
 const HANDLER_CATEGORY_MAP: [keyof WebSocketEventHandlers, EventCategory][] = [
@@ -452,6 +458,9 @@ const HANDLER_CATEGORY_MAP: [keyof WebSocketEventHandlers, EventCategory][] = [
   ['onIotEvent', 'iot'],
   ['onSystemEvent', 'system'],
   ['onUserEvent', 'user'],
+  ['onDiagnosisEvent', 'diagnosis'],
+  ['onIrrigationEvent', 'irrigation'],
+  ['onFertilizerEvent', 'fertilizer'],
 ];
 
 /**

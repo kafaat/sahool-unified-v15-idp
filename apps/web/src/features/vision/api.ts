@@ -36,7 +36,7 @@ export const visionApi = {
     return safeFetch(VISION_ENDPOINTS.DETECT_PEST, async () => {
       const formData = new FormData();
       formData.append('image', image);
-      if (confidence) formData.append('confidence', confidence.toString());
+      if (confidence !== undefined) formData.append('confidence', confidence.toString());
       const url = includeVisualization
         ? `${VISION_ENDPOINTS.DETECT_PEST}?return_visualization=true`
         : VISION_ENDPOINTS.DETECT_PEST;
@@ -51,7 +51,7 @@ export const visionApi = {
     return safeFetch(VISION_ENDPOINTS.DETECT_DISEASE, async () => {
       const formData = new FormData();
       formData.append('image', image);
-      if (confidence) formData.append('confidence', confidence.toString());
+      if (confidence !== undefined) formData.append('confidence', confidence.toString());
       const url = includeVisualization
         ? `${VISION_ENDPOINTS.DETECT_DISEASE}?return_visualization=true`
         : VISION_ENDPOINTS.DETECT_DISEASE;
@@ -66,7 +66,7 @@ export const visionApi = {
     return safeFetch(VISION_ENDPOINTS.DETECT_WEED, async () => {
       const formData = new FormData();
       formData.append('image', image);
-      if (confidence) formData.append('confidence', confidence.toString());
+      if (confidence !== undefined) formData.append('confidence', confidence.toString());
       const url = includeVisualization
         ? `${VISION_ENDPOINTS.DETECT_WEED}?return_visualization=true`
         : VISION_ENDPOINTS.DETECT_WEED;

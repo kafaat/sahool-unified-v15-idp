@@ -276,6 +276,33 @@ describe('WebSocket Client', () => {
     });
   });
 
+  describe('getEventCategory', () => {
+    it('should return empty string for empty input', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('')).toBe('');
+    });
+
+    it('should extract category from dot notation', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('field.created')).toBe('field');
+    });
+
+    it('should extract category from underscore notation', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('task_created')).toBe('task');
+    });
+
+    it('should return the whole string when no separator exists', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('simple')).toBe('simple');
+    });
+
+    it('should return first segment for deeply nested dot notation', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('a.b.c.d')).toBe('a');
+    });
+  });
+
   describe('Error Handling', () => {
     it('should handle malformed WebSocket messages gracefully', async () => {
       const { wsClient } = await import('../index');

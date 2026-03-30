@@ -83,7 +83,7 @@ class KnowledgeSerializer:
 
         manifest = ExportManifest(
             version="1.0.0",
-            exported_at=datetime.now(UTC).isoformat(),
+            exported_at=datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
             total_documents=len(serialized),
             collections=sorted(collections_set),
             domains=sorted(domains_set),
@@ -150,7 +150,7 @@ class KnowledgeSerializer:
         return {
             "manifest": {
                 "version": "1.0.0",
-                "exported_at": datetime.now(UTC).isoformat(),
+                "exported_at": datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
                 "total_documents": len(serialized),
                 "collections": sorted(collections_set),
                 "domains": sorted(domains_set),

@@ -124,7 +124,10 @@ class KnowledgeQualityGate:
         # Consider documents fresh if updated within the last 365 days
         freshness_threshold = now - timedelta(days=365)
         total = len(docs)
-        fresh_count = sum(1 for doc in docs if doc.updated_at >= freshness_threshold)
+        # Normalize naive timestamps to UTC before comparison
+        def _to_aware(dt: datetime) -> datetime:
+            return dt.replace(tzinfo=UTC) if dt.tzinfo is None else dt
+        fresh_count = sum(1 for doc in docs if _to_aware(doc.updated_at) >= freshness_threshold)
 
         # Also check explicit expiration dates from FRESH metadata
         expired_count = 0

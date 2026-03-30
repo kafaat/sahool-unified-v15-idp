@@ -185,23 +185,17 @@ export const walletApi = {
    * الحصول على تفاصيل المحفظة
    */
   async getWallet(): Promise<Wallet> {
-    try {
+    return safeFetch(BILLING_ENDPOINTS.WALLET, async () => {
       const response = await api.get(BILLING_ENDPOINTS.WALLET);
-
-      // Handle different response formats
       const data = response.data.data || response.data;
 
-      // Validate response structure
       if (data && typeof data === 'object' && 'balance' in data) {
         return data as Wallet;
       }
 
       logger.warn('API returned unexpected format, using mock data');
       return mockWallet;
-    } catch (error) {
-      logger.warn('Failed to fetch wallet from API, using mock data:', error);
-      return mockWallet;
-    }
+    });
   },
 
   /**
@@ -209,8 +203,9 @@ export const walletApi = {
    * الحصول على إحصائيات المحفظة
    */
   async getStats(): Promise<WalletStats> {
-    try {
-      const response = await api.get(`${BILLING_ENDPOINTS.WALLET}/stats`);
+    const endpoint = `${BILLING_ENDPOINTS.WALLET}/stats`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       const data = response.data.data || response.data;
 
       if (data && typeof data === 'object' && 'currentBalance' in data) {
@@ -218,9 +213,7 @@ export const walletApi = {
       }
 
       logger.warn('API returned unexpected format for stats, using mock data');
-
-      // Calculate stats from mock wallet
-      const stats: WalletStats = {
+      return {
         currentBalance: mockWallet.balance,
         pendingBalance: mockWallet.pendingBalance,
         totalIncome: mockWallet.totalDeposits,
@@ -230,25 +223,7 @@ export const walletApi = {
         transactionCount: mockWallet.totalTransactions,
         currency: mockWallet.currency,
       };
-
-      return stats;
-    } catch (error) {
-      logger.warn('Failed to fetch wallet stats from API, using mock data:', error);
-
-      // Calculate stats from mock wallet
-      const stats: WalletStats = {
-        currentBalance: mockWallet.balance,
-        pendingBalance: mockWallet.pendingBalance,
-        totalIncome: mockWallet.totalDeposits,
-        totalExpenses: mockWallet.totalWithdrawals,
-        monthlyIncome: 1500,
-        monthlyExpenses: 557,
-        transactionCount: mockWallet.totalTransactions,
-        currency: mockWallet.currency,
-      };
-
-      return stats;
-    }
+    });
   },
 
   /**
@@ -256,8 +231,7 @@ export const walletApi = {
    * الحصول على قائمة المعاملات
    */
   async getTransactions(filters?: TransactionFilters): Promise<Transaction[]> {
-    try {
-      // Build query parameters
+    return safeFetch(BILLING_ENDPOINTS.TRANSACTIONS, async () => {
       const params = new URLSearchParams();
       if (filters?.type) params.append('type', filters.type);
       if (filters?.status) params.append('status', filters.status);
@@ -280,10 +254,7 @@ export const walletApi = {
 
       logger.warn('API returned unexpected format for transactions, using mock data');
       return filterTransactions(mockTransactions, filters);
-    } catch (error) {
-      logger.warn('Failed to fetch transactions from API, using mock data:', error);
-      return filterTransactions(mockTransactions, filters);
-    }
+    });
   },
 
   /**
@@ -291,8 +262,9 @@ export const walletApi = {
    * الحصول على معاملة حسب المعرف
    */
   async getTransactionById(id: string): Promise<Transaction> {
-    try {
-      const response = await api.get(`${BILLING_ENDPOINTS.TRANSACTIONS}/${id}`);
+    const endpoint = `${BILLING_ENDPOINTS.TRANSACTIONS}/${id}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       const data = response.data.data || response.data;
 
       if (data && typeof data === 'object' && 'id' in data) {
@@ -300,21 +272,12 @@ export const walletApi = {
       }
 
       logger.warn('API returned unexpected format for transaction, using mock data');
-
       const transaction = mockTransactions.find((t) => t.id === id);
       if (!transaction) {
         throw new Error(`${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.en} | ${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar}`);
       }
       return transaction;
-    } catch (error) {
-      logger.warn('Failed to fetch transaction from API, using mock data:', error);
-
-      const transaction = mockTransactions.find((t) => t.id === id);
-      if (!transaction) {
-        throw new Error(`${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.en} | ${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar}`);
-      }
-      return transaction;
-    }
+    });
   },
 
   /**
@@ -322,7 +285,7 @@ export const walletApi = {
    * إنشاء إيداع
    */
   async deposit(data: DepositFormData): Promise<Transaction> {
-    try {
+    return safeFetch(BILLING_ENDPOINTS.WALLET_DEPOSIT, async () => {
       const response = await api.post(BILLING_ENDPOINTS.WALLET_DEPOSIT, data);
       const result = response.data.data || response.data;
 
@@ -331,19 +294,7 @@ export const walletApi = {
       }
 
       throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
-    } catch (error) {
-      logger.error('Failed to create deposit:', error);
-
-      if (isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        } else if (error.response?.status === 401) {
-          throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
-        }
-      }
-
-      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
-    }
+    });
   },
 
   /**
@@ -351,7 +302,7 @@ export const walletApi = {
    * إنشاء سحب
    */
   async withdraw(data: WithdrawalFormData): Promise<Transaction> {
-    try {
+    return safeFetch(BILLING_ENDPOINTS.WALLET_WITHDRAW, async () => {
       const response = await api.post(BILLING_ENDPOINTS.WALLET_WITHDRAW, data);
       const result = response.data.data || response.data;
 
@@ -360,21 +311,7 @@ export const walletApi = {
       }
 
       throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
-    } catch (error) {
-      logger.error('Failed to create withdrawal:', error);
-
-      if (isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        } else if (error.response?.status === 402) {
-          throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
-        } else if (error.response?.status === 401) {
-          throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
-        }
-      }
-
-      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
-    }
+    });
   },
 
   /**
@@ -382,7 +319,7 @@ export const walletApi = {
    * تحويل الأموال إلى مستخدم آخر
    */
   async transfer(data: TransferFormData): Promise<Transaction> {
-    try {
+    return safeFetch(BILLING_ENDPOINTS.WALLET_TRANSFER, async () => {
       const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data);
       const result = response.data.data || response.data;
 
@@ -391,20 +328,6 @@ export const walletApi = {
       }
 
       throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
-    } catch (error) {
-      logger.error('Failed to create transfer:', error);
-
-      if (isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        } else if (error.response?.status === 402) {
-          throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
-        } else if (error.response?.status === 401) {
-          throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
-        }
-      }
-
-      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
-    }
+    });
   },
 };

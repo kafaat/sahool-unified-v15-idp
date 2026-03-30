@@ -443,7 +443,9 @@ class NATSBridge:
             # Broadcast to global irrigation topic room with sanitized data
             # (strip tenant_id and field_id to prevent cross-tenant data leakage)
             sanitized_data = {k: v for k, v in data.items() if k not in ("tenant_id", "field_id")}
-            sanitized_message = self._create_event_message(event_type=event_type, data=sanitized_data, subject=msg.subject)
+            sanitized_message = self._create_event_message(
+                event_type=event_type, data=sanitized_data, subject=msg.subject
+            )
             await self.room_manager.broadcast_to_room(RoomType.IRRIGATION, sanitized_message)
 
             # Irrigation alerts also go to the alerts room
@@ -483,7 +485,9 @@ class NATSBridge:
             # Broadcast to global fertilizer topic room with sanitized data
             # (strip tenant_id and field_id to prevent cross-tenant data leakage)
             sanitized_data = {k: v for k, v in data.items() if k not in ("tenant_id", "field_id")}
-            sanitized_message = self._create_event_message(event_type=event_type, data=sanitized_data, subject=msg.subject)
+            sanitized_message = self._create_event_message(
+                event_type=event_type, data=sanitized_data, subject=msg.subject
+            )
             await self.room_manager.broadcast_to_room(RoomType.FERTILIZER, sanitized_message)
 
             # Fertilizer alerts also go to the alerts room

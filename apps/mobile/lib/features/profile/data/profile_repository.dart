@@ -66,12 +66,12 @@ class ProfileRepository {
     String? phone,
     String? farmName,
   }) async {
-    try {
-      final body = <String, dynamic>{};
-      if (userName != null) body['name'] = userName;
-      if (phone != null) body['phone'] = phone;
-      if (farmName != null) body['farmName'] = farmName;
+    final body = <String, dynamic>{};
+    if (userName != null) body['name'] = userName;
+    if (phone != null) body['phone'] = phone;
+    if (farmName != null) body['farmName'] = farmName;
 
+    try {
       final response = await _dio.patch('/api/v1/users/me', data: body);
 
       final data = response.data is Map<String, dynamic>

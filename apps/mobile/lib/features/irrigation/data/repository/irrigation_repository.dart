@@ -570,13 +570,6 @@ class IrrigationRepository {
         );
       }
 
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.connectionError) {
-        return ApiResult.failure(
-          'Saved offline, will sync when connected',
-          'تم الحفظ محلياً، سيتم المزامنة عند الاتصال',
-        );
-      }
       return ApiResult.failure(
         e.message ?? 'Failed to record sensor reading',
         'فشل في تسجيل قراءة المستشعر',
@@ -589,18 +582,6 @@ class IrrigationRepository {
   // ─────────────────────────────────────────────────────────────────────────────
   // Offline Sync - المزامنة دون اتصال
   // ─────────────────────────────────────────────────────────────────────────────
-
-  /// Queue a pending operation for later sync
-  Future<void> _queuePendingOperation(Map<String, dynamic> operation) async {
-    try {
-      final prefs = await _getPrefs();
-      final pending = prefs.getStringList('irrigation_pending_ops') ?? [];
-      pending.add(jsonEncode(operation));
-      await prefs.setStringList('irrigation_pending_ops', pending);
-    } catch (_) {
-      // Silently fail
-    }
-  }
 
   /// Sync all pending operations
   /// مزامنة جميع العمليات المعلقة

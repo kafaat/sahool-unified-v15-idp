@@ -159,7 +159,9 @@ class AlertsRepository {
         );
 
         AppLogger.w('Alert acknowledgement queued for offline sync (API unavailable)', tag: 'AlertsRepo');
-        return const Success(null);
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
       }
 
       return Failure(
@@ -194,7 +196,9 @@ class AlertsRepository {
         );
 
         AppLogger.w('Acknowledge all alerts queued for offline sync (API unavailable)', tag: 'AlertsRepo');
-        return const Success(null);
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
       }
 
       return Failure(

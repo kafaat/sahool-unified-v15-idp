@@ -6,7 +6,7 @@
 import type { Field, FieldFormData, FieldFilters, GeoPolygon } from './types';
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
-import { FIELD_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
+import { FIELD_ENDPOINTS, SATELLITE_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 
 /**
  * API Field Response Type
@@ -209,6 +209,113 @@ export const fieldsApi = {
       const params = new URLSearchParams();
       if (farmId) params.set('tenantId', farmId);
       const response = await api.get(`${FIELD_ENDPOINTS.LIST}/stats?${params.toString()}`);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Get boundary change history for a field
+   * جلب سجل تغييرات حدود الحقل
+   */
+  getBoundaryHistory: async (fieldId: string): Promise<unknown[]> => {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }), async () => {
+      const response = await api.get(buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }));
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Update field boundary
+   * تحديث حدود الحقل
+   */
+  updateBoundary: async (fieldId: string, boundary: GeoPolygon): Promise<Field> => {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.BOUNDARY_UPDATE, { fieldId }), async () => {
+      const response = await api.put(buildUrl(FIELD_ENDPOINTS.BOUNDARY_UPDATE, { fieldId }), { boundary });
+      const field = response.data.data || response.data;
+      return mapApiFieldToField(field);
+    });
+  },
+
+  /**
+   * Rollback boundary to a previous version
+   * استعادة حدود الحقل من نسخة سابقة
+   */
+  rollbackBoundary: async (fieldId: string, versionId: string): Promise<Field> => {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.BOUNDARY_ROLLBACK, { fieldId }), async () => {
+      const response = await api.post(buildUrl(FIELD_ENDPOINTS.BOUNDARY_ROLLBACK, { fieldId }), { versionId });
+      const field = response.data.data || response.data;
+      return mapApiFieldToField(field);
+    });
+  },
+
+  /**
+   * Get nearby fields by coordinates
+   * البحث عن الحقول القريبة
+   */
+  getNearbyFields: async (lat: number, lng: number, radiusKm: number): Promise<Field[]> => {
+    return safeFetch(FIELD_ENDPOINTS.NEARBY, async () => {
+      const params = new URLSearchParams();
+      params.set('lat', lat.toString());
+      params.set('lng', lng.toString());
+      params.set('radius', radiusKm.toString());
+      const response = await api.get(`${FIELD_ENDPOINTS.NEARBY}?${params.toString()}`);
+      const fields = response.data.data || response.data;
+      if (Array.isArray(fields)) return fields.map(mapApiFieldToField);
+      throw new Error('Invalid response format for nearby fields');
+    });
+  },
+
+  /**
+   * Get NDVI analysis for a field
+   * جلب تحليل NDVI للحقل
+   */
+  getFieldNdvi: async (fieldId: string): Promise<unknown> => {
+    return safeFetch(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), async () => {
+      const response = await api.get(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }));
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Update NDVI value for a field
+   * تحديث مؤشر NDVI للحقل
+   */
+  updateFieldNdvi: async (fieldId: string, data: { value: number; source?: string; cloudCover?: number }): Promise<unknown> => {
+    return safeFetch(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), async () => {
+      const response = await api.put(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), data);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Get NDVI summary for the tenant
+   * جلب ملخص NDVI للمستأجر
+   */
+  getNdviSummary: async (): Promise<unknown> => {
+    return safeFetch(SATELLITE_ENDPOINTS.NDVI_SUMMARY, async () => {
+      const response = await api.get(SATELLITE_ENDPOINTS.NDVI_SUMMARY);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Get field sync status (delta sync)
+   * جلب حالة مزامنة الحقول
+   */
+  getFieldSyncStatus: async (): Promise<unknown> => {
+    return safeFetch(FIELD_ENDPOINTS.SYNC, async () => {
+      const response = await api.get(FIELD_ENDPOINTS.SYNC);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Batch sync fields from mobile/offline
+   * مزامنة مجموعة من الحقول
+   */
+  batchSync: async (data: { deviceId: string; userId: string; fields: unknown[] }): Promise<unknown> => {
+    return safeFetch(FIELD_ENDPOINTS.SYNC_BATCH, async () => {
+      const response = await api.post(FIELD_ENDPOINTS.SYNC_BATCH, data);
       return response.data.data || response.data;
     });
   },

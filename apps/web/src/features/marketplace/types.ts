@@ -127,3 +127,71 @@ export interface OrderFilters {
   dateFrom?: string;
   dateTo?: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Price Tracking - تتبع الأسعار
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface PricePoint {
+  date: string;
+  price: number;
+  region: string;
+}
+
+export interface PriceHistory {
+  productId: string;
+  prices: PricePoint[];
+  trend: 'up' | 'down' | 'stable';
+}
+
+export interface PriceAnalytics {
+  averagePrice: number;
+  minPrice: number;
+  maxPrice: number;
+  volatility: number;
+  forecast: {
+    nextWeek: number;
+    nextMonth: number;
+    confidence: number;
+  };
+  category?: ProductCategory;
+  region?: string;
+  currency: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Traceability - التتبع من المزرعة إلى المائدة
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface TraceRecord {
+  timestamp: string;
+  location: string;
+  locationAr?: string;
+  handler: string;
+  handlerAr?: string;
+  action: string;
+  actionAr?: string;
+  verified: boolean;
+}
+
+export interface ProductTraceability {
+  productId: string;
+  farmerId: string;
+  farmerName: string;
+  farmerNameAr?: string;
+  harvestDate: string;
+  region: string;
+  regionAr?: string;
+  certifications: string[];
+  chain: TraceRecord[];
+  qualityGrade?: string;
+  batchCode?: string;
+}
+
+export interface QRCodeData {
+  productId: string;
+  traceUrl: string;
+  generatedAt: string;
+  batchCode?: string;
+  qrImageBase64?: string;
+}

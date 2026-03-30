@@ -135,17 +135,6 @@ export class ApiErrorHandler {
    * The backend returns errors in the shape:
    *   { success: false, error: { code: "E1001", message: "...", ... }, request_id: "..." }
    */
-  private static extractBackendErrorCode(data: ApiResponseData | undefined): string | undefined {
-    if (!data) return undefined;
-
-    // Standard SAHOOL error envelope: { error: { code: "E1001", ... } }
-    if (data.error && typeof data.error === 'object' && 'code' in data.error) {
-      return data.error.code;
-    }
-
-    return undefined;
-  }
-
   /**
    * Extract structured fields from the backend error envelope.
    */
@@ -238,8 +227,8 @@ export class ApiErrorHandler {
       }
 
       return {
-        message: backendError.message || mapped.message,
-        messageAr: backendError.messageAr || mapped.messageAr,
+        message: backendError.message || mapped?.message || 'An error occurred',
+        messageAr: backendError.messageAr || mapped?.messageAr || 'حدث خطأ',
         code: backendCode,
         status,
         details: backendError.details,

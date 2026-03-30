@@ -374,7 +374,7 @@ export function useWebSocketEvent(
       }
     });
 
-    return unsubscribe;
+    return () => { unsubscribe(); };
   }, [eventType]);
 }
 
@@ -411,7 +411,7 @@ export function useWebSocketQueryInvalidation(queryClient?: {
       }
     });
 
-    return unsubscribe;
+    return () => { unsubscribe(); };
   }, [queryClient]);
 }
 
@@ -489,7 +489,7 @@ export function useWebSocketEvents(handlers: WebSocketEventHandlers) {
       }
     });
 
-    return unsubscribe;
+    return () => { unsubscribe(); };
   }, []);
 }
 

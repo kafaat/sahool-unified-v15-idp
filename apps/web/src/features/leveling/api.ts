@@ -4,7 +4,6 @@
  */
 
 import { createApiClient, logger } from '@/lib/api/factory';
-import { TERRAIN_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type {
   LevelingAnalysis,
   LevelingAnalysisRequest,

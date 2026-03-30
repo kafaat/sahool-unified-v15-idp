@@ -8,7 +8,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { billingApi } from '../api';
 import type {
-  BillingPlan,
   Subscription,
   Invoice,
   Payment,

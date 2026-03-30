@@ -92,7 +92,7 @@ type ConnectionHandler = (connected: boolean) => void;
  * e.g., 'crop.disease.detected' -> 'crop'
  */
 export function getEventCategory(eventType: string): EventCategory | string {
-  return eventType.split('.')[0];
+  return eventType.split('.')[0] ?? eventType;
 }
 
 class WebSocketClient {

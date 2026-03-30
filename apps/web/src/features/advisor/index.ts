@@ -35,4 +35,23 @@ export {
   useAdvisorStats,
 } from './hooks/useAdvisor';
 
+// Explainability types
+export type {
+  Explanation,
+  ContributingFactor,
+  AlternativeRecommendation,
+  RuleExplanation,
+  ExplainIrrigationParams,
+  ExplainFertilizerParams,
+} from './types/explainability';
+export {
+  ExplanationType,
+  FactorType,
+  ImpactLevel,
+} from './types/explainability';
+
+// Explainability component
+export { ExplanationPanel } from './components/ExplanationPanel';
+export type { ExplanationPanelProps } from './components/ExplanationPanel';
+
 export const ADVISOR_FEATURE = 'advisor' as const;

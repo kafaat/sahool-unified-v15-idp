@@ -4,8 +4,8 @@
  */
 
 import { SCOUTING_ENDPOINTS, API_PREFIX } from '@sahool/shared-types/contracts';
-import { type AxiosError } from 'axios';
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import type {
   ScoutingSession,
   Observation,
@@ -135,9 +135,10 @@ function isValidCachedObservation(item: unknown): item is CachedObservation {
 }
 
 /**
- * Store observation in offline cache
+ * Store observation in offline cache (used by offline-first fallback)
+ * تخزين الملاحظة في ذاكرة التخزين المؤقت غير المتصلة
  */
-function cacheObservation(observation: Observation): void {
+export function cacheObservation(observation: Observation): void {
   if (typeof window === 'undefined') return;
 
   try {
@@ -222,25 +223,20 @@ export const scoutingApi = {
    * بدء جلسة كشافة جديدة
    */
   startSession: async (fieldId: string, notes?: string): Promise<ScoutingSession> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/sessions`, async () => {
       const response = await api.post<ApiSessionResponse>(`${API_PREFIX}/scouting/sessions`, {
         fieldId,
         notes,
         startTime: new Date().toISOString(),
       });
 
-      return response.data.data || MOCK_SESSION;
-    } catch (error) {
-      logger.warn('Failed to start session via API, using mock data:', error);
-
-      // Return mock session for offline use
-      return {
+      return response.data.data || {
         ...MOCK_SESSION,
         fieldId,
         notes,
         id: `offline-session-${Date.now()}`,
       };
-    }
+    });
   },
 
   /**
@@ -248,7 +244,7 @@ export const scoutingApi = {
    * إنهاء جلسة كشافة نشطة
    */
   endSession: async (sessionId: string, notes?: string): Promise<ScoutingSession> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/sessions/${sessionId}/end`, async () => {
       const response = await api.put<ApiSessionResponse>(
         `${API_PREFIX}/scouting/sessions/${sessionId}/end`,
         {
@@ -261,23 +257,10 @@ export const scoutingApi = {
         response.data.data || {
           ...MOCK_SESSION,
           id: sessionId,
-          status: 'completed',
+          status: 'completed' as const,
         }
       );
-    } catch (error) {
-      logger.error('Failed to end session:', error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.SESSION_END_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.SESSION_END_FAILED.ar;
-
-      throw new Error(JSON.stringify({ message: errorMessage, messageAr: errorMessageAr }));
-    }
+    });
   },
 
   /**
@@ -285,15 +268,12 @@ export const scoutingApi = {
    * الحصول على جلسة بواسطة المعرف
    */
   getSession: async (sessionId: string): Promise<ScoutingSession> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/sessions/${sessionId}`, async () => {
       const response = await api.get<ApiSessionResponse>(
         `${API_PREFIX}/scouting/sessions/${sessionId}`
       );
       return response.data.data || { ...MOCK_SESSION, id: sessionId };
-    } catch (error) {
-      logger.warn(`Failed to fetch session ${sessionId}:`, error);
-      return { ...MOCK_SESSION, id: sessionId };
-    }
+    });
   },
 
   /**
@@ -301,15 +281,12 @@ export const scoutingApi = {
    * الحصول على الجلسة النشطة لحقل
    */
   getActiveSession: async (fieldId: string): Promise<ScoutingSession | null> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/sessions/active`, async () => {
       const response = await api.get<ApiSessionResponse>(`${API_PREFIX}/scouting/sessions/active`, {
         params: { fieldId },
       });
       return response.data.data || null;
-    } catch (error) {
-      logger.warn(`No active session found for field ${fieldId}:`, error);
-      return null;
-    }
+    });
   },
 
   /**
@@ -317,7 +294,7 @@ export const scoutingApi = {
    * الحصول على ملخص الجلسة
    */
   getSessionSummary: async (sessionId: string): Promise<SessionSummary> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/sessions/${sessionId}/summary`, async () => {
       const response = await api.get<ApiScoutingResponse<SessionSummary>>(
         `${API_PREFIX}/scouting/sessions/${sessionId}/summary`
       );
@@ -332,18 +309,7 @@ export const scoutingApi = {
           photosTaken: 0,
         }
       );
-    } catch (error) {
-      logger.warn(`Failed to fetch session summary for ${sessionId}:`, error);
-      return {
-        totalObservations: 0,
-        byCategory: {} as Record<ObservationCategory, number>,
-        bySeverity: {} as Record<Severity, number>,
-        averageSeverity: 0,
-        criticalIssues: 0,
-        tasksCreated: 0,
-        photosTaken: 0,
-      };
-    }
+    });
   },
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -355,7 +321,7 @@ export const scoutingApi = {
    * إضافة ملاحظة إلى الجلسة
    */
   addObservation: async (sessionId: string, data: ObservationFormData): Promise<Observation> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/observations`, async () => {
       // Upload photos first if any
       let photoUrls: string[] = [];
       if (data.photos && data.photos.length > 0) {
@@ -383,34 +349,7 @@ export const scoutingApi = {
       );
 
       return response.data.data!;
-    } catch (error) {
-      logger.error('Failed to create observation:', error);
-
-      // Create offline observation
-      const observation: Observation = {
-        id: `offline-obs-${Date.now()}`,
-        sessionId,
-        fieldId: '', // Will be filled from session
-        location: data.location,
-        locationName: data.locationName,
-        locationNameAr: data.locationNameAr,
-        category: data.category,
-        subcategory: data.subcategory,
-        subcategoryAr: data.subcategoryAr,
-        severity: data.severity,
-        notes: data.notes,
-        notesAr: data.notesAr,
-        photos: [],
-        taskCreated: data.createTask,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      // Cache for later sync
-      cacheObservation(observation);
-
-      return observation;
-    }
+    });
   },
 
   /**
@@ -421,27 +360,14 @@ export const scoutingApi = {
     observationId: string,
     data: Partial<ObservationFormData>
   ): Promise<Observation> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/observations/${observationId}`, async () => {
       const response = await api.put<ApiObservationResponse>(
         `${API_PREFIX}/scouting/observations/${observationId}`,
         data
       );
 
       return response.data.data!;
-    } catch (error) {
-      logger.error(`Failed to update observation ${observationId}:`, error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.OBSERVATION_UPDATE_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.OBSERVATION_UPDATE_FAILED.ar;
-
-      throw new Error(JSON.stringify({ message: errorMessage, messageAr: errorMessageAr }));
-    }
+    });
   },
 
   /**
@@ -449,22 +375,9 @@ export const scoutingApi = {
    * حذف ملاحظة
    */
   deleteObservation: async (observationId: string): Promise<void> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/observations/${observationId}`, async () => {
       await api.delete(`${API_PREFIX}/scouting/observations/${observationId}`);
-    } catch (error) {
-      logger.error(`Failed to delete observation ${observationId}:`, error);
-
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage =
-        axiosError.response?.data?.message || ERROR_MESSAGES.OBSERVATION_DELETE_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.OBSERVATION_DELETE_FAILED.ar;
-
-      throw new Error(JSON.stringify({ message: errorMessage, messageAr: errorMessageAr }));
-    }
+    });
   },
 
   /**
@@ -472,17 +385,12 @@ export const scoutingApi = {
    * الحصول على ملاحظات الجلسة
    */
   getObservations: async (sessionId: string): Promise<Observation[]> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/sessions/${sessionId}/observations`, async () => {
       const response = await api.get<ApiObservationsListResponse>(
         `${API_PREFIX}/scouting/sessions/${sessionId}/observations`
       );
       return response.data.data || [];
-    } catch (error) {
-      logger.warn(`Failed to fetch observations for session ${sessionId}:`, error);
-
-      // Return cached observations if offline
-      return getCachedObservations().filter((obs) => obs.sessionId === sessionId);
-    }
+    });
   },
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -494,7 +402,7 @@ export const scoutingApi = {
    * الحصول على سجل الكشافة
    */
   getHistory: async (filters?: ScoutingHistoryFilter): Promise<ScoutingSession[]> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/sessions`, async () => {
       const params = new URLSearchParams();
       if (filters?.fieldId) params.set('fieldId', filters.fieldId);
       if (filters?.scoutId) params.set('scoutId', filters.scoutId);
@@ -509,10 +417,7 @@ export const scoutingApi = {
       );
 
       return response.data.data || [];
-    } catch (error) {
-      logger.warn('Failed to fetch scouting history:', error);
-      return [];
-    }
+    });
   },
 
   /**
@@ -520,7 +425,7 @@ export const scoutingApi = {
    * الحصول على إحصائيات الكشافة
    */
   getStatistics: async (fieldId?: string): Promise<ScoutingStatistics> => {
-    try {
+    return safeFetch(SCOUTING_ENDPOINTS.STATS, async () => {
       const params = fieldId ? `?fieldId=${fieldId}` : '';
       const response = await api.get<ApiStatisticsResponse>(`${SCOUTING_ENDPOINTS.STATS}${params}`);
 
@@ -536,19 +441,7 @@ export const scoutingApi = {
           trendData: [],
         }
       );
-    } catch (error) {
-      logger.warn('Failed to fetch scouting statistics:', error);
-      return {
-        totalSessions: 0,
-        totalObservations: 0,
-        averageObservationsPerSession: 0,
-        mostCommonCategory: 'other',
-        mostCommonSeverity: 3,
-        sessionsThisWeek: 0,
-        sessionsThisMonth: 0,
-        trendData: [],
-      };
-    }
+    });
   },
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -568,7 +461,7 @@ export const scoutingApi = {
       format?: 'pdf' | 'excel';
     } = {}
   ): Promise<{ downloadUrl: string }> => {
-    try {
+    return safeFetch(`${API_PREFIX}/scouting/sessions/${sessionId}/report`, async () => {
       const response = await api.post(`${API_PREFIX}/scouting/sessions/${sessionId}/report`, {
         includePhotos: config.includePhotos ?? true,
         includeMap: config.includeMap ?? true,
@@ -579,10 +472,7 @@ export const scoutingApi = {
       return {
         downloadUrl: response.data.data?.downloadUrl || response.data.downloadUrl,
       };
-    } catch (error) {
-      logger.error('Failed to generate report:', error);
-      throw new Error('Failed to generate report. Please try again.');
-    }
+    });
   },
 
   // ───────────────────────────────────────────────────────────────────────────

@@ -264,7 +264,7 @@ export interface ScoutingReportConfig {
 export interface ReportSection {
   title: string;
   titleAr: string;
-  content: string | Record<string, any>;
+  content: string | Record<string, unknown>;
   order: number;
 }
 

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 
 from shared.ai.knowledge._logging import get_logger
 
@@ -192,7 +192,7 @@ class InMemoryKnowledgeRepository(KnowledgeRepository):
         if document.id not in self._store:
             logger.debug("update_document_not_found", document_id=document.id)
             return False
-        document.updated_at = datetime.utcnow()
+        document.updated_at = datetime.now(UTC)
         self._store[document.id] = document
         logger.debug("document_updated", document_id=document.id)
         return True

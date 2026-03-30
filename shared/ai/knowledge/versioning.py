@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from shared.ai.knowledge._logging import get_logger
@@ -77,7 +77,7 @@ class DocumentVersionManager:
 
         entry = DocumentVersion(
             version=new_version,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             author=author,
             change_summary=change_summary,
             change_summary_ar=change_summary_ar,

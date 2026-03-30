@@ -140,9 +140,10 @@ class TestSeasonCalculations:
         seasons = calc.get_all_seasons(Region.RIYADH)
 
         winter = [s for s in seasons if s.season == AgriculturalSeason.WINTER][0]
-        start, end = winter.get_date_range(2026)
+        current_year = date.today().year
+        start, end = winter.get_date_range(current_year)
 
-        assert start.year == 2026
+        assert start.year == current_year
         assert start.month == 12
         assert end.month == 2
 
@@ -576,12 +577,13 @@ class TestIslamicEvents:
         manager = IslamicEventsManager()
         ramadan = next(e for e in manager.events if "Ramadan" in e.name_en)
 
-        # Get Ramadan date for 2026
-        ramadan_2026 = manager.get_event_gregorian_date(ramadan, 2026)
+        # Get Ramadan date for the current year
+        current_year = date.today().year
+        ramadan_current = manager.get_event_gregorian_date(ramadan, current_year)
 
-        assert ramadan_2026 is not None
-        assert isinstance(ramadan_2026, date)
-        assert ramadan_2026.year == 2026
+        assert ramadan_current is not None
+        assert isinstance(ramadan_current, date)
+        assert ramadan_current.year == current_year
 
     def test_get_upcoming_islamic_events(self):
         """Test getting upcoming Islamic events"""

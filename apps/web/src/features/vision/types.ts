@@ -22,6 +22,8 @@ export interface PestDetection {
   >;
   imageUrl?: string;
   processedAt: string;
+  visualizationBase64?: string;
+  visualization_base64?: string; // backend snake_case alias
 }
 
 export interface DiseaseDetection {
@@ -36,6 +38,8 @@ export interface DiseaseDetection {
   >;
   imageUrl?: string;
   processedAt: string;
+  visualizationBase64?: string;
+  visualization_base64?: string; // backend snake_case alias
 }
 
 export interface WeedDetection {
@@ -49,6 +53,8 @@ export interface WeedDetection {
   totalCoverage: number;
   imageUrl?: string;
   processedAt: string;
+  visualizationBase64?: string;
+  visualization_base64?: string; // backend snake_case alias
 }
 
 export interface PlantCount {
@@ -88,3 +94,60 @@ export interface VisionFilters {
   dateFrom?: string;
   dateTo?: string;
 }
+
+// =============================================================================
+// Visualization Types
+// أنواع التصور البصري
+// =============================================================================
+
+/**
+ * Bounding box coordinates (normalized 0-1 or pixel coordinates).
+ * إحداثيات مربع الإحاطة
+ */
+export interface BoundingBox {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+/**
+ * Detection visualization data returned when return_visualization=true.
+ * بيانات التصور البصري للكشف
+ */
+export interface DetectionVisualization {
+  /** Base64 encoded image with bounding boxes and labels drawn */
+  imageBase64: string;
+  /** MIME type of the visualization image (e.g. "image/png") */
+  mimeType: string;
+  /** Width of the visualization image in pixels */
+  width: number;
+  /** Height of the visualization image in pixels */
+  height: number;
+  /** Number of detections rendered on the visualization */
+  detectionCount: number;
+}
+
+/**
+ * Severity color mapping for detection overlays.
+ * ألوان شدة الإصابة للعرض البصري
+ */
+export const SEVERITY_COLORS: Record<string, string> = {
+  critical: '#FF0000',
+  high: '#FF6600',
+  medium: '#FFCC00',
+  low: '#00CC00',
+  none: '#0066FF',
+} as const;
+
+/**
+ * Severity color mapping with Arabic labels.
+ * ألوان شدة الإصابة مع التسميات العربية
+ */
+export const SEVERITY_LABELS: Record<string, { en: string; ar: string; color: string }> = {
+  critical: { en: 'Critical', ar: 'حرج', color: '#FF0000' },
+  high: { en: 'High', ar: 'مرتفع', color: '#FF6600' },
+  medium: { en: 'Medium', ar: 'متوسط', color: '#FFCC00' },
+  low: { en: 'Low', ar: 'منخفض', color: '#00CC00' },
+  none: { en: 'None', ar: 'لا يوجد', color: '#0066FF' },
+} as const;

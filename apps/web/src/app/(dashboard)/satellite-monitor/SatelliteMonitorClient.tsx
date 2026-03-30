@@ -113,7 +113,7 @@ export default function SatelliteMonitorClient() {
   const healthDistribution = useMemo((): { healthy: number; moderate: number; stressed: number; critical: number } => {
     const dist = { healthy: 0, moderate: 0, stressed: 0, critical: 0 };
     fields.forEach((f: SatelliteField) => {
-      if (f.healthStatus in dist) {
+      if (Object.hasOwn(dist, f.healthStatus)) {
         dist[f.healthStatus as keyof typeof dist]++;
       }
     });

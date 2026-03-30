@@ -128,6 +128,22 @@ services:
         paths: ["/api/v1/fields", "/api/v1/field", "/field"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Field data is sensitive (geospatial, crop, ownership)
+      # مصادقة JWT - بيانات الحقول حساسة (جغرافية مكانية، محاصيل، ملكية)
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
+      # Rate limiting for field management operations
+      # تحديد المعدل لعمليات إدارة الحقول
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   # User Service - Public Authentication Routes (no JWT required)
   # مسارات المصادقة العامة - لا تتطلب رمز JWT
@@ -171,6 +187,13 @@ services:
         strip_path: false
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Protected user routes require authentication
+      # مصادقة JWT - المسارات المحمية للمستخدمين تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
       - name: rate-limiting
         config:
           minute: 100
@@ -203,6 +226,13 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Marketplace transactions require authentication
+      # مصادقة JWT - معاملات السوق تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
       # Rate limiting for marketplace operations
       # تحديد المعدل لعمليات السوق
       - name: rate-limiting
@@ -249,6 +279,22 @@ services:
         paths: ["/api/v1/chat", "/chat"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Chat messages are private user data
+      # مصادقة JWT - رسائل المحادثة بيانات خاصة للمستخدمين
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
+      # Rate limiting for real-time chat operations (higher limit)
+      # تحديد المعدل لعمليات المحادثة في الوقت الفعلي (حد أعلى)
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   - name: iot-service
     host: iot-service
@@ -259,6 +305,14 @@ services:
         paths: ["/api/v1/iot", "/iot"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - IoT device management requires authentication
+      # مصادقة JWT - إدارة أجهزة إنترنت الأشياء تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
 
   # REMOVED: community-chat (deprecated → chat-service port 8115)
   # REMOVED: field-ops (deprecated → field-management-service port 3000)
@@ -289,6 +343,13 @@ services:
     plugins:
       # IP Restriction - Billing access only from internal networks
       # قيود IP - الوصول للفوترة فقط من الشبكات الداخلية
+      # JWT Authentication - Billing operations require authentication
+      # مصادقة JWT - عمليات الفوترة تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
       - name: ip-restriction
         config:
           allow:
@@ -329,6 +390,13 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Satellite and NDVI data requires authentication
+      # مصادقة JWT - بيانات الأقمار الصناعية و NDVI تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
       # Cache NDVI and satellite data (updates every few hours)
       # تخزين بيانات NDVI والأقمار الصناعية مؤقتًا
       - name: proxy-cache
@@ -384,6 +452,14 @@ services:
         paths: ["/api/v1/advisory", "/api/v1/fertilizer", "/advisory", "/fertilizer"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Advisory recommendations require authentication
+      # مصادقة JWT - التوصيات الاستشارية تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
 
   - name: irrigation-smart
     host: irrigation-smart
@@ -404,6 +480,14 @@ services:
         paths: ["/api/v1/crop-health", "/api/v1/crop", "/crop"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Proprietary crop analysis requires authentication
+      # مصادقة JWT - تحليل المحاصيل الخاص يتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
 
   - name: virtual-sensors
     host: virtual-sensors
@@ -424,6 +508,14 @@ services:
         paths: ["/api/v1/yield", "/yield"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - ML model predictions require authentication
+      # مصادقة JWT - تنبؤات نماذج التعلم الآلي تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
 
   # REMOVED: field-chat (deprecated → chat-service port 8115)
 
@@ -436,6 +528,22 @@ services:
         paths: ["/api/v1/equipment", "/equipment"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Equipment asset data requires authentication
+      # مصادقة JWT - بيانات أصول المعدات تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
+      # Rate limiting for equipment operations
+      # تحديد المعدل لعمليات المعدات
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   # gpu profile (only if enabled)
   - name: code-review-service
@@ -457,6 +565,22 @@ services:
         paths: ["/api/v1/tasks", "/api/v1/task", "/task"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Task assignments contain user and field data
+      # مصادقة JWT - تعيينات المهام تحتوي بيانات المستخدمين والحقول
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
+      # Rate limiting for task operations
+      # تحديد المعدل لعمليات المهام
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   - name: provider-config
     host: provider-config
@@ -482,6 +606,13 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Device control requires authentication
+      # مصادقة JWT - التحكم في الأجهزة يتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
       # IP Restriction - IoT Gateway access control
       # قيود IP - التحكم في الوصول لبوابة IoT
       - name: ip-restriction
@@ -546,6 +677,22 @@ services:
         paths: ["/api/v1/farmers"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Notification data is private user data
+      # مصادقة JWT - بيانات الإشعارات خاصة بالمستخدمين
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
+      # Rate limiting for notification operations
+      # تحديد المعدل لعمليات الإشعارات
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   - name: astronomical-calendar
     host: astronomical-calendar
@@ -590,6 +737,22 @@ services:
         paths: ["/api/v1/inventory", "/inventory"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Inventory data requires authentication
+      # مصادقة JWT - بيانات المخزون تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
+      # Rate limiting for inventory operations
+      # تحديد المعدل لعمليات المخزون
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   # REMOVED: ndvi-processor route (deprecated → vegetation-analysis-service, sunset 2026-02)
 
@@ -602,6 +765,14 @@ services:
         paths: ["/api/v1/field-intelligence", "/field-intelligence"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - Field analysis data requires authentication
+      # مصادقة JWT - بيانات تحليل الحقول تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
 
   - name: mcp-server
     host: mcp-server
@@ -642,6 +813,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: rate-limiting
@@ -663,6 +835,22 @@ services:
         paths: ["/api/v1/crm", "/crm"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # JWT Authentication - CRM contains sensitive farmer personal data
+      # مصادقة JWT - نظام إدارة العلاقات يحتوي بيانات شخصية حساسة للمزارعين
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
+      # Rate limiting for CRM operations
+      # تحديد المعدل لعمليات إدارة العلاقات
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
 
   # Low-Code Engine - Application builder
   - name: lowcode-engine
@@ -745,6 +933,13 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - User conversations contain private data
+      # مصادقة JWT - محادثات المستخدمين تحتوي بيانات خاصة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
       - name: rate-limiting
         config:
           minute: 30
@@ -961,6 +1156,13 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Sensor data requires authentication
+      # مصادقة JWT - بيانات المستشعرات تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
       - name: rate-limiting
         config:
           minute: 120
@@ -1047,6 +1249,13 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      # JWT Authentication - Supply chain data requires authentication
+      # مصادقة JWT - بيانات سلسلة التوريد تتطلب مصادقة
+      - name: jwt
+        config:
+          run_on_preflight: false
+          claims_to_verify:
+            - exp
       - name: rate-limiting
         config:
           minute: 60
@@ -1148,6 +1357,254 @@ services:
           size_unit: megabytes
 
   # -----------------------------
+  # Health endpoints for JWT-protected services (no auth, no rate limit)
+  # نقاط فحص الصحة للخدمات المحمية بـ JWT (بدون مصادقة، بدون تحديد معدل)
+  # Required for K8s liveness/readiness probes to succeed
+  # مطلوب لنجاح فحوصات الحياة/الجاهزية في Kubernetes
+  # Added: 2026-03-30
+  # -----------------------------
+
+  - name: field-management-service-health
+    host: field-management-service
+    port: 3000
+    protocol: http
+    routes:
+      - name: field-management-service-health-route
+        paths:
+          - /api/v1/fields/healthz
+          - /api/v1/fields/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: chat-service-health
+    host: chat-service
+    port: 8115
+    protocol: http
+    routes:
+      - name: chat-service-health-route
+        paths:
+          - /api/v1/chat/healthz
+          - /api/v1/chat/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: equipment-service-health
+    host: equipment-service
+    port: 8101
+    protocol: http
+    routes:
+      - name: equipment-service-health-route
+        paths:
+          - /api/v1/equipment/healthz
+          - /api/v1/equipment/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: task-service-health
+    host: task-service
+    port: 8103
+    protocol: http
+    routes:
+      - name: task-service-health-route
+        paths:
+          - /api/v1/tasks/healthz
+          - /api/v1/tasks/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: notification-service-health
+    host: notification-service
+    port: 8110
+    protocol: http
+    routes:
+      - name: notification-service-health-route
+        paths:
+          - /api/v1/notifications/healthz
+          - /api/v1/notifications/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: inventory-service-health
+    host: inventory-service
+    port: 8116
+    protocol: http
+    routes:
+      - name: inventory-service-health-route
+        paths:
+          - /api/v1/inventory/healthz
+          - /api/v1/inventory/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: crm-service-health
+    host: crm-service
+    port: 8131
+    protocol: http
+    routes:
+      - name: crm-service-health-route
+        paths:
+          - /api/v1/crm/healthz
+          - /api/v1/crm/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: marketplace-service-health
+    host: marketplace-service
+    port: 3010
+    protocol: http
+    routes:
+      - name: marketplace-service-health-route
+        paths:
+          - /api/v1/marketplace/healthz
+          - /api/v1/marketplace/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: billing-core-health
+    host: billing-core
+    port: 8089
+    protocol: http
+    routes:
+      - name: billing-core-health-route
+        paths:
+          - /api/v1/billing/healthz
+          - /api/v1/billing/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: supply-chain-service-health
+    host: supply-chain-service
+    port: 8230
+    protocol: http
+    routes:
+      - name: supply-chain-service-health-route
+        paths:
+          - /api/v1/supply-chain/healthz
+          - /api/v1/supply-chain/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: iot-service-health
+    host: iot-service
+    port: 8117
+    protocol: http
+    routes:
+      - name: iot-service-health-route
+        paths:
+          - /api/v1/iot/healthz
+          - /api/v1/iot/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: iot-gateway-health
+    host: iot-gateway
+    port: 8106
+    protocol: http
+    routes:
+      - name: iot-gateway-health-route
+        paths:
+          - /api/v1/iot-gateway/healthz
+          - /api/v1/iot-gateway/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: vegetation-analysis-service-health
+    host: vegetation-analysis-service
+    port: 8090
+    protocol: http
+    routes:
+      - name: vegetation-analysis-service-health-route
+        paths:
+          - /api/v1/vegetation/healthz
+          - /api/v1/vegetation/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: advisory-service-health
+    host: advisory-service
+    port: 8093
+    protocol: http
+    routes:
+      - name: advisory-service-health-route
+        paths:
+          - /api/v1/advisory/healthz
+          - /api/v1/advisory/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: crop-intelligence-service-health
+    host: crop-intelligence-service
+    port: 8095
+    protocol: http
+    routes:
+      - name: crop-intelligence-service-health-route
+        paths:
+          - /api/v1/crop-health/healthz
+          - /api/v1/crop-health/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: yield-prediction-service-health
+    host: yield-prediction-service
+    port: 8152
+    protocol: http
+    routes:
+      - name: yield-prediction-service-health-route
+        paths:
+          - /api/v1/yield/healthz
+          - /api/v1/yield/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: field-intelligence-health
+    host: field-intelligence
+    port: 8120
+    protocol: http
+    routes:
+      - name: field-intelligence-health-route
+        paths:
+          - /api/v1/field-intelligence/healthz
+          - /api/v1/field-intelligence/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: ai-chat-assistant-health
+    host: ai-chat-assistant
+    port: 8260
+    protocol: http
+    routes:
+      - name: ai-chat-assistant-health-route
+        paths:
+          - /api/v1/ai-chat/healthz
+          - /api/v1/ai-chat/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: iot-sensor-hub-health
+    host: iot-sensor-hub
+    port: 8251
+    protocol: http
+    routes:
+      - name: iot-sensor-hub-health-route
+        paths:
+          - /api/v1/iot-sensor-hub/healthz
+          - /api/v1/iot-sensor-hub/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  - name: audit-service-health
+    host: audit-service
+    port: 8114
+    protocol: http
+    routes:
+      - name: audit-service-health-route
+        paths:
+          - /api/v1/audit/healthz
+          - /api/v1/audit/readyz
+        strip_path: false
+        protocols: ["http", "https"]
+
+  # -----------------------------
   # Platform endpoints
   # -----------------------------
   - name: root-endpoint
@@ -1234,6 +1691,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl
@@ -1300,6 +1758,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl
@@ -1350,6 +1809,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl
@@ -1400,6 +1860,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl
@@ -1450,6 +1911,7 @@ services:
     plugins:
       - name: jwt
         config:
+          run_on_preflight: false
           claims_to_verify:
             - exp
       - name: acl

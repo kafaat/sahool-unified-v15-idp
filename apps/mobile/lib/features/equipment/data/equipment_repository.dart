@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/api_config.dart';
+import '../../../core/offline/offline_sync_engine.dart';
+import '../../../core/utils/app_logger.dart';
 import 'equipment_models.dart';
 
 /// Equipment Repository Provider
@@ -140,31 +142,57 @@ class EquipmentRepository {
     double? fuelCapacityLiters,
     Map<String, dynamic>? metadata,
   }) async {
+    final equipmentData = {
+      'name': name,
+      'name_ar': nameAr,
+      'equipment_type': type.value,
+      'brand': brand,
+      'model': model,
+      'serial_number': serialNumber,
+      'year': year,
+      'purchase_date': purchaseDate?.toIso8601String(),
+      'purchase_price': purchasePrice,
+      'field_id': fieldId,
+      'location_name': locationName,
+      'horsepower': horsepower,
+      'fuel_capacity_liters': fuelCapacityLiters,
+      'metadata': metadata,
+      'created_at': DateTime.now().toIso8601String(),
+    };
+
     try {
       final response = await _dio.post(
         '/api/v1/equipment',
-        data: {
-          'name': name,
-          'name_ar': nameAr,
-          'equipment_type': type.value,
-          'brand': brand,
-          'model': model,
-          'serial_number': serialNumber,
-          'year': year,
-          'purchase_date': purchaseDate?.toIso8601String(),
-          'purchase_price': purchasePrice,
-          'field_id': fieldId,
-          'location_name': locationName,
-          'horsepower': horsepower,
-          'fuel_capacity_liters': fuelCapacityLiters,
-          'metadata': metadata,
-        },
+        data: equipmentData,
       );
 
-      return ApiResult.success(
-        Equipment.fromJson(response.data as Map<String, dynamic>),
-      );
+      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+
+      AppLogger.i('Equipment created via API', tag: 'EquipmentRepo', data: {'name': name});
+
+      return ApiResult.success(equipment);
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'equipment',
+          data: equipmentData,
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Equipment creation queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to create equipment',
         'فشل في إنشاء المعدة',
@@ -185,13 +213,35 @@ class EquipmentRepository {
         data: updates,
       );
 
-      return ApiResult.success(
-        Equipment.fromJson(response.data as Map<String, dynamic>),
-      );
+      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+
+      AppLogger.i('Equipment updated via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
+
+      return ApiResult.success(equipment);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         return ApiResult.failure('Equipment not found', 'المعدة غير موجودة');
       }
+
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'equipment',
+          entityId: equipmentId,
+          data: updates,
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Equipment update queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+        return ApiResult.failure('Saved offline - will sync when connected', 'تم الحفظ محلياً - ستتم المزامنة عند الاتصال');
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to update equipment',
         'فشل في تحديث المعدة',
@@ -212,10 +262,31 @@ class EquipmentRepository {
         queryParameters: {'status': status.value},
       );
 
-      return ApiResult.success(
-        Equipment.fromJson(response.data as Map<String, dynamic>),
-      );
+      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+
+      AppLogger.i('Equipment status updated via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId, 'status': status.value});
+
+      return ApiResult.success(equipment);
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'equipment',
+          entityId: equipmentId,
+          data: {'status': status.value},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Equipment status update queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+        return ApiResult.failure('Saved offline - will sync when connected', 'تم الحفظ محلياً - ستتم المزامنة عند الاتصال');
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to update status',
         'فشل في تحديث الحالة',
@@ -291,11 +362,33 @@ class EquipmentRepository {
   Future<ApiResult<void>> deleteEquipment(String equipmentId) async {
     try {
       await _dio.delete('/api/v1/equipment/$equipmentId');
+
+      AppLogger.i('Equipment deleted via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
+
       return ApiResult.success(null);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         return ApiResult.failure('Equipment not found', 'المعدة غير موجودة');
       }
+
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueDelete(
+          entityType: 'equipment',
+          entityId: equipmentId,
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Equipment deletion queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+        return ApiResult.failure('Saved offline - will sync when connected', 'تم الحفظ محلياً - ستتم المزامنة عند الاتصال');
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to delete equipment',
         'فشل في حذف المعدة',
@@ -398,22 +491,49 @@ class EquipmentRepository {
     String? notes,
     List<String>? partsReplaced,
   }) async {
+    final maintenanceData = {
+      'equipment_id': equipmentId,
+      'maintenance_type': maintenanceType.value,
+      'description': description,
+      'description_ar': descriptionAr,
+      'performed_by': performedBy,
+      'cost': cost,
+      'notes': notes,
+      'parts_replaced': partsReplaced,
+      'created_at': DateTime.now().toIso8601String(),
+    };
+
     try {
       final response = await _dio.post(
         '/api/v1/equipment/$equipmentId/maintenance',
-        queryParameters: {
-          'maintenance_type': maintenanceType.value,
-          'description': description,
-          if (descriptionAr != null) 'description_ar': descriptionAr,
-          if (performedBy != null) 'performed_by': performedBy,
-          if (cost != null) 'cost': cost,
-          if (notes != null) 'notes': notes,
-          if (partsReplaced != null) 'parts_replaced': partsReplaced,
-        },
+        data: maintenanceData,
       );
+
+      AppLogger.i('Maintenance record added via API', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
 
       return ApiResult.success(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'equipment',
+          data: {'type': 'maintenance_record', ...maintenanceData},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Maintenance record queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to add maintenance record',
         'فشل في إضافة سجل الصيانة',

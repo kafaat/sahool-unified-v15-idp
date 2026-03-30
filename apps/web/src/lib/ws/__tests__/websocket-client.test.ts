@@ -107,7 +107,7 @@ describe('WebSocket Client', () => {
       expect(ws?.send).toHaveBeenCalledWith(
         JSON.stringify({
           type: 'subscribe',
-          subjects: ['tasks.*', 'weather.*'],
+          topics: ['tasks.*', 'weather.*'],
         })
       );
     });
@@ -273,6 +273,79 @@ describe('WebSocket Client', () => {
       expect(formatEventType('ndvi_processed')).toBe('تحليل NDVI');
       // Unknown events return as-is
       expect(formatEventType('custom_event')).toBe('custom_event');
+    });
+  });
+
+  describe('getEventCategory', () => {
+    it('should return empty string for empty input', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('')).toBe('');
+    });
+
+    it('should extract category from dot notation', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('field.created')).toBe('field');
+    });
+
+    it('should extract category from underscore notation', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('task_created')).toBe('task');
+    });
+
+    it('should return the whole string when no separator exists', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('simple')).toBe('simple');
+    });
+
+    it('should return first segment for deeply nested dot notation', async () => {
+      const { getEventCategory } = await import('../index');
+      expect(getEventCategory('a.b.c.d')).toBe('a');
+    });
+  });
+
+  describe('Room Subscriptions', () => {
+    it('should send join_room message when subscribing to a room', async () => {
+      const { wsClient } = await import('../index');
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0];
+      wsClient.subscribeToRoom('field:123');
+
+      expect(ws?.send).toHaveBeenCalledWith(
+        JSON.stringify({ type: 'join_room', room: 'field:123' })
+      );
+    });
+
+    it('should deduplicate repeated room subscriptions', async () => {
+      const { wsClient } = await import('../index');
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0];
+      wsClient.subscribeToRoom('field:123');
+      wsClient.subscribeToRoom('field:123');
+
+      const joinCalls = (ws?.send as ReturnType<typeof vi.fn>).mock.calls.filter(
+        (c: unknown[]) => {
+          try { return JSON.parse(c[0] as string).type === 'join_room'; } catch { return false; }
+        }
+      );
+      expect(joinCalls).toHaveLength(1);
+    });
+
+    it('should send leave_room message when unsubscribing', async () => {
+      const { wsClient } = await import('../index');
+      wsClient.connect();
+      await vi.advanceTimersByTimeAsync(10);
+
+      const ws = wsInstances[0];
+      wsClient.subscribeToRoom('chat:456');
+      wsClient.unsubscribeFromRoom('chat:456');
+
+      expect(ws?.send).toHaveBeenCalledWith(
+        JSON.stringify({ type: 'leave_room', room: 'chat:456' })
+      );
     });
   });
 

@@ -305,7 +305,12 @@ jobs:
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
             "ndk;28.2.13676358" \
-            "platform-tools" || echo "::warning::Some SDK components failed to install"
+            "platform-tools"
+          # Verify the critical platform was installed
+          if [ ! -d "$ANDROID_HOME/platforms/android-${{ env.ANDROID_COMPILE_SDK }}" ]; then
+            echo "::error::Android SDK platform ${{ env.ANDROID_COMPILE_SDK }} not found after install"
+            exit 1
+          fi
           echo "Installed SDK components:"
           sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
 
@@ -476,6 +481,9 @@ jobs:
     defaults:
       run:
         working-directory: apps/mobile/sahool_field_app
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
     steps:
       - name: Checkout repository
@@ -489,6 +497,17 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
+
+      - name: Install required Android SDK components
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install \
+            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+            "ndk;28.2.13676358" \
+            "platform-tools"
+          echo "Installed SDK components:"
+          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
 
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2

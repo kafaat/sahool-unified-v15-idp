@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/network/api_result.dart';
+import '../../../core/offline/offline_sync_engine.dart';
 import '../domain/lab_models.dart';
 
 // =============================================================================
@@ -102,6 +103,32 @@ class LabRepository {
         LabSample.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'observation',
+          data: {
+            'type': type,
+            'experimentName': experimentName,
+            'plotCode': plotCode,
+            'notes': notes,
+          },
+          priority: SyncPriority.medium,
+        );
+
+        return Failure(
+          'Saved offline - will sync when connected',
+          statusCode: e.response?.statusCode,
+          originalError: e,
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل إنشاء العينة'),
         statusCode: e.response?.statusCode,

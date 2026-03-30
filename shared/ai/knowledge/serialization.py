@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -83,7 +83,7 @@ class KnowledgeSerializer:
 
         manifest = ExportManifest(
             version="1.0.0",
-            exported_at=datetime.utcnow().isoformat(),
+            exported_at=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
             total_documents=len(serialized),
             collections=sorted(collections_set),
             domains=sorted(domains_set),
@@ -150,7 +150,7 @@ class KnowledgeSerializer:
         return {
             "manifest": {
                 "version": "1.0.0",
-                "exported_at": datetime.utcnow().isoformat(),
+                "exported_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "total_documents": len(serialized),
                 "collections": sorted(collections_set),
                 "domains": sorted(domains_set),

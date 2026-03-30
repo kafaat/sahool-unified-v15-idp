@@ -451,9 +451,9 @@ class TestPlantingRecommendation:
 
 class TestSeasonalCalendar:
     def test_creation(self):
-        cal = SeasonalCalendar(region=Region.RIYADH)
+        cal = SeasonalCalendar(region=Region.RIYADH, year=2025)
         assert cal.region == Region.RIYADH
-        assert cal.year == 2026
+        assert cal.year == 2025
 
     def test_get_current_season(self):
         spring = SeasonDefinition(
@@ -504,13 +504,14 @@ class TestSeasonalCalendar:
     def test_to_dict(self):
         cal = SeasonalCalendar(
             region=Region.RIYADH,
+            year=2025,
             region_name_ar="الرياض",
             region_name_en="Riyadh",
         )
         d = cal.to_dict()
         assert d["region"] == "riyadh"
         assert d["region_name_ar"] == "الرياض"
-        assert d["year"] == 2026
+        assert d["year"] == 2025
 
 
 # =============================================================================

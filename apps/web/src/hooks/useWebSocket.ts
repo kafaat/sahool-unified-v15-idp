@@ -7,11 +7,20 @@
  * - Heartbeat/ping-pong for stale connection detection
  * - Message buffering during reconnection
  * - Tab visibility awareness (pause when hidden)
+ * - Typed event handlers per category
+ * - useWebSocketEvent hook for filtering events by type
+ * - React Query cache invalidation on data events
  */
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { WSMessage } from '../types';
 import { logger } from '../lib/logger';
+import {
+  wsClient,
+  TimelineEvent,
+  getEventCategory,
+  type EventCategory,
+} from '../lib/ws';
 
 interface UseWebSocketOptions {
   url: string;
@@ -298,3 +307,223 @@ export function useWebSocket({
 }
 
 export default useWebSocket;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Typed Event Hooks
+// خطافات الأحداث المصنفة
+// ═══════════════════════════════════════════════════════════════════════════
+
+type TimelineEventHandler = (event: TimelineEvent) => void;
+
+/**
+ * React Query invalidation keys per event category.
+ * Maps ws-gateway event categories to the query keys that should be
+ * invalidated when such an event arrives.
+ */
+const QUERY_KEYS_BY_CATEGORY: Record<string, string[]> = {
+  field: ['fields', 'field-details'],
+  weather: ['weather', 'weather-forecast'],
+  satellite: ['satellite', 'satellite-imagery'],
+  ndvi: ['ndvi', 'ndvi-analysis', 'vegetation'],
+  inventory: ['inventory', 'stock'],
+  crop: ['crop-health', 'crops', 'disease', 'pest'],
+  spray: ['spray', 'spray-schedule'],
+  task: ['tasks', 'task-details'],
+  tasks: ['tasks', 'task-details'],
+  iot: ['iot', 'sensors', 'sensor-readings'],
+  user: ['users', 'user-status'],
+  chat: ['chat', 'messages'],
+  system: ['notifications'],
+  diagnosis: ['diagnosis', 'crop-health', 'disease'],
+  irrigation: ['irrigation', 'irrigation-schedules', 'water-balance'],
+  fertilizer: ['fertilizer', 'fertilizer-plans', 'nutrients'],
+};
+
+/**
+ * Subscribe to WebSocket events filtered by event type pattern.
+ * The pattern is matched against the event_type string.
+ *
+ * @param eventType - Full event type (e.g., 'field.updated') or category prefix (e.g., 'field')
+ * @param handler - Callback invoked when a matching event is received
+ *
+ * Usage:
+ * ```ts
+ * useWebSocketEvent('field.updated', (event) => {
+ *   console.log('Field updated:', event.payload);
+ * });
+ *
+ * // Or subscribe to all events in a category:
+ * useWebSocketEvent('crop', (event) => {
+ *   // Handles crop.disease.detected, crop.pest.detected, crop.health.alert
+ * });
+ * ```
+ */
+export function useWebSocketEvent(
+  eventType: string,
+  handler: TimelineEventHandler
+) {
+  const handlerRef = useRef(handler);
+
+  useEffect(() => {
+    handlerRef.current = handler;
+  }, [handler]);
+
+  useEffect(() => {
+    const unsubscribe = wsClient.onEvent((event: TimelineEvent) => {
+      const type = event.event_type;
+      // Exact match, dot-prefix match, or category-level match
+      // (handles legacy underscore events like "task_created" matching "task")
+      if (
+        type === eventType ||
+        type.startsWith(eventType + '.') ||
+        getEventCategory(type) === eventType
+      ) {
+        handlerRef.current(event);
+      }
+    });
+
+    return () => { unsubscribe(); };
+  }, [eventType]);
+}
+
+/**
+ * Hook that auto-invalidates React Query caches when relevant WebSocket
+ * events arrive. Pass a QueryClient instance to enable.
+ *
+ * @param queryClient - TanStack React Query QueryClient (optional)
+ *
+ * Usage:
+ * ```ts
+ * import { useQueryClient } from '@tanstack/react-query';
+ *
+ * function App() {
+ *   const queryClient = useQueryClient();
+ *   useWebSocketQueryInvalidation(queryClient);
+ * }
+ * ```
+ */
+export function useWebSocketQueryInvalidation(queryClient?: {
+  invalidateQueries: (opts: { queryKey: string[] }) => void;
+}) {
+  useEffect(() => {
+    if (!queryClient) return;
+
+    const unsubscribe = wsClient.onEvent((event: TimelineEvent) => {
+      const category = getEventCategory(event.event_type);
+      const keys = QUERY_KEYS_BY_CATEGORY[category];
+
+      if (keys) {
+        for (const key of keys) {
+          queryClient.invalidateQueries({ queryKey: [key] });
+        }
+      }
+    });
+
+    return () => { unsubscribe(); };
+  }, [queryClient]);
+}
+
+/**
+ * Typed event handler callbacks for each ws-gateway event category.
+ * All callbacks are optional - only provide the ones you need.
+ */
+export interface WebSocketEventHandlers {
+  onFieldEvent?: TimelineEventHandler;
+  onWeatherEvent?: TimelineEventHandler;
+  onSatelliteEvent?: TimelineEventHandler;
+  onNdviEvent?: TimelineEventHandler;
+  onInventoryEvent?: TimelineEventHandler;
+  onCropEvent?: TimelineEventHandler;
+  onSprayEvent?: TimelineEventHandler;
+  onChatEvent?: TimelineEventHandler;
+  onTaskEvent?: TimelineEventHandler;
+  onIotEvent?: TimelineEventHandler;
+  onSystemEvent?: TimelineEventHandler;
+  onUserEvent?: TimelineEventHandler;
+  onDiagnosisEvent?: TimelineEventHandler;
+  onIrrigationEvent?: TimelineEventHandler;
+  onFertilizerEvent?: TimelineEventHandler;
+}
+
+const HANDLER_CATEGORY_MAP: [keyof WebSocketEventHandlers, EventCategory][] = [
+  ['onFieldEvent', 'field'],
+  ['onWeatherEvent', 'weather'],
+  ['onSatelliteEvent', 'satellite'],
+  ['onNdviEvent', 'ndvi'],
+  ['onInventoryEvent', 'inventory'],
+  ['onCropEvent', 'crop'],
+  ['onSprayEvent', 'spray'],
+  ['onChatEvent', 'chat'],
+  ['onTaskEvent', 'task'],
+  ['onIotEvent', 'iot'],
+  ['onSystemEvent', 'system'],
+  ['onUserEvent', 'user'],
+  ['onDiagnosisEvent', 'diagnosis'],
+  ['onIrrigationEvent', 'irrigation'],
+  ['onFertilizerEvent', 'fertilizer'],
+];
+
+/**
+ * Hook to register typed event handlers for each WebSocket event category.
+ * Dispatches incoming events to the appropriate handler based on the
+ * event category prefix (e.g., 'crop.disease.detected' -> onCropEvent).
+ *
+ * Usage:
+ * ```ts
+ * useWebSocketEvents({
+ *   onFieldEvent: (event) => { /* field.created, field.updated, field.deleted *\/ },
+ *   onCropEvent: (event) => { /* crop.disease.detected, crop.pest.detected *\/ },
+ *   onWeatherEvent: (event) => { /* weather.alert, weather.updated *\/ },
+ * });
+ * ```
+ */
+export function useWebSocketEvents(handlers: WebSocketEventHandlers) {
+  const handlersRef = useRef(handlers);
+
+  useEffect(() => {
+    handlersRef.current = handlers;
+  }, [handlers]);
+
+  useEffect(() => {
+    const unsubscribe = wsClient.onEvent((event: TimelineEvent) => {
+      const category = getEventCategory(event.event_type);
+
+      for (const [handlerKey, cat] of HANDLER_CATEGORY_MAP) {
+        if (category === cat) {
+          const fn = handlersRef.current[handlerKey];
+          if (fn) fn(event);
+          return;
+        }
+      }
+
+      // Handle 'tasks' prefix (legacy) routing to onTaskEvent
+      if (category === 'tasks') {
+        const fn = handlersRef.current.onTaskEvent;
+        if (fn) fn(event);
+      }
+    });
+
+    return () => { unsubscribe(); };
+  }, []);
+}
+
+/**
+ * Hook to subscribe/unsubscribe to a chat or field room.
+ * Automatically cleans up on unmount.
+ *
+ * Usage:
+ * ```ts
+ * useWebSocketRoom(selectedChatRoomId);
+ * ```
+ */
+export function useWebSocketRoom(roomId: string | null | undefined) {
+  useEffect(() => {
+    if (!roomId) return;
+
+    wsClient.subscribeToRoom(roomId);
+
+    return () => {
+      wsClient.unsubscribeFromRoom(roomId);
+    };
+  }, [roomId]);
+}

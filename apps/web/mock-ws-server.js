@@ -173,7 +173,7 @@ server.on("upgrade", (req, socket, _head) => {
           if (message.type === "subscribe") {
             const response = JSON.stringify({
               type: "subscribed",
-              subjects: message.subjects,
+              topics: message.topics || message.subjects,
             });
             socket.write(createWebSocketFrame(response));
           } else if (message.type === "pong") {

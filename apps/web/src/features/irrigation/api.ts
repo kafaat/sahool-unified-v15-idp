@@ -133,7 +133,7 @@ export const irrigationApi = {
   calculateIrrigation: async (
     params: CalculateIrrigationRequest
   ): Promise<IrrigationPrediction> => {
-    const response = await api.post('/api/v1/calculate', params);
+    const response = await api.post('/api/v1/irrigation/calculate', params);
     return response.data.data || response.data;
   },
 
@@ -180,7 +180,7 @@ export const irrigationApi = {
   recordSensorReading: async (
     data: SensorReadingRequest
   ): Promise<SensorReadingResponse> => {
-    const response = await api.post('/api/v1/sensor-reading', data);
+    const response = await api.post('/api/v1/irrigation/sensor-reading', data);
     return response.data.data || response.data;
   },
 
@@ -193,7 +193,7 @@ export const irrigationApi = {
   recordIrrigationExecution: async (
     data: IrrigationExecutionRequest
   ): Promise<IrrigationExecutionResponse> => {
-    const response = await api.post('/api/v1/irrigation-executed', data);
+    const response = await api.post('/api/v1/irrigation/irrigation-executed', data);
     return response.data.data || response.data;
   },
 
@@ -206,7 +206,7 @@ export const irrigationApi = {
   calculateWithAction: async (
     params: CalculateIrrigationRequest
   ): Promise<CalculateWithActionResponse> => {
-    const response = await api.post('/api/v1/calculate-with-action', params);
+    const response = await api.post('/api/v1/irrigation/calculate-with-action', params);
     return response.data.data || response.data;
   },
 };

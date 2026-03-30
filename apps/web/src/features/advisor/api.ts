@@ -5,6 +5,11 @@
 
 import { createApiClient } from '@/lib/api/factory';
 import { ADVISORY_ENDPOINTS } from '@sahool/shared-types/contracts';
+import type {
+  Explanation,
+  ExplainIrrigationParams,
+  ExplainFertilizerParams,
+} from './types/explainability';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();

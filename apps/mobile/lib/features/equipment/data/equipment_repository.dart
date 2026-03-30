@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/api_config.dart';
+import '../../../core/offline/offline_sync_engine.dart';
+import '../../../core/utils/app_logger.dart';
 import 'equipment_models.dart';
 
 /// Equipment Repository Provider
@@ -140,31 +142,52 @@ class EquipmentRepository {
     double? fuelCapacityLiters,
     Map<String, dynamic>? metadata,
   }) async {
+    final equipmentData = {
+      'name': name,
+      'name_ar': nameAr,
+      'equipment_type': type.value,
+      'brand': brand,
+      'model': model,
+      'serial_number': serialNumber,
+      'year': year,
+      'purchase_date': purchaseDate?.toIso8601String(),
+      'purchase_price': purchasePrice,
+      'field_id': fieldId,
+      'location_name': locationName,
+      'horsepower': horsepower,
+      'fuel_capacity_liters': fuelCapacityLiters,
+      'metadata': metadata,
+      'created_at': DateTime.now().toIso8601String(),
+    };
+
     try {
       final response = await _dio.post(
         '/api/v1/equipment',
-        data: {
-          'name': name,
-          'name_ar': nameAr,
-          'equipment_type': type.value,
-          'brand': brand,
-          'model': model,
-          'serial_number': serialNumber,
-          'year': year,
-          'purchase_date': purchaseDate?.toIso8601String(),
-          'purchase_price': purchasePrice,
-          'field_id': fieldId,
-          'location_name': locationName,
-          'horsepower': horsepower,
-          'fuel_capacity_liters': fuelCapacityLiters,
-          'metadata': metadata,
-        },
+        data: equipmentData,
       );
 
-      return ApiResult.success(
-        Equipment.fromJson(response.data as Map<String, dynamic>),
+      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+
+      // Enqueue to OfflineSyncEngine for reliable sync tracking
+      await OfflineSyncEngine.instance.enqueueCreate(
+        entityType: 'equipment',
+        data: equipmentData,
+        priority: SyncPriority.medium,
       );
+
+      AppLogger.i('Equipment created and enqueued for offline sync', tag: 'EquipmentRepo', data: {'name': name});
+
+      return ApiResult.success(equipment);
     } on DioException catch (e) {
+      // Enqueue for offline sync so it can be created when back online
+      await OfflineSyncEngine.instance.enqueueCreate(
+        entityType: 'equipment',
+        data: equipmentData,
+        priority: SyncPriority.medium,
+      );
+
+      AppLogger.w('Equipment creation queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+
       return ApiResult.failure(
         e.message ?? 'Failed to create equipment',
         'فشل في إنشاء المعدة',
@@ -185,13 +208,34 @@ class EquipmentRepository {
         data: updates,
       );
 
-      return ApiResult.success(
-        Equipment.fromJson(response.data as Map<String, dynamic>),
+      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+
+      // Enqueue to OfflineSyncEngine for reliable sync tracking
+      await OfflineSyncEngine.instance.enqueueUpdate(
+        entityType: 'equipment',
+        entityId: equipmentId,
+        data: updates,
+        priority: SyncPriority.medium,
       );
+
+      AppLogger.i('Equipment updated and enqueued for offline sync', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
+
+      return ApiResult.success(equipment);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         return ApiResult.failure('Equipment not found', 'المعدة غير موجودة');
       }
+
+      // Enqueue for offline sync so update can be applied when back online
+      await OfflineSyncEngine.instance.enqueueUpdate(
+        entityType: 'equipment',
+        entityId: equipmentId,
+        data: updates,
+        priority: SyncPriority.medium,
+      );
+
+      AppLogger.w('Equipment update queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+
       return ApiResult.failure(
         e.message ?? 'Failed to update equipment',
         'فشل في تحديث المعدة',
@@ -212,10 +256,30 @@ class EquipmentRepository {
         queryParameters: {'status': status.value},
       );
 
-      return ApiResult.success(
-        Equipment.fromJson(response.data as Map<String, dynamic>),
+      final equipment = Equipment.fromJson(response.data as Map<String, dynamic>);
+
+      // Enqueue to OfflineSyncEngine for reliable sync tracking
+      await OfflineSyncEngine.instance.enqueueUpdate(
+        entityType: 'equipment',
+        entityId: equipmentId,
+        data: {'status': status.value},
+        priority: SyncPriority.medium,
       );
+
+      AppLogger.i('Equipment status updated and enqueued for offline sync', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId, 'status': status.value});
+
+      return ApiResult.success(equipment);
     } on DioException catch (e) {
+      // Enqueue for offline sync so status update can be applied when back online
+      await OfflineSyncEngine.instance.enqueueUpdate(
+        entityType: 'equipment',
+        entityId: equipmentId,
+        data: {'status': status.value},
+        priority: SyncPriority.medium,
+      );
+
+      AppLogger.w('Equipment status update queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+
       return ApiResult.failure(
         e.message ?? 'Failed to update status',
         'فشل في تحديث الحالة',

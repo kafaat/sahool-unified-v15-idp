@@ -2,6 +2,8 @@
 /// VRI management at tower level for precision irrigation
 library;
 
+import 'dart:math' as math;
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'span_zone_models.freezed.dart';
@@ -241,7 +243,7 @@ enum PrescriptionSource {
 extension SpanConfigurationX on SpanConfiguration {
   /// Calculate arc length covered by this span at its distance
   double get arcLengthAt360 {
-    return 2 * 3.14159 * distanceFromCenter;
+    return 2 * math.pi * distanceFromCenter;
   }
 
   /// Get effective application rate considering zone multipliers
@@ -445,7 +447,7 @@ class VRIZoneStatistics with _$VRIZoneStatistics {
     }
 
     // Water savings compared to uniform 100%
-    final waterSavings = 100 - avgRate;
+    final waterSavings = math.max(0.0, 100 - avgRate);
 
     return VRIZoneStatistics(
       totalZones: allZones.length,

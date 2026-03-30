@@ -207,7 +207,7 @@ function AlternativeCard({ alt }: { alt: AlternativeRecommendation }) {
               <p className="text-xs font-medium text-red-600 dark:text-red-400">
                 Cons
               </p>
-              <ul className="mt-1list-inside list-disc text-xs text-gray-600 dark:text-gray-400">
+              <ul className="mt-1 list-inside list-disc text-xs text-gray-600 dark:text-gray-400">
                 {alt.cons.map((con, i) => (
                   <li key={i}>{con}</li>
                 ))}

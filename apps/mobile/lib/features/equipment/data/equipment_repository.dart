@@ -355,11 +355,31 @@ class EquipmentRepository {
   Future<ApiResult<void>> deleteEquipment(String equipmentId) async {
     try {
       await _dio.delete('/api/v1/equipment/$equipmentId');
+
+      // Enqueue to OfflineSyncEngine for reliable sync tracking
+      await OfflineSyncEngine.instance.enqueueDelete(
+        entityType: 'equipment',
+        entityId: equipmentId,
+        priority: SyncPriority.medium,
+      );
+
+      AppLogger.i('Equipment deleted and enqueued for offline sync', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
+
       return ApiResult.success(null);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         return ApiResult.failure('Equipment not found', 'المعدة غير موجودة');
       }
+
+      // Enqueue for offline sync so deletion can be applied when back online
+      await OfflineSyncEngine.instance.enqueueDelete(
+        entityType: 'equipment',
+        entityId: equipmentId,
+        priority: SyncPriority.medium,
+      );
+
+      AppLogger.w('Equipment deletion queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+
       return ApiResult.failure(
         e.message ?? 'Failed to delete equipment',
         'فشل في حذف المعدة',
@@ -462,6 +482,18 @@ class EquipmentRepository {
     String? notes,
     List<String>? partsReplaced,
   }) async {
+    final maintenanceData = {
+      'equipment_id': equipmentId,
+      'maintenance_type': maintenanceType.value,
+      'description': description,
+      'description_ar': descriptionAr,
+      'performed_by': performedBy,
+      'cost': cost,
+      'notes': notes,
+      'parts_replaced': partsReplaced,
+      'created_at': DateTime.now().toIso8601String(),
+    };
+
     try {
       final response = await _dio.post(
         '/api/v1/equipment/$equipmentId/maintenance',
@@ -476,8 +508,26 @@ class EquipmentRepository {
         },
       );
 
+      // Enqueue to OfflineSyncEngine for reliable sync tracking
+      await OfflineSyncEngine.instance.enqueueCreate(
+        entityType: 'equipment',
+        data: {'type': 'maintenance_record', ...maintenanceData},
+        priority: SyncPriority.medium,
+      );
+
+      AppLogger.i('Maintenance record added and enqueued for offline sync', tag: 'EquipmentRepo', data: {'equipmentId': equipmentId});
+
       return ApiResult.success(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
+      // Enqueue for offline sync so maintenance record can be created when back online
+      await OfflineSyncEngine.instance.enqueueCreate(
+        entityType: 'equipment',
+        data: {'type': 'maintenance_record', ...maintenanceData},
+        priority: SyncPriority.medium,
+      );
+
+      AppLogger.w('Maintenance record queued for offline sync (API unavailable)', tag: 'EquipmentRepo');
+
       return ApiResult.failure(
         e.message ?? 'Failed to add maintenance record',
         'فشل في إضافة سجل الصيانة',

@@ -5,7 +5,13 @@
 
 export { useKPIs } from './useKPIs';
 export { useAlerts } from './useAlerts';
-export { useWebSocket } from './useWebSocket';
+export {
+  useWebSocket,
+  useWebSocketEvent,
+  useWebSocketEvents,
+  useWebSocketQueryInvalidation,
+  useWebSocketRoom,
+} from './useWebSocket';
 export {
   useFormValidation,
   validationPatterns,

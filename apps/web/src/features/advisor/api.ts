@@ -161,4 +161,43 @@ export const advisorApi = {
     const response = await api.get(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/stats`);
     return response.data;
   },
+
+  // ---------------------------------------------------------------------------
+  // Explainability endpoints
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Get the explanation for a recommendation
+   * الحصول على تفسير التوصية
+   */
+  getExplanation: async (recommendationId: string): Promise<Explanation> => {
+    const response = await api.get(
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${recommendationId}/explanation`
+    );
+    return response.data;
+  },
+
+  /**
+   * Generate an explanation for an irrigation recommendation
+   * توليد تفسير لتوصية الري
+   */
+  explainIrrigation: async (params: ExplainIrrigationParams): Promise<Explanation> => {
+    const response = await api.post(
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/explain/irrigation`,
+      params
+    );
+    return response.data;
+  },
+
+  /**
+   * Generate an explanation for a fertilizer recommendation
+   * توليد تفسير لتوصية التسميد
+   */
+  explainFertilizer: async (params: ExplainFertilizerParams): Promise<Explanation> => {
+    const response = await api.post(
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/explain/fertilizer`,
+      params
+    );
+    return response.data;
+  },
 };

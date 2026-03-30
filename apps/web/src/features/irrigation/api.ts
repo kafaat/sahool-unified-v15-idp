@@ -146,8 +146,10 @@ export const irrigationApi = {
   calculateIrrigation: async (
     params: CalculateIrrigationRequest
   ): Promise<IrrigationPrediction> => {
-    const response = await api.post(SMART_IRRIGATION_ENDPOINTS.CALCULATE, params);
-    return response.data.data || response.data;
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.CALCULATE, async () => {
+      const response = await api.post(SMART_IRRIGATION_ENDPOINTS.CALCULATE, params);
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -160,11 +162,13 @@ export const irrigationApi = {
     fieldId: string,
     options?: { crop?: string; days?: number }
   ): Promise<WaterBalanceResponse> => {
-    const params: Record<string, string | number> = {};
-    if (options?.crop) params.crop = options.crop;
-    if (options?.days) params.days = options.days;
-    const response = await api.get(`${SMART_IRRIGATION_ENDPOINTS.WATER_BALANCE}/${fieldId}`, { params });
-    return response.data.data || response.data;
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.WATER_BALANCE, async () => {
+      const params: Record<string, string | number> = {};
+      if (options?.crop) params.crop = options.crop;
+      if (options?.days) params.days = options.days;
+      const response = await api.get(`${SMART_IRRIGATION_ENDPOINTS.WATER_BALANCE}/${fieldId}`, { params });
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -177,11 +181,13 @@ export const irrigationApi = {
     fieldId: string,
     options?: { current_method?: SmartIrrigationMethod; area_hectares?: number }
   ): Promise<EfficiencyReport> => {
-    const params: Record<string, string | number> = {};
-    if (options?.current_method) params.current_method = options.current_method;
-    if (options?.area_hectares) params.area_hectares = options.area_hectares;
-    const response = await api.get(`${SMART_IRRIGATION_ENDPOINTS.EFFICIENCY_REPORT}/${fieldId}`, { params });
-    return response.data.data || response.data;
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.EFFICIENCY_REPORT, async () => {
+      const params: Record<string, string | number> = {};
+      if (options?.current_method) params.current_method = options.current_method;
+      if (options?.area_hectares) params.area_hectares = options.area_hectares;
+      const response = await api.get(`${SMART_IRRIGATION_ENDPOINTS.EFFICIENCY_REPORT}/${fieldId}`, { params });
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -193,8 +199,10 @@ export const irrigationApi = {
   recordSensorReading: async (
     data: SensorReadingRequest
   ): Promise<SensorReadingResponse> => {
-    const response = await api.post(SMART_IRRIGATION_ENDPOINTS.SENSOR_READING, data);
-    return response.data.data || response.data;
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.SENSOR_READING, async () => {
+      const response = await api.post(SMART_IRRIGATION_ENDPOINTS.SENSOR_READING, data);
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -206,8 +214,10 @@ export const irrigationApi = {
   recordIrrigationExecution: async (
     data: IrrigationExecutionRequest
   ): Promise<IrrigationExecutionResponse> => {
-    const response = await api.post(SMART_IRRIGATION_ENDPOINTS.IRRIGATION_EXECUTED, data);
-    return response.data.data || response.data;
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.IRRIGATION_EXECUTED, async () => {
+      const response = await api.post(SMART_IRRIGATION_ENDPOINTS.IRRIGATION_EXECUTED, data);
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -219,7 +229,9 @@ export const irrigationApi = {
   calculateWithAction: async (
     params: CalculateIrrigationRequest
   ): Promise<CalculateWithActionResponse> => {
-    const response = await api.post(SMART_IRRIGATION_ENDPOINTS.CALCULATE_WITH_ACTION, params);
-    return response.data.data || response.data;
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.CALCULATE_WITH_ACTION, async () => {
+      const response = await api.post(SMART_IRRIGATION_ENDPOINTS.CALCULATE_WITH_ACTION, params);
+      return response.data.data || response.data;
+    });
   },
 };

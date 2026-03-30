@@ -448,9 +448,9 @@ class NATSBridge:
             )
             await self.room_manager.broadcast_to_room(RoomType.IRRIGATION, sanitized_message)
 
-            # Irrigation alerts also go to the alerts room
+            # Irrigation alerts also go to the alerts room (sanitized to prevent cross-tenant leakage)
             if event_type == EventType.IRRIGATION_ALERT:
-                await self.room_manager.broadcast_to_room(RoomType.ALERTS, ws_message)
+                await self.room_manager.broadcast_to_room(RoomType.ALERTS, sanitized_message)
 
             self._track_success(msg.subject)
         except Exception as e:
@@ -490,9 +490,9 @@ class NATSBridge:
             )
             await self.room_manager.broadcast_to_room(RoomType.FERTILIZER, sanitized_message)
 
-            # Fertilizer alerts also go to the alerts room
+            # Fertilizer alerts also go to the alerts room (sanitized to prevent cross-tenant leakage)
             if event_type == EventType.FERTILIZER_ALERT:
-                await self.room_manager.broadcast_to_room(RoomType.ALERTS, ws_message)
+                await self.room_manager.broadcast_to_room(RoomType.ALERTS, sanitized_message)
 
             self._track_success(msg.subject)
         except Exception as e:

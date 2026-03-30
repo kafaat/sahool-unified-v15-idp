@@ -221,15 +221,16 @@ export const vegetationIndicesApi = {
     indexNames?: VegetationIndex[],
     date?: string
   ): Promise<IndicesResult> => {
-    const params = new URLSearchParams();
-    if (indexNames?.length) params.set('indices', indexNames.join(','));
-    if (date) params.set('date', date);
-    const qs = params.toString();
+    const url = buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId });
+    return safeFetch(url, async () => {
+      const params = new URLSearchParams();
+      if (indexNames?.length) params.set('indices', indexNames.join(','));
+      if (date) params.set('date', date);
+      const qs = params.toString();
 
-    const response = await api.get(
-      `${buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId })}${qs ? `?${qs}` : ''}`
-    );
-    return response.data;
+      const response = await api.get(`${url}${qs ? `?${qs}` : ''}`);
+      return response.data;
+    });
   },
 
   /**
@@ -245,11 +246,12 @@ export const vegetationIndicesApi = {
     indexName: VegetationIndex | string,
     date?: string
   ): Promise<SingleIndexResult> => {
-    const params = date ? `?date=${date}` : '';
-    const response = await api.get(
-      `${buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId })}/${indexName}${params}`
-    );
-    return response.data;
+    const url = `${buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId })}/${indexName}`;
+    return safeFetch(url, async () => {
+      const params = date ? `?date=${date}` : '';
+      const response = await api.get(`${url}${params}`);
+      return response.data;
+    });
   },
 
   /**
@@ -263,14 +265,15 @@ export const vegetationIndicesApi = {
     fieldId: string,
     date?: string
   ): Promise<IndicesInterpretation> => {
-    const params = new URLSearchParams();
-    params.set('field_id', fieldId);
-    if (date) params.set('date', date);
+    const endpoint = `${API_PREFIX}/satellite/v1/indices/interpret`;
+    return safeFetch(endpoint, async () => {
+      const params = new URLSearchParams();
+      params.set('field_id', fieldId);
+      if (date) params.set('date', date);
 
-    const response = await api.get(
-      `${API_PREFIX}/satellite/v1/indices/interpret?${params.toString()}`
-    );
-    return response.data;
+      const response = await api.get(`${endpoint}?${params.toString()}`);
+      return response.data;
+    });
   },
 
   /**
@@ -286,14 +289,15 @@ export const vegetationIndicesApi = {
     indexName: VegetationIndex | string,
     dateRange?: { startDate?: string; endDate?: string }
   ): Promise<IndexTimeSeries> => {
-    const params = new URLSearchParams();
-    if (dateRange?.startDate) params.set('start_date', dateRange.startDate);
-    if (dateRange?.endDate) params.set('end_date', dateRange.endDate);
-    const qs = params.toString();
+    const url = `${buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId })}/${indexName}/timeseries`;
+    return safeFetch(url, async () => {
+      const params = new URLSearchParams();
+      if (dateRange?.startDate) params.set('start_date', dateRange.startDate);
+      if (dateRange?.endDate) params.set('end_date', dateRange.endDate);
+      const qs = params.toString();
 
-    const response = await api.get(
-      `${buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId })}/${indexName}/timeseries${qs ? `?${qs}` : ''}`
-    );
-    return response.data;
+      const response = await api.get(`${url}${qs ? `?${qs}` : ''}`);
+      return response.data;
+    });
   },
 };

@@ -156,7 +156,7 @@ export const weatherApi = {
       const forecastData = data.forecast || data.daily_forecast || [];
 
       if (!Array.isArray(forecastData)) {
-        throw new Error('Invalid forecast response format');
+        throw new Error(`${ERROR_MESSAGES.FETCH_FORECAST_FAILED.en} | ${ERROR_MESSAGES.FETCH_FORECAST_FAILED.ar}`);
       }
 
       return forecastData.map((day: ApiForecastDay) => ({

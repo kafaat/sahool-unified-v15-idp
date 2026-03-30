@@ -286,14 +286,21 @@ export const walletApi = {
    */
   async deposit(data: DepositFormData): Promise<Transaction> {
     return safeFetch(BILLING_ENDPOINTS.WALLET_DEPOSIT, async () => {
-      const response = await api.post(BILLING_ENDPOINTS.WALLET_DEPOSIT, data);
-      const result = response.data.data || response.data;
+      try {
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_DEPOSIT, data);
+        const result = response.data.data || response.data;
 
-      if (result && typeof result === 'object' && 'id' in result) {
-        return result as Transaction;
+        if (result && typeof result === 'object' && 'id' in result) {
+          return result as Transaction;
+        }
+
+        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+      } catch (err: unknown) {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
+        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
+        throw err;
       }
-
-      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     });
   },
 
@@ -303,14 +310,22 @@ export const walletApi = {
    */
   async withdraw(data: WithdrawalFormData): Promise<Transaction> {
     return safeFetch(BILLING_ENDPOINTS.WALLET_WITHDRAW, async () => {
-      const response = await api.post(BILLING_ENDPOINTS.WALLET_WITHDRAW, data);
-      const result = response.data.data || response.data;
+      try {
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_WITHDRAW, data);
+        const result = response.data.data || response.data;
 
-      if (result && typeof result === 'object' && 'id' in result) {
-        return result as Transaction;
+        if (result && typeof result === 'object' && 'id' in result) {
+          return result as Transaction;
+        }
+
+        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+      } catch (err: unknown) {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
+        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
+        if (status === 402) throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
+        throw err;
       }
-
-      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     });
   },
 
@@ -320,14 +335,22 @@ export const walletApi = {
    */
   async transfer(data: TransferFormData): Promise<Transaction> {
     return safeFetch(BILLING_ENDPOINTS.WALLET_TRANSFER, async () => {
-      const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data);
-      const result = response.data.data || response.data;
+      try {
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data);
+        const result = response.data.data || response.data;
 
-      if (result && typeof result === 'object' && 'id' in result) {
-        return result as Transaction;
+        if (result && typeof result === 'object' && 'id' in result) {
+          return result as Transaction;
+        }
+
+        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+      } catch (err: unknown) {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
+        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
+        if (status === 402) throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
+        throw err;
       }
-
-      throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
     });
   },
 };

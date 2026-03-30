@@ -166,7 +166,7 @@ function mapUserToTeamMember(user: BackendUserData): TeamMember {
     lastName: user.lastName || user.last_name || '',
     phone: user.phone,
     role: user.role as Role,
-    status: user.status as unknown as UserStatus,
+    status: Object.values(UserStatus).includes(user.status as UserStatus) ? user.status as UserStatus : UserStatus.ACTIVE,
     avatarUrl: user.profile?.avatarUrl || user.profile?.avatar_url,
     emailVerified: user.emailVerified ?? user.email_verified ?? false,
     phoneVerified: user.phoneVerified ?? user.phone_verified ?? false,

@@ -3,7 +3,8 @@
  * طبقة API لميزة تحسين التسوية
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import type {
   LevelingAnalysis,
   LevelingAnalysisRequest,
@@ -53,7 +54,7 @@ export const levelingApi = {
    * تحليل الحقل لمتطلبات التسوية وإنشاء خطة مثالية
    */
   analyzeFieldLeveling: async (request: LevelingAnalysisRequest): Promise<LevelingAnalysis> => {
-    try {
+    return safeFetch(`${LEVELING_BASE}/analyze`, async () => {
       const response = await api.post(`${LEVELING_BASE}/analyze`, {
         field_id: request.fieldId,
         elevation_points: request.elevationPoints.map((p) => ({
@@ -71,10 +72,7 @@ export const levelingApi = {
         include_cost_estimate: request.includeCostEstimate,
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to analyze field leveling:', error);
-      throw new Error(ERROR_MESSAGES.ANALYSIS_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -82,13 +80,11 @@ export const levelingApi = {
    * الحصول على خطة التسوية المثلى للحقل
    */
   getLevelingPlan: async (fieldId: string): Promise<LevelingPlan> => {
-    try {
-      const response = await api.get(`${LEVELING_BASE}/plan/${fieldId}`);
+    const endpoint = `${LEVELING_BASE}/plan/${fieldId}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to get leveling plan:', error);
-      throw new Error(ERROR_MESSAGES.PLAN_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -96,8 +92,9 @@ export const levelingApi = {
    * الحصول على تقدير التكلفة المفصل لعملية التسوية
    */
   getCostEstimation: async (params: CostEstimationParams): Promise<CostEstimation> => {
-    try {
-      const response = await api.get(`${LEVELING_BASE}/cost/${params.fieldId}`, {
+    const endpoint = `${LEVELING_BASE}/cost/${params.fieldId}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint, {
         params: {
           cut_volume_m3: params.cutVolumeM3,
           fill_volume_m3: params.fillVolumeM3,
@@ -106,10 +103,7 @@ export const levelingApi = {
         },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to estimate leveling cost:', error);
-      throw new Error(ERROR_MESSAGES.COST_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -119,8 +113,9 @@ export const levelingApi = {
   getEquipmentRecommendations: async (
     params: EquipmentRecommendationParams
   ): Promise<EquipmentRecommendation[]> => {
-    try {
-      const response = await api.get(`${LEVELING_BASE}/equipment/${params.fieldId}`, {
+    const endpoint = `${LEVELING_BASE}/equipment/${params.fieldId}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint, {
         params: {
           total_volume_m3: params.totalVolumeM3,
           haul_distance_m: params.haulDistanceM,
@@ -128,10 +123,7 @@ export const levelingApi = {
         },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to get equipment recommendations:', error);
-      throw new Error(ERROR_MESSAGES.EQUIPMENT_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -139,7 +131,7 @@ export const levelingApi = {
    * محاكاة سيناريو التسوية وإرجاع النتائج المتوقعة
    */
   simulateLeveling: async (request: LevelingSimulationRequest): Promise<LevelingSimulation> => {
-    try {
+    return safeFetch(`${LEVELING_BASE}/simulate`, async () => {
       const response = await api.post(`${LEVELING_BASE}/simulate`, {
         field_id: request.fieldId,
         elevation_points: request.elevationPoints.map((p) => ({
@@ -155,9 +147,6 @@ export const levelingApi = {
         method: request.method,
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to simulate leveling:', error);
-      throw new Error(ERROR_MESSAGES.SIMULATION_FAILED.en);
-    }
+    });
   },
 };

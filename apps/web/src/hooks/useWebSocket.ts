@@ -368,8 +368,13 @@ export function useWebSocketEvent(
   useEffect(() => {
     const unsubscribe = wsClient.onEvent((event: TimelineEvent) => {
       const type = event.event_type;
-      // Exact match or category prefix match
-      if (type === eventType || type.startsWith(eventType + '.')) {
+      // Exact match, dot-prefix match, or category-level match
+      // (handles legacy underscore events like "task_created" matching "task")
+      if (
+        type === eventType ||
+        type.startsWith(eventType + '.') ||
+        getEventCategory(type) === eventType
+      ) {
         handlerRef.current(event);
       }
     });

@@ -10,15 +10,12 @@
 
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { levelingApi } from '../api';
 import type {
   LevelingAnalysis,
   LevelingAnalysisRequest,
-  LevelingPlan,
-  CostEstimation,
   CostEstimationParams,
-  EquipmentRecommendation,
   EquipmentRecommendationParams,
   LevelingSimulation,
   LevelingSimulationRequest,
@@ -71,16 +68,14 @@ export function useAnalyzeFieldLeveling() {
  *
  * Retrieves a stored leveling plan from the server.
  *
- * @returns Mutation result with leveling plan data
+ * @param fieldId - The field ID to retrieve the plan for
+ * @returns Query result with leveling plan data
  */
-export function useGetLevelingPlan() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (fieldId: string) => levelingApi.getLevelingPlan(fieldId),
-    onSuccess: (_result: LevelingPlan, fieldId) => {
-      queryClient.invalidateQueries({ queryKey: levelingKeys.plan(fieldId) });
-    },
+export function useGetLevelingPlan(fieldId: string | undefined) {
+  return useQuery({
+    queryKey: levelingKeys.plan(fieldId!),
+    queryFn: () => levelingApi.getLevelingPlan(fieldId!),
+    enabled: !!fieldId,
   });
 }
 
@@ -88,18 +83,16 @@ export function useGetLevelingPlan() {
  * Hook to get cost estimation for leveling operation
  * خطاف للحصول على تقدير التكلفة لعملية التسوية
  *
- * Triggers server-side cost estimation based on cut/fill volumes.
+ * Fetches cost estimation based on cut/fill volumes.
  *
- * @returns Mutation result with cost estimation data
+ * @param params - Cost estimation parameters (pass undefined to disable)
+ * @returns Query result with cost estimation data
  */
-export function useGetCostEstimation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (params: CostEstimationParams) => levelingApi.getCostEstimation(params),
-    onSuccess: (_result: CostEstimation, params) => {
-      queryClient.invalidateQueries({ queryKey: levelingKeys.cost(params.fieldId) });
-    },
+export function useGetCostEstimation(params: CostEstimationParams | undefined) {
+  return useQuery({
+    queryKey: levelingKeys.cost(params?.fieldId ?? ''),
+    queryFn: () => levelingApi.getCostEstimation(params!),
+    enabled: !!params?.fieldId,
   });
 }
 
@@ -109,17 +102,14 @@ export function useGetCostEstimation() {
  *
  * Returns recommended equipment based on earthwork volume and haul distance.
  *
- * @returns Mutation result with equipment recommendation list
+ * @param params - Equipment recommendation parameters (pass undefined to disable)
+ * @returns Query result with equipment recommendation list
  */
-export function useGetEquipmentRecommendations() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (params: EquipmentRecommendationParams) =>
-      levelingApi.getEquipmentRecommendations(params),
-    onSuccess: (_result: EquipmentRecommendation[], params) => {
-      queryClient.invalidateQueries({ queryKey: levelingKeys.equipment(params.fieldId) });
-    },
+export function useGetEquipmentRecommendations(params: EquipmentRecommendationParams | undefined) {
+  return useQuery({
+    queryKey: levelingKeys.equipment(params?.fieldId ?? ''),
+    queryFn: () => levelingApi.getEquipmentRecommendations(params!),
+    enabled: !!params?.fieldId,
   });
 }
 

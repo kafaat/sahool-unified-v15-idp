@@ -3,7 +3,8 @@
  * طبقة API لميزة الهيدرولوجيا
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { API_PREFIX } from '@sahool/shared-types/contracts';
 import type {
   HydrologyAnalysisResult,
@@ -82,7 +83,7 @@ export const hydrologyApi = {
    * تشغيل تحليل هيدرولوجي كامل للحقل
    */
   analyzeHydrology: async (params: HydrologyAnalysisParams): Promise<HydrologyAnalysisResult> => {
-    try {
+    return safeFetch(HYDROLOGY_ENDPOINTS.ANALYZE, async () => {
       const response = await api.post(HYDROLOGY_ENDPOINTS.ANALYZE, {
         field_id: params.fieldId,
         tenant_id: params.tenantId,
@@ -93,10 +94,7 @@ export const hydrologyApi = {
         rainfall_period_days: params.rainfallPeriodDays,
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to analyze hydrology:', error);
-      throw new Error(ERROR_MESSAGES.ANALYSIS_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -104,18 +102,16 @@ export const hydrologyApi = {
    * الحصول على شبكة التصريف للحقل
    */
   getDrainage: async (fieldId: string, params?: DrainageParams): Promise<DrainageAnalysis> => {
-    try {
-      const response = await api.get(`${HYDROLOGY_ENDPOINTS.DRAINAGE}/${fieldId}`, {
+    const endpoint = `${HYDROLOGY_ENDPOINTS.DRAINAGE}/${fieldId}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint, {
         params: {
           flow_threshold: params?.flowThreshold,
           include_pattern: params?.includePattern,
         },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to get drainage network:', error);
-      throw new Error(ERROR_MESSAGES.DRAINAGE_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -123,18 +119,16 @@ export const hydrologyApi = {
    * الحصول على تحليل الرطوبة والتشبع المائي للحقل
    */
   getWetness: async (fieldId: string, params?: WetnessParams): Promise<WetnessAnalysis> => {
-    try {
-      const response = await api.get(`${HYDROLOGY_ENDPOINTS.WETNESS}/${fieldId}`, {
+    const endpoint = `${HYDROLOGY_ENDPOINTS.WETNESS}/${fieldId}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint, {
         params: {
           include_prediction: params?.includePrediction,
           rainfall_mm: params?.rainfallMm,
         },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to get wetness analysis:', error);
-      throw new Error(ERROR_MESSAGES.WETNESS_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -142,18 +136,16 @@ export const hydrologyApi = {
    * تحديد المنخفضات في الحقل
    */
   getDepressions: async (fieldId: string, params?: DepressionParams): Promise<DepressionAnalysis> => {
-    try {
-      const response = await api.get(`${HYDROLOGY_ENDPOINTS.DEPRESSIONS}/${fieldId}`, {
+    const endpoint = `${HYDROLOGY_ENDPOINTS.DEPRESSIONS}/${fieldId}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint, {
         params: {
           min_depth_m: params?.minDepthM,
           min_area_sqm: params?.minAreaSqm,
         },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to get depressions:', error);
-      throw new Error(ERROR_MESSAGES.DEPRESSIONS_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -161,17 +153,15 @@ export const hydrologyApi = {
    * كشف المجاري المائية في الحقل
    */
   getStreams: async (fieldId: string, params?: StreamParams): Promise<StreamNetwork> => {
-    try {
-      const response = await api.get(`${HYDROLOGY_ENDPOINTS.STREAMS}/${fieldId}`, {
+    const endpoint = `${HYDROLOGY_ENDPOINTS.STREAMS}/${fieldId}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint, {
         params: {
           min_order: params?.minOrder,
         },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to get streams:', error);
-      throw new Error(ERROR_MESSAGES.STREAMS_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -179,16 +169,14 @@ export const hydrologyApi = {
    * تحديد أحواض التصريف
    */
   getBasins: async (fieldId: string, params?: BasinParams): Promise<BasinDelineation> => {
-    try {
-      const response = await api.get(`${HYDROLOGY_ENDPOINTS.BASINS}/${fieldId}`, {
+    const endpoint = `${HYDROLOGY_ENDPOINTS.BASINS}/${fieldId}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint, {
         params: {
           min_area_ha: params?.minAreaHa,
         },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Failed to get basins:', error);
-      throw new Error(ERROR_MESSAGES.BASINS_FAILED.en);
-    }
+    });
   },
 };

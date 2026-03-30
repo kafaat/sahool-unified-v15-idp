@@ -430,18 +430,21 @@ class NATSBridge:
 
             ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
-            # Send to field
+            # Send to field (tenant-scoped, full data)
             field_id = data.get("field_id")
             if field_id:
                 await self.room_manager.send_to_field(field_id, ws_message)
 
-            # Send to tenant
+            # Send to tenant (tenant-scoped, full data)
             tenant_id = data.get("tenant_id")
             if tenant_id:
                 await self.room_manager.send_to_tenant(tenant_id, ws_message)
 
-            # Broadcast to irrigation topic room
-            await self.room_manager.broadcast_to_room(RoomType.IRRIGATION, ws_message)
+            # Broadcast to global irrigation topic room with sanitized data
+            # (strip tenant_id and field_id to prevent cross-tenant data leakage)
+            sanitized_data = {k: v for k, v in data.items() if k not in ("tenant_id", "field_id")}
+            sanitized_message = self._create_event_message(event_type=event_type, data=sanitized_data, subject=msg.subject)
+            await self.room_manager.broadcast_to_room(RoomType.IRRIGATION, sanitized_message)
 
             # Irrigation alerts also go to the alerts room
             if event_type == EventType.IRRIGATION_ALERT:
@@ -467,18 +470,21 @@ class NATSBridge:
 
             ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
 
-            # Send to field
+            # Send to field (tenant-scoped, full data)
             field_id = data.get("field_id")
             if field_id:
                 await self.room_manager.send_to_field(field_id, ws_message)
 
-            # Send to tenant
+            # Send to tenant (tenant-scoped, full data)
             tenant_id = data.get("tenant_id")
             if tenant_id:
                 await self.room_manager.send_to_tenant(tenant_id, ws_message)
 
-            # Broadcast to fertilizer topic room
-            await self.room_manager.broadcast_to_room(RoomType.FERTILIZER, ws_message)
+            # Broadcast to global fertilizer topic room with sanitized data
+            # (strip tenant_id and field_id to prevent cross-tenant data leakage)
+            sanitized_data = {k: v for k, v in data.items() if k not in ("tenant_id", "field_id")}
+            sanitized_message = self._create_event_message(event_type=event_type, data=sanitized_data, subject=msg.subject)
+            await self.room_manager.broadcast_to_room(RoomType.FERTILIZER, sanitized_message)
 
             # Fertilizer alerts also go to the alerts room
             if event_type == EventType.FERTILIZER_ALERT:

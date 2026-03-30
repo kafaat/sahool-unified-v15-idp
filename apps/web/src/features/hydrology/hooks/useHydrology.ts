@@ -12,20 +12,15 @@
 
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { hydrologyApi } from '../api';
 import type {
   HydrologyAnalysisResult,
   HydrologyAnalysisParams,
-  DrainageAnalysis,
   DrainageParams,
-  WetnessAnalysis,
   WetnessParams,
-  DepressionAnalysis,
   DepressionParams,
-  StreamNetwork,
   StreamParams,
-  BasinDelineation,
   BasinParams,
 } from '../types';
 
@@ -77,19 +72,17 @@ export function useAnalyzeHydrology() {
  * Hook to get drainage network for a field.
  * خطاف للحصول على شبكة التصريف للحقل
  *
- * Triggers server-side drainage network extraction using D8 algorithm.
+ * Fetches drainage network using D8 algorithm.
  *
- * @returns Mutation result with drainage network data
+ * @param fieldId - The field ID (pass undefined to disable)
+ * @param params - Optional drainage parameters
+ * @returns Query result with drainage network data
  */
-export function useGetDrainage() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ fieldId, params }: { fieldId: string; params?: DrainageParams }) =>
-      hydrologyApi.getDrainage(fieldId, params),
-    onSuccess: (_result: DrainageAnalysis, { fieldId }) => {
-      queryClient.invalidateQueries({ queryKey: hydrologyKeys.drainage(fieldId) });
-    },
+export function useGetDrainage(fieldId: string | undefined, params?: DrainageParams) {
+  return useQuery({
+    queryKey: hydrologyKeys.drainage(fieldId!),
+    queryFn: () => hydrologyApi.getDrainage(fieldId!, params),
+    enabled: !!fieldId,
   });
 }
 
@@ -100,17 +93,15 @@ export function useGetDrainage() {
  * Calculates Topographic Wetness Index (TWI) and identifies
  * areas prone to waterlogging.
  *
- * @returns Mutation result with wetness analysis data
+ * @param fieldId - The field ID (pass undefined to disable)
+ * @param params - Optional wetness parameters
+ * @returns Query result with wetness analysis data
  */
-export function useGetWetness() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ fieldId, params }: { fieldId: string; params?: WetnessParams }) =>
-      hydrologyApi.getWetness(fieldId, params),
-    onSuccess: (_result: WetnessAnalysis, { fieldId }) => {
-      queryClient.invalidateQueries({ queryKey: hydrologyKeys.wetness(fieldId) });
-    },
+export function useGetWetness(fieldId: string | undefined, params?: WetnessParams) {
+  return useQuery({
+    queryKey: hydrologyKeys.wetness(fieldId!),
+    queryFn: () => hydrologyApi.getWetness(fieldId!, params),
+    enabled: !!fieldId,
   });
 }
 
@@ -121,17 +112,15 @@ export function useGetWetness() {
  * Detects terrain depressions that may cause waterlogging
  * and provides drainage recommendations.
  *
- * @returns Mutation result with depression analysis data
+ * @param fieldId - The field ID (pass undefined to disable)
+ * @param params - Optional depression parameters
+ * @returns Query result with depression analysis data
  */
-export function useGetDepressions() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ fieldId, params }: { fieldId: string; params?: DepressionParams }) =>
-      hydrologyApi.getDepressions(fieldId, params),
-    onSuccess: (_result: DepressionAnalysis, { fieldId }) => {
-      queryClient.invalidateQueries({ queryKey: hydrologyKeys.depressions(fieldId) });
-    },
+export function useGetDepressions(fieldId: string | undefined, params?: DepressionParams) {
+  return useQuery({
+    queryKey: hydrologyKeys.depressions(fieldId!),
+    queryFn: () => hydrologyApi.getDepressions(fieldId!, params),
+    enabled: !!fieldId,
   });
 }
 
@@ -141,17 +130,15 @@ export function useGetDepressions() {
  *
  * Uses Strahler ordering to classify streams by importance.
  *
- * @returns Mutation result with stream network data
+ * @param fieldId - The field ID (pass undefined to disable)
+ * @param params - Optional stream parameters
+ * @returns Query result with stream network data
  */
-export function useGetStreams() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ fieldId, params }: { fieldId: string; params?: StreamParams }) =>
-      hydrologyApi.getStreams(fieldId, params),
-    onSuccess: (_result: StreamNetwork, { fieldId }) => {
-      queryClient.invalidateQueries({ queryKey: hydrologyKeys.streams(fieldId) });
-    },
+export function useGetStreams(fieldId: string | undefined, params?: StreamParams) {
+  return useQuery({
+    queryKey: hydrologyKeys.streams(fieldId!),
+    queryFn: () => hydrologyApi.getStreams(fieldId!, params),
+    enabled: !!fieldId,
   });
 }
 
@@ -162,16 +149,14 @@ export function useGetStreams() {
  * Identifies watershed boundaries and calculates
  * basin morphometric parameters.
  *
- * @returns Mutation result with basin delineation data
+ * @param fieldId - The field ID (pass undefined to disable)
+ * @param params - Optional basin parameters
+ * @returns Query result with basin delineation data
  */
-export function useGetBasins() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ fieldId, params }: { fieldId: string; params?: BasinParams }) =>
-      hydrologyApi.getBasins(fieldId, params),
-    onSuccess: (_result: BasinDelineation, { fieldId }) => {
-      queryClient.invalidateQueries({ queryKey: hydrologyKeys.basins(fieldId) });
-    },
+export function useGetBasins(fieldId: string | undefined, params?: BasinParams) {
+  return useQuery({
+    queryKey: hydrologyKeys.basins(fieldId!),
+    queryFn: () => hydrologyApi.getBasins(fieldId!, params),
+    enabled: !!fieldId,
   });
 }

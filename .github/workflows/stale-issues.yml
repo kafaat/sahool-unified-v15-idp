@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Mark and close stale issues/PRs
-        uses: actions/stale@v9
+        uses: actions/stale@v10
         with:
           # Issue configuration
           days-before-stale: 60

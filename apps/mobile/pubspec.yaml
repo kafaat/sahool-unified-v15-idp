@@ -22,7 +22,7 @@ dependencies:
   sqflite: ^2.4.1  # Local notifications storage
   sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database (includes SQLite)
   path_provider: ^2.1.5
-  path: ^1.9.0  # Must match Flutter SDK version requirement
+  path: ^1.9.0  # Must match Flutter SDK version requirement (integration_test from SDK needs path 1.9.0)
 
   # Network
   dio: ^5.7.0
@@ -69,7 +69,7 @@ dependencies:
   fl_chart: ^0.69.2
   
   # Calendar
-  table_calendar: ^3.1.3  # For spray calendar and scheduling views
+  table_calendar: ^3.1.2  # For spray calendar and scheduling views (3.2.0 requires intl ^0.20.0, conflicts with Flutter 3.27.1)
 
   # Maps - Multiple Providers Support
   # دعم متعدد لمزودي الخرائط
@@ -101,11 +101,11 @@ dependencies:
   mobile_scanner: ^6.0.2
 
   # Collections
-  collection: ^1.18.0  # DeepCollectionEquality for sync conflict resolution
+  collection: ^1.19.0  # DeepCollectionEquality for sync conflict resolution; SDK pins 1.19.0
 
   # Utils
   uuid: ^4.5.1
-  intl: 0.19.0  # Pinned for flutter_localizations SDK compatibility
+  intl: 0.19.0  # Pinned for flutter_localizations SDK compatibility (Flutter 3.27.1 pins intl 0.19.0)
   equatable: ^2.0.7
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
@@ -158,7 +158,7 @@ dev_dependencies:
   riverpod_generator: ^2.6.3  # Required for @riverpod annotations
   # mockito removed: 5.4.5 incompatible with analyzer 7.x, 5.4.6+ requires Dart 3.7.0
   mocktail: ^1.0.4  # Mock library for unit testing (simpler API than mockito)
-  fake_async: ^1.3.1  # Pinned by integration_test from Flutter SDK
+  fake_async: ^1.3.1  # Pinned by integration_test from Flutter SDK (3.27.1 pins to 1.3.1)
 
   # App Branding
   flutter_launcher_icons: ^0.14.2

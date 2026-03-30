@@ -45,7 +45,7 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog Secrets Scan
-        uses: trufflesecurity/trufflehog@v3.94.0
+        uses: trufflesecurity/trufflehog@v3.94.1
         # Secrets detection must fail the pipeline
         with:
           path: ./

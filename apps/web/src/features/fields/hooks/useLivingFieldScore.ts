@@ -214,7 +214,7 @@ function calculateHealthScore(ndviData: any): number {
   };
 
   // Use status-based score if available, otherwise calculate from NDVI value
-  if (healthStatus && healthStatus in statusScoreMap) {
+  if (healthStatus && Object.hasOwn(statusScoreMap, healthStatus)) {
     return statusScoreMap[healthStatus as keyof typeof statusScoreMap];
   }
 

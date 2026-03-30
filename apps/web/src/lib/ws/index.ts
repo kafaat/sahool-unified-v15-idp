@@ -92,7 +92,11 @@ type ConnectionHandler = (connected: boolean) => void;
  * e.g., 'crop.disease.detected' -> 'crop'
  */
 export function getEventCategory(eventType: string): EventCategory | string {
-  return eventType.split('.')[0] ?? eventType;
+  // Support both dot notation (field.created) and underscore (task_created)
+  if (eventType.includes('.')) {
+    return eventType.split('.')[0] ?? eventType;
+  }
+  return eventType.split('_')[0] ?? eventType;
 }
 
 class WebSocketClient {
@@ -331,7 +335,10 @@ export function getEventIcon(eventType: string): string {
     case 'inventory':
       return '📦';
     case 'spray':
+    case 'irrigation':
       return '💧';
+    case 'fertilizer':
+      return '🧪';
     case 'chat':
       return '💬';
     case 'iot':
@@ -364,7 +371,10 @@ export function getEventColor(eventType: string): string {
     case 'inventory':
       return 'bg-purple-50 border-purple-200';
     case 'spray':
+    case 'irrigation':
       return 'bg-cyan-50 border-cyan-200';
+    case 'fertilizer':
+      return 'bg-lime-50 border-lime-200';
     case 'chat':
       return 'bg-indigo-50 border-indigo-200';
     case 'iot':

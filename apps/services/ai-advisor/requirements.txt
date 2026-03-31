@@ -34,16 +34,8 @@ google-generativeai>=0.3.0
 
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه
-sentence-transformers==5.2.3
-<<<<<<< HEAD
-<<<<<<< HEAD
-qdrant-client==1.17.0
-=======
-qdrant-client>=1.12.0
->>>>>>> cad879577aa9e5b68d0c55337eaf4665ca117c28
-=======
-qdrant-client==1.17.0
->>>>>>> b61cd39204b89601bf865dcfc343f38af73efc7f
+sentence-transformers==5.3.0
+qdrant-client>=1.12.0,<2.0.0
 
 # Agent-to-Agent Protocol
 # بروتوكول الوكيل إلى الوكيل

@@ -123,15 +123,16 @@ export class ErrorBoundary extends Component<Props, State> {
                   </svg>
                 </div>
                 <div>
-                  <h2 id="error-title" className="text-xl font-bold text-gray-800">
-                    حدث خطأ غير متوقع
-                    <span className="sr-only"> - An unexpected error occurred</span>
+                  <h2 id="error-title" className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                    <div>حدث خطأ غير متوقع</div>
+                    <div className="text-sm font-normal text-gray-500 dark:text-gray-400 mt-0.5">
+                      An unexpected error occurred
+                    </div>
                   </h2>
-                  <p id="error-description" className="text-gray-500 text-sm">
-                    نعتذر عن الإزعاج. سنعمل على حل المشكلة قريباً
-                    <span className="sr-only">
-                      {' '}
-                      - We apologize for the inconvenience. We will fix this soon.
+                  <p id="error-description" className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                    <span className="block">نعتذر عن الإزعاج. سنعمل على حل المشكلة قريباً</span>
+                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                      We apologize for the inconvenience. We will fix this soon.
                     </span>
                   </p>
                 </div>
@@ -149,7 +150,9 @@ export class ErrorBoundary extends Component<Props, State> {
                   role="region"
                   aria-label="Error details for developers"
                 >
-                  <h3 className="font-medium text-red-800 mb-2">رسالة الخطأ:</h3>
+                  <h3 className="font-medium text-red-800 dark:text-red-300 mb-2">
+                    رسالة الخطأ • Error Message:
+                  </h3>
                   <code className="text-sm text-red-700 block break-all">
                     {this.state.error.message}
                   </code>

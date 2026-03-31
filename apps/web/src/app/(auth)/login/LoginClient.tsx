@@ -84,29 +84,35 @@ export default function LoginClient() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Login method toggle */}
-            <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+            <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50" role="radiogroup" aria-label="طريقة تسجيل الدخول - Login method">
               <button
                 type="button"
                 onClick={() => setLoginMethod('phone')}
+                role="radio"
+                aria-checked={loginMethod === 'phone'}
+                aria-label="تسجيل الدخول برقم الهاتف - Login with phone number"
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
                   loginMethod === 'phone'
                     ? 'bg-sahool-green-600 text-white shadow-sm'
                     : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
-                <Smartphone className="w-4 h-4" />
+                <Smartphone className="w-4 h-4" aria-hidden="true" />
                 <span>رقم الهاتف</span>
               </button>
               <button
                 type="button"
                 onClick={() => setLoginMethod('email')}
+                role="radio"
+                aria-checked={loginMethod === 'email'}
+                aria-label="تسجيل الدخول بالبريد الإلكتروني - Login with email"
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
                   loginMethod === 'email'
                     ? 'bg-sahool-green-600 text-white shadow-sm'
                     : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
-                <Mail className="w-4 h-4" />
+                <Mail className="w-4 h-4" aria-hidden="true" />
                 <span>البريد الإلكتروني</span>
               </button>
             </div>

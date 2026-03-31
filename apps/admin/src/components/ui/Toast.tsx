@@ -181,7 +181,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {/* Toast Container - fixed at top-left for RTL layout */}
       <div
         className="fixed top-4 left-4 z-[9999] flex flex-col gap-2 pointer-events-none"
-        aria-label="الإشعارات"
+        role="region"
+        aria-label="الإشعارات - Notifications"
+        aria-live="polite"
       >
         {toasts.map((item) => (
           <div key={item.id} className="pointer-events-auto">

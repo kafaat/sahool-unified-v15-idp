@@ -19,9 +19,9 @@ export default function DashboardShell({ children, requiredRole = 'viewer' }: Da
       {/* Skip to main content - accessibility */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-50 focus:bg-sahool-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-50 focus:bg-sahool-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg focus:ring-2 focus:ring-white focus:ring-offset-2"
       >
-        تخطي إلى المحتوى الرئيسي
+        تخطي إلى المحتوى الرئيسي • Skip to main content
       </a>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Sidebar />

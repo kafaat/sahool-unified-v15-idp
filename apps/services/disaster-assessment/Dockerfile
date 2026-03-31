@@ -21,6 +21,10 @@ COPY apps/services/disaster-assessment/package*.json ./
 # Copy prisma schema BEFORE installing dependencies (required for postinstall hook)
 COPY apps/services/disaster-assessment/prisma ./prisma/
 
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
+
 # Install dependencies with resilient retry loop and npm cache
 # Prisma schema is copied above so postinstall (prisma generate) can run successfully
 RUN --mount=type=cache,target=/root/.npm \

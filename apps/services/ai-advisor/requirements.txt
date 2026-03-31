@@ -11,22 +11,21 @@ pydantic-settings==2.13.1
 # LangChain and AI Framework
 # إطار عمل LangChain والذكاء الاصطناعي
 # Security updates for CVE-2025-68664, CVE-2025-65106, CVE-2025-6984
-# Note: langchain-community 0.3.x requires langchain>=0.3.26 and langchain-core<1.0.0
-#       langchain-community 0.4.x requires langchain-core>=1.0.1 (INCOMPATIBLE with 0.3.x)
-#       langchain-core 0.3.81+ requires langsmith>=0.3.45
-langchain>=0.3.26,<0.4.0
-langchain-anthropic==0.3.22
-langchain-community==0.3.31  # Must stay on 0.3.x (0.4.x requires langchain-core>=1.0.1)
-langchain-core==0.3.83  # Fix CVE-2025-68664, CVE-2025-65106
+# Path Traversal in load_prompt - Fixed in langchain-core 1.2.22 (no 0.3.x patch available)
+# Upgraded entire ecosystem from 0.3.x to 1.x; community 0.4.x requires langchain-core>=1.0.1
+langchain>=1.0.0,<2.0.0
+langchain-anthropic>=1.0.0,<2.0.0
+langchain-community==0.4.1
+langchain-core==1.2.22  # Patched: Path Traversal in legacy load_prompt functions
 
 # Anthropic Claude API (Primary)
 # واجهة برمجة Claude من Anthropic (الأساسي)
 # langchain-anthropic 0.3.1 requires anthropic>=0.41.0
-anthropic>=0.41.0,<1.0.0
+anthropic>=0.85.0,<1.0.0  # langchain-anthropic>=1.0.0 requires anthropic>=0.85.0
 
 # OpenAI GPT API (Optional Fallback)
 # واجهة برمجة OpenAI (بديل اختياري)
-openai>=1.0.0,<2.0.0
+openai>=2.26.0,<3.0.0  # langchain-openai>=1.0.0 requires openai>=2.26.0
 
 # Google Gemini API (Optional)
 # واجهة برمجة Google Gemini (اختياري)
@@ -34,7 +33,7 @@ google-generativeai>=0.3.0
 
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه
-sentence-transformers==5.2.3
+sentence-transformers==5.3.0
 qdrant-client==1.17.0
 
 # Agent-to-Agent Protocol

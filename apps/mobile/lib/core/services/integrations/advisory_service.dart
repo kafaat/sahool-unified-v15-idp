@@ -431,7 +431,7 @@ class AdvisoryServiceConnector extends ServiceConnector {
           return data.map((e) => DeficiencySymptom.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['symptoms'] != null) {
-          return (data['symptoms'] as List)
+          return (data['symptoms'] as List? ?? [])
               .map((e) => DeficiencySymptom.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -470,7 +470,7 @@ class AdvisoryServiceConnector extends ServiceConnector {
           return data.cast<Map<String, dynamic>>();
         }
         if (data is Map && data['crops'] != null) {
-          return (data['crops'] as List).cast<Map<String, dynamic>>();
+          return (data['crops'] as List? ?? []).cast<Map<String, dynamic>>();
         }
         return <Map<String, dynamic>>[];
       },
@@ -487,7 +487,7 @@ class AdvisoryServiceConnector extends ServiceConnector {
           return data.cast<Map<String, dynamic>>();
         }
         if (data is Map && data['fertilizers'] != null) {
-          return (data['fertilizers'] as List).cast<Map<String, dynamic>>();
+          return (data['fertilizers'] as List? ?? []).cast<Map<String, dynamic>>();
         }
         return <Map<String, dynamic>>[];
       },
@@ -551,7 +551,7 @@ class AdvisoryServiceConnector extends ServiceConnector {
               .toList();
         }
         if (data is Map && data['recommendations'] != null) {
-          return (data['recommendations'] as List)
+          return (data['recommendations'] as List? ?? [])
               .map((e) => FertilizerRecommendation.fromJson(e as Map<String, dynamic>))
               .toList();
         }

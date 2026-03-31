@@ -348,7 +348,7 @@ class MaintenanceRecord {
       cost: (json['cost'] as num?)?.toDouble(),
       notes: json['notes'] as String?,
       partsReplaced: json['parts_replaced'] != null
-          ? List<String>.from(json['parts_replaced'] as List)
+          ? List<String>.from(json['parts_replaced'] as List? ?? [])
           : null,
       performedAt: json['performed_at'] != null
           ? DateTime.tryParse(json['performed_at'] as String) ?? DateTime.now()

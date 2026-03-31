@@ -119,7 +119,7 @@ class ProfitabilityService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final profitability = (data['profitability'] as List)
+      final profitability = (data['profitability'] as List? ?? [])
           .map((e) => CropProfitability.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -182,7 +182,7 @@ class ProfitabilityService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final seasons = (data['seasons'] as List)
+      final seasons = (data['seasons'] as List? ?? [])
           .map((e) => SeasonSummary.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -484,7 +484,7 @@ class ProfitabilityService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final trend = (data['trend'] as List)
+      final trend = (data['trend'] as List? ?? [])
           .map((e) => CropProfitability.fromJson(e as Map<String, dynamic>))
           .toList();
 

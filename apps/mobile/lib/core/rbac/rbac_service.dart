@@ -161,7 +161,7 @@ class CapabilityToken {
       userId: json['user_id'] as String,
       tenantId: json['tenant_id'] as String,
       role: Role.fromString(json['role'] as String),
-      capabilities: Set<String>.from(json['capabilities'] as List),
+      capabilities: Set<String>.from(json['capabilities'] as List? ?? []),
       assignedFieldIds: List<String>.from((json['assigned_field_ids'] ?? []) as Iterable),
       assignedFarmIds: List<String>.from((json['assigned_farm_ids'] ?? []) as Iterable),
       expiresAt: DateTime.tryParse(json['expires_at'] as String) ?? DateTime.now(),

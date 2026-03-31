@@ -521,7 +521,7 @@ class RotationPlan {
         id: json['id'] as String,
         fieldId: json['fieldId'] as String,
         fieldName: json['fieldName'] as String,
-        rotationYears: (json['rotationYears'] as List)
+        rotationYears: (json['rotationYears'] as List? ?? [])
             .map((r) => RotationYear.fromJson(r as Map<String, dynamic>))
             .toList(),
         createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),

@@ -227,12 +227,12 @@ class NotificationServiceConnector extends ServiceConnector {
           return data.map((e) => AppNotification.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['notifications'] != null) {
-          return (data['notifications'] as List)
+          return (data['notifications'] as List? ?? [])
               .map((e) => AppNotification.fromJson(e as Map<String, dynamic>))
               .toList();
         }
         if (data is Map && data['data'] != null) {
-          return (data['data'] as List)
+          return (data['data'] as List? ?? [])
               .map((e) => AppNotification.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -375,7 +375,7 @@ class NotificationServiceConnector extends ServiceConnector {
               .toList();
         }
         if (data is Map && data['subscriptions'] != null) {
-          return (data['subscriptions'] as List)
+          return (data['subscriptions'] as List? ?? [])
               .map((e) => NotificationSubscription.fromJson(e as Map<String, dynamic>))
               .toList();
         }

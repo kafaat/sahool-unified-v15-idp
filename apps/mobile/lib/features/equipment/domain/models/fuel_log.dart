@@ -135,7 +135,7 @@ class FuelLog {
       lat: (json['lat'] as num?)?.toDouble(),
       lon: (json['lon'] as num?)?.toDouble(),
       attachments: json['attachments'] != null
-          ? List<String>.from(json['attachments'] as List)
+          ? List<String>.from(json['attachments'] as List? ?? [])
           : null,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -228,7 +228,7 @@ class FuelConsumptionSummary {
       periodStart: DateTime.tryParse(json['period_start'] as String) ?? DateTime.now(),
       periodEnd: DateTime.tryParse(json['period_end'] as String) ?? DateTime.now(),
       dailyBreakdown: json['daily_breakdown'] != null
-          ? (json['daily_breakdown'] as List)
+          ? (json['daily_breakdown'] as List? ?? [])
               .map((e) =>
                   FuelConsumptionByDay.fromJson(e as Map<String, dynamic>))
               .toList()

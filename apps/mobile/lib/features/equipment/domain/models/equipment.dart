@@ -300,7 +300,7 @@ class Equipment {
       qrCode: json['qr_code'] as String?,
       imageUrl: json['image_url'] as String?,
       attachedFieldIds: json['attached_field_ids'] != null
-          ? List<String>.from(json['attached_field_ids'] as List)
+          ? List<String>.from(json['attached_field_ids'] as List? ?? [])
           : null,
       dailyRentalCost: (json['daily_rental_cost'] as num?)?.toDouble(),
       assignedTo: json['assigned_to'] as String?,

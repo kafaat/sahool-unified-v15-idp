@@ -114,7 +114,7 @@ class JwtValidator {
       // Roles: support both "roles" (array) and "role" (string)
       List<String> roles = [];
       if (claims['roles'] is List) {
-        roles = (claims['roles'] as List).cast<String>();
+        roles = (claims['roles'] as List? ?? []).cast<String>();
       } else if (claims['role'] is String) {
         roles = [claims['role'] as String];
       }

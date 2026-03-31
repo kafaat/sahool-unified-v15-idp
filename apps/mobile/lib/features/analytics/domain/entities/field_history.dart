@@ -143,7 +143,7 @@ class FieldAnalytics {
   factory FieldAnalytics.fromJson(Map<String, dynamic> json) {
     return FieldAnalytics(
       fieldId: json['field_id'] as String,
-      history: (json['history'] as List)
+      history: (json['history'] as List? ?? [])
           .map((e) => NdviRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
       yieldForecast: (json['yield_forecast'] as num).toDouble(),

@@ -27,7 +27,7 @@ import '../storage/secure_storage.dart';
 ///
 /// final response = await apiService.get<List<Field>>(
 ///   '/api/v1/fields',
-///   fromJson: (data) => (data as List).map((e) => Field.fromJson(e)).toList(),
+///   fromJson: (data) => (data as List? ?? []).map((e) => Field.fromJson(e)).toList(),
 /// );
 /// ```
 

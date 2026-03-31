@@ -163,7 +163,7 @@ class IrrigationSchedule {
   factory IrrigationSchedule.fromJson(Map<String, dynamic> json) {
     return IrrigationSchedule(
       fieldId: json['field_id'] as String,
-      events: (json['events'] as List)
+      events: (json['events'] as List? ?? [])
           .map((e) => IrrigationEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
       generatedAt: DateTime.tryParse(json['generated_at'] as String) ?? DateTime.now(),

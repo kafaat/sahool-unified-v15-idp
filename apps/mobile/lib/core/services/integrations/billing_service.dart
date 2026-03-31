@@ -479,7 +479,7 @@ class BillingServiceConnector extends ServiceConnector {
           return data.map((e) => BillingTransaction.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['transactions'] != null) {
-          return (data['transactions'] as List)
+          return (data['transactions'] as List? ?? [])
               .map((e) => BillingTransaction.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -514,7 +514,7 @@ class BillingServiceConnector extends ServiceConnector {
           return data.map((e) => SubscriptionPlan.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['plans'] != null) {
-          return (data['plans'] as List)
+          return (data['plans'] as List? ?? [])
               .map((e) => SubscriptionPlan.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -582,7 +582,7 @@ class BillingServiceConnector extends ServiceConnector {
           return data.map((e) => Invoice.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['invoices'] != null) {
-          return (data['invoices'] as List)
+          return (data['invoices'] as List? ?? [])
               .map((e) => Invoice.fromJson(e as Map<String, dynamic>))
               .toList();
         }

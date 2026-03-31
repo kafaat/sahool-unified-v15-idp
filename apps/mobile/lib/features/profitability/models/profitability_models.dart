@@ -409,11 +409,11 @@ class CropProfitability {
       area: (json['area'] as num).toDouble(),
       yield: (json['yield'] as num).toDouble(),
       totalYield: (json['total_yield'] as num).toDouble(),
-      costs: (json['costs'] as List)
+      costs: (json['costs'] as List? ?? [])
           .map((e) => CostCategory.fromJson(e as Map<String, dynamic>))
           .toList(),
       totalCosts: (json['total_costs'] as num).toDouble(),
-      revenues: (json['revenues'] as List)
+      revenues: (json['revenues'] as List? ?? [])
           .map((e) => Revenue.fromJson(e as Map<String, dynamic>))
           .toList(),
       totalRevenue: (json['total_revenue'] as num).toDouble(),
@@ -548,7 +548,7 @@ class SeasonSummary {
       seasonAr: json['season_ar'] as String?,
       fieldsCount: json['fields_count'] as int,
       totalArea: (json['total_area'] as num).toDouble(),
-      crops: (json['crops'] as List)
+      crops: (json['crops'] as List? ?? [])
           .map((e) => CropProfitability.fromJson(e as Map<String, dynamic>))
           .toList(),
       totalRevenue: (json['total_revenue'] as num).toDouble(),
@@ -621,7 +621,7 @@ class ProfitabilityComparison {
 
   factory ProfitabilityComparison.fromJson(Map<String, dynamic> json) {
     return ProfitabilityComparison(
-      crops: (json['crops'] as List)
+      crops: (json['crops'] as List? ?? [])
           .map((e) => CropProfitability.fromJson(e as Map<String, dynamic>))
           .toList(),
       avgYieldByCrop: (json['avg_yield_by_crop'] as Map<String, dynamic>?)?.map(

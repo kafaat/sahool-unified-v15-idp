@@ -370,10 +370,10 @@ class VRAPrescription {
       zoningMethod: ZoningMethod.fromString(json['zoning_method'] as String),
       zonesCount: json['zones_count'] as int,
       totalArea: (json['total_area'] as num).toDouble(),
-      zones: (json['zones'] as List)
+      zones: (json['zones'] as List? ?? [])
           .map((e) => ManagementZone.fromJson(e as Map<String, dynamic>))
           .toList(),
-      rates: (json['rates'] as List)
+      rates: (json['rates'] as List? ?? [])
           .map((e) => ApplicationRate.fromJson(e as Map<String, dynamic>))
           .toList(),
       scheduledDate: json['scheduled_date'] != null

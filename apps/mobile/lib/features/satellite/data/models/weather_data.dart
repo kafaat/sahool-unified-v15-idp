@@ -49,7 +49,7 @@ class WeatherSummary extends Equatable {
       updatedAt: DateTime.parse(
         (json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
-      forecast: (forecastData as List)
+      forecast: (forecastData as List? ?? [])
           .map((item) => DailyForecastSummary.fromJson(item as Map<String, dynamic>))
           .toList(),
     );

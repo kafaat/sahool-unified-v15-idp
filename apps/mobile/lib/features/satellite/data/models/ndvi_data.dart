@@ -78,7 +78,7 @@ class NdviAnalysis extends Equatable {
       health: VegetationHealth.fromString(
         (json['health_status'] ?? json['healthStatus'] ?? 'unknown') as String,
       ),
-      timeSeries: (timeSeriesData as List)
+      timeSeries: (timeSeriesData as List? ?? [])
           .map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>))
           .toList(),
       analyzedAt: DateTime.parse(

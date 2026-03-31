@@ -50,10 +50,10 @@ class FieldHealth extends Equatable {
       soilMoisture: json['soil_moisture'] != null
           ? (json['soil_moisture'] as num).toDouble()
           : null,
-      alerts: (alertsData as List)
+      alerts: (alertsData as List? ?? [])
           .map((item) => HealthAlert.fromJson(item as Map<String, dynamic>))
           .toList(),
-      recommendations: (recommendationsData as List)
+      recommendations: (recommendationsData as List? ?? [])
           .map((item) => Recommendation.fromJson(item as Map<String, dynamic>))
           .toList(),
       assessedAt: DateTime.parse(

@@ -173,7 +173,7 @@ class UsageLog {
       notes: json['notes'] as String?,
       notesAr: json['notes_ar'] as String?,
       route: json['route'] != null
-          ? (json['route'] as List)
+          ? (json['route'] as List? ?? [])
               .map((e) => LocationPoint.fromJson(e as Map<String, dynamic>))
               .toList()
           : null,
@@ -356,7 +356,7 @@ class UsageSummary {
       periodStart: DateTime.tryParse(json['period_start'] as String) ?? DateTime.now(),
       periodEnd: DateTime.tryParse(json['period_end'] as String) ?? DateTime.now(),
       dailyBreakdown: json['daily_breakdown'] != null
-          ? (json['daily_breakdown'] as List)
+          ? (json['daily_breakdown'] as List? ?? [])
               .map((e) => DailyUsage.fromJson(e as Map<String, dynamic>))
               .toList()
           : null,
@@ -462,7 +462,7 @@ class OperatorInfo {
           ? DateTime.tryParse(json['license_expiry'] as String) ?? DateTime.now()
           : null,
       certifications: json['certifications'] != null
-          ? List<String>.from(json['certifications'] as List)
+          ? List<String>.from(json['certifications'] as List? ?? [])
           : null,
       totalHoursOperated:
           (json['total_hours_operated'] as num?)?.toDouble() ?? 0,

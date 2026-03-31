@@ -186,7 +186,7 @@ class CropGDDRequirements {
       baseTemperature: (json['base_temperature'] as num).toDouble(),
       upperThreshold: (json['upper_threshold'] as num).toDouble(),
       totalGDDRequired: (json['total_gdd_required'] as num).toDouble(),
-      growthStages: (json['growth_stages'] as List)
+      growthStages: (json['growth_stages'] as List? ?? [])
           .map((e) => GrowthStage.fromJson(e as Map<String, dynamic>))
           .toList(),
       metadata: json['metadata'] as Map<String, dynamic>?,

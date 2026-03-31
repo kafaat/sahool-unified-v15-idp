@@ -225,16 +225,16 @@ class EquipmentHealthStatus {
       maintenanceScore: json['maintenance_score'] as int,
       usageScore: json['usage_score'] as int,
       issues: json['issues'] != null
-          ? List<String>.from(json['issues'] as List)
+          ? List<String>.from(json['issues'] as List? ?? [])
           : [],
       issuesAr: json['issues_ar'] != null
-          ? List<String>.from(json['issues_ar'] as List)
+          ? List<String>.from(json['issues_ar'] as List? ?? [])
           : [],
       recommendations: json['recommendations'] != null
-          ? List<String>.from(json['recommendations'] as List)
+          ? List<String>.from(json['recommendations'] as List? ?? [])
           : [],
       recommendationsAr: json['recommendations_ar'] != null
-          ? List<String>.from(json['recommendations_ar'] as List)
+          ? List<String>.from(json['recommendations_ar'] as List? ?? [])
           : [],
       assessedAt: DateTime.tryParse(json['assessed_at'] as String) ?? DateTime.now(),
     );

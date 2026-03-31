@@ -282,13 +282,13 @@ class UserGamificationProfile {
         totalPoints: json['totalPoints'] as int,
         level: json['level'] as int,
         rank: json['rank'] as String,
-        achievements: (json['achievements'] as List)
+        achievements: (json['achievements'] as List? ?? [])
             .map((a) => Achievement.fromJson(a as Map<String, dynamic>))
             .toList(),
-        streaks: (json['streaks'] as List)
+        streaks: (json['streaks'] as List? ?? [])
             .map((s) => Streak.fromJson(s as Map<String, dynamic>))
             .toList(),
-        milestones: (json['milestones'] as List)
+        milestones: (json['milestones'] as List? ?? [])
             .map((m) => Milestone.fromJson(m as Map<String, dynamic>))
             .toList(),
         lastUpdated: DateTime.tryParse(json['lastUpdated'] as String) ?? DateTime.now(),

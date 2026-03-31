@@ -186,7 +186,7 @@ class IrrigationRepository {
       // Cache the response
       await _cacheData(
         _CacheKeys.crops,
-        (data['data'] as List),
+        (data['data'] as List? ?? []),
       );
 
       return ApiResult.success(crops);
@@ -194,7 +194,7 @@ class IrrigationRepository {
       // Try offline cache
       final cached = await _getCachedData<List<IrrigationCrop>>(
         _CacheKeys.crops,
-        (json) => (json as List)
+        (json) => (json as List? ?? [])
             .map((c) => IrrigationCrop.fromJson(c as Map<String, dynamic>))
             .toList(),
         _refDataCacheDuration,
@@ -238,7 +238,7 @@ class IrrigationRepository {
       // Try offline cache
       final cached = await _getCachedData<List<IrrigationMethod>>(
         _CacheKeys.methods,
-        (json) => (json as List)
+        (json) => (json as List? ?? [])
             .map((m) => IrrigationMethod.fromJson(m as Map<String, dynamic>))
             .toList(),
         _refDataCacheDuration,

@@ -265,7 +265,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.map((e) => ForecastDay.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['forecast'] != null) {
-          return (data['forecast'] as List)
+          return (data['forecast'] as List? ?? [])
               .map((e) => ForecastDay.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -285,7 +285,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.map((e) => ForecastDay.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['forecast'] != null) {
-          return (data['forecast'] as List)
+          return (data['forecast'] as List? ?? [])
               .map((e) => ForecastDay.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -315,7 +315,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.map((e) => WeatherAlert.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['alerts'] != null) {
-          return (data['alerts'] as List)
+          return (data['alerts'] as List? ?? [])
               .map((e) => WeatherAlert.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -359,7 +359,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.map((e) => AgriculturalEvent.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['events'] != null) {
-          return (data['events'] as List)
+          return (data['events'] as List? ?? [])
               .map((e) => AgriculturalEvent.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -378,7 +378,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.cast<String>();
         }
         if (data is Map && data['locations'] != null) {
-          return (data['locations'] as List).cast<String>();
+          return (data['locations'] as List? ?? []).cast<String>();
         }
         return <String>[];
       },

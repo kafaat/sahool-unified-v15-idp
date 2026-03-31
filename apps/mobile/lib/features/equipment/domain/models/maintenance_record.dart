@@ -186,10 +186,10 @@ class MaintenanceRecord {
       notes: json['notes'] as String?,
       notesAr: json['notes_ar'] as String?,
       partsReplaced: json['parts_replaced'] != null
-          ? List<String>.from(json['parts_replaced'] as List)
+          ? List<String>.from(json['parts_replaced'] as List? ?? [])
           : null,
       partsReplacedAr: json['parts_replaced_ar'] != null
-          ? List<String>.from(json['parts_replaced_ar'] as List)
+          ? List<String>.from(json['parts_replaced_ar'] as List? ?? [])
           : null,
       hoursAtMaintenance:
           (json['hours_at_maintenance'] as num?)?.toDouble(),
@@ -209,7 +209,7 @@ class MaintenanceRecord {
           ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
           : DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       attachments: json['attachments'] != null
-          ? List<String>.from(json['attachments'] as List)
+          ? List<String>.from(json['attachments'] as List? ?? [])
           : null,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );

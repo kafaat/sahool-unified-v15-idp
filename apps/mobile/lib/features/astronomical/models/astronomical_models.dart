@@ -623,11 +623,11 @@ class AllProverbs {
           .toList() ?? [],
       byCrop: (json['by_crop'] as Map<String, dynamic>?)?.map(
         (key, value) => MapEntry(key,
-          (value as List).map((p) => Proverb.fromJson(p as Map<String, dynamic>)).toList()),
+          (value as List? ?? []).map((p) => Proverb.fromJson(p as Map<String, dynamic>)).toList()),
       ) ?? {},
       bySeason: (json['by_season'] as Map<String, dynamic>?)?.map(
         (key, value) => MapEntry(key,
-          (value as List).map((p) => Proverb.fromJson(p as Map<String, dynamic>)).toList()),
+          (value as List? ?? []).map((p) => Proverb.fromJson(p as Map<String, dynamic>)).toList()),
       ) ?? {},
       totalProverbs: (json['total_proverbs'] ?? 0) as int,
     );

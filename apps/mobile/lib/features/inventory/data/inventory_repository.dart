@@ -83,7 +83,7 @@ class InventoryRepository {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final items = (data['items'] as List)
+      final items = (data['items'] as List? ?? [])
           .map((e) => InventoryItem.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -164,7 +164,7 @@ class InventoryRepository {
       final response = await _dio.get('/api/v1/inventory/items/low-stock');
 
       final data = response.data as Map<String, dynamic>;
-      final items = (data['items'] as List)
+      final items = (data['items'] as List? ?? [])
           .map((e) => InventoryItem.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -599,7 +599,7 @@ class InventoryRepository {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final movements = (data['movements'] as List)
+      final movements = (data['movements'] as List? ?? [])
           .map((e) => StockMovement.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -624,7 +624,7 @@ class InventoryRepository {
       final response = await _dio.get('/api/v1/inventory/warehouses');
 
       final data = response.data as Map<String, dynamic>;
-      final warehouses = (data['warehouses'] as List)
+      final warehouses = (data['warehouses'] as List? ?? [])
           .map((e) => Warehouse.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -649,7 +649,7 @@ class InventoryRepository {
       final response = await _dio.get('/api/v1/inventory/suppliers');
 
       final data = response.data as Map<String, dynamic>;
-      final suppliers = (data['suppliers'] as List)
+      final suppliers = (data['suppliers'] as List? ?? [])
           .map((e) => Supplier.fromJson(e as Map<String, dynamic>))
           .toList();
 

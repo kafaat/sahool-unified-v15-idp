@@ -337,7 +337,7 @@ class AdvisoryCache {
     List<Map<String, dynamic>> pending;
     try {
       pending = jsonString != null
-          ? (jsonDecode(jsonString) as List).cast<Map<String, dynamic>>()
+          ? (jsonDecode(jsonString) as List? ?? []).cast<Map<String, dynamic>>()
           : [];
     } catch (e) {
       pending = [];
@@ -355,7 +355,7 @@ class AdvisoryCache {
     if (jsonString == null) return [];
 
     try {
-      final pending = (jsonDecode(jsonString) as List).cast<Map<String, dynamic>>();
+      final pending = (jsonDecode(jsonString) as List? ?? []).cast<Map<String, dynamic>>();
       return pending.map((json) => AdvisoryFeedback.fromJson(json)).toList();
     } catch (e) {
       return [];

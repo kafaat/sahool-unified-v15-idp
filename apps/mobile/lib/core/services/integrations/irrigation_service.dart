@@ -366,7 +366,7 @@ class IrrigationServiceConnector extends ServiceConnector {
               .toList();
         }
         if (data is Map && data['schedule'] != null) {
-          return (data['schedule'] as List)
+          return (data['schedule'] as List? ?? [])
               .map((e) => IrrigationScheduleItem.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -417,7 +417,7 @@ class IrrigationServiceConnector extends ServiceConnector {
           return data.map((e) => IrrigationMethod.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['methods'] != null) {
-          return (data['methods'] as List)
+          return (data['methods'] as List? ?? [])
               .map((e) => IrrigationMethod.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -436,7 +436,7 @@ class IrrigationServiceConnector extends ServiceConnector {
           return data.cast<Map<String, dynamic>>();
         }
         if (data is Map && data['crops'] != null) {
-          return (data['crops'] as List).cast<Map<String, dynamic>>();
+          return (data['crops'] as List? ?? []).cast<Map<String, dynamic>>();
         }
         return <Map<String, dynamic>>[];
       },

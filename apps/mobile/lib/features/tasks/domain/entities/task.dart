@@ -76,7 +76,7 @@ class FieldTask {
       assignedTo: json['assigned_to'] as String?,
       evidenceNotes: json['evidence_notes'] as String?,
       evidencePhotos: json['evidence_photos'] != null
-          ? List<String>.from(json['evidence_photos'] as List)
+          ? List<String>.from(json['evidence_photos'] as List? ?? [])
           : [],
       createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),

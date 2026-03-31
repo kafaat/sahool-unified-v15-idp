@@ -60,11 +60,11 @@ class PhenologyData extends Equatable {
       expectedHarvestDate: json['expected_harvest_date'] != null
           ? DateTime.tryParse(json['expected_harvest_date'] as String) ?? DateTime.now()
           : null,
-      stages: (stagesData as List)
+      stages: (stagesData as List? ?? [])
           .map((item) => GrowthStageInfo.fromJson(item as Map<String, dynamic>))
           .toList(),
-      currentTasks: (tasksData as List).map((task) => task.toString()).toList(),
-      currentTasksAr: (tasksArData as List).map((task) => task.toString()).toList(),
+      currentTasks: (tasksData as List? ?? []).map((task) => task.toString()).toList(),
+      currentTasksAr: (tasksArData as List? ?? []).map((task) => task.toString()).toList(),
       completionPercentage: ((json['completion_percentage'] ?? json['completionPercentage'] ?? 0.0) as num)
           .toDouble(),
       analyzedAt: DateTime.parse(
@@ -184,8 +184,8 @@ class GrowthStageInfo extends Equatable {
       isCurrent: (json['is_current'] ?? json['isCurrent'] ?? false) as bool,
       description: (json['description'] ?? '') as String,
       descriptionAr: (json['description_ar'] ?? json['descriptionAr'] ?? '') as String,
-      tasks: (tasksData as List).map((task) => task.toString()).toList(),
-      tasksAr: (tasksArData as List).map((task) => task.toString()).toList(),
+      tasks: (tasksData as List? ?? []).map((task) => task.toString()).toList(),
+      tasksAr: (tasksArData as List? ?? []).map((task) => task.toString()).toList(),
     );
   }
 

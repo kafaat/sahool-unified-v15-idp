@@ -171,7 +171,7 @@ class BillingApi {
     );
 
     if (response is Map && response['payment_methods'] is List) {
-      return (response['payment_methods'] as List)
+      return (response['payment_methods'] as List? ?? [])
           .cast<Map<String, dynamic>>()
           .map((json) => SavedPaymentMethod.fromJson(json))
           .toList();
@@ -352,7 +352,7 @@ class BillingApi {
     );
 
     if (response is Map && response['transactions'] is List) {
-      return (response['transactions'] as List)
+      return (response['transactions'] as List? ?? [])
           .cast<Map<String, dynamic>>()
           .map((json) => WalletTransaction.fromJson(json))
           .toList();
@@ -395,7 +395,7 @@ class BillingApi {
     final response = await _client.get('/api/v1/billing/plans');
 
     if (response is Map && response['plans'] is List) {
-      return (response['plans'] as List)
+      return (response['plans'] as List? ?? [])
           .cast<Map<String, dynamic>>()
           .map((json) => Plan.fromJson(json))
           .toList();
@@ -467,7 +467,7 @@ class BillingApi {
     );
 
     if (response is Map && response['invoices'] is List) {
-      return (response['invoices'] as List)
+      return (response['invoices'] as List? ?? [])
           .cast<Map<String, dynamic>>()
           .map((json) => Invoice.fromJson(json))
           .toList();

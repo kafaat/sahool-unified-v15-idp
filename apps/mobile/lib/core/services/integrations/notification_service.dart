@@ -61,7 +61,7 @@ class AppNotification {
       priority: _parsePriority(json['priority'] as String?),
       isRead: json['is_read'] as bool? ?? false,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       readAt: json['read_at'] != null ? DateTime.tryParse(json['read_at'] as String) : null,
       actionUrl: json['action_url'] as String?,
@@ -227,12 +227,12 @@ class NotificationServiceConnector extends ServiceConnector {
           return data.map((e) => AppNotification.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['notifications'] != null) {
-          return (data['notifications'] as List)
+          return (data['notifications'] as List? ?? [])
               .map((e) => AppNotification.fromJson(e as Map<String, dynamic>))
               .toList();
         }
         if (data is Map && data['data'] != null) {
-          return (data['data'] as List)
+          return (data['data'] as List? ?? [])
               .map((e) => AppNotification.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -375,7 +375,7 @@ class NotificationServiceConnector extends ServiceConnector {
               .toList();
         }
         if (data is Map && data['subscriptions'] != null) {
-          return (data['subscriptions'] as List)
+          return (data['subscriptions'] as List? ?? [])
               .map((e) => NotificationSubscription.fromJson(e as Map<String, dynamic>))
               .toList();
         }

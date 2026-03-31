@@ -180,15 +180,15 @@ class Field {
       status: props['status'] as String?,
       ndviCurrent: (props['ndvi_current'] as num?)?.toDouble(),
       ndviUpdatedAt: props['ndvi_updated_at'] != null
-          ? DateTime.parse(props['ndvi_updated_at'] as String)
+          ? DateTime.tryParse(props['ndvi_updated_at'] as String) ?? DateTime.now()
           : null,
       synced: props['synced'] as bool? ?? true,
       isDeleted: props['is_deleted'] as bool? ?? false,
       createdAt: props['created_at'] != null
-          ? DateTime.parse(props['created_at'] as String)
+          ? DateTime.tryParse(props['created_at'] as String) ?? DateTime.now()
           : now,
       updatedAt: props['updated_at'] != null
-          ? DateTime.parse(props['updated_at'] as String)
+          ? DateTime.tryParse(props['updated_at'] as String) ?? DateTime.now()
           : now,
       pendingTasks: props['pending_tasks'] as int? ?? 0,
     );

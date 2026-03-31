@@ -289,9 +289,32 @@ class WebSocketEventHandler {
 
   // Chat Events
   Future<void> _handleChatMessage(WebSocketEvent event) async {
-    // Don't show notification if user is in the chat room
-    // This should be handled by the chat UI
-    AppLogger.i('Chat message received');
+    AppLogger.i('Chat message received: room=${event.data?['room_id']}');
+
+    final data = event.data ?? {};
+    final String senderId = data['sender_id']?.toString() ?? '';
+    final String senderName = data['sender_name']?.toString() ?? 'Unknown';
+    final String content = data['content']?.toString() ?? '';
+    final String userId = data['user_id']?.toString() ?? '';
+
+    // Don't show notification if the message is from the current user
+    if (senderId.isNotEmpty && senderId == userId) {
+      AppLogger.d('Skipping notification for own chat message');
+      return;
+    }
+
+    // Build a message preview (truncate long messages)
+    final String preview = content.length > 100
+        ? '${content.substring(0, 100)}...'
+        : content;
+
+    await notificationService.showNotification(
+      title: 'Message from $senderName',
+      titleAr: 'رسالة من $senderName',
+      body: preview.isNotEmpty ? preview : 'Sent a message',
+      bodyAr: preview.isNotEmpty ? preview : 'أرسل رسالة',
+      data: data,
+    );
   }
 
   // Task Events

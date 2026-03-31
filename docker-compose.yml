@@ -905,10 +905,14 @@ services:
     # NOTE: Uses HTTP for development. For TLS, use docker-compose.tls.yml overlay.
     # FIX: Use absolute paths because quay.io/coreos/etcd:v3.5.18 is distroless
     # (no /bin/sh, no PATH). Binaries are at /usr/local/bin/.
+    # FIX: listen-client-urls MUST use an IP address (0.0.0.0), not a hostname.
+    # Using http://etcd:2379 here caused etcd to crash at startup because etcd cannot
+    # bind to a hostname. 0.0.0.0:2379 listens on all interfaces (loopback for
+    # healthcheck via 127.0.0.1, and the Docker bridge IP for Milvus via etcd:2379).
     command: >-
       /usr/local/bin/etcd
       --advertise-client-urls=http://etcd:2379
-      --listen-client-urls=http://etcd:2379,http://127.0.0.1:2379
+      --listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
       # Uses absolute path to etcdctl because the distroless image has no PATH set.
@@ -2239,11 +2243,11 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz', timeout=5)" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 90s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2772,11 +2776,11 @@ services:
       vegetation-analysis-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz', timeout=5)" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

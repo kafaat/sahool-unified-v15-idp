@@ -62,7 +62,7 @@ class NdviAnalysis {
       recommendation: json['recommendation'] as String?,
       recommendationAr: json['recommendation_ar'] as String?,
       analysisDate: json['analysis_date'] != null
-          ? DateTime.parse(json['analysis_date'] as String)
+          ? DateTime.tryParse(json['analysis_date'] as String) ?? DateTime.now()
           : DateTime.now(),
       satelliteSource: json['satellite_source'] as String?,
       cloudCoverage: (json['cloud_coverage'] as num?)?.toInt(),
@@ -106,7 +106,7 @@ class NdviTimeseriesPoint {
 
   factory NdviTimeseriesPoint.fromJson(Map<String, dynamic> json) {
     return NdviTimeseriesPoint(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       value: (json['value'] as num?)?.toDouble() ?? 0.0,
       source: json['source'] as String?,
       cloudCoverage: (json['cloud_coverage'] as num?)?.toInt(),
@@ -186,7 +186,7 @@ class SatelliteImagery {
       imageUrl: json['image_url'] as String? ?? '',
       thumbnailUrl: json['thumbnail_url'] as String?,
       captureDate: json['capture_date'] != null
-          ? DateTime.parse(json['capture_date'] as String)
+          ? DateTime.tryParse(json['capture_date'] as String) ?? DateTime.now()
           : DateTime.now(),
       satelliteSource: json['satellite_source'] as String?,
       cloudCoverage: (json['cloud_coverage'] as num?)?.toInt(),
@@ -231,7 +231,7 @@ class FieldHealth {
       recommendations: (json['recommendations'] as List?)?.cast<String>(),
       recommendationsAr: (json['recommendations_ar'] as List?)?.cast<String>(),
       assessmentDate: json['assessment_date'] != null
-          ? DateTime.parse(json['assessment_date'] as String)
+          ? DateTime.tryParse(json['assessment_date'] as String) ?? DateTime.now()
           : DateTime.now(),
       zoneHealth: json['zone_health'] as Map<String, dynamic>?,
     );
@@ -315,7 +315,7 @@ class NdviServiceConnector extends ServiceConnector {
           return data.map((e) => NdviTimeseriesPoint.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['timeseries'] != null) {
-          return (data['timeseries'] as List)
+          return (data['timeseries'] as List? ?? [])
               .map((e) => NdviTimeseriesPoint.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -334,7 +334,7 @@ class NdviServiceConnector extends ServiceConnector {
           return data.map((e) => VegetationIndex.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['indices'] != null) {
-          return (data['indices'] as List)
+          return (data['indices'] as List? ?? [])
               .map((e) => VegetationIndex.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -367,7 +367,7 @@ class NdviServiceConnector extends ServiceConnector {
           return data.map((e) => SatelliteImagery.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['imagery'] != null) {
-          return (data['imagery'] as List)
+          return (data['imagery'] as List? ?? [])
               .map((e) => SatelliteImagery.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -404,7 +404,7 @@ class NdviServiceConnector extends ServiceConnector {
           return data.cast<String>();
         }
         if (data is Map && data['satellites'] != null) {
-          return (data['satellites'] as List).cast<String>();
+          return (data['satellites'] as List? ?? []).cast<String>();
         }
         return <String>[];
       },

@@ -183,7 +183,7 @@ class FieldServiceConnector extends ServiceConnector {
           return data.map((e) => Field.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['data'] != null) {
-          return (data['data'] as List)
+          return (data['data'] as List? ?? [])
               .map((e) => Field.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -313,7 +313,7 @@ class FieldServiceConnector extends ServiceConnector {
           return data.map((e) => FieldTask.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['data'] != null) {
-          return (data['data'] as List)
+          return (data['data'] as List? ?? [])
               .map((e) => FieldTask.fromJson(e as Map<String, dynamic>))
               .toList();
         }

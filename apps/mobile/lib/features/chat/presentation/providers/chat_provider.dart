@@ -84,7 +84,7 @@ class ChatState {
     if (activeConversationId == null) return null;
     try {
       return conversations.firstWhere((c) => c.id == activeConversationId);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

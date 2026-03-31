@@ -19,6 +19,43 @@ import type { RecommendationType, RecommendationPriority } from '@/features/advi
 import type { Task } from '@/features/tasks/types';
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// Internal Data Types (for hook data sources)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface NdviData {
+  ndviMean?: number;
+  healthStatus?: string;
+  trend?: 'improving' | 'stable' | 'declining';
+}
+
+interface SensorReading {
+  type: string;
+  lastReading?: {
+    value: number;
+  };
+}
+
+interface WeatherData {
+  humidity?: number;
+  temperature?: number;
+}
+
+interface AstronomicalData {
+  overall_farming_score?: number;
+  moon_phase?: {
+    farming_good?: boolean;
+  };
+  lunar_mansion?: {
+    farming_score?: number;
+  };
+  recommendations?: Array<{
+    activity: string;
+    suitability_score: number;
+    reason?: string;
+  }>;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -199,7 +236,7 @@ export function useLivingFieldScore(fieldId: string, options: UseLivingFieldScor
 /**
  * Calculate Health Score based on NDVI data
  */
-function calculateHealthScore(ndviData: any): number {
+function calculateHealthScore(ndviData: NdviData | undefined): number {
   if (!ndviData) return 50; // Neutral score if no data
 
   const { ndviMean, healthStatus } = ndviData;
@@ -214,7 +251,7 @@ function calculateHealthScore(ndviData: any): number {
   };
 
   // Use status-based score if available, otherwise calculate from NDVI value
-  if (healthStatus && healthStatus in statusScoreMap) {
+  if (healthStatus && Object.hasOwn(statusScoreMap, healthStatus)) {
     return statusScoreMap[healthStatus as keyof typeof statusScoreMap];
   }
 
@@ -233,7 +270,7 @@ function calculateHealthScore(ndviData: any): number {
 /**
  * Calculate Hydration Score based on soil moisture sensors and weather
  */
-function calculateHydrationScore(sensors: any[] | undefined, weather: any): number {
+function calculateHydrationScore(sensors: SensorReading[] | undefined, weather: WeatherData | undefined): number {
   let score = 50; // Base score
 
   // Check soil moisture sensors
@@ -267,7 +304,8 @@ function calculateHydrationScore(sensors: any[] | undefined, weather: any): numb
 
   // Adjust based on weather conditions
   if (weather) {
-    const { humidity, temperature } = weather;
+    const humidity = weather.humidity ?? 0;
+    const temperature = weather.temperature ?? 0;
 
     // High temperature + low humidity = increased water stress
     if (temperature > 35 && humidity < 30) {
@@ -340,7 +378,7 @@ function calculateAttentionScore(tasks: Task[]): number {
 /**
  * Calculate Astral Score based on astronomical conditions
  */
-function calculateAstralScore(astronomicalData: any): number {
+function calculateAstralScore(astronomicalData: AstronomicalData | undefined): number {
   if (!astronomicalData) return 50; // Neutral score if no data
 
   const { overall_farming_score, moon_phase, lunar_mansion } = astronomicalData;
@@ -395,7 +433,7 @@ function calculateOverallScore(
  * Determine trend based on NDVI history
  */
 function determineTrend(
-  ndviData: any,
+  ndviData: NdviData | undefined,
   currentHealth: number
 ): 'improving' | 'stable' | 'declining' {
   if (!ndviData) return 'stable';
@@ -423,8 +461,8 @@ function generateAlerts(
   health: number,
   _hydration: number,
   _attention: number,
-  _ndviData: any,
-  sensors: any[] | undefined,
+  _ndviData: NdviData | undefined,
+  sensors: SensorReading[] | undefined,
   tasks: Task[] | undefined
 ): FieldAlert[] {
   const alerts: FieldAlert[] = [];
@@ -551,9 +589,9 @@ function generateRecommendations(
   hydration: number,
   attention: number,
   _astral: number,
-  _ndviData: any,
-  weatherData: any,
-  astronomicalData: any
+  _ndviData: NdviData | undefined,
+  weatherData: WeatherData | undefined,
+  astronomicalData: AstronomicalData | undefined
 ): Recommendation[] {
   const recommendations: Recommendation[] = [];
 
@@ -644,7 +682,8 @@ function generateRecommendations(
 
   // Astronomical recommendations
   if (astronomicalData?.recommendations && astronomicalData.recommendations.length > 0) {
-    const astroRec = astronomicalData.recommendations[0]; // Take the top recommendation
+    const astroRec = astronomicalData.recommendations[0];
+    if (!astroRec) return recommendations;
 
     if (astroRec.suitability_score > 70) {
       recommendations.push({
@@ -669,7 +708,8 @@ function generateRecommendations(
 
   // Weather-based recommendations
   if (weatherData) {
-    const { temperature, humidity } = weatherData;
+    const temperature = weatherData.temperature ?? 0;
+    const humidity = weatherData.humidity ?? 0;
 
     if (temperature > 35 && humidity < 30) {
       recommendations.push({

@@ -122,9 +122,9 @@ class EquipmentAlert {
       messageAr: json['message_ar'] as String?,
       isRead: json['is_read'] as bool? ?? false,
       isDismissed: json['is_dismissed'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       acknowledgedAt: json['acknowledged_at'] != null
-          ? DateTime.parse(json['acknowledged_at'] as String)
+          ? DateTime.tryParse(json['acknowledged_at'] as String) ?? DateTime.now()
           : null,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -225,18 +225,18 @@ class EquipmentHealthStatus {
       maintenanceScore: json['maintenance_score'] as int,
       usageScore: json['usage_score'] as int,
       issues: json['issues'] != null
-          ? List<String>.from(json['issues'] as List)
+          ? List<String>.from(json['issues'] as List? ?? [])
           : [],
       issuesAr: json['issues_ar'] != null
-          ? List<String>.from(json['issues_ar'] as List)
+          ? List<String>.from(json['issues_ar'] as List? ?? [])
           : [],
       recommendations: json['recommendations'] != null
-          ? List<String>.from(json['recommendations'] as List)
+          ? List<String>.from(json['recommendations'] as List? ?? [])
           : [],
       recommendationsAr: json['recommendations_ar'] != null
-          ? List<String>.from(json['recommendations_ar'] as List)
+          ? List<String>.from(json['recommendations_ar'] as List? ?? [])
           : [],
-      assessedAt: DateTime.parse(json['assessed_at'] as String),
+      assessedAt: DateTime.tryParse(json['assessed_at'] as String) ?? DateTime.now(),
     );
   }
 
@@ -300,7 +300,7 @@ class EquipmentStats {
       totalValue: (json['total_value'] as num?)?.toDouble() ?? 0.0,
       totalHours: (json['total_hours'] as num?)?.toDouble() ?? 0.0,
       lastUpdated: json['last_updated'] != null
-          ? DateTime.parse(json['last_updated'] as String)
+          ? DateTime.tryParse(json['last_updated'] as String) ?? DateTime.now()
           : null,
     );
   }

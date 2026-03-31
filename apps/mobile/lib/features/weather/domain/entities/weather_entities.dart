@@ -49,7 +49,7 @@ class CurrentWeather {
       icon: json['icon'] as String? ?? '☀️',
       precipitation: (json['precipitation'] as num?)?.toDouble(),
       uvIndex: (json['uv_index'] as num?)?.toDouble(),
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
     );
   }
 
@@ -84,7 +84,7 @@ class DailyForecast {
 
   factory DailyForecast.fromJson(Map<String, dynamic> json) {
     return DailyForecast(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       tempMin: (json['temp_min'] as num).toDouble(),
       tempMax: (json['temp_max'] as num).toDouble(),
       condition: json['condition'] as String,
@@ -123,7 +123,7 @@ class HourlyForecast {
 
   factory HourlyForecast.fromJson(Map<String, dynamic> json) {
     return HourlyForecast(
-      time: DateTime.parse(json['time'] as String),
+      time: DateTime.tryParse(json['time'] as String) ?? DateTime.now(),
       temperature: (json['temperature'] as num).toDouble(),
       condition: json['condition'] as String,
       icon: json['icon'] as String? ?? '☀️',
@@ -165,8 +165,8 @@ class WeatherAlert {
       title: json['title'] as String,
       titleAr: (json['title_ar'] as String?) ?? json['title'] as String,
       description: json['description'] as String,
-      startTime: DateTime.parse(json['start_time'] as String),
-      endTime: DateTime.parse(json['end_time'] as String),
+      startTime: DateTime.tryParse(json['start_time'] as String) ?? DateTime.now(),
+      endTime: DateTime.tryParse(json['end_time'] as String) ?? DateTime.now(),
     );
   }
 

@@ -21,6 +21,10 @@ COPY apps/services/research-core ./research-core/
 
 WORKDIR /workspace/research-core
 
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
+
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \

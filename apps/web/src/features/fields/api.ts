@@ -3,10 +3,10 @@
  * طبقة API لميزة الحقول
  */
 
-import { type AxiosError } from 'axios';
 import type { Field, FieldFormData, FieldFilters, GeoPolygon } from './types';
-import { createApiClient, logger } from '@/lib/api/factory';
-import { FIELD_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
+import { FIELD_ENDPOINTS, SATELLITE_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 
 /**
  * API Field Response Type
@@ -34,6 +34,58 @@ interface ApiFieldResponse {
   };
   createdAt?: string;
   updatedAt?: string;
+}
+
+/**
+ * Boundary change history entry
+ */
+export interface BoundaryHistoryEntry {
+  id: string;
+  fieldId: string;
+  previousBoundary: GeoPolygon | null;
+  newBoundary: GeoPolygon;
+  changedBy: string;
+  changedAt: string;
+  reason?: string;
+}
+
+/**
+ * NDVI data for a field
+ */
+export interface FieldNdviData {
+  fieldId: string;
+  value: number;
+  timestamp: string;
+  source?: string;
+  cloudCover?: number;
+}
+
+/**
+ * NDVI summary across tenant fields
+ */
+export interface FieldNdviSummary {
+  totalFields: number;
+  averageNdvi: number;
+  healthDistribution: Record<string, number>;
+}
+
+/**
+ * Field sync status
+ */
+export interface SyncStatus {
+  fieldId: string;
+  lastSyncAt: string;
+  status: string;
+  pendingChanges: number;
+}
+
+/**
+ * Batch sync result
+ */
+export interface BatchSyncResult {
+  synced: number;
+  failed: number;
+  conflicts: number;
 }
 
 // Use shared API factory (handles auth, CSRF, error standardization)
@@ -66,9 +118,6 @@ export const ERROR_MESSAGES = {
     ar: 'الحقل غير موجود.',
   },
 };
-
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_FIELDS } from './api.mock';
 
 /**
  * Map API field to feature field
@@ -134,7 +183,7 @@ export const fieldsApi = {
    * Get all fields with filters
    */
   getFields: async (filters?: FieldFilters): Promise<Field[]> => {
-    try {
+    return safeFetch(FIELD_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
       if (filters?.search) params.set('search', filters.search);
       if (filters?.farmId) params.set('tenantId', filters.farmId);
@@ -144,71 +193,33 @@ export const fieldsApi = {
       if (filters?.status) params.set('status', filters.status);
 
       const response = await api.get(`${FIELD_ENDPOINTS.LIST}?${params.toString()}`);
-
-      // Handle different response formats
       const fields = response.data.data || response.data;
-
-      if (Array.isArray(fields)) {
-        return fields.map(mapApiFieldToField);
-      }
-
-      logger.warn('API returned unexpected format, using mock data');
-      return MOCK_FIELDS;
-    } catch (error) {
-      logger.warn('Failed to fetch fields from API, using mock data:', error);
-      return MOCK_FIELDS;
-    }
+      if (Array.isArray(fields)) return fields.map(mapApiFieldToField);
+      throw new Error('Invalid response format for fields | تنسيق الاستجابة غير صالح للحقول');
+    });
   },
 
   /**
    * Get field by ID
    */
   getFieldById: async (id: string): Promise<Field> => {
-    try {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.GET, { fieldId: id }), async () => {
       const response = await api.get(buildUrl(FIELD_ENDPOINTS.GET, { fieldId: id }));
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error) {
-      logger.warn(`Failed to fetch field ${id} from API, using mock data:`, error);
-
-      // Fallback to mock data
-      const mockField = MOCK_FIELDS.find((f) => f.id === id);
-      if (mockField) {
-        return mockField;
-      }
-
-      throw new Error(ERROR_MESSAGES.NOT_FOUND.en);
-    }
+    });
   },
 
   /**
    * Create new field
    */
   createField: async (data: FieldFormData, tenantId?: string): Promise<Field> => {
-    try {
+    return safeFetch(FIELD_ENDPOINTS.CREATE, async () => {
       const apiData = mapFieldToApiField(data, tenantId);
       const response = await api.post(FIELD_ENDPOINTS.CREATE, apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error) {
-      logger.error('Failed to create field:', error);
-
-      // Return error with Arabic message
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.CREATE_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.CREATE_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
@@ -219,57 +230,21 @@ export const fieldsApi = {
     data: Partial<FieldFormData>,
     tenantId?: string
   ): Promise<Field> => {
-    try {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), async () => {
       const apiData = mapFieldToApiField(data as FieldFormData, tenantId);
       const response = await api.put(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error) {
-      logger.error(`Failed to update field ${id}:`, error);
-
-      // Return error with Arabic message
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.UPDATE_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.UPDATE_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
    * Delete field
    */
   deleteField: async (id: string): Promise<void> => {
-    try {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId: id }), async () => {
       await api.delete(buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId: id }));
-    } catch (error) {
-      logger.error(`Failed to delete field ${id}:`, error);
-
-      // Return error with Arabic message
-      const axiosError = error as AxiosError<{
-        message?: string;
-        message_ar?: string;
-      }>;
-      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.DELETE_FAILED.en;
-      const errorMessageAr =
-        axiosError.response?.data?.message_ar || ERROR_MESSAGES.DELETE_FAILED.ar;
-
-      throw new Error(
-        JSON.stringify({
-          message: errorMessage,
-          messageAr: errorMessageAr,
-        })
-      );
-    }
+    });
   },
 
   /**
@@ -282,28 +257,118 @@ export const fieldsApi = {
     totalArea: number;
     byCrop: Record<string, number>;
   }> => {
-    try {
+    return safeFetch(`${FIELD_ENDPOINTS.LIST}/stats`, async () => {
       const params = new URLSearchParams();
       if (farmId) params.set('tenantId', farmId);
-
       const response = await api.get(`${FIELD_ENDPOINTS.LIST}/stats?${params.toString()}`);
       return response.data.data || response.data;
-    } catch {
-      logger.warn('Failed to fetch field stats from API, calculating from mock data');
+    });
+  },
 
-      // Calculate stats from mock data
-      const total = MOCK_FIELDS.length;
-      const totalArea = MOCK_FIELDS.reduce((sum, f) => sum + f.area, 0);
-      const byCrop = MOCK_FIELDS.reduce(
-        (acc, f) => {
-          const crop = f.crop || 'unknown';
-          acc[crop] = (acc[crop] || 0) + 1;
-          return acc;
-        },
-        {} as Record<string, number>
-      );
+  /**
+   * Get boundary change history for a field
+   * جلب سجل تغييرات حدود الحقل
+   */
+  getBoundaryHistory: async (fieldId: string): Promise<BoundaryHistoryEntry[]> => {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }), async () => {
+      const response = await api.get(buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }));
+      return response.data.data || response.data;
+    });
+  },
 
-      return { total, totalArea, byCrop };
-    }
+  /**
+   * Update field boundary
+   * تحديث حدود الحقل
+   */
+  updateBoundary: async (fieldId: string, boundary: GeoPolygon): Promise<Field> => {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.BOUNDARY_UPDATE, { fieldId }), async () => {
+      const response = await api.put(buildUrl(FIELD_ENDPOINTS.BOUNDARY_UPDATE, { fieldId }), { boundary });
+      const field = response.data.data || response.data;
+      return mapApiFieldToField(field);
+    });
+  },
+
+  /**
+   * Rollback boundary to a previous version
+   * استعادة حدود الحقل من نسخة سابقة
+   */
+  rollbackBoundary: async (fieldId: string, versionId: string): Promise<Field> => {
+    return safeFetch(buildUrl(FIELD_ENDPOINTS.BOUNDARY_ROLLBACK, { fieldId }), async () => {
+      const response = await api.post(buildUrl(FIELD_ENDPOINTS.BOUNDARY_ROLLBACK, { fieldId }), { versionId });
+      const field = response.data.data || response.data;
+      return mapApiFieldToField(field);
+    });
+  },
+
+  /**
+   * Get nearby fields by coordinates
+   * البحث عن الحقول القريبة
+   */
+  getNearbyFields: async (lat: number, lng: number, radiusKm: number): Promise<Field[]> => {
+    return safeFetch(FIELD_ENDPOINTS.NEARBY, async () => {
+      const params = new URLSearchParams();
+      params.set('lat', lat.toString());
+      params.set('lng', lng.toString());
+      params.set('radius', radiusKm.toString());
+      const response = await api.get(`${FIELD_ENDPOINTS.NEARBY}?${params.toString()}`);
+      const fields = response.data.data || response.data;
+      if (Array.isArray(fields)) return fields.map(mapApiFieldToField);
+      throw new Error('Invalid response format for nearby fields | تنسيق الاستجابة غير صالح للحقول القريبة');
+    });
+  },
+
+  /**
+   * Get NDVI analysis for a field
+   * جلب تحليل NDVI للحقل
+   */
+  getFieldNdvi: async (fieldId: string): Promise<FieldNdviData> => {
+    return safeFetch(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), async () => {
+      const response = await api.get(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }));
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Update NDVI value for a field
+   * تحديث مؤشر NDVI للحقل
+   */
+  updateFieldNdvi: async (fieldId: string, data: { value: number; source?: string; cloudCover?: number }): Promise<FieldNdviData> => {
+    return safeFetch(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), async () => {
+      const response = await api.put(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }), data);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Get NDVI summary for the tenant
+   * جلب ملخص NDVI للمستأجر
+   */
+  getNdviSummary: async (): Promise<FieldNdviSummary> => {
+    return safeFetch(SATELLITE_ENDPOINTS.NDVI_SUMMARY, async () => {
+      const response = await api.get(SATELLITE_ENDPOINTS.NDVI_SUMMARY);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Get field sync status (delta sync)
+   * جلب حالة مزامنة الحقول
+   */
+  getFieldSyncStatus: async (): Promise<SyncStatus[]> => {
+    return safeFetch(FIELD_ENDPOINTS.SYNC, async () => {
+      const response = await api.get(FIELD_ENDPOINTS.SYNC);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Batch sync fields from mobile/offline
+   * مزامنة مجموعة من الحقول
+   */
+  batchSync: async (data: { deviceId: string; userId: string; fields: unknown[] }): Promise<BatchSyncResult> => {
+    return safeFetch(FIELD_ENDPOINTS.SYNC_BATCH, async () => {
+      const response = await api.post(FIELD_ENDPOINTS.SYNC_BATCH, data);
+      return response.data.data || response.data;
+    });
   },
 };

@@ -414,7 +414,7 @@ class ActivityLog {
       newValue: json['new_value'] as String?,
       changedField: json['changed_field'] as String?,
       activityAt: json['activity_at'] != null
-          ? DateTime.parse(json['activity_at'] as String)
+          ? DateTime.tryParse(json['activity_at'] as String) ?? DateTime.now()
           : now,
       durationMinutes: json['duration_minutes'] as int?,
       amount: (json['amount'] as num?)?.toDouble(),
@@ -423,7 +423,7 @@ class ActivityLog {
       tags: (json['tags'] as List?)?.cast<String>() ?? [],
       metadata: json['metadata'] as Map<String, dynamic>?,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : now,
     );
   }
@@ -650,7 +650,7 @@ class FarmerAnalytics {
       visitCount: json['visit_count'] as int? ?? 0,
       messageCount: json['message_count'] as int? ?? 0,
       lastInteractionAt: json['last_interaction_at'] != null
-          ? DateTime.parse(json['last_interaction_at'] as String)
+          ? DateTime.tryParse(json['last_interaction_at'] as String) ?? DateTime.now()
           : null,
       avgResponseDays: json['avg_response_days'] as int? ?? 0,
       totalOpportunities: json['total_opportunities'] as int? ?? 0,

@@ -41,11 +41,12 @@ jobs:
         uses: actions/dependency-review-action@v4
         continue-on-error: true
         with:
-          # Fail on high/critical vulnerabilities
-          fail-on-severity: high
+          # License & vulnerability policy defined in config file
+          # (uses allow-licenses instead of the deprecated deny-licenses)
+          config-file: ./.github/dependency-review-config.yml
 
-          # Block specific license types (copyleft)
-          deny-licenses: GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later, AGPL-3.0-only, AGPL-3.0-or-later
+          # Retry when dependency graph snapshots are not yet available for the head SHA
+          retry-on-snapshot-warnings: true
 
           # Comment summary on PR
           comment-summary-in-pr: always

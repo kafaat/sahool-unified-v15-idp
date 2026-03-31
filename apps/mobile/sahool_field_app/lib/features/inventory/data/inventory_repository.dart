@@ -66,7 +66,7 @@ class InventoryRepository {
       if (expiringOnly != null) queryParams['expiring_only'] = expiringOnly;
 
       final response = await _dio.get(
-        '/v1/inventory/items',
+        '/api/v1/inventory/items',
         queryParameters: queryParams,
       );
 
@@ -89,7 +89,7 @@ class InventoryRepository {
   /// جلب عنصر محدد
   Future<ApiResult<InventoryItem>> getItemById(String itemId) async {
     try {
-      final response = await _dio.get('/v1/inventory/items/$itemId');
+      final response = await _dio.get('/api/v1/inventory/items/$itemId');
       return ApiResult.success(
         InventoryItem.fromJson(response.data as Map<String, dynamic>),
       );
@@ -109,7 +109,7 @@ class InventoryRepository {
   /// جلب عنصر عبر الباركود
   Future<ApiResult<InventoryItem>> getItemByBarcode(String barcode) async {
     try {
-      final response = await _dio.get('/v1/inventory/items/barcode/$barcode');
+      final response = await _dio.get('/api/v1/inventory/items/barcode/$barcode');
       return ApiResult.success(
         InventoryItem.fromJson(response.data as Map<String, dynamic>),
       );
@@ -129,7 +129,7 @@ class InventoryRepository {
   /// جلب عنصر عبر SKU
   Future<ApiResult<InventoryItem>> getItemBySku(String sku) async {
     try {
-      final response = await _dio.get('/v1/inventory/items/sku/$sku');
+      final response = await _dio.get('/api/v1/inventory/items/sku/$sku');
       return ApiResult.success(
         InventoryItem.fromJson(response.data as Map<String, dynamic>),
       );
@@ -149,7 +149,7 @@ class InventoryRepository {
   /// جلب العناصر ذات المخزون المنخفض
   Future<ApiResult<List<InventoryItem>>> getLowStockItems() async {
     try {
-      final response = await _dio.get('/v1/inventory/items/low-stock');
+      final response = await _dio.get('/api/v1/inventory/items/low-stock');
 
       final data = response.data as Map<String, dynamic>;
       final items = (data['items'] as List)
@@ -191,7 +191,7 @@ class InventoryRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/inventory/items',
+        '/api/v1/inventory/items',
         data: {
           'name': name,
           'name_ar': nameAr,
@@ -235,7 +235,7 @@ class InventoryRepository {
   ) async {
     try {
       final response = await _dio.put(
-        '/v1/inventory/items/$itemId',
+        '/api/v1/inventory/items/$itemId',
         data: updates,
       );
 
@@ -258,7 +258,7 @@ class InventoryRepository {
   /// حذف عنصر
   Future<ApiResult<void>> deleteItem(String itemId) async {
     try {
-      await _dio.delete('/v1/inventory/items/$itemId');
+      await _dio.delete('/api/v1/inventory/items/$itemId');
       return ApiResult.success(null);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
@@ -290,7 +290,7 @@ class InventoryRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/inventory/stock/in',
+        '/api/v1/inventory/stock/in',
         data: {
           'item_id': itemId,
           'quantity': quantity,
@@ -328,7 +328,7 @@ class InventoryRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/inventory/stock/out',
+        '/api/v1/inventory/stock/out',
         data: {
           'item_id': itemId,
           'quantity': quantity,
@@ -364,7 +364,7 @@ class InventoryRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/inventory/stock/apply',
+        '/api/v1/inventory/stock/apply',
         data: {
           'item_id': itemId,
           'quantity': quantity,
@@ -398,7 +398,7 @@ class InventoryRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/inventory/stock/adjust',
+        '/api/v1/inventory/stock/adjust',
         data: {
           'item_id': itemId,
           'quantity': quantity,
@@ -429,7 +429,7 @@ class InventoryRepository {
   }) async {
     try {
       final response = await _dio.get(
-        '/v1/inventory/movements/$itemId',
+        '/api/v1/inventory/movements/$itemId',
         queryParameters: {
           'limit': limit,
           'offset': offset,
@@ -459,7 +459,7 @@ class InventoryRepository {
   /// جلب جميع المستودعات
   Future<ApiResult<List<Warehouse>>> getWarehouses() async {
     try {
-      final response = await _dio.get('/v1/inventory/warehouses');
+      final response = await _dio.get('/api/v1/inventory/warehouses');
 
       final data = response.data as Map<String, dynamic>;
       final warehouses = (data['warehouses'] as List)
@@ -484,7 +484,7 @@ class InventoryRepository {
   /// جلب جميع الموردين
   Future<ApiResult<List<Supplier>>> getSuppliers() async {
     try {
-      final response = await _dio.get('/v1/inventory/suppliers');
+      final response = await _dio.get('/api/v1/inventory/suppliers');
 
       final data = response.data as Map<String, dynamic>;
       final suppliers = (data['suppliers'] as List)
@@ -518,7 +518,7 @@ class InventoryRepository {
       });
 
       final response = await _dio.post(
-        '/v1/inventory/upload',
+        '/api/v1/inventory/upload',
         data: formData,
         options: Options(
           contentType: 'multipart/form-data',
@@ -562,7 +562,7 @@ class InventoryRepository {
   /// جلب إحصائيات المخزون
   Future<ApiResult<InventoryStats>> getStats() async {
     try {
-      final response = await _dio.get('/v1/inventory/stats');
+      final response = await _dio.get('/api/v1/inventory/stats');
       return ApiResult.success(
         InventoryStats.fromJson(response.data as Map<String, dynamic>),
       );

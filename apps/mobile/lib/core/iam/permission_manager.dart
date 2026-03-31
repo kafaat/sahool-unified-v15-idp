@@ -217,7 +217,7 @@ enum IAMPermission {
   static IAMPermission? fromCode(String code) {
     try {
       return IAMPermission.values.firstWhere((p) => p.code == code);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

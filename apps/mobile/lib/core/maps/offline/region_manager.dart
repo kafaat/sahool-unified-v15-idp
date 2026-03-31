@@ -35,7 +35,7 @@ class RegionManager {
   MapRegion? getRegionById(String id) {
     try {
       return YemenRegions.all.firstWhere((r) => r.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -708,7 +708,7 @@ class YemenRegions {
   static MapRegion? getById(String id) {
     try {
       return all.firstWhere((r) => r.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

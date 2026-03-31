@@ -8,7 +8,7 @@
  * @vitest-environment node
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SignJWT } from 'jose';
 
 // We test the actual functions without mocking jose
@@ -27,7 +27,7 @@ const TEST_SECRET = 'test-secret-key-for-unit-tests-only-32chars';
 // Helper to create a valid JWT
 async function createTestToken(
   payload: Record<string, unknown>,
-  options?: { secret?: string; expiresIn?: string }
+  options?: { secret?: string; expiresIn?: string; issuer?: string; audience?: string }
 ): Promise<string> {
   const secret = options?.secret || TEST_SECRET;
   const key = new TextEncoder().encode(secret);
@@ -35,8 +35,8 @@ async function createTestToken(
   let builder = new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setIssuer('sahool-platform')
-    .setAudience('sahool-api');
+    .setIssuer(options?.issuer ?? 'sahool-platform')
+    .setAudience(options?.audience ?? 'sahool-api');
 
   if (options?.expiresIn) {
     builder = builder.setExpirationTime(options.expiresIn);
@@ -159,6 +159,94 @@ describe('verifyToken', () => {
 
     // The token will fail verification since it lacks email (required field)
     await expect(verifyToken(token)).rejects.toThrow();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// verifyToken — specific error messages (covers the new classification paths)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('verifyToken — error classification', () => {
+  let savedSecret: string | undefined;
+  let savedSecretKey: string | undefined;
+
+  beforeEach(() => {
+    savedSecret = process.env.JWT_SECRET;
+    savedSecretKey = process.env.JWT_SECRET_KEY;
+    process.env.JWT_SECRET = TEST_SECRET;
+  });
+
+  afterEach(() => {
+    if (savedSecret === undefined) {
+      delete process.env.JWT_SECRET;
+    } else {
+      process.env.JWT_SECRET = savedSecret;
+    }
+    if (savedSecretKey === undefined) {
+      delete process.env.JWT_SECRET_KEY;
+    } else {
+      process.env.JWT_SECRET_KEY = savedSecretKey;
+    }
+  });
+
+  it('throws "JWT_SECRET is not configured" when secret is absent', async () => {
+    delete process.env.JWT_SECRET;
+    delete process.env.JWT_SECRET_KEY;
+
+    const token = await createTestToken({ sub: 'u1', email: 'a@b.com' });
+
+    await expect(verifyToken(token)).rejects.toThrow(
+      'JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable.'
+    );
+  });
+
+  it('throws "Token has expired" for an expired token and preserves cause', async () => {
+    const token = await createTestToken(
+      { sub: 'u1', email: 'a@b.com' },
+      { expiresIn: '-1s' } // already expired
+    );
+
+    const err = await verifyToken(token).catch((e: unknown) => e as Error);
+    expect(err.message).toBe('Token has expired');
+    expect(err.cause).toBeInstanceOf(Error);
+  });
+
+  it('throws "Invalid token signature" when signed with a different secret and preserves cause', async () => {
+    const token = await createTestToken(
+      { sub: 'u1', email: 'a@b.com' },
+      { secret: 'different-secret-key-that-wont-match!!' }
+    );
+
+    const err = await verifyToken(token).catch((e: unknown) => e as Error);
+    expect(err.message).toBe('Invalid token signature');
+    expect(err.cause).toBeInstanceOf(Error);
+  });
+
+  it('throws "Token claim validation failed" for wrong issuer', async () => {
+    const token = await createTestToken(
+      { sub: 'u1', email: 'a@b.com' },
+      { issuer: 'wrong-issuer' }
+    );
+
+    await expect(verifyToken(token)).rejects.toThrow('Token claim validation failed');
+  });
+
+  it('throws "Token claim validation failed" for wrong audience', async () => {
+    const token = await createTestToken(
+      { sub: 'u1', email: 'a@b.com' },
+      { audience: 'wrong-audience' }
+    );
+
+    await expect(verifyToken(token)).rejects.toThrow('Token claim validation failed');
+  });
+
+  it('throws "Invalid token payload: missing required fields" when email is absent', async () => {
+    // Token is structurally valid but lacks the email claim
+    const token = await createTestToken({ sub: 'u1' });
+
+    await expect(verifyToken(token)).rejects.toThrow(
+      'Invalid token payload: missing required fields'
+    );
   });
 });
 

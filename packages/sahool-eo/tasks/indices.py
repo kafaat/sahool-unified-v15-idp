@@ -327,13 +327,13 @@ class SahoolNDWITask(BaseIndexTask):
 # Based on soil brightness characteristics per agro-ecological zone
 # Higher L for light/sandy soils, lower L for dark/volcanic soils
 YEMEN_SAVI_L_PARAMS: dict[str, float] = {
-    "tihama": 0.75,           # Coastal sandy loam — light/bright soils
-    "southern_coast": 0.70,   # Aden/Lahj — saline sandy soils
-    "hadhramaut": 0.65,       # Wadi silt loam — moderate brightness
+    "tihama": 0.75,  # Coastal sandy loam — light/bright soils
+    "southern_coast": 0.70,  # Aden/Lahj — saline sandy soils
+    "hadhramaut": 0.65,  # Wadi silt loam — moderate brightness
     "eastern_plateau": 0.60,  # Marib/Al-Jawf — semi-arid mixed
-    "highlands": 0.40,        # Sana'a/Ibb — dark volcanic clay loam
+    "highlands": 0.40,  # Sana'a/Ibb — dark volcanic clay loam
     "northern_highlands": 0.45,  # Sa'dah/Amran — cool arid, moderate soil
-    "socotra": 0.55,          # Island ecosystem — varied
+    "socotra": 0.55,  # Island ecosystem — varied
 }
 
 

@@ -41,7 +41,7 @@ class LabSample {
       experimentName: json['experimentName'] as String? ?? '',
       plotCode: json['plotCode'] as String? ?? '',
       collectedAt: json['collectedAt'] != null
-          ? DateTime.parse(json['collectedAt'] as String)
+          ? (DateTime.tryParse(json['collectedAt'] as String) ?? DateTime.now())
           : DateTime.now(),
       collectedBy: json['collectedBy'] as String? ?? '',
       results: json['results'] as Map<String, dynamic>?,

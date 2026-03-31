@@ -183,13 +183,13 @@ class Advisory {
           ? AdvisoryTiming.fromJson(json['timing'] as Map<String, dynamic>)
           : null,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       expiresAt: json['expires_at'] != null
-          ? DateTime.parse(json['expires_at'] as String)
+          ? DateTime.tryParse(json['expires_at'] as String) ?? DateTime.now()
           : null,
       appliedAt: json['applied_at'] != null
-          ? DateTime.parse(json['applied_at'] as String)
+          ? DateTime.tryParse(json['applied_at'] as String) ?? DateTime.now()
           : null,
       feedback: json['feedback'] != null
           ? AdvisoryFeedbackSummary.fromJson(json['feedback'] as Map<String, dynamic>)
@@ -502,10 +502,10 @@ class AdvisoryTiming {
   factory AdvisoryTiming.fromJson(Map<String, dynamic> json) {
     return AdvisoryTiming(
       startTime: json['start_time'] != null
-          ? DateTime.parse(json['start_time'] as String)
+          ? DateTime.tryParse(json['start_time'] as String) ?? DateTime.now()
           : null,
       endTime: json['end_time'] != null
-          ? DateTime.parse(json['end_time'] as String)
+          ? DateTime.tryParse(json['end_time'] as String) ?? DateTime.now()
           : null,
       bestTimeOfDay: json['best_time_of_day'] as String?,
       bestTimeOfDayAr: json['best_time_of_day_ar'] as String?,

@@ -72,7 +72,7 @@ Future<BestDaysResult?> _loadFromCache(String activity) async {
     if (cached == null) return null;
 
     final data = jsonDecode(cached) as Map<String, dynamic>;
-    final timestamp = DateTime.parse(data['timestamp'] as String);
+    final timestamp = DateTime.tryParse(data['timestamp'] as String) ?? DateTime.now();
 
     // التحقق من صلاحية البيانات (7 أيام)
     if (DateTime.now().difference(timestamp).inDays > 7) {

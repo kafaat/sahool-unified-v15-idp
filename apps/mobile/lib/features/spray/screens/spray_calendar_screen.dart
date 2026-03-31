@@ -41,7 +41,12 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
 
     // Calculate days from now to end of next month
     final now = DateTime.now();
-    final endOfNextMonth = DateTime(now.year, now.month + 2, 0);
+    final targetMonth = now.month + 2;
+    final endOfNextMonth = DateTime(
+      now.year + (targetMonth > 12 ? 1 : 0),
+      targetMonth > 12 ? targetMonth - 12 : targetMonth,
+      0,
+    );
     final daysToFetch = endOfNextMonth.difference(now).inDays;
 
     final windowsAsync = ref.watch(sprayWindowsProvider(

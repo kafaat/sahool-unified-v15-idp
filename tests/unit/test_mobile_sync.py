@@ -926,8 +926,8 @@ class TestQueueManagement:
         config = SyncQueueConfig(max_queue_size=1)
         queue = SyncQueue(config, tenant_id="test-tenant")
 
-        item1 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD)
-        item2 = SyncItem(entity_id="field_002", entity_type=EntityType.FIELD)
+        item1 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD, tenant_id="test-tenant")
+        item2 = SyncItem(entity_id="field_002", entity_type=EntityType.FIELD, tenant_id="test-tenant")
 
         success1, _ = await queue.enqueue(item1)
         assert success1
@@ -946,16 +946,19 @@ class TestQueueManagement:
             entity_id="low",
             priority=SyncPriority.LOW,
             created_at=datetime.now(UTC),
+            tenant_id="test-tenant",
         )
         high = SyncItem(
             entity_id="high",
             priority=SyncPriority.HIGH,
             created_at=datetime.now(UTC) + timedelta(seconds=1),
+            tenant_id="test-tenant",
         )
         critical = SyncItem(
             entity_id="critical",
             priority=SyncPriority.CRITICAL,
             created_at=datetime.now(UTC) + timedelta(seconds=2),
+            tenant_id="test-tenant",
         )
 
         await queue.enqueue(low)
@@ -982,6 +985,7 @@ class TestQueueManagement:
             item = SyncItem(
                 entity_id=f"field_{i:03d}",
                 entity_type=EntityType.FIELD,
+                tenant_id="test-tenant",
             )
             await queue.enqueue(item)
 
@@ -997,9 +1001,9 @@ class TestQueueManagement:
 
         # Add multiple items of the target type and one of different type
         # This ensures batch can complete without infinite loop
-        field1 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD)
-        field2 = SyncItem(entity_id="field_002", entity_type=EntityType.FIELD)
-        irrigation = SyncItem(entity_id="irr_001", entity_type=EntityType.IRRIGATION)
+        field1 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD, tenant_id="test-tenant")
+        field2 = SyncItem(entity_id="field_002", entity_type=EntityType.FIELD, tenant_id="test-tenant")
+        irrigation = SyncItem(entity_id="irr_001", entity_type=EntityType.IRRIGATION, tenant_id="test-tenant")
 
         await queue.enqueue(field1)
         await queue.enqueue(field2)
@@ -1051,7 +1055,7 @@ class TestQueueManagement:
         config = SyncQueueConfig(max_retries=2)
         queue = SyncQueue(config, tenant_id="test-tenant")
 
-        item = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD, max_retries=2)
+        item = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD, max_retries=2, tenant_id="test-tenant")
 
         await queue.enqueue(item)
 
@@ -1129,11 +1133,13 @@ class TestQueueManagement:
             entity_id="field_001",
             entity_type=EntityType.FIELD,
             operation=SyncOperationType.UPDATE,
+            tenant_id="test-tenant",
         )
         item2 = SyncItem(
             entity_id="field_001",
             entity_type=EntityType.FIELD,
             operation=SyncOperationType.CREATE,
+            tenant_id="test-tenant",
         )
 
         await queue.enqueue(item1)
@@ -1158,8 +1164,8 @@ class TestQueueManagement:
         config = SyncQueueConfig(deduplicate_pending=False, merge_pending_updates=False)
         queue = SyncQueue(config, tenant_id="test-tenant")
 
-        item1 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD)
-        item2 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD)
+        item1 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD, tenant_id="test-tenant")
+        item2 = SyncItem(entity_id="field_001", entity_type=EntityType.FIELD, tenant_id="test-tenant")
 
         await queue.enqueue(item1)
         await queue.enqueue(item2)
@@ -1179,11 +1185,13 @@ class TestQueueManagement:
             entity_id="field_001",
             entity_type=EntityType.FIELD,
             local_data={"name": "First"},
+            tenant_id="test-tenant",
         )
         item2 = SyncItem(
             entity_id="field_001",
             entity_type=EntityType.FIELD,
             local_data={"name": "Second"},
+            tenant_id="test-tenant",
         )
 
         await queue.enqueue(item1)
@@ -1247,6 +1255,7 @@ class TestOfflineHandling:
             entity_id="field_002",
             entity_type=EntityType.FIELD,
             priority=SyncPriority.HIGH,
+            tenant_id="test-tenant",
         )
         await queue.enqueue(ready_item)
 
@@ -1255,6 +1264,7 @@ class TestOfflineHandling:
             entity_id="field_001",
             entity_type=EntityType.FIELD,
             priority=SyncPriority.LOW,
+            tenant_id="test-tenant",
         )
         # Set next_retry_at before enqueueing
         not_ready_item.next_retry_at = datetime.now(UTC) + timedelta(hours=1)
@@ -1284,6 +1294,7 @@ class TestOfflineHandling:
             entity_id="field_001",
             entity_type=EntityType.FIELD,
             created_at=datetime.now(UTC) - timedelta(hours=2),
+            tenant_id="test-tenant",
         )
 
         await queue.enqueue(old_item)
@@ -1303,11 +1314,13 @@ class TestOfflineHandling:
             entity_id="field_001",
             entity_type=EntityType.FIELD,
             direction=SyncDirection.UPLOAD,
+            tenant_id="test-tenant",
         )
         download_item = SyncItem(
             entity_id="field_002",
             entity_type=EntityType.FIELD,
             direction=SyncDirection.DOWNLOAD,
+            tenant_id="test-tenant",
         )
 
         await manager.enqueue(upload_item)
@@ -1351,6 +1364,7 @@ class TestOfflineHandling:
             entity_id="field_001",
             entity_type=EntityType.FIELD,
             priority=SyncPriority.LOW,
+            tenant_id="test-tenant",
         )
 
         await queue.enqueue(item)
@@ -1546,6 +1560,7 @@ class TestEdgeCases:
                 entity_id=f"field_{i:04d}",
                 entity_type=EntityType.FIELD,
                 priority=SyncPriority.MEDIUM if i % 2 == 0 else SyncPriority.LOW,
+                tenant_id="test-tenant",
             )
             await queue.enqueue(item)
 

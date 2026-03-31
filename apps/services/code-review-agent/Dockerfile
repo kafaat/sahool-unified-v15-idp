@@ -23,6 +23,10 @@ RUN apt-update.sh && \
 COPY apps/services/code-review-agent/package*.json ./
 COPY apps/services/code-review-agent/tsconfig.json ./
 
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
+
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \

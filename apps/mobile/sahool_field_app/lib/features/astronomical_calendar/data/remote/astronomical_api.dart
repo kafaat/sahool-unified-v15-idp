@@ -35,7 +35,7 @@ class AstronomicalCalendarApi {
   /// الحصول على بيانات اليوم
   Future<DailyAstronomicalData> getToday() async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/today'),
+      Uri.parse('$_baseUrl/today'),
       headers: _headers,
     );
 
@@ -53,7 +53,7 @@ class AstronomicalCalendarApi {
   /// الحصول على بيانات تاريخ محدد
   Future<DailyAstronomicalData> getDate(String dateStr) async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/date/$dateStr'),
+      Uri.parse('$_baseUrl/date/$dateStr'),
       headers: _headers,
     );
 
@@ -70,7 +70,7 @@ class AstronomicalCalendarApi {
 
   /// الحصول على التوقعات الأسبوعية
   Future<WeeklyForecast> getWeeklyForecast({String? startDate}) async {
-    final uri = Uri.parse('$_baseUrl/v1/week').replace(
+    final uri = Uri.parse('$_baseUrl/week').replace(
       queryParameters: startDate != null ? {'start_date': startDate} : null,
     );
 
@@ -93,7 +93,7 @@ class AstronomicalCalendarApi {
 
   /// الحصول على مرحلة القمر
   Future<MoonPhase> getMoonPhase({String? dateStr}) async {
-    final uri = Uri.parse('$_baseUrl/v1/moon-phase').replace(
+    final uri = Uri.parse('$_baseUrl/moon-phase').replace(
       queryParameters: dateStr != null ? {'date_str': dateStr} : null,
     );
 
@@ -112,7 +112,7 @@ class AstronomicalCalendarApi {
 
   /// الحصول على المنزلة القمرية
   Future<LunarMansion> getLunarMansion({String? dateStr}) async {
-    final uri = Uri.parse('$_baseUrl/v1/lunar-mansion').replace(
+    final uri = Uri.parse('$_baseUrl/lunar-mansion').replace(
       queryParameters: dateStr != null ? {'date_str': dateStr} : null,
     );
 
@@ -132,7 +132,7 @@ class AstronomicalCalendarApi {
   /// الحصول على قائمة المنازل القمرية
   Future<List<Map<String, dynamic>>> getLunarMansions() async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/lunar-mansions'),
+      Uri.parse('$_baseUrl/lunar-mansions'),
       headers: _headers,
     );
 
@@ -149,7 +149,7 @@ class AstronomicalCalendarApi {
 
   /// الحصول على التاريخ الهجري
   Future<HijriDate> getHijriDate({String? dateStr}) async {
-    final uri = Uri.parse('$_baseUrl/v1/hijri').replace(
+    final uri = Uri.parse('$_baseUrl/hijri').replace(
       queryParameters: dateStr != null ? {'date_str': dateStr} : null,
     );
 
@@ -168,7 +168,7 @@ class AstronomicalCalendarApi {
 
   /// الحصول على البرج الشمسي
   Future<ZodiacInfo> getZodiac({String? dateStr}) async {
-    final uri = Uri.parse('$_baseUrl/v1/zodiac').replace(
+    final uri = Uri.parse('$_baseUrl/zodiac').replace(
       queryParameters: dateStr != null ? {'date_str': dateStr} : null,
     );
 
@@ -192,7 +192,7 @@ class AstronomicalCalendarApi {
   /// الحصول على تقويم محصول
   Future<CropCalendar> getCropCalendar(String cropName) async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/crop-calendar/$cropName'),
+      Uri.parse('$_baseUrl/crop-calendar/$cropName'),
       headers: _headers,
     );
 
@@ -210,7 +210,7 @@ class AstronomicalCalendarApi {
   /// الحصول على قائمة المحاصيل
   Future<List<Map<String, String>>> getSupportedCrops() async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/crops'),
+      Uri.parse('$_baseUrl/crops'),
       headers: _headers,
     );
 
@@ -236,7 +236,7 @@ class AstronomicalCalendarApi {
     required String activity,
     int days = 30,
   }) async {
-    final uri = Uri.parse('$_baseUrl/v1/best-days').replace(
+    final uri = Uri.parse('$_baseUrl/best-days').replace(
       queryParameters: {
         'activity': activity,
         'days': days.toString(),
@@ -263,7 +263,7 @@ class AstronomicalCalendarApi {
   /// الحصول على الموسم الحالي
   Future<SeasonInfo> getCurrentSeason() async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/current-season'),
+      Uri.parse('$_baseUrl/current-season'),
       headers: _headers,
     );
 
@@ -281,7 +281,7 @@ class AstronomicalCalendarApi {
   /// الحصول على قائمة المواسم
   Future<Map<String, dynamic>> getSeasons() async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/seasons'),
+      Uri.parse('$_baseUrl/seasons'),
       headers: _headers,
     );
 
@@ -299,7 +299,7 @@ class AstronomicalCalendarApi {
   /// الحصول على قائمة الأشهر الهجرية
   Future<Map<String, dynamic>> getHijriMonths() async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/hijri-months'),
+      Uri.parse('$_baseUrl/hijri-months'),
       headers: _headers,
     );
 
@@ -317,7 +317,7 @@ class AstronomicalCalendarApi {
   /// الحصول على الأبراج مع الخصوبة
   Future<Map<String, dynamic>> getZodiacFarming() async {
     final response = await _client.get(
-      Uri.parse('$_baseUrl/v1/zodiac-farming'),
+      Uri.parse('$_baseUrl/zodiac-farming'),
       headers: _headers,
     );
 
@@ -344,7 +344,7 @@ class AstronomicalCalendarApi {
     final queryParams = <String, String>{'location_id': locationId};
     if (dateStr != null) queryParams['date_str'] = dateStr;
 
-    final uri = Uri.parse('$_baseUrl/v1/integration/weather').replace(
+    final uri = Uri.parse('$_baseUrl/integration/weather').replace(
       queryParameters: queryParams,
     );
 

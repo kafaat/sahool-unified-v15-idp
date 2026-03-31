@@ -45,7 +45,7 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog Secrets Scan
-        uses: trufflesecurity/trufflehog@v3.94.0
+        uses: trufflesecurity/trufflehog@v3.94.1
         # Secrets detection must fail the pipeline
         with:
           path: ./
@@ -454,6 +454,21 @@ jobs:
             echo "built=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Build merged Trivy ignore file
+        id: build_merged_ignore
+        if: steps.install_trivy.outputs.installed == 'true' && steps.docker_build.outputs.built == 'true'
+        run: |
+          MERGED_IGNORE=$(mktemp)
+          # Merge repo-wide .trivyignore with an optional per-service ignore file.
+          # This scopes service-specific CVE exemptions to the service that needs
+          # them instead of suppressing findings globally across all image scans.
+          cat .trivyignore > "$MERGED_IGNORE"
+          if [ -f "apps/services/${{ matrix.service }}/.trivyignore" ]; then
+            echo "" >> "$MERGED_IGNORE"
+            cat "apps/services/${{ matrix.service }}/.trivyignore" >> "$MERGED_IGNORE"
+          fi
+          echo "MERGED_TRIVY_IGNORE=$MERGED_IGNORE" >> "$GITHUB_ENV"
+
       - name: Run Trivy vulnerability scanner
         if: steps.install_trivy.outputs.installed == 'true' && steps.docker_build.outputs.built == 'true'
         run: |
@@ -470,7 +485,7 @@ jobs:
             --severity CRITICAL,HIGH \
             --exit-code 0 \
             --ignore-unfixed \
-            --ignorefile .trivyignore \
+            --ignorefile "$MERGED_TRIVY_IGNORE" \
             --scanners vuln \
             --timeout 10m \
             ${{ matrix.service }}:scan
@@ -491,7 +506,8 @@ jobs:
         # This is intentionally separate from SARIF generation above so that
         # the SARIF report is always uploaded even when vulnerabilities exist.
         # Uses --ignore-unfixed to skip CVEs with no available patch, and
-        # .trivyignore for any accepted-risk CVEs. This step is a HARD gate:
+        # the merged ignore file (repo-wide .trivyignore + optional per-service
+        # .trivyignore) for any accepted-risk CVEs. This step is a HARD gate:
         # new fixable CRITICAL/HIGH CVEs will block the pipeline.
         if: steps.install_trivy.outputs.installed == 'true' && steps.docker_build.outputs.built == 'true'
         run: |
@@ -499,7 +515,7 @@ jobs:
             --severity CRITICAL,HIGH \
             --exit-code 1 \
             --ignore-unfixed \
-            --ignorefile .trivyignore \
+            --ignorefile "$MERGED_TRIVY_IGNORE" \
             --scanners vuln \
             --timeout 10m \
             ${{ matrix.service }}:scan
@@ -520,6 +536,13 @@ jobs:
           image: ${{ matrix.service }}:scan
           fail-build: false
           severity-cutoff: high
+
+      - name: Cleanup merged Trivy ignore file
+        if: always() && steps.build_merged_ignore.outcome != 'skipped'
+        run: |
+          if [ -n "$MERGED_TRIVY_IGNORE" ]; then
+            rm -f "$MERGED_TRIVY_IGNORE"
+          fi
 
   dockerfile-scan:
     name: Dockerfile Security Scan

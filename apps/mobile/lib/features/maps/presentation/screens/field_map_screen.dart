@@ -76,7 +76,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       if (geometry != null && geometry['type'] == 'Polygon') {
         try {
           _fieldBoundary = GeoJson.parsePolygon(geometry);
-        } catch (_) {
+        } catch (e) {
           // Fallback: use center point to create a small bounding area
           _createBoundaryFromCenter();
         }

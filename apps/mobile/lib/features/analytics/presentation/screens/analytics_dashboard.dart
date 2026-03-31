@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/analytics_provider.dart';
 
 /// شاشة لوحة الإحصائيات والتحليلات
 /// Analytics Dashboard Screen
@@ -61,7 +62,9 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
 
   Widget _buildOverviewTab() {
     return RefreshIndicator(
-      onRefresh: () async {},
+      onRefresh: () async {
+        ref.invalidate(analyticsDashboardProvider);
+      },
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

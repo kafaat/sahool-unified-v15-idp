@@ -270,7 +270,7 @@ export function validateInput(
 
   const isValid = validators[type](value);
   const sanitizedValue =
-    type in sanitizers ? sanitizers[type as keyof typeof sanitizers](value) : value;
+    Object.hasOwn(sanitizers, type) ? sanitizers[type as keyof typeof sanitizers](value) : value;
 
   return {
     isValid,

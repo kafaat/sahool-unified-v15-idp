@@ -38,7 +38,7 @@ class Experiment {
       status: _parseStatus(json['status'] as String?),
       plotsCount: json['plotsCount'] as int? ?? 0,
       startDate: json['startDate'] != null
-          ? DateTime.parse(json['startDate'] as String)
+          ? DateTime.tryParse(json['startDate'] as String) ?? DateTime.now()
           : DateTime.now(),
       principalResearcher: json['principalResearcher'] as String? ?? '',
       progress: (json['progress'] as num?)?.toDouble() ?? 0.0,

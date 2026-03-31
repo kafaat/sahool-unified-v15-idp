@@ -3,7 +3,8 @@
  * طبقة API لميزة الرؤية الحاسوبية
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { VISION_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   PestDetection,
@@ -31,149 +32,126 @@ export const ERROR_MESSAGES = {
 };
 
 export const visionApi = {
-  detectPest: async (image: File, confidence?: number): Promise<PestDetection> => {
-    try {
+  detectPest: async (image: File, confidence?: number, includeVisualization = false): Promise<PestDetection> => {
+    return safeFetch(VISION_ENDPOINTS.DETECT_PEST, async () => {
       const formData = new FormData();
       formData.append('image', image);
-      if (confidence) formData.append('confidence', confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_PEST, formData, {
+      if (confidence !== undefined) formData.append('confidence', confidence.toString());
+      const url = includeVisualization
+        ? `${VISION_ENDPOINTS.DETECT_PEST}?return_visualization=true`
+        : VISION_ENDPOINTS.DETECT_PEST;
+      const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Pest detection failed:', error);
-      throw new Error(ERROR_MESSAGES.DETECTION_FAILED.en);
-    }
+    });
   },
 
-  detectDisease: async (image: File, confidence?: number): Promise<DiseaseDetection> => {
-    try {
+  detectDisease: async (image: File, confidence?: number, includeVisualization = false): Promise<DiseaseDetection> => {
+    return safeFetch(VISION_ENDPOINTS.DETECT_DISEASE, async () => {
       const formData = new FormData();
       formData.append('image', image);
-      if (confidence) formData.append('confidence', confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_DISEASE, formData, {
+      if (confidence !== undefined) formData.append('confidence', confidence.toString());
+      const url = includeVisualization
+        ? `${VISION_ENDPOINTS.DETECT_DISEASE}?return_visualization=true`
+        : VISION_ENDPOINTS.DETECT_DISEASE;
+      const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Disease detection failed:', error);
-      throw new Error(ERROR_MESSAGES.DETECTION_FAILED.en);
-    }
+    });
   },
 
-  detectWeed: async (image: File, confidence?: number): Promise<WeedDetection> => {
-    try {
+  detectWeed: async (image: File, confidence?: number, includeVisualization = false): Promise<WeedDetection> => {
+    return safeFetch(VISION_ENDPOINTS.DETECT_WEED, async () => {
       const formData = new FormData();
       formData.append('image', image);
-      if (confidence) formData.append('confidence', confidence.toString());
-      const response = await api.post(VISION_ENDPOINTS.DETECT_WEED, formData, {
+      if (confidence !== undefined) formData.append('confidence', confidence.toString());
+      const url = includeVisualization
+        ? `${VISION_ENDPOINTS.DETECT_WEED}?return_visualization=true`
+        : VISION_ENDPOINTS.DETECT_WEED;
+      const response = await api.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Weed detection failed:', error);
-      throw new Error(ERROR_MESSAGES.DETECTION_FAILED.en);
-    }
+    });
   },
 
   countPlants: async (image: File): Promise<PlantCount> => {
-    try {
+    return safeFetch(VISION_ENDPOINTS.COUNT_PLANTS, async () => {
       const formData = new FormData();
       formData.append('image', image);
       const response = await api.post(VISION_ENDPOINTS.COUNT_PLANTS, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Plant counting failed:', error);
-      throw error;
-    }
+    });
   },
 
   classifyRipeness: async (image: File): Promise<RipenessResult> => {
-    try {
+    return safeFetch(VISION_ENDPOINTS.CLASSIFY_RIPENESS, async () => {
       const formData = new FormData();
       formData.append('image', image);
       const response = await api.post(VISION_ENDPOINTS.CLASSIFY_RIPENESS, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Ripeness classification failed:', error);
-      throw error;
-    }
+    });
   },
 
   segmentLeaf: async (image: File): Promise<LeafSegmentation> => {
-    try {
+    return safeFetch(VISION_ENDPOINTS.SEGMENT_LEAF, async () => {
       const formData = new FormData();
       formData.append('image', image);
       const response = await api.post(VISION_ENDPOINTS.SEGMENT_LEAF, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Leaf segmentation failed:', error);
-      throw error;
-    }
+    });
   },
 
   batchDetectPest: async (images: File[]): Promise<PestDetection[]> => {
-    try {
+    return safeFetch(VISION_ENDPOINTS.BATCH_PEST, async () => {
       const formData = new FormData();
       images.forEach((img) => formData.append('images', img));
       const response = await api.post(VISION_ENDPOINTS.BATCH_PEST, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Batch pest detection failed:', error);
-      throw error;
-    }
+    });
   },
 
   batchDetectDisease: async (images: File[]): Promise<DiseaseDetection[]> => {
-    try {
+    return safeFetch(VISION_ENDPOINTS.BATCH_DISEASE, async () => {
       const formData = new FormData();
       images.forEach((img) => formData.append('images', img));
       const response = await api.post(VISION_ENDPOINTS.BATCH_DISEASE, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error('Batch disease detection failed:', error);
-      throw error;
-    }
+    });
   },
 
   getModels: async (): Promise<ModelInfo[]> => {
-    try {
+    return safeFetch(VISION_ENDPOINTS.MODELS_LIST, async () => {
       const response = await api.get(VISION_ENDPOINTS.MODELS_LIST);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       return [];
-    } catch (error) {
-      logger.warn('Failed to fetch vision models:', error);
-      return [];
-    }
+    });
   },
 
   getModelInfo: async (variant: string): Promise<ModelInfo> => {
-    try {
+    return safeFetch(VISION_ENDPOINTS.MODEL_INFO, async () => {
       const url = buildUrl(VISION_ENDPOINTS.MODEL_INFO, { variant });
       const response = await api.get(url);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to fetch model info for ${variant}:`, error);
-      throw new Error(ERROR_MESSAGES.MODEL_FAILED.en);
-    }
+    });
   },
 
   warmupModels: async (variants?: string[]): Promise<void> => {
-    try {
+    return safeFetch(VISION_ENDPOINTS.MODELS_WARMUP, async () => {
       await api.post(VISION_ENDPOINTS.MODELS_WARMUP, { variants });
-    } catch (error) {
-      logger.warn('Failed to warmup models:', error);
-    }
+    });
   },
 };

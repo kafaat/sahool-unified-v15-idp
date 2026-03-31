@@ -24,7 +24,7 @@ class GDDGaugeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (currentGDD / totalGDD).clamp(0.0, 1.0);
+    final progress = totalGDD > 0 ? (currentGDD / totalGDD).clamp(0.0, 1.0) : 0.0;
 
     return Card(
       elevation: 4,

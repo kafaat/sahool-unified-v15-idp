@@ -335,7 +335,7 @@ export function validateSchema<T extends Record<string, unknown>>(
   if (typeof obj !== 'object' || obj === null) return false;
 
   const record = obj as Record<string, unknown>;
-  return requiredFields.every((field) => field in record);
+  return requiredFields.every((field) => Object.hasOwn(record, field as string));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

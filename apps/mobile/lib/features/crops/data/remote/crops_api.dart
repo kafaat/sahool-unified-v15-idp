@@ -21,7 +21,7 @@ class CropsApi {
 
       // Handle case where response is wrapped in a data field
       if (response is Map && response['data'] is List) {
-        return List<Map<String, dynamic>>.from(response['data'] as List);
+        return List<Map<String, dynamic>>.from(response['data'] as List? ?? []);
       }
 
       return [];
@@ -48,7 +48,7 @@ class CropsApi {
       }
 
       if (response is Map && response['data'] is List) {
-        return List<Map<String, dynamic>>.from(response['data'] as List);
+        return List<Map<String, dynamic>>.from(response['data'] as List? ?? []);
       }
 
       return [];
@@ -84,7 +84,7 @@ class CropsApi {
       }
 
       if (response is Map && response['data'] is List) {
-        return List<Map<String, dynamic>>.from(response['data'] as List);
+        return List<Map<String, dynamic>>.from(response['data'] as List? ?? []);
       }
 
       return [];

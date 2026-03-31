@@ -373,7 +373,7 @@ class WebSocketMessageHandler:
         parts = topic.split(":")
         topic_type = parts[0]
 
-        # Global topics - always allowed
+        # Global topics - always allowed (irrigation/fertilizer require tenant scoping)
         if topic_type in ["alerts", "weather", RoomType.GLOBAL]:
             return True
 

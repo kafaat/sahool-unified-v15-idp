@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/network/api_result.dart';
+import '../../../core/offline/offline_sync_engine.dart';
 import '../domain/research_models.dart';
 
 // =============================================================================
@@ -121,6 +122,34 @@ class ResearchRepository {
       );
       return const Success(true);
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'observation',
+          data: {
+            'experimentId': experimentId,
+            'plotCode': plotCode,
+            'category': category,
+            'notes': notes,
+            'measurements': measurements,
+            'timestamp': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.medium,
+        );
+
+        return Failure(
+          'Saved offline - will sync when connected',
+          statusCode: e.response?.statusCode,
+          originalError: e,
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل حفظ الملاحظة'),
         statusCode: e.response?.statusCode,

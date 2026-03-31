@@ -3,12 +3,39 @@
  * طبقة API لميزة الري - Real API with mock fallback
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { IRRIGATION_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
-import type { IrrigationSchedule, IrrigationMethod, CreateScheduleRequest } from './types';
-import { MOCK_IRRIGATION_SCHEDULES, MOCK_IRRIGATION_METHODS } from './api.mock';
+import type {
+  IrrigationSchedule,
+  IrrigationMethod,
+  CreateScheduleRequest,
+  CalculateIrrigationRequest,
+  IrrigationPrediction,
+  WaterBalanceResponse,
+  EfficiencyReport,
+  SensorReadingRequest,
+  SensorReadingResponse,
+  IrrigationExecutionRequest,
+  IrrigationExecutionResponse,
+  CalculateWithActionResponse,
+  SmartIrrigationMethod,
+} from './types';
 
 const api = createApiClient();
+
+/**
+ * Smart Irrigation ML endpoints
+ * نقاط نهاية الري الذكي
+ */
+const SMART_IRRIGATION_ENDPOINTS = {
+  CALCULATE: '/api/v1/irrigation/calculate',
+  WATER_BALANCE: '/api/v1/water-balance',
+  EFFICIENCY_REPORT: '/api/v1/efficiency-report',
+  SENSOR_READING: '/api/v1/irrigation/sensor-reading',
+  IRRIGATION_EXECUTED: '/api/v1/irrigation/irrigation-executed',
+  CALCULATE_WITH_ACTION: '/api/v1/irrigation/calculate-with-action',
+} as const;
 
 export const irrigationApi = {
   /**
@@ -16,16 +43,12 @@ export const irrigationApi = {
    * جلب قائمة جداول الري
    */
   getSchedules: async (): Promise<IrrigationSchedule[]> => {
-    try {
+    return safeFetch(IRRIGATION_ENDPOINTS.SCHEDULES_LIST, async () => {
       const response = await api.get(IRRIGATION_ENDPOINTS.SCHEDULES_LIST);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
-      logger.warn('API returned unexpected format for schedules, using mock data');
-      return MOCK_IRRIGATION_SCHEDULES;
-    } catch (error) {
-      logger.warn('Failed to fetch irrigation schedules from API, using mock data:', error);
-      return MOCK_IRRIGATION_SCHEDULES;
-    }
+      return [];
+    });
   },
 
   /**
@@ -33,23 +56,10 @@ export const irrigationApi = {
    * إنشاء جدول ري جديد
    */
   createSchedule: async (data: CreateScheduleRequest): Promise<IrrigationSchedule> => {
-    try {
+    return safeFetch(IRRIGATION_ENDPOINTS.SCHEDULES_CREATE, async () => {
       const response = await api.post(IRRIGATION_ENDPOINTS.SCHEDULES_CREATE, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Failed to create schedule via API, creating locally:', error);
-      // Return a locally-constructed schedule as fallback
-      return {
-        id: crypto.randomUUID(),
-        fieldId: `field-${Date.now()}`,
-        fieldName: data.fieldName,
-        type: data.type,
-        status: 'scheduled',
-        scheduledAt: data.scheduledAt || new Date().toISOString(),
-        duration: data.duration,
-        waterAmount: data.waterAmount,
-      };
-    }
+    });
   },
 
   /**
@@ -60,14 +70,11 @@ export const irrigationApi = {
     scheduleId: string,
     data: Partial<CreateScheduleRequest>
   ): Promise<IrrigationSchedule> => {
-    try {
+    return safeFetch(IRRIGATION_ENDPOINTS.SCHEDULES_UPDATE, async () => {
       const url = buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_UPDATE, { scheduleId });
       const response = await api.patch(url, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn('Failed to update schedule via API:', error);
-      throw error;
-    }
+    });
   },
 
   /**
@@ -75,13 +82,10 @@ export const irrigationApi = {
    * حذف جدول ري
    */
   deleteSchedule: async (scheduleId: string): Promise<void> => {
-    try {
+    return safeFetch(IRRIGATION_ENDPOINTS.SCHEDULES_DELETE, async () => {
       const url = buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_DELETE, { scheduleId });
       await api.delete(url);
-    } catch (error) {
-      logger.warn('Failed to delete schedule via API:', error);
-      // Silently succeed - local state will handle deletion
-    }
+    });
   },
 
   /**
@@ -89,11 +93,10 @@ export const irrigationApi = {
    * جلب طرق الري من الخدمة الخلفية
    */
   getMethods: async (): Promise<IrrigationMethod[]> => {
-    try {
+    return safeFetch(IRRIGATION_ENDPOINTS.METHODS, async () => {
       const response = await api.get(IRRIGATION_ENDPOINTS.METHODS);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
-      // Try the methods array inside the response
       if (data?.methods && Array.isArray(data.methods)) {
         return data.methods.map((m: Record<string, unknown>) => ({
           id: m.id as string,
@@ -102,12 +105,8 @@ export const irrigationApi = {
           efficiency: (m.efficiency_percent || m.efficiency || 0) as number,
         }));
       }
-      logger.warn('API returned unexpected format for methods, using mock data');
-      return MOCK_IRRIGATION_METHODS;
-    } catch (error) {
-      logger.warn('Failed to fetch irrigation methods from API, using mock data:', error);
-      return MOCK_IRRIGATION_METHODS;
-    }
+      return [];
+    });
   },
 
   /**
@@ -121,7 +120,7 @@ export const irrigationApi = {
     overdueCount: number;
     efficiency: number;
   }> => {
-    try {
+    return safeFetch(IRRIGATION_ENDPOINTS.EFFICIENCY, async () => {
       const response = await api.get(IRRIGATION_ENDPOINTS.EFFICIENCY);
       const data = response.data.data || response.data;
       return {
@@ -131,15 +130,108 @@ export const irrigationApi = {
         overdueCount: data.overdueCount ?? 0,
         efficiency: data.efficiency ?? 87,
       };
-    } catch {
-      // Stats will be computed from schedules in the component
-      return {
-        totalWaterToday: 0,
-        inProgressCount: 0,
-        scheduledCount: 0,
-        overdueCount: 0,
-        efficiency: 87,
-      };
-    }
+    });
+  },
+
+  // ---------------------------------------------------------------------------
+  // ML Irrigation Endpoints - نقاط نهاية الري الذكي
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Calculate irrigation needs using ML prediction
+   * حساب احتياجات الري باستخدام التنبؤ الذكي
+   *
+   * POST /api/v1/calculate
+   */
+  calculateIrrigation: async (
+    params: CalculateIrrigationRequest
+  ): Promise<IrrigationPrediction> => {
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.CALCULATE, async () => {
+      const response = await api.post(SMART_IRRIGATION_ENDPOINTS.CALCULATE, params);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Get water balance for a field over a period
+   * جلب الميزان المائي للحقل
+   *
+   * GET /api/v1/water-balance/{fieldId}
+   */
+  getWaterBalance: async (
+    fieldId: string,
+    options?: { crop?: string; days?: number }
+  ): Promise<WaterBalanceResponse> => {
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.WATER_BALANCE, async () => {
+      const params: Record<string, string | number> = {};
+      if (options?.crop) params.crop = options.crop;
+      if (options?.days) params.days = options.days;
+      const response = await api.get(`${SMART_IRRIGATION_ENDPOINTS.WATER_BALANCE}/${fieldId}`, { params });
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Get irrigation efficiency report comparing methods
+   * جلب تقرير كفاءة الري ومقارنة الطرق
+   *
+   * GET /api/v1/efficiency-report/{fieldId}
+   */
+  getEfficiencyReport: async (
+    fieldId: string,
+    options?: { current_method?: SmartIrrigationMethod; area_hectares?: number }
+  ): Promise<EfficiencyReport> => {
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.EFFICIENCY_REPORT, async () => {
+      const params: Record<string, string | number> = {};
+      if (options?.current_method) params.current_method = options.current_method;
+      if (options?.area_hectares) params.area_hectares = options.area_hectares;
+      const response = await api.get(`${SMART_IRRIGATION_ENDPOINTS.EFFICIENCY_REPORT}/${fieldId}`, { params });
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Record a soil moisture sensor reading
+   * تسجيل قراءة مستشعر رطوبة التربة
+   *
+   * POST /api/v1/sensor-reading
+   */
+  recordSensorReading: async (
+    data: SensorReadingRequest
+  ): Promise<SensorReadingResponse> => {
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.SENSOR_READING, async () => {
+      const response = await api.post(SMART_IRRIGATION_ENDPOINTS.SENSOR_READING, data);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Record an irrigation execution event
+   * تسجيل تنفيذ عملية ري
+   *
+   * POST /api/v1/irrigation-executed
+   */
+  recordIrrigationExecution: async (
+    data: IrrigationExecutionRequest
+  ): Promise<IrrigationExecutionResponse> => {
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.IRRIGATION_EXECUTED, async () => {
+      const response = await api.post(SMART_IRRIGATION_ENDPOINTS.IRRIGATION_EXECUTED, data);
+      return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Calculate irrigation with an ActionTemplate for offline-first execution
+   * حساب الري مع قالب إجراء قابل للتنفيذ بدون اتصال
+   *
+   * POST /api/v1/calculate-with-action
+   */
+  calculateWithAction: async (
+    params: CalculateIrrigationRequest
+  ): Promise<CalculateWithActionResponse> => {
+    return safeFetch(SMART_IRRIGATION_ENDPOINTS.CALCULATE_WITH_ACTION, async () => {
+      const response = await api.post(SMART_IRRIGATION_ENDPOINTS.CALCULATE_WITH_ACTION, params);
+      return response.data.data || response.data;
+    });
   },
 };

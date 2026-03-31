@@ -297,7 +297,7 @@ jobs:
           pip install --upgrade pip wheel
           # Core test framework and dependencies
           pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout schemathesis allure-pytest --quiet
-          pip install httpx "pyjwt[crypto]" cryptography fastapi pydantic pydantic-settings jsonschema sqlalchemy structlog redis prometheus-client nats-py --quiet
+          pip install httpx "pyjwt[crypto]" cryptography cffi fastapi pydantic pydantic-settings jsonschema "sqlalchemy[asyncio]" structlog redis prometheus-client nats-py --quiet
           # ORM and optional deps (may fail on some platforms)
           pip install tortoise-orm --quiet || echo "::warning::tortoise-orm install failed, some tests may skip"
           pip install langchain-anthropic --quiet || echo "::warning::langchain-anthropic install failed, some tests may skip"
@@ -324,7 +324,7 @@ jobs:
             --cov-append --cov=shared --cov-report=xml --cov-report=term-missing
 
           # Run all unit tests (MUST pass)
-          # Security/auth tests re-enabled (pyo3 issue resolved - Pillow installed above)
+          # Auth/security tests require: cryptography, cffi, httpx (installed above)
           pytest tests/unit/ -v --tb=short --timeout=60 \
             --cov-append --cov=shared --cov=apps/services --cov-report=xml --cov-report=term-missing
         env:
@@ -591,7 +591,7 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Install root dependencies
-        run: npm install --legacy-peer-deps --quiet 2>/dev/null || true
+        run: npm install --legacy-peer-deps --quiet || echo "::warning::Root npm install had issues — some workspace packages may be missing"
 
       - name: Install service dependencies
         run: |

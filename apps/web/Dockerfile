@@ -46,6 +46,10 @@ COPY apps/services/yield-prediction/package.json ./apps/services/yield-predictio
 COPY apps/services/yield-prediction-service/package.json ./apps/services/yield-prediction-service/
 COPY apps/admin/package.json ./apps/admin/
 
+# Validate all copied package.json files are valid JSON (fail fast if corrupted by merge conflicts)
+COPY docker/validate-package-json.js /usr/local/bin/
+RUN node /usr/local/bin/validate-package-json.js
+
 # Install all dependencies at root level with retry loop and mirror fallback
 RUN --mount=type=cache,target=/root/.npm \
     for i in 1 2 3 4 5; do \

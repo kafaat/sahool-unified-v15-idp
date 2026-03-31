@@ -251,22 +251,22 @@ class InventoryItem {
       batchNumber: json['batch_number'] as String?,
       lotNumber: json['lot_number'] as String?,
       expiryDate: json['expiry_date'] != null
-          ? DateTime.parse(json['expiry_date'] as String)
+          ? DateTime.tryParse(json['expiry_date'] as String) ?? DateTime.now()
           : null,
       manufactureDate: json['manufacture_date'] != null
-          ? DateTime.parse(json['manufacture_date'] as String)
+          ? DateTime.tryParse(json['manufacture_date'] as String) ?? DateTime.now()
           : null,
       imageUrl: json['image_url'] as String?,
       description: json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
       lastStockIn: json['last_stock_in'] != null
-          ? DateTime.parse(json['last_stock_in'] as String)
+          ? DateTime.tryParse(json['last_stock_in'] as String) ?? DateTime.now()
           : null,
       lastStockOut: json['last_stock_out'] != null
-          ? DateTime.parse(json['last_stock_out'] as String)
+          ? DateTime.tryParse(json['last_stock_out'] as String) ?? DateTime.now()
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -385,8 +385,8 @@ class StockMovement {
       notesAr: json['notes_ar'] as String?,
       batchNumber: json['batch_number'] as String?,
       reference: json['reference'] as String?,
-      movementDate: DateTime.parse(json['movement_date'] as String),
-      createdAt: DateTime.parse(json['created_at'] as String),
+      movementDate: DateTime.tryParse(json['movement_date'] as String) ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -468,8 +468,8 @@ class Warehouse {
       contactPerson: json['contact_person'] as String?,
       contactPhone: json['contact_phone'] as String?,
       isActive: json['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -556,8 +556,8 @@ class Supplier {
       licenseNumber: json['license_number'] as String?,
       isActive: json['is_active'] as bool? ?? true,
       rating: (json['rating'] as num?)?.toDouble(),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }

@@ -85,12 +85,12 @@ class GlobalGAPSubjects:
     FERTILIZER_APPLICATION_RECORDED = "sahool.globalgap.fertilizer.application.recorded"
     TRACEABILITY_RECORD_CREATED = "sahool.globalgap.traceability.record.created"
 
-    # Wildcards
-    ALL_EVENTS = "sahool.globalgap.*"
-    ALL_COMPLIANCE = "sahool.globalgap.compliance.*"
-    ALL_AUDITS = "sahool.globalgap.audit.*"
-    ALL_NON_CONFORMANCES = "sahool.globalgap.nonconformance.*"
-    ALL_CERTIFICATES = "sahool.globalgap.certificate.*"
+    # Wildcards (use ">" for multi-level matching in NATS)
+    ALL_EVENTS = "sahool.globalgap.>"
+    ALL_COMPLIANCE = "sahool.globalgap.compliance.>"
+    ALL_AUDITS = "sahool.globalgap.audit.>"
+    ALL_NON_CONFORMANCES = "sahool.globalgap.nonconformance.>"
+    ALL_CERTIFICATES = "sahool.globalgap.certificate.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

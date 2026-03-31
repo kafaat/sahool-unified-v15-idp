@@ -38,7 +38,7 @@ class NavigationConstants {
 
   // Crop Rotation
   static const String rotation = '/rotation';
-  static const String rotationPlan = '/rotation/:fieldId';
+  static const String rotationPlan = '/rotation/:fieldId/plan';
   static const String rotationCompatibility = '/rotation/compatibility';
 
   // Profitability

@@ -17,7 +17,7 @@ requests>=2.31.0
 
 # Database
 psycopg2-binary>=2.9.6
-SQLAlchemy>=2.0.0
+SQLAlchemy[asyncio]>=2.0.0
 
 # NATS Messaging
 nats-py>=2.3.0
@@ -27,6 +27,9 @@ Faker>=19.0.0
 
 # Image Processing (for crop health tests)
 Pillow>=10.0.0
+
+# Cryptography support
+cffi>=1.15.0
 
 # Utilities
 python-dotenv>=1.0.0

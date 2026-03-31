@@ -3,7 +3,8 @@
  * طبقة API لميزة المهام
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import { TASK_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type { Task, TaskFormData, TaskFilters, TaskStatus } from './types';
 
@@ -75,9 +76,6 @@ interface ApiTask {
   completedAt?: string;
 }
 
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_TASKS } from './api.mock';
-
 // Helper functions for data transformation
 const mapStatusToBackend = (status: TaskStatus): string => {
   const statusMap: Record<TaskStatus, string> = {
@@ -124,36 +122,6 @@ function mapApiTaskToTask(task: ApiTask): Task {
   };
 }
 
-// Filter mock data based on filters
-function filterMockTasks(filters?: TaskFilters): Task[] {
-  if (!filters) return MOCK_TASKS;
-
-  return MOCK_TASKS.filter((task) => {
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      const titleMatch = task.title?.toLowerCase().includes(searchLower);
-      const titleArMatch = task.title_ar?.toLowerCase().includes(searchLower);
-      const descMatch = task.description?.toLowerCase().includes(searchLower);
-      if (!titleMatch && !titleArMatch && !descMatch) return false;
-    }
-
-    if (filters.status && task.status !== filters.status) return false;
-    if (filters.priority && task.priority !== filters.priority) return false;
-    if (filters.field_id && task.field_id !== filters.field_id) return false;
-    if (filters.assigned_to && task.assigned_to !== filters.assigned_to) return false;
-
-    if (filters.due_date_from && task.due_date) {
-      if (new Date(task.due_date) < new Date(filters.due_date_from)) return false;
-    }
-
-    if (filters.due_date_to && task.due_date) {
-      if (new Date(task.due_date) > new Date(filters.due_date_to)) return false;
-    }
-
-    return true;
-  });
-}
-
 // API Functions
 export const tasksApi = {
   /**
@@ -161,9 +129,8 @@ export const tasksApi = {
    * جلب جميع المهام مع فلاتر اختيارية
    */
   getTasks: async (filters?: TaskFilters): Promise<Task[]> => {
-    try {
+    return safeFetch(TASK_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
-
       if (filters?.field_id) params.set('fieldId', filters.field_id);
       if (filters?.status) params.set('status', mapStatusToBackend(filters.status));
       if (filters?.assigned_to) params.set('userId', filters.assigned_to);
@@ -173,19 +140,10 @@ export const tasksApi = {
       if (filters?.due_date_to) params.set('dueDateTo', filters.due_date_to);
 
       const response = await api.get(`${TASK_ENDPOINTS.LIST}?${params.toString()}`);
-
       const data = response.data.data || response.data;
-
-      if (Array.isArray(data)) {
-        return data.map(mapApiTaskToTask);
-      }
-
-      logger.warn('API returned unexpected format for tasks, using mock data');
-      return filterMockTasks(filters);
-    } catch (error) {
-      logger.warn('Failed to fetch tasks from API, using mock data:', error);
-      return filterMockTasks(filters);
-    }
+      if (Array.isArray(data)) return data.map(mapApiTaskToTask);
+      throw new Error('Invalid response format for tasks | تنسيق الاستجابة غير صالح للمهام');
+    });
   },
 
   /**
@@ -193,24 +151,12 @@ export const tasksApi = {
    * جلب مهمة واحدة بواسطة المعرف
    */
   getTask: async (id: string): Promise<Task> => {
-    try {
+    return safeFetch(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }), async () => {
       const response = await api.get(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }));
-
       const data = response.data.data || response.data;
-
-      if (data && typeof data === 'object') {
-        return mapApiTaskToTask(data as ApiTask);
-      }
-
-      throw new Error('Invalid response format');
-    } catch (error) {
-      logger.warn(`Failed to fetch task ${id} from API, using mock data:`, error);
-
-      const mockTask = MOCK_TASKS.find((t) => t.id === id);
-      if (mockTask) return mockTask;
-
-      throw new Error('Task not found');
-    }
+      if (data && typeof data === 'object') return mapApiTaskToTask(data as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -218,7 +164,7 @@ export const tasksApi = {
    * إنشاء مهمة جديدة
    */
   createTask: async (data: TaskFormData): Promise<Task> => {
-    try {
+    return safeFetch(TASK_ENDPOINTS.CREATE, async () => {
       const payload = {
         title: data.title,
         title_ar: data.title_ar,
@@ -233,18 +179,10 @@ export const tasksApi = {
       };
 
       const response = await api.post(TASK_ENDPOINTS.CREATE, payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === 'object') {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error('Invalid response format');
-    } catch (error) {
-      logger.error('Failed to create task:', error);
-      throw new Error(ERROR_MESSAGES.CREATE_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -252,9 +190,8 @@ export const tasksApi = {
    * تحديث مهمة موجودة
    */
   updateTask: async (id: string, data: Partial<TaskFormData>): Promise<Task> => {
-    try {
+    return safeFetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), async () => {
       const payload: Record<string, unknown> = {};
-
       if (data.title !== undefined) payload.title = data.title;
       if (data.title_ar !== undefined) payload.title_ar = data.title_ar;
       if (data.description !== undefined) payload.description = data.description;
@@ -266,18 +203,10 @@ export const tasksApi = {
       if (data.field_id !== undefined) payload.field_id = data.field_id;
 
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === 'object') {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error('Invalid response format');
-    } catch (error) {
-      logger.error(`Failed to update task ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.UPDATE_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -285,12 +214,9 @@ export const tasksApi = {
    * حذف مهمة
    */
   deleteTask: async (id: string): Promise<void> => {
-    try {
+    return safeFetch(buildUrl(TASK_ENDPOINTS.DELETE, { taskId: id }), async () => {
       await api.delete(buildUrl(TASK_ENDPOINTS.DELETE, { taskId: id }));
-    } catch (error) {
-      logger.error(`Failed to delete task ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.DELETE_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -301,26 +227,17 @@ export const tasksApi = {
     id: string,
     evidence?: { notes?: string; photos?: string[] }
   ): Promise<Task> => {
-    try {
+    return safeFetch(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), async () => {
       const payload = {
         evidence_notes: evidence?.notes,
         evidence_photos: evidence?.photos || [],
         completed_at: new Date().toISOString(),
       };
-
       const response = await api.post(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === 'object') {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error('Invalid response format');
-    } catch (error) {
-      logger.error(`Failed to complete task ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.COMPLETE_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -328,24 +245,13 @@ export const tasksApi = {
    * تحديث حالة المهمة
    */
   updateTaskStatus: async (id: string, status: TaskStatus): Promise<Task> => {
-    try {
-      const payload = {
-        status: mapStatusToBackend(status),
-      };
-
+    return safeFetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), async () => {
+      const payload = { status: mapStatusToBackend(status) };
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === 'object') {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error('Invalid response format');
-    } catch (error) {
-      logger.error(`Failed to update task status ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.UPDATE_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -353,24 +259,13 @@ export const tasksApi = {
    * تعيين مهمة لمستخدم
    */
   assignTask: async (id: string, userId: string): Promise<Task> => {
-    try {
-      const payload = {
-        assignee_id: userId,
-      };
-
+    return safeFetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), async () => {
+      const payload = { assignee_id: userId };
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === 'object') {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error('Invalid response format');
-    } catch (error) {
-      logger.error(`Failed to assign task ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.ASSIGN_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**

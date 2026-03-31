@@ -6,7 +6,7 @@
 ARG ETCD_VERSION=v3.5.18
 FROM gcr.io/etcd-development/etcd:${ETCD_VERSION} AS etcd-bin
 
-FROM alpine:3.19
+FROM alpine:3.23
 
 COPY --from=etcd-bin /usr/local/bin/etcdctl /usr/local/bin/etcdctl
 

@@ -3,8 +3,8 @@
 # Version: 16.0.0
 
 # Core Framework
-fastapi==0.135.1
-uvicorn[standard]==0.41.0
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
 pydantic>=2.10.0,<3.0.0
 python-dotenv==1.2.2
 
@@ -19,5 +19,5 @@ structlog>=24.1.0
 prometheus-client>=0.21.0
 
 # Traceability-specific
-qrcode==8.0
-python-barcode==0.15.1
+qrcode[pil]>=7.4.2,<9.0.0
+python-barcode==0.16.1

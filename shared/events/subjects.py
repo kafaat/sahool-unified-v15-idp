@@ -34,6 +34,9 @@ _TENANT_UUID_RE = re.compile(
 SAHOOL_FIELD_CREATED = "sahool.field.created"
 SAHOOL_FIELD_UPDATED = "sahool.field.updated"
 SAHOOL_FIELD_DELETED = "sahool.field.deleted"
+SAHOOL_FIELD_ACTIVITY_RECORDED = "sahool.field.activity.recorded"
+SAHOOL_FIELD_HARVEST_COMPLETED = "sahool.field.harvest.completed"
+SAHOOL_FIELD_PROFITABILITY_ANALYZED = "sahool.field.profitability.analyzed"
 
 # Wildcards for subscribing to all field events
 SAHOOL_FIELD_ALL = "sahool.field.>"
@@ -275,6 +278,8 @@ SAHOOL_TASK_UPDATED = "sahool.task.updated"
 SAHOOL_TASK_COMPLETED = "sahool.task.completed"
 SAHOOL_TASK_DELETED = "sahool.task.deleted"
 SAHOOL_TASK_ASSIGNED = "sahool.task.assigned"
+SAHOOL_TASK_STARTED = "sahool.task.started"
+SAHOOL_TASK_CANCELLED = "sahool.task.cancelled"
 
 SAHOOL_TASK_ALL = "sahool.task.*"
 
@@ -387,6 +392,15 @@ SAHOOL_ANALYSIS_ALL = "sahool.analysis.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Field Intelligence Subjects - موضوعات ذكاء الحقول
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_FIELD_INTELLIGENCE_EVENT_PROCESSED = "sahool.field_intelligence.event_processed"
+
+SAHOOL_FIELD_INTELLIGENCE_ALL = "sahool.field_intelligence.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Vision Subjects - موضوعات الرؤية الحاسوبية (YOLO26)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -474,6 +488,7 @@ SAHOOL_USER_DELETED = "sahool.user.deleted"
 SAHOOL_USER_PASSWORD_CHANGED = "sahool.user.password_changed"
 SAHOOL_USER_2FA_ENABLED = "sahool.user.2fa_enabled"
 SAHOOL_USER_ACCOUNT_LOCKED = "sahool.user.account_locked"
+SAHOOL_USER_AUTHENTICATED = "sahool.user.authenticated"
 
 SAHOOL_USER_ALL = "sahool.user.>"
 
@@ -541,6 +556,8 @@ SAHOOL_DRONE_FLIGHT_PLANNED = "sahool.drone.flight_planned"
 SAHOOL_DRONE_MISSION_CREATED = "sahool.drone.mission_created"
 SAHOOL_DRONE_MISSION_STARTED = "sahool.drone.mission_started"
 SAHOOL_DRONE_MISSION_ABORTED = "sahool.drone.mission_aborted"
+SAHOOL_DRONE_REGISTERED = "sahool.drone.registered"
+SAHOOL_DRONE_MISSION_COMPLETED = "sahool.drone.mission_completed"
 
 SAHOOL_DRONE_ALL = "sahool.drone.*"
 
@@ -574,6 +591,44 @@ SAHOOL_COMPLIANCE_CERTIFICATE_RENEWED = "sahool.compliance.certificate.renewed"
 SAHOOL_COMPLIANCE_CERTIFICATE_EXPIRED = "sahool.compliance.certificate.expired"
 
 SAHOOL_COMPLIANCE_ALL = "sahool.compliance.>"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GlobalGAP Subjects - موضوعات الامتثال الدولي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Compliance events
+SAHOOL_GLOBALGAP_COMPLIANCE_UPDATED = "sahool.globalgap.compliance.updated"
+SAHOOL_GLOBALGAP_COMPLIANCE_CHECK_REQUIRED = "sahool.globalgap.compliance.check_required"
+SAHOOL_GLOBALGAP_COMPLIANCE_VERIFIED = "sahool.globalgap.compliance.verified"
+
+# Audit events
+SAHOOL_GLOBALGAP_AUDIT_SCHEDULED = "sahool.globalgap.audit.scheduled"
+SAHOOL_GLOBALGAP_AUDIT_STARTED = "sahool.globalgap.audit.started"
+SAHOOL_GLOBALGAP_AUDIT_COMPLETED = "sahool.globalgap.audit.completed"
+SAHOOL_GLOBALGAP_AUDIT_FAILED = "sahool.globalgap.audit.failed"
+
+# Non-conformance events
+SAHOOL_GLOBALGAP_NONCONFORMANCE_DETECTED = "sahool.globalgap.nonconformance.detected"
+SAHOOL_GLOBALGAP_NONCONFORMANCE_RESOLVED = "sahool.globalgap.nonconformance.resolved"
+SAHOOL_GLOBALGAP_NONCONFORMANCE_ESCALATED = "sahool.globalgap.nonconformance.escalated"
+
+# Certificate events
+SAHOOL_GLOBALGAP_CERTIFICATE_EXPIRING = "sahool.globalgap.certificate.expiring"
+SAHOOL_GLOBALGAP_CERTIFICATE_RENEWED = "sahool.globalgap.certificate.renewed"
+SAHOOL_GLOBALGAP_CERTIFICATE_REVOKED = "sahool.globalgap.certificate.revoked"
+
+# Integration sync events
+SAHOOL_GLOBALGAP_INTEGRATION_IRRIGATION_SYNCED = "sahool.globalgap.integration.irrigation.synced"
+SAHOOL_GLOBALGAP_INTEGRATION_CROP_HEALTH_SYNCED = "sahool.globalgap.integration.crop_health.synced"
+SAHOOL_GLOBALGAP_INTEGRATION_FERTILIZER_SYNCED = "sahool.globalgap.integration.fertilizer.synced"
+SAHOOL_GLOBALGAP_INTEGRATION_FIELD_OPS_SYNCED = "sahool.globalgap.integration.field_ops.synced"
+
+# Wildcards
+SAHOOL_GLOBALGAP_ALL = "sahool.globalgap.>"
+SAHOOL_GLOBALGAP_COMPLIANCE_ALL = "sahool.globalgap.compliance.>"
+SAHOOL_GLOBALGAP_AUDIT_ALL = "sahool.globalgap.audit.>"
+SAHOOL_GLOBALGAP_CERTIFICATE_ALL = "sahool.globalgap.certificate.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -667,6 +722,8 @@ SAHOOL_IRRIGATION_SCHEDULED = "sahool.irrigation.scheduled"
 SAHOOL_IRRIGATION_APPLIED = "sahool.irrigation.applied"
 SAHOOL_IRRIGATION_ALERT = "sahool.irrigation.alert"
 SAHOOL_IRRIGATION_HMC = "sahool.irrigation.hmc"
+SAHOOL_IRRIGATION_EXECUTED = "sahool.irrigation.executed"
+SAHOOL_IRRIGATION_PLAN_CREATED = "sahool.irrigation.plan_created"
 
 SAHOOL_IRRIGATION_ALL = "sahool.irrigation.>"
 
@@ -680,6 +737,15 @@ SAHOOL_SPRAY_WINDOW = "sahool.spray.window"
 SAHOOL_SPRAY_WARNING = "sahool.spray.warning"
 
 SAHOOL_SPRAY_ALL = "sahool.spray.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Fertilizer Subjects - موضوعات الأسمدة
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_FERTILIZER_APPLIED = "sahool.fertilizer.applied"
+
+SAHOOL_FERTILIZER_ALL = "sahool.fertilizer.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -790,6 +856,9 @@ SUBJECT_REGISTRY = {
     "field.created": SAHOOL_FIELD_CREATED,
     "field.updated": SAHOOL_FIELD_UPDATED,
     "field.deleted": SAHOOL_FIELD_DELETED,
+    "field.activity.recorded": SAHOOL_FIELD_ACTIVITY_RECORDED,
+    "field.harvest.completed": SAHOOL_FIELD_HARVEST_COMPLETED,
+    "field.profitability.analyzed": SAHOOL_FIELD_PROFITABILITY_ANALYZED,
     # Weather
     "weather.forecast": SAHOOL_WEATHER_FORECAST,
     "weather.alert": SAHOOL_WEATHER_ALERT,
@@ -828,6 +897,8 @@ SUBJECT_REGISTRY = {
     "task.completed": SAHOOL_TASK_COMPLETED,
     "task.deleted": SAHOOL_TASK_DELETED,
     "task.assigned": SAHOOL_TASK_ASSIGNED,
+    "task.started": SAHOOL_TASK_STARTED,
+    "task.cancelled": SAHOOL_TASK_CANCELLED,
     # Recommendation
     "recommendation.created": SAHOOL_RECOMMENDATION_CREATED,
     "recommendation.irrigation": SAHOOL_RECOMMENDATION_IRRIGATION,
@@ -845,6 +916,8 @@ SUBJECT_REGISTRY = {
     "vision.analysis_started": SAHOOL_VISION_ANALYSIS_STARTED,
     "vision.analysis_completed": SAHOOL_VISION_ANALYSIS_COMPLETED,
     "vision.analysis_failed": SAHOOL_VISION_ANALYSIS_FAILED,
+    # Field Intelligence
+    "field_intelligence.event_processed": SAHOOL_FIELD_INTELLIGENCE_EVENT_PROCESSED,
     # Terrain
     "terrain.analysis_started": SAHOOL_TERRAIN_ANALYSIS_STARTED,
     "terrain.analysis_completed": SAHOOL_TERRAIN_ANALYSIS_COMPLETED,
@@ -913,6 +986,8 @@ SUBJECT_REGISTRY = {
     "drone.mission_created": SAHOOL_DRONE_MISSION_CREATED,
     "drone.mission_started": SAHOOL_DRONE_MISSION_STARTED,
     "drone.mission_aborted": SAHOOL_DRONE_MISSION_ABORTED,
+    "drone.registered": SAHOOL_DRONE_REGISTERED,
+    "drone.mission_completed": SAHOOL_DRONE_MISSION_COMPLETED,
     # Traceability
     "traceability.batch_created": SAHOOL_TRACEABILITY_BATCH_CREATED,
     "traceability.batch_updated": SAHOOL_TRACEABILITY_BATCH_UPDATED,
@@ -930,6 +1005,24 @@ SUBJECT_REGISTRY = {
     "compliance.certificate.created": SAHOOL_COMPLIANCE_CERTIFICATE_CREATED,
     "compliance.certificate.renewed": SAHOOL_COMPLIANCE_CERTIFICATE_RENEWED,
     "compliance.certificate.expired": SAHOOL_COMPLIANCE_CERTIFICATE_EXPIRED,
+    # GlobalGAP
+    "globalgap.compliance.updated": SAHOOL_GLOBALGAP_COMPLIANCE_UPDATED,
+    "globalgap.compliance.check_required": SAHOOL_GLOBALGAP_COMPLIANCE_CHECK_REQUIRED,
+    "globalgap.compliance.verified": SAHOOL_GLOBALGAP_COMPLIANCE_VERIFIED,
+    "globalgap.audit.scheduled": SAHOOL_GLOBALGAP_AUDIT_SCHEDULED,
+    "globalgap.audit.started": SAHOOL_GLOBALGAP_AUDIT_STARTED,
+    "globalgap.audit.completed": SAHOOL_GLOBALGAP_AUDIT_COMPLETED,
+    "globalgap.audit.failed": SAHOOL_GLOBALGAP_AUDIT_FAILED,
+    "globalgap.nonconformance.detected": SAHOOL_GLOBALGAP_NONCONFORMANCE_DETECTED,
+    "globalgap.nonconformance.resolved": SAHOOL_GLOBALGAP_NONCONFORMANCE_RESOLVED,
+    "globalgap.nonconformance.escalated": SAHOOL_GLOBALGAP_NONCONFORMANCE_ESCALATED,
+    "globalgap.certificate.expiring": SAHOOL_GLOBALGAP_CERTIFICATE_EXPIRING,
+    "globalgap.certificate.renewed": SAHOOL_GLOBALGAP_CERTIFICATE_RENEWED,
+    "globalgap.certificate.revoked": SAHOOL_GLOBALGAP_CERTIFICATE_REVOKED,
+    "globalgap.integration.irrigation.synced": SAHOOL_GLOBALGAP_INTEGRATION_IRRIGATION_SYNCED,
+    "globalgap.integration.crop_health.synced": SAHOOL_GLOBALGAP_INTEGRATION_CROP_HEALTH_SYNCED,
+    "globalgap.integration.fertilizer.synced": SAHOOL_GLOBALGAP_INTEGRATION_FERTILIZER_SYNCED,
+    "globalgap.integration.field_ops.synced": SAHOOL_GLOBALGAP_INTEGRATION_FIELD_OPS_SYNCED,
     # Copilot
     "copilot.chat_started": SAHOOL_COPILOT_CHAT_STARTED,
     "copilot.chat_completed": SAHOOL_COPILOT_CHAT_COMPLETED,
@@ -966,10 +1059,14 @@ SUBJECT_REGISTRY = {
     "irrigation.applied": SAHOOL_IRRIGATION_APPLIED,
     "irrigation.alert": SAHOOL_IRRIGATION_ALERT,
     "irrigation.hmc": SAHOOL_IRRIGATION_HMC,
+    "irrigation.executed": SAHOOL_IRRIGATION_EXECUTED,
+    "irrigation.plan_created": SAHOOL_IRRIGATION_PLAN_CREATED,
     # Spray
     "spray.scheduled": SAHOOL_SPRAY_SCHEDULED,
     "spray.window": SAHOOL_SPRAY_WINDOW,
     "spray.warning": SAHOOL_SPRAY_WARNING,
+    # Fertilizer
+    "fertilizer.applied": SAHOOL_FERTILIZER_APPLIED,
     # Community
     "community.channel_created": SAHOOL_COMMUNITY_CHANNEL_CREATED,
     "community.user_joined": SAHOOL_COMMUNITY_USER_JOINED,
@@ -980,6 +1077,8 @@ SUBJECT_REGISTRY = {
     # Virtual Sensors
     "sensor.calculated": SAHOOL_SENSOR_CALCULATED,
     "sensor.anomaly": SAHOOL_SENSOR_ANOMALY,
+    # User (extended)
+    "user.authenticated": SAHOOL_USER_AUTHENTICATED,
 }
 
 

@@ -1,9 +1,9 @@
 # FastAPI and Web Framework Dependencies
 # تبعيات FastAPI وإطار العمل
 # Updated: December 2025 - Unified versions across all services
-fastapi==0.135.1
+fastapi==0.135.2
 starlette>=0.49.1
-uvicorn[standard]==0.41.0
+uvicorn[standard]==0.42.0
 httpx==0.28.1
 pydantic==2.12.5
 pydantic-settings==2.13.1
@@ -35,7 +35,7 @@ google-generativeai>=0.3.0
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه
 sentence-transformers==5.2.3
-qdrant-client>=1.12.0
+qdrant-client==1.17.0
 
 # Agent-to-Agent Protocol
 # بروتوكول الوكيل إلى الوكيل
@@ -55,7 +55,7 @@ tenacity==8.5.0
 # Monitoring and Logging
 # المراقبة والتسجيل
 prometheus-client==0.24.1
-structlog==24.4.0
+structlog==25.5.0
 
 # Data Processing
 # معالجة البيانات

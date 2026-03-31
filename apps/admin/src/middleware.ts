@@ -54,6 +54,11 @@ const edgeLogger = {
       console.error('[admin-middleware]', ...args);
     }
   },
+  warn: (...args: unknown[]) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[admin-middleware]', ...args);
+    }
+  },
 };
 
 // Idle timeout: 30 minutes in milliseconds
@@ -162,8 +167,18 @@ export async function middleware(request: NextRequest) {
       userRole = 'viewer'; // Default for farmer, viewer, or any other role
     }
   } catch (error) {
-    // Token verification failed (invalid signature, malformed, etc.)
-    edgeLogger.error('Token verification failed:', error);
+    // Token verification failed — log the original error object so stack traces
+    // are preserved in dev tools, then also surface the extracted reason and
+    // any attached cause for quick diagnosis.
+    const reason = error instanceof Error ? error.message : String(error);
+    const cause = error instanceof Error && (error as { cause?: unknown }).cause;
+    edgeLogger.error(
+      'Token verification failed:',
+      error,
+      'reason:',
+      reason,
+      ...(cause ? ['cause:', cause] : [])
+    );
 
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('returnTo', pathname);

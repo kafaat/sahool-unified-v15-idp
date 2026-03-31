@@ -175,8 +175,8 @@ class NdviLegendBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = NdviColormap.generateGradient(
       steps: 20,
-      minNdvi: -0.2,
-      maxNdvi: 0.9,
+      minNdvi: -1.0,
+      maxNdvi: 1.0,
       stops: NdviColormap.yemenStops,
     );
 

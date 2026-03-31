@@ -713,7 +713,12 @@ class KongGatewayClient {
 
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
-        _accessToken = data['access_token'] as String?;
+        final newAccessToken = data['access_token'] as String?;
+        if (newAccessToken == null || newAccessToken.isEmpty) {
+          AppLogger.e('Token refresh returned empty access token', tag: 'KongGateway');
+          return false;
+        }
+        _accessToken = newAccessToken;
         _refreshToken = data['refresh_token'] as String? ?? _refreshToken;
         return true;
       }

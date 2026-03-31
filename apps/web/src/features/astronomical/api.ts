@@ -21,45 +21,35 @@ import type {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { ASTRONOMICAL_ENDPOINTS } from '@sahool/shared-types/contracts';
-import { logger } from '@/lib/logger';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const api = createApiClient();
 
-// تحذير في التطوير فقط - Only warn during development
-if (!API_BASE_URL && typeof window !== 'undefined') {
-  logger.warn('NEXT_PUBLIC_API_URL environment variable is not set');
-}
-
-const ASTRONOMICAL_API_BASE = `${API_BASE_URL}${ASTRONOMICAL_ENDPOINTS.CALENDAR.replace('/calendar', '')}`;
+const ASTRONOMICAL_API_BASE = ASTRONOMICAL_ENDPOINTS.CALENDAR.replace('/calendar', '');
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// دوال مساعدة - Helper Functions
+// رسائل الخطأ - Error Messages
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/**
- * معالج الطلبات مع معالجة الأخطاء
- * Request handler with error handling
- */
-async function fetchFromAPI<T>(endpoint: string): Promise<T> {
-  try {
-    const response = await fetch(`${ASTRONOMICAL_API_BASE}${endpoint}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`فشل الحصول على البيانات الفلكية: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    logger.error('خطأ في الاتصال بخدمة التقويم الفلكي:', error);
-    throw error;
-  }
-}
+export const ERROR_MESSAGES = {
+  FETCH_FAILED: {
+    en: 'Failed to fetch astronomical data.',
+    ar: 'فشل الحصول على البيانات الفلكية.',
+  },
+  NETWORK_ERROR: {
+    en: 'Network error. Astronomical calendar service unavailable.',
+    ar: 'خطأ في الاتصال. خدمة التقويم الفلكي غير متاحة.',
+  },
+  CALENDAR_FAILED: {
+    en: 'Failed to fetch calendar data.',
+    ar: 'فشل في جلب بيانات التقويم.',
+  },
+  PROVERBS_FAILED: {
+    en: 'Failed to fetch proverbs.',
+    ar: 'فشل في جلب الأمثال.',
+  },
+};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // واجهات برمجة التطبيقات الرئيسية - Main API Functions
@@ -70,7 +60,10 @@ async function fetchFromAPI<T>(endpoint: string): Promise<T> {
  * Get astronomical data for today
  */
 export async function getToday(): Promise<DailyAstronomicalData> {
-  return fetchFromAPI<DailyAstronomicalData>('/today');
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/today`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/today`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -79,7 +72,10 @@ export async function getToday(): Promise<DailyAstronomicalData> {
  * @param date - التاريخ بصيغة YYYY-MM-DD
  */
 export async function getDate(date: string): Promise<DailyAstronomicalData> {
-  return fetchFromAPI<DailyAstronomicalData>(`/date/${date}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/date/${date}`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/date/${date}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -89,7 +85,10 @@ export async function getDate(date: string): Promise<DailyAstronomicalData> {
  */
 export async function getWeeklyForecast(startDate?: string): Promise<WeeklyForecast> {
   const params = startDate ? `?start_date=${startDate}` : '';
-  return fetchFromAPI<WeeklyForecast>(`/week${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/week`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/week${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -99,7 +98,10 @@ export async function getWeeklyForecast(startDate?: string): Promise<WeeklyForec
  */
 export async function getMoonPhase(date?: string): Promise<MoonPhase> {
   const params = date ? `?date_str=${date}` : '';
-  return fetchFromAPI<MoonPhase>(`/moon-phase${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/moon-phase`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/moon-phase${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -109,7 +111,10 @@ export async function getMoonPhase(date?: string): Promise<MoonPhase> {
  */
 export async function getLunarMansion(date?: string): Promise<LunarMansion> {
   const params = date ? `?date_str=${date}` : '';
-  return fetchFromAPI<LunarMansion>(`/lunar-mansion${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/lunar-mansion`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/lunar-mansion${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -119,7 +124,10 @@ export async function getLunarMansion(date?: string): Promise<LunarMansion> {
  */
 export async function getHijriDate(date?: string): Promise<HijriDate> {
   const params = date ? `?date_str=${date}` : '';
-  return fetchFromAPI<HijriDate>(`/hijri${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/hijri`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/hijri${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -128,7 +136,10 @@ export async function getHijriDate(date?: string): Promise<HijriDate> {
  * @param crop - اسم المحصول (قمح، طماطم، بن، إلخ)
  */
 export async function getCropCalendar(crop: string): Promise<CropCalendar> {
-  return fetchFromAPI<CropCalendar>(`/crop-calendar/${encodeURIComponent(crop)}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/crop-calendar`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/crop-calendar/${encodeURIComponent(crop)}`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -145,7 +156,10 @@ export async function getBestDays(
     activity,
     days: days.toString(),
   });
-  return fetchFromAPI<BestDaysResult>(`/best-days?${params}`);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/best-days`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/best-days?${params}`);
+    return response.data.data || response.data;
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -157,7 +171,10 @@ export async function getBestDays(
  * Get all Yemeni farming proverbs
  */
 export async function getProverbs(): Promise<AllProverbs> {
-  return fetchFromAPI<AllProverbs>('/proverbs');
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/proverbs`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/proverbs`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -165,7 +182,10 @@ export async function getProverbs(): Promise<AllProverbs> {
  * Get proverb of the day
  */
 export async function getProverbOfTheDay(): Promise<ProverbOfTheDay> {
-  return fetchFromAPI<ProverbOfTheDay>('/proverbs/today');
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/proverbs/today`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/proverbs/today`);
+    return response.data.data || response.data;
+  });
 }
 
 /**
@@ -173,5 +193,8 @@ export async function getProverbOfTheDay(): Promise<ProverbOfTheDay> {
  * Get comprehensive daily wisdom
  */
 export async function getWisdomToday(): Promise<DailyWisdom> {
-  return fetchFromAPI<DailyWisdom>('/wisdom/today');
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/wisdom/today`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/wisdom/today`);
+    return response.data.data || response.data;
+  });
 }

@@ -299,7 +299,8 @@ class GPSMapper:
         config = session.config
 
         # Validate coordinate ranges
-        lat, lon = point.coordinates[0], point.coordinates[1]
+        # GeoJSON standard: coordinates are [longitude, latitude]
+        lon, lat = point.coordinates[0], point.coordinates[1]
         if not (-90 <= lat <= 90):
             return (
                 False,

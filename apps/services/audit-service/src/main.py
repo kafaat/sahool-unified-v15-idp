@@ -905,7 +905,6 @@ async def export_audit_logs(
     تصدير سجلات التدقيق
     """
     enforce_tenant_match(tenant_id, _current_user)
-    import json as json_module
 
     logs = _get_logs_for_tenant(tenant_id)
 

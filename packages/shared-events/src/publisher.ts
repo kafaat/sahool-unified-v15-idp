@@ -76,11 +76,17 @@ export async function publishEvent<T extends SahoolEvent>(
     console.log(`[EventPublisher] Publishing event: ${subject}`, event);
   }
 
-  connection.publish(subject, data);
+  try {
+    connection.publish(subject, data);
 
-  // Optionally wait for the publish to complete with timeout
-  if (options.timeout) {
-    await connection.flush();
+    // Optionally wait for the publish to complete with timeout
+    if (options.timeout) {
+      await connection.flush();
+    }
+  } catch (err) {
+    throw new Error(
+      `Failed to publish event '${subject}': ${err instanceof Error ? err.message : 'Unknown error'}`
+    );
   }
 }
 

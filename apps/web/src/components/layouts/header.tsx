@@ -77,7 +77,7 @@ export const Header = React.memo(function Header() {
         <button
           type="button"
           onClick={() => router.push('/notifications')}
-          className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           aria-label={t('notifications') || 'Notifications'}
         >
           <Bell className="w-5 h-5" />
@@ -92,8 +92,8 @@ export const Header = React.memo(function Header() {
           <button
             type="button"
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="قائمة المستخدم"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            aria-label="قائمة المستخدم - User menu"
             aria-expanded={showUserMenu}
             aria-haspopup="true"
           >

@@ -15,6 +15,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sahool_field_app/features/advisor/data/models/fertilizer_models.dart';
+import 'package:sahool_field_app/features/advisor/data/models/agriculture_models.dart';
 import 'package:sahool_field_app/features/crops/data/models/crop_model.dart';
 import 'package:sahool_field_app/features/polygon_editor/utils/geo_utils.dart';
 

@@ -74,6 +74,11 @@ class FieldsRepo {
     String? cropType,
     String? farmId,
   }) async {
+    // Validate boundary has minimum points for a valid polygon
+    if (boundary.isNotEmpty && boundary.length < 3) {
+      throw ArgumentError('Field boundary must have at least 3 points');
+    }
+
     final fieldId = _uuid.v4();
     final now = DateTime.now();
 

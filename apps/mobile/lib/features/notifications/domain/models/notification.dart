@@ -262,16 +262,16 @@ class AppNotification {
       iconName: json['icon_name'] as String?,
       data: json['data'] as Map<String, dynamic>?,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       readAt: json['read_at'] != null
-          ? DateTime.parse(json['read_at'] as String)
+          ? DateTime.tryParse(json['read_at'] as String) ?? DateTime.now()
           : null,
       expiresAt: json['expires_at'] != null
-          ? DateTime.parse(json['expires_at'] as String)
+          ? DateTime.tryParse(json['expires_at'] as String) ?? DateTime.now()
           : null,
       snoozedUntil: json['snoozed_until'] != null
-          ? DateTime.parse(json['snoozed_until'] as String)
+          ? DateTime.tryParse(json['snoozed_until'] as String) ?? DateTime.now()
           : null,
       synced: json['synced'] as bool? ?? false,
       source: json['source'] as String? ?? 'api',

@@ -53,7 +53,7 @@ class AiAdvisory {
         sources: (json['sources'] as List?)?.cast<String>() ?? [],
         type: AdvisoryType.fromString(json['type'] as String? ?? 'general'),
         createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
+            ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
             : DateTime.now(),
       );
 }

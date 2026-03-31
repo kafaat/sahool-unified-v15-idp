@@ -78,7 +78,7 @@ class VirtualSensorsRepository {
           et0Ar: (data['et0_ar'] as String?) ?? '',
           method: (data['method'] as String?) ?? 'FAO-56 Penman-Monteith',
           weatherSummary: (data['weather_summary'] as Map<String, dynamic>?) ?? {},
-          calculationDate: DateTime.parse(data['calculation_date'] as String),
+          calculationDate: DateTime.tryParse(data['calculation_date'] as String) ?? DateTime.now(),
         );
       }
 
@@ -347,7 +347,7 @@ class VirtualSensorsRepository {
         final data = json.decode(response.body) as Map<String, dynamic>;
         return IrrigationRecommendation(
           recommendationId: (data['recommendation_id'] as String?) ?? '',
-          timestamp: DateTime.parse(data['timestamp'] as String),
+          timestamp: DateTime.tryParse(data['timestamp'] as String) ?? DateTime.now(),
           cropType: (data['crop_type'] as String?) ?? '',
           cropNameAr: (data['crop_name_ar'] as String?) ?? '',
           growthStage: (data['growth_stage'] as String?) ?? '',

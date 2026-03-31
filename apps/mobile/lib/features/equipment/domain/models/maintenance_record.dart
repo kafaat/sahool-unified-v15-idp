@@ -186,30 +186,30 @@ class MaintenanceRecord {
       notes: json['notes'] as String?,
       notesAr: json['notes_ar'] as String?,
       partsReplaced: json['parts_replaced'] != null
-          ? List<String>.from(json['parts_replaced'] as List)
+          ? List<String>.from(json['parts_replaced'] as List? ?? [])
           : null,
       partsReplacedAr: json['parts_replaced_ar'] != null
-          ? List<String>.from(json['parts_replaced_ar'] as List)
+          ? List<String>.from(json['parts_replaced_ar'] as List? ?? [])
           : null,
       hoursAtMaintenance:
           (json['hours_at_maintenance'] as num?)?.toDouble(),
       scheduledAt: json['scheduled_at'] != null
-          ? DateTime.parse(json['scheduled_at'] as String)
+          ? DateTime.tryParse(json['scheduled_at'] as String) ?? DateTime.now()
           : null,
       performedAt: json['performed_at'] != null
-          ? DateTime.parse(json['performed_at'] as String)
+          ? DateTime.tryParse(json['performed_at'] as String) ?? DateTime.now()
           : (json['created_at'] != null
-              ? DateTime.parse(json['created_at'] as String)
+              ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
               : null),
       completedAt: json['completed_at'] != null
-          ? DateTime.parse(json['completed_at'] as String)
+          ? DateTime.tryParse(json['completed_at'] as String) ?? DateTime.now()
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : DateTime.parse(json['created_at'] as String),
+          ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
+          : DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       attachments: json['attachments'] != null
-          ? List<String>.from(json['attachments'] as List)
+          ? List<String>.from(json['attachments'] as List? ?? [])
           : null,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -338,16 +338,16 @@ class ScheduledMaintenance {
       priority: MaintenancePriority.fromString(json['priority'] as String),
       description: json['description'] as String,
       descriptionAr: json['description_ar'] as String?,
-      scheduledDate: DateTime.parse(json['scheduled_date'] as String),
+      scheduledDate: DateTime.tryParse(json['scheduled_date'] as String) ?? DateTime.now(),
       scheduledAtHours: (json['scheduled_at_hours'] as num?)?.toDouble(),
       isRecurring: json['is_recurring'] as bool? ?? false,
       recurringIntervalDays: json['recurring_interval_days'] as int?,
       recurringIntervalHours: json['recurring_interval_hours'] as int?,
       reminderSent: json['reminder_sent'] as bool? ?? false,
       reminderSentAt: json['reminder_sent_at'] != null
-          ? DateTime.parse(json['reminder_sent_at'] as String)
+          ? DateTime.tryParse(json['reminder_sent_at'] as String) ?? DateTime.now()
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       createdBy: json['created_by'] as String?,
     );
   }
@@ -422,11 +422,11 @@ class MaintenanceAlert {
       descriptionAr: json['description_ar'] as String?,
       priority: MaintenancePriority.fromString(json['priority'] as String),
       dueAt: json['due_at'] != null
-          ? DateTime.parse(json['due_at'] as String)
+          ? DateTime.tryParse(json['due_at'] as String) ?? DateTime.now()
           : null,
       dueHours: (json['due_hours'] as num?)?.toDouble(),
       isOverdue: json['is_overdue'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
     );
   }
 

@@ -914,7 +914,7 @@ class EquipmentController extends StateNotifier<AsyncValue<void>> {
             op.copyWith(retryCount: op.retryCount + 1),
           );
         }
-      } catch (_) {
+      } catch (e) {
         if (op.retryCount >= 3) {
           await _localDb.removePendingOperation(op.id);
         }

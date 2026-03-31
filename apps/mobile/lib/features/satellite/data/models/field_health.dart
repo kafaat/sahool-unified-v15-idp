@@ -50,10 +50,10 @@ class FieldHealth extends Equatable {
       soilMoisture: json['soil_moisture'] != null
           ? (json['soil_moisture'] as num).toDouble()
           : null,
-      alerts: (alertsData as List)
+      alerts: (alertsData as List? ?? [])
           .map((item) => HealthAlert.fromJson(item as Map<String, dynamic>))
           .toList(),
-      recommendations: (recommendationsData as List)
+      recommendations: (recommendationsData as List? ?? [])
           .map((item) => Recommendation.fromJson(item as Map<String, dynamic>))
           .toList(),
       assessedAt: DateTime.parse(
@@ -262,7 +262,7 @@ class Recommendation extends Equatable {
       description: (json['description'] ?? '') as String,
       descriptionAr: (json['description_ar'] ?? json['descriptionAr'] ?? '') as String,
       priority: RecommendationPriority.fromString((json['priority'] ?? 'medium') as String),
-      dueDate: json['due_date'] != null ? DateTime.parse(json['due_date'] as String) : null,
+      dueDate: json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) : null,
     );
   }
 

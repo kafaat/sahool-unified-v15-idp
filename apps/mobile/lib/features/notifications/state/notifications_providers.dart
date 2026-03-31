@@ -222,7 +222,7 @@ final notificationByIdProvider =
   );
   try {
     return notifications.firstWhere((n) => n.id == id);
-  } catch (_) {
+  } catch (e) {
     return null;
   }
 });

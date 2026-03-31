@@ -49,7 +49,7 @@ class WeatherSummary extends Equatable {
       updatedAt: DateTime.parse(
         (json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
-      forecast: (forecastData as List)
+      forecast: (forecastData as List? ?? [])
           .map((item) => DailyForecastSummary.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
@@ -117,7 +117,7 @@ class DailyForecastSummary extends Equatable {
 
   factory DailyForecastSummary.fromJson(Map<String, dynamic> json) {
     return DailyForecastSummary(
-      date: DateTime.parse((json['date'] ?? DateTime.now().toIso8601String()) as String),
+      date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
       tempMin: ((json['temp_min'] ?? json['tempMin'] ?? 0.0) as num).toDouble(),
       tempMax: ((json['temp_max'] ?? json['tempMax'] ?? 0.0) as num).toDouble(),
       precipitation: ((json['precipitation'] ?? json['rain'] ?? 0.0) as num).toDouble(),
@@ -174,7 +174,7 @@ class WeatherAlertSummary extends Equatable {
       startsAt: DateTime.parse(
         (json['starts_at'] ?? json['startsAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
-      endsAt: json['ends_at'] != null ? DateTime.parse(json['ends_at'] as String) : null,
+      endsAt: json['ends_at'] != null ? DateTime.tryParse(json['ends_at'] as String) : null,
     );
   }
 

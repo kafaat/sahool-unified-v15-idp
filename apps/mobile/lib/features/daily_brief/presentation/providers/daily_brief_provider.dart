@@ -13,7 +13,7 @@ final dailyBriefProvider = FutureProvider.autoDispose<DailyBrief>((ref) async {
     if (response.statusCode == 200 && response.data != null) {
       return DailyBrief.fromJson(response.data as Map<String, dynamic>);
     }
-  } catch (_) {
+  } catch (e) {
     // Fallback to local data when API is unavailable (offline-first)
     // الرجوع إلى البيانات المحلية عند عدم توفر الاتصال
   }

@@ -98,7 +98,7 @@ class Product {
       qualityGrade: json['qualityGrade'] as String?,
       featured: json['featured'] as bool? ?? false,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -246,7 +246,7 @@ class Order {
       serviceFee: (json['serviceFee'] as num?)?.toDouble() ?? 0,
       totalAmount: (json['totalAmount'] as num).toDouble(),
       status: json['status'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
     );
   }
 
@@ -503,7 +503,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     } on DioException catch (e) {
       AppLogger.w('Create order API failed (${e.type.name})', tag: 'MARKETPLACE');
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -523,7 +523,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       state = state.copyWith(orders: orders);
     } on DioException catch (e) {
       AppLogger.w('Load orders API failed (${e.type.name})', tag: 'MARKETPLACE');
-    } catch (_) {
+    } catch (e) {
       // صمت
     }
   }
@@ -565,7 +565,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     } on DioException catch (e) {
       AppLogger.w('List harvest API failed (${e.type.name})', tag: 'MARKETPLACE');
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

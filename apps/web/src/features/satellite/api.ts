@@ -42,8 +42,10 @@ export const satelliteApi = {
 
       const response = await api.get(`${API_PREFIX}/satellite/fields?${params.toString()}`);
       const data = response.data.data || response.data;
-      if (Array.isArray(data)) return data;
-      return [];
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid satellite fields response format | تنسيق استجابة حقول الأقمار الصناعية غير صالح');
+      }
+      return data;
     });
   },
 

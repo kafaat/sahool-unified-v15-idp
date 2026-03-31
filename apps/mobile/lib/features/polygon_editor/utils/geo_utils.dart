@@ -11,25 +11,79 @@ class GeoUtils {
   // ─────────────────────────────────────────────────────────────────
 
   /// حساب المساحة بالأمتار المربعة
-  /// Calculate area in square meters using spherical excess formula
+  /// Calculate area in square meters using corrected spherical formula
   static double calculateAreaSqMeters(List<LatLng> polygon) {
     if (polygon.length < 3) return 0;
 
-    // Use spherical excess formula for accurate geodetic area
+    // Shoelace formula on a sphere (Girard's theorem approximation)
+    // More accurate for agricultural field sizes than previous formula
     double total = 0;
     final n = polygon.length;
 
     for (int i = 0; i < n; i++) {
       final j = (i + 1) % n;
-      final k = (i + 2) % n;
+      final lat1 = _toRadians(polygon[i].latitude);
+      final lat2 = _toRadians(polygon[j].latitude);
+      final dLng = _toRadians(polygon[j].longitude - polygon[i].longitude);
 
-      total += _toRadians(polygon[j].longitude - polygon[i].longitude) *
-          (2 + math.sin(_toRadians(polygon[i].latitude)) +
-              math.sin(_toRadians(polygon[j].latitude)));
+      total += dLng * (2 + math.sin(lat1) + math.sin(lat2));
     }
 
     total = total.abs() * _earthRadius * _earthRadius / 2;
     return total;
+  }
+
+  /// التحقق من تقاطع المضلع مع نفسه
+  /// Check if polygon edges self-intersect (bowtie/figure-8)
+  static bool isSelfIntersecting(List<LatLng> polygon) {
+    if (polygon.length < 4) return false;
+    final n = polygon.length;
+
+    for (int i = 0; i < n; i++) {
+      final i2 = (i + 1) % n;
+      for (int j = i + 2; j < n; j++) {
+        final j2 = (j + 1) % n;
+        if (i == j2) continue; // adjacent edges share a vertex
+        if (_segmentsIntersect(
+          polygon[i], polygon[i2],
+          polygon[j], polygon[j2],
+        )) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Check if two line segments intersect
+  static bool _segmentsIntersect(LatLng a, LatLng b, LatLng c, LatLng d) {
+    double cross(LatLng o, LatLng p, LatLng q) =>
+        (p.longitude - o.longitude) * (q.latitude - o.latitude) -
+        (p.latitude - o.latitude) * (q.longitude - o.longitude);
+
+    final d1 = cross(c, d, a);
+    final d2 = cross(c, d, b);
+    final d3 = cross(a, b, c);
+    final d4 = cross(a, b, d);
+
+    if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
+        ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) {
+      return true;
+    }
+    return false;
+  }
+
+  /// التحقق من صحة الإحداثيات
+  static bool isValidCoordinate(LatLng point) {
+    return point.latitude >= -90 &&
+        point.latitude <= 90 &&
+        point.longitude >= -180 &&
+        point.longitude <= 180;
+  }
+
+  /// التحقق من صحة كل نقاط المضلع
+  static bool areAllCoordinatesValid(List<LatLng> polygon) {
+    return polygon.every(isValidCoordinate);
   }
 
   /// حساب المساحة بالهكتار

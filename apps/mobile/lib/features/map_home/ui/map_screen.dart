@@ -105,7 +105,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     } else if (_activeFilter == 'تنبيه') {
       fields = fields.where((f) => f.needsAttention).toList();
     } else if (_activeFilter == 'حصاد') {
-      fields = fields.where((f) => f.ndvi >= 0.7).toList();
+      fields = fields.where((f) => f.ndvi >= 0.8).toList();
     }
     // Apply search query
     if (_searchQuery.isNotEmpty) {
@@ -474,7 +474,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         LatLng(position.latitude, position.longitude),
         14,
       );
-    } catch (_) {
+    } catch (e) {
       // Fall back to first field location or default
       final center = _fieldLocations.isNotEmpty
           ? _fieldLocations.first

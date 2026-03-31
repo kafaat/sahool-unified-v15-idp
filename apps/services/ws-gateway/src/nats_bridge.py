@@ -103,6 +103,12 @@ class NATSBridge:
         # Subscribe to IoT events
         await self._subscribe("sahool.iot.>", self._handle_iot_event)
 
+        # Subscribe to irrigation events
+        await self._subscribe("sahool.irrigation.>", self._handle_irrigation_event)
+
+        # Subscribe to fertilizer events
+        await self._subscribe("sahool.fertilizer.>", self._handle_fertilizer_event)
+
         # Subscribe to alerts
         await self._subscribe("sahool.alert.>", self._handle_alert_event)
 
@@ -407,6 +413,90 @@ class NATSBridge:
             self._track_success(msg.subject)
         except Exception as e:
             logger.error(f"Error handling IoT event: {e}", exc_info=True)
+            self._track_error(msg.subject)
+
+    async def _handle_irrigation_event(self, msg):
+        """Handle irrigation events"""
+        try:
+            data = json.loads(msg.data.decode())
+
+            event_type = EventType.IRRIGATION_STARTED
+            if "completed" in msg.subject:
+                event_type = EventType.IRRIGATION_COMPLETED
+            elif "scheduled" in msg.subject:
+                event_type = EventType.IRRIGATION_SCHEDULED
+            elif "alert" in msg.subject:
+                event_type = EventType.IRRIGATION_ALERT
+
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
+
+            # Send to field (tenant-scoped, full data)
+            field_id = data.get("field_id")
+            if field_id:
+                await self.room_manager.send_to_field(field_id, ws_message)
+
+            # Send to tenant (tenant-scoped, full data)
+            tenant_id = data.get("tenant_id")
+            if tenant_id:
+                await self.room_manager.send_to_tenant(tenant_id, ws_message)
+
+            # Broadcast to global irrigation topic room with sanitized data
+            # (strip tenant_id and field_id to prevent cross-tenant data leakage)
+            sanitized_data = {k: v for k, v in data.items() if k not in ("tenant_id", "field_id")}
+            sanitized_message = self._create_event_message(
+                event_type=event_type, data=sanitized_data, subject=msg.subject
+            )
+            await self.room_manager.broadcast_to_room(RoomType.IRRIGATION, sanitized_message)
+
+            # Irrigation alerts also go to the alerts room (sanitized to prevent cross-tenant leakage)
+            if event_type == EventType.IRRIGATION_ALERT:
+                await self.room_manager.broadcast_to_room(RoomType.ALERTS, sanitized_message)
+
+            self._track_success(msg.subject)
+        except Exception as e:
+            logger.error(f"Error handling irrigation event: {e}", exc_info=True)
+            self._track_error(msg.subject)
+
+    async def _handle_fertilizer_event(self, msg):
+        """Handle fertilizer events"""
+        try:
+            data = json.loads(msg.data.decode())
+
+            event_type = EventType.FERTILIZER_APPLIED
+            if "scheduled" in msg.subject:
+                event_type = EventType.FERTILIZER_SCHEDULED
+            elif "recommendation" in msg.subject:
+                event_type = EventType.FERTILIZER_RECOMMENDATION
+            elif "alert" in msg.subject:
+                event_type = EventType.FERTILIZER_ALERT
+
+            ws_message = self._create_event_message(event_type=event_type, data=data, subject=msg.subject)
+
+            # Send to field (tenant-scoped, full data)
+            field_id = data.get("field_id")
+            if field_id:
+                await self.room_manager.send_to_field(field_id, ws_message)
+
+            # Send to tenant (tenant-scoped, full data)
+            tenant_id = data.get("tenant_id")
+            if tenant_id:
+                await self.room_manager.send_to_tenant(tenant_id, ws_message)
+
+            # Broadcast to global fertilizer topic room with sanitized data
+            # (strip tenant_id and field_id to prevent cross-tenant data leakage)
+            sanitized_data = {k: v for k, v in data.items() if k not in ("tenant_id", "field_id")}
+            sanitized_message = self._create_event_message(
+                event_type=event_type, data=sanitized_data, subject=msg.subject
+            )
+            await self.room_manager.broadcast_to_room(RoomType.FERTILIZER, sanitized_message)
+
+            # Fertilizer alerts also go to the alerts room (sanitized to prevent cross-tenant leakage)
+            if event_type == EventType.FERTILIZER_ALERT:
+                await self.room_manager.broadcast_to_room(RoomType.ALERTS, sanitized_message)
+
+            self._track_success(msg.subject)
+        except Exception as e:
+            logger.error(f"Error handling fertilizer event: {e}", exc_info=True)
             self._track_error(msg.subject)
 
     async def _handle_alert_event(self, msg):

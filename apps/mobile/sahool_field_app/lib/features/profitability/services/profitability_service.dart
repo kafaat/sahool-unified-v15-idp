@@ -35,7 +35,7 @@ class ProfitabilityService {
   ProfitabilityService({Dio? dio})
       : _dio = dio ??
             Dio(BaseOptions(
-              baseUrl: '${ApiConfig.effectiveBaseUrl}/profitability',
+              baseUrl: '${ApiConfig.effectiveBaseUrl}/api/v1/profitability',
               connectTimeout: ApiConfig.connectTimeout,
               sendTimeout: ApiConfig.sendTimeout,
               receiveTimeout: ApiConfig.receiveTimeout,
@@ -53,7 +53,7 @@ class ProfitabilityService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/analyze',
+        '/analyze',
         data: {
           'field_id': fieldId,
           'season': season,
@@ -78,7 +78,7 @@ class ProfitabilityService {
     String profitabilityId,
   ) async {
     try {
-      final response = await _dio.get('/v1/profitability/$profitabilityId');
+      final response = await _dio.get('/$profitabilityId');
       return ApiResult.success(
         CropProfitability.fromJson(response.data as Map<String, dynamic>),
       );
@@ -117,7 +117,7 @@ class ProfitabilityService {
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(
-        '/v1/profitability',
+        '/list',
         queryParameters: queryParams,
       );
 
@@ -148,7 +148,7 @@ class ProfitabilityService {
   }) async {
     try {
       final response = await _dio.get(
-        '/v1/season-summary',
+        '/season-summary',
         queryParameters: {
           'farm_id': farmId,
           'season': season,
@@ -176,7 +176,7 @@ class ProfitabilityService {
   }) async {
     try {
       final response = await _dio.get(
-        '/v1/farm-seasons',
+        '/farm-seasons',
         queryParameters: {
           'farm_id': farmId,
           'limit': limit,
@@ -216,7 +216,7 @@ class ProfitabilityService {
       if (season != null) queryParams['season'] = season;
 
       final response = await _dio.get(
-        '/v1/cost-breakdown',
+        '/cost-breakdown',
         queryParameters: queryParams,
       );
 
@@ -250,7 +250,7 @@ class ProfitabilityService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/costs',
+        '/costs',
         data: {
           'field_id': fieldId,
           'type': type.value,
@@ -286,7 +286,7 @@ class ProfitabilityService {
   ) async {
     try {
       final response = await _dio.put(
-        '/v1/costs/$costId',
+        '/costs/$costId',
         data: updates,
       );
 
@@ -306,7 +306,7 @@ class ProfitabilityService {
   /// حذف تكلفة
   Future<ApiResult<void>> deleteCost(String costId) async {
     try {
-      await _dio.delete('/v1/costs/$costId');
+      await _dio.delete('/costs/$costId');
       return ApiResult.success(null);
     } on DioException catch (e) {
       return ApiResult.failure(
@@ -338,7 +338,7 @@ class ProfitabilityService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/revenues',
+        '/revenues',
         data: {
           'field_id': fieldId,
           'type': type.value,
@@ -374,7 +374,7 @@ class ProfitabilityService {
   ) async {
     try {
       final response = await _dio.put(
-        '/v1/revenues/$revenueId',
+        '/revenues/$revenueId',
         data: updates,
       );
 
@@ -394,7 +394,7 @@ class ProfitabilityService {
   /// حذف إيراد
   Future<ApiResult<void>> deleteRevenue(String revenueId) async {
     try {
-      await _dio.delete('/v1/revenues/$revenueId');
+      await _dio.delete('/revenues/$revenueId');
       return ApiResult.success(null);
     } on DioException catch (e) {
       return ApiResult.failure(
@@ -422,7 +422,7 @@ class ProfitabilityService {
       if (season != null) queryParams['season'] = season;
 
       final response = await _dio.get(
-        '/v1/break-even',
+        '/break-even',
         queryParameters: queryParams,
       );
 
@@ -449,7 +449,7 @@ class ProfitabilityService {
   }) async {
     try {
       final response = await _dio.post(
-        '/v1/compare-crops',
+        '/compare-crops',
         data: {
           'crop_ids': cropIds,
         },
@@ -479,7 +479,7 @@ class ProfitabilityService {
   }) async {
     try {
       final response = await _dio.get(
-        '/v1/historical-trend',
+        '/historical-trend',
         queryParameters: {
           'field_id': fieldId,
           'years': years,
@@ -509,7 +509,7 @@ class ProfitabilityService {
   }) async {
     try {
       final response = await _dio.get(
-        '/v1/crop-averages',
+        '/crop-averages',
         queryParameters: {
           'crop_type': cropType,
           'years': years,
@@ -538,7 +538,7 @@ class ProfitabilityService {
   }) async {
     try {
       await _dio.download(
-        '/v1/export/pdf/$profitabilityId',
+        '/export/pdf/$profitabilityId',
         savePath,
       );
 
@@ -560,7 +560,7 @@ class ProfitabilityService {
   }) async {
     try {
       await _dio.download(
-        '/v1/export/excel/$profitabilityId',
+        '/export/excel/$profitabilityId',
         savePath,
       );
 

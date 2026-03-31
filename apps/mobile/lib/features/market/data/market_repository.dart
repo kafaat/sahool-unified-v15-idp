@@ -9,6 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/network/api_result.dart';
+import '../../../core/offline/offline_sync_engine.dart';
 import 'market_models.dart';
 
 // =============================================================================
@@ -104,6 +105,29 @@ class MarketRepository {
       final responseData = response.data as Map<String, dynamic>;
       return Success(WalletModel.fromJson(responseData['wallet'] as Map<String, dynamic>));
     } on DioException catch (e) {
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'market_transaction',
+          data: {
+            'type': 'deposit',
+            'wallet_id': walletId,
+            'amount': amount,
+            'description': description,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.high,
+        );
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل الإيداع'),
         statusCode: e.response?.statusCode,
@@ -127,6 +151,29 @@ class MarketRepository {
       final responseData = response.data as Map<String, dynamic>;
       return Success(WalletModel.fromJson(responseData['wallet'] as Map<String, dynamic>));
     } on DioException catch (e) {
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'market_transaction',
+          data: {
+            'type': 'withdraw',
+            'wallet_id': walletId,
+            'amount': amount,
+            'description': description,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.high,
+        );
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل السحب'),
         statusCode: e.response?.statusCode,
@@ -208,6 +255,33 @@ class MarketRepository {
       );
       return Success(LoanRequestResult.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'market_transaction',
+          data: {
+            'type': 'loan_request',
+            'wallet_id': walletId,
+            'amount': amount,
+            'term_months': termMonths,
+            'purpose': purpose,
+            'purpose_details': purposeDetails,
+            'collateral_type': collateralType,
+            'collateral_value': collateralValue,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.high,
+        );
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل طلب القرض'),
         statusCode: e.response?.statusCode,
@@ -244,6 +318,28 @@ class MarketRepository {
       );
       return Success(LoanRepaymentResult.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'market_transaction',
+          data: {
+            'type': 'loan_repayment',
+            'loan_id': loanId,
+            'amount': amount,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.high,
+        );
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل السداد'),
         statusCode: e.response?.statusCode,
@@ -340,6 +436,34 @@ class MarketRepository {
       );
       return Success(ProductModel.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'market_transaction',
+          data: {
+            'type': 'list_harvest',
+            'user_id': userId,
+            'crop': crop,
+            'crop_ar': cropAr,
+            'predicted_yield_tons': predictedYieldTons,
+            'price_per_ton': pricePerTon,
+            'harvest_date': harvestDate,
+            'quality_grade': qualityGrade,
+            'governorate': governorate,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.high,
+        );
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل عرض الحصاد'),
         statusCode: e.response?.statusCode,
@@ -372,6 +496,33 @@ class MarketRepository {
       );
       return Success(OrderModel.fromJson(response.data as Map<String, dynamic>));
     } on DioException catch (e) {
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'market_transaction',
+          data: {
+            'type': 'create_order',
+            'buyer_id': buyerId,
+            'items': items.map((item) => {
+              'product_id': item.productId,
+              'quantity': item.quantity,
+            }).toList(),
+            'delivery_address': deliveryAddress,
+            'payment_method': paymentMethod,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.high,
+        );
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل إنشاء الطلب'),
         statusCode: e.response?.statusCode,
@@ -430,6 +581,28 @@ class MarketRepository {
       );
       return const Success(true);
     } on DioException catch (e) {
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'market_transaction',
+          data: {
+            'type': 'list_harvest_for_sale',
+            'user_id': userId,
+            'yield_data': yieldData,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.high,
+        );
+        return const Failure(
+          'Saved offline - will sync when connected\nتم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل في إدراج المنتج للبيع'),
         statusCode: e.response?.statusCode,

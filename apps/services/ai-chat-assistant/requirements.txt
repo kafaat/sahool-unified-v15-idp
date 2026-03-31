@@ -1,5 +1,5 @@
-fastapi==0.135.1
-uvicorn[standard]==0.41.0
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
 python-dotenv==1.2.2
 pydantic>=2.10.6,<3.0.0
 pydantic-settings==2.13.1
@@ -26,6 +26,6 @@ pytest-cov>=6.0.0
 pytest-mock==3.15.1
 
 # Development
-ruff==0.15.5
+ruff==0.15.8
 black==24.10.0
 mypy==1.19.1

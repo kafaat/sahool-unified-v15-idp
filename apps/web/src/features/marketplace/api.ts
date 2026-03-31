@@ -6,7 +6,17 @@
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch, safeFetchResult } from '@/lib/api/safe-fetch';
 import { MARKETPLACE_ENDPOINTS, buildUrl, API_PREFIX } from '@sahool/shared-types/contracts';
-import type { Product, ProductFilters, Order, OrderFilters, CartItem } from './types';
+import type {
+  Product,
+  ProductFilters,
+  Order,
+  OrderFilters,
+  CartItem,
+  PriceHistory,
+  PriceAnalytics,
+  ProductTraceability,
+  QRCodeData,
+} from './types';
 
 /**
  * Marketplace category type returned by the categories endpoint
@@ -66,7 +76,36 @@ export const ERROR_MESSAGES = {
     en: 'Failed to fetch categories',
     ar: 'فشل في جلب الفئات',
   },
+  FETCH_PRICE_HISTORY: {
+    en: 'Failed to fetch price history',
+    ar: 'فشل في جلب سجل الأسعار',
+  },
+  FETCH_PRICE_ANALYTICS: {
+    en: 'Failed to fetch price analytics',
+    ar: 'فشل في جلب تحليلات الأسعار',
+  },
+  FETCH_TRACEABILITY: {
+    en: 'Failed to fetch product traceability',
+    ar: 'فشل في جلب بيانات تتبع المنتج',
+  },
+  GENERATE_QR: {
+    en: 'Failed to generate QR code',
+    ar: 'فشل في إنشاء رمز QR',
+  },
+  VERIFY_TRACE: {
+    en: 'Failed to verify trace record',
+    ar: 'فشل في التحقق من سجل التتبع',
+  },
 };
+
+/**
+ * Append query string to base URL only when params are non-empty.
+ * إضافة سلسلة الاستعلام إلى عنوان URL فقط عندما تكون المعلمات غير فارغة
+ */
+function appendQuery(baseUrl: string, params: URLSearchParams): string {
+  const qs = params.toString();
+  return qs ? `${baseUrl}?${qs}` : baseUrl;
+}
 
 export const marketplaceApi = {
   /**
@@ -82,7 +121,7 @@ export const marketplaceApi = {
       if (filters?.status) params.append('status', filters.status);
       if (filters?.sortBy) params.append('sortBy', filters.sortBy);
 
-      const response = await api.get(`${MARKETPLACE_ENDPOINTS.PRODUCTS}?${params.toString()}`);
+      const response = await api.get(appendQuery(MARKETPLACE_ENDPOINTS.PRODUCTS, params));
       return response.data.data || response.data;
     });
   },
@@ -150,7 +189,7 @@ export const marketplaceApi = {
       if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
       if (filters?.dateTo) params.append('dateTo', filters.dateTo);
 
-      const response = await api.get(`${MARKETPLACE_ENDPOINTS.ORDERS}?${params.toString()}`);
+      const response = await api.get(appendQuery(MARKETPLACE_ENDPOINTS.ORDERS, params));
       return response.data.data || response.data;
     });
   },
@@ -278,6 +317,106 @@ export const marketplaceApi = {
           `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`,
           data
         );
+      }
+    );
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Price Tracking - تتبع الأسعار
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Get price history for a product
+   * الحصول على سجل أسعار المنتج
+   */
+  async getProductPriceHistory(
+    productId: string,
+    timeRange?: '7d' | '30d' | '90d' | '1y'
+  ): Promise<PriceHistory> {
+    return safeFetch(
+      `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/price-history`,
+      async () => {
+        const params = new URLSearchParams();
+        if (timeRange) params.append('timeRange', timeRange);
+        const baseUrl = `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/price-history`;
+        const response = await api.get(appendQuery(baseUrl, params));
+        return response.data.data || response.data;
+      }
+    );
+  },
+
+  /**
+   * Get price analytics for a category/region
+   * الحصول على تحليلات الأسعار حسب الفئة/المنطقة
+   */
+  async getPriceAnalytics(
+    category?: string,
+    region?: string
+  ): Promise<PriceAnalytics> {
+    return safeFetch(
+      `${API_PREFIX}/marketplace/prices/analytics`,
+      async () => {
+        const params = new URLSearchParams();
+        if (category) params.append('category', category);
+        if (region) params.append('region', region);
+        const response = await api.get(
+          appendQuery(`${API_PREFIX}/marketplace/prices/analytics`, params)
+        );
+        return response.data.data || response.data;
+      }
+    );
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Traceability - التتبع من المزرعة إلى المائدة
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Get full traceability chain for a product
+   * الحصول على سلسلة التتبع الكاملة للمنتج
+   */
+  async getProductTraceability(productId: string): Promise<ProductTraceability> {
+    return safeFetch(
+      `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/traceability`,
+      async () => {
+        const response = await api.get(
+          `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/traceability`
+        );
+        return response.data.data || response.data;
+      }
+    );
+  },
+
+  /**
+   * Generate QR code for product traceability
+   * إنشاء رمز QR لتتبع المنتج
+   */
+  async generateTraceQR(productId: string): Promise<QRCodeData> {
+    return safeFetch(
+      `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/trace-qr`,
+      async () => {
+        const response = await api.post(
+          `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/trace-qr`
+        );
+        return response.data.data || response.data;
+      }
+    );
+  },
+
+  /**
+   * Verify a trace record in the supply chain
+   * التحقق من سجل تتبع في سلسلة التوريد
+   */
+  async verifyTraceRecord(
+    recordId: string
+  ): Promise<{ verified: boolean; verifiedAt: string; verifiedBy: string }> {
+    return safeFetch(
+      `${API_PREFIX}/marketplace/traceability/records/${recordId}/verify`,
+      async () => {
+        const response = await api.post(
+          `${API_PREFIX}/marketplace/traceability/records/${recordId}/verify`
+        );
+        return response.data.data || response.data;
       }
     );
   },

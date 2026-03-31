@@ -399,9 +399,9 @@ class CorrectiveRetrievalEngine:
 
     def _score_freshness(self, chunks: list[dict[str, Any]]) -> float:
         """Score the freshness/recency of retrieved chunks."""
-        from datetime import datetime
+        from datetime import UTC, datetime
 
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         freshness_scores = []
 
         for chunk in chunks:

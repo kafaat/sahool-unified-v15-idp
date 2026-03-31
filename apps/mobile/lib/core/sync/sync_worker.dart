@@ -222,7 +222,7 @@ class SyncWorker {
     try {
       final payload = jsonDecode(payloadStr) as Map<String, dynamic>;
       return payload['id']?.toString();
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

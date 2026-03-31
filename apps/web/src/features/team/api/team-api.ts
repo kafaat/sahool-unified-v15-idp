@@ -7,6 +7,7 @@ import { USER_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import { createApiClient, logger } from '@/lib/api/factory';
 import {
   Role,
+  UserStatus,
   type TeamMember,
   type InviteRequest,
   type TeamStats,
@@ -55,7 +56,7 @@ const MOCK_MEMBERS: TeamMember[] = [
     firstName: 'أحمد',
     lastName: 'السعيد',
     role: 'ADMIN' as Role,
-    status: 'ACTIVE' as any,
+    status: UserStatus.ACTIVE,
     emailVerified: true,
     phoneVerified: true,
     phone: '+966501234567',
@@ -74,7 +75,7 @@ const MOCK_MEMBERS: TeamMember[] = [
     firstName: 'فاطمة',
     lastName: 'المحمد',
     role: 'MANAGER' as Role,
-    status: 'ACTIVE' as any,
+    status: UserStatus.ACTIVE,
     emailVerified: true,
     phoneVerified: false,
     phone: '+966509876543',
@@ -88,7 +89,7 @@ const MOCK_MEMBERS: TeamMember[] = [
     firstName: 'محمد',
     lastName: 'العتيبي',
     role: 'FARMER' as Role,
-    status: 'ACTIVE' as any,
+    status: UserStatus.ACTIVE,
     emailVerified: true,
     phoneVerified: true,
     lastLoginAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
@@ -101,7 +102,7 @@ const MOCK_MEMBERS: TeamMember[] = [
     firstName: 'سارة',
     lastName: 'القحطاني',
     role: 'WORKER' as Role,
-    status: 'ACTIVE' as any,
+    status: UserStatus.ACTIVE,
     emailVerified: true,
     phoneVerified: true,
     lastLoginAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
@@ -114,7 +115,7 @@ const MOCK_MEMBERS: TeamMember[] = [
     firstName: 'خالد',
     lastName: 'الدوسري',
     role: 'VIEWER' as Role,
-    status: 'PENDING' as any,
+    status: UserStatus.PENDING,
     emailVerified: false,
     phoneVerified: false,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
@@ -122,18 +123,50 @@ const MOCK_MEMBERS: TeamMember[] = [
   },
 ];
 
+/** Shape of user data received from the backend API */
+interface BackendUserData {
+  id: string;
+  email: string;
+  firstName?: string;
+  first_name?: string;
+  lastName?: string;
+  last_name?: string;
+  phone?: string;
+  role: string;
+  status: string;
+  emailVerified?: boolean;
+  email_verified?: boolean;
+  phoneVerified?: boolean;
+  phone_verified?: boolean;
+  lastLoginAt?: string;
+  last_login_at?: string;
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string;
+  updated_at?: string;
+  profile?: {
+    avatarUrl?: string;
+    avatar_url?: string;
+    nationalId?: string;
+    national_id?: string;
+    city?: string;
+    region?: string;
+    country?: string;
+  };
+}
+
 /**
  * Map backend user to TeamMember
  */
-function mapUserToTeamMember(user: any): TeamMember {
+function mapUserToTeamMember(user: BackendUserData): TeamMember {
   return {
     id: user.id,
     email: user.email,
-    firstName: user.firstName || user.first_name,
-    lastName: user.lastName || user.last_name,
+    firstName: user.firstName || user.first_name || '',
+    lastName: user.lastName || user.last_name || '',
     phone: user.phone,
     role: user.role as Role,
-    status: user.status,
+    status: Object.values(UserStatus).includes(user.status as UserStatus) ? user.status as UserStatus : UserStatus.ACTIVE,
     avatarUrl: user.profile?.avatarUrl || user.profile?.avatar_url,
     emailVerified: user.emailVerified ?? user.email_verified ?? false,
     phoneVerified: user.phoneVerified ?? user.phone_verified ?? false,

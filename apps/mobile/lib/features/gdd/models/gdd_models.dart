@@ -186,7 +186,7 @@ class CropGDDRequirements {
       baseTemperature: (json['base_temperature'] as num).toDouble(),
       upperThreshold: (json['upper_threshold'] as num).toDouble(),
       totalGDDRequired: (json['total_gdd_required'] as num).toDouble(),
-      growthStages: (json['growth_stages'] as List)
+      growthStages: (json['growth_stages'] as List? ?? [])
           .map((e) => GrowthStage.fromJson(e as Map<String, dynamic>))
           .toList(),
       metadata: json['metadata'] as Map<String, dynamic>?,
@@ -242,7 +242,7 @@ class GDDRecord {
     return GDDRecord(
       recordId: json['record_id'] as String,
       fieldId: json['field_id'] as String,
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       tMin: (json['t_min'] as num).toDouble(),
       tMax: (json['t_max'] as num).toDouble(),
       tAvg: (json['t_avg'] as num).toDouble(),
@@ -254,7 +254,7 @@ class GDDRecord {
       baseTemperature: (json['base_temperature'] as num).toDouble(),
       upperThreshold: (json['upper_threshold'] as num?)?.toDouble(),
       source: json['source'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
     );
   }
 
@@ -341,9 +341,9 @@ class GDDAccumulation {
       cropType: json['crop_type'] != null
           ? CropType.fromString(json['crop_type'] as String)
           : null,
-      startDate: DateTime.parse(json['start_date'] as String),
+      startDate: DateTime.tryParse(json['start_date'] as String) ?? DateTime.now(),
       endDate: json['end_date'] != null
-          ? DateTime.parse(json['end_date'] as String)
+          ? DateTime.tryParse(json['end_date'] as String) ?? DateTime.now()
           : null,
       totalGDD: (json['total_gdd'] as num).toDouble(),
       baseTemperature: (json['base_temperature'] as num).toDouble(),
@@ -365,7 +365,7 @@ class GDDAccumulation {
               ?.map((e) => GDDRecord.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      calculatedAt: DateTime.parse(json['calculated_at'] as String),
+      calculatedAt: DateTime.tryParse(json['calculated_at'] as String) ?? DateTime.now(),
     );
   }
 
@@ -416,7 +416,7 @@ class GDDForecast {
   factory GDDForecast.fromJson(Map<String, dynamic> json) {
     return GDDForecast(
       fieldId: json['field_id'] as String,
-      forecastDate: DateTime.parse(json['forecast_date'] as String),
+      forecastDate: DateTime.tryParse(json['forecast_date'] as String) ?? DateTime.now(),
       forecastGDD: (json['forecast_gdd'] as num).toDouble(),
       cumulativeGDD: (json['cumulative_gdd'] as num).toDouble(),
       tMinForecast: (json['t_min_forecast'] as num).toDouble(),
@@ -472,9 +472,9 @@ class GDDSettings {
       calculationMethod: GDDCalculationMethod.fromString(
         json['calculation_method'] as String,
       ),
-      plantingDate: DateTime.parse(json['planting_date'] as String),
+      plantingDate: DateTime.tryParse(json['planting_date'] as String) ?? DateTime.now(),
       harvestDate: json['harvest_date'] != null
-          ? DateTime.parse(json['harvest_date'] as String)
+          ? DateTime.tryParse(json['harvest_date'] as String) ?? DateTime.now()
           : null,
       autoCalculate: json['auto_calculate'] as bool? ?? true,
       metadata: json['metadata'] as Map<String, dynamic>?,

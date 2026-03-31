@@ -346,7 +346,7 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: '/rotation/:fieldId',
+        path: '/rotation/:fieldId/plan',
         name: 'rotation-plan',
         builder: (context, state) {
           final fieldId = state.pathParameters['fieldId']!;

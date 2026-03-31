@@ -77,10 +77,12 @@ class GeoJson {
     return outerRing.map((coord) {
       final c = coord as List;
       // GeoJSON: [longitude, latitude]
-      return LatLng(
-        (c[1] as num).toDouble(),
-        (c[0] as num).toDouble(),
-      );
+      final lat = (c[1] as num).toDouble();
+      final lng = (c[0] as num).toDouble();
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        throw ArgumentError('Invalid coordinates: lat=$lat, lng=$lng');
+      }
+      return LatLng(lat, lng);
     }).toList();
   }
 
@@ -91,10 +93,12 @@ class GeoJson {
     }
 
     final coordinates = geometry['coordinates'] as List;
-    return LatLng(
-      (coordinates[1] as num).toDouble(),
-      (coordinates[0] as num).toDouble(),
-    );
+    final lat = (coordinates[1] as num).toDouble();
+    final lng = (coordinates[0] as num).toDouble();
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      throw ArgumentError('Invalid point coordinates: lat=$lat, lng=$lng');
+    }
+    return LatLng(lat, lng);
   }
 
   /// Parse a GeoJSON Feature to extract geometry and properties

@@ -262,7 +262,7 @@ class AppDatabase extends _$AppDatabase {
               evidenceNotes: Value(item['evidence_notes'] as String?),
               evidencePhotos: Value(item['evidence_photos'] != null
                   ? (item['evidence_photos'] is List
-                      ? (item['evidence_photos'] as List).join(',')
+                      ? (item['evidence_photos'] as List? ?? []).join(',')
                       : item['evidence_photos'].toString())
                   : null),
               createdAt: DateTime.tryParse(item['created_at']?.toString() ?? '') ?? DateTime.now(),

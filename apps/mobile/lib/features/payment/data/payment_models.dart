@@ -77,10 +77,10 @@ class PaymentTransaction extends Equatable {
       errorMessage: (json['errorMessage'] ?? json['error']) as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
       completedAt: json['completedAt'] != null
-          ? DateTime.parse(json['completedAt'] as String)
+          ? DateTime.tryParse(json['completedAt'] as String) ?? DateTime.now()
           : null,
     );
   }

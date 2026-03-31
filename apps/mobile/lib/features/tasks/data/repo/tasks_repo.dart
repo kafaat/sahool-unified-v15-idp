@@ -135,6 +135,8 @@ class TasksRepo {
         'status': status.value,
       }),
     );
+
+    AppLogger.i('Task status updated and queued for sync', tag: 'TasksRepo', data: {'taskId': taskId, 'status': status.value});
   }
 
   /// Create new task (offline-first)
@@ -190,6 +192,8 @@ class TasksRepo {
       method: 'POST',
       payload: jsonEncode(task.toJson()),
     );
+
+    AppLogger.i('Task created and queued for sync', tag: 'TasksRepo', data: {'taskId': taskId});
 
     return task;
   }

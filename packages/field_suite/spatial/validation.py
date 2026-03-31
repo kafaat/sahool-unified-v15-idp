@@ -188,7 +188,9 @@ def _validate_table(
 
     # Count total with geometry
     # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
-    count_result = db.execute(text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;"))  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
+    count_result = db.execute(
+        text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;")
+    )  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
     setattr(report, checked_attr, count_result.scalar() or 0)
 
     # Count invalid

@@ -309,7 +309,7 @@ export function isValidCSPReport(body: unknown): body is CSPReportBody {
 
   const report = body as Record<string, unknown>;
 
-  if (!('csp-report' in report)) return false;
+  if (!Object.hasOwn(report, 'csp-report')) return false;
 
   const cspReport = report['csp-report'];
   if (typeof cspReport !== 'object' || cspReport === null) return false;

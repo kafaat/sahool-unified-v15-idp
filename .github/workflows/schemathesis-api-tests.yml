@@ -1,0 +1,269 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Schemathesis API Contract Fuzz Tests
+# اختبارات العقود التلقائية باستخدام Schemathesis
+#
+# Generates test cases automatically from OpenAPI specs and validates
+# every endpoint conforms to its declared contract (schema, status codes,
+# content types). Catches undocumented responses, 5xx errors, and schema
+# violations without writing manual tests.
+#
+# Docs: https://schemathesis.readthedocs.io/
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Schemathesis API Tests
+
+on:
+  # Run on PRs touching API specs or service code
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'api/gateway-openapi.yaml'
+      - 'docs/api/openapi/**'
+      - 'apps/services/*/src/**'
+      - 'tests/contract/**'
+      - '.github/workflows/schemathesis-api-tests.yml'
+
+  # Manual trigger for ad-hoc testing
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Base URL of the running API (e.g. http://localhost:8000)'
+        required: false
+        default: ''
+      spec_file:
+        description: 'OpenAPI spec file to test (relative to repo root)'
+        required: false
+        default: 'api/gateway-openapi.yaml'
+      max_examples:
+        description: 'Max test cases per endpoint (Hypothesis setting)'
+        required: false
+        default: '50'
+
+  # Weekly schedule against staging
+  schedule:
+    - cron: '30 3 * * 2'  # Tuesday 3:30 AM UTC
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+concurrency:
+  group: schemathesis-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate OpenAPI Spec (static — no running services needed)
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-spec:
+    name: Validate OpenAPI Spec
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install validators
+        run: pip install --no-cache-dir openapi-spec-validator>=0.7.0 pyyaml>=6.0
+
+      - name: Validate spec syntax
+        run: |
+          SPEC_FILE="${{ github.event.inputs.spec_file || 'api/gateway-openapi.yaml' }}"
+          echo "🔍 Validating OpenAPI spec: $SPEC_FILE"
+          if ! python3 -m openapi_spec_validator "$SPEC_FILE"; then
+            echo "::error::Spec validation failed — review the output above"
+            exit 1
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Static Schema Contract Tests (no running service required)
+  # اختبارات عقود المخططات الثابتة — لا تتطلب خدمات قيد التشغيل
+  # ─────────────────────────────────────────────────────────────────────────────
+  static-contract-tests:
+    name: Static Contract Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: validate-spec
+
+    strategy:
+      fail-fast: false
+      matrix:
+        spec:
+          - api/gateway-openapi.yaml
+          - docs/api/openapi/core-services.yaml
+          - docs/api/openapi/field-services.yaml
+          - docs/api/openapi/weather-services.yaml
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install validators
+        run: pip install --no-cache-dir openapi-spec-validator>=0.7.0 pyyaml>=6.0
+
+      - name: Run static analysis on ${{ matrix.spec }}
+        run: |
+          SPEC="${{ matrix.spec }}"
+          if [ ! -f "$SPEC" ]; then
+            echo "::warning::Spec file $SPEC not found — skipping"
+            exit 0
+          fi
+
+          echo "🧪 Running OpenAPI spec validation on $SPEC"
+
+          # Validate that the spec conforms to the OpenAPI schema
+          set -o pipefail
+          python3 -m openapi_spec_validator "$SPEC" 2>&1 | tee /tmp/schemathesis-validate.log
+
+          echo "✅ Static analysis complete for $SPEC"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Live Contract Fuzz Tests (requires running services)
+  # اختبارات العقود الحية — تتطلب خدمات قيد التشغيل
+  # ─────────────────────────────────────────────────────────────────────────────
+  live-contract-tests:
+    name: Live Fuzz Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only run live tests on schedule or manual trigger (no push trigger configured)
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch'
+
+    env:
+      JWT_SECRET_KEY: test-secret-key-for-schemathesis-only-32chars
+      JWT_ALGORITHM: HS256
+      ENVIRONMENT: test
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install --no-cache-dir schemathesis>=3.38.0 httpx>=0.28.0
+
+      - name: Determine target URL
+        id: target
+        run: |
+          TARGET="${{ github.event.inputs.target_url }}"
+          # Fall back to staging URL for scheduled runs
+          if [ -z "$TARGET" ]; then
+            TARGET="${{ vars.STAGING_API_BASE_URL }}"
+          fi
+          if [ -z "$TARGET" ]; then
+            echo "url=" >> "$GITHUB_OUTPUT"
+            echo "⚠️ No target URL provided. Live tests will be skipped."
+            echo "   Provide a URL via workflow_dispatch or set vars.STAGING_API_BASE_URL."
+          else
+            echo "url=$TARGET" >> "$GITHUB_OUTPUT"
+            echo "🎯 Target URL: $TARGET"
+          fi
+
+      - name: Run Schemathesis against live API
+        if: steps.target.outputs.url != ''
+        run: |
+          set -o pipefail
+          TARGET="${{ steps.target.outputs.url }}"
+          SPEC="${{ github.event.inputs.spec_file || 'api/gateway-openapi.yaml' }}"
+          MAX_EXAMPLES="${{ github.event.inputs.max_examples || '50' }}"
+
+          echo "🚀 Running Schemathesis fuzz tests"
+          echo "   Target: $TARGET"
+          echo "   Spec: $SPEC"
+          echo "   Max examples per endpoint: $MAX_EXAMPLES"
+
+          st run "$SPEC" \
+            --base-url="$TARGET" \
+            --hypothesis-max-examples="$MAX_EXAMPLES" \
+            --checks=all \
+            --stateful=links \
+            --report \
+            --header="Authorization: Bearer ${TEST_JWT_TOKEN:-mock-jwt-for-contract-tests}" \
+            --header="X-Tenant-ID: 00000000-0000-0000-0000-000000000001" \
+            --junit-xml=/tmp/schemathesis-results.xml \
+            2>&1 | tee /tmp/schemathesis-output.log
+
+      - name: Upload Schemathesis results
+        if: always() && steps.target.outputs.url != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: schemathesis-results
+          path: |
+            /tmp/schemathesis-results.xml
+            /tmp/schemathesis-output.log
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Pytest Contract Tests (Schemathesis + GraphQL consistency)
+  # ─────────────────────────────────────────────────────────────────────────────
+  pytest-contract-tests:
+    name: Pytest Contract Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install test dependencies
+        run: |
+          pip install --no-cache-dir \
+            -r requirements/test-requirements.txt \
+            schemathesis>=3.38.0
+
+      - name: Run contract tests
+        env:
+          ENVIRONMENT: test
+          JWT_SECRET_KEY: test-secret-key-for-contract-tests-only32
+          JWT_ALGORITHM: HS256
+          # On schedule/dispatch, point at staging so tests actually run.
+          # On PR, always use localhost — never hit staging from PR CI.
+          KONG_BASE_URL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && vars.STAGING_API_BASE_URL || 'http://localhost:8000' }}
+          GRAPHQL_URL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && vars.STAGING_API_BASE_URL && format('{0}/graphql', vars.STAGING_API_BASE_URL) || 'http://localhost:8000/graphql' }}
+          FIELD_SERVICE_OPENAPI_URL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && vars.STAGING_API_BASE_URL && format('{0}/api-json', vars.STAGING_API_BASE_URL) || 'http://localhost:3000/api-json' }}
+        run: |
+          set -o pipefail
+          mkdir -p reports
+          echo "🧪 Running pytest contract tests..."
+          python -m pytest tests/contract/ \
+            -v \
+            -m contract \
+            --tb=short \
+            --junit-xml=reports/contract-tests.xml \
+            2>&1 | tee /tmp/pytest-contract.log
+
+          # Warn if all tests were skipped (services unreachable)
+          if grep -q "0 passed" /tmp/pytest-contract.log && grep -q "skipped" /tmp/pytest-contract.log; then
+            echo "::warning::All contract tests were skipped — services are unreachable. Set vars.STAGING_API_BASE_URL for meaningful test execution."
+          fi
+
+          echo "✅ Pytest contract tests complete"
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pytest-contract-report
+          path: reports/contract-tests.xml
+          retention-days: 14

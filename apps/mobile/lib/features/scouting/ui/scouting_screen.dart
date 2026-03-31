@@ -408,6 +408,10 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
   }
 
   void _submitReport() {
+    final now = DateTime.now();
+    final timestamp = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} '
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -436,6 +440,12 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                   Text('النوع: $_selectedCategory'),
                   Text('المشكلة: $_selectedIssue'),
                   Text('الشدة: ${(_severity * 100).toInt()}%'),
+                  const SizedBox(height: 8),
+                  Text('الوقت: $timestamp'),
+                  const Text(
+                    'الموقع: سيتم تسجيله تلقائياً من GPS',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                 ],
               ),
             ),

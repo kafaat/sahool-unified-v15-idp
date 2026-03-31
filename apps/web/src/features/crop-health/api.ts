@@ -313,7 +313,7 @@ export const cropHealthApi = {
         return diagnoses.map(mapApiDiagnosisToDiagnosis);
       }
 
-      throw new Error('API returned unexpected format for diagnoses');
+      throw new Error('API returned unexpected format for diagnoses | تنسيق غير متوقع لبيانات التشخيص');
     });
   },
 
@@ -401,7 +401,7 @@ export const cropHealthApi = {
         return consultations;
       }
 
-      throw new Error('API returned unexpected format for consultations');
+      throw new Error('API returned unexpected format for consultations | تنسيق غير متوقع لبيانات الاستشارات');
     });
   },
 };

@@ -276,7 +276,8 @@ class AdvisoryCache {
 
     try {
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
-      final cachedAt = DateTime.parse(data['cachedAt'] as String);
+      final cachedAt = DateTime.tryParse(data['cachedAt'] as String? ?? '');
+      if (cachedAt == null) return null; // Treat unparseable timestamp as expired
 
       // Check expiry (context expires faster)
       if (DateTime.now().difference(cachedAt) > const Duration(hours: 6)) {
@@ -337,7 +338,7 @@ class AdvisoryCache {
     List<Map<String, dynamic>> pending;
     try {
       pending = jsonString != null
-          ? (jsonDecode(jsonString) as List).cast<Map<String, dynamic>>()
+          ? (jsonDecode(jsonString) as List? ?? []).cast<Map<String, dynamic>>()
           : [];
     } catch (e) {
       pending = [];
@@ -355,7 +356,7 @@ class AdvisoryCache {
     if (jsonString == null) return [];
 
     try {
-      final pending = (jsonDecode(jsonString) as List).cast<Map<String, dynamic>>();
+      final pending = (jsonDecode(jsonString) as List? ?? []).cast<Map<String, dynamic>>();
       return pending.map((json) => AdvisoryFeedback.fromJson(json)).toList();
     } catch (e) {
       return [];
@@ -570,7 +571,7 @@ class _CachedAdvisory {
   factory _CachedAdvisory.fromJson(Map<String, dynamic> json) {
     return _CachedAdvisory(
       advisory: Advisory.fromJson(json['advisory'] as Map<String, dynamic>),
-      cachedAt: DateTime.parse(json['cachedAt'] as String),
+      cachedAt: DateTime.tryParse(json['cachedAt'] as String) ?? DateTime.now(),
     );
   }
 
@@ -595,7 +596,7 @@ class _CachedFeedback {
   factory _CachedFeedback.fromJson(Map<String, dynamic> json) {
     return _CachedFeedback(
       feedback: AdvisoryFeedback.fromJson(json['feedback'] as Map<String, dynamic>),
-      cachedAt: DateTime.parse(json['cachedAt'] as String),
+      cachedAt: DateTime.tryParse(json['cachedAt'] as String) ?? DateTime.now(),
       synced: json['synced'] as bool? ?? false,
     );
   }

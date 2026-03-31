@@ -200,7 +200,7 @@ class BoundaryPoint(BaseModel):
     accuracy_m: float = Field(default=5.0, ge=0, description="GPS accuracy in meters | دقة GPS بالمتر")
     accuracy_level: CoordinateAccuracy = Field(default=CoordinateAccuracy.UNKNOWN)
     altitude_m: float | None = Field(default=None, description="Altitude in meters | الارتفاع بالمتر")
-    captured_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    captured_at: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
     device_id: str | None = Field(default=None, description="Device that captured the point | الجهاز الذي التقط النقطة")
     notes: str | None = Field(default=None)
     notes_ar: str | None = Field(default=None)
@@ -389,7 +389,7 @@ class BoundaryConflict(BaseModel):
     resolved_at: datetime | None = Field(default=None)
 
     # Timestamps | الطوابع الزمنية
-    detected_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
 
     # Severity | الخطورة
     severity: str = Field(default="medium", description="Conflict severity: low, medium, high | خطورة التعارض")
@@ -451,7 +451,7 @@ class BoundaryShareRequest(BaseModel):
     response_message_ar: str | None = Field(default=None)
 
     # Timestamps | الطوابع الزمنية
-    created_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
     responded_at: datetime | None = Field(default=None)
     expires_at: datetime | None = Field(default=None)
 
@@ -474,7 +474,7 @@ class GPSTrack(BaseModel):
     is_closed: bool = Field(default=False, description="Whether track forms closed loop | هل المسار يشكل حلقة مغلقة")
 
     # Metadata | البيانات الوصفية
-    start_time: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    start_time: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
     end_time: datetime | None = Field(default=None)
     total_distance_m: float | None = Field(default=None, ge=0)
     average_accuracy_m: float | None = Field(default=None, ge=0)

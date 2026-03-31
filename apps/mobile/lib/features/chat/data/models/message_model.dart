@@ -94,10 +94,10 @@ class Message {
       metadata: json['metadata'] as Map<String, dynamic>?,
       status: _parseMessageStatus(json['status'] as String?),
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
       updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'] as String)
+          ? DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now()
           : null,
       isMine: currentUserId != null && json['senderId'] == currentUserId,
     );

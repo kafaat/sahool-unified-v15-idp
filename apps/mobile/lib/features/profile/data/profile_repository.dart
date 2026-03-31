@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
 import '../../../core/network/api_result.dart';
+import '../../../core/offline/offline_sync_engine.dart';
 import '../presentation/providers/profile_provider.dart';
 
 // =============================================================================
@@ -65,12 +66,12 @@ class ProfileRepository {
     String? phone,
     String? farmName,
   }) async {
-    try {
-      final body = <String, dynamic>{};
-      if (userName != null) body['name'] = userName;
-      if (phone != null) body['phone'] = phone;
-      if (farmName != null) body['farmName'] = farmName;
+    final body = <String, dynamic>{};
+    if (userName != null) body['name'] = userName;
+    if (phone != null) body['phone'] = phone;
+    if (farmName != null) body['farmName'] = farmName;
 
+    try {
       final response = await _dio.patch('/api/v1/users/me', data: body);
 
       final data = response.data is Map<String, dynamic>
@@ -79,6 +80,28 @@ class ProfileRepository {
 
       return Success(_parseProfile(data));
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'user_preference',
+          entityId: 'me',
+          data: body,
+          priority: SyncPriority.medium,
+        );
+
+        return Failure(
+          'Saved offline - will sync when connected',
+          statusCode: e.response?.statusCode,
+          originalError: e,
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل تحديث الملف الشخصي'),
         statusCode: e.response?.statusCode,
@@ -104,6 +127,27 @@ class ProfileRepository {
       }
       return Success(url);
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'user_preference',
+          data: {'filePath': filePath, 'type': 'avatar_upload'},
+          priority: SyncPriority.medium,
+        );
+
+        return Failure(
+          'Saved offline - will sync when connected',
+          statusCode: e.response?.statusCode,
+          originalError: e,
+        );
+      }
+
       return Failure(
         _getErrorMessage(e, 'فشل رفع الصورة'),
         statusCode: e.response?.statusCode,

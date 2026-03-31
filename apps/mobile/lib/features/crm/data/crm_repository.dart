@@ -7,6 +7,8 @@ library;
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/offline/offline_sync_engine.dart';
+import '../../../core/utils/app_logger.dart';
 import '../domain/models/farmer_profile.dart';
 import '../domain/models/interaction.dart';
 import '../domain/models/opportunity.dart';
@@ -106,12 +108,37 @@ class CrmRepository {
   /// Create new farmer
   /// إنشاء مزارع جديد
   Future<ApiResult<FarmerProfile>> createFarmer(FarmerProfile farmer) async {
+    final farmerData = farmer.toJson();
     try {
-      final response = await _api.createFarmer(farmer.toJson());
+      final response = await _api.createFarmer(farmerData);
+
+      AppLogger.i('Farmer created via API', tag: 'CrmRepo', data: {'farmer': farmer.id});
+
       return ApiResult.success(
         FarmerProfile.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'crm',
+          data: {'type': 'farmer', ...farmerData},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Farmer creation queued for offline sync (API unavailable)', tag: 'CrmRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return _handleDioError(e, 'فشل في إنشاء المزارع');
     } catch (e) {
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
@@ -126,6 +153,9 @@ class CrmRepository {
   ) async {
     try {
       final response = await _api.updateFarmer(farmerId, updates);
+
+      AppLogger.i('Farmer updated via API', tag: 'CrmRepo', data: {'farmerId': farmerId});
+
       return ApiResult.success(
         FarmerProfile.fromJson(response.data as Map<String, dynamic>),
       );
@@ -133,6 +163,29 @@ class CrmRepository {
       if (e.response?.statusCode == 404) {
         return ApiResult.failure('Farmer not found', 'المزارع غير موجود');
       }
+
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'crm',
+          entityId: farmerId,
+          data: {'type': 'farmer', ...updates},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Farmer update queued for offline sync (API unavailable)', tag: 'CrmRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return _handleDioError(e, 'فشل في تحديث المزارع');
     } catch (e) {
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
@@ -319,12 +372,37 @@ class CrmRepository {
   /// Create new interaction
   /// إنشاء تفاعل جديد
   Future<ApiResult<Interaction>> createInteraction(Interaction interaction) async {
+    final interactionData = interaction.toJson();
     try {
-      final response = await _api.createInteraction(interaction.toJson());
+      final response = await _api.createInteraction(interactionData);
+
+      AppLogger.i('Interaction created via API', tag: 'CrmRepo', data: {'interaction': interaction.id});
+
       return ApiResult.success(
         Interaction.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'crm',
+          data: {'type': 'interaction', ...interactionData},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Interaction creation queued for offline sync (API unavailable)', tag: 'CrmRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return _handleDioError(e, 'فشل في إنشاء التفاعل');
     } catch (e) {
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
@@ -339,6 +417,9 @@ class CrmRepository {
   ) async {
     try {
       final response = await _api.updateInteraction(interactionId, updates);
+
+      AppLogger.i('Interaction updated via API', tag: 'CrmRepo', data: {'interactionId': interactionId});
+
       return ApiResult.success(
         Interaction.fromJson(response.data as Map<String, dynamic>),
       );
@@ -346,6 +427,29 @@ class CrmRepository {
       if (e.response?.statusCode == 404) {
         return ApiResult.failure('Interaction not found', 'التفاعل غير موجود');
       }
+
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'crm',
+          entityId: interactionId,
+          data: {'type': 'interaction', ...updates},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Interaction update queued for offline sync (API unavailable)', tag: 'CrmRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return _handleDioError(e, 'فشل في تحديث التفاعل');
     } catch (e) {
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
@@ -475,12 +579,37 @@ class CrmRepository {
   /// Create new opportunity
   /// إنشاء فرصة جديدة
   Future<ApiResult<Opportunity>> createOpportunity(Opportunity opportunity) async {
+    final opportunityData = opportunity.toJson();
     try {
-      final response = await _api.createOpportunity(opportunity.toJson());
+      final response = await _api.createOpportunity(opportunityData);
+
+      AppLogger.i('Opportunity created via API', tag: 'CrmRepo', data: {'opportunity': opportunity.id});
+
       return ApiResult.success(
         Opportunity.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'crm',
+          data: {'type': 'opportunity', ...opportunityData},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Opportunity creation queued for offline sync (API unavailable)', tag: 'CrmRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return _handleDioError(e, 'فشل في إنشاء الفرصة');
     } catch (e) {
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');
@@ -495,6 +624,9 @@ class CrmRepository {
   ) async {
     try {
       final response = await _api.updateOpportunity(opportunityId, updates);
+
+      AppLogger.i('Opportunity updated via API', tag: 'CrmRepo', data: {'opportunityId': opportunityId});
+
       return ApiResult.success(
         Opportunity.fromJson(response.data as Map<String, dynamic>),
       );
@@ -502,6 +634,29 @@ class CrmRepository {
       if (e.response?.statusCode == 404) {
         return ApiResult.failure('Opportunity not found', 'الفرصة غير موجودة');
       }
+
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'crm',
+          entityId: opportunityId,
+          data: {'type': 'opportunity', ...updates},
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Opportunity update queued for offline sync (API unavailable)', tag: 'CrmRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return _handleDioError(e, 'فشل في تحديث الفرصة');
     } catch (e) {
       return ApiResult.failure(e.toString(), 'حدث خطأ غير متوقع');

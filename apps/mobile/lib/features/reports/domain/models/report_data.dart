@@ -345,7 +345,7 @@ class ReportData {
         (e) => e.name == json['status'],
         orElse: () => ReportStatus.draft,
       ),
-      generatedAt: DateTime.parse(json['generated_at'] as String),
+      generatedAt: DateTime.tryParse(json['generated_at'] as String) ?? DateTime.now(),
       sections: (json['sections'] as List<dynamic>?)
               ?.map((e) => ReportSection.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -479,7 +479,7 @@ class ReportHistoryEntry {
         orElse: () => ReportType.fieldPerformance,
       ),
       title: json['title'] as String,
-      generatedAt: DateTime.parse(json['generated_at'] as String),
+      generatedAt: DateTime.tryParse(json['generated_at'] as String) ?? DateTime.now(),
       exportFormat: json['export_format'] != null
           ? ExportFormat.values.firstWhere(
               (e) => e.name == json['export_format'],

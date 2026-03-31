@@ -4,6 +4,7 @@ AI Chat Assistant - Main FastAPI application.
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
 try:
@@ -12,6 +13,7 @@ except ImportError:
     structlog = None  # type: ignore[assignment]
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 try:
@@ -109,6 +111,17 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# CORS middleware
+cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
+allow_credentials = cors_origins != ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=allow_credentials,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)

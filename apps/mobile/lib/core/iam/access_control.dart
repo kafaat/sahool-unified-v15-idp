@@ -79,7 +79,7 @@ enum ResourceType {
   static ResourceType? fromCode(String code) {
     try {
       return ResourceType.values.firstWhere((t) => t.code == code);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -139,7 +139,7 @@ enum AccessAction {
   static AccessAction? fromCode(String code) {
     try {
       return AccessAction.values.firstWhere((a) => a.code == code);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -249,10 +249,10 @@ class AccessControlEntry {
               .toSet() ??
           {},
       conditions: json['conditions'] as Map<String, dynamic>?,
-      expiresAt: json['expires_at'] != null ? DateTime.parse(json['expires_at'] as String) : null,
+      expiresAt: json['expires_at'] != null ? DateTime.tryParse(json['expires_at'] as String) : null,
       inherited: json['inherited'] as bool? ?? false,
       inheritedFrom: json['inherited_from'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       createdBy: json['created_by'] as String?,
     );
   }
@@ -374,7 +374,7 @@ class AccessControlList {
           [],
       parentResourceId: json['parent_resource_id'] as String?,
       inheritFromParent: json['inherit_from_parent'] as bool? ?? true,
-      lastModified: DateTime.parse(json['last_modified'] as String),
+      lastModified: DateTime.tryParse(json['last_modified'] as String) ?? DateTime.now(),
     );
   }
 

@@ -209,7 +209,7 @@ class AdvisoryRequest {
           : null,
       additionalContext: json['additional_context'] as Map<String, dynamic>?,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }

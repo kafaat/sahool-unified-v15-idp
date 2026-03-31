@@ -77,7 +77,7 @@ export const dashboardApi = {
       if (data && typeof data === 'object' && 'stats' in data) {
         return data as DashboardData;
       }
-      throw new Error('API returned unexpected format');
+      throw new Error('API returned unexpected format | تنسيق الاستجابة غير متوقع');
     });
   },
 
@@ -116,7 +116,7 @@ export const dashboardApi = {
         return activity;
       }
 
-      throw new Error('API returned unexpected format for activity');
+      throw new Error('API returned unexpected format for activity | تنسيق غير متوقع لبيانات النشاط');
     });
   },
 
@@ -136,7 +136,7 @@ export const dashboardApi = {
         return tasks;
       }
 
-      throw new Error('API returned unexpected format for tasks');
+      throw new Error('API returned unexpected format for tasks | تنسيق غير متوقع لبيانات المهام');
     });
   },
 
@@ -164,11 +164,11 @@ export const dashboardApi = {
 
       return {
         success: false,
-        error: response.data.error || 'Failed to complete task',
+        error: response.data.error || 'Failed to complete task | فشل في إكمال المهمة',
       };
     } catch (error) {
       logger.error('Failed to mark task as complete:', error);
-      return { success: false, error: 'Network error while completing task' };
+      return { success: false, error: 'Network error while completing task | خطأ في الاتصال أثناء إكمال المهمة' };
     }
   },
 
@@ -192,11 +192,11 @@ export const dashboardApi = {
 
       return {
         success: false,
-        error: response.data.error || 'Failed to dismiss alert',
+        error: response.data.error || 'Failed to dismiss alert | فشل في تجاهل التنبيه',
       };
     } catch (error) {
       logger.error('Failed to dismiss alert:', error);
-      return { success: false, error: 'Network error while dismissing alert' };
+      return { success: false, error: 'Network error while dismissing alert | خطأ في الاتصال أثناء تجاهل التنبيه' };
     }
   },
 
@@ -218,11 +218,11 @@ export const dashboardApi = {
 
       return {
         success: false,
-        error: response.data.error || 'Failed to mark activity as read',
+        error: response.data.error || 'Failed to mark activity as read | فشل في تحديد النشاط كمقروء',
       };
     } catch (error) {
       logger.error('Failed to mark activity as read:', error);
-      return { success: false, error: 'Network error while marking activity' };
+      return { success: false, error: 'Network error while marking activity | خطأ في الاتصال أثناء تحديد النشاط' };
     }
   },
 
@@ -240,13 +240,13 @@ export const dashboardApi = {
 
       return {
         success: false,
-        error: response.data.error || 'Failed to acknowledge alert',
+        error: response.data.error || 'Failed to acknowledge alert | فشل في الإقرار بالتنبيه',
       };
     } catch (error) {
       logger.error('Failed to acknowledge alert:', error);
       return {
         success: false,
-        error: 'Network error while acknowledging alert',
+        error: 'Network error while acknowledging alert | خطأ في الاتصال أثناء الإقرار بالتنبيه',
       };
     }
   },
@@ -282,7 +282,7 @@ export const dashboardApi = {
         return alerts;
       }
 
-      throw new Error('API returned unexpected format for alerts');
+      throw new Error('API returned unexpected format for alerts | تنسيق غير متوقع لبيانات التنبيهات');
     });
   },
 

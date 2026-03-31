@@ -589,7 +589,7 @@ final availablePlansProvider =
         );
       }).toList();
     }
-  } catch (_) {
+  } catch (e) {
     // Offline fallback
   }
   return _mockPlans;

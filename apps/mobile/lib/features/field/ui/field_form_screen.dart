@@ -658,10 +658,11 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
         );
       } else {
         // إنشاء حقل جديد - Create new field
+        // الحدود ستُضاف من الخريطة لاحقاً - Boundary added via map later
         await repo.createField(
           tenantId: tenantId,
           name: _nameController.text.trim(),
-          boundary: [], // الحدود ستُضاف من الخريطة لاحقاً
+          boundary: const [], // valid: empty boundary, user draws later
           cropType: _selectedCrop,
         );
       }

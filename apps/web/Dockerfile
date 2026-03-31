@@ -47,7 +47,8 @@ COPY apps/services/yield-prediction-service/package.json ./apps/services/yield-p
 COPY apps/admin/package.json ./apps/admin/
 
 # Validate all copied package.json files are valid JSON (fail fast if corrupted by merge conflicts)
-RUN node -e "const fs=require('fs'),path=require('path');function find(d){return fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()&&e.name!='node_modules'?find(path.join(d,e.name)):e.name=='package.json'?[path.join(d,e.name)]:[]);}const files=find('.');let ok=true;files.forEach(f=>{try{JSON.parse(fs.readFileSync(f,'utf8'));}catch(e){console.error('ERROR: '+f+' is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).');ok=false;}});if(!ok)process.exit(1);console.log('All '+files.length+' package.json files are valid JSON.');"
+COPY docker/validate-package-json.js /usr/local/bin/
+RUN node /usr/local/bin/validate-package-json.js
 
 # Install all dependencies at root level with retry loop and mirror fallback
 RUN --mount=type=cache,target=/root/.npm \

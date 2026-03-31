@@ -1,6 +1,3 @@
-
-import 'dart:math' as math;
-
 /// SAHOOL Scout Session Models
 /// نماذج جلسة مسح الحقول
 ///
@@ -10,6 +7,8 @@ import 'dart:math' as math;
 /// - الملاحظة
 /// - المسار
 library;
+
+import 'dart:math' as math;
 
 /// جلسة مسح الحقل
 class ScoutSession {

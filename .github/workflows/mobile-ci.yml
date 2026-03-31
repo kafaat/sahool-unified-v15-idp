@@ -43,8 +43,8 @@ concurrency:
 env:
   FLUTTER_VERSION: '3.27.1'
   JAVA_VERSION: '17'
-  ANDROID_COMPILE_SDK: '36'
-  ANDROID_BUILD_TOOLS: '36.0.0'
+  ANDROID_COMPILE_SDK: '35'
+  ANDROID_BUILD_TOOLS: '35.0.0'
   ANDROID_MIN_SDK: '23'
 
 jobs:
@@ -95,24 +95,59 @@ jobs:
       - name: Verify Flutter setup
         run: flutter doctor -v
 
-      - name: Generate code (Drift, Freezed, etc.)
+      - name: Generate code (Drift, Freezed, Riverpod, etc.)
         run: |
           echo "Running code generation..."
-          dart run build_runner build --delete-conflicting-outputs || {
-            echo "Code generation failed, retrying..."
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen_output.txt
+          CODEGEN_EXIT=${PIPESTATUS[0]}
+
+          if [ $CODEGEN_EXIT -ne 0 ]; then
+            echo "::warning::Code generation failed (exit $CODEGEN_EXIT), retrying with clean state..."
             rm -rf .dart_tool/build
-            dart run build_runner build --delete-conflicting-outputs
-          }
+            dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen_output.txt
+            CODEGEN_EXIT=${PIPESTATUS[0]}
+
+            if [ $CODEGEN_EXIT -ne 0 ]; then
+              echo "::error::Code generation failed after retry (exit $CODEGEN_EXIT)"
+              echo "## Code Generation Failed" >> $GITHUB_STEP_SUMMARY
+              echo "build_runner failed with exit code $CODEGEN_EXIT" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              tail -50 codegen_output.txt >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          # Verify critical generated files exist
+          echo "Verifying generated files..."
+          MISSING=0
+          for f in \
+            "lib/core/storage/database.g.dart" \
+            "lib/features/astronomical/models/astronomical_models.freezed.dart" \
+            "lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart" \
+            "lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart" \
+            "lib/features/auth/config/otp_config.g.dart"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing generated file: $f"
+              MISSING=$((MISSING + 1))
+            else
+              echo "✓ $f exists"
+            fi
+          done
+
+          if [ $MISSING -gt 0 ]; then
+            echo "::error::$MISSING critical generated files are missing. build_runner may have failed silently."
+          fi
 
       - name: Run Flutter Analyze
         run: |
           echo "Running Flutter Analyze..."
-          flutter analyze --no-fatal-infos 2>&1 | tee analyze_output.txt || echo "::warning::Flutter analysis errors found (pre-existing)"
+          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze_output.txt
+          ANALYZE_EXIT=${PIPESTATUS[0]}
 
           # Extract warning and error counts
-          ERRORS=$(grep -c "error" analyze_output.txt || echo "0")
-          WARNINGS=$(grep -c "warning" analyze_output.txt || echo "0")
-          INFOS=$(grep -c "info" analyze_output.txt || echo "0")
+          ERRORS=$(grep -c "  error •" analyze_output.txt || echo "0")
+          WARNINGS=$(grep -c "warning •" analyze_output.txt || echo "0")
+          INFOS=$(grep -c "  info •" analyze_output.txt || echo "0")
 
           echo "## Flutter Analysis Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -121,6 +156,15 @@ jobs:
           echo "| Errors | $ERRORS |" >> $GITHUB_STEP_SUMMARY
           echo "| Warnings | $WARNINGS |" >> $GITHUB_STEP_SUMMARY
           echo "| Infos | $INFOS |" >> $GITHUB_STEP_SUMMARY
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Top Errors (first 20)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep "  error •" analyze_output.txt | head -20 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "::warning::Flutter analysis found $ERRORS errors"
+          fi
 
       - name: Check Dart formatting
         run: |

@@ -25,13 +25,16 @@ python-multipart==0.0.22  # CVE-2024-53981 fix
 # ─────────────────────────────────────────────────────────────────────────────
 # LangChain Framework (Security Updates)
 # ─────────────────────────────────────────────────────────────────────────────
+# Path Traversal in legacy load_prompt - fixed in langchain-core>=1.2.22
 # CVE-2025-68664, CVE-2025-65106 - Fixed in langchain-core 0.3.81
 # CVE-2025-6984 - Fixed in langchain-community 0.3.27
-langchain>=0.3.26,<0.4.0
-langchain-core==0.3.83
-langchain-community==0.3.31  # Must stay on 0.3.x (0.4.x requires langchain-core>=1.0.1)
-langchain-anthropic==0.3.22
-langchain-openai>=0.3.0,<0.4.0
+# Note: langchain-community 0.4.x requires langchain-core>=1.0.1
+#       langchain 1.x is required for langchain-core 1.x compatibility
+langchain>=1.0.0,<2.0.0
+langchain-core>=1.2.22,<2.0.0  # Path Traversal in load_prompt; patched in 1.2.22
+langchain-community>=0.4.0,<1.0.0
+langchain-anthropic>=0.3.22,<1.0.0
+langchain-openai>=0.3.0,<1.0.0
 langsmith>=0.3.45,<1.0.0
 
 # ─────────────────────────────────────────────────────────────────────────────

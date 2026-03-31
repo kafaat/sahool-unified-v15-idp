@@ -46,13 +46,8 @@ vllm>=0.6.0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Embeddings and Vector Stores
 # ─────────────────────────────────────────────────────────────────────────────
-<<<<<<< HEAD
 sentence-transformers==5.3.0
 qdrant-client==1.17.1
-=======
-sentence-transformers==5.2.3
-qdrant-client>=1.12.0,<2.0.0  # Exact pin 1.17.0 had no manylinux wheel for Python 3.11
->>>>>>> cad879577aa9e5b68d0c55337eaf4665ca117c28
 faiss-cpu>=1.7.4,<2.0.0  # For dense vector search
 chromadb>=0.4.0,<2.0.0  # Alternative vector DB
 

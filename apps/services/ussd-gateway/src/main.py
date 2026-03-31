@@ -38,7 +38,7 @@ SERVICE_VERSION = "16.0.0"
 # ============================================================
 
 try:
-    from shared.auth.rate_limiting import RateLimiter
+    from shared.middleware.rate_limit import RateLimiter
 
     rate_limiter = RateLimiter()  # noqa: F841 — used by middleware
     RATE_LIMITER_AVAILABLE = True

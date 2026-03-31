@@ -384,8 +384,8 @@ services:
   # IOT SERVICE - خدمة إنترنت الأشياء
   # ═══════════════════════════════════════════════════════════════════════════
   iot-service:
-    name: "IoT Gateway"
-    name_ar: "بوابة إنترنت الأشياء"
+    name: "IoT Device Management"
+    name_ar: "خدمة إدارة أجهزة إنترنت الأشياء"
     type: nestjs
     category: integration
     layer: acquisition
@@ -3610,7 +3610,7 @@ infrastructure:
     grafana:
       port: 3003  # Changed from 3000 to avoid conflict with field-management-service and web dashboard
     loki:
-      port: 3100
+      port: 3101  # Changed from 3100 to avoid conflict with Rocket.Chat (port 3100)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Infrastructure Services (Docker Compose)

@@ -21,6 +21,10 @@ COPY apps/services/chat-service ./chat-service/
 
 WORKDIR /workspace/chat-service
 
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
+
 # Install dependencies (with retries for network resilience)
 # Use shell-level retry loop for better handling of network timeouts
 RUN --mount=type=cache,target=/root/.npm \

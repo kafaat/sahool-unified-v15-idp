@@ -34,18 +34,8 @@ SERVICE_VERSION = "16.0.0"
 
 
 # ============================================================
-# Rate Limiting - تحديد معدل الطلبات
+# Rate Limiting - تحديد معدل الطلبات (wired after app creation below)
 # ============================================================
-
-try:
-    from shared.auth.rate_limiting import RateLimiter
-
-    rate_limiter = RateLimiter()  # noqa: F841 — used by middleware
-    RATE_LIMITER_AVAILABLE = True
-except ImportError:
-    rate_limiter = None  # noqa: F841
-    RATE_LIMITER_AVAILABLE = False
-    logger.warning("Rate limiter not available, endpoints are unprotected")
 
 
 # ============================================================
@@ -181,6 +171,19 @@ app.add_middleware(
 
 # Tenant context middleware
 app.add_middleware(TenantContextMiddleware)
+
+# Rate Limiting - wire into app after creation
+try:
+    from shared.middleware.rate_limiter import setup_rate_limiting
+
+    setup_rate_limiting(
+        app,
+        use_redis=os.getenv("REDIS_URL") is not None,
+        exclude_paths=["/healthz", "/readyz", "/health", "/metrics"],
+    )
+    logger.info("Rate limiting enabled for ussd-gateway")
+except ImportError:
+    logger.warning("Rate limiter not available, endpoints are unprotected")
 
 
 # ============================================================

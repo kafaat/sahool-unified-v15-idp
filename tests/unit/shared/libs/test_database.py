@@ -9,8 +9,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-# We need to mock sqlalchemy before importing the module under test
-# because the module does a try/except import at module level.
+from shared.libs.database import SQLALCHEMY_AVAILABLE
+
+# Note: SQLALCHEMY_AVAILABLE is imported at module level and is used
+# to conditionally skip tests when SQLAlchemy is not installed.
 
 
 class TestDatabaseConfig:
@@ -74,6 +76,7 @@ class TestDatabaseConfig:
         assert config.echo is False
 
 
+@pytest.mark.skipif(not SQLALCHEMY_AVAILABLE, reason="SQLAlchemy not installed")
 class TestDatabaseManager:
     """Tests for DatabaseManager."""
 
@@ -159,6 +162,7 @@ class TestDatabaseManager:
         assert status == {}
 
 
+@pytest.mark.skipif(not SQLALCHEMY_AVAILABLE, reason="SQLAlchemy not installed")
 class TestGlobalFunctions:
     """Tests for module-level helper functions."""
 
@@ -208,6 +212,7 @@ class TestGlobalFunctions:
             mock_close.assert_awaited_once()
 
 
+@pytest.mark.skipif(not SQLALCHEMY_AVAILABLE, reason="SQLAlchemy not installed")
 class TestDatabaseManagerExtended:
     """Extended tests for DatabaseManager session, health check, pool status."""
 

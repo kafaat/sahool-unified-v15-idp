@@ -61,7 +61,9 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
 
   Widget _buildOverviewTab() {
     return RefreshIndicator(
-      onRefresh: () async {},
+      onRefresh: () async {
+        ref.invalidate(analyticsProvider);
+      },
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

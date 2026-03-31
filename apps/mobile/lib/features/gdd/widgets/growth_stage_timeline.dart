@@ -66,9 +66,9 @@ class GrowthStageTimeline extends ConsumerWidget {
     required bool isCurrent,
     required bool isLast,
   }) {
-    final stageProgress = isCurrent
-        ? ((currentGDD - stage.gddStart) / (stage.gddEnd - stage.gddStart))
-            .clamp(0.0, 1.0)
+    final stageRange = stage.gddEnd - stage.gddStart;
+    final stageProgress = isCurrent && stageRange > 0
+        ? ((currentGDD - stage.gddStart) / stageRange).clamp(0.0, 1.0)
         : 0.0;
 
     return IntrinsicHeight(

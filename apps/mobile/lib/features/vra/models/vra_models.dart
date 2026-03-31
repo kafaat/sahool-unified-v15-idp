@@ -329,7 +329,8 @@ class VRAPrescription {
   double getTotalCost() {
     double total = 0;
     for (final rate in rates) {
-      final zone = zones.firstWhere((z) => z.zoneId == rate.zoneId);
+      final zone = zones.where((z) => z.zoneId == rate.zoneId).firstOrNull;
+      if (zone == null) continue;
       final zoneCost = rate.getTotalCost(zone.area);
       if (zoneCost != null) {
         total += zoneCost;
@@ -342,7 +343,8 @@ class VRAPrescription {
   double getTotalQuantity() {
     double total = 0;
     for (final rate in rates) {
-      final zone = zones.firstWhere((z) => z.zoneId == rate.zoneId);
+      final zone = zones.where((z) => z.zoneId == rate.zoneId).firstOrNull;
+      if (zone == null) continue;
       total += rate.rate * zone.area;
     }
     return total;

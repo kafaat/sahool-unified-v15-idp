@@ -82,7 +82,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             ndviValue: f.ndviCurrent,
             soilType: null,
             irrigationType: null,
-            status: FieldStatus.active,
+            status: FieldStatus.fromString(f.status ?? 'active'),
             createdAt: f.createdAt,
             updatedAt: f.updatedAt,
           );

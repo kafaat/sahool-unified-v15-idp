@@ -128,7 +128,9 @@ class SoilHealthChart extends StatelessWidget {
   Widget _buildTrendRow(
       String label, double oldValue, double newValue, Color color) {
     final change = newValue - oldValue;
-    final percentChange = (change / oldValue * 100).toStringAsFixed(1);
+    final percentChange = oldValue != 0
+        ? (change / oldValue * 100).toStringAsFixed(1)
+        : (change != 0 ? 'N/A' : '0.0');
     final isImproving = change > 0;
     final isStable = change.abs() < 2;
 
@@ -294,7 +296,7 @@ class SoilHealthChart extends StatelessWidget {
                 child: Stack(
                   children: [
                     Positioned(
-                      left: ((ph - 4.0) / 6.0 * 100).clamp(0, 100),
+                      left: ((ph.clamp(0, 14) / 14.0) * 100).clamp(0.0, 100.0),
                       top: -2,
                       child: Container(
                         width: 4,

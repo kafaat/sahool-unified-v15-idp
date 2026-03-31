@@ -105,7 +105,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     } else if (_activeFilter == 'تنبيه') {
       fields = fields.where((f) => f.needsAttention).toList();
     } else if (_activeFilter == 'حصاد') {
-      fields = fields.where((f) => f.ndvi >= 0.7).toList();
+      fields = fields.where((f) => f.ndvi >= 0.8).toList();
     }
     // Apply search query
     if (_searchQuery.isNotEmpty) {

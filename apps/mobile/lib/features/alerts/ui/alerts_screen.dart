@@ -194,7 +194,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen>
   void _onAlertTap(AlertModel alert) {
     // Optimistically update local state via a fresh read after acknowledge
     ref.read(alertsRepoProvider).acknowledgeAlert(alert.id).then((_) {
-      ref.invalidate(alertsProvider);
+      if (mounted) ref.invalidate(alertsProvider);
     });
   }
 
@@ -268,7 +268,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen>
 
   void _markAllAsRead(List<AlertModel> alerts) {
     ref.read(alertsRepoProvider).acknowledgeAllAlerts().then((_) {
-      ref.invalidate(alertsProvider);
+      if (mounted) ref.invalidate(alertsProvider);
     });
   }
 }

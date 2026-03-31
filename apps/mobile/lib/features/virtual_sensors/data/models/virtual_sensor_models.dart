@@ -25,36 +25,20 @@ enum GrowthStage {
 }
 
 /// Soil types
-/// أنواع التربة - USDA Soil Texture Classification
-/// Matches backend shared/soil_testing/models.py SoilTextureClass
+/// أنواع التربة
 enum SoilType {
-  @JsonValue('sand')
-  sand, // رمل
-  @JsonValue('loamy_sand')
-  loamySand, // رمل طميي
-  @JsonValue('sandy_loam')
-  sandyLoam, // طمي رملي
-  @JsonValue('loam')
-  loam, // طمي
-  @JsonValue('silt_loam')
-  siltLoam, // طمي طيني
-  @JsonValue('silt')
-  silt, // طين
-  @JsonValue('sandy_clay_loam')
-  sandyClayLoam, // طمي صلصالي رملي
-  @JsonValue('clay_loam')
-  clayLoam, // طمي صلصالي
-  @JsonValue('silty_clay_loam')
-  siltyClayLoam, // طمي صلصالي طيني
-  @JsonValue('sandy_clay')
-  sandyClay, // صلصال رملي
-  @JsonValue('silty_clay')
-  siltyClay, // صلصال طيني
-  @JsonValue('clay')
-  clay, // صلصال
-  // Legacy values for backward compatibility
   @JsonValue('sandy')
-  sandy, // رملي (alias for sand)
+  sandy,
+  @JsonValue('sandy_loam')
+  sandyLoam,
+  @JsonValue('loam')
+  loam,
+  @JsonValue('clay_loam')
+  clayLoam,
+  @JsonValue('clay')
+  clay,
+  @JsonValue('silty_clay')
+  siltyClay,
 }
 
 /// Irrigation methods

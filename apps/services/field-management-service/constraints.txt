@@ -1,135 +1,156 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# SAHOOL AI/RAG Services Dependency Constraints
-# Version: 16.0.0
-# Updated: March 2026
-# 
-# This file contains pinned versions for all AI/RAG services to ensure:
-# 1. Security: All known CVEs are patched
-# 2. Reproducibility: Builds are deterministic
-# 3. Compatibility: All services use compatible versions
-# 4. Stability: Version ranges prevent breaking changes
+# SAHOOL Platform - Central Dependency Constraints
+# قيود المكتبات المركزية لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Usage:
+#   pip install -c constraints.txt -r requirements.txt
+#
+# This file ensures version consistency across all services.
+# Update versions here to propagate changes platform-wide.
+#
+# Last Updated: March 2026
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Core Web Framework
+# Web Framework
 # ─────────────────────────────────────────────────────────────────────────────
 fastapi==0.135.2
-starlette>=0.49.1,<1.0.0
-# Note: uvicorn extras removed for constraints compatibility - install separately
-uvicorn>=0.30.0,<1.0.0
+uvicorn==0.42.0
+starlette>=0.49.1,<1.0.0  # Required by fastapi==0.135.2
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Validation
+# ─────────────────────────────────────────────────────────────────────────────
 pydantic==2.12.5
 pydantic-settings==2.13.1
+pydantic-core>=2.27.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HTTP Clients
+# ─────────────────────────────────────────────────────────────────────────────
 httpx==0.28.1
-python-multipart==0.0.22  # CVE-2024-53981 fix
+aiohttp>=3.13.3,<4.0.0  # Security fixes for CVE-2025-53643 and CVE-2025-69223
+
+# Transitive dependencies - minimum secure versions for OWASP/CVE compliance
+requests>=2.32.0  # CVE-2024-35195: session credential leak
+urllib3>=2.2.2  # CVE-2024-37891: proxy auth header leak
+certifi>=2024.7.4  # CVE-2024-39689: revoked root certificate removal
+idna>=3.7  # CVE-2024-3651: ReDoS in IDNA codec
+jinja2>=3.1.5  # CVE-2024-56201: sandbox escape, CVE-2024-34064: XSS in xmlattr
+werkzeug>=3.0.6  # CVE-2024-34069: debugger arbitrary code execution
 
 # ─────────────────────────────────────────────────────────────────────────────
-# LangChain Framework (Security Updates)
+# Database
 # ─────────────────────────────────────────────────────────────────────────────
-# Path Traversal in legacy load_prompt - fixed in langchain-core>=1.2.22
-# CVE-2025-68664, CVE-2025-65106 - Fixed in langchain-core 0.3.81
-# CVE-2025-6984 - Fixed in langchain-community 0.3.27
-# Note: langchain-community 0.4.x requires langchain-core>=1.0.1
-#       langchain 1.x is required for langchain-core 1.x compatibility
-langchain>=1.0.0,<2.0.0
-langchain-core>=1.2.22,<2.0.0  # Path Traversal in load_prompt; patched in 1.2.22
-langchain-community>=0.4.0,<1.0.0
-langchain-anthropic>=1.0.0,<2.0.0
-langchain-openai>=1.0.0,<2.0.0
-langsmith>=0.3.45,<1.0.0
+asyncpg==0.31.0
+sqlalchemy==2.0.48
+tortoise-orm==1.1.7
+# aerich removed: 0.9.2 requires tortoise-orm<1.0.0, incompatible with 1.1.7
+psycopg2-binary==2.9.11
+alembic==1.18.4
 
 # ─────────────────────────────────────────────────────────────────────────────
-# LLM Providers (with upper bounds for security)
+# Messaging
 # ─────────────────────────────────────────────────────────────────────────────
-anthropic>=0.85.0,<1.0.0  # langchain-anthropic>=1.0.0 requires anthropic>=0.85.0
-openai>=2.26.0,<3.0.0  # langchain-openai>=1.0.0 requires openai>=2.26.0
-google-generativeai>=0.3.0,<1.0.0
-ollama>=0.1.0,<1.0.0
-vllm>=0.6.0,<1.0.0
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Embeddings and Vector Stores
-# ─────────────────────────────────────────────────────────────────────────────
-sentence-transformers==5.3.0
-qdrant-client>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1  # 1.17.x had no manylinux wheel for Python 3.11
-faiss-cpu>=1.7.4,<2.0.0  # For dense vector search
-chromadb>=0.4.0,<2.0.0  # Alternative vector DB
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Machine Learning Core
-# ─────────────────────────────────────────────────────────────────────────────
-# NOTE: torch/torchvision versions vary per service due to framework compatibility.
-# Each service pins its own version in Dockerfile or requirements.txt:
-#   - yolo26-vision-service: torch==2.2.0, torchvision==0.17.0 (ultralytics 8.x compat)
-#   - copilot-api: torch>=2.2.0,<2.7.0 (sentence-transformers compat)
-#   - Default (new AI services): torch>=2.2.0,<3.0.0
-# Do NOT use exact pins here — they conflict with per-service needs.
-torch>=2.2.0,<3.0.0
-torchvision>=0.17.0,<1.0.0
-numpy>=1.26.0,<2.0.0  # Pin <2.0 to prevent compiled module mismatch (torch, transformers built against 1.x)
-pandas>=2.2.0,<4.0.0
-scikit-learn>=1.5.0,<2.0.0
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Deep Learning Frameworks (Optional)
-# ─────────────────────────────────────────────────────────────────────────────
-tensorflow-cpu==2.21.0  # Aligned with constraints.txt
-transformers>=4.40.0,<6.0.0
-tokenizers>=0.19.0,<1.0.0
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Computer Vision (YOLO26)
-# ─────────────────────────────────────────────────────────────────────────────
-ultralytics>=8.0.0,<9.0.0
-opencv-python-headless>=4.9.0,<5.0.0
-pillow>=12.1.1,<13.0.0  # CVE-2026-25990 fixed in 12.1.1
-
-# ─────────────────────────────────────────────────────────────────────────────
-# NATS Messaging
-# ─────────────────────────────────────────────────────────────────────────────
-nats-py>=2.9.0,<3.0.0  # Allow upgrade to 2.14.0 (constraints.txt pin)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Database and Caching
-# ─────────────────────────────────────────────────────────────────────────────
-asyncpg>=0.30.0,<1.0.0  # Compatible with constraints.txt asyncpg==0.31.0
-# Note: redis extras removed for constraints compatibility - install separately
+nats-py==2.14.0
 redis>=7.1.0,<8.0.0
-sqlalchemy>=2.0.0,<3.0.0
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Authentication and Security
+# Authentication
 # ─────────────────────────────────────────────────────────────────────────────
-PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861 fixed in 2.10.1
-cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f
-# Note: python-jose extras removed for constraints compatibility - install separately
-python-jose>=3.5.0,<4.0.0  # CVE-2024-33663, CVE-2024-33664 - fixed in 3.5.0
+PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861 (issuer validation bypass) fixed in 2.10.1; replaces python-jose (CVE-2024-33663, CVE-2024-33664)
+python-jose>=3.5.0,<4.0.0  # Deprecated: migrating to PyJWT. Kept for docker/constraints-ai.txt compatibility.
+passlib==1.7.4
 bcrypt>=4.2.0,<5.0.0  # Required by passlib[bcrypt] for secure password hashing
+pyotp>=2.9.0,<3.0.0  # TOTP generation for 2FA
+<<<<<<< HEAD
+qrcode>=7.4.2,<9.0.0  # QR code generation for 2FA setup (8.x supported)
+cryptography>=44.0.1,<47.0.0  # CVE-2024-12797 fixed in 44.0.1, CVE-2026-26007 fixed in 46.0.5
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Monitoring and Observability
+# Observability
 # ─────────────────────────────────────────────────────────────────────────────
-prometheus-client>=0.21.1,<1.0.0  # Allow upgrade to 0.24.1 (constraints.txt pin)
-structlog>=25.5.0,<26.0.0
-opentelemetry-api>=1.20.0,<2.0.0
-opentelemetry-sdk>=1.20.0,<2.0.0
-opentelemetry-instrumentation-fastapi>=0.41b0,<1.0.0
+prometheus-client==0.24.1
+opentelemetry-api==1.40.0
+opentelemetry-sdk==1.40.0
+opentelemetry-instrumentation-fastapi==0.61b0
+structlog==25.5.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Scientific Computing
+# Note: numpy<2.0.0 required to prevent compiled module mismatch with torch/transformers built against 1.x
+# ─────────────────────────────────────────────────────────────────────────────
+numpy>=1.26.0,<2.0.0
+scipy>=1.11.0,<1.18.0
+optuna>=3.6.0,<5.0.0
+Pillow==12.1.1  # CVE-2026-25990 (OOB write in PSD handler) fixed in 12.1.1
+shapely==2.1.2
+rasterio==1.4.4
+pyproj==3.7.2
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Machine Learning
+# ─────────────────────────────────────────────────────────────────────────────
+tensorflow-cpu==2.21.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Testing
+# ─────────────────────────────────────────────────────────────────────────────
+pytest==8.4.2
+pytest-asyncio==0.26.0
+pytest-cov>=6.0.0
+pytest-mock==3.15.1
+pytest-xdist==3.8.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Build Tools (Security)
+# ─────────────────────────────────────────────────────────────────────────────
+setuptools>=78.1.1  # PYSEC-2025-49, CVE-2024-6345 (path traversal in PackageIndex)
+wheel>=0.46.2  # CVE-2026-24049 (path traversal CWE-22)
+jaraco.context>=6.1.0  # CVE-2026-23949 (Zip Slip path traversal in tarball())
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Development Tools
+# ─────────────────────────────────────────────────────────────────────────────
+ruff==0.15.8
+pre-commit==4.5.1
+black==24.10.0
+isort==5.13.2
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Utilities
 # ─────────────────────────────────────────────────────────────────────────────
-python-dotenv>=1.0.1,<2.0.0  # Allow upgrade to 1.2.2 (constraints.txt pin)
-aiofiles>=24.1.0,<25.0.0
-tenacity>=8.5.0,<10.0.0
-click>=8.1.0,<9.0.0
-rich>=13.7.0,<14.0.0
+python-dotenv==1.2.2
+python-multipart==0.0.22
+python-dateutil==2.9.0.post0
+jsonschema==4.26.0
+tenacity==8.5.0
+slowapi>=0.1.9,<1.0.0
+orjson>=3.10.0,<4.0.0
+email-validator==2.3.0
+mypy==1.19.1
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Arabic NLP (AraBERT integration)
+# Firebase (Notifications)
 # ─────────────────────────────────────────────────────────────────────────────
-arabert>=1.0.0,<2.0.0
+firebase-admin==6.9.0
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Data Processing
+# Scheduling
 # ─────────────────────────────────────────────────────────────────────────────
-python-dateutil>=2.8.2,<3.0.0
-pytz>=2024.1
+apscheduler==3.11.2
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version Upgrade Notes
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# FastAPI: 0.115.6 → 0.128.5 (security fixes, performance improvements)
+# uvicorn: 0.32.1 → 0.40.0 (HTTP/2 improvements)
+# numpy: Pinned to <2.0.0 to prevent compiled module mismatch with torch/transformers built against 1.x
+# aiohttp: >=3.13.3 for CVE-2025-53643 and CVE-2025-69223 fixes
+#
+# Next upgrade targets:
+# - TensorFlow 2.21.x (will allow numpy 2.x)
+# - FastAPI 0.130.x (when stable)
+# ═══════════════════════════════════════════════════════════════════════════════

@@ -153,7 +153,7 @@ function Invoke-OllamaFix {
     $relPath = $FilePath.Replace($RootPath, "").TrimStart("/\")
 
     $systemPrompt = @"
-You are an expert Docker Compose engineer.  Your task is to analyze a docker-compose
+You are an expert Docker Compose engineer. Your task is to analyze a docker-compose
 YAML file and return a corrected version with ALL bugs and errors fixed.
 
 Rules:
@@ -161,16 +161,19 @@ Rules:
 2. Preserve the original intent and service definitions; only fix what is broken.
 3. Fix every one of the following classes of problem if present:
    - Invalid YAML syntax (bad indentation, tabs instead of spaces, duplicate keys)
-   - Obsolete top-level "version:" field (remove it; Compose Spec no longer needs it)
-   - Deprecated "links:", "extends: file:", or "container_name" clashes
+   - Top-level "version:" field: if invalid (e.g. a non-string value or misplaced), fix
+     the syntax; if it is valid but unnecessary, add a comment "# version field is
+     optional in Compose Spec" but do NOT remove it (many environments still need it)
+   - Deprecated "links:" or incorrect "extends: file:" usage
    - Missing or mis-declared top-level "networks:" or "volumes:" sections
    - Image tags that use "latest" where a pinned version would be safer (add a comment
      like "# TODO: pin to a specific version" but keep latest if that was the intent)
-   - Broken environment variable syntax (${VAR} vs $VAR vs bare VAR)
+   - Broken environment variable syntax (e.g. bare VAR without quotes when value contains
+     special characters)
    - Port-binding entries that are missing the protocol or have wrong format
-   - Missing "restart:" policies where the service is long-running
+   - Missing "restart:" policies where the service is clearly long-running
    - Healthcheck "test" arrays that mix CMD / CMD-SHELL incorrectly
-   - Resource limit sections that use the wrong Compose-v3 syntax
+   - Resource limit sections that use the wrong Compose v3 syntax
    - Any other YAML or Compose-specific error
 4. If the file is already correct, return it unchanged.
 "@
@@ -191,9 +194,9 @@ Return only the corrected YAML.
         system = $systemPrompt
         stream = $false
         options = @{
-            temperature    = 0.1
+            temperature    = 0.2
             num_predict    = 8192
-            num_ctx        = 16384
+            num_ctx        = 32768
         }
     } | ConvertTo-Json -Depth 5
 
@@ -227,12 +230,19 @@ function Clean-ModelOutput {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Detect whether two YAML strings differ meaningfully (ignore trailing spaces)
+# Detect whether two YAML strings differ meaningfully.
+# Normalises CRLF to LF and trims only trailing blank lines at the end of the
+# document so that a single trailing newline difference does not count as a
+# change, while real content differences are always detected.
 # ─────────────────────────────────────────────────────────────────────────────
 function Compare-YamlContent {
     param([string]$Original, [string]$Fixed)
-    $origNorm  = ($Original -replace '\r\n', "`n").Trim()
-    $fixedNorm = ($Fixed    -replace '\r\n', "`n").Trim()
+    # Normalise line endings
+    $origNorm  = $Original -replace '\r\n', "`n"
+    $fixedNorm = $Fixed    -replace '\r\n', "`n"
+    # Trim only trailing whitespace/newlines (not leading, to preserve YAML indentation)
+    $origNorm  = $origNorm.TrimEnd()
+    $fixedNorm = $fixedNorm.TrimEnd()
     return $origNorm -ne $fixedNorm
 }
 
@@ -304,10 +314,11 @@ else {
 # ─────────────────────────────────────────────────────────────────────────────
 Write-Section "Step 3 — Discovering docker-compose files"
 
-$allFiles = Get-ChildItem -Path $RootPath -Recurse -File -Include `
-    "docker-compose.yml","docker-compose.yaml","docker-compose.*.yml","docker-compose.*.yaml" `
-    -ErrorAction SilentlyContinue |
-    Where-Object { -not (Should-Exclude $_.FullName) } |
+$allFiles = Get-ChildItem -Path $RootPath -Recurse -File -ErrorAction SilentlyContinue |
+    Where-Object {
+        $_.Name -match '^docker-compose(\.[\w\-]+)?\.(yml|yaml)$' -and
+        -not (Should-Exclude $_.FullName)
+    } |
     Sort-Object FullName
 
 Write-Info "Found $($allFiles.Count) docker-compose file(s) (after exclusions)."
@@ -420,7 +431,10 @@ foreach ($file in $allFiles) {
         }
     }
 
-    # Write fixed content
+    # Write fixed content — always append a single trailing newline (POSIX convention)
+    if (-not $fixedContent.EndsWith("`n")) {
+        $fixedContent += "`n"
+    }
     try {
         Set-Content -Path $file.FullName -Value $fixedContent -Encoding UTF8 -NoNewline
         Write-Success "File updated successfully."
@@ -511,7 +525,7 @@ if ($OutputReport) {
             "error"     { "❌ error"     }
             default     { $r.Status      }
         }
-        $safeErr = $r.Error -replace '\|', '\|'
+        $safeErr = $r.Error -replace '\|', '&#124;'
         [void]$sb.AppendLine("| ``$($r.File)`` | $statusEmoji | $($r.Changes) | $safeErr |")
     }
 

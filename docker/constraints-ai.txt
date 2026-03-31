@@ -34,7 +34,7 @@ langchain-core>=1.2.22,<2.0.0  # Path Traversal fix; min version for all known C
 langchain-community>=0.4.0,<1.0.0  # 0.4.x requires langchain-core>=1.0.1
 langchain-anthropic>=1.4.0,<2.0.0
 langchain-openai>=1.0.0,<2.0.0
-langsmith>=1.0.0,<2.0.0
+langsmith>=0.3.45,<1.0.0
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LLM Providers (with upper bounds for security)

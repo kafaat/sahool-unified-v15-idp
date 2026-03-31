@@ -19,7 +19,7 @@ langchain>=1.2.0,<2.0.0
 langchain-anthropic>=1.4.0,<2.0.0
 langchain-community>=0.4.0,<1.0.0
 langchain-core>=1.2.22,<2.0.0  # Path Traversal fix (load_prompt); replaces 0.3.x series
-langsmith>=1.0.0,<2.0.0
+langsmith>=0.3.45,<1.0.0
 
 # Anthropic Claude API (Primary)
 # واجهة برمجة Claude من Anthropic (الأساسي)

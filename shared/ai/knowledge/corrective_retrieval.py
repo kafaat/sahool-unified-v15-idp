@@ -415,6 +415,9 @@ class CorrectiveRetrievalEngine:
                         exp = datetime.fromisoformat(exp_date)
                     else:
                         exp = exp_date
+                    # Normalise to UTC-aware so subtraction always succeeds
+                    if exp.tzinfo is None:
+                        exp = exp.replace(tzinfo=UTC)
                     days_until_expiry = (exp - now).days
                     if days_until_expiry < 0:
                         freshness_scores.append(0.2)  # Expired but might still be useful

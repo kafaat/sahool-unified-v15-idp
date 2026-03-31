@@ -16,6 +16,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import calendar
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
@@ -1231,7 +1232,7 @@ class WaterReportScheduler:
                     if due_month > 12:
                         due_month -= 12
                         year += 1
-                    return date(year, due_month, last_report_date.day)
+                    return date(year, due_month, min(last_report_date.day, calendar.monthrange(year, due_month)[1]))
 
             # Default: due in 6 months
             due_month = today.month + 6
@@ -1239,7 +1240,7 @@ class WaterReportScheduler:
             if due_month > 12:
                 due_month -= 12
                 year += 1
-            return date(year, due_month, today.day)
+            return date(year, due_month, min(today.day, calendar.monthrange(year, due_month)[1]))
 
         else:
             # Default: monthly

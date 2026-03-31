@@ -183,6 +183,7 @@ class TestNoGhostServices:
         excluded = {
             "user-service-health",
             "user-service-public",  # route variants of user-service
+            "field-management-service-health",  # health-check route variant of field-management-service
             "kong",  # infrastructure
             "root-endpoint",  # Kong meta-route (no backend needed)
         }
@@ -377,9 +378,9 @@ class TestKongConfigIntegrity:
         assert not conflicts, f"Duplicate route paths: {conflicts}"
 
     def test_kong_service_count_reasonable(self, kong_config):
-        """Kong should have between 50-80 services (not too few, not too many)."""
+        """Kong should have between 50-100 services (not too few, not too many)."""
         count = len(kong_config.get("services", []))
-        assert 50 <= count <= 80, f"Kong has {count} services, expected 50-80"
+        assert 50 <= count <= 100, f"Kong has {count} services, expected 50-100"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

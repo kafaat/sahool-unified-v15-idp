@@ -181,13 +181,13 @@ class UserIdentity {
       mfaEnabled: json['mfa_enabled'] as bool? ?? false,
       preferredLanguage: json['preferred_language'] as String? ?? 'ar',
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+          ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
           : null,
       lastLoginAt: json['last_login_at'] != null
-          ? DateTime.parse(json['last_login_at'] as String)
+          ? DateTime.tryParse(json['last_login_at'] as String) ?? DateTime.now()
           : null,
     );
   }
@@ -384,20 +384,20 @@ class UserSession {
       accessToken: json['access_token'] as String?,
       refreshToken: json['refresh_token'] as String?,
       accessTokenExpiry: json['access_token_expiry'] != null
-          ? DateTime.parse(json['access_token_expiry'] as String)
+          ? DateTime.tryParse(json['access_token_expiry'] as String) ?? DateTime.now()
           : null,
       refreshTokenExpiry: json['refresh_token_expiry'] != null
-          ? DateTime.parse(json['refresh_token_expiry'] as String)
+          ? DateTime.tryParse(json['refresh_token_expiry'] as String) ?? DateTime.now()
           : null,
       status: SessionStatus.values.firstWhere(
         (s) => s.name == json['status'],
         orElse: () => SessionStatus.unauthenticated,
       ),
       startedAt: json['started_at'] != null
-          ? DateTime.parse(json['started_at'] as String)
+          ? DateTime.tryParse(json['started_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       lastActivityAt: json['last_activity_at'] != null
-          ? DateTime.parse(json['last_activity_at'] as String)
+          ? DateTime.tryParse(json['last_activity_at'] as String) ?? DateTime.now()
           : null,
       deviceInfo: json['device_info'] != null
           ? DeviceInfo.fromJson(json['device_info'] as Map<String, dynamic>)
@@ -580,7 +580,7 @@ class IAMAuditEntry {
       details: json['details'] as Map<String, dynamic>?,
       ipAddress: json['ip_address'] as String?,
       deviceId: json['device_id'] as String?,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
     );
   }
 
@@ -721,7 +721,7 @@ class Tenant {
       plan: json['plan'] as String? ?? 'starter',
       isActive: json['is_active'] as bool? ?? true,
       settings: (json['settings'] as Map<String, dynamic>?) ?? {},
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
     );
   }
 

@@ -393,7 +393,7 @@ class OfflineAnalyticsQueue {
   AnalyticsEvent? getEventById(String id) {
     try {
       return _queue.firstWhere((e) => e.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -444,7 +444,7 @@ class OfflineAnalyticsQueue {
 
       final lastSyncString = _prefs?.getString(_lastSyncKey);
       if (lastSyncString != null) {
-        _lastSyncTime = DateTime.parse(lastSyncString);
+        _lastSyncTime = DateTime.tryParse(lastSyncString) ?? DateTime.now();
       }
     } catch (e) {
       AppLogger.e('Failed to load analytics stats', tag: 'ANALYTICS', error: e);

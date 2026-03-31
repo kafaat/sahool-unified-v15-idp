@@ -72,7 +72,7 @@ class VRAService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final prescriptions = (data['prescriptions'] as List)
+      final prescriptions = (data['prescriptions'] as List? ?? [])
           .map((e) => VRAPrescription.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -422,7 +422,7 @@ class VRAService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final zones = (data['zones'] as List)
+      final zones = (data['zones'] as List? ?? [])
           .map((e) => ManagementZone.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -456,7 +456,7 @@ class VRAService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final zones = (data['zones'] as List)
+      final zones = (data['zones'] as List? ?? [])
           .map((e) => ManagementZone.fromJson(e as Map<String, dynamic>))
           .toList();
 

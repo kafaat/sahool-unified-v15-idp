@@ -27,7 +27,7 @@ import '../storage/secure_storage.dart';
 ///
 /// final response = await apiService.get<List<Field>>(
 ///   '/api/v1/fields',
-///   fromJson: (data) => (data as List).map((e) => Field.fromJson(e)).toList(),
+///   fromJson: (data) => (data as List? ?? []).map((e) => Field.fromJson(e)).toList(),
 /// );
 /// ```
 
@@ -176,7 +176,7 @@ class QueuedRequest {
             ? Map<String, String>.from(json['headers'] as Map)
             : null,
         priority: RequestPriority.values[(json['priority'] as int?) ?? 2],
-        createdAt: DateTime.parse(json['createdAt'] as String),
+        createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
         status: SyncStatus.values[(json['status'] as int?) ?? 0],
         retryCount: (json['retryCount'] as int?) ?? 0,
         errorMessage: json['errorMessage'] as String?,

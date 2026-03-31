@@ -807,7 +807,7 @@ class Permissions {
   static Permission? findById(String id) {
     try {
       return all.firstWhere((p) => p.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

@@ -508,7 +508,7 @@ class FeatureFlagsService extends ChangeNotifier {
       // Load last fetch time
       final lastFetchStr = prefs.getString(FeatureFlagKeys.lastFetchTime);
       if (lastFetchStr != null) {
-        _lastFetchTime = DateTime.parse(lastFetchStr);
+        _lastFetchTime = DateTime.tryParse(lastFetchStr) ?? DateTime.now();
       }
 
       // Load cached flags

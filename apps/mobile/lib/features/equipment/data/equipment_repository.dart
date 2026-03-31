@@ -70,7 +70,7 @@ class EquipmentRepository {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final equipmentList = (data['equipment'] as List)
+      final equipmentList = (data['equipment'] as List? ?? [])
           .map((e) => Equipment.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -436,7 +436,7 @@ class EquipmentRepository {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final alerts = (data['alerts'] as List)
+      final alerts = (data['alerts'] as List? ?? [])
           .map((e) => MaintenanceAlert.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -467,7 +467,7 @@ class EquipmentRepository {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final records = (data['records'] as List).cast<Map<String, dynamic>>();
+      final records = (data['records'] as List? ?? []).cast<Map<String, dynamic>>();
 
       return ApiResult.success(records);
     } on DioException catch (e) {

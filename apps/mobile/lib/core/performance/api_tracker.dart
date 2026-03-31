@@ -125,7 +125,7 @@ class ApiPerformanceInterceptor extends Interceptor {
         } else if (responseData is List<int>) {
           responseSize = responseData.length;
         }
-      } catch (_) {
+      } catch (e) {
         // Ignore size calculation errors
       }
     }

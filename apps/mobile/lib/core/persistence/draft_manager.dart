@@ -87,8 +87,8 @@ class DraftMetadata {
     return DraftMetadata(
       id: json['id'] as String,
       type: DraftType.values.byName(json['type'] as String),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now(),
       title: json['title'] as String?,
       entityId: json['entityId'] as String?,
       isAutoSave: json['isAutoSave'] as bool? ?? true,
@@ -422,7 +422,7 @@ class DraftManager {
         try {
           metadata.add(
               DraftMetadata.fromJson(jsonDecode(json) as Map<String, dynamic>));
-        } catch (_) {
+        } catch (e) {
           // Skip invalid metadata
         }
       }

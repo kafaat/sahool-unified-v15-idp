@@ -145,8 +145,8 @@ class AiChatBubble extends StatelessWidget {
           // Sources (for AI messages)
           if (!isUser && message.metadata != null &&
               message.metadata!['sources'] != null &&
-              (message.metadata!['sources'] as List).isNotEmpty)
-            _buildSources(context, message.metadata!['sources'] as List),
+              (message.metadata!['sources'] as List? ?? []).isNotEmpty)
+            _buildSources(context, message.metadata!['sources'] as List? ?? []),
         ],
       ),
     );

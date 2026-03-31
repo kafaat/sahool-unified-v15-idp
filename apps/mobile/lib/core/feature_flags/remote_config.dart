@@ -442,7 +442,7 @@ class RemoteConfigResponse {
     return RemoteConfigResponse(
       flags: flags,
       fetchedAt: json['fetched_at'] != null
-          ? DateTime.parse(json['fetched_at'] as String)
+          ? DateTime.tryParse(json['fetched_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       version: json['version'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,

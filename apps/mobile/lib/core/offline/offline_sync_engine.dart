@@ -511,7 +511,7 @@ class OutboxEntry {
         ? Map<String, dynamic>.from(json['previousData'] as Map)
         : null,
     priority: SyncPriority.values[json['priority'] as int],
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
     status: OutboxStatus.values.byName(json['status'] as String),
     retryCount: json['retryCount'] as int? ?? 0,
     lastError: json['lastError'] as String?,

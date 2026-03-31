@@ -341,7 +341,7 @@ class FarmerProfile {
       notes: json['notes'] as String?,
       interactionCount: json['interaction_count'] as int? ?? 0,
       lastInteractionAt: json['last_interaction_at'] != null
-          ? DateTime.parse(json['last_interaction_at'] as String)
+          ? DateTime.tryParse(json['last_interaction_at'] as String) ?? DateTime.now()
           : null,
       totalPurchaseValue: (json['total_purchase_value'] as num?)?.toDouble(),
       lifetimeValue: (json['lifetime_value'] as num?)?.toDouble(),
@@ -349,10 +349,10 @@ class FarmerProfile {
       synced: json['synced'] as bool? ?? true,
       isDeleted: json['is_deleted'] as bool? ?? false,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : now,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+          ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
           : now,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );

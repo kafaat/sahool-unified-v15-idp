@@ -62,7 +62,7 @@ class NavigationState {
       routeName: json['routeName'] as String,
       arguments: json['arguments'] as Map<String, dynamic>?,
       bottomNavIndex: json['bottomNavIndex'] as int?,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
     );
   }
 
@@ -169,7 +169,7 @@ class AppStateManager {
 
       DateTime timestamp;
       if (timestampStr != null) {
-        timestamp = DateTime.parse(timestampStr);
+        timestamp = DateTime.tryParse(timestampStr) ?? DateTime.now();
       } else {
         timestamp = DateTime.now();
       }
@@ -338,8 +338,8 @@ class AppStateManager {
     if (timestampStr == null) return null;
 
     try {
-      return DateTime.parse(timestampStr);
-    } catch (_) {
+      return DateTime.tryParse(timestampStr) ?? DateTime.now();
+    } catch (e) {
       return null;
     }
   }
@@ -494,7 +494,7 @@ final savedBottomNavIndexProvider = Provider<int?>((ref) {
   final manager = ref.watch(appStateManagerProvider);
   try {
     return manager.getBottomNavIndex();
-  } catch (_) {
+  } catch (e) {
     return null;
   }
 });

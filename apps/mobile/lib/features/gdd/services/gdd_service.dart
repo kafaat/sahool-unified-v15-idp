@@ -108,7 +108,7 @@ class GDDService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final records = (data['records'] as List)
+      final records = (data['records'] as List? ?? [])
           .map((e) => GDDRecord.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -199,7 +199,7 @@ class GDDService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final stages = (data['stages'] as List)
+      final stages = (data['stages'] as List? ?? [])
           .map((e) => GrowthStage.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -252,7 +252,7 @@ class GDDService {
       final response = await _dio.get('/api/v1/gdd/crops');
 
       final data = response.data as Map<String, dynamic>;
-      final crops = (data['crops'] as List)
+      final crops = (data['crops'] as List? ?? [])
           .map((e) => CropGDDRequirements.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -283,7 +283,7 @@ class GDDService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final forecasts = (data['forecasts'] as List)
+      final forecasts = (data['forecasts'] as List? ?? [])
           .map((e) => GDDForecast.fromJson(e as Map<String, dynamic>))
           .toList();
 

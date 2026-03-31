@@ -333,7 +333,7 @@ class AiAdvisorApi {
     }
 
     if (response is Map && response['data'] is List) {
-      return (response['data'] as List)
+      return (response['data'] as List? ?? [])
           .cast<Map<String, dynamic>>()
           .map((json) => Advisory.fromJson(json))
           .toList();

@@ -111,8 +111,8 @@ class IrrigationRepository {
         _CacheKeys.lastSync(key),
         DateTime.now().toIso8601String(),
       );
-    } catch (_) {
-      // Silently fail on cache errors - caching is best-effort
+    } catch (e) {
+      // ignore: empty_catches - Silently fail on cache errors - caching is best-effort
     }
   }
 
@@ -129,12 +129,13 @@ class IrrigationRepository {
 
       if (cached == null || syncTime == null) return null;
 
-      final lastSync = DateTime.parse(syncTime);
+      final lastSync = DateTime.tryParse(syncTime);
+      if (lastSync == null) return null; // Treat invalid sync time as stale
       if (DateTime.now().difference(lastSync) > maxAge) return null;
 
       final decoded = jsonDecode(cached);
       return fromJson(decoded);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -144,7 +145,7 @@ class IrrigationRepository {
     final prefs = await _getPrefs();
     final syncTime = prefs.getString(_CacheKeys.lastSync(key));
     if (syncTime == null) return true;
-    final lastSync = DateTime.parse(syncTime);
+    final lastSync = DateTime.tryParse(syncTime) ?? DateTime.now();
     return DateTime.now().difference(lastSync) > maxAge;
   }
 
@@ -186,7 +187,7 @@ class IrrigationRepository {
       // Cache the response
       await _cacheData(
         _CacheKeys.crops,
-        (data['data'] as List),
+        (data['data'] as List? ?? []),
       );
 
       return ApiResult.success(crops);
@@ -194,7 +195,7 @@ class IrrigationRepository {
       // Try offline cache
       final cached = await _getCachedData<List<IrrigationCrop>>(
         _CacheKeys.crops,
-        (json) => (json as List)
+        (json) => (json as List? ?? [])
             .map((c) => IrrigationCrop.fromJson(c as Map<String, dynamic>))
             .toList(),
         _refDataCacheDuration,
@@ -238,7 +239,7 @@ class IrrigationRepository {
       // Try offline cache
       final cached = await _getCachedData<List<IrrigationMethod>>(
         _CacheKeys.methods,
-        (json) => (json as List)
+        (json) => (json as List? ?? [])
             .map((m) => IrrigationMethod.fromJson(m as Map<String, dynamic>))
             .toList(),
         _refDataCacheDuration,
@@ -610,7 +611,7 @@ class IrrigationRepository {
           );
           synced++;
         }
-      } catch (_) {
+      } catch (e) {
         remaining.add(opJson);
       }
     }

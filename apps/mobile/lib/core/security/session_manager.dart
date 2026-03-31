@@ -432,7 +432,7 @@ class SessionManager {
     if (expiryStr == null) return false;
 
     try {
-      final expiry = DateTime.parse(expiryStr);
+      final expiry = DateTime.tryParse(expiryStr) ?? DateTime.now();
       return expiry.isAfter(DateTime.now());
     } catch (e) {
       return false;
@@ -450,7 +450,7 @@ class SessionManager {
     if (expiryStr == null) return null;
 
     try {
-      return DateTime.parse(expiryStr);
+      return DateTime.tryParse(expiryStr) ?? DateTime.now();
     } catch (e) {
       return null;
     }
@@ -462,7 +462,7 @@ class SessionManager {
     if (activityStr == null) return null;
 
     try {
-      return DateTime.parse(activityStr);
+      return DateTime.tryParse(activityStr) ?? DateTime.now();
     } catch (e) {
       return null;
     }

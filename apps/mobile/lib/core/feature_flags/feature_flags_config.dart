@@ -444,9 +444,9 @@ class ABTestConfig {
       name: json['name'] as String,
       flagKey: json['flagKey'] as String,
       treatmentPercentage: (json['treatmentPercentage'] as num).toDouble(),
-      startDate: DateTime.parse(json['startDate'] as String),
+      startDate: DateTime.tryParse(json['startDate'] as String) ?? DateTime.now(),
       endDate: json['endDate'] != null
-          ? DateTime.parse(json['endDate'] as String)
+          ? DateTime.tryParse(json['endDate'] as String) ?? DateTime.now()
           : null,
       isActive: json['isActive'] as bool? ?? true,
       description: json['description'] as String?,

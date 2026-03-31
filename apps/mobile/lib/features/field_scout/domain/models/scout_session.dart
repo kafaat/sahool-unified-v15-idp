@@ -1,6 +1,3 @@
-
-import 'dart:math' as math;
-
 /// SAHOOL Scout Session Models
 /// نماذج جلسة مسح الحقول
 ///
@@ -10,6 +7,8 @@ import 'dart:math' as math;
 /// - الملاحظة
 /// - المسار
 library;
+
+import 'dart:math' as math;
 
 /// جلسة مسح الحقل
 class ScoutSession {
@@ -109,9 +108,9 @@ class ScoutSession {
     fieldName: json['fieldName'] as String,
     scouterId: json['scouterId'] as String,
     scouterName: json['scouterName'] as String,
-    startedAt: DateTime.parse(json['startedAt'] as String),
+    startedAt: DateTime.tryParse(json['startedAt'] as String) ?? DateTime.now(),
     endedAt: json['endedAt'] != null
-        ? DateTime.parse(json['endedAt'] as String)
+        ? DateTime.tryParse(json['endedAt'] as String) ?? DateTime.now()
         : null,
     status: ScoutSessionStatus.values.byName(json['status'] as String),
     checkpoints: (json['checkpoints'] as List?)
@@ -178,7 +177,7 @@ class ScoutCheckpoint {
   factory ScoutCheckpoint.fromJson(Map<String, dynamic> json) => ScoutCheckpoint(
     id: json['id'] as String,
     location: GeoPoint.fromJson(json['location'] as Map<String, dynamic>),
-    timestamp: DateTime.parse(json['timestamp'] as String),
+    timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
     type: CheckpointType.values.byName(json['type'] as String),
     note: json['note'] as String?,
     photoUrls: (json['photoUrls'] as List?)?.cast<String>() ?? [],
@@ -297,7 +296,7 @@ class AIAnalysis {
         ? IssueSeverity.values.byName(json['severity'] as String)
         : null,
     suggestions: (json['suggestions'] as List?)?.cast<String>() ?? [],
-    analyzedAt: DateTime.parse(json['analyzedAt'] as String),
+    analyzedAt: DateTime.tryParse(json['analyzedAt'] as String) ?? DateTime.now(),
   );
 }
 
@@ -348,7 +347,7 @@ class GeoPoint {
     altitude: (json['altitude'] as num?)?.toDouble(),
     accuracy: (json['accuracy'] as num?)?.toDouble(),
     timestamp: json['timestamp'] != null
-        ? DateTime.parse(json['timestamp'] as String)
+        ? DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now()
         : null,
   );
 }

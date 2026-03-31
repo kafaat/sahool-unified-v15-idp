@@ -210,8 +210,8 @@ class DateRange {
 
   factory DateRange.fromJson(Map<String, dynamic> json) {
     return DateRange(
-      start: DateTime.parse(json['start'] as String),
-      end: DateTime.parse(json['end'] as String),
+      start: DateTime.tryParse(json['start'] as String) ?? DateTime.now(),
+      end: DateTime.tryParse(json['end'] as String) ?? DateTime.now(),
     );
   }
 

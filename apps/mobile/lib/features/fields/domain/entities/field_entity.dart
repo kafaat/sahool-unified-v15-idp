@@ -93,20 +93,20 @@ class FieldEntity {
       soilType: json['soil_type'] as String?,
       irrigationType: json['irrigation_type'] as String?,
       lastIrrigation: json['last_irrigation'] != null
-          ? DateTime.parse(json['last_irrigation'] as String)
+          ? DateTime.tryParse(json['last_irrigation'] as String) ?? DateTime.now()
           : null,
       plantingDate: json['planting_date'] != null
-          ? DateTime.parse(json['planting_date'] as String)
+          ? DateTime.tryParse(json['planting_date'] as String) ?? DateTime.now()
           : null,
       expectedHarvest: json['expected_harvest'] != null
-          ? DateTime.parse(json['expected_harvest'] as String)
+          ? DateTime.tryParse(json['expected_harvest'] as String) ?? DateTime.now()
           : null,
       status: FieldStatus.fromString(json['status'] as String? ?? 'active'),
       center: json['center'] != null
           ? GeoLocation.fromJson(json['center'] as Map<String, dynamic>)
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
     );
   }
 

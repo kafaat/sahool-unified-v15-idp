@@ -117,7 +117,7 @@ class SchemaVersionRegistry {
   static SchemaVersion? getVersion(int version) {
     try {
       return versions.firstWhere((v) => v.version == version);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

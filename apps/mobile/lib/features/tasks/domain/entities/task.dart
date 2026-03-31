@@ -46,15 +46,15 @@ class FieldTask {
       status: TaskStatus.fromString(row['status'] as String? ?? 'open'),
       priority: TaskPriority.fromString(row['priority'] as String? ?? 'medium'),
       dueDate: row['due_date'] != null
-          ? DateTime.parse(row['due_date'] as String)
+          ? DateTime.tryParse(row['due_date'] as String) ?? DateTime.now()
           : null,
       assignedTo: row['assigned_to'] as String?,
       evidenceNotes: row['evidence_notes'] as String?,
       evidencePhotos: row['evidence_photos'] != null
           ? (row['evidence_photos'] as String).split(',')
           : [],
-      createdAt: DateTime.parse(row['created_at'] as String),
-      updatedAt: DateTime.parse(row['updated_at'] as String),
+      createdAt: DateTime.tryParse(row['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(row['updated_at'] as String) ?? DateTime.now(),
       synced: row['synced'] == 1 || row['synced'] == true,
     );
   }
@@ -71,15 +71,15 @@ class FieldTask {
       status: TaskStatus.fromString(json['status'] as String? ?? 'open'),
       priority: TaskPriority.fromString(json['priority'] as String? ?? 'medium'),
       dueDate: json['due_date'] != null
-          ? DateTime.parse(json['due_date'] as String)
+          ? DateTime.tryParse(json['due_date'] as String) ?? DateTime.now()
           : null,
       assignedTo: json['assigned_to'] as String?,
       evidenceNotes: json['evidence_notes'] as String?,
       evidencePhotos: json['evidence_photos'] != null
-          ? List<String>.from(json['evidence_photos'] as List)
+          ? List<String>.from(json['evidence_photos'] as List? ?? [])
           : [],
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       synced: true,
     );
   }

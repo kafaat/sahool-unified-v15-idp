@@ -511,7 +511,7 @@ class OTPService {
     // Check expiry
     final expiryStr = await secureStorage.read(_OTPStorageKeys.resetTokenExpiryKey);
     if (expiryStr != null) {
-      final expiry = DateTime.parse(expiryStr);
+      final expiry = DateTime.tryParse(expiryStr) ?? DateTime.now();
       if (DateTime.now().isAfter(expiry)) {
         // Token expired - clear it
         await clearResetToken();
@@ -556,7 +556,7 @@ class OTPService {
 
     if (lastSendStr == null) return 0;
 
-    final lastSend = DateTime.parse(lastSendStr);
+    final lastSend = DateTime.tryParse(lastSendStr) ?? DateTime.now();
     final elapsed = DateTime.now().difference(lastSend).inSeconds;
     final remaining = defaultCooldownSeconds - elapsed;
 

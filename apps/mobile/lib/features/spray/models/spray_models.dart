@@ -176,7 +176,7 @@ class WeatherCondition {
   factory WeatherCondition.fromJson(Map<String, dynamic> json) {
     return WeatherCondition(
       conditionId: json['condition_id'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
       temperature: (json['temperature'] as num).toDouble(),
       humidity: (json['humidity'] as num).toDouble(),
       windSpeed: (json['wind_speed'] as num).toDouble(),
@@ -327,8 +327,8 @@ class SprayProduct {
       notesAr: json['notes_ar'] as String?,
       isYemenProduct: json['is_yemen_product'] as bool? ?? false,
       metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
     );
   }
 
@@ -425,8 +425,8 @@ class SprayWindow {
   factory SprayWindow.fromJson(Map<String, dynamic> json) {
     return SprayWindow(
       windowId: json['window_id'] as String,
-      startTime: DateTime.parse(json['start_time'] as String),
-      endTime: DateTime.parse(json['end_time'] as String),
+      startTime: DateTime.tryParse(json['start_time'] as String) ?? DateTime.now(),
+      endTime: DateTime.tryParse(json['end_time'] as String) ?? DateTime.now(),
       status: SprayWindowStatus.fromString(json['status'] as String),
       weatherCondition: WeatherCondition.fromJson(json['weather_condition'] as Map<String, dynamic>),
       confidenceScore: json['confidence_score'] as int,
@@ -552,7 +552,7 @@ class SprayRecommendation {
       return optimalWindows.firstWhere(
         (w) => w.endTime.isAfter(now) && w.status == SprayWindowStatus.optimal,
       );
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -602,17 +602,17 @@ class SprayRecommendation {
               ?.map((e) => SprayWindow.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      targetDate: json['target_date'] != null ? DateTime.parse(json['target_date'] as String) : null,
+      targetDate: json['target_date'] != null ? DateTime.tryParse(json['target_date'] as String) : null,
       completedDate:
-          json['completed_date'] != null ? DateTime.parse(json['completed_date'] as String) : null,
+          json['completed_date'] != null ? DateTime.tryParse(json['completed_date'] as String) : null,
       createdBy: json['created_by'] as String?,
       createdByName: json['created_by_name'] as String?,
       priority: json['priority'] as int? ?? 3,
       notes: json['notes'] as String?,
       notesAr: json['notes_ar'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
     );
   }
 
@@ -810,7 +810,7 @@ class SprayApplicationLog {
       unitAr: json['unit_ar'] as String?,
       area: (json['area'] as num).toDouble(),
       totalQuantity: (json['total_quantity'] as num).toDouble(),
-      applicationDate: DateTime.parse(json['application_date'] as String),
+      applicationDate: DateTime.tryParse(json['application_date'] as String) ?? DateTime.now(),
       weatherCondition: WeatherCondition.fromJson(json['weather_condition'] as Map<String, dynamic>),
       applicatorName: json['applicator_name'] as String?,
       equipmentUsed: json['equipment_used'] as String?,
@@ -821,8 +821,8 @@ class SprayApplicationLog {
       createdBy: json['created_by'] as String,
       createdByName: json['created_by_name'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
     );
   }
 

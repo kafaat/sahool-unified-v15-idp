@@ -100,7 +100,7 @@ class CropsState {
     if (selectedCropId == null) return null;
     try {
       return activeCrops.firstWhere((c) => c.id == selectedCropId);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -503,7 +503,7 @@ final cropsRepositoryProvider = Provider<CropsRepository?>((ref) {
     final api = ref.watch(cropsApiProvider);
     final prefs = ref.watch(cropsSharedPreferencesProvider);
     return CropsRepository(api: api, prefs: prefs);
-  } catch (_) {
+  } catch (e) {
     // SharedPreferences not yet initialized; repository unavailable
     return null;
   }

@@ -64,9 +64,9 @@ class LocalDataItem {
       (e) => e.name == json['status'],
       orElse: () => LocalDataStatus.pendingSync,
     ),
-    modifiedAt: DateTime.parse(json['modified_at'] as String),
+    modifiedAt: DateTime.tryParse(json['modified_at'] as String) ?? DateTime.now(),
     syncedAt: json['synced_at'] != null
-        ? DateTime.parse(json['synced_at'] as String)
+        ? DateTime.tryParse(json['synced_at'] as String) ?? DateTime.now()
         : null,
     errorMessage: json['error_message'] as String?,
     retryCount: json['retry_count'] as int? ?? 0,
@@ -172,7 +172,7 @@ class OfflineDataManager {
       return items.firstWhere(
         (item) => item.id == id && item.entityType == entityType,
       );
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

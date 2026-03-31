@@ -292,7 +292,7 @@ class OnboardingProgress {
       isCompleted: json['isCompleted'] as bool? ?? false,
       wasSkipped: json['wasSkipped'] as bool? ?? false,
       completedAt: json['completedAt'] != null
-          ? DateTime.parse(json['completedAt'] as String)
+          ? DateTime.tryParse(json['completedAt'] as String) ?? DateTime.now()
           : null,
     );
   }

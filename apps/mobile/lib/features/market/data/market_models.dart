@@ -86,8 +86,8 @@ class WalletModel {
       currentLoan: (json['currentLoan'] as num?)?.toDouble() ?? 0,
       availableCredit: (json['availableCredit'] as num?)?.toDouble() ?? 0,
       isVerified: json['isVerified'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.now(),
     );
   }
 
@@ -197,7 +197,7 @@ class TransactionModel {
       description: json['description'] as String?,
       descriptionAr: json['descriptionAr'] as String?,
       referenceId: json['referenceId'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
     );
   }
 
@@ -340,8 +340,8 @@ class ProductModel {
       featured: json['featured'] as bool? ?? false,
       organic: json['organic'] as bool? ?? false,
       status: ProductStatus.fromString(json['status'] as String?),
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.now(),
     );
   }
 
@@ -488,8 +488,8 @@ class OrderModel {
       deliveryAddress: json['deliveryAddress'] as String?,
       paymentMethod: json['paymentMethod'] as String?,
       notes: json['notes'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now(),
     );
   }
 
@@ -591,11 +591,11 @@ class LoanModel {
       collateralType: json['collateralType'] as String?,
       collateralValue: (json['collateralValue'] as num?)?.toDouble(),
       status: LoanStatus.fromString(json['status'] as String?),
-      approvedAt: json['approvedAt'] != null ? DateTime.parse(json['approvedAt'] as String) : null,
-      startDate: json['startDate'] != null ? DateTime.parse(json['startDate'] as String) : null,
-      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate'] as String) : null,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      approvedAt: json['approvedAt'] != null ? DateTime.tryParse(json['approvedAt'] as String) : null,
+      startDate: json['startDate'] != null ? DateTime.tryParse(json['startDate'] as String) : null,
+      dueDate: json['dueDate'] != null ? DateTime.tryParse(json['dueDate'] as String) : null,
+      createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now(),
     );
   }
 

@@ -145,7 +145,7 @@ class WalletTransaction {
       balanceAfter: (json['balanceAfter'] as num).toDouble(),
       description: json['description'] as String?,
       descriptionAr: json['descriptionAr'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
     );
   }
 
@@ -229,8 +229,8 @@ class Loan {
       totalDue: (json['totalDue'] as num).toDouble(),
       paidAmount: (json['paidAmount'] as num?)?.toDouble() ?? 0,
       termMonths: json['termMonths'] as int,
-      startDate: DateTime.parse(json['startDate'] as String),
-      dueDate: DateTime.parse(json['dueDate'] as String),
+      startDate: DateTime.tryParse(json['startDate'] as String) ?? DateTime.now(),
+      dueDate: DateTime.tryParse(json['dueDate'] as String) ?? DateTime.now(),
       purpose: json['purpose'] as String,
       status: json['status'] as String,
     );
@@ -372,8 +372,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
         state = state.copyWith(transactions: transactions);
       }
-    } catch (_) {
-      // صمت
+    } catch (e) {
+      // ignore: empty_catches - صمت
     }
   }
 
@@ -391,8 +391,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
         state = state.copyWith(loans: loans);
       }
-    } catch (_) {
-      // صمت
+    } catch (e) {
+      // ignore: empty_catches - صمت
     }
   }
 
@@ -417,7 +417,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         return true;
       }
       return false;
-    } catch (_) {
+    } catch (e) {
       return false;
     }
   }
@@ -443,7 +443,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         return true;
       }
       return false;
-    } catch (_) {
+    } catch (e) {
       return false;
     }
   }
@@ -475,7 +475,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -513,7 +513,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

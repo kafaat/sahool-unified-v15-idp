@@ -287,7 +287,7 @@ class OfflineCachedTileImage extends ImageProvider<OfflineCachedTileImage> {
   /// Add to memory cache with LRU eviction - إضافة للكاش مع إخلاء LRU
   void _addToMemoryCache(Uint8List bytes) {
     // Remove oldest entries if cache is full
-    while (memoryCache.length >= _maxMemoryCacheSize) {
+    while (memoryCache.length >= 100) { // Max memory cache size
       memoryCache.remove(memoryCache.keys.first);
     }
     memoryCache[_cacheKey] = bytes;

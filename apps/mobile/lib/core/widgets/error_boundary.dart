@@ -180,7 +180,7 @@ class SahoolErrorView extends StatelessWidget {
               Semantics(
                 liveRegion: true,
                 child: Text(
-                  customMessage ?? _getErrorMessage(error),
+                  customMessage ?? _getErrorMessage(error, isArabic: isArabic),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: SahoolColors.textSecondary,
                       ),
@@ -242,10 +242,8 @@ class SahoolErrorView extends StatelessWidget {
     );
   }
 
-  String _getErrorMessage(Object error) {
+  String _getErrorMessage(Object error, {bool isArabic = true}) {
     final message = error.toString().toLowerCase();
-    final locale = WidgetsBinding.instance.platformDispatcher.locale;
-    final isArabic = locale.languageCode == 'ar';
 
     if (message.contains('network') || message.contains('connection')) {
       return isArabic

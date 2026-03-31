@@ -14,6 +14,9 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sahool_field_app/features/crops/data/models/crop_model.dart';
+import 'package:sahool_field_app/features/polygon_editor/utils/geo_utils.dart';
+
 // Agriculture models defined inline (cannot be in lib/ due to build_runner)
 // See crop_model.dart for CropFamily, GrowthStageInfo, SeedRateCatalog
 
@@ -151,8 +154,6 @@ class WheatBBCHStages {
     {'bbch': 90, 'zadoks': 92, 'nameEn': 'Ripening', 'nameAr': 'النضج', 'gddStart': 1900, 'gddEnd': 2100, 'kc': 0.3},
   ];
 }
-import 'package:sahool_field_app/features/crops/data/models/crop_model.dart';
-import 'package:sahool_field_app/features/polygon_editor/utils/geo_utils.dart';
 
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════

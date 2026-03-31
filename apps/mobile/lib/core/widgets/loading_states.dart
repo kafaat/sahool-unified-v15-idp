@@ -152,17 +152,20 @@ class SkeletonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SahoolShimmer(
-      child: Container(
-        height: height,
-        width: width,
-        margin: margin ?? const EdgeInsets.symmetric(vertical: 6),
-        padding: padding,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(borderRadius),
+    return Semantics(
+      label: 'جاري التحميل - Loading',
+      child: SahoolShimmer(
+        child: Container(
+          height: height,
+          width: width,
+          margin: margin ?? const EdgeInsets.symmetric(vertical: 6),
+          padding: padding,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          child: child,
         ),
-        child: child,
       ),
     );
   }
@@ -188,14 +191,17 @@ class SkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      padding: padding ?? const EdgeInsets.all(16),
-      itemCount: itemCount,
-      separatorBuilder: (_, __) => SizedBox(height: spacing),
-      itemBuilder: (context, index) =>
-          itemBuilder?.call(index) ?? SkeletonCard(height: itemHeight),
+    return Semantics(
+      label: 'جاري تحميل $itemCount عنصر - Loading $itemCount items',
+      child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: padding ?? const EdgeInsets.all(16),
+        itemCount: itemCount,
+        separatorBuilder: (_, __) => SizedBox(height: spacing),
+        itemBuilder: (context, index) =>
+            itemBuilder?.call(index) ?? SkeletonCard(height: itemHeight),
+      ),
     );
   }
 }

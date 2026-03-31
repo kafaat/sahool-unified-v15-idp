@@ -53,6 +53,7 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
       'JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable.'
     );
   }
+<<<<<<< HEAD
 
   let payload!: JWTPayload;
   try {
@@ -71,6 +72,8 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
         'JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable.'
       );
     }
+=======
+>>>>>>> b61cd39204b89601bf865dcfc343f38af73efc7f
 
     // Verify token signature, expiry, issuer, and audience.
     // IMPORTANT: issuer/audience MUST match the user-service's JWTConfig values.

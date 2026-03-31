@@ -46,6 +46,10 @@ COPY apps/services/yield-prediction/package.json ./apps/services/yield-predictio
 COPY apps/services/yield-prediction-service/package.json ./apps/services/yield-prediction-service/
 COPY apps/web/package.json ./apps/web/
 
+# Validate all copied package.json files are valid JSON (fail fast if corrupted by merge conflicts)
+COPY docker/validate-package-json.js /usr/local/bin/
+RUN node /usr/local/bin/validate-package-json.js
+
 # Install all dependencies at root level with retry loop and mirror fallback
 # NOTE: --legacy-peer-deps is required due to React 19 compatibility issues with some packages
 # This is a known issue with Next.js 15 + React 19 ecosystem packages

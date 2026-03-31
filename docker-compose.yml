@@ -659,7 +659,7 @@ services:
   ollama:
     profiles:
       - gpu
-    image: ollama/ollama:0.5.4
+    image: ollama/ollama:latest
     container_name: sahool-ollama
     volumes:
       - ollama_data:/root/.ollama
@@ -3543,12 +3543,11 @@ services:
       - no-new-privileges:true
     deploy:
       resources:
-        limits:
-          cpus: '1'
-          memory: 512M
         reservations:
-          cpus: '0.25'
-          memory: 128M
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     logging: *default-logging
     networks:
       - sahool-network
@@ -3625,6 +3624,8 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
+      - OLLAMA_KEEP_ALIVE=24h # Keeps the model in VRAM for OpenClaw
+      - NVIDIA_VISIBLE_DEVICES=all
     ports:
       - "127.0.0.1:8140:8140"
     depends_on:

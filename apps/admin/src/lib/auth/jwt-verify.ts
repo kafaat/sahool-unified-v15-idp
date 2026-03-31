@@ -54,12 +54,15 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
     );
   }
 
-  let payload!: JWTPayload;
-  try {
-    // Verify token signature, expiry, issuer, and audience
-    const result = await jwtVerify(token, new TextEncoder().encode(secret), {
-      issuer: 'sahool-platform',
-      audience: 'sahool-api',
+    // Verify token signature, expiry, issuer, and audience.
+    // IMPORTANT: issuer/audience MUST match the user-service's JWTConfig values.
+    // user-service defaults: JWT_ISSUER=sahool, JWT_AUDIENCE=sahool-api (from root .env)
+    // The admin reads these from its own env so they can be overridden if needed.
+    const issuer = process.env.JWT_ISSUER || 'sahool';
+    const audience = process.env.JWT_AUDIENCE || 'sahool-api';
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
+      issuer,
+      audience,
     });
     payload = result.payload;
   } catch (error) {

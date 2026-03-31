@@ -13,6 +13,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 pyotp = pytest.importorskip("pyotp", reason="pyotp required for 2FA tests")
+pytest.importorskip("qrcode", reason="qrcode required for 2FA tests")
 
 
 class TestTwoFactorAuthService:

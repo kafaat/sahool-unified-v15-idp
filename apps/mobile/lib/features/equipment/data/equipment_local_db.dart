@@ -546,7 +546,7 @@ class EquipmentLocalDb {
     final prefs = await _preferences;
     final timeStr = prefs.getString(_lastSyncKey);
     if (timeStr == null) return null;
-    return DateTime.tryParse(timeStr) ?? DateTime.now();
+    return DateTime.tryParse(timeStr); // null if invalid → forces re-sync
   }
 
   /// Update last sync timestamp

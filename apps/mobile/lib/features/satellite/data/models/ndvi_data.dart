@@ -21,7 +21,7 @@ class NdviDataPoint extends Equatable {
 
   factory NdviDataPoint.fromJson(Map<String, dynamic> json) {
     return NdviDataPoint(
-      date: DateTime.tryParse((json['date'] ?? json['timestamp']) ?? DateTime.now() as String),
+      date: DateTime.tryParse((json['date'] ?? json['timestamp'] ?? '') as String) ?? DateTime.now(),
       value: ((json['value'] ?? json['ndvi'] ?? 0.0) as num).toDouble(),
       source: (json['source'] ?? 'sentinel-2') as String,
       cloudCoverage: ((json['cloud_coverage'] ?? json['cloudCoverage'] ?? 0.0) as num).toDouble(),
@@ -81,9 +81,9 @@ class NdviAnalysis extends Equatable {
       timeSeries: (timeSeriesData as List? ?? [])
           .map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>))
           .toList(),
-      analyzedAt: DateTime.parse(
-        (json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String()) as String,
-      ),
+      analyzedAt: DateTime.tryParse(
+        (json['analyzed_at'] ?? json['analyzedAt'] ?? '') as String,
+      ) ?? DateTime.now(),
       imageUrl: (json['image_url'] ?? json['imageUrl']) as String?,
       indices: indicesData != null
           ? (indicesData as Map<String, dynamic>).map(

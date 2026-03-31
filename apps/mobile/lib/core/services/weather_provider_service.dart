@@ -636,7 +636,8 @@ class WeatherProviderService {
       if (isPM && hour != 12) hour += 12;
       if (!isPM && hour == 12) hour = 0;
 
-      final dateTime = DateTime.tryParse(date) ?? DateTime.now();
+      final dateTime = DateTime.tryParse(date);
+      if (dateTime == null) return null;
       return DateTime(dateTime.year, dateTime.month, dateTime.day, hour, minute);
     } catch (e) {
       return null;

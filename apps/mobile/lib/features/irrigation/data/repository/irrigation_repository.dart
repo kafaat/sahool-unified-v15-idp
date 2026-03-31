@@ -112,7 +112,7 @@ class IrrigationRepository {
         DateTime.now().toIso8601String(),
       );
     } catch (e) {
-      // Silently fail on cache errors - caching is best-effort
+      // ignore: empty_catches - Silently fail on cache errors - caching is best-effort
     }
   }
 
@@ -129,7 +129,8 @@ class IrrigationRepository {
 
       if (cached == null || syncTime == null) return null;
 
-      final lastSync = DateTime.tryParse(syncTime) ?? DateTime.now();
+      final lastSync = DateTime.tryParse(syncTime);
+      if (lastSync == null) return null; // Treat invalid sync time as stale
       if (DateTime.now().difference(lastSync) > maxAge) return null;
 
       final decoded = jsonDecode(cached);

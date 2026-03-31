@@ -276,7 +276,8 @@ class AdvisoryCache {
 
     try {
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
-      final cachedAt = DateTime.tryParse(data['cachedAt'] as String) ?? DateTime.now();
+      final cachedAt = DateTime.tryParse(data['cachedAt'] as String? ?? '');
+      if (cachedAt == null) return null; // Treat unparseable timestamp as expired
 
       // Check expiry (context expires faster)
       if (DateTime.now().difference(cachedAt) > const Duration(hours: 6)) {

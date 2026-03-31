@@ -77,14 +77,19 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
 
     if (type == 'Polygon') {
       // Polygon coordinates are [[[lng, lat], [lng, lat], ...]]
-      final ring = (coordinates as List? ?? [])[0] as List;
+      final coordList = coordinates as List? ?? [];
+      if (coordList.isEmpty) return [];
+      final ring = coordList[0] as List;
       return ring.map((coord) {
         final c = coord as List;
         return LatLng(c[1] as double, c[0] as double);
       }).toList();
     } else if (type == 'MultiPolygon') {
       // MultiPolygon coordinates are [[[[lng, lat], [lng, lat], ...]]]
-      final firstPolygon = (coordinates as List? ?? [])[0] as List;
+      final coordList = coordinates as List? ?? [];
+      if (coordList.isEmpty) return [];
+      final firstPolygon = coordList[0] as List;
+      if (firstPolygon.isEmpty) return [];
       final ring = firstPolygon[0] as List;
       return ring.map((coord) {
         final c = coord as List;

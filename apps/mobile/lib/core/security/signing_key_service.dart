@@ -210,7 +210,8 @@ class SigningKeyService {
         return true;
       }
 
-      final createdAt = DateTime.tryParse(createdAtStr) ?? DateTime.now();
+      final createdAt = DateTime.tryParse(createdAtStr);
+      if (createdAt == null) return true; // Treat unparseable as needing rotation
       final age = DateTime.now().difference(createdAt);
 
       if (age.inDays >= keyRotationDays) {

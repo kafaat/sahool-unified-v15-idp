@@ -373,7 +373,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         state = state.copyWith(transactions: transactions);
       }
     } catch (e) {
-      // صمت
+      // ignore: empty_catches - صمت
     }
   }
 
@@ -392,7 +392,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         state = state.copyWith(loans: loans);
       }
     } catch (e) {
-      // صمت
+      // ignore: empty_catches - صمت
     }
   }
 

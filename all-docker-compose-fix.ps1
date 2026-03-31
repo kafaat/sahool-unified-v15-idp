@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     SAHOOL All Docker Compose Fix - Analyzes and fixes all docker-compose files using Ollama + qwen3-coder:30b
 

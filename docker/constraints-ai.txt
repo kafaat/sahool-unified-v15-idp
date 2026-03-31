@@ -25,9 +25,9 @@ python-multipart==0.0.22  # CVE-2024-53981 fix
 # ─────────────────────────────────────────────────────────────────────────────
 # LangChain Framework (Security Updates)
 # ─────────────────────────────────────────────────────────────────────────────
-# Path traversal and prompt loading CVEs - require patched 1.x releases:
-# CVE-2025-68664, CVE-2025-65106 - fixed in langchain-core>=1.2.22
-# CVE-2025-6984 - fixed in langchain-community>=0.4.0
+# CVE-2025-68664, CVE-2025-65106 - Fixed in langchain-core 0.3.81
+# CVE-2025-6984   - Fixed in langchain-community 0.3.27
+# Path Traversal in load_prompt  - Fixed in langchain-core 1.2.22 (requires 1.x stack)
 # langchain-community 0.4.x requires langchain-core>=1.0.1; all packages now on 1.x series.
 langchain>=1.2.0,<2.0.0
 langchain-core>=1.2.22,<2.0.0  # Path Traversal fix; min version for all known CVEs

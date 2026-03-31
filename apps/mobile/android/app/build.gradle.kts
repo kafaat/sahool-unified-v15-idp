@@ -28,7 +28,7 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // flutter_tts requires API 24+, camera_android_camerax requires API 23+
         minSdk = 24  // Required by flutter_tts plugin
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 35  // Android 15 - aligned with compileSdk for Flutter 3.27.x
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

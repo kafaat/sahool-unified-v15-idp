@@ -98,14 +98,18 @@ jobs:
       - name: Generate code (Drift, Freezed, Riverpod, etc.)
         run: |
           echo "Running code generation..."
+          set +e
           dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen_output.txt
           CODEGEN_EXIT=${PIPESTATUS[0]}
+          set -e
 
           if [ $CODEGEN_EXIT -ne 0 ]; then
             echo "::warning::Code generation failed (exit $CODEGEN_EXIT), retrying with clean state..."
             rm -rf .dart_tool/build
+            set +e
             dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen_output.txt
             CODEGEN_EXIT=${PIPESTATUS[0]}
+            set -e
 
             if [ $CODEGEN_EXIT -ne 0 ]; then
               echo "::error::Code generation failed after retry (exit $CODEGEN_EXIT)"
@@ -114,6 +118,7 @@ jobs:
               echo '```' >> $GITHUB_STEP_SUMMARY
               tail -50 codegen_output.txt >> $GITHUB_STEP_SUMMARY
               echo '```' >> $GITHUB_STEP_SUMMARY
+              exit 1
             fi
           fi
 
@@ -136,18 +141,21 @@ jobs:
 
           if [ $MISSING -gt 0 ]; then
             echo "::error::$MISSING critical generated files are missing. build_runner may have failed silently."
+            exit 1
           fi
 
       - name: Run Flutter Analyze
         run: |
           echo "Running Flutter Analyze..."
+          set +e
           flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze_output.txt
           ANALYZE_EXIT=${PIPESTATUS[0]}
+          set -e
 
           # Extract warning and error counts
-          ERRORS=$(grep -c "  error •" analyze_output.txt || echo "0")
-          WARNINGS=$(grep -c "warning •" analyze_output.txt || echo "0")
-          INFOS=$(grep -c "  info •" analyze_output.txt || echo "0")
+          ERRORS=$(grep -c "  error •" analyze_output.txt || true)
+          WARNINGS=$(grep -c "warning •" analyze_output.txt || true)
+          INFOS=$(grep -c "  info •" analyze_output.txt || true)
 
           echo "## Flutter Analysis Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -157,7 +165,7 @@ jobs:
           echo "| Warnings | $WARNINGS |" >> $GITHUB_STEP_SUMMARY
           echo "| Infos | $INFOS |" >> $GITHUB_STEP_SUMMARY
 
-          if [ $ERRORS -gt 0 ]; then
+          if [ "$ERRORS" -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Top Errors (first 20)" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
@@ -165,6 +173,8 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             echo "::warning::Flutter analysis found $ERRORS errors"
           fi
+
+          exit $ANALYZE_EXIT
 
       - name: Check Dart formatting
         run: |

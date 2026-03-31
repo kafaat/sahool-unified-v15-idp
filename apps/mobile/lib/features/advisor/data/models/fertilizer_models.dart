@@ -2,7 +2,6 @@
 /// نماذج توصيات التسميد
 library;
 
-import 'dart:math' as math;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'fertilizer_models.freezed.dart';
@@ -185,6 +184,16 @@ class SoilAnalysisValidator {
   }
 }
 
+/// Newton's method sqrt (avoids dart:math import in freezed file)
+double _sqrtSafe(double x) {
+  if (x <= 0) return 0;
+  double g = x;
+  for (int i = 0; i < 15; i++) {
+    g = (g + x / g) / 2;
+  }
+  return g;
+}
+
 /// Water quality analysis model
 /// نموذج تحليل جودة المياه - matching backend shared/water_management/models.py
 class WaterQualityAnalysis {
@@ -226,7 +235,7 @@ class WaterQualityAnalysis {
   double get calculatedSAR {
     final caMg = calcium + magnesium;
     if (caMg <= 0) return 0;
-    return sodium / math.sqrt(caMg / 2);
+    return sodium / _sqrtSafe(caMg / 2);
   }
 
   /// تصنيف جودة المياه للري

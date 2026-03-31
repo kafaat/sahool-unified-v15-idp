@@ -1,8 +1,8 @@
-# fix-package-json-conflicts.ps1
+powershell_script = '''# fix-1.ps1
 # إصلاح تعارضات Git merge في ملفات package.json
 
 param(
-    [string]$ServicesPath = ".\services",
+    [string]$ServicesPath = ".\\services",
     [switch]$KeepHead = $true,
     [switch]$KeepTheirs = $false,
     [switch]$WhatIf = $false
@@ -51,24 +51,24 @@ foreach ($file in $packageFiles) {
             if ($KeepHead) {
                 # الاحتفاظ بـ HEAD (النسخة الحالية)
                 $fixedContent = [regex]::Replace($fixedContent, 
-                    '<<<<<<< HEAD[\s\S]*?=======', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
+                    '<<<<<<< HEAD[\\s\\S]*?=======', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
                 $fixedContent = [regex]::Replace($fixedContent, 
-                    '>>>>>>> [\w\-\/\.]+', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
+                    '>>>>>>> [\\w\\-\\/\\.]+', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
                     
                 Write-Host "   → Kept HEAD version" -ForegroundColor Green
             }
             elseif ($KeepTheirs) {
                 # الاحتفاظ بالـ incoming (الفرع المدمج)
                 $fixedContent = [regex]::Replace($fixedContent, 
-                    '<<<<<<< HEAD[\s\S]*?=======[\r\n]*', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
+                    '<<<<<<< HEAD[\\s\\S]*?=======[\\r\\n]*', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
                 $fixedContent = [regex]::Replace($fixedContent, 
-                    '[\r\n]*>>>>>>> [\w\-\/\.]+', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
+                    '[\\r\\n]*>>>>>>> [\\w\\-\\/\\.]+', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
                     
                 Write-Host "   → Kept incoming version" -ForegroundColor Green
             }
             
             # تنظيف المسافات الفارغة الزائدة
-            $fixedContent = $fixedContent -replace "\n\n\n+", "\n\n"
+            $fixedContent = $fixedContent -replace "\\n\\n\\n+", "\\n\\n"
             
             # حفظ الملف
             Set-Content -Path $file.FullName -Value $fixedContent -NoNewline -Encoding UTF8
@@ -117,5 +117,14 @@ else {
     Write-Host "✅ No conflicts found!" -ForegroundColor Green
     exit 0
 }
+'''
+
+# Save to file
+with open('/mnt/kimi/output/fix-1.ps1', 'w', encoding='utf-8') as f:
+    f.write(powershell_script)
+
+print("✅ Saved: fix-1.ps1")
+print(f"📁 Location: /mnt/kimi/output/fix-1.ps1")
+print(f"📊 Size: {len(powershell_script)} characters")
 Now
 

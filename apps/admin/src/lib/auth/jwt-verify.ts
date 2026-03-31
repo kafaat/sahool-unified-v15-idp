@@ -56,10 +56,32 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
 
   let payload!: JWTPayload;
   try {
+<<<<<<< HEAD
     // Verify token signature, expiry, issuer, and audience
     const result = await jwtVerify(token, new TextEncoder().encode(secret), {
       issuer: 'sahool-platform',
       audience: 'sahool-api',
+=======
+    // Get JWT secret from environment
+    // SECURITY: Never use NEXT_PUBLIC_* for secrets - they are exposed to the client
+    const secret = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY;
+
+    if (!secret) {
+      throw new Error(
+        'JWT_SECRET is not configured. Set JWT_SECRET or JWT_SECRET_KEY environment variable.'
+      );
+    }
+
+    // Verify token signature, expiry, issuer, and audience.
+    // IMPORTANT: issuer/audience MUST match the user-service's JWTConfig values.
+    // user-service defaults: JWT_ISSUER=sahool, JWT_AUDIENCE=sahool-api (from root .env)
+    // The admin reads these from its own env so they can be overridden if needed.
+    const issuer = process.env.JWT_ISSUER || 'sahool';
+    const audience = process.env.JWT_AUDIENCE || 'sahool-api';
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
+      issuer,
+      audience,
+>>>>>>> cad879577aa9e5b68d0c55337eaf4665ca117c28
     });
     payload = result.payload;
   } catch (error) {

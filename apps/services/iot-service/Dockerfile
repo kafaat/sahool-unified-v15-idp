@@ -36,6 +36,10 @@ WORKDIR /workspace/iot-service
 # Using npm pkg set for reliable package.json modification (more robust than sed)
 RUN npm pkg set dependencies.'@sahool/shared-events'='file:../packages/shared-events'
 
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
+
 # Install all dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmjs.org && \

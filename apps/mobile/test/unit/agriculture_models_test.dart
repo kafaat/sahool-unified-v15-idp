@@ -598,8 +598,8 @@ void main() {
 
     test('stages are in GDD order', () {
       for (int i = 1; i < WheatBBCHStages.stages.length; i++) {
-        final prev = WheatBBCHStages.stages[i - 1]['gddStart'] as double;
-        final curr = WheatBBCHStages.stages[i]['gddStart'] as double;
+        final prev = (WheatBBCHStages.stages[i - 1]['gddStart'] as num).toDouble();
+        final curr = (WheatBBCHStages.stages[i]['gddStart'] as num).toDouble();
         expect(curr, greaterThanOrEqualTo(prev));
       }
     });

@@ -3,7 +3,7 @@
 # NOTE: Build context must be project root
 #   docker build -f apps/services/field-management-service/rotation-Dockerfile -t sahool-crop-rotation:16.0.0 .
 
-FROM python:3.11-slim AS base
+FROM python:3.14-slim AS base
 
 # Set working directory
 WORKDIR /app

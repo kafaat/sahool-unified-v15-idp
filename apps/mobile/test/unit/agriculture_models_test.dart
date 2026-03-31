@@ -14,7 +14,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sahool_field_app/features/advisor/data/models/fertilizer_models.dart';
 import 'package:sahool_field_app/features/advisor/data/models/agriculture_models.dart';
 import 'package:sahool_field_app/features/crops/data/models/crop_model.dart';
 import 'package:sahool_field_app/features/polygon_editor/utils/geo_utils.dart';
@@ -68,27 +67,12 @@ void main() {
       expect(SoilAnalysisValidator.validateTexturePercent(20, 20, 20), isNotNull);
     });
 
-    test('validateAll catches multiple errors', () {
-      final badSoil = SoilAnalysis(
-        ph: 20, // invalid
-        nitrogen: -10, // invalid
-        phosphorus: 30,
-        potassium: 200,
-      );
-      final errors = SoilAnalysisValidator.validateAll(badSoil);
-      expect(errors.length, greaterThanOrEqualTo(2));
-    });
-
-    test('validateAll passes for valid soil', () {
-      final goodSoil = SoilAnalysis(
-        ph: 7.2,
-        nitrogen: 45,
-        phosphorus: 25,
-        potassium: 180,
-        organicMatter: 2.5,
-      );
-      final errors = SoilAnalysisValidator.validateAll(goodSoil);
-      expect(errors, isEmpty);
+    test('multiple invalid values all caught', () {
+      expect(SoilAnalysisValidator.validatePh(20), isNotNull);
+      expect(SoilAnalysisValidator.validateNitrogen(-10), isNotNull);
+      // Valid values pass
+      expect(SoilAnalysisValidator.validatePhosphorus(30), isNull);
+      expect(SoilAnalysisValidator.validatePotassium(200), isNull);
     });
   });
 

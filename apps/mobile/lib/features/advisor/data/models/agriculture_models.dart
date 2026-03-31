@@ -1,72 +1,31 @@
 /// Agriculture Domain Models - نماذج المجال الزراعي
 ///
+/// Standalone agriculture domain models (no freezed dependencies).
 /// Contains: soil analysis, water quality, FAO standards, GDD, BBCH, SSNM
-/// Separated from fertilizer_models.dart to avoid interfering with
-/// freezed code generation (build_runner).
 library;
-
-import 'fertilizer_models.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Extended Soil Analysis - تحليل تربة موسع
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// Extended soil analysis with all parameters
-/// تحليل تربة موسع - matching backend shared/soil_testing/models.py
 class ExtendedSoilAnalysis {
-  final double ph;
-  final double nitrogen; // mg/kg
-  final double phosphorus; // mg/kg
-  final double potassium; // mg/kg
-  final double organicMatter; // %
-  final String soilType;
-  final String soilTypeAr;
-  final double electricalConductivity; // EC, dS/m
-  final double cec; // meq/100g
-  final double sandPercent; // %
-  final double siltPercent; // %
-  final double clayPercent; // %
-  final double calcium; // mg/kg
-  final double magnesium; // mg/kg
-  final double sulfur; // mg/kg
-  final double sodium; // meq/L
-  final double iron; // mg/kg
-  final double zinc; // mg/kg
-  final double manganese; // mg/kg
-  final double boron; // mg/kg
+  final double ph, nitrogen, phosphorus, potassium;
+  final double organicMatter;
+  final String soilType, soilTypeAr;
+  final double electricalConductivity, cec;
+  final double sandPercent, siltPercent, clayPercent;
+  final double calcium, magnesium, sulfur, sodium;
+  final double iron, zinc, manganese, boron;
 
   const ExtendedSoilAnalysis({
-    required this.ph,
-    required this.nitrogen,
-    required this.phosphorus,
-    required this.potassium,
-    this.organicMatter = 0,
-    this.soilType = '',
-    this.soilTypeAr = '',
-    this.electricalConductivity = 0,
-    this.cec = 0,
-    this.sandPercent = 0,
-    this.siltPercent = 0,
-    this.clayPercent = 0,
-    this.calcium = 0,
-    this.magnesium = 0,
-    this.sulfur = 0,
-    this.sodium = 0,
-    this.iron = 0,
-    this.zinc = 0,
-    this.manganese = 0,
-    this.boron = 0,
+    required this.ph, required this.nitrogen,
+    required this.phosphorus, required this.potassium,
+    this.organicMatter = 0, this.soilType = '', this.soilTypeAr = '',
+    this.electricalConductivity = 0, this.cec = 0,
+    this.sandPercent = 0, this.siltPercent = 0, this.clayPercent = 0,
+    this.calcium = 0, this.magnesium = 0, this.sulfur = 0, this.sodium = 0,
+    this.iron = 0, this.zinc = 0, this.manganese = 0, this.boron = 0,
   });
-
-  SoilAnalysis toBasic() => SoilAnalysis(
-        ph: ph,
-        nitrogen: nitrogen,
-        phosphorus: phosphorus,
-        potassium: potassium,
-        organicMatter: organicMatter,
-        soilType: soilType,
-        soilTypeAr: soilTypeAr,
-      );
 
   factory ExtendedSoilAnalysis.fromJson(Map<String, dynamic> json) {
     return ExtendedSoilAnalysis(
@@ -95,119 +54,53 @@ class ExtendedSoilAnalysis {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Soil Analysis Validator - التحقق من صحة تحليل التربة
+// Validators - التحقق من الصحة
 // ═══════════════════════════════════════════════════════════════════════════
 
 class SoilAnalysisValidator {
-  static const phMin = 0.0, phMax = 14.0;
-  static const nMin = 0.0, nMax = 2000.0;
-  static const pMin = 0.0, pMax = 500.0;
-  static const kMin = 0.0, kMax = 1000.0;
-  static const ecMin = 0.0, ecMax = 50.0;
-
-  static String? validatePh(double? v) {
-    if (v == null) return 'مطلوب';
-    if (v < phMin || v > phMax) return 'pH يجب أن يكون بين $phMin-$phMax';
-    return null;
-  }
-
-  static String? validateNitrogen(double? v) {
-    if (v == null) return 'مطلوب';
-    if (v < nMin || v > nMax) return 'النيتروجين يجب أن يكون بين $nMin-$nMax mg/kg';
-    return null;
-  }
-
-  static String? validatePhosphorus(double? v) {
-    if (v == null) return 'مطلوب';
-    if (v < pMin || v > pMax) return 'الفسفور يجب أن يكون بين $pMin-$pMax mg/kg';
-    return null;
-  }
-
-  static String? validatePotassium(double? v) {
-    if (v == null) return 'مطلوب';
-    if (v < kMin || v > kMax) return 'البوتاسيوم يجب أن يكون بين $kMin-$kMax mg/kg';
-    return null;
-  }
-
-  static String? validateEC(double? v) {
-    if (v == null) return null;
-    if (v < ecMin || v > ecMax) return 'EC يجب أن يكون بين $ecMin-$ecMax dS/m';
-    return null;
-  }
-
+  static String? validatePh(double? v) =>
+      v == null ? 'مطلوب' : (v < 0 || v > 14) ? 'pH: 0-14' : null;
+  static String? validateNitrogen(double? v) =>
+      v == null ? 'مطلوب' : (v < 0 || v > 2000) ? 'N: 0-2000 mg/kg' : null;
+  static String? validatePhosphorus(double? v) =>
+      v == null ? 'مطلوب' : (v < 0 || v > 500) ? 'P: 0-500 mg/kg' : null;
+  static String? validatePotassium(double? v) =>
+      v == null ? 'مطلوب' : (v < 0 || v > 1000) ? 'K: 0-1000 mg/kg' : null;
+  static String? validateEC(double? v) =>
+      v != null && (v < 0 || v > 50) ? 'EC: 0-50 dS/m' : null;
   static String? validateTexturePercent(double? sand, double? silt, double? clay) {
     if (sand == null && silt == null && clay == null) return null;
     final total = (sand ?? 0) + (silt ?? 0) + (clay ?? 0);
-    if (total > 0 && (total < 99 || total > 101)) {
-      return 'مجموع الرمل+الطين+السلت يجب أن يساوي 100%';
-    }
-    return null;
-  }
-
-  static List<String> validateAll(SoilAnalysis a) {
-    final errors = <String>[];
-    final ph = validatePh(a.ph);
-    if (ph != null) errors.add(ph);
-    final n = validateNitrogen(a.nitrogen);
-    if (n != null) errors.add(n);
-    final p = validatePhosphorus(a.phosphorus);
-    if (p != null) errors.add(p);
-    final k = validatePotassium(a.potassium);
-    if (k != null) errors.add(k);
-    return errors;
-  }
-
-  static List<String> validateExtended(ExtendedSoilAnalysis a) {
-    final errors = validateAll(a.toBasic());
-    final ec = validateEC(a.electricalConductivity);
-    if (ec != null) errors.add(ec);
-    final tex = validateTexturePercent(a.sandPercent, a.siltPercent, a.clayPercent);
-    if (tex != null) errors.add(tex);
-    return errors;
+    return (total > 0 && (total < 99 || total > 101)) ? 'مجموع القوام = 100%' : null;
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Water Quality Analysis - تحليل جودة المياه
+// Water Quality - جودة المياه
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// Newton's method sqrt
 double _sqrtSafe(double x) {
   if (x <= 0) return 0;
   double g = x;
-  for (int i = 0; i < 15; i++) {
-    g = (g + x / g) / 2;
-  }
+  for (int i = 0; i < 15; i++) { g = (g + x / g) / 2; }
   return g;
 }
 
 class WaterQualityAnalysis {
-  final double ph;
-  final double ec; // dS/m
-  final double tds; // mg/L
-  final double sar;
-  final double sodium; // meq/L
-  final double calcium; // meq/L
-  final double magnesium; // meq/L
-  final double chloride; // meq/L
-  final double bicarbonate; // meq/L
-  final double sulfate; // meq/L
-  final double nitrate; // mg/L
-  final double boron; // mg/L
-  final String source;
-  final String sourceAr;
+  final double ph, ec, tds, sar;
+  final double sodium, calcium, magnesium;
+  final double chloride, bicarbonate, sulfate, nitrate, boron;
+  final String source, sourceAr;
   final DateTime? testDate;
 
   const WaterQualityAnalysis({
-    required this.ph,
-    required this.ec,
+    required this.ph, required this.ec,
     this.tds = 0, this.sar = 0, this.sodium = 0, this.calcium = 0,
     this.magnesium = 0, this.chloride = 0, this.bicarbonate = 0,
     this.sulfate = 0, this.nitrate = 0, this.boron = 0,
     this.source = '', this.sourceAr = '', this.testDate,
   });
 
-  /// SAR = Na / sqrt((Ca+Mg)/2)
   double get calculatedSAR {
     final caMg = calcium + magnesium;
     if (caMg <= 0) return 0;
@@ -222,25 +115,24 @@ class WaterQualityAnalysis {
     return 'غير صالحة';
   }
 
-  factory WaterQualityAnalysis.fromJson(Map<String, dynamic> json) {
-    return WaterQualityAnalysis(
-      ph: (json['ph'] as num?)?.toDouble() ?? 7.0,
-      ec: (json['ec'] as num?)?.toDouble() ?? 0,
-      tds: (json['tds'] as num?)?.toDouble() ?? 0,
-      sar: (json['sar'] as num?)?.toDouble() ?? 0,
-      sodium: (json['sodium'] as num?)?.toDouble() ?? 0,
-      calcium: (json['calcium'] as num?)?.toDouble() ?? 0,
-      magnesium: (json['magnesium'] as num?)?.toDouble() ?? 0,
-      chloride: (json['chloride'] as num?)?.toDouble() ?? 0,
-      bicarbonate: (json['bicarbonate'] as num?)?.toDouble() ?? 0,
-      sulfate: (json['sulfate'] as num?)?.toDouble() ?? 0,
-      nitrate: (json['nitrate'] as num?)?.toDouble() ?? 0,
-      boron: (json['boron'] as num?)?.toDouble() ?? 0,
-      source: json['source'] as String? ?? '',
-      sourceAr: json['source_ar'] as String? ?? '',
-      testDate: json['test_date'] != null ? DateTime.tryParse(json['test_date'] as String) : null,
-    );
-  }
+  factory WaterQualityAnalysis.fromJson(Map<String, dynamic> json) =>
+      WaterQualityAnalysis(
+        ph: (json['ph'] as num?)?.toDouble() ?? 7.0,
+        ec: (json['ec'] as num?)?.toDouble() ?? 0,
+        tds: (json['tds'] as num?)?.toDouble() ?? 0,
+        sar: (json['sar'] as num?)?.toDouble() ?? 0,
+        sodium: (json['sodium'] as num?)?.toDouble() ?? 0,
+        calcium: (json['calcium'] as num?)?.toDouble() ?? 0,
+        magnesium: (json['magnesium'] as num?)?.toDouble() ?? 0,
+        chloride: (json['chloride'] as num?)?.toDouble() ?? 0,
+        bicarbonate: (json['bicarbonate'] as num?)?.toDouble() ?? 0,
+        sulfate: (json['sulfate'] as num?)?.toDouble() ?? 0,
+        nitrate: (json['nitrate'] as num?)?.toDouble() ?? 0,
+        boron: (json['boron'] as num?)?.toDouble() ?? 0,
+        source: json['source'] as String? ?? '',
+        sourceAr: json['source_ar'] as String? ?? '',
+        testDate: json['test_date'] != null ? DateTime.tryParse(json['test_date'] as String) : null,
+      );
 
   Map<String, dynamic> toJson() => {
     'ph': ph, 'ec': ec, 'tds': tds, 'sar': sar,
@@ -252,17 +144,10 @@ class WaterQualityAnalysis {
 }
 
 class WaterQualityValidator {
-  static String? validatePh(double? v) {
-    if (v == null) return 'مطلوب';
-    if (v < 0 || v > 14) return 'pH يجب أن يكون بين 0-14';
-    return null;
-  }
-
-  static String? validateEC(double? v) {
-    if (v == null) return 'مطلوب';
-    if (v < 0 || v > 30) return 'EC يجب أن يكون بين 0-30 dS/m';
-    return null;
-  }
+  static String? validatePh(double? v) =>
+      v == null ? 'مطلوب' : (v < 0 || v > 14) ? 'pH: 0-14' : null;
+  static String? validateEC(double? v) =>
+      v == null ? 'مطلوب' : (v < 0 || v > 30) ? 'EC: 0-30 dS/m' : null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -270,22 +155,17 @@ class WaterQualityValidator {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class CropSalinityTolerance {
-  final String cropCode;
-  final String nameAr;
-  final double ecThreshold;
-  final double yieldDeclinePercent;
+  final String cropCode, nameAr;
+  final double ecThreshold, yieldDeclinePercent;
 
   const CropSalinityTolerance({
     required this.cropCode, required this.nameAr,
     required this.ecThreshold, required this.yieldDeclinePercent,
   });
 
-  double yieldReduction(double soilEC) {
-    if (soilEC <= ecThreshold) return 0;
-    return ((soilEC - ecThreshold) * yieldDeclinePercent).clamp(0, 100);
-  }
-
-  double expectedYieldPercent(double soilEC) => (100 - yieldReduction(soilEC)).clamp(0, 100);
+  double yieldReduction(double ec) =>
+      ec <= ecThreshold ? 0 : ((ec - ecThreshold) * yieldDeclinePercent).clamp(0, 100);
+  double expectedYieldPercent(double ec) => (100 - yieldReduction(ec)).clamp(0, 100);
 
   static const Map<String, CropSalinityTolerance> faoTable = {
     'wheat': CropSalinityTolerance(cropCode: 'wheat', nameAr: 'قمح', ecThreshold: 6.0, yieldDeclinePercent: 7.1),
@@ -302,40 +182,21 @@ class CropSalinityTolerance {
 }
 
 class FAOWaterClassification {
-  static String salinityRisk(double ecW) {
-    if (ecW < 0.7) return 'لا يوجد';
-    if (ecW <= 3.0) return 'طفيف-متوسط';
-    return 'شديد';
-  }
-
-  static String chlorideToxicity(double clMeqL) {
-    if (clMeqL < 4) return 'لا يوجد';
-    if (clMeqL <= 10) return 'طفيف-متوسط';
-    return 'شديد';
-  }
-
-  static String boronToxicity(double boronMgL) {
-    if (boronMgL < 0.7) return 'لا يوجد';
-    if (boronMgL <= 3.0) return 'طفيف-متوسط';
-    return 'شديد';
-  }
-
-  static double calculateRSC(double co3, double hco3, double ca, double mg) {
-    return (co3 + hco3) - (ca + mg);
-  }
-
-  static String rscClassification(double rsc) {
-    if (rsc < 1.25) return 'آمنة';
-    if (rsc <= 2.5) return 'هامشية';
-    return 'غير صالحة';
-  }
+  static String salinityRisk(double ecW) =>
+      ecW < 0.7 ? 'لا يوجد' : ecW <= 3.0 ? 'طفيف-متوسط' : 'شديد';
+  static String chlorideToxicity(double cl) =>
+      cl < 4 ? 'لا يوجد' : cl <= 10 ? 'طفيف-متوسط' : 'شديد';
+  static String boronToxicity(double b) =>
+      b < 0.7 ? 'لا يوجد' : b <= 3.0 ? 'طفيف-متوسط' : 'شديد';
+  static double calculateRSC(double co3, double hco3, double ca, double mg) =>
+      (co3 + hco3) - (ca + mg);
+  static String rscClassification(double rsc) =>
+      rsc < 1.25 ? 'آمنة' : rsc <= 2.5 ? 'هامشية' : 'غير صالحة';
 }
 
 class NutrientUptakeCoefficients {
   final String cropCode;
-  final double nPerTon;
-  final double p2o5PerTon;
-  final double k2oPerTon;
+  final double nPerTon, p2o5PerTon, k2oPerTon;
 
   const NutrientUptakeCoefficients({
     required this.cropCode, required this.nPerTon,
@@ -346,13 +207,11 @@ class NutrientUptakeCoefficients {
     required double targetYield,
     double soilN = 0, double soilP = 0, double soilK = 0,
     double nEfficiency = 0.40, double pEfficiency = 0.20, double kEfficiency = 0.50,
-  }) {
-    return (
-      nKgHa: nEfficiency > 0 ? ((targetYield * nPerTon - soilN) / nEfficiency).clamp(0, 500) : 0,
-      p2o5KgHa: pEfficiency > 0 ? ((targetYield * p2o5PerTon - soilP) / pEfficiency).clamp(0, 200) : 0,
-      k2oKgHa: kEfficiency > 0 ? ((targetYield * k2oPerTon - soilK) / kEfficiency).clamp(0, 300) : 0,
-    );
-  }
+  }) => (
+    nKgHa: nEfficiency > 0 ? ((targetYield * nPerTon - soilN) / nEfficiency).clamp(0, 500) : 0,
+    p2o5KgHa: pEfficiency > 0 ? ((targetYield * p2o5PerTon - soilP) / pEfficiency).clamp(0, 200) : 0,
+    k2oKgHa: kEfficiency > 0 ? ((targetYield * k2oPerTon - soilK) / kEfficiency).clamp(0, 300) : 0,
+  );
 
   static const Map<String, NutrientUptakeCoefficients> table = {
     'wheat': NutrientUptakeCoefficients(cropCode: 'wheat', nPerTon: 27, p2o5PerTon: 11, k2oPerTon: 22),
@@ -367,9 +226,7 @@ class NutrientUptakeCoefficients {
 
 class GDDCropConfig {
   final String cropCode;
-  final double baseTemp;
-  final double upperTemp;
-  final double gddToMaturity;
+  final double baseTemp, upperTemp, gddToMaturity;
 
   const GDDCropConfig({
     required this.cropCode, required this.baseTemp,

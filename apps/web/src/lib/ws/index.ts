@@ -329,6 +329,7 @@ export function getEventIcon(eventType: string): string {
     case 'weather':
       return '🌤️';
     case 'diagnosis':
+    case 'disease':
     case 'crop':
       return '🔬';
     case 'ndvi':
@@ -365,6 +366,7 @@ export function getEventColor(eventType: string): string {
     case 'weather':
       return 'bg-amber-50 border-amber-200';
     case 'diagnosis':
+    case 'disease':
     case 'crop':
       return 'bg-red-50 border-red-200';
     case 'ndvi':

@@ -11,8 +11,8 @@ import pytest
 
 from shared.libs.database import SQLALCHEMY_AVAILABLE
 
-# We need to mock sqlalchemy before importing the module under test
-# because the module does a try/except import at module level.
+# Note: SQLALCHEMY_AVAILABLE is imported at module level and is used
+# to conditionally skip tests when SQLAlchemy is not installed.
 
 
 class TestDatabaseConfig:

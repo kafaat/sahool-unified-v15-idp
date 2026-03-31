@@ -1,6 +1,7 @@
+library;
+
 /// Sector Management Screen - Valley Style
 /// شاشة إدارة القطاعات - بأسلوب فالي
-library;
 
 import 'package:flutter/material.dart';
 import '../../domain/models/pivot_models.dart';

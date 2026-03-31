@@ -1,6 +1,7 @@
+library;
+
 /// VRI Zone Grid Editor - محرر شبكة مناطق VRI
 /// Visual editor for configuring VRI zones at span/tower level
-library;
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';

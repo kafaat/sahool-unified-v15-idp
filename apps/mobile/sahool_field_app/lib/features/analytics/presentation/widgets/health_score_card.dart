@@ -1,6 +1,7 @@
+library;
+
 /// Health Score Card Widget
 /// ودجت بطاقة درجة الصحة
-library;
 
 import 'package:flutter/material.dart';
 import 'dart:math' as math;

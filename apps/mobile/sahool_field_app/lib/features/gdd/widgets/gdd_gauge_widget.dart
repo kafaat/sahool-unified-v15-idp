@@ -1,5 +1,6 @@
-/// GDD Gauge Widget - ويدجت مقياس درجات النمو الحراري الدائري
 library;
+
+/// GDD Gauge Widget - ويدجت مقياس درجات النمو الحراري الدائري
 
 import 'dart:math' as math;
 

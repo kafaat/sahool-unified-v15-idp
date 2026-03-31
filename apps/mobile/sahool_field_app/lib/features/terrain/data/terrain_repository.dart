@@ -1,9 +1,10 @@
+library;
+
 /// Terrain Analysis Repository
 /// مستودع تحليل التضاريس
 ///
 /// Fetches terrain analysis from API with offline-first caching using Drift.
 /// Supports elevation profiles, slope analysis, and soil characteristics.
-library;
 
 import 'dart:convert';
 

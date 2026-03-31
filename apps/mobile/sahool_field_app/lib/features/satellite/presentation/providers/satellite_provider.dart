@@ -1,6 +1,7 @@
+library;
+
 /// Satellite Provider - مزود الأقمار الصناعية
 /// State management for satellite monitoring features using Riverpod
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;

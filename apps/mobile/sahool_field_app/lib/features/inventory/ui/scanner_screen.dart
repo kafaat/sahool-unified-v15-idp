@@ -1,5 +1,6 @@
-/// Scanner Screen - شاشة الماسح الضوئي
 library;
+
+/// Scanner Screen - شاشة الماسح الضوئي
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

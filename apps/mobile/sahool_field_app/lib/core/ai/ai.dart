@@ -1,3 +1,5 @@
+library;
+
 /// AI Skills Integration - Core Module
 ///
 /// Provides:
@@ -30,7 +32,6 @@
 ///   executionTime: Duration(milliseconds: 500),
 /// );
 /// ```
-library;
 
 export 'context_compressor.dart';
 export 'farm_memory.dart';

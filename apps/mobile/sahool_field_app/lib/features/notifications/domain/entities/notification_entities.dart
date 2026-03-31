@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Notification Domain Entities
 /// نماذج بيانات الإشعارات
-library;
 
 /// إشعار التطبيق
 class AppNotification {

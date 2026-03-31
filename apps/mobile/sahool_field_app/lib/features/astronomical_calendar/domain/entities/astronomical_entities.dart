@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Astronomical Calendar Domain Entities
 /// نماذج التقويم الفلكي الزراعي
-library;
 
 import 'package:flutter/material.dart';
 

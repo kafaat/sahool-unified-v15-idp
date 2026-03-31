@@ -1,8 +1,9 @@
+library;
+
 /// TFLite Helper - مساعد TFLite
 ///
 /// TensorFlow Lite interpreter wrapper for on-device ML inference.
 /// Provides image preprocessing, model loading, and post-processing utilities.
-library;
 
 import 'dart:async';
 import 'dart:io';

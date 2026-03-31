@@ -1,3 +1,5 @@
+library;
+
 /// Message Bubble Widget
 /// فقاعة الرسالة
 ///
@@ -7,7 +9,6 @@
 /// - Message content
 /// - Timestamp
 /// - Status indicator (sent/delivered/read)
-library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Service Switcher
 /// نظام التبديل بين الخدمات للمقارنة والاختبار
 ///
@@ -5,7 +7,6 @@
 /// - التبديل بين الخدمات القديمة والحديثة
 /// - مقارنة الأداء والنتائج
 /// - اختبار الخدمات قبل الترقية
-library;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';

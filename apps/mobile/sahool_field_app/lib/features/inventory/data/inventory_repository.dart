@@ -1,6 +1,7 @@
+library;
+
 /// Inventory Repository - مستودع بيانات المخزون
 /// يتواصل مع FastAPI Inventory Service
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

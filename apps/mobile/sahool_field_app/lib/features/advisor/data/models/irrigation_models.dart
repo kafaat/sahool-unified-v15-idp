@@ -1,6 +1,7 @@
+library;
+
 /// Irrigation Planning Models
 /// نماذج تخطيط الري
-library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 

@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Map Providers - Multiple Map Library Support
 /// دعم متعدد لمكتبات الخرائط
 ///
@@ -7,7 +9,6 @@
 /// - Mapbox (Requires API key)
 /// - Google Maps (Requires API key)
 /// - Custom Tile Server
-library;
 
 import 'package:latlong2/latlong.dart';
 

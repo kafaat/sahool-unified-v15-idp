@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Outbox Pattern Implementation
 /// تنفيذ نمط صندوق الصادر للمزامنة
 ///
@@ -73,7 +75,6 @@
 /// │                                                              │
 /// └─────────────────────────────────────────────────────────────┘
 /// ```
-library;
 
 // Core models
 export 'outbox_entry.dart';

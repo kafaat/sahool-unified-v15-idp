@@ -1,3 +1,5 @@
+library;
+
 /// Irrigation Feature - Smart Irrigation Management
 /// ميزة الري - إدارة الري الذكي
 ///
@@ -7,7 +9,6 @@
 /// - Offline-first data management with sync
 /// - Sensor-triggered irrigation
 /// - Pivot irrigation support
-library;
 
 // Data Layer - طبقة البيانات
 export 'data/remote/irrigation_api.dart';

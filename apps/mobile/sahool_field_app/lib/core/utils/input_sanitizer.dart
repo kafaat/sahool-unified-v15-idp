@@ -1,3 +1,5 @@
+library;
+
 /// Input Sanitizer
 /// معقم المدخلات - تنظيف وتطهير البيانات المدخلة
 ///
@@ -7,7 +9,6 @@
 /// - Special character escaping
 /// - Log-safe string conversion
 /// - Sensitive data filtering
-library;
 
 /// Input Sanitizer Class
 class InputSanitizer {

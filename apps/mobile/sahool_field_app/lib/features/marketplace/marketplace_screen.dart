@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Marketplace Screen
 /// شاشة السوق - عرض المنتجات والشراء
 ///
@@ -6,7 +8,6 @@
 /// - Search and filter
 /// - Shopping cart
 /// - Featured products carousel
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

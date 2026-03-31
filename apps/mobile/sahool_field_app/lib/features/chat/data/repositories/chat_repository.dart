@@ -1,8 +1,9 @@
+library;
+
 /// Chat Repository
 /// مستودع المحادثات
 ///
 /// Handles data operations and caching for chat feature
-library;
 
 import 'dart:async';
 import '../models/conversation_model.dart';

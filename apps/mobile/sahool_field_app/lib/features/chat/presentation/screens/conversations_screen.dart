@@ -1,3 +1,5 @@
+library;
+
 /// Conversations Screen
 /// شاشة قائمة المحادثات
 ///
@@ -7,7 +9,6 @@
 /// - Unread badge in app bar
 /// - Search conversations by contact name or last message
 /// - Empty state
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

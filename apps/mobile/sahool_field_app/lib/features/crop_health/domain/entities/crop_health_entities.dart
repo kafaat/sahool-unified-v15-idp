@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Crop Health Domain Entities
 /// نماذج صحة المحاصيل
-library;
 
 /// مؤشرات الغطاء النباتي
 class VegetationIndices {

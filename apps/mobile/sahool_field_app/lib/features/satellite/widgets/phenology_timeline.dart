@@ -1,6 +1,7 @@
+library;
+
 /// Phenology Timeline Widget - ودجت الجدول الزمني لمراحل النمو
 /// Visual timeline for crop growth stages
-library;
 
 import 'package:flutter/material.dart';
 import '../data/models/phenology_data.dart';

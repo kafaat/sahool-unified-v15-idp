@@ -1,6 +1,7 @@
+library;
+
 /// API Configuration for SAHOOL Field App
 /// إعدادات الاتصال بالخادم
-library;
 
 import 'env_config.dart';
 

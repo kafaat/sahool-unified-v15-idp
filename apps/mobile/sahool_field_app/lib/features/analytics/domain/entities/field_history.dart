@@ -1,8 +1,9 @@
+library;
+
 /// Field History Domain Entities
 /// كيانات تاريخ الحقل - Domain Layer نظيف (بدون Flutter)
 ///
 /// يمثل السجل التاريخي لصحة الحقل عبر الزمن
-library;
 
 /// سجل قراءة NDVI واحدة
 class NdviRecord {

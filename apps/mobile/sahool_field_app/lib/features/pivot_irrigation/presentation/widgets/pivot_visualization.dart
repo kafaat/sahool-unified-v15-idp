@@ -1,6 +1,7 @@
+library;
+
 /// Pivot Irrigation Visualization Widget - Valley Style
 /// ودجة عرض الري المحوري - بأسلوب فالي
-library;
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';

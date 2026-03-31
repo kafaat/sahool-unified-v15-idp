@@ -1,3 +1,5 @@
+library;
+
 /// Irrigation Scheduler Service - Schedule Management
 /// خدمة جدولة الري - إدارة الجداول
 ///
@@ -7,7 +9,6 @@
 /// - ET-based scheduling recommendations
 /// - Sensor-triggered scheduling
 /// - Schedule conflict resolution
-library;
 
 import '../../data/remote/irrigation_api.dart';
 import '../../../advisor/data/models/irrigation_models.dart'

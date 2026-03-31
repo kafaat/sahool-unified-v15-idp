@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Notification Types
 /// أنواع الإشعارات
 ///
 /// Defines notification types, channels, and priorities for the SAHOOL platform.
 /// يحدد أنواع الإشعارات والقنوات والأولويات لمنصة سهول.
-library;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Simple Notification Types (for local notifications)

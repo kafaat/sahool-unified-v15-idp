@@ -1,6 +1,7 @@
+library;
+
 /// Profitability Dashboard Screen - شاشة لوحة معلومات الربحية
 /// Main dashboard showing overall profitability metrics
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

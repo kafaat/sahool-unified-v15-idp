@@ -1,6 +1,7 @@
+library;
+
 /// Trend Chart Widget
 /// ودجت مخطط الاتجاهات
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

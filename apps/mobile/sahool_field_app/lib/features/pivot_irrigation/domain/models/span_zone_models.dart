@@ -1,6 +1,7 @@
+library;
+
 /// Span/Tower Zone Models - نماذج مناطق الأبراج
 /// VRI management at tower level for precision irrigation
-library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 

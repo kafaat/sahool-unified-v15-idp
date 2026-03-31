@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Manager
 /// مدير الإشعارات المركزي
 ///
@@ -13,7 +15,6 @@
 /// - Permission management (إدارة الأذونات)
 /// - Notification preferences (تفضيلات الإشعارات)
 /// - Notification tap handling (معالجة النقر على الإشعارات)
-library;
 
 import 'dart:async';
 import 'dart:convert';

@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Smart Sell Harvest Sheet
 /// نافذة بيع الحصاد الذكي - Bottom Sheet احترافي
 ///
@@ -6,7 +8,6 @@
 /// - AI yield prediction display
 /// - Animated loading state
 /// - Integration with MarketNotifier
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,6 +1,7 @@
+library;
+
 /// VRA Service - خدمة التطبيق المتغير
 /// يتواصل مع FastAPI VRA Service
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

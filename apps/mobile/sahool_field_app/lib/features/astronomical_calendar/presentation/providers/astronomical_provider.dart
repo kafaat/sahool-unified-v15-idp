@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Astronomical Calendar Providers (Legacy)
 /// مزودات التقويم الفلكي (الإصدار القديم)
 ///
 /// Note: This is the legacy version. For new development, use:
 /// features/astronomical/providers/astronomical_providers.dart
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/remote/astronomical_api.dart';

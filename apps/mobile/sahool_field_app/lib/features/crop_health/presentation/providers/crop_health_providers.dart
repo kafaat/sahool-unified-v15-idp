@@ -1,6 +1,7 @@
+library;
+
 /// Crop Health Providers - Riverpod State Management
 /// موفرو صحة المحاصيل - إدارة الحالة بـ Riverpod
-library;
 
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

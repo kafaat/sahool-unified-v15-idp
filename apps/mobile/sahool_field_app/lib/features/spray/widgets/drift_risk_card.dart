@@ -1,6 +1,7 @@
+library;
+
 /// Drift Risk Card Widget - بطاقة خطر الانجراف
 /// Displays drift risk assessment for spray operations
-library;
 
 import 'package:flutter/material.dart';
 

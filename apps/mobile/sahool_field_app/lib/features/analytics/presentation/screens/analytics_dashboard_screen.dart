@@ -1,6 +1,7 @@
+library;
+
 /// Analytics Dashboard Screen - Main Analytics View
 /// شاشة لوحة تحكم التحليلات - العرض الرئيسي للتحليلات
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

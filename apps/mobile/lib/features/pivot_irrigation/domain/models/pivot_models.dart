@@ -689,9 +689,8 @@ extension PivotSectorX on PivotSector {
   /// Calculate sector angle span
   double get angleSpan => (endAngle - startAngle).abs();
 
-  /// Calculate time to irrigate this sector at given speed
+  /// Calculate time to irrigate this sector at 100% speed
   double irrigationTimeMinutes(double fullCircleMinutes) {
-    if (speedPercent <= 0) return double.infinity;
     return fullCircleMinutes * (angleSpan / 360.0) * (100 / speedPercent);
   }
 }

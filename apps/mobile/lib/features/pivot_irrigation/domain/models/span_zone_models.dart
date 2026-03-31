@@ -241,7 +241,7 @@ enum PrescriptionSource {
 extension SpanConfigurationX on SpanConfiguration {
   /// Calculate arc length covered by this span at its distance
   double get arcLengthAt360 {
-    return 2 * 3.14159265358979323846 * distanceFromCenter;
+    return 2 * 3.14159 * distanceFromCenter;
   }
 
   /// Get effective application rate considering zone multipliers
@@ -445,7 +445,7 @@ class VRIZoneStatistics with _$VRIZoneStatistics {
     }
 
     // Water savings compared to uniform 100%
-    final waterSavings = (100 - avgRate).clamp(0.0, 100.0);
+    final waterSavings = 100 - avgRate;
 
     return VRIZoneStatistics(
       totalZones: allZones.length,

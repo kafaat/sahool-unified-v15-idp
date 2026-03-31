@@ -13,31 +13,102 @@ part 'fertilizer_models.g.dart';
 @freezed
 class SoilAnalysis with _$SoilAnalysis {
   const factory SoilAnalysis({
-    required double ph, // 0-14, typical: 4.0-9.0
-    required double nitrogen, // mg/kg (ppm), range: 0-2000
-    required double phosphorus, // mg/kg (ppm), range: 0-500
-    required double potassium, // mg/kg (ppm), range: 0-1000
-    @Default(0) double organicMatter, // %, range: 0-20
+    required double ph,
+    required double nitrogen, // mg/kg
+    required double phosphorus, // mg/kg
+    required double potassium, // mg/kg
+    @Default(0) double organicMatter, // %
     @Default('') String soilType,
     @Default('') String soilTypeAr,
-    // Extended soil analysis fields (matching backend shared/soil_testing/models.py)
-    @Default(0) double electricalConductivity, // EC, dS/m
-    @Default(0) double cec, // Cation Exchange Capacity, meq/100g
-    @Default(0) double sandPercent, // %, USDA texture triangle
-    @Default(0) double siltPercent, // %, USDA texture triangle
-    @Default(0) double clayPercent, // %, USDA texture triangle
-    @Default(0) double calcium, // Ca, mg/kg
-    @Default(0) double magnesium, // Mg, mg/kg
-    @Default(0) double sulfur, // S, mg/kg
-    @Default(0) double sodium, // Na, meq/L
-    @Default(0) double iron, // Fe, mg/kg
-    @Default(0) double zinc, // Zn, mg/kg
-    @Default(0) double manganese, // Mn, mg/kg
-    @Default(0) double boron, // B, mg/kg
   }) = _SoilAnalysis;
 
   factory SoilAnalysis.fromJson(Map<String, dynamic> json) =>
       _$SoilAnalysisFromJson(json);
+}
+
+/// Extended soil analysis with all parameters
+/// تحليل تربة موسع - matching backend shared/soil_testing/models.py
+class ExtendedSoilAnalysis {
+  final double ph; // 0-14
+  final double nitrogen; // mg/kg (ppm)
+  final double phosphorus; // mg/kg (ppm)
+  final double potassium; // mg/kg (ppm)
+  final double organicMatter; // %
+  final String soilType;
+  final String soilTypeAr;
+  // Extended fields
+  final double electricalConductivity; // EC, dS/m
+  final double cec; // Cation Exchange Capacity, meq/100g
+  final double sandPercent; // %, USDA texture triangle
+  final double siltPercent; // %
+  final double clayPercent; // %
+  final double calcium; // Ca, mg/kg
+  final double magnesium; // Mg, mg/kg
+  final double sulfur; // S, mg/kg
+  final double sodium; // Na, meq/L
+  final double iron; // Fe, mg/kg
+  final double zinc; // Zn, mg/kg
+  final double manganese; // Mn, mg/kg
+  final double boron; // B, mg/kg
+
+  const ExtendedSoilAnalysis({
+    required this.ph,
+    required this.nitrogen,
+    required this.phosphorus,
+    required this.potassium,
+    this.organicMatter = 0,
+    this.soilType = '',
+    this.soilTypeAr = '',
+    this.electricalConductivity = 0,
+    this.cec = 0,
+    this.sandPercent = 0,
+    this.siltPercent = 0,
+    this.clayPercent = 0,
+    this.calcium = 0,
+    this.magnesium = 0,
+    this.sulfur = 0,
+    this.sodium = 0,
+    this.iron = 0,
+    this.zinc = 0,
+    this.manganese = 0,
+    this.boron = 0,
+  });
+
+  /// Convert to basic SoilAnalysis (for freezed API compatibility)
+  SoilAnalysis toBasic() => SoilAnalysis(
+        ph: ph,
+        nitrogen: nitrogen,
+        phosphorus: phosphorus,
+        potassium: potassium,
+        organicMatter: organicMatter,
+        soilType: soilType,
+        soilTypeAr: soilTypeAr,
+      );
+
+  factory ExtendedSoilAnalysis.fromJson(Map<String, dynamic> json) {
+    return ExtendedSoilAnalysis(
+      ph: (json['ph'] as num?)?.toDouble() ?? 7.0,
+      nitrogen: (json['nitrogen'] as num?)?.toDouble() ?? 0,
+      phosphorus: (json['phosphorus'] as num?)?.toDouble() ?? 0,
+      potassium: (json['potassium'] as num?)?.toDouble() ?? 0,
+      organicMatter: (json['organic_matter'] as num?)?.toDouble() ?? 0,
+      soilType: json['soil_type'] as String? ?? '',
+      soilTypeAr: json['soil_type_ar'] as String? ?? '',
+      electricalConductivity: (json['ec'] as num?)?.toDouble() ?? 0,
+      cec: (json['cec'] as num?)?.toDouble() ?? 0,
+      sandPercent: (json['sand_percent'] as num?)?.toDouble() ?? 0,
+      siltPercent: (json['silt_percent'] as num?)?.toDouble() ?? 0,
+      clayPercent: (json['clay_percent'] as num?)?.toDouble() ?? 0,
+      calcium: (json['calcium'] as num?)?.toDouble() ?? 0,
+      magnesium: (json['magnesium'] as num?)?.toDouble() ?? 0,
+      sulfur: (json['sulfur'] as num?)?.toDouble() ?? 0,
+      sodium: (json['sodium'] as num?)?.toDouble() ?? 0,
+      iron: (json['iron'] as num?)?.toDouble() ?? 0,
+      zinc: (json['zinc'] as num?)?.toDouble() ?? 0,
+      manganese: (json['manganese'] as num?)?.toDouble() ?? 0,
+      boron: (json['boron'] as num?)?.toDouble() ?? 0,
+    );
+  }
 }
 
 /// Soil analysis validation helper
@@ -100,6 +171,12 @@ class SoilAnalysisValidator {
     if (p != null) errors.add(p);
     final k = validatePotassium(a.potassium);
     if (k != null) errors.add(k);
+    return errors;
+  }
+
+  /// Validate extended soil analysis with all fields
+  static List<String> validateExtended(ExtendedSoilAnalysis a) {
+    final errors = validateAll(a.toBasic());
     final ec = validateEC(a.electricalConductivity);
     if (ec != null) errors.add(ec);
     final tex = validateTexturePercent(a.sandPercent, a.siltPercent, a.clayPercent);

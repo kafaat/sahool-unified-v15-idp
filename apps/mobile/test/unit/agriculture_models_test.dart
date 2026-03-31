@@ -85,7 +85,6 @@ void main() {
         phosphorus: 25,
         potassium: 180,
         organicMatter: 2.5,
-        electricalConductivity: 1.2,
       );
       final errors = SoilAnalysisValidator.validateAll(goodSoil);
       expect(errors, isEmpty);

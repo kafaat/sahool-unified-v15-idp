@@ -64,11 +64,7 @@ python-jose>=3.5.0,<4.0.0  # Deprecated: migrating to PyJWT. Kept for docker/con
 passlib==1.7.4
 bcrypt>=4.2.0,<5.0.0  # Required by passlib[bcrypt] for secure password hashing
 pyotp>=2.9.0,<3.0.0  # TOTP generation for 2FA
-<<<<<<< HEAD
-qrcode>=7.4.2,<9.0.0  # QR code generation for 2FA setup & traceability
-=======
-qrcode>=7.4.2,<9.0.0  # QR code generation for 2FA setup (8.x supported)
->>>>>>> cad879577aa9e5b68d0c55337eaf4665ca117c28
+qrcode>=7.4.2,<9.0.0  # QR code generation for 2FA setup & traceability (8.x supported)
 cryptography>=44.0.1,<47.0.0  # CVE-2024-12797 fixed in 44.0.1, CVE-2026-26007 fixed in 46.0.5
 
 # ─────────────────────────────────────────────────────────────────────────────

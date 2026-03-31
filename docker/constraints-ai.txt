@@ -46,13 +46,8 @@ vllm>=0.6.0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Embeddings and Vector Stores
 # ─────────────────────────────────────────────────────────────────────────────
-<<<<<<< HEAD
 sentence-transformers==5.3.0
-qdrant-client==1.17.1
-=======
-sentence-transformers==5.2.3
-qdrant-client>=1.12.0,<2.0.0  # Exact pin 1.17.0 had no manylinux wheel for Python 3.11
->>>>>>> cad879577aa9e5b68d0c55337eaf4665ca117c28
+qdrant-client>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1  # 1.17.x had no manylinux wheel for Python 3.11
 faiss-cpu>=1.7.4,<2.0.0  # For dense vector search
 chromadb>=0.4.0,<2.0.0  # Alternative vector DB
 
@@ -111,7 +106,7 @@ bcrypt>=4.2.0,<5.0.0  # Required by passlib[bcrypt] for secure password hashing
 # Monitoring and Observability
 # ─────────────────────────────────────────────────────────────────────────────
 prometheus-client>=0.21.1,<1.0.0  # Allow upgrade to 0.24.1 (constraints.txt pin)
-structlog>=24.4.0,<25.0.0
+structlog>=25.5.0,<26.0.0
 opentelemetry-api>=1.20.0,<2.0.0
 opentelemetry-sdk>=1.20.0,<2.0.0
 opentelemetry-instrumentation-fastapi>=0.41b0,<1.0.0

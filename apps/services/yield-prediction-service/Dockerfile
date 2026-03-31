@@ -28,6 +28,10 @@ WORKDIR /workspace/yield-prediction-service
 # package.json may use version string OR file: reference depending on context
 RUN sed -i 's|"@sahool/nestjs-auth": "[^"]*"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
 
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
+
 # Disable nestjs-auth prepare script to prevent premature tsc build during install
 # (nestjs-auth is built explicitly in a later step with proper peer deps available)
 WORKDIR /workspace/nestjs-auth

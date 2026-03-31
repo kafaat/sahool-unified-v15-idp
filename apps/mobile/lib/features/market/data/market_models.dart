@@ -86,8 +86,8 @@ class WalletModel {
       currentLoan: (json['currentLoan'] as num?)?.toDouble() ?? 0,
       availableCredit: (json['availableCredit'] as num?)?.toDouble() ?? 0,
       isVerified: json['isVerified'] as bool? ?? false,
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? DateTime.now() ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? DateTime.now() ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.now(),
     );
   }
 
@@ -340,8 +340,8 @@ class ProductModel {
       featured: json['featured'] as bool? ?? false,
       organic: json['organic'] as bool? ?? false,
       status: ProductStatus.fromString(json['status'] as String?),
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? DateTime.now() ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? DateTime.now() ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.now(),
     );
   }
 
@@ -591,9 +591,9 @@ class LoanModel {
       collateralType: json['collateralType'] as String?,
       collateralValue: (json['collateralValue'] as num?)?.toDouble(),
       status: LoanStatus.fromString(json['status'] as String?),
-      approvedAt: json['approvedAt'] != null ? DateTime.tryParse(json['approvedAt'] as String) ?? DateTime.now() : null,
-      startDate: json['startDate'] != null ? DateTime.tryParse(json['startDate'] as String) ?? DateTime.now() : null,
-      dueDate: json['dueDate'] != null ? DateTime.tryParse(json['dueDate'] as String) ?? DateTime.now() : null,
+      approvedAt: json['approvedAt'] != null ? DateTime.tryParse(json['approvedAt'] as String) : null,
+      startDate: json['startDate'] != null ? DateTime.tryParse(json['startDate'] as String) : null,
+      dueDate: json['dueDate'] != null ? DateTime.tryParse(json['dueDate'] as String) : null,
       createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now(),
     );

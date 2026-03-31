@@ -249,7 +249,7 @@ class AccessControlEntry {
               .toSet() ??
           {},
       conditions: json['conditions'] as Map<String, dynamic>?,
-      expiresAt: json['expires_at'] != null ? DateTime.tryParse(json['expires_at'] as String) ?? DateTime.now() : null,
+      expiresAt: json['expires_at'] != null ? DateTime.tryParse(json['expires_at'] as String) : null,
       inherited: json['inherited'] as bool? ?? false,
       inheritedFrom: json['inherited_from'] as String?,
       createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),

@@ -428,7 +428,7 @@ class MetricsCollector {
   /// Get last sync time
   DateTime? getLastSyncTime() {
     final str = _prefs.getString(_lastSyncKey);
-    return str != null ? DateTime.tryParse(str) ?? DateTime.now() : null;
+    return str != null ? DateTime.tryParse(str) : null;
   }
 
   /// Export all metrics as JSON (for debugging)

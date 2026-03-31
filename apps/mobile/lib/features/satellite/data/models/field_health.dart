@@ -262,7 +262,7 @@ class Recommendation extends Equatable {
       description: (json['description'] ?? '') as String,
       descriptionAr: (json['description_ar'] ?? json['descriptionAr'] ?? '') as String,
       priority: RecommendationPriority.fromString((json['priority'] ?? 'medium') as String),
-      dueDate: json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) ?? DateTime.now() : null,
+      dueDate: json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) : null,
     );
   }
 

@@ -602,9 +602,9 @@ class SprayRecommendation {
               ?.map((e) => SprayWindow.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      targetDate: json['target_date'] != null ? DateTime.tryParse(json['target_date'] as String) ?? DateTime.now() : null,
+      targetDate: json['target_date'] != null ? DateTime.tryParse(json['target_date'] as String) : null,
       completedDate:
-          json['completed_date'] != null ? DateTime.tryParse(json['completed_date'] as String) ?? DateTime.now() : null,
+          json['completed_date'] != null ? DateTime.tryParse(json['completed_date'] as String) : null,
       createdBy: json['created_by'] as String?,
       createdByName: json['created_by_name'] as String?,
       priority: json['priority'] as int? ?? 3,

@@ -296,7 +296,7 @@ class MaintenanceAlert {
       description: json['description'] as String,
       descriptionAr: json['description_ar'] as String?,
       priority: MaintenancePriority.fromString(json['priority'] as String),
-      dueAt: json['due_at'] != null ? DateTime.tryParse(json['due_at'] as String) ?? DateTime.now() : null,
+      dueAt: json['due_at'] != null ? DateTime.tryParse(json['due_at'] as String) : null,
       dueHours: (json['due_hours'] as num?)?.toDouble(),
       isOverdue: json['is_overdue'] as bool? ?? false,
       createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),

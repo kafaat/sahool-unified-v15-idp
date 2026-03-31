@@ -427,7 +427,7 @@ class CropProfitability {
           ? BreakEvenAnalysis.fromJson(json['break_even_analysis'] as Map<String, dynamic>)
           : null,
       startDate: DateTime.tryParse(json['start_date'] as String) ?? DateTime.now(),
-      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) ?? DateTime.now() : null,
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) : null,
       createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
@@ -563,7 +563,7 @@ class SeasonSummary {
         (k, v) => MapEntry(k, (v as num).toDouble()),
       ) ?? {},
       startDate: DateTime.tryParse(json['start_date'] as String) ?? DateTime.now(),
-      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) ?? DateTime.now() : null,
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) : null,
       createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
     );
   }

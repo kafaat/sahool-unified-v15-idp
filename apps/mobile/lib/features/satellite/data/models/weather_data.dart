@@ -117,7 +117,7 @@ class DailyForecastSummary extends Equatable {
 
   factory DailyForecastSummary.fromJson(Map<String, dynamic> json) {
     return DailyForecastSummary(
-      date: json['date'] != null ? DateTime.tryParse(json['date'] as String) : null,
+      date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
       tempMin: ((json['temp_min'] ?? json['tempMin'] ?? 0.0) as num).toDouble(),
       tempMax: ((json['temp_max'] ?? json['tempMax'] ?? 0.0) as num).toDouble(),
       precipitation: ((json['precipitation'] ?? json['rain'] ?? 0.0) as num).toDouble(),

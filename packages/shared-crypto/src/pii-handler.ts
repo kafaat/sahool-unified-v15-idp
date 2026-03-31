@@ -313,7 +313,11 @@ function maskValue(value: string, type: PIIType, strategy: MaskingStrategy): str
 function maskPartial(value: string, type: PIIType): string {
   switch (type) {
     case PIIType.EMAIL: {
-      const [local, domain] = value.split('@');
+      const parts = value.split('@');
+      if (parts.length !== 2 || !parts[0] || !parts[1]) {
+        return '*'.repeat(value.length);
+      }
+      const [local, domain] = parts;
       const maskedLocal =
         local.length > 2
           ? local[0] + '*'.repeat(local.length - 2) + local[local.length - 1]

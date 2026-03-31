@@ -32,6 +32,14 @@ export function useApi<T>(
   const [error, setError] = useState<Error | null>(null);
   const mountedRef = useRef(true);
 
+  // Use refs for callbacks to avoid stale closures and unnecessary re-creation of execute
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+    onErrorRef.current = onError;
+  }, [onSuccess, onError]);
+
   const execute = useCallback(async (): Promise<T | undefined> => {
     setIsLoading(true);
     setError(null);
@@ -41,7 +49,7 @@ export function useApi<T>(
 
       if (mountedRef.current) {
         setData(result);
-        onSuccess?.(result);
+        onSuccessRef.current?.(result);
       }
 
       return result;
@@ -50,7 +58,7 @@ export function useApi<T>(
 
       if (mountedRef.current) {
         setError(error);
-        onError?.(error);
+        onErrorRef.current?.(error);
       }
 
       return undefined;
@@ -59,7 +67,7 @@ export function useApi<T>(
         setIsLoading(false);
       }
     }
-  }, [fetcher, onSuccess, onError]);
+  }, [fetcher]);
 
   const reset = useCallback(() => {
     setData(initialData);

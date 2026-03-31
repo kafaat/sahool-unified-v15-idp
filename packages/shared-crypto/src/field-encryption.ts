@@ -502,13 +502,23 @@ export function decryptFields<T extends Record<string, any>>(
   fields: (keyof T)[],
   deterministic = false
 ): T {
+  if (deterministic) {
+    // Deterministic (searchable) encryption uses a one-way hash for indexing.
+    // Individual field decryption requires the original plaintext hint — batch
+    // decryption without hints is not supported. Throw to make this explicit
+    // rather than silently returning still-encrypted data to the caller.
+    throw new Error(
+      'decryptFields: deterministic=true is not supported for batch decryption. ' +
+        'Use decrypt() individually with the original plaintext hint for searchable fields.'
+    );
+  }
+
   const result = { ...data };
-  const decryptFn = deterministic ? (val: string) => val : decrypt; // Searchable needs hint — skip in batch
 
   for (const field of fields) {
     if (result[field] && typeof result[field] === 'string') {
       try {
-        result[field] = decryptFn(result[field] as string) as any;
+        result[field] = decrypt(result[field] as string) as any;
       } catch (error) {
         // Log error but don't fail the entire operation
         console.error(`Failed to decrypt field ${String(field)}:`, error);

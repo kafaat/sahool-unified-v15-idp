@@ -93,14 +93,17 @@ async def get_current_user(
                     )
 
                 # Create User object from cache
+                # Use False as default to match the validation logic above (lines 81, 88)
+                # which also uses False. Inconsistent defaults could allow a missing key
+                # to bypass validation and create a User with unexpected privileges.
                 user = User(
                     id=user_id,
                     email=cached_user.get("email", ""),
                     roles=cached_user.get("roles", payload.roles),
                     tenant_id=cached_user.get("tenant_id", payload.tenant_id),
                     permissions=payload.permissions,
-                    is_active=cached_user.get("is_active", True),
-                    is_verified=cached_user.get("is_verified", True),
+                    is_active=cached_user.get("is_active", False),
+                    is_verified=cached_user.get("is_verified", False),
                 )
 
                 logger.debug(f"User {user_id} authenticated successfully (from cache)")

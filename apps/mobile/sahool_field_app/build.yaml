@@ -1,5 +1,11 @@
 # SAHOOL Field App Build Configuration
 # ملف إعدادات توليد الكود
+#
+# IMPORTANT: When adding new @freezed, @JsonSerializable, @riverpod, or Drift
+# models, ensure the file path matches the generate_for patterns below.
+# If not, add the new path pattern.
+#
+# هام: عند إضافة نماذج جديدة، تأكد من أن مسار الملف يطابق أنماط generate_for أدناه.
 
 targets:
   $default:
@@ -9,10 +15,8 @@ targets:
         generate_for:
           - "lib/models/**/*.dart"
           - "lib/services/**/*.dart"
-          - "lib/core/models/**/*.dart"
-          - "lib/features/**/models/*.dart"
-          - "lib/features/**/models/**/*.dart"
-          - "lib/features/**/domain/**/*.dart"
+          - "lib/core/**/*.dart"
+          - "lib/features/**/*.dart"
         options:
           explicit_to_json: true
           include_if_null: false
@@ -21,28 +25,28 @@ targets:
       freezed:
         generate_for:
           - "lib/models/**/*.dart"
-          - "lib/core/models/**/*.dart"
-          - "lib/features/**/models/*.dart"
-          - "lib/features/**/models/**/*.dart"
-          - "lib/features/**/domain/**/*.dart"
+          - "lib/core/**/*.dart"
+          - "lib/features/**/*.dart"
+
+      # Riverpod Generator configuration
+      riverpod_generator:
+        generate_for:
+          - "lib/core/**/*.dart"
+          - "lib/features/**/*.dart"
 
       # Drift database configuration
       drift_dev:
         generate_for:
-          # Direct files in storage directory (database.dart is here)
           - "lib/core/storage/*.dart"
-          # Subdirectories of storage
           - "lib/core/storage/**/*.dart"
-          # Database directory
           - "lib/core/database/*.dart"
           - "lib/core/database/**/*.dart"
-          # Feature data files
           - "lib/features/**/data/*.dart"
           - "lib/features/**/data/**/*.dart"
         options:
           store_date_time_values_as_text: true
 
-      # Exclude test files from code generation
+      # Exclude test files and generated files from code generation
       source_gen|combining_builder:
         generate_for:
           exclude:

@@ -124,10 +124,10 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
                 <div>
                   <h2 id="error-title" className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                    <div>حدث خطأ غير متوقع</div>
-                    <div className="text-sm font-normal text-gray-500 dark:text-gray-400 mt-0.5">
+                    <span className="block">حدث خطأ غير متوقع</span>
+                    <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-0.5">
                       An unexpected error occurred
-                    </div>
+                    </span>
                   </h2>
                   <p id="error-description" className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                     <span className="block">نعتذر عن الإزعاج. سنعمل على حل المشكلة قريباً</span>

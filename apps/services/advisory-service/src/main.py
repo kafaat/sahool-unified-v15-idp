@@ -94,7 +94,7 @@ except ImportError:
 # ============== Input Validation Helpers ==============
 
 # Build set of known crop codes from the crop catalog for validation
-KNOWN_CROP_CODES: set[str] = {crop.code for crop in ALL_CROPS}
+KNOWN_CROP_CODES: set[str] = {crop.code for crop in ALL_CROPS.values()}
 
 # Also include crops referenced in the disease KB and planner that may use
 # short names (e.g. "tomato", "wheat") rather than catalog codes.

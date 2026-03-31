@@ -10,18 +10,18 @@ pydantic-settings==2.13.1
 
 # LangChain and AI Framework
 # إطار عمل LangChain والذكاء الاصطناعي
-# Security: Path Traversal in legacy load_prompt - fixed in langchain-core>=1.2.22
-# CVE-2025-68664, CVE-2025-65106, CVE-2025-6984
-# Note: langchain-community 0.4.x requires langchain-core>=1.0.1
-#       langchain 1.x is required for langchain-core 1.x compatibility
-langchain>=1.0.0,<2.0.0
-langchain-anthropic>=1.0.0,<2.0.0
+# Security updates - path traversal CVEs require 1.x releases:
+#   CVE-2025-68664, CVE-2025-65106 - fixed in langchain-core>=1.2.22
+#   CVE-2025-6984  - fixed in langchain-community>=0.4.0
+# langchain-community 0.4.x requires langchain-core>=1.0.1; all packages now on 1.x series.
+langchain>=1.2.0,<2.0.0
+langchain-anthropic>=1.4.0,<2.0.0
 langchain-community>=0.4.0,<1.0.0
-langchain-core>=1.2.22,<2.0.0  # Path Traversal in load_prompt; patched in 1.2.22
+langchain-core>=1.2.22,<2.0.0  # Path Traversal fix (load_prompt); replaces 0.3.x series
+langsmith>=0.3.45,<1.0.0
 
 # Anthropic Claude API (Primary)
 # واجهة برمجة Claude من Anthropic (الأساسي)
-# langchain-anthropic 0.3.1 requires anthropic>=0.41.0
 anthropic>=0.85.0,<1.0.0  # langchain-anthropic>=1.0.0 requires anthropic>=0.85.0
 
 # OpenAI GPT API (Optional Fallback)
@@ -35,7 +35,7 @@ google-generativeai>=0.3.0
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه
 sentence-transformers==5.3.0
-qdrant-client>=1.12.0,<2.0.0,!=1.17.0  # 1.17.0 had no manylinux wheel for Python 3.11
+qdrant-client>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1  # 1.17.x had no manylinux wheel for Python 3.11
 
 # Agent-to-Agent Protocol
 # بروتوكول الوكيل إلى الوكيل

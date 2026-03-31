@@ -495,7 +495,7 @@ Map<OutcomeStatus, int> _parseOutcomeCounts(dynamic data) {
     try {
       final status = _parseOutcomeStatus(entry.key.toString());
       result[status] = entry.value as int? ?? 0;
-    } catch (_) {
+    } catch (e) {
       // Skip invalid entries
     }
   }
@@ -510,7 +510,7 @@ Map<FeedbackType, int> _parseFeedbackByType(dynamic data) {
     try {
       final type = _parseFeedbackType(entry.key.toString());
       result[type] = entry.value as int? ?? 0;
-    } catch (_) {
+    } catch (e) {
       // Skip invalid entries
     }
   }

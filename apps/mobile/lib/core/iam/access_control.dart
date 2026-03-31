@@ -79,7 +79,7 @@ enum ResourceType {
   static ResourceType? fromCode(String code) {
     try {
       return ResourceType.values.firstWhere((t) => t.code == code);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -139,7 +139,7 @@ enum AccessAction {
   static AccessAction? fromCode(String code) {
     try {
       return AccessAction.values.firstWhere((a) => a.code == code);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

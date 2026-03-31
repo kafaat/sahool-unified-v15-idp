@@ -139,7 +139,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       // Try to refresh from server first
       try {
         await repo.refreshFromServer(tenantId);
-      } catch (_) {
+      } catch (e) {
         // If server refresh fails (offline), just reload from local DB
       }
 

@@ -252,7 +252,7 @@ class Conversation {
   ConversationParticipant? getOtherParticipant(String currentUserId) {
     try {
       return participants.firstWhere((p) => p.userId != currentUserId);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

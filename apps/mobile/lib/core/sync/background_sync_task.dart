@@ -108,7 +108,7 @@ Future<bool> _executeBackgroundSync() async {
         status: 'failed',
         message: 'Background sync failed: $e',
       );
-    } catch (_) {
+    } catch (e) {
       // Logging failure should not prevent cleanup
     }
     return false;

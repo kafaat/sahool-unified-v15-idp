@@ -111,7 +111,7 @@ class IrrigationRepository {
         _CacheKeys.lastSync(key),
         DateTime.now().toIso8601String(),
       );
-    } catch (_) {
+    } catch (e) {
       // Silently fail on cache errors - caching is best-effort
     }
   }
@@ -134,7 +134,7 @@ class IrrigationRepository {
 
       final decoded = jsonDecode(cached);
       return fromJson(decoded);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -610,7 +610,7 @@ class IrrigationRepository {
           );
           synced++;
         }
-      } catch (_) {
+      } catch (e) {
         remaining.add(opJson);
       }
     }

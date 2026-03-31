@@ -339,7 +339,7 @@ class AppStateManager {
 
     try {
       return DateTime.tryParse(timestampStr) ?? DateTime.now();
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -494,7 +494,7 @@ final savedBottomNavIndexProvider = Provider<int?>((ref) {
   final manager = ref.watch(appStateManagerProvider);
   try {
     return manager.getBottomNavIndex();
-  } catch (_) {
+  } catch (e) {
     return null;
   }
 });

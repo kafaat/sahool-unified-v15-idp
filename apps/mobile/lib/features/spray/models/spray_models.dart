@@ -552,7 +552,7 @@ class SprayRecommendation {
       return optimalWindows.firstWhere(
         (w) => w.endTime.isAfter(now) && w.status == SprayWindowStatus.optimal,
       );
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

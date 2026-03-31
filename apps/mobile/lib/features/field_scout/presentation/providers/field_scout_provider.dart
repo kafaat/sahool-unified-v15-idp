@@ -303,7 +303,7 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
             timestamp: DateTime.now(),
           );
         }
-      } catch (_) {
+      } catch (e) {
         // Fall back to last known location
         final currentLocation = state.currentLocation;
         if (currentLocation == null) {

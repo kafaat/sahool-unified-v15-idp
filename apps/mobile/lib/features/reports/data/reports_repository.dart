@@ -49,7 +49,7 @@ class ReportsRepository {
         _cachedTemplates.clear();
         _cachedTemplates.addAll(templates);
         return templates;
-      } catch (_) {
+      } catch (e) {
         // Fall through to predefined
       }
     }
@@ -120,7 +120,7 @@ class ReportsRepository {
         _cachedReports[report.id] = report;
         _addToHistory(report);
         return report;
-      } catch (_) {
+      } catch (e) {
         // Fall through to offline generation
       }
     }
@@ -207,7 +207,7 @@ class ReportsRepository {
         final report = await _api.getReport(reportId);
         _cachedReports[reportId] = report;
         return report;
-      } catch (_) {
+      } catch (e) {
         return null;
       }
     }
@@ -246,7 +246,7 @@ class ReportsRepository {
         }
         _cachedHistory.addAll(history);
         return history;
-      } catch (_) {
+      } catch (e) {
         // Fall through
       }
     }

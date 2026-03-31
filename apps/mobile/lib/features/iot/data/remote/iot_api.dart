@@ -320,7 +320,7 @@ class IoTApi {
         headers: _headers,
       );
       return response.statusCode == 200;
-    } catch (_) {
+    } catch (e) {
       return false;
     }
   }

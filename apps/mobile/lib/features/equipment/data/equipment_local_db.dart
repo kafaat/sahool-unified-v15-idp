@@ -197,7 +197,7 @@ class EquipmentLocalDb {
     final equipment = await getEquipmentList();
     try {
       return equipment.firstWhere((e) => e.equipmentId == equipmentId);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -207,7 +207,7 @@ class EquipmentLocalDb {
     final equipment = await getEquipmentList();
     try {
       return equipment.firstWhere((e) => e.qrCode == qrCode);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -381,7 +381,7 @@ class EquipmentLocalDb {
     final logs = await getUsageLogs(equipmentId);
     try {
       return logs.firstWhere((l) => l.isActive);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

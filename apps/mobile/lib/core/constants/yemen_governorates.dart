@@ -327,7 +327,7 @@ class YemenGovernorates {
   static YemenGovernorate? getById(String id) {
     try {
       return all.firstWhere((g) => g.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

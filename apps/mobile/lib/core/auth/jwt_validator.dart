@@ -94,7 +94,7 @@ class JwtValidator {
       final Map<String, dynamic> claims;
       try {
         claims = json.decode(payload) as Map<String, dynamic>;
-      } catch (_) {
+      } catch (e) {
         return const JwtValidationResult.invalid(
           'Invalid JWT payload: not valid JSON',
         );
@@ -203,7 +203,7 @@ class JwtValidator {
           break;
       }
       return utf8.decode(base64.decode(normalized));
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

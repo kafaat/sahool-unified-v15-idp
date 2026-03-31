@@ -71,7 +71,7 @@ class SemanticVersion implements Comparable<SemanticVersion> {
   static SemanticVersion? tryParse(String version) {
     try {
       return SemanticVersion.parse(version);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

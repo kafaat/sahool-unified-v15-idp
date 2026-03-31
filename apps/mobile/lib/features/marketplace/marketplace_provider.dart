@@ -503,7 +503,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     } on DioException catch (e) {
       AppLogger.w('Create order API failed (${e.type.name})', tag: 'MARKETPLACE');
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -523,7 +523,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       state = state.copyWith(orders: orders);
     } on DioException catch (e) {
       AppLogger.w('Load orders API failed (${e.type.name})', tag: 'MARKETPLACE');
-    } catch (_) {
+    } catch (e) {
       // صمت
     }
   }
@@ -565,7 +565,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     } on DioException catch (e) {
       AppLogger.w('List harvest API failed (${e.type.name})', tag: 'MARKETPLACE');
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

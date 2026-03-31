@@ -319,7 +319,7 @@ class ChartWidget extends StatelessWidget {
               try {
                 final date = DateTime.tryParse(point.x as String) ?? DateTime.now();
                 label = DateFormat('MM/dd').format(date);
-              } catch (_) {}
+              } catch (e) {}
             }
 
             return Padding(

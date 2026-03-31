@@ -393,7 +393,7 @@ class OfflineAnalyticsQueue {
   AnalyticsEvent? getEventById(String id) {
     try {
       return _queue.firstWhere((e) => e.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

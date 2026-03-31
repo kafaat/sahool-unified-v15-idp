@@ -284,7 +284,7 @@ class DeviceIntegrityService {
                 timeout: const Duration(milliseconds: 500));
             await socket.close();
             return true; // Frida server detected
-          } catch (_) {
+          } catch (e) {
             // Port not open, continue
           }
         }

@@ -147,11 +147,11 @@ class SigningKeyService {
       try {
         final androidInfo = await deviceInfo.androidInfo;
         deviceId = '${androidInfo.id}_${androidInfo.device}_${androidInfo.model}';
-      } catch (_) {
+      } catch (e) {
         try {
           final iosInfo = await deviceInfo.iosInfo;
           deviceId = '${iosInfo.identifierForVendor}_${iosInfo.model}';
-        } catch (_) {
+        } catch (e) {
           // Fallback: generate random device ID
           final random = Random.secure();
           final bytes = List<int>.generate(16, (_) => random.nextInt(256));

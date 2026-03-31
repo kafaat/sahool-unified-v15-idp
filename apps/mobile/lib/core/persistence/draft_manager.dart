@@ -422,7 +422,7 @@ class DraftManager {
         try {
           metadata.add(
               DraftMetadata.fromJson(jsonDecode(json) as Map<String, dynamic>));
-        } catch (_) {
+        } catch (e) {
           // Skip invalid metadata
         }
       }

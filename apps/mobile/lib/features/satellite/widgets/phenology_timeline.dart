@@ -62,7 +62,7 @@ class PhenologyTimeline extends StatelessWidget {
   Color _parseColor(String hex) {
     try {
       return Color(int.parse(hex.replaceFirst('#', '0xFF')));
-    } catch (_) {
+    } catch (e) {
       return Colors.grey;
     }
   }

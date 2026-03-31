@@ -372,7 +372,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
         state = state.copyWith(transactions: transactions);
       }
-    } catch (_) {
+    } catch (e) {
       // صمت
     }
   }
@@ -391,7 +391,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
         state = state.copyWith(loans: loans);
       }
-    } catch (_) {
+    } catch (e) {
       // صمت
     }
   }
@@ -417,7 +417,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         return true;
       }
       return false;
-    } catch (_) {
+    } catch (e) {
       return false;
     }
   }
@@ -443,7 +443,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         return true;
       }
       return false;
-    } catch (_) {
+    } catch (e) {
       return false;
     }
   }
@@ -475,7 +475,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -513,7 +513,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

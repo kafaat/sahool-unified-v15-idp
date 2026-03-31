@@ -568,7 +568,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
           _processUri(state.pendingAuthLink!.uri, isInitial: false);
           state = state.copyWith(clearPendingAuthLink: true);
         }
-      } catch (_) {
+      } catch (e) {
         // Auth provider not available yet
       }
     }
@@ -660,7 +660,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
           _navigateToLogin(deepLinkData);
           return;
         }
-      } catch (_) {
+      } catch (e) {
         // Auth provider not available, store link for later
         state = state.copyWith(pendingAuthLink: deepLinkData);
         return;
@@ -1211,14 +1211,14 @@ final deepLinkProvider =
   // Try to get router, but don't fail if not available
   try {
     router = ref.watch(goRouterProvider);
-  } catch (_) {
+  } catch (e) {
     // Router not yet available
   }
 
   // Try to get navigator key
   try {
     navigatorKey = ref.watch(navigatorKeyProvider);
-  } catch (_) {
+  } catch (e) {
     // Navigator key not yet available
   }
 

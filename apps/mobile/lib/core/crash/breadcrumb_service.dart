@@ -471,7 +471,7 @@ class BreadcrumbService {
       }
 
       return uri.replace(queryParameters: sanitizedParams.isEmpty ? null : sanitizedParams).toString();
-    } catch (_) {
+    } catch (e) {
       return url;
     }
   }

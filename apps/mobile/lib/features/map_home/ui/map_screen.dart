@@ -474,7 +474,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         LatLng(position.latitude, position.longitude),
         14,
       );
-    } catch (_) {
+    } catch (e) {
       // Fall back to first field location or default
       final center = _fieldLocations.isNotEmpty
           ? _fieldLocations.first

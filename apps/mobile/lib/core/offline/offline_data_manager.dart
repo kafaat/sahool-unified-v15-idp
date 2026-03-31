@@ -172,7 +172,7 @@ class OfflineDataManager {
       return items.firstWhere(
         (item) => item.id == id && item.entityType == entityType,
       );
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

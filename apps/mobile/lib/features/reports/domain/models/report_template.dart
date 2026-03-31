@@ -326,7 +326,7 @@ class ReportTemplates {
   static ReportTemplate? getById(String id) {
     try {
       return all.firstWhere((t) => t.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

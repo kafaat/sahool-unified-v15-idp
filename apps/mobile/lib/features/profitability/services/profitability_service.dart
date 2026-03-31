@@ -77,7 +77,7 @@ class ProfitabilityService {
     String profitabilityId,
   ) async {
     try {
-      final response = await _dio.get('/profitability/$profitabilityId');
+      final response = await _dio.get('/$profitabilityId');
       return ApiResult.success(
         CropProfitability.fromJson(response.data as Map<String, dynamic>),
       );
@@ -114,7 +114,7 @@ class ProfitabilityService {
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(
-        '/profitability',
+        '/list',
         queryParameters: queryParams,
       );
 

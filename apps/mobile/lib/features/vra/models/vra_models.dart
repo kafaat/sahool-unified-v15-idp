@@ -2,6 +2,7 @@
 /// Variable Rate Application - تطبيق الجرعات المتغيرة
 library;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 /// نوع VRA

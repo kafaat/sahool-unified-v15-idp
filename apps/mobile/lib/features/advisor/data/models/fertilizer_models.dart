@@ -2,6 +2,7 @@
 /// نماذج توصيات التسميد
 library;
 
+import 'dart:math' as math;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'fertilizer_models.freezed.dart';
@@ -144,11 +145,11 @@ class WaterQualityAnalysis {
     this.testDate,
   });
 
-  /// Calculate SAR from Na, Ca, Mg
+  /// Calculate SAR from Na, Ca, Mg: SAR = Na / sqrt((Ca+Mg)/2)
   double get calculatedSAR {
     final caMg = calcium + magnesium;
     if (caMg <= 0) return 0;
-    return sodium / (caMg / 2).clamp(0.001, double.infinity);
+    return sodium / math.sqrt(caMg / 2);
   }
 
   /// تصنيف جودة المياه للري

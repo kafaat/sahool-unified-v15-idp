@@ -103,7 +103,7 @@ class OfflineCrashReport {
   factory OfflineCrashReport.fromJson(Map<String, dynamic> json) {
     return OfflineCrashReport(
       id: json['id'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
       errorMessage: json['errorMessage'] as String,
       errorType: json['errorType'] as String,
       stackTrace: json['stackTrace'] as String?,

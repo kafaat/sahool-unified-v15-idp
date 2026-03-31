@@ -276,7 +276,7 @@ class AdvisoryCache {
 
     try {
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
-      final cachedAt = DateTime.parse(data['cachedAt'] as String);
+      final cachedAt = DateTime.tryParse(data['cachedAt'] as String) ?? DateTime.now();
 
       // Check expiry (context expires faster)
       if (DateTime.now().difference(cachedAt) > const Duration(hours: 6)) {
@@ -570,7 +570,7 @@ class _CachedAdvisory {
   factory _CachedAdvisory.fromJson(Map<String, dynamic> json) {
     return _CachedAdvisory(
       advisory: Advisory.fromJson(json['advisory'] as Map<String, dynamic>),
-      cachedAt: DateTime.parse(json['cachedAt'] as String),
+      cachedAt: DateTime.tryParse(json['cachedAt'] as String) ?? DateTime.now(),
     );
   }
 
@@ -595,7 +595,7 @@ class _CachedFeedback {
   factory _CachedFeedback.fromJson(Map<String, dynamic> json) {
     return _CachedFeedback(
       feedback: AdvisoryFeedback.fromJson(json['feedback'] as Map<String, dynamic>),
-      cachedAt: DateTime.parse(json['cachedAt'] as String),
+      cachedAt: DateTime.tryParse(json['cachedAt'] as String) ?? DateTime.now(),
       synced: json['synced'] as bool? ?? false,
     );
   }

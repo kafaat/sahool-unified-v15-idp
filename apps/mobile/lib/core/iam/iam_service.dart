@@ -453,7 +453,7 @@ class IAMService {
       if (tokenData == null) return false;
 
       final token = jsonDecode(tokenData) as Map<String, dynamic>;
-      final expiry = DateTime.parse(token['expires_at'] as String);
+      final expiry = DateTime.tryParse(token['expires_at'] as String) ?? DateTime.now();
 
       if (DateTime.now().isAfter(expiry)) {
         AppLogger.w('Offline token expired', tag: 'IAM');

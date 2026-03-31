@@ -58,7 +58,7 @@ class CurrentWeather {
       conditionAr: json['condition_ar'] as String?,
       icon: json['icon'] as String?,
       timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'] as String)
+          ? DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now()
           : DateTime.now(),
       location: json['location'] as String?,
     );
@@ -99,7 +99,7 @@ class ForecastDay {
 
   factory ForecastDay.fromJson(Map<String, dynamic> json) {
     return ForecastDay(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       tempMax: (json['temp_max'] as num?)?.toDouble() ?? 0.0,
       tempMin: (json['temp_min'] as num?)?.toDouble() ?? 0.0,
       avgTemp: (json['avg_temp'] as num?)?.toDouble(),
@@ -153,8 +153,8 @@ class WeatherAlert {
       headlineAr: json['headline_ar'] as String?,
       description: json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
-      startTime: DateTime.parse(json['start_time'] as String),
-      endTime: DateTime.parse(json['end_time'] as String),
+      startTime: DateTime.tryParse(json['start_time'] as String) ?? DateTime.now(),
+      endTime: DateTime.tryParse(json['end_time'] as String) ?? DateTime.now(),
       source: json['source'] as String?,
       affectedAreas: (json['affected_areas'] as List?)?.cast<String>(),
     );
@@ -200,7 +200,7 @@ class AgriculturalEvent {
       type: json['type'] as String? ?? 'general',
       description: json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       cropType: json['crop_type'] as String?,
       recommendation: json['recommendation'] as String?,
       recommendationAr: json['recommendation_ar'] as String?,

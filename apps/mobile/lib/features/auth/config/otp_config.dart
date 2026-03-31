@@ -432,7 +432,7 @@ class OTPConfig {
     return OTPConfig(
       version: json['version'] as int? ?? 1,
       lastUpdated: json['last_updated'] != null
-          ? DateTime.parse(json['last_updated'] as String)
+          ? DateTime.tryParse(json['last_updated'] as String) ?? DateTime.now()
           : DateTime.now(),
       otpLength: json['otp_length'] as int? ?? 6,
       expirationSeconds: json['expiration_seconds'] as int? ?? 300,

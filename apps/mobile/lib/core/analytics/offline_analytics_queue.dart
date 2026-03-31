@@ -444,7 +444,7 @@ class OfflineAnalyticsQueue {
 
       final lastSyncString = _prefs?.getString(_lastSyncKey);
       if (lastSyncString != null) {
-        _lastSyncTime = DateTime.parse(lastSyncString);
+        _lastSyncTime = DateTime.tryParse(lastSyncString) ?? DateTime.now();
       }
     } catch (e) {
       AppLogger.e('Failed to load analytics stats', tag: 'ANALYTICS', error: e);

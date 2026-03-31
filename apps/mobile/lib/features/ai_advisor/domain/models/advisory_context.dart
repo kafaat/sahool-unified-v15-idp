@@ -55,7 +55,7 @@ class AdvisoryContext {
           ? HistoricalContext.fromJson(json['history'] as Map<String, dynamic>)
           : null,
       lastUpdated: json['last_updated'] != null
-          ? DateTime.parse(json['last_updated'] as String)
+          ? DateTime.tryParse(json['last_updated'] as String) ?? DateTime.now()
           : null,
     );
   }
@@ -193,7 +193,7 @@ class FieldContext {
       governorateAr: json['governorate_ar'] as String?,
       ndvi: (json['ndvi'] as num?)?.toDouble(),
       ndviDate: json['ndvi_date'] != null
-          ? DateTime.parse(json['ndvi_date'] as String)
+          ? DateTime.tryParse(json['ndvi_date'] as String) ?? DateTime.now()
           : null,
       healthStatus: json['health_status'] as String?,
       healthStatusAr: json['health_status_ar'] as String?,
@@ -278,7 +278,7 @@ class WeatherContext {
           ?.map((e) => WeatherForecastDay.fromJson(e as Map<String, dynamic>))
           .toList(),
       lastUpdated: json['last_updated'] != null
-          ? DateTime.parse(json['last_updated'] as String)
+          ? DateTime.tryParse(json['last_updated'] as String) ?? DateTime.now()
           : null,
     );
   }
@@ -336,7 +336,7 @@ class WeatherForecastDay {
 
   factory WeatherForecastDay.fromJson(Map<String, dynamic> json) {
     return WeatherForecastDay(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       minTemperature: (json['min_temperature'] as num?)?.toDouble(),
       maxTemperature: (json['max_temperature'] as num?)?.toDouble(),
       rainfall: (json['rainfall'] as num?)?.toDouble(),
@@ -402,10 +402,10 @@ class CropContext {
       growthStage: json['growth_stage'] as String?,
       growthStageAr: json['growth_stage_ar'] as String?,
       plantingDate: json['planting_date'] != null
-          ? DateTime.parse(json['planting_date'] as String)
+          ? DateTime.tryParse(json['planting_date'] as String) ?? DateTime.now()
           : null,
       expectedHarvestDate: json['expected_harvest_date'] != null
-          ? DateTime.parse(json['expected_harvest_date'] as String)
+          ? DateTime.tryParse(json['expected_harvest_date'] as String) ?? DateTime.now()
           : null,
       daysAfterPlanting: json['days_after_planting'] as int?,
       gdd: (json['gdd'] as num?)?.toDouble(),
@@ -493,7 +493,7 @@ class SoilContext {
       organicMatter: (json['organic_matter'] as num?)?.toDouble(),
       electricalConductivity: (json['electrical_conductivity'] as num?)?.toDouble(),
       lastSoilTest: json['last_soil_test'] != null
-          ? DateTime.parse(json['last_soil_test'] as String)
+          ? DateTime.tryParse(json['last_soil_test'] as String) ?? DateTime.now()
           : null,
       irrigationRecommendation: json['irrigation_recommendation'] as String?,
       irrigationRecommendationAr: json['irrigation_recommendation_ar'] as String?,
@@ -607,7 +607,7 @@ class PastTreatment {
 
   factory PastTreatment.fromJson(Map<String, dynamic> json) {
     return PastTreatment(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       type: json['type'] as String? ?? '',
       typeAr: json['type_ar'] as String? ?? json['type'] as String? ?? '',
       product: json['product'] as String?,
@@ -647,7 +647,7 @@ class PastHarvest {
 
   factory PastHarvest.fromJson(Map<String, dynamic> json) {
     return PastHarvest(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       crop: json['crop'] as String? ?? '',
       cropAr: json['crop_ar'] as String? ?? json['crop'] as String? ?? '',
       yield: (json['yield'] as num? ?? 0).toDouble(),
@@ -685,7 +685,7 @@ class PastIssue {
 
   factory PastIssue.fromJson(Map<String, dynamic> json) {
     return PastIssue(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       issue: json['issue'] as String? ?? '',
       issueAr: json['issue_ar'] as String? ?? json['issue'] as String? ?? '',
       resolution: json['resolution'] as String?,

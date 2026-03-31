@@ -317,7 +317,7 @@ class ChartWidget extends StatelessWidget {
             // Format date if x is ISO string
             if (point.x is String && (point.x as String).contains('T')) {
               try {
-                final date = DateTime.parse(point.x as String);
+                final date = DateTime.tryParse(point.x as String) ?? DateTime.now();
                 label = DateFormat('MM/dd').format(date);
               } catch (_) {}
             }

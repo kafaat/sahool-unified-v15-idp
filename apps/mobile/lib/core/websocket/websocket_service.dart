@@ -49,7 +49,7 @@ class WebSocketEvent {
       data: json['data'] as Map<String, dynamic>?,
       subject: json['subject'] as String?,
       timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'] as String)
+          ? DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }

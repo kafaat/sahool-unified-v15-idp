@@ -338,10 +338,10 @@ class AnalyticsUserProperties {
       buildNumber: json['build_number'] as String,
       environment: json['environment'] as String,
       firstOpenTime: json['first_open_time'] != null
-          ? DateTime.parse(json['first_open_time'] as String)
+          ? DateTime.tryParse(json['first_open_time'] as String) ?? DateTime.now()
           : null,
       lastOpenTime: json['last_open_time'] != null
-          ? DateTime.parse(json['last_open_time'] as String)
+          ? DateTime.tryParse(json['last_open_time'] as String) ?? DateTime.now()
           : null,
       platform: json['platform'] as String,
       osVersion: json['os_version'] as String?,

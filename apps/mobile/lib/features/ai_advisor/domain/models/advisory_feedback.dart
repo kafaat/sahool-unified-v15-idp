@@ -209,7 +209,7 @@ class AdvisoryFeedback {
       outcomeDetailsAr: json['outcome_details_ar'] as String?,
       tags: (json['tags'] as List?)?.cast<String>(),
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );

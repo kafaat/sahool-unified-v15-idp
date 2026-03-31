@@ -20,7 +20,7 @@ class NdviRecord {
   /// إنشاء من JSON
   factory NdviRecord.fromJson(Map<String, dynamic> json) {
     return NdviRecord(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       value: (json['value'] as num).toDouble(),
     );
   }

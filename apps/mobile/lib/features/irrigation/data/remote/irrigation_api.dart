@@ -142,7 +142,7 @@ class IrrigationCalculation {
       recommendation: json['recommendation'] as String,
       recommendationAr: json['recommendation_ar'] as String,
       nextIrrigationDate:
-          DateTime.parse(json['next_irrigation_date'] as String),
+          DateTime.tryParse(json['next_irrigation_date'] as String) ?? DateTime.now(),
     );
   }
 }
@@ -166,7 +166,7 @@ class IrrigationSchedule {
       events: (json['events'] as List)
           .map((e) => IrrigationEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
-      generatedAt: DateTime.parse(json['generated_at'] as String),
+      generatedAt: DateTime.tryParse(json['generated_at'] as String) ?? DateTime.now(),
     );
   }
 }
@@ -190,7 +190,7 @@ class IrrigationEvent {
 
   factory IrrigationEvent.fromJson(Map<String, dynamic> json) {
     return IrrigationEvent(
-      scheduledAt: DateTime.parse(json['scheduled_at'] as String),
+      scheduledAt: DateTime.tryParse(json['scheduled_at'] as String) ?? DateTime.now(),
       durationMinutes: (json['duration_minutes'] as num).toDouble(),
       waterAmountLiters: (json['water_amount_liters'] as num).toDouble(),
       status: json['status'] as String,

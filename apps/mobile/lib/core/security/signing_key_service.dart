@@ -210,7 +210,7 @@ class SigningKeyService {
         return true;
       }
 
-      final createdAt = DateTime.parse(createdAtStr);
+      final createdAt = DateTime.tryParse(createdAtStr) ?? DateTime.now();
       final age = DateTime.now().difference(createdAt);
 
       if (age.inDays >= keyRotationDays) {
@@ -259,7 +259,7 @@ class SigningKeyService {
     try {
       final createdAtStr = await _secureStorage.read(_keySigningKeyCreatedAt);
       if (createdAtStr == null) return null;
-      return DateTime.parse(createdAtStr);
+      return DateTime.tryParse(createdAtStr) ?? DateTime.now();
     } catch (e) {
       return null;
     }

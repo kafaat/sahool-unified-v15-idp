@@ -343,8 +343,8 @@ class CapabilityToken {
       capabilities: Set<String>.from(json['capabilities'] as List),
       assignedFieldIds: List<String>.from((json['assigned_field_ids'] ?? []) as Iterable),
       assignedFarmIds: List<String>.from((json['assigned_farm_ids'] ?? []) as Iterable),
-      expiresAt: DateTime.parse(json['expires_at'] as String),
-      issuedAt: DateTime.parse(json['issued_at'] as String),
+      expiresAt: DateTime.tryParse(json['expires_at'] as String) ?? DateTime.now(),
+      issuedAt: DateTime.tryParse(json['issued_at'] as String) ?? DateTime.now(),
     );
   }
 

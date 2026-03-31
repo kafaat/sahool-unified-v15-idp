@@ -134,8 +134,8 @@ class ManagementZone {
       soilType: json['soil_type'] as String?,
       soilTypeAr: json['soil_type_ar'] as String?,
       properties: json['properties'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
     );
   }
 
@@ -377,24 +377,24 @@ class VRAPrescription {
           .map((e) => ApplicationRate.fromJson(e as Map<String, dynamic>))
           .toList(),
       scheduledDate: json['scheduled_date'] != null
-          ? DateTime.parse(json['scheduled_date'] as String)
+          ? DateTime.tryParse(json['scheduled_date'] as String) ?? DateTime.now()
           : null,
       appliedDate: json['applied_date'] != null
-          ? DateTime.parse(json['applied_date'] as String)
+          ? DateTime.tryParse(json['applied_date'] as String) ?? DateTime.now()
           : null,
       createdBy: json['created_by'] as String?,
       createdByName: json['created_by_name'] as String?,
       approvedBy: json['approved_by'] as String?,
       approvedByName: json['approved_by_name'] as String?,
       approvedAt: json['approved_at'] != null
-          ? DateTime.parse(json['approved_at'] as String)
+          ? DateTime.tryParse(json['approved_at'] as String) ?? DateTime.now()
           : null,
       notes: json['notes'] as String?,
       notesAr: json['notes_ar'] as String?,
       parameters: json['parameters'] as Map<String, dynamic>?,
       metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
     );
   }
 

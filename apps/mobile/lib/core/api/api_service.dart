@@ -176,7 +176,7 @@ class QueuedRequest {
             ? Map<String, String>.from(json['headers'] as Map)
             : null,
         priority: RequestPriority.values[(json['priority'] as int?) ?? 2],
-        createdAt: DateTime.parse(json['createdAt'] as String),
+        createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
         status: SyncStatus.values[(json['status'] as int?) ?? 0],
         retryCount: (json['retryCount'] as int?) ?? 0,
         errorMessage: json['errorMessage'] as String?,

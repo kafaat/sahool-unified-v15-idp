@@ -72,7 +72,7 @@ class FertilizerRecommendation {
       confidence: (json['confidence'] as num?)?.toDouble(),
       nutrients: json['nutrients'] as Map<String, dynamic>?,
       recommendationDate: json['recommendation_date'] != null
-          ? DateTime.parse(json['recommendation_date'] as String)
+          ? DateTime.tryParse(json['recommendation_date'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -205,7 +205,7 @@ class ApplicationSchedule {
           .map((e) => ApplicationEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
       generatedAt: json['generated_at'] != null
-          ? DateTime.parse(json['generated_at'] as String)
+          ? DateTime.tryParse(json['generated_at'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -249,7 +249,7 @@ class ApplicationEvent {
       productAr: json['product_ar'] as String?,
       rate: (json['rate'] as num?)?.toDouble() ?? 0.0,
       unit: json['unit'] as String? ?? '',
-      scheduledDate: DateTime.parse(json['scheduled_date'] as String),
+      scheduledDate: DateTime.tryParse(json['scheduled_date'] as String) ?? DateTime.now(),
       method: json['method'] as String?,
       methodAr: json['method_ar'] as String?,
       notes: json['notes'] as String?,
@@ -315,7 +315,7 @@ class CropHealthDiagnosis {
       preventions: (json['preventions'] as List?)?.cast<String>(),
       preventionsAr: (json['preventions_ar'] as List?)?.cast<String>(),
       diagnosedAt: json['diagnosed_at'] != null
-          ? DateTime.parse(json['diagnosed_at'] as String)
+          ? DateTime.tryParse(json['diagnosed_at'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -353,7 +353,7 @@ class AiAdvisoryResponse {
       sources: (json['sources'] as List?)?.cast<String>(),
       context: json['context'] as Map<String, dynamic>?,
       timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'] as String)
+          ? DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }

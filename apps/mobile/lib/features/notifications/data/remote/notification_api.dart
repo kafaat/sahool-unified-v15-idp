@@ -37,9 +37,9 @@ class ApiNotification {
       body: json['body'] as String,
       data: json['data'] as Map<String, dynamic>?,
       isRead: json['is_read'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       readAt: json['read_at'] != null
-          ? DateTime.parse(json['read_at'] as String)
+          ? DateTime.tryParse(json['read_at'] as String) ?? DateTime.now()
           : null,
     );
   }

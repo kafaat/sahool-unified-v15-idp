@@ -306,7 +306,7 @@ class WeatherProviderService {
 
     for (var i = 0; i < dates.length; i++) {
       forecasts.add(ForecastDay(
-        date: DateTime.parse(dates[i] as String),
+        date: DateTime.tryParse(dates[i] as String) ?? DateTime.now(),
         tempMax: (tempMaxList[i] as num).toDouble(),
         tempMin: (tempMinList[i] as num).toDouble(),
         precipitation: (precipSumList[i] as num?)?.toDouble() ?? 0,
@@ -401,7 +401,7 @@ class WeatherProviderService {
       final firstWeather0 = firstWeatherList[0] as Map<String, dynamic>;
 
       return ForecastDay(
-        date: DateTime.parse(entry.key),
+        date: DateTime.tryParse(entry.key) ?? DateTime.now(),
         tempMax: temps.reduce((a, b) => a > b ? a : b),
         tempMin: temps.reduce((a, b) => a < b ? a : b),
         precipitation: precips.reduce((a, b) => a + b),
@@ -476,7 +476,7 @@ class WeatherProviderService {
       final dayCondition = dayData['condition'] as Map<String, dynamic>;
       final astro = dayMap['astro'] as Map<String, dynamic>;
       return ForecastDay(
-        date: DateTime.parse(dayMap['date'] as String),
+        date: DateTime.tryParse(dayMap['date'] as String) ?? DateTime.now(),
         tempMax: (dayData['maxtemp_c'] as num).toDouble(),
         tempMin: (dayData['mintemp_c'] as num).toDouble(),
         precipitation: (dayData['totalprecip_mm'] as num).toDouble(),
@@ -548,7 +548,7 @@ class WeatherProviderService {
     return forecastDays.map((day) {
       final dayMap = day as Map<String, dynamic>;
       return ForecastDay(
-        date: DateTime.parse(dayMap['datetime'] as String),
+        date: DateTime.tryParse(dayMap['datetime'] as String) ?? DateTime.now(),
         tempMax: (dayMap['tempmax'] as num).toDouble(),
         tempMin: (dayMap['tempmin'] as num).toDouble(),
         precipitation: (dayMap['precip'] as num?)?.toDouble() ?? 0,
@@ -636,7 +636,7 @@ class WeatherProviderService {
       if (isPM && hour != 12) hour += 12;
       if (!isPM && hour == 12) hour = 0;
 
-      final dateTime = DateTime.parse(date);
+      final dateTime = DateTime.tryParse(date) ?? DateTime.now();
       return DateTime(dateTime.year, dateTime.month, dateTime.day, hour, minute);
     } catch (e) {
       return null;

@@ -198,7 +198,7 @@ class Equipment {
       serialNumber: json['serial_number'] as String?,
       year: json['year'] as int?,
       purchaseDate: json['purchase_date'] != null
-          ? DateTime.parse(json['purchase_date'] as String)
+          ? DateTime.tryParse(json['purchase_date'] as String) ?? DateTime.now()
           : null,
       purchasePrice: (json['purchase_price'] as num?)?.toDouble(),
       fieldId: json['field_id'] as String?,
@@ -210,14 +210,14 @@ class Equipment {
       currentLat: (json['current_lat'] as num?)?.toDouble(),
       currentLon: (json['current_lon'] as num?)?.toDouble(),
       lastMaintenanceAt: json['last_maintenance_at'] != null
-          ? DateTime.parse(json['last_maintenance_at'] as String)
+          ? DateTime.tryParse(json['last_maintenance_at'] as String) ?? DateTime.now()
           : null,
       nextMaintenanceAt: json['next_maintenance_at'] != null
-          ? DateTime.parse(json['next_maintenance_at'] as String)
+          ? DateTime.tryParse(json['next_maintenance_at'] as String) ?? DateTime.now()
           : null,
       nextMaintenanceHours: (json['next_maintenance_hours'] as num?)?.toDouble(),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
       qrCode: json['qr_code'] as String?,
     );
@@ -296,10 +296,10 @@ class MaintenanceAlert {
       description: json['description'] as String,
       descriptionAr: json['description_ar'] as String?,
       priority: MaintenancePriority.fromString(json['priority'] as String),
-      dueAt: json['due_at'] != null ? DateTime.parse(json['due_at'] as String) : null,
+      dueAt: json['due_at'] != null ? DateTime.tryParse(json['due_at'] as String) ?? DateTime.now() : null,
       dueHours: (json['due_hours'] as num?)?.toDouble(),
       isOverdue: json['is_overdue'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
     );
   }
 }
@@ -351,9 +351,9 @@ class MaintenanceRecord {
           ? List<String>.from(json['parts_replaced'] as List)
           : null,
       performedAt: json['performed_at'] != null
-          ? DateTime.parse(json['performed_at'] as String)
-          : DateTime.parse(json['created_at'] as String),
-      createdAt: DateTime.parse(json['created_at'] as String),
+          ? DateTime.tryParse(json['performed_at'] as String) ?? DateTime.now()
+          : DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
     );
   }
 }

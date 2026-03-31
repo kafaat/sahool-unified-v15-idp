@@ -410,16 +410,16 @@ class Opportunity {
       quantity: json['quantity'] as int?,
       unit: json['unit'] as String?,
       expectedCloseDate: json['expected_close_date'] != null
-          ? DateTime.parse(json['expected_close_date'] as String)
+          ? DateTime.tryParse(json['expected_close_date'] as String) ?? DateTime.now()
           : null,
       actualCloseDate: json['actual_close_date'] != null
-          ? DateTime.parse(json['actual_close_date'] as String)
+          ? DateTime.tryParse(json['actual_close_date'] as String) ?? DateTime.now()
           : null,
       nextFollowUpAt: json['next_follow_up_at'] != null
-          ? DateTime.parse(json['next_follow_up_at'] as String)
+          ? DateTime.tryParse(json['next_follow_up_at'] as String) ?? DateTime.now()
           : null,
       lastActivityAt: json['last_activity_at'] != null
-          ? DateTime.parse(json['last_activity_at'] as String)
+          ? DateTime.tryParse(json['last_activity_at'] as String) ?? DateTime.now()
           : null,
       assignedAgentId: json['assigned_agent_id'] as String?,
       assignedAgentName: json['assigned_agent_name'] as String?,
@@ -436,10 +436,10 @@ class Opportunity {
       synced: json['synced'] as bool? ?? true,
       isDeleted: json['is_deleted'] as bool? ?? false,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : now,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+          ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
           : now,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );

@@ -270,7 +270,7 @@ class Equipment {
       serialNumber: json['serial_number'] as String?,
       year: json['year'] as int?,
       purchaseDate: json['purchase_date'] != null
-          ? DateTime.parse(json['purchase_date'] as String)
+          ? DateTime.tryParse(json['purchase_date'] as String) ?? DateTime.now()
           : null,
       purchasePrice: (json['purchase_price'] as num?)?.toDouble(),
       fieldId: json['field_id'] as String?,
@@ -287,15 +287,15 @@ class Equipment {
       currentLat: (json['current_lat'] as num?)?.toDouble(),
       currentLon: (json['current_lon'] as num?)?.toDouble(),
       lastMaintenanceAt: json['last_maintenance_at'] != null
-          ? DateTime.parse(json['last_maintenance_at'] as String)
+          ? DateTime.tryParse(json['last_maintenance_at'] as String) ?? DateTime.now()
           : null,
       nextMaintenanceAt: json['next_maintenance_at'] != null
-          ? DateTime.parse(json['next_maintenance_at'] as String)
+          ? DateTime.tryParse(json['next_maintenance_at'] as String) ?? DateTime.now()
           : null,
       nextMaintenanceHours:
           (json['next_maintenance_hours'] as num?)?.toDouble(),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
       qrCode: json['qr_code'] as String?,
       imageUrl: json['image_url'] as String?,

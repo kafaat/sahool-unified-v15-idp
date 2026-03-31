@@ -82,9 +82,9 @@ class AppNotification {
       body: json['body'] as String,
       bodyAr: json['body_ar'] as String? ?? '',
       data: Map<String, dynamic>.from(json['data'] as Map? ?? {}),
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       expiresAt: json['expires_at'] != null
-          ? DateTime.parse(json['expires_at'] as String)
+          ? DateTime.tryParse(json['expires_at'] as String) ?? DateTime.now()
           : null,
       isRead: json['is_read'] as bool? ?? false,
       actionUrl: json['action_url'] as String?,

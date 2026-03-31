@@ -56,7 +56,7 @@ class PendingOperation {
       entity: json['entity'] as String,
       entityId: json['entity_id'] as String,
       data: json['data'] as Map<String, dynamic>,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       retryCount: json['retry_count'] as int? ?? 0,
     );
   }
@@ -546,7 +546,7 @@ class EquipmentLocalDb {
     final prefs = await _preferences;
     final timeStr = prefs.getString(_lastSyncKey);
     if (timeStr == null) return null;
-    return DateTime.parse(timeStr);
+    return DateTime.tryParse(timeStr) ?? DateTime.now();
   }
 
   /// Update last sync timestamp

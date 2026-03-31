@@ -58,7 +58,7 @@ class PhenologyData extends Equatable {
         (json['planting_date'] ?? json['plantingDate'] ?? DateTime.now().toIso8601String()) as String,
       ),
       expectedHarvestDate: json['expected_harvest_date'] != null
-          ? DateTime.parse(json['expected_harvest_date'] as String)
+          ? DateTime.tryParse(json['expected_harvest_date'] as String) ?? DateTime.now()
           : null,
       stages: (stagesData as List)
           .map((item) => GrowthStageInfo.fromJson(item as Map<String, dynamic>))
@@ -178,8 +178,8 @@ class GrowthStageInfo extends Equatable {
       name: (json['name'] ?? '') as String,
       nameAr: (json['name_ar'] ?? json['nameAr'] ?? '') as String,
       durationDays: (json['duration_days'] ?? json['durationDays'] ?? 0) as int,
-      startDate: json['start_date'] != null ? DateTime.parse(json['start_date'] as String) : null,
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
+      startDate: json['start_date'] != null ? DateTime.tryParse(json['start_date'] as String) ?? DateTime.now() : null,
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) ?? DateTime.now() : null,
       isCompleted: (json['is_completed'] ?? json['isCompleted'] ?? false) as bool,
       isCurrent: (json['is_current'] ?? json['isCurrent'] ?? false) as bool,
       description: (json['description'] ?? '') as String,

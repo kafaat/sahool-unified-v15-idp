@@ -488,7 +488,7 @@ class FeatureFlagValue {
       flag: flag,
       enabled: json['enabled'] as bool,
       lastUpdated: json['lastUpdated'] != null
-          ? DateTime.parse(json['lastUpdated'] as String)
+          ? DateTime.tryParse(json['lastUpdated'] as String) ?? DateTime.now()
           : null,
       source: json['source'] as String?,
     );

@@ -129,7 +129,7 @@ class IrrigationRepository {
 
       if (cached == null || syncTime == null) return null;
 
-      final lastSync = DateTime.parse(syncTime);
+      final lastSync = DateTime.tryParse(syncTime) ?? DateTime.now();
       if (DateTime.now().difference(lastSync) > maxAge) return null;
 
       final decoded = jsonDecode(cached);
@@ -144,7 +144,7 @@ class IrrigationRepository {
     final prefs = await _getPrefs();
     final syncTime = prefs.getString(_CacheKeys.lastSync(key));
     if (syncTime == null) return true;
-    final lastSync = DateTime.parse(syncTime);
+    final lastSync = DateTime.tryParse(syncTime) ?? DateTime.now();
     return DateTime.now().difference(lastSync) > maxAge;
   }
 

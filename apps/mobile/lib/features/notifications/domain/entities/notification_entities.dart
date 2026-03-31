@@ -40,7 +40,7 @@ class AppNotification {
       bodyAr: json['body_ar'] as String? ?? json['body'] as String,
       imageUrl: json['image_url'] as String?,
       data: Map<String, dynamic>.from((json['data'] as Map?) ?? {}),
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       isRead: json['is_read'] as bool? ?? false,
       actionUrl: json['action_url'] as String?,
     );

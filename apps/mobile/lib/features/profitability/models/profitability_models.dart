@@ -125,7 +125,7 @@ class CostCategory {
       unitCost: (json['unit_cost'] as num).toDouble(),
       description: json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -206,7 +206,7 @@ class Revenue {
       unit: json['unit'] as String,
       unitAr: json['unit_ar'] as String?,
       unitPrice: (json['unit_price'] as num).toDouble(),
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       description: json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
@@ -426,10 +426,10 @@ class CropProfitability {
       breakEvenAnalysis: json['break_even_analysis'] != null
           ? BreakEvenAnalysis.fromJson(json['break_even_analysis'] as Map<String, dynamic>)
           : null,
-      startDate: DateTime.parse(json['start_date'] as String),
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      startDate: DateTime.tryParse(json['start_date'] as String) ?? DateTime.now(),
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) ?? DateTime.now() : null,
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -562,9 +562,9 @@ class SeasonSummary {
       revenuesByCrop: (json['revenues_by_crop'] as Map<String, dynamic>?)?.map(
         (k, v) => MapEntry(k, (v as num).toDouble()),
       ) ?? {},
-      startDate: DateTime.parse(json['start_date'] as String),
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      startDate: DateTime.tryParse(json['start_date'] as String) ?? DateTime.now(),
+      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) ?? DateTime.now() : null,
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
     );
   }
 

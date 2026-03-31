@@ -21,7 +21,7 @@ class NdviDataPoint extends Equatable {
 
   factory NdviDataPoint.fromJson(Map<String, dynamic> json) {
     return NdviDataPoint(
-      date: DateTime.parse((json['date'] ?? json['timestamp']) as String),
+      date: DateTime.tryParse((json['date'] ?? json['timestamp']) ?? DateTime.now() as String),
       value: ((json['value'] ?? json['ndvi'] ?? 0.0) as num).toDouble(),
       source: (json['source'] ?? 'sentinel-2') as String,
       cloudCoverage: ((json['cloud_coverage'] ?? json['cloudCoverage'] ?? 0.0) as num).toDouble(),

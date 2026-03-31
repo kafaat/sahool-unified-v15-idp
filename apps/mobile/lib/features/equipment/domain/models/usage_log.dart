@@ -160,9 +160,9 @@ class UsageLog {
       fieldName: json['field_name'] as String?,
       operatorId: json['operator_id'] as String?,
       operatorName: json['operator_name'] as String?,
-      startTime: DateTime.parse(json['start_time'] as String),
+      startTime: DateTime.tryParse(json['start_time'] as String) ?? DateTime.now(),
       endTime: json['end_time'] != null
-          ? DateTime.parse(json['end_time'] as String)
+          ? DateTime.tryParse(json['end_time'] as String) ?? DateTime.now()
           : null,
       hoursUsed: (json['hours_used'] as num?)?.toDouble(),
       startHourReading: (json['start_hour_reading'] as num?)?.toDouble(),
@@ -177,8 +177,8 @@ class UsageLog {
               .map((e) => LocationPoint.fromJson(e as Map<String, dynamic>))
               .toList()
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -268,7 +268,7 @@ class LocationPoint {
     return LocationPoint(
       lat: (json['lat'] as num).toDouble(),
       lon: (json['lon'] as num).toDouble(),
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
       speed: (json['speed'] as num?)?.toDouble(),
       heading: (json['heading'] as num?)?.toDouble(),
     );
@@ -353,8 +353,8 @@ class UsageSummary {
               ),
             )
           : {},
-      periodStart: DateTime.parse(json['period_start'] as String),
-      periodEnd: DateTime.parse(json['period_end'] as String),
+      periodStart: DateTime.tryParse(json['period_start'] as String) ?? DateTime.now(),
+      periodEnd: DateTime.tryParse(json['period_end'] as String) ?? DateTime.now(),
       dailyBreakdown: json['daily_breakdown'] != null
           ? (json['daily_breakdown'] as List)
               .map((e) => DailyUsage.fromJson(e as Map<String, dynamic>))
@@ -397,7 +397,7 @@ class DailyUsage {
 
   factory DailyUsage.fromJson(Map<String, dynamic> json) {
     return DailyUsage(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       hours: (json['hours'] as num).toDouble(),
       fuel: (json['fuel'] as num).toDouble(),
       area: (json['area'] as num).toDouble(),
@@ -459,7 +459,7 @@ class OperatorInfo {
       phone: json['phone'] as String?,
       licenseNumber: json['license_number'] as String?,
       licenseExpiry: json['license_expiry'] != null
-          ? DateTime.parse(json['license_expiry'] as String)
+          ? DateTime.tryParse(json['license_expiry'] as String) ?? DateTime.now()
           : null,
       certifications: json['certifications'] != null
           ? List<String>.from(json['certifications'] as List)

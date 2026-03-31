@@ -38,7 +38,7 @@ class IoTDevice {
       status: json['status'] as String,
       metadata: json['metadata'] as Map<String, dynamic>?,
       lastSeen: json['last_seen'] != null
-          ? DateTime.parse(json['last_seen'] as String)
+          ? DateTime.tryParse(json['last_seen'] as String) ?? DateTime.now()
           : null,
       isOnline: json['is_online'] as bool? ?? false,
     );
@@ -79,7 +79,7 @@ class SensorReading {
       sensorType: json['sensor_type'] as String,
       value: (json['value'] as num).toDouble(),
       unit: json['unit'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
     );
   }
 }

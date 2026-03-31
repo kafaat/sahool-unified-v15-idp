@@ -289,7 +289,7 @@ class CacheMeta {
 
   factory CacheMeta.fromJson(Map<String, dynamic> json) => CacheMeta(
     key: json['key'] as String,
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
     ttl: Duration(seconds: json['ttlSeconds'] as int),
     priority: CachePriority.values[json['priority'] as int],
   );

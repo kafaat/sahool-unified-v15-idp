@@ -59,12 +59,20 @@ class PhenologyTimeline extends StatelessWidget {
     );
   }
 
+  Color _parseColor(String hex) {
+    try {
+      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return Colors.grey;
+    }
+  }
+
   Widget _buildTimelineItem({
     required GrowthStageInfo stage,
     required bool isLast,
     required bool isArabic,
   }) {
-    final stageColor = Color(int.parse(stage.stage.colorHex.replaceFirst('#', '0xFF')));
+    final stageColor = _parseColor(stage.stage.colorHex);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

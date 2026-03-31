@@ -1,4 +1,6 @@
 
+import 'dart:math' as math;
+
 /// SAHOOL Scout Session Models
 /// نماذج جلسة مسح الحقول
 ///
@@ -315,70 +317,22 @@ class GeoPoint {
     this.timestamp,
   });
 
-  /// حساب المسافة بين نقطتين (بالمتر)
+  /// حساب المسافة بين نقطتين (بالمتر) - Haversine formula
   double distanceTo(GeoPoint other) {
-    // Haversine formula
     const double earthRadius = 6371000; // meters
-    final double lat1Rad = latitude * (3.14159265359 / 180);
-    final double lat2Rad = other.latitude * (3.14159265359 / 180);
-    final double deltaLat = (other.latitude - latitude) * (3.14159265359 / 180);
-    final double deltaLon = (other.longitude - longitude) * (3.14159265359 / 180);
+    final double lat1Rad = latitude * (math.pi / 180);
+    final double lat2Rad = other.latitude * (math.pi / 180);
+    final double deltaLat = (other.latitude - latitude) * (math.pi / 180);
+    final double deltaLon = (other.longitude - longitude) * (math.pi / 180);
 
-    final double a = (sin(deltaLat / 2) * sin(deltaLat / 2)) +
-        (cos(lat1Rad) * cos(lat2Rad) * sin(deltaLon / 2) * sin(deltaLon / 2));
-    final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    final double a = (math.sin(deltaLat / 2) * math.sin(deltaLat / 2)) +
+        (math.cos(lat1Rad) * math.cos(lat2Rad) *
+            math.sin(deltaLon / 2) * math.sin(deltaLon / 2));
+    final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
 
     return earthRadius * c;
   }
 
-  // Math functions
-  static double sin(double x) => _sin(x);
-  static double cos(double x) => _cos(x);
-  static double sqrt(double x) => _sqrt(x);
-  static double atan2(double y, double x) => _atan2(y, x);
-
-  static double _sin(double x) {
-    // Taylor series approximation
-    x = x % (2 * 3.14159265359);
-    double result = x;
-    double term = x;
-    for (int i = 1; i <= 10; i++) {
-      term *= -x * x / ((2 * i) * (2 * i + 1));
-      result += term;
-    }
-    return result;
-  }
-
-  static double _cos(double x) => _sin(x + 3.14159265359 / 2);
-
-  static double _sqrt(double x) {
-    if (x <= 0) return 0;
-    double guess = x / 2;
-    for (int i = 0; i < 20; i++) {
-      guess = (guess + x / guess) / 2;
-    }
-    return guess;
-  }
-
-  static double _atan2(double y, double x) {
-    if (x > 0) return _atan(y / x);
-    if (x < 0 && y >= 0) return _atan(y / x) + 3.14159265359;
-    if (x < 0 && y < 0) return _atan(y / x) - 3.14159265359;
-    if (x == 0 && y > 0) return 3.14159265359 / 2;
-    if (x == 0 && y < 0) return -3.14159265359 / 2;
-    return 0;
-  }
-
-  static double _atan(double x) {
-    // Taylor series approximation
-    double result = 0;
-    double term = x;
-    for (int i = 0; i < 50; i++) {
-      result += (i % 2 == 0 ? 1 : -1) * term / (2 * i + 1);
-      term *= x * x;
-    }
-    return result;
-  }
 
   Map<String, dynamic> toJson() => {
     'latitude': latitude,

@@ -296,7 +296,7 @@ class SoilHealthChart extends StatelessWidget {
                 child: Stack(
                   children: [
                     Positioned(
-                      left: ((ph - 4.0) / 6.0 * 100).clamp(0, 100),
+                      left: ((ph.clamp(0, 14) / 14.0) * 100).clamp(0.0, 100.0),
                       top: -2,
                       child: Container(
                         width: 4,

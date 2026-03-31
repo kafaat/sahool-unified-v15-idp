@@ -33,10 +33,10 @@ openai>=2.26.0,<3.0.0  # langchain-openai>=1.0.0 requires openai>=2.26.0
 # ─────────────────────────────────────────────────────────────────────────────
 # LangChain (Optional - for advanced orchestration)
 # ─────────────────────────────────────────────────────────────────────────────
-# Uncomment if needed:
-# langchain>=0.3.26,<0.4.0
-# langchain-core==0.3.81
-# langchain-anthropic==0.3.1
+# Uncomment if needed (versions aligned with constraints-ai.txt 1.x stack):
+# langchain>=1.2.0,<2.0.0
+# langchain-core>=1.2.22,<2.0.0
+# langchain-anthropic>=1.4.0,<2.0.0
 
 # ─────────────────────────────────────────────────────────────────────────────
 # NATS Messaging

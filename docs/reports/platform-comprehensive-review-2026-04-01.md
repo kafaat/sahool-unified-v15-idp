@@ -190,9 +190,9 @@
 | `@sahool/tailwind-config` | 0 | إعداد Tailwind |
 | `@sahool/typescript-config` | 0 | إعداد TypeScript |
 
-### 3.2 الحزم بدون package.json (12 حزمة — هياكل فارغة)
+### 3.2 الحزم بدون package.json (9 حزم — هياكل فارغة)
 
-> ⚠️ هذه المجلدات موجودة لكن تفتقر لـ `package.json`:
+> ⚠️ هذه 9 مجلدات موجودة لكن تفتقر لـ `package.json`:
 > `advisor`, `enterprise`, `field_suite`, `kernel_domain`, `professional`, `sahool-eo`, `sahool-mobile-core`, `shared`, `starter`
 
 ### 3.3 عقد API الموحّدة — Unified API Contracts
@@ -421,14 +421,14 @@ shared/ai/ultrarag/workflows/ — 11 workflow جاهز:
 
 ```
 # docker/constraints-ai.txt
-langchain==1.2.0
-langchain-core==1.2.22        # CVE path traversal fix
-langchain-community==0.4.0
-langchain-anthropic==1.3.5
-langchain-openai>=1.0.0       # يتطلب openai 2.x
-langsmith>=0.3.45,<1.0.0      # ⚠️ لم يصدر v1.0 بعد
+langchain>=1.2.0,<2.0.0
+langchain-core>=1.2.22,<2.0.0   # CVE path traversal fix
+langchain-community>=0.4.0,<1.0.0
+langchain-anthropic>=1.4.0,<2.0.0
+langchain-openai>=1.0.0,<2.0.0  # يتطلب openai 2.x
+langsmith>=0.3.45,<1.0.0        # ⚠️ لم يصدر v1.0 بعد
 sentence-transformers==5.3.0
-qdrant-client>=1.12.0,!=1.17.0,!=1.17.1  # 1.17.x بدون manylinux wheel
+qdrant-client>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1  # 1.17.x بدون manylinux wheel
 ```
 
 ### 8.4 نظام YOLO26
@@ -640,8 +640,8 @@ sqlalchemy==2.0.48
 ruff==0.15.8
 
 # docker/constraints-ai.txt (134 سطر)
-langchain==1.2.0
-langchain-core==1.2.22
+langchain>=1.2.0,<2.0.0
+langchain-core>=1.2.22,<2.0.0
 anthropic>=0.85.0,<1.0.0
 openai>=2.26.0,<3.0.0
 sentence-transformers==5.3.0
@@ -1233,8 +1233,8 @@ FAILED tests/unit/test_water_management.py
 
 | الملف | المشكلة | الإصلاح |
 |-------|---------|---------|
-| `docker/constraints-ai.txt:54` | `qdrant-client==1.17.1` — 1.17.x لا توجد manylinux wheel لـ Python 3.11 → Docker build يفشل | `>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1` |
-| `docker/constraints-ai.txt:113` | `structlog>=24.4.0,<25.0.0` — يتعارض مع `constraints.txt==25.5.0` → pip ResolutionImpossible | `>=25.5.0,<26.0.0` |
+| `docker/constraints-ai.txt` | `qdrant-client==1.17.1` — 1.17.x لا توجد manylinux wheel لـ Python 3.11 → Docker build يفشل | `>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1` |
+| `docker/constraints-ai.txt` | `structlog>=24.4.0,<25.0.0` — يتعارض مع `constraints.txt==25.5.0` → pip ResolutionImpossible | `>=25.5.0,<26.0.0` |
 
 ---
 

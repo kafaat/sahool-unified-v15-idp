@@ -20,7 +20,7 @@
 | إجمالي الخدمات النشطة | 72 خدمة (+ 19 مجلد إداري) |
 | الخدمات المؤرشفة (deprecated) | 15 خدمة |
 | وحدات Python المشتركة | 86 وحدة |
-| حزم npm | 28 حزمة (16 بـ package.json، 12 هياكل فارغة) |
+| حزم npm | 25 حزمة (16 بـ package.json، 9 مجلدات بدون تعريف npm) |
 | صفحات Web Dashboard | 46 صفحة |
 | صفحات Admin Portal | 61 صفحة |
 | ميزات Flutter | 57 ميزة (sahool_field_app) |
@@ -190,9 +190,9 @@
 | `@sahool/tailwind-config` | 0 | إعداد Tailwind |
 | `@sahool/typescript-config` | 0 | إعداد TypeScript |
 
-### 3.2 الحزم بدون package.json (9 حزم — هياكل فارغة)
+### 3.2 مجلدات بدون package.json (9 مجلدات غير مهيأة كحزم npm)
 
-> ⚠️ هذه 9 مجلدات موجودة لكن تفتقر لـ `package.json`:
+> ⚠️ هذه 9 مجلدات تحتوي على كود/إعدادات أو ملفات أخرى لكنها تفتقر لملف `package.json` على مستوى الجذر:
 > `advisor`, `enterprise`, `field_suite`, `kernel_domain`, `professional`, `sahool-eo`, `sahool-mobile-core`, `shared`, `starter`
 
 ### 3.3 عقد API الموحّدة — Unified API Contracts
@@ -629,7 +629,7 @@ Deploy Production (ArgoCD)
 ### 13.4 Constraints
 
 ```
-# constraints.txt (155 سطر)
+# constraints.txt
 fastapi==0.135.2
 uvicorn==0.42.0
 tortoise-orm==1.1.7
@@ -639,7 +639,7 @@ asyncpg==0.31.0
 sqlalchemy==2.0.48
 ruff==0.15.8
 
-# docker/constraints-ai.txt (134 سطر)
+# docker/constraints-ai.txt
 langchain>=1.2.0,<2.0.0
 langchain-core>=1.2.22,<2.0.0
 anthropic>=0.85.0,<1.0.0
@@ -701,7 +701,7 @@ sentence-transformers==5.3.0
 |---------|--------|---------|
 | JWT: HS256 فقط (لا RS256) | `shared/auth/config.py` | خطر أمني في B2B |
 | `aerich` محذوف — لا migration tool | `constraints.txt` | صعوبة في DB migrations |
-| 12 حزمة npm فارغة | `packages/` | تضخم غير ضروري |
+| 9 مجلد npm بدون `package.json` | `packages/` | تضخم غير ضروري |
 | `langsmith>=0.3.45,<1.0.0` — تم تصحيحه (v0.7.23 max) | `constraints-ai.txt` | ✅ مُصلح في PR #1427 |
 
 ### 16.2 مخاطر متوسطة 🟠
@@ -755,8 +755,8 @@ sentence-transformers==5.3.0
 | الملف | الغرض |
 |-------|-------|
 | `Makefile` | ~140 أمر تطوير |
-| `constraints.txt` | قيود Python (155 سطر) |
-| `docker/constraints-ai.txt` | قيود AI (134 سطر) |
+| `constraints.txt` | قيود Python |
+| `docker/constraints-ai.txt` | قيود AI |
 | `governance/services.yaml` | سجل الخدمات v3.3.0 |
 | `governance/agents.yaml` | تعريفات AI agents v16.0.0 |
 | `shared/events/subjects.py` | مواضيع NATS |
@@ -957,7 +957,7 @@ sentence-transformers==5.3.0
 
 | الإصلاح | التاريخ | التفاصيل |
 |---------|---------|---------|
-| حد تغطية الكود | 2026-02 | رُفع من 10% إلى 25% في `pyproject.toml` |
+| حد تغطية الكود | 2026-02 | مُضبط على 5% في ملف الجذر `pyproject.toml` |
 | E2E Tests جديدة | 2026-02 | 6 ملفات (field, user_auth, irrigation, iot, vision, marketplace) ≈ 4,500 سطر |
 | NATS Integration Tests | 2026-02 | 5 ملفات ≈ 2,500 سطر |
 | k6 Load Tests | 2026-02 | 5 سيناريوهات ≈ 3,000 سطر |

@@ -29,11 +29,11 @@ logger = logging.getLogger(__name__)
 
 # Patterns that indicate hardcoded secrets
 SECRET_PATTERNS = [
-    (re.compile(r'(?:password|passwd|pwd)\s*=\s*["\'][^"\']{8,}["\']', re.IGNORECASE), "Hardcoded password"),
-    (re.compile(r'(?:api_key|apikey|api-key)\s*=\s*["\'][^"\']{16,}["\']', re.IGNORECASE), "Hardcoded API key"),
-    (re.compile(r'(?:secret|token)\s*=\s*["\'][a-zA-Z0-9+/=]{20,}["\']', re.IGNORECASE), "Hardcoded secret/token"),
+    (re.compile(r'(?:password|passwd|pwd)\s*=\s*["\'](?!\$)[^"\']{8,}["\']', re.IGNORECASE), "Hardcoded password"),
+    (re.compile(r'(?:api_key|apikey|api-key)\s*=\s*["\'](?!\$)[^"\']{16,}["\']', re.IGNORECASE), "Hardcoded API key"),
+    (re.compile(r'(?:secret|token)\s*=\s*["\'](?!\$)[a-zA-Z0-9+/=]{20,}["\']', re.IGNORECASE), "Hardcoded secret/token"),
     (
-        re.compile(r'(?:aws_access_key_id|aws_secret_access_key)\s*=\s*["\'][^"\']+["\']', re.IGNORECASE),
+        re.compile(r'(?:aws_access_key_id|aws_secret_access_key)\s*=\s*["\'](?!\$)[^"\']+["\']', re.IGNORECASE),
         "AWS credentials",
     ),
     (re.compile(r"-----BEGIN (?:RSA )?PRIVATE KEY-----", re.IGNORECASE), "Private key in code"),

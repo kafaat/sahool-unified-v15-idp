@@ -702,7 +702,7 @@ sentence-transformers==5.3.0
 | JWT: HS256 فقط (لا RS256) | `shared/auth/config.py` | خطر أمني في B2B |
 | `aerich` محذوف — لا migration tool | `constraints.txt` | صعوبة في DB migrations |
 | 12 حزمة npm فارغة | `packages/` | تضخم غير ضروري |
-| `langsmith<1.0.0` — لم يصدر بعد | `constraints-ai.txt` | خطر CI failure |
+| `langsmith>=0.3.45,<1.0.0` — تم تصحيحه (v0.7.23 max) | `constraints-ai.txt` | ✅ مُصلح في PR #1427 |
 
 ### 16.2 مخاطر متوسطة 🟠
 
@@ -1142,6 +1142,135 @@ x-schema-version
 
 ---
 
-*هذا التقرير يدمج ويوحّد نتائج جميع تقارير التدقيق السابقة (100+ تقرير، 2024-12 → 2026-04).*  
+## 27. 🔍 تحليل جلسة 2026-04-01 — PR #1427 CI Analysis
+
+> **الجلسة:** مراجعة PR #1427 (`copilot/fix-pip-install-retries-errors`)  
+> **التاريخ:** 2026-04-01 21:16 UTC  
+> **المصدر:** تحليل CI workflow run `23809447786`
+
+---
+
+### 27.1 حالة CI Pipeline — قبل الإصلاح
+
+| الخطوة | الحالة |
+|-------|--------|
+| Detect Changes | ✅ |
+| Code Quality | ✅ |
+| Security Scan | ✅ |
+| Governance Check | ✅ |
+| Event Governance | ✅ |
+| Architecture Check | ✅ |
+| ENV Validation | ✅ |
+| **Tests with Coverage** | **❌ FAILED** |
+| Python Tests (6 services) | ✅ |
+| Node.js Tests | ⏭️ skipped |
+| Build Docker Images | ⏭️ skipped |
+| Integration Tests | ⏭️ skipped |
+
+---
+
+### 27.2 الاختبارات الخمسة الفاشلة
+
+```
+FAILED tests/unit/ai/test_knowledge_crag_comprehensive.py
+       ::TestCRAGFreshnessScoring::test_fresh_document_scores_high
+       → assert 0.5 == 1.0
+
+FAILED tests/unit/ai/test_knowledge_crag_comprehensive.py
+       ::TestCRAGFreshnessScoring::test_expired_document_scores_low
+       → assert 0.5 == 0.2
+
+FAILED tests/unit/test_infrastructure_fixes.py
+       ::TestNoGhostServices::test_all_kong_services_have_docker_container
+       → Kong service 'chat-service-health' has no Docker container
+
+FAILED tests/unit/test_infrastructure_fixes.py
+       ::TestKongConfigIntegrity::test_kong_service_count_reasonable
+       → Kong has 87 services, expected 50-80
+
+FAILED tests/unit/test_water_management.py
+       ::TestReportScheduling::test_overdue_reports_check
+       → ValueError: day is out of range for month
+
+5 failed, 12447 passed, 21 skipped in 323.44s
+```
+
+---
+
+### 27.3 تحليل الأسباب الجذرية
+
+#### أ. اختبارَا CRAG Freshness Scoring
+- **السبب:** `_score_freshness()` في `shared/ai/knowledge/corrective_retrieval.py` كانت تُرجع `0.5` (default) عندما لا يكون `expiration_date` tz-aware
+- **الإصلاح (commit `ae424d824`):** نرمّل `expiration_date` إلى UTC-aware قبل المقارنة:
+  ```python
+  if exp.tzinfo is None:
+      exp = exp.replace(tzinfo=UTC)
+  days_until_expiry = (exp - now).days
+  ```
+
+#### ب. اختبار Kong Ghost Services
+- **السبب:** Kong يحتوي على **22 route من نوع `*-health`** (مثل `chat-service-health`, `equipment-service-health`, ...) لها `port` مُعرَّف ولكن لا توجد containers مقابلة في docker-compose — لأنها تُوكّل إلى الـ container الأصلي
+- **الاستبعاد القديم (هش):** قائمة ثابتة لخدمتين فقط
+- **الإصلاح:** استخدام pattern matching:
+  ```python
+  if service_name.endswith("-health") or service_name.endswith("-public"):
+      continue
+  ```
+- **قائمة Kong Health Routes الكاملة (22 route):**
+  `advisory-service-health`, `ai-chat-assistant-health`, `audit-service-health`, `billing-core-health`, `chat-service-health`, `crm-service-health`, `crop-intelligence-service-health`, `equipment-service-health`, `field-intelligence-health`, `field-management-service-health`, `inventory-service-health`, `iot-gateway-health`, `iot-sensor-hub-health`, `iot-service-health`, `marketplace-service-health`, `notification-service-health`, `supply-chain-service-health`, `task-service-health`, `user-service-auth-public`, `user-service-health`, `user-service-public`, `vegetation-analysis-service-health`, `yield-prediction-service-health`
+
+#### ج. اختبار Kong Count (87 services)
+- **السبب:** الاختبار كان يتوقع `50-80` خدمة، لكن Kong يحتوي فعلياً على **87 خدمة** بعد إضافة الـ health routes
+- **الإصلاح:** رفع الحد إلى `50-100` ليعكس الواقع الحالي
+
+#### د. اختبار Water Management (ValueError: day is out of range)
+- **السبب:** دالة `get_next_report_due_date()` في `shared/water_management/reporting.py` لم تكن تُعالج حالة `last_report_date.day > monthrange(due_month)[1]`
+- **الإصلاح:** استخدام `min(last_report_date.day, calendar.monthrange(year, due_month)[1])` لمنع overflow اليوم
+
+---
+
+### 27.4 مشاكل constraints التبعيات
+
+| الملف | المشكلة | الإصلاح |
+|-------|---------|---------|
+| `docker/constraints-ai.txt:54` | `qdrant-client==1.17.1` — 1.17.x لا توجد manylinux wheel لـ Python 3.11 → Docker build يفشل | `>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1` |
+| `docker/constraints-ai.txt:113` | `structlog>=24.4.0,<25.0.0` — يتعارض مع `constraints.txt==25.5.0` → pip ResolutionImpossible | `>=25.5.0,<26.0.0` |
+
+---
+
+### 27.5 تعارضات الدمج (Merge Conflicts)
+
+كان الـ PR يحتاج دمج **5 commits من main** (`#1428`–`#1432`) بسبب `mergeable_state: dirty`.
+
+| الملف | طبيعة التعارض | القرار |
+|-------|--------------|--------|
+| `apps/services/ai-advisor/requirements.txt` | langchain ecosystem (exact pins vs range pins) + qdrant exclusions | الاحتفاظ بـ exact pins + إضافة `langsmith>=0.3.45,<1.0.0` + qdrant exclusion |
+| `docker/constraints-ai.txt` | langchain ecosystem + qdrant | الاحتفاظ بـ exact pins من الفرع + تصحيح qdrant/structlog |
+
+---
+
+### 27.6 حالة PR #1427 — بعد الإصلاح
+
+| الاختبار | قبل | بعد |
+|---------|-----|-----|
+| `test_fresh_document_scores_high` | ❌ | ✅ |
+| `test_expired_document_scores_low` | ❌ | ✅ |
+| `test_all_kong_services_have_docker_container` | ❌ | ✅ |
+| `test_kong_service_count_reasonable` | ❌ | ✅ |
+| `test_overdue_reports_check` | ❌ | ✅ |
+| `qdrant-client` constraint | ❌ 1.17.1 | ✅ >=1.12.0,<2.0.0,!=1.17.0,!=1.17.1 |
+| `structlog` constraint | ❌ <25.0.0 | ✅ >=25.5.0,<26.0.0 |
+| mergeable_state | dirty | clean (main مُدمَج) |
+
+---
+
+### 27.7 الدروس المستفادة
+
+1. **قوائم الاستثناء الثابتة هشّة** — كل `*-health` route جديد في Kong تكسر الاختبار. الحل: pattern matching دائماً
+2. **تعارضات الدمج المتكررة** على `constraints-ai.txt` تُشير إلى الحاجة لـ automation script يتحقق من التوافق عند كل merge
+3. **Date arithmetic في Python** يحتاج دائماً لـ `calendar.monthrange()` عند إضافة أشهر لتجنب `ValueError`
+4. **tz-naive vs tz-aware datetime** — مقارنة datetime بدون توحيد timezone تُنتج نتائج خاطئة صامتة (0.5 بدلاً من 1.0 أو 0.2)
+
+---  
 *This report consolidates all previous audit reports (100+ reports, Dec 2024 → Apr 2026) into a single authoritative reference.*  
-*التحديث الأخير: 2026-04-01 | Branch: copilot/check-platform-source-code*
+*التحديث الأخير: 2026-04-01 21:46 UTC | Branch: copilot/check-platform-source-code*

@@ -1,11 +1,15 @@
-# تقرير المراجعة الشاملة لمنصة SAHOOL
-# SAHOOL Platform — Comprehensive Source Code Review
+# التقرير الشامل الموحد لمنصة SAHOOL
+# SAHOOL Platform — Master Unified Report
 
 **التاريخ / Date:** 2026-04-01  
 **الإصدار / Version:** 16.0.0  
 **المسار / Path:** `docs/reports/platform-comprehensive-review-2026-04-01.md`  
-**المُعِد / Prepared by:** GitHub Copilot — Deep Codebase Analysis  
-**الفرع / Branch:** `copilot/check-platform-source-code`
+**المُعِد / Prepared by:** GitHub Copilot — Unified Deep Codebase Analysis  
+**الفرع / Branch:** `copilot/check-platform-source-code`  
+**النطاق / Scope:** يجمع نتائج **100+ تقرير تدقيق** من جلسات متعددة (2024-12 → 2026-04)
+
+> **هذا التقرير هو المرجع الموحد الوحيد** الذي يدمج جميع تقارير التدقيق السابقة في مستند واحد شامل.  
+> All previous audit reports have been consolidated into this single authoritative document.
 
 ---
 
@@ -796,6 +800,348 @@ sentence-transformers==5.3.0
 
 ---
 
-*تم إعداد هذا التقرير تلقائياً من خلال تحليل الكود المصدري للمستودع.*  
-*Generated automatically from repository source code analysis.*  
-*التاريخ: 2026-04-01 | Branch: copilot/check-platform-source-code*
+## 20. 🏥 درجة صحة المنصة الشاملة — Platform Health Score
+
+> مُستخلص من دمج 100+ تقرير تدقيق (ديسمبر 2024 → أبريل 2026)
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║              SAHOOL Platform v16.0.0 - Final Health Score             ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                       ║
+║  المكون                         التقييم    الوزن    المرجح            ║
+║  ══════════════════════════════════════════════════════════           ║
+║  الهندسة المعمارية               95/100     12%      11.40           ║
+║  الأمان والحماية                 82/100     14%      11.48           ║
+║  جودة الكود (Backend)            85/100     10%       8.50           ║
+║  جودة الكود (Frontend)           85/100      7%       5.95           ║
+║  قواعد البيانات                  65/100      9%       5.85           ║
+║  Docker والحاويات                72/100      7%       5.04           ║
+║  الاختبارات والتغطية             70/100      9%       6.30           ║
+║  البنية التحتية (IaC)            60/100      5%       3.00           ║
+║  CI/CD                           70/100      6%       4.20           ║
+║  التوثيق                         95/100      4%       3.80           ║
+║  DevOps/GitOps                   93/100      4%       3.72           ║
+║  Copilot/AI Full-Stack           85/100      8%       6.80           ║
+║  Mobile App                      90/100      5%       4.50           ║
+║  ══════════════════════════════════════════════════════════           ║
+║                                                                       ║
+║  الإجمالي المُرجح:              80.5 / 100                           ║
+║                                                                       ║
+║  الحالة: 🟡 جاهز للتطوير، يحتاج إصلاحات قبل الإنتاج الكامل        ║
+╚═══════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
+## 21. 🔴 المشاكل الحرجة المكتشفة — Critical Issues Discovered
+
+> **إجمالي المشاكل من 10 دورات تدقيق (60+ وكيل AI):** 657+ مشكلة
+
+| # | الفئة | حرج | عالي | متوسط | منخفض | المجموع |
+|---|-------|-----|------|-------|-------|---------|
+| 1 | Frontend Infrastructure | 8 | 9 | 12 | 12 | **41** |
+| 2 | Middleware Infrastructure | 8 | 11 | 27 | 11 | **77** |
+| 3 | Backend Infrastructure | 17 | 20 | 32 | 12 | **81** |
+| 4 | Services & Containers | 11 | 12 | 24 | 11 | **78** |
+| 5 | Structural Architecture | 22 | 22 | 39 | 29 | **112** |
+| 6 | Cross-Layer Integration | 16 | 25 | 26 | 0 | **67** |
+| 7 | Service Verification | 6 | — | — | — | **~50** |
+| 8 | AI Agents & Intelligence | 15 | 11 | 26 | 7 | **59** |
+| 9 | Flutter Mobile App | 14 | 17 | 25 | 12 | **68** |
+| 10 | Security Migration Branch | 4 | 7 | 10 | 3 | **24** |
+| | **TOTAL** | **~121** | **~134** | **~221** | **~97** | **~657** |
+
+### 21.1 حالة الإصلاح (آخر تحديث: مارس 2026)
+
+| الخطورة | العدد الكلي | مُصلح | متبقي | نسبة الإصلاح |
+|---------|------------|-------|-------|-------------|
+| 🔴 حرج (P0) | 46 | 43 | **3** | 93% |
+| 🟠 عالي (P1) | 73 | 50 | **23** | 68% |
+| 🟡 متوسط (P2) | 160 | 85 | **75** | 53% |
+| 🟢 منخفض (P3) | 204+ | 65 | **139+** | 32% |
+
+### 21.2 أبرز 25 مشكلة حرجة — Top 25 Critical Issues
+
+#### أ) المصادقة والتفويض (Showstoppers)
+
+| # | المشكلة | التأثير | الحالة |
+|---|---------|---------|--------|
+| 1 | **4 خدمات NestJS بدون JWT** (chat, marketplace, iot, disaster) | وصول غير مصرح للرسائل والمال و IoT | 🔴 يحتاج إصلاح |
+| 2 | **JWT issuer mismatch** (Python: `sahool-idp`، Kong: `sahool-platform`) | رفض التوكنات بين الطبقات | ⚠️ جزئياً |
+| 3 | **JWT audience mismatch** (Python: `sahool-platform`، Kong: `sahool-api`) | نفس التأثير — auth مكسور | ⚠️ جزئياً |
+| 4 | **JWT tenant claim mismatch** (Python: `tid`، Frontend: `tenant_id`) | عزل المستأجر مكسور | 🔴 يحتاج إصلاح |
+| 5 | **A2A + MCP endpoints — صفر مصادقة** | أي جهة تنفذ مهام أو تقرأ المحادثات | 🔴 يحتاج إصلاح |
+| 6 | ~~WebSocket بدون JWT~~ | ~~أحداث فورية بدون مصادقة~~ | ✅ تم الإصلاح |
+
+#### ب) عزل المستأجرين — بخطر تسرب البيانات
+
+| # | المشكلة | التأثير | الحالة |
+|---|---------|---------|--------|
+| 7 | **RLS مُعرَّف لكن لا يُطبَّق أبداً** (`app.current_tenant` لا يُضبط) | عزل التربة في قاعدة البيانات معطل | 🔴 يحتاج إصلاح |
+| 8 | **تجاوز عزل المستأجر عبر X-Tenant-ID header** | وصول بين المستأجرين | 🟠 خطر |
+| 9 | **LAI service يقبل `?tenantId=` query param** | أي مستخدم يقرأ بيانات حقول أي مستأجر | 🔴 يحتاج إصلاح |
+| 10 | **Kong لا يحذف X-Tenant-ID header** | يمكن للعميل انتحال هوية المستأجر | 🔴 يحتاج إصلاح |
+
+#### ج) الرؤية الحاسوبية والذكاء الاصطناعي
+
+| # | المشكلة | التأثير | الحالة |
+|---|---------|---------|--------|
+| 11 | **جميع نماذج YOLO الزراعية مفقودة (30+ نموذج)** | النظام يكشف أشخاص/سيارات بدلاً من آفات/أمراض | 🔴 حرج |
+| 12 | **AI guardrails مُعرَّفة لكن لا تُدمج أبداً** | جميع ميزات أمان AI معطلة | 🔴 حرج |
+| 13 | **RAG dense retriever يتعطل** (`result.vector` → `result.embedding`) | 91 وثيقة معرفة غير قابلة للوصول، 12 workflow معطل | 🔴 حرج |
+| 14 | **ground-vision يُعيد "wheat/tillering" مُشفَّر** | نتائج مزيفة — يتجاهل التحليل الفعلي | 🔴 حرج |
+
+#### د) سلامة البيانات
+
+| # | المشكلة | التأثير | الحالة |
+|---|---------|---------|--------|
+| 15 | **4 تعارضات ملكية جداول** (tasks, equipment, alerts, tenants) | الخدمة الثانية تتعطل عند البدء | 🟠 خطر |
+| 16 | **خدمتان تستعلمان جداول غير موجودة** (irrigation-smart, traceability) | تعطل مضمون عند التشغيل | 🔴 حرج |
+| 17 | **خسارة 30-40% من الأحداث عند اضطرابات الشبكة** | NATS publish بدون تأكيد، DLQ race condition | 🟠 خطر |
+| 18 | **Flutter: فقدان بيانات في Migrations** (v1→v2 تحذف حقولاً، v3→v4 تحذف outbox) | المستخدم يفقد جميع بيانات الحقول المحلية | 🔴 حرج |
+
+#### هـ) API والتوجيه
+
+| # | المشكلة | التأثير | الحالة |
+|---|---------|---------|--------|
+| 19 | **Login response mismatch** (frontend: `token`، backend: `access_token`) | تدفق المصادقة مكسور | ⚠️ يُراجَع |
+| 20 | **30+ Kong routes مكسورة** بسبب `strip_path: true` | مسارات API خاطئة | 🟠 خطر |
+| 21 | **Weather API double-path bug** (`/api/v1/weather/weather/current`) | 404 في جميع مكالمات API الطقس | ⚠️ يُراجَع |
+| 22 | **5 خدمات تفتقر لنسخ `shared/`** في Dockerfile | ImportError عند البدء | 🔴 حرج |
+
+#### و) الأمان والتشفير
+
+| # | المشكلة | التأثير | الحالة |
+|---|---------|---------|--------|
+| 23 | **بيانات اعتماد مُضمَّنة** في `docker-compose.test.yml` | كلمات مرور مكشوفة في Git | 🔴 يحتاج إصلاح |
+| 24 | **Redis password في سطر الأوامر** (`docker-compose.redis-ha.yml`) | مرئية في `docker inspect` | 🔴 يحتاج إصلاح |
+| 25 | **69 منفذاً مكشوفاً على 0.0.0.0** | وصول خارجي غير مقصود | 🟠 خطر |
+
+---
+
+## 22. ✅ الإصلاحات المنجزة — Completed Fixes
+
+> أبرز الإصلاحات من الجلسات (فبراير 2026 → مارس 2026)
+
+### 22.1 طبقة الأمان
+
+| الإصلاح | التاريخ | التفاصيل |
+|---------|---------|---------|
+| Content Security Policy | 2026-02 | CSP مع nonce + HSTS + security headers |
+| WebSocket JWT Auth | 2026-02 | JWT + tenant isolation + rate limiting (كان مُنفذاً فعلاً) |
+| CORS Wildcard Fix | 2024-12 | إصلاح في 4 خدمات |
+| Token Revocation | 2025-12 | نظام إبطال JWT عبر Redis |
+| Password Migration | 2025-12 | ترحيل إلى Argon2id |
+| Rate Limiting | 2025-12 | Token Bucket + Sliding Window (إصلاح شامل) |
+| Redis Sentinel HA | 2025-12 | 3 عقد + failover < 10 ثوانٍ |
+
+### 22.2 قواعد البيانات
+
+| الإصلاح | التاريخ | التفاصيل |
+|---------|---------|---------|
+| IoT Service Schema | 2026-02 | Prisma schema (6 نماذج) + SQL migration |
+| Field Table Unification | 2026-02 | Prisma = source of truth، توحيد shared-types + TypeORM |
+| Column Type Conflicts | 2026-02 | VarChar(100) لـ tenantId، Uuid للـ FKs، Timestamptz للتواريخ |
+
+### 22.3 Copilot AI Full-Stack
+
+| الإصلاح | التاريخ | التفاصيل |
+|---------|---------|---------|
+| JWT Auth لـ copilot-api | 2026-02 | JWT + rate limiting |
+| Chat UI (Web) | 2026-02 | صفحة chat + SSE streaming |
+| Admin Copilot Dashboard | 2026-02 | Dashboard + RAG Manager + Guard Logs |
+| DB Persistence | 2026-02 | PostgreSQL asyncpg للمحادثات |
+
+### 22.4 الاختبارات والجودة
+
+| الإصلاح | التاريخ | التفاصيل |
+|---------|---------|---------|
+| حد تغطية الكود | 2026-02 | رُفع من 10% إلى 25% في `pyproject.toml` |
+| E2E Tests جديدة | 2026-02 | 6 ملفات (field, user_auth, irrigation, iot, vision, marketplace) ≈ 4,500 سطر |
+| NATS Integration Tests | 2026-02 | 5 ملفات ≈ 2,500 سطر |
+| k6 Load Tests | 2026-02 | 5 سيناريوهات ≈ 3,000 سطر |
+| Multi-stage Dockerfiles | 2026-02 | 29 Dockerfile بـ multi-mirror fallback + multi-stage |
+
+---
+
+## 23. 📡 تحليل فجوات NATS — NATS Event Pipeline Gaps
+
+> من `PLATFORM_GAP_ANALYSIS_REPORT.md` (فبراير 2026)
+
+| الفجوة | الخطورة | الخدمات المتأثرة | الخدمات الممتثلة |
+|--------|---------|----------------|----------------|
+| Raw NATS publish (بدون headers) | 🔴 حرج | ~30 خدمة | 5 خدمات فقط |
+| لا outbox pattern | 🔴 حرج | 55 خدمة | 1 (crop-intelligence) |
+| لا DB idempotency | 🟠 عالي | 54 خدمة | 2 خدمات |
+| لا `ensure_streams` call | 🟠 عالي | 55 خدمة | 1 خدمة |
+| خطأ unified error handling | 🟡 متوسط | 12 خدمة | 44 خدمة |
+| `print()` في كود الإنتاج | 🟡 متوسط | 10 خدمات | 46 خدمة |
+| NATS connection leak | 🟡 متوسط | 2 خدمات | ~36 خدمة |
+
+**الـ 7 Headers الواجبة لكل NATS publish:**
+```
+traceparent      (W3C Trace Context)
+tracestate
+x-correlation-id
+x-causation-id
+x-event-id
+x-tenant-id
+x-schema-version
+```
+
+**الخدمات التي تستخدم raw nc.publish() (يحتاج إصلاح):**
+- cooperative-service, drone-service, pest-detection-service
+- digital-twin-engine, fertigation-engine, irrigation-smart
+- irrigation-cycle-engine, iot-sensor-hub, indicators-service
+- hydrology-service, field-intelligence, leveling-optimizer-service
+
+---
+
+## 24. 🗺️ خارطة الطريق — Implementation Roadmap
+
+### المرحلة 0: إصلاحات الطوارئ ✅ مكتملة (فبراير 2026)
+> 22 مشكلة حرجة تم إصلاحها
+
+- [x] إصلاح Copilot API security (JWT + rate limiting)
+- [x] تطبيق CSP في Web و Admin
+- [x] إصلاح IoT schema في قاعدة البيانات
+- [x] توحيد جدول Field عبر الخدمات
+
+### المرحلة 1: تعزيز الأساسيات ✅ مكتملة 85% (فبراير 2026)
+
+- [x] JWT auth لـ copilot-api
+- [x] WebSocket JWT (كان مُنفذاً بالفعل)
+- [x] Copilot Full-Stack ≥ 80%
+- [x] DB Persistence للمحادثات
+- [ ] JWT issuer/audience توحيد عبر جميع الطبقات ⏳
+
+### المرحلة 2: الجودة والاختبارات ✅ مكتملة (فبراير 2026)
+
+- [x] رفع حد التغطية إلى 25%
+- [x] E2E Tests (6 ملفات)
+- [x] NATS Integration Tests (5 ملفات)
+- [x] k6 Load Tests (5 سيناريوهات)
+- [x] Multi-stage Dockerfiles (29 ملف)
+
+### المرحلة 3: الاكتمال ✅ مكتملة (فبراير 2026)
+
+- [x] Helm Charts محدثة
+- [x] Terraform IaC
+- [x] docker-compose improvements
+- [x] npm packages توحيد
+
+### المرحلة 4: الاستعداد للإنتاج ⏳ قيد التنفيذ
+
+- [ ] JWT issuer/audience/tenant claim توحيد نهائي
+- [ ] إضافة JWT لـ: chat, marketplace, iot, disaster-assessment (NestJS)
+- [ ] A2A + MCP endpoint authentication
+- [ ] Kong يحذف X-Tenant-ID header
+- [ ] تطبيق RLS (`SET app.current_tenant`)
+- [ ] شحن نماذج YOLO الزراعية (30+ نموذج)
+- [ ] تكامل AI guardrails في كل الخدمات
+- [ ] إصلاح RAG dense retriever (`result.vector` → `result.embedding`)
+- [ ] إصلاح ground-vision hardcoded results
+- [ ] إصلاح Flutter Drift migrations (لا فقدان بيانات)
+- [ ] إصلاح بيانات الاعتماد في docker-compose.test.yml
+- [ ] إضافة NATS headers (7 headers) لـ 30 خدمة
+
+---
+
+## 25. 📋 مرجع فهرس التقارير السابقة — Previous Reports Index
+
+> جميع التقارير موجودة في `docs/reports/`
+
+### تقارير المراجعة الشاملة
+| التقرير | التاريخ | الأقسام الرئيسية |
+|---------|---------|----------------|
+| `MASTER_AUDIT_REPORT.md` | 2026-03-21 | 657+ مشكلة من 10 دورات |
+| `FINAL_COMPREHENSIVE_REVIEW_AND_ROADMAP.md` | 2026-02-14 | Health 80.5/100 + خارطة طريق |
+| `UNIFIED_PLATFORM_AUDIT_REPORT.md` | 2026-02-13 | 54 تقرير مجمّع |
+| `COMPREHENSIVE_AUDIT_REPORT_2026-03.md` | 2026-03 | آخر تحديث مارس |
+| `COMPREHENSIVE_CODEBASE_AUDIT_2026-03-09.md` | 2026-03-09 | تدقيق عميق |
+| `COMPREHENSIVE_REVIEW_REPORT_AR.md` | 2024-12 | النسخة العربية الأولى |
+
+### تقارير الأمان
+| التقرير | الحالة |
+|---------|--------|
+| `CORS_SECURITY_FIX_SUMMARY.md` | ✅ مُصلح |
+| `JWT_GUARDS_IMPLEMENTATION_REPORT.md` | ✅ مكتمل |
+| `TOKEN_REVOCATION_COMPLETE_REPORT.md` | ✅ مكتمل |
+| `PASSWORD_MIGRATION_SUMMARY.md` | ✅ مكتمل |
+| `RATE_LIMITING_FIX_SUMMARY.md` | ✅ مُصلح |
+| `SECURITY_FIX_PLAN.md` | ⏳ جزئي |
+| `SECURITY_REVIEW_REMAINING_ISSUES.md` | 🔴 متبقي |
+
+### تقارير البنية التحتية
+| التقرير | الحالة |
+|---------|--------|
+| `INFRASTRUCTURE_VERIFICATION_REPORT.md` | ✅ 100% |
+| `FINAL_DEPLOYMENT_REPORT.md` | ✅ جاهز |
+| `DOCKERFILE_COMPREHENSIVE_AUDIT.md` | ⚠️ 78.8% |
+| `DOCKER_INFRASTRUCTURE_LOGS_ANALYSIS_2026-03-13.md` | 📊 مرجع |
+| `KONG_DNS_ISSUE_ANALYSIS.md` | 🔴 مفتوح |
+
+### تقارير المحمول والواجهة
+| التقرير | الحالة |
+|---------|--------|
+| `FLUTTER_MOBILE_APP_REVIEW.md` | 📊 مرجع |
+| `MOBILE_APP_COMPREHENSIVE_AUDIT.md` | ⚠️ يتطلب إصلاح migrations |
+| `FRONTEND_INFRASTRUCTURE_REVIEW.md` | 📊 مرجع |
+| `ADMIN_PORTAL_REVIEW.md` | 📊 مرجع |
+| `GAP_ANALYSIS_MOBILE_WEB_2026-03-24.md` | 🔴 فجوات متبقية |
+
+### تقارير الذكاء الاصطناعي
+| التقرير | الحالة |
+|---------|--------|
+| `AI_AGENTS_INFRASTRUCTURE_REVIEW.md` | 🔴 نماذج YOLO مفقودة |
+| `AI_MODELS_LAYERS_INTEGRATION_REVIEW.md` | 🔴 guardrails معطلة |
+| `COPILOT_API_CODE_REVIEW.md` | ✅ بعد الإصلاحات |
+| `COPILOT_FULLSTACK_AUDIT.md` | ✅ مكتمل |
+
+### تقارير التحقق والفجوات
+| التقرير | الحالة |
+|---------|--------|
+| `PLATFORM_GAP_ANALYSIS_REPORT.md` | 🔴 NATS headers مفقودة |
+| `GAPS_AND_RECOMMENDATIONS.md` | 📊 أولوية متوسطة |
+| `HIGH_ISSUES_VERIFICATION.md` | ⚠️ 68% مُصلح |
+| `DEEP_VERIFICATION_FINAL.md` | 📊 مرجع |
+| `PLATFORM_HEALTH_REPORT.md` | ✅ 96.6% Container Health |
+
+---
+
+## 26. 📊 ملخص الأرقام النهائي — Final Statistics
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              SAHOOL Platform v16.0.0                         │
+│         التقرير الموحد الشامل — 2026-04-01                   │
+├──────────────────────────────┬──────────────────────────────┤
+│       إحصائيات المستودع       │        إحصائيات التدقيق      │
+├──────────────────────────────┼──────────────────────────────┤
+│ خدمات نشطة          72       │ إجمالي المشاكل    657+        │
+│ خدمات مؤرشفة        15       │ تقارير التدقيق    100+        │
+│ وحدات Python         86       │ P0 حرج           46 (93% ✅)  │
+│ حزم npm              28       │ P1 عالي          73 (68% ⚠️)  │
+│ ميزات Flutter        57       │ P2 متوسط         160 (53% 🟡) │
+│ صفحات Web            46       │ P3 منخفض         204+ (32%)   │
+│ صفحات Admin          61       │ درجة الصحة       80.5/100     │
+│ Workflows CI/CD      73       │                              │
+│ Dockerfiles          83       │     الحالة الإجمالية          │
+│ ملفات اختبار         591      │   🟡 جاهز للتطوير             │
+│ ملفات توثيق          565+     │   يحتاج مرحلة 4 قبل إنتاج   │
+│ LLM Providers        6        │                              │
+│ RAG Workflows        11       │   أولوية إصلاح فورية:        │
+│ NATS Subjects        50+      │   • JWT توحيد نهائي          │
+│ Helm Charts          6        │   • YOLO نماذج زراعية        │
+│ ArgoCD Apps          18       │   • NATS headers (30 خدمة)   │
+│                               │   • RLS تطبيق                │
+│                               │   • A2A/MCP authentication   │
+└──────────────────────────────┴──────────────────────────────┘
+```
+
+---
+
+*هذا التقرير يدمج ويوحّد نتائج جميع تقارير التدقيق السابقة (100+ تقرير، 2024-12 → 2026-04).*  
+*This report consolidates all previous audit reports (100+ reports, Dec 2024 → Apr 2026) into a single authoritative reference.*  
+*التحديث الأخير: 2026-04-01 | Branch: copilot/check-platform-source-code*

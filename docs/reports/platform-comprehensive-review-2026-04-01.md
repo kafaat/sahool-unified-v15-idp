@@ -768,7 +768,7 @@ sentence-transformers==5.3.0
 
 ---
 
-## 19. 📊 ملخص الأرقام النهائي — Final Statistics
+## 19. 📊 ملخص الأرقام النهائي للمستودع — Repository Statistics Summary
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -1209,14 +1209,14 @@ FAILED tests/unit/test_water_management.py
   ```
 
 #### ب. اختبار Kong Ghost Services
-- **السبب:** Kong يحتوي على **22 route من نوع `*-health`** (مثل `chat-service-health`, `equipment-service-health`, ...) لها `port` مُعرَّف ولكن لا توجد containers مقابلة في docker-compose — لأنها تُوكّل إلى الـ container الأصلي
+- **السبب:** Kong يحتوي على **23 route من نوع `*-health`** (مثل `chat-service-health`, `equipment-service-health`, ...) لها `port` مُعرَّف ولكن لا توجد containers مقابلة في docker-compose — لأنها تُوكّل إلى الـ container الأصلي
 - **الاستبعاد القديم (هش):** قائمة ثابتة لخدمتين فقط
 - **الإصلاح:** استخدام pattern matching:
   ```python
   if service_name.endswith("-health") or service_name.endswith("-public"):
       continue
   ```
-- **قائمة Kong Health Routes الكاملة (22 route):**
+- **قائمة Kong Health Routes الكاملة (23 route):**
   `advisory-service-health`, `ai-chat-assistant-health`, `audit-service-health`, `billing-core-health`, `chat-service-health`, `crm-service-health`, `crop-intelligence-service-health`, `equipment-service-health`, `field-intelligence-health`, `field-management-service-health`, `inventory-service-health`, `iot-gateway-health`, `iot-sensor-hub-health`, `iot-service-health`, `marketplace-service-health`, `notification-service-health`, `supply-chain-service-health`, `task-service-health`, `user-service-auth-public`, `user-service-health`, `user-service-public`, `vegetation-analysis-service-health`, `yield-prediction-service-health`
 
 #### ج. اختبار Kong Count (87 services)

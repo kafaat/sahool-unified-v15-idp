@@ -90,8 +90,9 @@ def ai_agents_main_content():
 class TestNoHardcodedCredentials:
     """Verify docker-compose.test.yml has no hardcoded passwords or secrets."""
 
-    # Patterns that indicate hardcoded default credentials.
-    # We look for ${VAR:-some_default} where the default is a real-looking password.
+    # Pattern matching ${VAR:-default} for security-sensitive env vars.
+    # These variables must NOT have default values embedded in compose files;
+    # they should use ${VAR:?required} to force explicit configuration.
     HARDCODED_DEFAULT_PATTERN = re.compile(
         r"\$\{(?:POSTGRES_PASSWORD|REDIS_PASSWORD|JWT_SECRET_KEY|STRIPE_API_KEY|"
         r"QDRANT_API_KEY|OPENWEATHERMAP_API_KEY|WEATHERAPI_KEY|THARWATT_API_KEY)"

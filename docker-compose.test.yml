@@ -7,8 +7,10 @@
 # configurations.
 #
 # SECURITY: All credentials are sourced from environment variables (.env.test).
-# No default passwords are embedded in this file.
+# No default passwords are embedded in this file for security-sensitive variables.
+# Optional API keys (weather, payment) may use empty defaults (${VAR:-}).
 # الأمان: جميع بيانات الاعتماد تُقرأ من متغيرات البيئة (.env.test).
+# المتغيرات الاختيارية (الطقس، الدفع) قد تستخدم قيم افتراضية فارغة.
 #
 # Usage:
 #   cp .env.test .env   # or: set -a && source .env.test && set +a

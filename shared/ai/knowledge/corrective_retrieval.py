@@ -423,8 +423,9 @@ class CorrectiveRetrievalEngine:
                 continue
 
             try:
-                # Normalise the timestamp: replace "Z" suffix so fromisoformat
-                # accepts it on Python < 3.11, then ensure timezone-aware UTC.
+                # Replace "Z" suffix so fromisoformat accepts UTC timestamps
+                # (fromisoformat with "Z" requires Python 3.11+; this keeps the
+                # code defensive in mixed-version CI images).
                 normalised = exp_date.strip().replace("Z", "+00:00")
                 exp = datetime.fromisoformat(normalised)
                 if exp.tzinfo is None:

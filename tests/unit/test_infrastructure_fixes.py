@@ -383,8 +383,10 @@ class TestKongConfigIntegrity:
         """Kong should have between 50-95 services (not too few, not too many).
 
         The platform has 72 active microservices.  Each service may have an
-        additional "-health" routing variant in Kong, so the upper bound allows
-        for up to ~95 entries before the config is considered bloated.
+        additional "-health" or "-public" routing variant in Kong (same backend
+        port as the canonical service).  The upper bound allows for
+        72 canonical + up to 23 routing variants = 95 entries before the config
+        is considered bloated.
         """
         count = len(kong_config.get("services", []))
         assert 50 <= count <= 95, f"Kong has {count} services, expected 50-95"

@@ -7,7 +7,7 @@ predictions and publish advisory recommendations.
 """
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
@@ -73,7 +73,7 @@ class AIEventHandlers:
         # Cache for batch processing
         self.ndvi_cache[field_id] = {
             "value": ndvi_value,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "tenant_id": tenant_id,
         }
 
@@ -205,7 +205,7 @@ class AIEventHandlers:
                 "predicted_yield_tons": round(2.5 * ndvi_data["value"] * 100, 2),
                 "confidence": 0.87,
                 "based_on": ["ndvi", "historical_data", "weather"],
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         elif prediction_type == "disease":
             result = {

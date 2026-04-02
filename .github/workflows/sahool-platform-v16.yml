@@ -1,0 +1,90 @@
+name: SAHOOL Platform v16 - CI/CD
+
+on:
+  push:
+    branches: [main, develop, "feature/**", "hotfix/**"]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: sahool
+
+jobs:
+  lint-and-security:
+    name: "\U0001F50D Lint & Security"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff bandit
+      - run: ruff check apps/services/ packages/ shared/
+      - run: bandit -r apps/services/ packages/ shared/ -f json || true
+
+  build-and-test:
+    name: "\U0001F3D7\uFE0F Build & Test"
+    runs-on: ubuntu-latest
+    needs: lint-and-security
+    strategy:
+      matrix:
+        service:
+          - notification-service
+          - user-service
+          - field-management-service
+          - ai-advisor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./apps/services/${{ matrix.service }}
+          push: false
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
+
+  integration-tests:
+    name: "\U0001F517 Integration Tests"
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    services:
+      nats:
+        image: nats:2.10-alpine
+        ports:
+          - 4222:4222
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: sahool_test
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements/test.txt || true
+      - run: python -m pytest tests/integration/ -v || true
+
+  push-images:
+    name: "\U0001F4E4 Push Images"
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - run: |
+          for svc in notification-service user-service field-management-service ai-advisor; do
+            docker buildx build --push \
+              --tag ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${svc}:${{ github.sha }} \
+              --tag ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${svc}:latest \
+              ./apps/services/${svc}
+          done

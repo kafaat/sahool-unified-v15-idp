@@ -1,0 +1,56 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL JetStream Streams Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Defines the core JetStream streams for SAHOOL's event-driven architecture.
+# Apply with: nats stream add --config <stream-name>.yaml
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+streams:
+  # Domain events - primary event bus for all service-to-service communication
+  SAHOOL_EVENTS:
+    subjects: ["SAHOOL.events.>"]
+    retention: limits
+    max_msgs: 10000000
+    max_bytes: 10GB
+    max_age: 30d
+    storage: file
+    replicas: 1
+
+  # Command execution - work queue pattern for async commands
+  SAHOOL_COMMANDS:
+    subjects: ["SAHOOL.commands.>"]
+    retention: workqueue
+    max_msgs: 1000000
+    max_bytes: 1GB
+    max_age: 7d
+    storage: file
+
+  # Service discovery - ephemeral registry for service health
+  SAHOOL_REGISTRY:
+    subjects: ["SAHOOL.registry.>"]
+    retention: limits
+    max_msgs: 100000
+    max_bytes: 100MB
+    max_age: 1h
+    storage: memory
+
+  # Health & metrics - short-lived monitoring data
+  SAHOOL_HEALTH:
+    subjects: ["SAHOOL.health.>", "SAHOOL.metrics.>"]
+    retention: limits
+    max_msgs: 500000
+    max_bytes: 500MB
+    max_age: 24h
+    storage: memory
+
+  # Audit trail - long-term compliance records (immutable)
+  SAHOOL_AUDIT:
+    subjects: ["SAHOOL.audit.>"]
+    retention: limits
+    max_msgs: 50000000
+    max_bytes: 50GB
+    max_age: 7y
+    storage: file
+    deny_delete: true

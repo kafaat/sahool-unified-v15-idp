@@ -205,11 +205,21 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
             try:
                 import asyncio
 
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    # Cannot await in sync context; fall back
+                try:
+                    loop = asyncio.get_running_loop()
+                except RuntimeError:
+                    loop = None
+
+                if loop is not None and loop.is_running():
+                    # Already inside an async context; use sync fallback
                     return self._sync_similarity(text_a, text_b)
-                return loop.run_until_complete(self._async_similarity(text_a, text_b))
+
+                # No running loop — safe to run_until_complete
+                new_loop = asyncio.new_event_loop()
+                try:
+                    return new_loop.run_until_complete(self._async_similarity(text_a, text_b))
+                finally:
+                    new_loop.close()
             except Exception:
                 logger.debug("embeddings_similarity_fallback", reason="adapter_error")
                 return self._fallback.similarity(text_a, text_b)

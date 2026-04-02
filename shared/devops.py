@@ -523,8 +523,7 @@ class TenantAwareLoadTester:
         env = os.getenv("ENVIRONMENT", "test")
         if env in ("production", "staging") and secret == _default_test_secret:
             raise RuntimeError(
-                "JWT_SECRET_KEY must be set to a real secret in "
-                f"{env} — refusing to use default test key"
+                f"JWT_SECRET_KEY must be set to a real secret in {env} — refusing to use default test key"
             )
         payload = {
             "tid": tenant_id,

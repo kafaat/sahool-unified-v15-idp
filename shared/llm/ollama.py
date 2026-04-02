@@ -404,7 +404,11 @@ class OllamaProvider(LLMProvider):
                         try:
                             data = json.loads(line)
                         except json.JSONDecodeError:
-                            logger.warning("Skipping malformed JSON line in stream: %r", line[:200])
+                            logger.warning(
+                                "Skipping malformed JSON line in Ollama stream (model=%s, line_length=%d)",
+                                model,
+                                len(line),
+                            )
                             continue
                         text = data.get("response", "")
                         is_done = data.get("done", False)
@@ -475,7 +479,10 @@ class OllamaProvider(LLMProvider):
                         try:
                             data = json.loads(line)
                         except json.JSONDecodeError:
-                            logger.warning("Skipping malformed JSON line in chat stream: %r", line[:200])
+                            logger.warning(
+                                "Skipping malformed JSON line in chat stream (line_length=%d)",
+                                len(line),
+                            )
                             continue
                         text = data.get("message", {}).get("content", "")
                         is_done = data.get("done", False)

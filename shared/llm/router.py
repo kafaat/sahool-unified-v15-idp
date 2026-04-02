@@ -547,6 +547,7 @@ class LLMRouter:
                 logger.warning(f"Error closing provider: {e}")
         self._providers.clear()
         self._provider_available.clear()
+        self._provider_available_at.clear()
 
     async def __aenter__(self) -> LLMRouter:
         """Async context manager entry."""

@@ -18,26 +18,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from shared.llm.config import (
-    LLMConfig,
-    OllamaConfig,
-    OpenAICompatConfig,
-    get_config,
-)
+from shared.llm.config import OllamaConfig
 from shared.llm.ollama import OllamaError, OllamaProvider
 from shared.llm.provider import (
-    GenerationOptions,
     GenerationResponse,
     GenerationStatus,
     Message,
     ModelNotFoundError,
     ProviderType,
-    StreamChunk,
 )
 from shared.llm.router import (
     AllProvidersFailedError,
     LLMRouter,
-    RouterStats,
     RoutingDecision,
     _AVAILABILITY_CACHE_TTL,
 )
@@ -272,6 +264,8 @@ class TestRouterAvailabilityCacheTTL:
         When generate() fails, both _provider_available and
         _provider_available_at must be cleared so the next availability
         check is fresh (not stale).
+        Patch decide_routing to always return an OLLAMA decision so the test
+        is not affected by the runtime ENVIRONMENT env var.
         """
         router = LLMRouter()
 
@@ -283,14 +277,22 @@ class TestRouterAvailabilityCacheTTL:
         mock_provider.generate = AsyncMock(side_effect=RuntimeError("network failure"))
         mock_provider.is_available = AsyncMock(return_value=True)
 
+        fixed_decision = RoutingDecision(
+            provider_type=ProviderType.OLLAMA,
+            model="llama3.2",
+            reason="test",
+            fallbacks=[],
+        )
+
         with (
             patch.object(router, "_get_provider", return_value=mock_provider),
             patch.object(router, "_check_provider_available", return_value=True),
+            patch.object(router, "decide_routing", return_value=fixed_decision),
         ):
             try:
                 await router.generate("test")
             except AllProvidersFailedError:
-                pass
+                pass  # expected — all providers failed
 
         assert router._provider_available.get(ProviderType.OLLAMA) is None
         assert ProviderType.OLLAMA not in router._provider_available_at
@@ -474,19 +476,20 @@ class TestProviderHealthChecks:
     async def test_health_check_timeout_marks_provider_unavailable(self):
         """
         A timeout during is_available() must store False in the cache.
+        Mock asyncio.wait_for to raise TimeoutError immediately so the test
+        does not actually wait 5 seconds.
         """
         import asyncio
 
         router = LLMRouter()
 
-        async def slow_check():
-            await asyncio.sleep(10)
-            return True
-
         mock_provider = MagicMock()
-        mock_provider.is_available = slow_check
+        mock_provider.is_available = AsyncMock(return_value=True)
 
-        with patch.object(router, "_get_provider", return_value=mock_provider):
+        with (
+            patch.object(router, "_get_provider", return_value=mock_provider),
+            patch("asyncio.wait_for", side_effect=asyncio.TimeoutError),
+        ):
             result = await router._check_provider_available(ProviderType.OLLAMA)
 
         assert result is False
@@ -875,7 +878,7 @@ class TestOllamaGenerateEmptyResponse:
 
     @pytest.mark.asyncio
     async def test_model_not_found_404_raises_correct_error(self):
-        """A 404 response during generate() must raise ModelNotFoundError."""
+        """A 404 response during generate() must raise ModelNotFoundError specifically."""
         import httpx
 
         provider = OllamaProvider(OllamaConfig())
@@ -890,8 +893,11 @@ class TestOllamaGenerateEmptyResponse:
         mock_client.post = AsyncMock(side_effect=http_404)
 
         with patch.object(provider, "_get_client", AsyncMock(return_value=mock_client)):
-            with pytest.raises((ModelNotFoundError, OllamaError)):
+            with pytest.raises(ModelNotFoundError) as exc_info:
                 await provider.generate("test", model="nonexistent-model")
+
+        assert exc_info.value.model == "nonexistent-model"
+        assert exc_info.value.provider == ProviderType.OLLAMA
 
 
 if __name__ == "__main__":

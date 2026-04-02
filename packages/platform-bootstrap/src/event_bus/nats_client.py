@@ -71,8 +71,11 @@ class SAHOOLEventBus:
     async def connect(self, nats_url: str, service_name: str) -> None:
         """Connect to NATS server and initialize JetStream context."""
         self.service_name = service_name
-        self.nc = await nats.connect(nats_url, name=service_name)
-        self.js = self.nc.jetstream()
+        try:
+            self.nc = await nats.connect(nats_url, name=service_name)
+            self.js = self.nc.jetstream()
+        except Exception as exc:
+            raise ConnectionError(f"Failed to connect {service_name} to NATS at {nats_url}: {exc}") from exc
 
     async def publish_event(
         self,

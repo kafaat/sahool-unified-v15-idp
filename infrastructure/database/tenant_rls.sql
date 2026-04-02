@@ -12,11 +12,6 @@
 --
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- Enable RLS on core tables
-ALTER TABLE fields ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sensors ENABLE ROW LEVEL SECURITY;
-ALTER TABLE irrigation_schedules ENABLE ROW LEVEL SECURITY;
-
 -- Helper function to retrieve current tenant from session variable
 CREATE OR REPLACE FUNCTION get_current_tenant_id()
 RETURNS TEXT AS $$
@@ -25,7 +20,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Tenant isolation policies
+-- Create tenant isolation policies before enabling RLS
 CREATE POLICY tenant_isolation_fields ON fields
     USING (tenant_id = get_current_tenant_id());
 
@@ -34,3 +29,8 @@ CREATE POLICY tenant_isolation_sensors ON sensors
 
 CREATE POLICY tenant_isolation_irrigation ON irrigation_schedules
     USING (tenant_id = get_current_tenant_id());
+
+-- Enable RLS on core tables (after policies are in place)
+ALTER TABLE fields ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sensors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE irrigation_schedules ENABLE ROW LEVEL SECURITY;

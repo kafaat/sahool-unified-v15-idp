@@ -65,8 +65,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -r requirements/test.txt || true
-      - run: python -m pytest tests/integration/ -v || true
+      - run: pip install -r requirements/test.txt
+      - run: python -m pytest tests/integration/ -v
 
   push-images:
     name: "\U0001F4E4 Push Images"

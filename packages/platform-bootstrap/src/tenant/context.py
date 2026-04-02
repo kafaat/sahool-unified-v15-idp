@@ -23,20 +23,24 @@ class TenantContext:
         self.tenant_id = tenant_id
         self.db_pool = db_pool
         self.token: contextvars.Token | None = None
+        self._conn = None
 
     async def __aenter__(self):
         self.token = _tenant_context.set(self.tenant_id)
         if self.db_pool:
-            async with self.db_pool.acquire() as conn:
-                await conn.execute("SET app.current_tenant = $1", self.tenant_id)
+            self._conn = await self.db_pool.acquire()
+            await self._conn.execute("SET app.current_tenant = $1", self.tenant_id)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self.token is not None:
             _tenant_context.reset(self.token)
-        if self.db_pool:
-            async with self.db_pool.acquire() as conn:
-                await conn.execute("RESET app.current_tenant")
+        if self._conn is not None:
+            try:
+                await self._conn.execute("RESET app.current_tenant")
+            finally:
+                await self.db_pool.release(self._conn)
+                self._conn = None
 
     @staticmethod
     def get_current() -> str | None:

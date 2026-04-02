@@ -319,6 +319,26 @@ jobs:
             --exclude "**/*.spec.*" --exclude "**/*.test.*" \
             .
 
+      - name: Display Semgrep gate findings
+        if: always()
+        run: |
+          if [ -f semgrep-gate-results.json ]; then
+            python3 -c "
+import json
+data = json.load(open('semgrep-gate-results.json'))
+results = data.get('results', [])
+if results:
+    print(f'🔴 {len(results)} ERROR-severity finding(s):')
+    for r in results:
+        loc = f\"{r['path']}:{r['start']['line']}\"
+        msg = r.get('extra', {}).get('message', '')[:120]
+        print(f\"  [{r['check_id']}] {loc}\")
+        print(f\"    {msg}\")
+else:
+    print('✅ No ERROR-severity Semgrep findings.')
+" 2>/dev/null || cat semgrep-gate-results.json
+          fi
+
       - name: Upload Semgrep gate results
         uses: actions/upload-artifact@v4.6.2
         if: always()

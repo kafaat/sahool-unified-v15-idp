@@ -40,13 +40,20 @@ from ...security import MAX_PROMPT_CHARS
 from ...security.prompt_guard import detect_prompt_injection, sanitize_input
 from ..deps import get_current_user
 
-# Import guardrails for input/output validation
+# Import guardrails for input/output validation (C-09: log warning on failure)
 try:
     from shared.guardrails import TrustLevel, input_filter
 
     HAS_GUARDRAILS = True
 except ImportError:
     HAS_GUARDRAILS = False
+    import logging as _logging
+
+    _logging.getLogger(__name__).warning(
+        "SECURITY WARNING: shared.guardrails not available — "
+        "prompt injection filtering is DISABLED. "
+        "Install shared.guardrails to enable input validation."
+    )
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["Chat"])

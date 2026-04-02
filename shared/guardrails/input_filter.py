@@ -76,7 +76,22 @@ class PromptInjectionDetector:
             r"act\s+as\s+a?\s*\w+",
             r"pretend\s+to\s+be",
             r"تجاهل\s+التعليمات",
+            r"تجاهل\s+(كل|جميع)\s+التعليمات",
             r"انسى\s+كل\s+شيء",
+            r"تصرف\s+ك",
+            r"أنت\s+الآن\s+",
+            r"تظاهر\s+(أنك|بأنك)",
+        ]
+
+        # Jailbreak and bypass patterns (H-06)
+        self.jailbreak_patterns = [
+            r"\bjailbreak\b",
+            r"\bdan\s+mode\b",
+            r"\bdeveloper\s+mode\b",
+            r"\broleplay\s+as\b",
+            r"bypass\s+(safety|filter|restriction|guardrail)",
+            r"كسر\s+(الحماية|القيود)",
+            r"تجاوز\s+(الحماية|المرشح|القيود)",
         ]
 
         # Data exfiltration patterns
@@ -86,6 +101,7 @@ class PromptInjectionDetector:
             r"what\s+(are|were)\s+your\s+(original|system)\s+instructions",
             r"repeat\s+(your|the)\s+(instructions|prompt)",
             r"أظهر\s+التعليمات",
+            r"(أظهر|اكشف|اعرض)\s+(تعليمات|أوامر)\s+(النظام|الأصلية)",
         ]
 
         # Role confusion patterns
@@ -107,7 +123,11 @@ class PromptInjectionDetector:
 
         # Compile all patterns
         self.all_patterns = (
-            self.override_patterns + self.exfiltration_patterns + self.role_confusion_patterns + self.escape_patterns
+            self.override_patterns
+            + self.jailbreak_patterns
+            + self.exfiltration_patterns
+            + self.role_confusion_patterns
+            + self.escape_patterns
         )
         self.compiled_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in self.all_patterns]
 

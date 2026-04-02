@@ -311,7 +311,6 @@ jobs:
             --config p/typescript \
             --severity ERROR \
             --error \
-            --text \
             --json --output semgrep-gate-results.json \
             --exclude "archive" --exclude "node_modules" --exclude ".git" \
             --exclude "tests" --exclude "test" --exclude "**/test*" \

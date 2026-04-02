@@ -2,6 +2,7 @@
 Event Publisher - SAHOOL Weather Core
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -260,14 +261,24 @@ class WeatherPublisher:
 
 # Singleton
 _publisher: WeatherPublisher | None = None
+_publisher_lock: asyncio.Lock | None = None
+
+
+def _get_lock() -> asyncio.Lock:
+    """Lazily create the lock inside the running event loop."""
+    global _publisher_lock
+    if _publisher_lock is None:
+        _publisher_lock = asyncio.Lock()
+    return _publisher_lock
 
 
 async def get_publisher() -> WeatherPublisher:
-    global _publisher
-    if _publisher is None:
-        _publisher = WeatherPublisher()
-        try:
-            await _publisher.connect()
-        except Exception as e:
-            logger.warning("Failed to connect to NATS: %s", e)
-    return _publisher
+    async with _get_lock():
+        global _publisher
+        if _publisher is None:
+            _publisher = WeatherPublisher()
+            try:
+                await _publisher.connect()
+            except Exception as e:
+                logger.warning("Failed to connect to NATS: %s", e)
+        return _publisher

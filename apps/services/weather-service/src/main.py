@@ -207,10 +207,11 @@ try:
             "CORS_ORIGINS",
             "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
         ).split(",")
+        _allow_credentials = "*" not in ALLOWED_ORIGINS
         app.add_middleware(
             CORSMiddleware,
             allow_origins=ALLOWED_ORIGINS,
-            allow_credentials=True,
+            allow_credentials=_allow_credentials,
             allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
             allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
         )
@@ -632,34 +633,37 @@ async def get_providers(user: User = Depends(get_current_user)):
 class ETRequest(BaseModel):
     """Evapotranspiration calculation request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_c: float = Field(ge=-50, le=60)
     humidity_pct: float = Field(ge=0, le=100)
-    wind_speed_kmh: float = Field(ge=0)
+    wind_speed_kmh: float = Field(ge=0, le=400)
     solar_radiation_mj: float = Field(default=15.0, ge=0, le=50)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class GDDRequest(BaseModel):
     """Growing Degree Days calculation request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_max_c: float = Field(ge=-50, le=60)
     temp_min_c: float = Field(ge=-50, le=60)
     base_temp_c: float = Field(default=10.0, ge=0, le=30)
     upper_temp_c: float = Field(default=30.0, ge=20, le=50)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class SprayWindowRequest(BaseModel):
     """Spray window assessment request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_c: float = Field(ge=-50, le=60)
     humidity_pct: float = Field(ge=0, le=100)
-    wind_speed_kmh: float = Field(ge=0)
+    wind_speed_kmh: float = Field(ge=0, le=400)
     precipitation_probability: float = Field(default=0, ge=0, le=100)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 @app.post("/weather/evapotranspiration")
@@ -753,7 +757,7 @@ async def assess_spray_window(req: SprayWindowRequest, user: User = Depends(get_
         precipitation_probability=req.precipitation_probability,
     )
 
-    if app.state.publisher and not result.get("suitable", True):
+    if app.state.publisher and not result.get("is_suitable", True):
         try:
             await app.state.publisher.publish_weather_alert(
                 tenant_id=req.tenant_id,
@@ -795,8 +799,10 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                 }
             )
         weather = result.data
+        provider = result.provider
     else:
         weather = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
+        provider = "Open-Meteo"
 
     temp_c = weather.temperature_c
     humidity_pct = weather.humidity_pct
@@ -855,18 +861,14 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                 logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     # Publish report generated event
-    report = {
-        "evapotranspiration": et_result,
-        "growing_degree_days": gdd_result,
-        "spray_window": spray_result,
-        "irrigation_adjustment": irrigation,
-        "alerts": [a.to_dict() for a in alerts],
-    }
-    if app.state.publisher:
+    if publisher:
         try:
-            await app.state.publisher.publish_forecast_issued(
+            await publisher.publish_forecast_issued(
                 tenant_id=req.tenant_id,
                 field_id=req.field_id,
+                provider=provider,
+                days=1,
+                correlation_id=req.correlation_id,
             )
         except Exception as e:
             logger.error("nats_publish_failed", subject="forecast_issued", error=str(e))
@@ -891,24 +893,26 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
 class FrostRiskRequest(BaseModel):
     """Frost risk assessment request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
     humidity_pct: float = Field(ge=0, le=100, description="Humidity %")
-    wind_speed_kmh: float = Field(ge=0, description="Wind speed km/h")
+    wind_speed_kmh: float = Field(ge=0, le=400, description="Wind speed km/h")
     cloud_cover_pct: float = Field(default=0, ge=0, le=100, description="Cloud cover %")
     dew_point_c: float | None = Field(default=None, ge=-50, le=50, description="Dew point °C")
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class HeatStressRequest(BaseModel):
     """Heat stress assessment request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
     humidity_pct: float = Field(ge=0, le=100, description="Humidity %")
     solar_radiation_mj: float = Field(default=15.0, ge=0, le=50, description="Solar radiation MJ/m²/day")
-    wind_speed_kmh: float = Field(default=10.0, ge=0, description="Wind speed km/h")
+    wind_speed_kmh: float = Field(default=10.0, ge=0, le=400, description="Wind speed km/h")
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class ChillModel(StrEnum):
@@ -930,11 +934,12 @@ class ChillHoursRequest(BaseModel):
 class DroughtIndexRequest(BaseModel):
     """Drought index calculation request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     precipitation_mm: float = Field(ge=0, description="Total precipitation mm")
     et0_mm: float = Field(ge=0, description="Total ET0 mm")
     days: int = Field(default=30, ge=1, le=365, description="Period in days")
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 @app.post("/weather/frost-risk")

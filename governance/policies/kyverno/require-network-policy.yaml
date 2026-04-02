@@ -1,0 +1,53 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-network-policy
+  annotations:
+    policies.kyverno.io/title: Require NetworkPolicy
+    policies.kyverno.io/category: SAHOOL Governance
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Namespace
+    policies.kyverno.io/description: >-
+      كل namespace يجب أن يحتوي على NetworkPolicy لعزل الشبكة.
+      Every namespace must have at least one NetworkPolicy to enforce
+      network isolation between services. This prevents unrestricted
+      pod-to-pod communication across namespaces.
+spec:
+  # Audit mode — logs violations without blocking (transition to Enforce after review)
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: require-network-policy-in-namespace
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "sahool-*"
+                - "production"
+                - "staging"
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - "kube-system"
+                - "kube-public"
+                - "kyverno"
+                - "monitoring"
+      context:
+        - name: networkpolicies
+          apiCall:
+            urlPath: "/apis/networking.k8s.io/v1/namespaces/{{request.namespace}}/networkpolicies"
+            jmesPath: "items | length(@)"
+      validate:
+        message: >-
+          يجب وجود NetworkPolicy في namespace {{request.namespace}}.
+          Namespace {{request.namespace}} must have at least one NetworkPolicy
+          for network isolation. See ADR-0005 for service mesh strategy.
+        deny:
+          conditions:
+            any:
+              - key: "{{ networkpolicies }}"
+                operator: Equals
+                value: 0

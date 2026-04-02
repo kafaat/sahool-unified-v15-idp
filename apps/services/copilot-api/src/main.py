@@ -69,6 +69,14 @@ try:
 except ImportError:
     HAS_REVOCATION = False
 
+# Import shared RateLimiter (H-04 - replaces in-memory defaultdict)
+try:
+    from shared.middleware.rate_limit import RateLimiter, rate_limit_middleware
+
+    HAS_RATE_LIMITER = True
+except ImportError:
+    HAS_RATE_LIMITER = False
+
 # Import AI Audit Logger for comprehensive logging
 try:
     from shared.ai.audit import AIAuditLogger, get_audit_logger
@@ -272,10 +280,6 @@ def create_app() -> FastAPI:
         allow_headers=["Authorization", "Content-Type", "Accept", "X-Request-ID", "X-Tenant-ID"],
     )
 
-    # Security headers middleware - X-Frame-Options, CSP, etc. (H-01)
-    if HAS_SECURITY_HEADERS:
-        setup_security_headers(app)
-
     # Observability middleware - distributed tracing (H-02)
     if HAS_OBSERVABILITY:
         app.add_middleware(
@@ -290,12 +294,20 @@ def create_app() -> FastAPI:
     if HAS_INPUT_SANITIZATION:
         app.add_middleware(InputSanitizationMiddleware)
 
+    # Rate limiting middleware - shared, distributed (H-04)
+    if HAS_RATE_LIMITER:
+        app.add_middleware(rate_limit_middleware)
+
     # Token revocation middleware - blocks revoked JWT tokens (C-08)
     if HAS_REVOCATION:
         app.add_middleware(
             TokenRevocationMiddleware,
             exempt_paths=["/healthz", "/health", "/readyz", "/docs", "/redoc", "/openapi.json", "/", "/info"],
         )
+
+    # Security headers middleware - X-Frame-Options, CSP, etc. (H-01)
+    if HAS_SECURITY_HEADERS:
+        setup_security_headers(app)
 
     # Fallback request ID middleware (only if shared.errors_py not available)
     if not _has_shared_errors:

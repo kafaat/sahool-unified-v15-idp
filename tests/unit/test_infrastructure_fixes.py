@@ -179,7 +179,10 @@ class TestNoGhostServices:
 
     def test_all_kong_services_have_docker_container(self, kong_services, docker_services):
         """Every Kong service must have a corresponding Docker container."""
-        # Exclude Kong meta-entries (no port), and infrastructure
+        # Exclude Kong meta-entries (no port), route variants, and infrastructure.
+        # Services whose names end in "-health" or "-public" are routing-only variants
+        # that share the same backend port as their canonical service — they are not
+        # ghost services and do not need their own docker-compose entry.
         excluded = {
             "kong",  # infrastructure
             "root-endpoint",  # Kong meta-route (no backend needed)
@@ -190,6 +193,8 @@ class TestNoGhostServices:
         for service_name, service_config in kong_services.items():
             if service_name in excluded:
                 continue
+            if service_name.endswith("-health") or service_name.endswith("-public"):
+                continue  # Route variants — same backend as canonical service
             if service_config.get("port") is None:
                 continue  # Meta-entries without a port
 
@@ -385,9 +390,16 @@ class TestKongConfigIntegrity:
         assert not conflicts, f"Duplicate route paths: {conflicts}"
 
     def test_kong_service_count_reasonable(self, kong_config):
-        """Kong should have between 50-100 services (72 canonical + health/public variants)."""
+        """Kong should have between 50-95 services (not too few, not too many).
+
+        The platform has 72 active microservices.  Each service may have an
+        additional "-health" or "-public" routing variant in Kong (same backend
+        port as the canonical service).  The upper bound allows for
+        72 canonical + up to 23 routing variants = 95 entries before the config
+        is considered bloated.
+        """
         count = len(kong_config.get("services", []))
-        assert 50 <= count <= 100, f"Kong has {count} services, expected 50-100"
+        assert 50 <= count <= 95, f"Kong has {count} services, expected 50-95"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

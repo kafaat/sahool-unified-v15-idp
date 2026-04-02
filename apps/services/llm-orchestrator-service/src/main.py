@@ -118,6 +118,14 @@ try:
 except ImportError:
     REVOCATION_AVAILABLE = False
 
+# Rate limiting middleware (H-05)
+try:
+    from shared.middleware.rate_limit import RateLimiter, rate_limit_middleware
+
+    RATE_LIMIT_AVAILABLE = True
+except ImportError:
+    RATE_LIMIT_AVAILABLE = False
+
 
 # Authentication imports
 try:
@@ -351,6 +359,10 @@ if TENANT_MIDDLEWARE_AVAILABLE:
 # Input sanitization middleware (H-25)
 if INPUT_SANITIZATION_AVAILABLE:
     app.add_middleware(InputSanitizationMiddleware)
+
+# Rate limiting middleware (H-05)
+if RATE_LIMIT_AVAILABLE:
+    app.add_middleware(rate_limit_middleware)
 
 # Token revocation middleware (H-25)
 if REVOCATION_AVAILABLE:

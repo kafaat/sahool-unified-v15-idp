@@ -288,3 +288,66 @@ class TestSecurityDriftDetector:
         # All required headers exist
         header_drifts = [r for r in results if r.source == "security_headers"]
         assert len(header_drifts) == 0
+
+    # ------------------------------------------------------------------
+    # SECRET_PATTERNS: literal values should trigger; env-var refs should not
+    # ------------------------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_secret_scan_detects_hardcoded_password(self, tmp_path: Path):
+        """A literal hardcoded password in a .py file must be flagged."""
+        src = tmp_path / "src"
+        src.mkdir()
+        (src / "config.py").write_text('PASSWORD = "SuperSecret123!"\n')
+
+        detector = SecurityDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        secret_drifts = [r for r in results if r.source == "secret_scan"]
+        assert len(secret_drifts) >= 1
+
+    @pytest.mark.asyncio
+    async def test_secret_scan_detects_hardcoded_api_key(self, tmp_path: Path):
+        """A literal hardcoded API key in a .py file must be flagged."""
+        src = tmp_path / "src"
+        src.mkdir()
+        (src / "client.py").write_text('api_key = "abcdefghijklmnop12345678"\n')
+
+        detector = SecurityDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        secret_drifts = [r for r in results if r.source == "secret_scan"]
+        assert len(secret_drifts) >= 1
+
+    @pytest.mark.asyncio
+    async def test_secret_scan_skips_env_var_reference_password(self, tmp_path: Path):
+        """A password value starting with '$' (env var ref) must NOT be flagged."""
+        src = tmp_path / "src"
+        src.mkdir()
+        # $PASSWORD and ${PASSWORD} are environment variable references, not secrets
+        (src / "config.py").write_text(
+            'password = "$PASSWORD"\npwd = "${DB_PASSWORD}"\npasswd = "$REDIS_PASSWD"\n'
+        )
+
+        detector = SecurityDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        secret_drifts = [r for r in results if r.source == "secret_scan" and "config.py" in r.file_path]
+        assert len(secret_drifts) == 0, (
+            "Env-var-style references ($VAR) should not be flagged as hardcoded secrets"
+        )
+
+    @pytest.mark.asyncio
+    async def test_secret_scan_skips_env_var_reference_api_key(self, tmp_path: Path):
+        """An API key value starting with '$' (env var ref) must NOT be flagged."""
+        src = tmp_path / "src"
+        src.mkdir()
+        (src / "client.py").write_text('api_key = "$MY_API_KEY"\napikey = "$WEATHER_APIKEY"\n')
+
+        detector = SecurityDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        secret_drifts = [r for r in results if r.source == "secret_scan" and "client.py" in r.file_path]
+        assert len(secret_drifts) == 0, (
+            "Env-var-style API key references ($VAR) should not be flagged as hardcoded secrets"
+        )

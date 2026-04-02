@@ -186,15 +186,13 @@ def _validate_table(
     # Use Identifier quoting for defense-in-depth
     quoted_table = f'"{table}"'
 
-    # Count total with geometry
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
+    # Count total with geometry; table is validated against _ALLOWED_TABLES allowlist above
     count_result = db.execute(
-        text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;")
-    )  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
+        text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;")  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
+    )
     setattr(report, checked_attr, count_result.scalar() or 0)
 
-    # Count invalid
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
+    # Count invalid; table is validated against _ALLOWED_TABLES allowlist above
     invalid_result = db.execute(
         text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             f"""
@@ -218,7 +216,7 @@ def _validate_table(
     # ST_CollectionExtract(..., 3) extracts polygons (type 3)
     # ST_MakeValid attempts to repair invalid geometries
     # ST_Force2D ensures 2D geometry (removes Z/M)
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
+    # table is validated against _ALLOWED_TABLES allowlist above
     fix_result = db.execute(
         text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             f"""
@@ -252,7 +250,7 @@ def sync_wkt_to_geom(db: Session) -> dict[str, int]:
 
     for table in _ALLOWED_TABLES:
         quoted_table = f'"{table}"'
-        # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
+        # table is validated against _ALLOWED_TABLES allowlist above
         result = db.execute(
             text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
                 f"""
@@ -292,7 +290,7 @@ def check_geometry_validity(
 
     quoted_table = f'"{table}"'
 
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
+    # table is validated against _ALLOWED_TABLES allowlist above
     result = db.execute(
         text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             f"""
@@ -339,7 +337,7 @@ def get_invalid_geometries(
 
     quoted_table = f'"{table}"'
 
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
+    # table is validated against _ALLOWED_TABLES allowlist above
     result = db.execute(
         text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             f"""

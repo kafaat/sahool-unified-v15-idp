@@ -94,7 +94,15 @@ class WeatherPublisher:
             logger.warning("nats-py not installed, event publishing disabled")
             return
         self.nc = NATS()
-        await self.nc.connect(self.nats_url)
+        # FIX: Limit reconnect attempts so a failed initial connection (e.g. wrong
+        # credentials) does not block the FastAPI lifespan for the nats-py default
+        # of 60 retries × 2s = 120s, which would push past the health-check window.
+        # max_reconnect_attempts=3 caps the wait to ~6s; the publisher falls back to
+        # a no-op if it cannot connect, which is the correct degraded behaviour.
+        await self.nc.connect(
+            self.nats_url,
+            max_reconnect_attempts=3,
+        )
         self._connected = True
         logger.info("Weather Publisher connected to NATS")
 

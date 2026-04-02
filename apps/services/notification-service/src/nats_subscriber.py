@@ -42,7 +42,10 @@ class SubscriberConfig(BaseModel):
     servers: list[str] = Field(default_factory=lambda: _get_nats_servers())
     name: str = Field(default="notification-subscriber")
     reconnect_time_wait: int = Field(default=2)
-    max_reconnect_attempts: int = Field(default=60)
+    # FIX: Reduced from 60 to 10.  60 retries × 2s = 120s of blocking on the
+    # initial NATS connect; 10 retries × 2s = 20s which is acceptable for both
+    # startup and production reconnects after a brief NATS restart.
+    max_reconnect_attempts: int = Field(default=10)
     user: str | None = Field(default=None)
     password: str | None = Field(default=None)
 

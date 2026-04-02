@@ -2102,7 +2102,10 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      # FIX: Increased from 15s — with 74 containers starting simultaneously the
+      # Python import chain + NATS initial connect can exceed 15s under resource
+      # contention, causing the health-check failure counter to start too early.
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2621,7 +2624,10 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      # FIX: Increased from 15s — notification-service initialises DB, NATS,
+      # SMS/Email/WhatsApp/Telegram clients and a Redis queue processor in the
+      # lifespan; under heavy startup load this easily exceeds 15s.
+      start_period: 60s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4692,24 +4698,34 @@ networks:
 # ─────────────────────────────────────────────────────────────────────────────
 
 volumes:
+  # FIX: Volumes originally created under project "sahool-1" must be declared as
+  # external so Docker Compose uses the existing named volumes instead of trying
+  # to create new project-scoped ones (which would emit ownership-mismatch warnings).
   postgres_data:
     name: sahool-postgres-data
+    external: true
   nats_data:
     name: sahool-nats-data
+    external: true
   vault_data:
     name: sahool-vault-data
+    external: true
   mlflow_artifacts:
     name: sahool-mlflow-artifacts
   redis_data:
     name: sahool-redis-data
+    external: true
   qdrant_data:
     name: sahool-qdrant-data
   mqtt_data:
     name: sahool-mqtt-data
+    external: true
   mqtt_logs:
     name: sahool-mqtt-logs
+    external: true
   mqtt_passwd:
     name: sahool-mqtt-passwd
+    external: true
   kong_logs:
     driver: local
   # Ollama LLM Server Volume
@@ -4725,8 +4741,10 @@ volumes:
   # Milvus Vector Database Volumes
   etcd_data:
     name: sahool-etcd-data
+    external: true
   minio_data:
     name: sahool-minio-data
+    external: true
   milvus_data:
     name: sahool-milvus-data
   # Rocket.Chat Community Platform Volumes
@@ -4741,3 +4759,4 @@ volumes:
     name: sahool-yolo26-models
   terrain-dem-data:
     name: sahool-terrain-dem-data
+    external: true

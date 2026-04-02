@@ -40,7 +40,7 @@ spec:
           # "docker.io/*" as a verbatim value, never matching real images.
           - list: "request.object.spec.containers"
             pattern:
-              image: "docker.io/* | ghcr.io/* | gcr.io/* | nvcr.io/* | nvidia/* | registry.k8s.io/* | quay.io/*"
+              image: &approved-registries "docker.io/* | ghcr.io/* | gcr.io/* | gcr.io/* | nvcr.io/* | nvidia/* | registry.k8s.io/* | quay.io/*"
           - list: "request.object.spec.initContainers || `[]`"
             pattern:
-              image: "docker.io/* | ghcr.io/* | gcr.io/* | nvcr.io/* | nvidia/* | registry.k8s.io/* | quay.io/*"
+              image: *approved-registries

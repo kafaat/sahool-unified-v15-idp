@@ -20,7 +20,8 @@ from typing import Any
 import aiohttp
 import asyncpg
 import jwt
-from kubernetes import client, config as k8s_config
+from kubernetes import client
+from kubernetes import config as k8s_config
 
 from shared.platform import (
     TenantMetrics,
@@ -226,18 +227,19 @@ class KubernetesDeployer:
             env_vars = {e.name: e.value for e in pod.spec.containers[0].env}
 
             has_isolation = (
-                env_vars.get("SAHOOL_TENANT_ISOLATION") == "enabled"
-                and env_vars.get("SAHOOL_RLS_ENFORCED") == "true"
+                env_vars.get("SAHOOL_TENANT_ISOLATION") == "enabled" and env_vars.get("SAHOOL_RLS_ENFORCED") == "true"
             )
 
-            results.append({
-                "pod": pod.metadata.name,
-                "tenant_isolation_enabled": has_isolation,
-                "env_check": {
-                    "isolation": env_vars.get("SAHOOL_TENANT_ISOLATION"),
-                    "rls": env_vars.get("SAHOOL_RLS_ENFORCED"),
-                },
-            })
+            results.append(
+                {
+                    "pod": pod.metadata.name,
+                    "tenant_isolation_enabled": has_isolation,
+                    "env_check": {
+                        "isolation": env_vars.get("SAHOOL_TENANT_ISOLATION"),
+                        "rls": env_vars.get("SAHOOL_RLS_ENFORCED"),
+                    },
+                }
+            )
 
         all_enabled = all(r["tenant_isolation_enabled"] for r in results)
 
@@ -455,16 +457,13 @@ class TenantAwareLoadTester:
                                 body = await response.json()
                                 if "tenant_id" in body and body["tenant_id"] != tenant_id:
                                     errors.append(
-                                        f"Tenant isolation breach: {tenant_id} "
-                                        f"saw data from {body['tenant_id']}"
+                                        f"Tenant isolation breach: {tenant_id} saw data from {body['tenant_id']}"
                                     )
                             except (json.JSONDecodeError, aiohttp.ContentTypeError):
                                 pass  # Non-JSON response, skip isolation check
                         else:
                             counters["failed"] += 1
-                            errors.append(
-                                f"Unexpected status {response.status} for tenant {tenant_id}"
-                            )
+                            errors.append(f"Unexpected status {response.status} for tenant {tenant_id}")
 
                 except Exception as e:
                     counters["failed"] += 1
@@ -554,11 +553,13 @@ class TenantAwareLoadTester:
 
                 for item in data:
                     if item.get("tenant_id") != tenant_id:
-                        isolation_breaches.append({
-                            "expected_tenant": tenant_id,
-                            "actual_tenant": item.get("tenant_id"),
-                            "item_id": item.get("id"),
-                        })
+                        isolation_breaches.append(
+                            {
+                                "expected_tenant": tenant_id,
+                                "actual_tenant": item.get("tenant_id"),
+                                "item_id": item.get("id"),
+                            }
+                        )
 
         # High concurrency test
         await asyncio.gather(*[query_and_verify(t) for t in test_tenants])
@@ -683,11 +684,7 @@ export default function() {{
                 return {"status": "failed", "error": "k6 output file not found"}
 
             # Calculate metrics
-            http_reqs = [
-                r
-                for r in results
-                if r.get("type") == "Point" and "http_req_duration" in r.get("metric", "")
-            ]
+            http_reqs = [r for r in results if r.get("type") == "Point" and "http_req_duration" in r.get("metric", "")]
 
             if http_reqs:
                 durations = [r["data"]["value"] for r in http_reqs]
@@ -780,12 +777,14 @@ class PerformanceAnalyzer:
             analysis["tenant_breakdown"].append(tenant_analysis)
 
             if row["avg_duration"] > self._slow_query_threshold_ms:
-                analysis["recommendations"].append({
-                    "tenant": row["tenant_id"][:8],
-                    "issue": "Slow average response time",
-                    "suggestion": "Consider adding database index or cache layer",
-                    "priority": "high" if row["avg_duration"] > 500 else "medium",
-                })
+                analysis["recommendations"].append(
+                    {
+                        "tenant": row["tenant_id"][:8],
+                        "issue": "Slow average response time",
+                        "suggestion": "Consider adding database index or cache layer",
+                        "priority": "high" if row["avg_duration"] > 500 else "medium",
+                    }
+                )
 
         return analysis
 
@@ -812,14 +811,16 @@ class PerformanceAnalyzer:
         recommendations = []
 
         if hit_rate < self._cache_hit_threshold:
-            recommendations.append({
-                "issue": f"Low cache hit rate: {hit_rate:.1%}",
-                "suggestions": [
-                    "Increase cache TTL for stable data",
-                    "Implement cache warming for hot data",
-                    "Review cache key patterns for efficiency",
-                ],
-            })
+            recommendations.append(
+                {
+                    "issue": f"Low cache hit rate: {hit_rate:.1%}",
+                    "suggestions": [
+                        "Increase cache TTL for stable data",
+                        "Implement cache warming for hot data",
+                        "Review cache key patterns for efficiency",
+                    ],
+                }
+            )
 
         keys = await self.redis.scan("cache", "*")
 
@@ -930,24 +931,28 @@ class AutoScaler:
             if cpu_util > 70 or request_rate > 1000:
                 desired = min(current_replicas + 2, 20)
                 if desired > current_replicas:
-                    scaling_decisions.append({
-                        "service": service,
-                        "action": "scale_up",
-                        "from": current_replicas,
-                        "to": desired,
-                        "reason": f"CPU {cpu_util}%, RPS {request_rate}",
-                    })
+                    scaling_decisions.append(
+                        {
+                            "service": service,
+                            "action": "scale_up",
+                            "from": current_replicas,
+                            "to": desired,
+                            "reason": f"CPU {cpu_util}%, RPS {request_rate}",
+                        }
+                    )
 
             # Scale down if CPU < 30% and replicas > 3
             elif cpu_util < 30 and current_replicas > 3:
                 desired = max(current_replicas - 1, 3)
-                scaling_decisions.append({
-                    "service": service,
-                    "action": "scale_down",
-                    "from": current_replicas,
-                    "to": desired,
-                    "reason": f"Low CPU utilization {cpu_util}%",
-                })
+                scaling_decisions.append(
+                    {
+                        "service": service,
+                        "action": "scale_down",
+                        "from": current_replicas,
+                        "to": desired,
+                        "reason": f"Low CPU utilization {cpu_util}%",
+                    }
+                )
 
         return {
             "evaluated_at": datetime.utcnow().isoformat(),
@@ -967,20 +972,24 @@ class AutoScaler:
                     body={"spec": {"replicas": decision["to"]}},
                 )
 
-                applied.append({
-                    "service": decision["service"],
-                    "action": decision["action"],
-                    "new_replicas": decision["to"],
-                    "status": "applied",
-                })
+                applied.append(
+                    {
+                        "service": decision["service"],
+                        "action": decision["action"],
+                        "new_replicas": decision["to"],
+                        "status": "applied",
+                    }
+                )
             except Exception as e:
                 logger.error("Failed to scale %s: %s", decision["service"], e)
-                applied.append({
-                    "service": decision["service"],
-                    "action": decision["action"],
-                    "status": "failed",
-                    "error": str(e),
-                })
+                applied.append(
+                    {
+                        "service": decision["service"],
+                        "action": decision["action"],
+                        "status": "failed",
+                        "error": str(e),
+                    }
+                )
 
         return {"applied": applied}
 

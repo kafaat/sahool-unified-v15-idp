@@ -15,9 +15,11 @@ Usage:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import time
+import uuid as _uuid
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 
@@ -138,8 +140,6 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
         # Fire-and-forget: do not block the response on audit writes.
         db_pool = getattr(request.app.state, "db_pool", None)
         if db_pool is not None:
-            import asyncio
-
             asyncio.create_task(_persist_audit_entry(db_pool, accessed_tenant_id, user_id, request, log_data))
 
         return response
@@ -155,8 +155,6 @@ async def _persist_audit_entry(
     """Write audit entry to tenant_audit_log in the background."""
     try:
         # Validate tenant_id is a valid UUID before inserting
-        import uuid as _uuid
-
         try:
             tenant_uuid = str(_uuid.UUID(accessed_tenant_id))
         except (ValueError, AttributeError):

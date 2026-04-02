@@ -666,7 +666,7 @@ class TenantStorage:
             tenant_id = get_current_tenant_id()
 
         if self._use_prefix_mode:
-            return f"tenant-{tenant_id[:12]}/{path}"
+            return f"tenant-{tenant_id}/{path}"
 
         return path
 

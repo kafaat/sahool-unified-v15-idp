@@ -380,22 +380,20 @@ async def nats_client(test_config: TestConfig):
 
         nc = NATS()
 
-        # Quick connectivity check – only 3 retries (6 s total) to fail fast
+        # Quick connectivity check with asyncio timeout to fail fast
         # when NATS is not reachable (e.g. CI without Docker Compose).
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                await nc.connect(test_config.nats_url)
-                yield nc
-                await nc.close()
-                return
-            except Exception:
-                if attempt < max_retries - 1:
-                    await asyncio.sleep(2)
-                else:
-                    pytest.skip(
-                        f"NATS not reachable at {test_config.nats_url} after {max_retries} attempts"
-                    )
+        try:
+            await asyncio.wait_for(
+                nc.connect(test_config.nats_url),
+                timeout=5.0,
+            )
+            yield nc
+            await nc.close()
+            return
+        except (Exception, TimeoutError):
+            pytest.skip(
+                f"NATS not reachable at {test_config.nats_url}"
+            )
     except ImportError:
         # NATS client not installed, yield mock
         from unittest.mock import AsyncMock

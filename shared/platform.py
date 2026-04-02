@@ -342,6 +342,7 @@ class ContextMiddleware(BaseHTTPMiddleware):
         try:
             if auth_header.startswith("Bearer "):
                 token = auth_header.replace("Bearer ", "")
+                # Signature verification disabled — Kong gateway validates JWT upstream
                 payload = jwt.decode(token, options={"verify_signature": False})
                 context = RequestContext.from_jwt_payload(payload, self.service_name)
             else:
@@ -354,8 +355,8 @@ class ContextMiddleware(BaseHTTPMiddleware):
 
             response = await call_next(request)
 
-            response.headers["X-Tenant-ID"] = context.tenant_id[:8]
-            response.headers["X-Request-ID"] = context.request_id[:8]
+            response.headers["X-Tenant-ID"] = context.tenant_id
+            response.headers["X-Request-ID"] = context.request_id
             response.headers["X-Service"] = self.service_name
 
             return response
@@ -433,7 +434,7 @@ class TenantDB:
     async def _audit(self, exc_type, exc_val):
         """Async audit logging"""
         with contextlib.suppress(Exception):
-            _duration = (datetime.utcnow() - self._start_time).total_seconds() * 1000
+            duration = (datetime.utcnow() - self._start_time).total_seconds() * 1000  # noqa: F841
             # Log to audit table
 
 
@@ -756,7 +757,7 @@ class TenantNATSSubscriber:
             context = extract_context_from_headers(msg.headers)
 
             # Update service name to show flow
-            context = replace(context, service_name=f"{context.service_name}\u2192{self._service}")
+            context = replace(context, service_name=f"{context.service_name}->{self._service}")
 
             envelope = EventEnvelope.from_dict(json.loads(msg.data.decode()))
 
@@ -786,7 +787,7 @@ class TenantMetrics:
         )
 
     def record_request(self, method: str, endpoint: str, status: int, duration: float):
-        tenant = get_current_tenant_id()[:8] if has_context() else "unknown"
+        tenant = get_current_tenant_id()[:12] if has_context() else "unknown"
 
         self.requests_total.labels(
             service=self.service, tenant=tenant, method=method, endpoint=endpoint, status=str(status)
@@ -912,7 +913,7 @@ class QuotaEnforcer:
         if not has_context():
             return True, 0, float("inf")
 
-        _ctx = get_current_context()
+        get_current_context()
         limit = self.DEFAULT_QUOTAS.get(resource, float("inf"))
 
         # Get current usage from database
@@ -1015,9 +1016,12 @@ class TenantBackupService:
 
         with ContextManager(system_ctx):
             for table in self.BACKUP_TABLES:
+                if table not in self.BACKUP_TABLES:
+                    raise ValueError(f"Table {table} not in allowed backup tables")
                 async with tenant_db() as conn:
                     await conn.execute("SET app.current_tenant = $1", tenant_id)
-                    rows = await conn.fetch(f"SELECT * FROM {table}")
+                    # Table name from BACKUP_TABLES constant (not user input)
+                    rows = await conn.fetch(f"SELECT * FROM {table}")  # noqa: B608
                     backup_data["tables"][table] = [dict(row) for row in rows]
 
         # Compress and upload

@@ -7,7 +7,7 @@ predictions and publish advisory recommendations.
 """
 
 import asyncio
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog

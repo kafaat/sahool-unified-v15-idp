@@ -40,9 +40,10 @@ consumer_groups:
           window_type: sliding
           # Storage configuration - تكوين التخزين
           strategy: redis
-          redis_host: kong-redis
-          redis_port: 6379
-          redis_database: 0
+          redis:
+            host: kong-redis
+            port: 6379
+            database: 0
           # Response headers - رؤوس الاستجابة
           header_name: X-RateLimit-Starter
           hide_client_headers: false
@@ -76,9 +77,10 @@ consumer_groups:
             - 3600
           window_type: sliding
           strategy: redis
-          redis_host: kong-redis
-          redis_port: 6379
-          redis_database: 0
+          redis:
+            host: kong-redis
+            port: 6379
+            database: 0
           header_name: X-RateLimit-Professional
           hide_client_headers: false
           fault_tolerant: true
@@ -109,9 +111,10 @@ consumer_groups:
             - 3600
           window_type: sliding
           strategy: redis
-          redis_host: kong-redis
-          redis_port: 6379
-          redis_database: 0
+          redis:
+            host: kong-redis
+            port: 6379
+            database: 0
           header_name: X-RateLimit-Enterprise
           hide_client_headers: false
           fault_tolerant: true
@@ -142,9 +145,10 @@ consumer_groups:
             - 3600
           window_type: sliding
           strategy: redis
-          redis_host: kong-redis
-          redis_port: 6379
-          redis_database: 0
+          redis:
+            host: kong-redis
+            port: 6379
+            database: 0
           header_name: X-RateLimit-Internal
           hide_client_headers: false
           fault_tolerant: true
@@ -175,9 +179,10 @@ consumer_groups:
             - 3600
           window_type: sliding
           strategy: redis
-          redis_host: kong-redis
-          redis_port: 6379
-          redis_database: 0
+          redis:
+            host: kong-redis
+            port: 6379
+            database: 0
           header_name: X-RateLimit-Research
           hide_client_headers: false
           fault_tolerant: true
@@ -209,9 +214,10 @@ plugins:
       hour: 500
       day: 10000
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
+      redis:
+        host: kong-redis
+        port: 6379
+        database: 0
       fault_tolerant: true
       hide_client_headers: false
       error_code: 429
@@ -228,8 +234,9 @@ plugins:
       minute: 60
       hour: 3000
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "Vision API rate limit exceeded. الحد الأقصى لطلبات خدمة الرؤية. Upgrade to Enterprise for higher limits."
 
@@ -244,8 +251,9 @@ plugins:
       minute: 30
       hour: 1500
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "Terrain API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة التضاريس."
 
@@ -258,8 +266,9 @@ plugins:
       minute: 30
       hour: 1500
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "Hydrology API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة الهيدرولوجيا."
 
@@ -272,8 +281,9 @@ plugins:
       minute: 30
       hour: 1500
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "Leveling API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة التسوية."
 
@@ -288,8 +298,9 @@ plugins:
       minute: 60
       hour: 3000
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "Edge API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة الحافة."
 
@@ -304,8 +315,9 @@ plugins:
       minute: 60
       hour: 2000
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "LLM API rate limit exceeded. Consider upgrading for higher AI usage limits. تم تجاوز حد طلبات الذكاء الاصطناعي."
 
@@ -320,8 +332,9 @@ plugins:
       minute: 10       # Very strict for auth - صارم جداً للمصادقة
       hour: 100
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "Too many authentication attempts. Please wait before trying again. محاولات مصادقة كثيرة جداً."
 
@@ -336,8 +349,9 @@ plugins:
       minute: 120      # High for messaging - عالي للمراسلة
       hour: 5000
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "WhatsApp API rate limit exceeded. تم تجاوز حد طلبات واتساب."
 
@@ -352,8 +366,9 @@ plugins:
       minute: 30
       hour: 500
       policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
+      redis:
+        host: kong-redis
+        port: 6379
       fault_tolerant: true
       error_message: "Billing API rate limit exceeded. تم تجاوز حد طلبات الفوترة."
 
@@ -403,8 +418,9 @@ services:
           minute: 30
           hour: 500
           policy: redis
-          redis_host: kong-redis
-          redis_port: 6379
+          redis:
+            host: kong-redis
+            port: 6379
           fault_tolerant: true
           error_message: "Starter tier rate limit exceeded. Upgrade to Professional for higher limits. تم تجاوز حد الباقة الأساسية."
 
@@ -423,8 +439,9 @@ services:
           minute: 60
           hour: 2000
           policy: redis
-          redis_host: kong-redis
-          redis_port: 6379
+          redis:
+            host: kong-redis
+            port: 6379
           fault_tolerant: true
           error_message: "Professional tier rate limit exceeded. Upgrade to Enterprise for higher limits. تم تجاوز حد الباقة المتوسطة."
 
@@ -443,8 +460,9 @@ services:
           minute: 120
           hour: 5000
           policy: redis
-          redis_host: kong-redis
-          redis_port: 6379
+          redis:
+            host: kong-redis
+            port: 6379
           fault_tolerant: true
           error_message: "Enterprise tier rate limit reached. Contact support for custom limits. تم الوصول لحد الباقة المتقدمة."
 
@@ -463,8 +481,9 @@ services:
           minute: 120
           hour: 10000
           policy: redis
-          redis_host: kong-redis
-          redis_port: 6379
+          redis:
+            host: kong-redis
+            port: 6379
           fault_tolerant: true
           error_message: "Research tier rate limit exceeded. تم تجاوز حد باقة البحث العلمي."
 
@@ -483,8 +502,9 @@ services:
           minute: 1000
           hour: 50000
           policy: redis
-          redis_host: kong-redis
-          redis_port: 6379
+          redis:
+            host: kong-redis
+            port: 6379
           fault_tolerant: true
           error_message: "Internal rate limit exceeded. Check service health. تم تجاوز الحد الداخلي."
 

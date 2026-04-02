@@ -15,6 +15,7 @@ Usage:
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from dataclasses import asdict, dataclass, field
@@ -132,5 +133,32 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
                 await self.audit_callback(entry)
             except Exception as exc:
                 logger.error("Failed to execute audit callback: %s", exc)
+
+        # Persist to tenant_audit_log table if db_pool is available
+        db_pool = getattr(request.app.state, "db_pool", None)
+        if db_pool is not None:
+            try:
+                conn = await db_pool.acquire(timeout=5.0)
+                try:
+                    await conn.execute(
+                        """
+                        INSERT INTO tenant_audit_log
+                            (tenant_id, user_id, service_name, op_type,
+                             ip_address, user_agent, metadata, created_at)
+                        VALUES ($1::UUID, $2, $3, $4, $5::INET, $6, $7::JSONB, NOW())
+                        """,
+                        accessed_tenant_id,
+                        user_id or "unknown",
+                        request.app.title if hasattr(request.app, "title") else "unknown",
+                        "CROSS_TENANT",
+                        entry.ip_address,
+                        entry.user_agent,
+                        json.dumps(log_data),
+                    )
+                finally:
+                    await db_pool.release(conn)
+            except Exception as exc:
+                # Never fail the request due to audit logging failures
+                logger.warning("Failed to persist audit entry to DB: %s", exc)
 
         return response

@@ -886,7 +886,7 @@ class UsageMeter:
             for record in self._buffer:
                 await conn.execute(
                     """
-                    INSERT INTO usage_metering (tenant_id, resource_type, quantity, unit, timestamp, metadata)
+                    INSERT INTO usage_metering (tenant_id, resource_type, quantity, unit, recorded_at, metadata)
                     VALUES ($1, $2, $3, $4, $5, $6)
                 """,
                     record.tenant_id,

@@ -250,7 +250,7 @@ Overall Readiness: ████████████████████ 
 
 | Severity | Count | Status |
 |----------|-------|--------|
-| 🔴 **Critical** | 12 | ✅ All 12 closed |
+| 🔴 **Critical** | 13 | ✅ All 13 closed |
 | 🟡 **High** | 20 | ✅ All 20 closed |
 | 🟢 **Medium** | 10 | ✅ All 10 closed |
 | 🟢 **Info** | 4 | ✅ All 4 verified |
@@ -258,7 +258,7 @@ Overall Readiness: ████████████████████ 
 
 ### Critical Items Detail | تفاصيل العناصر الحرجة
 
-All 12 critical items are resolved:
+All 13 critical items are resolved:
 
 1. ✅ **DB-001**: `tenant_audit_log` table created with RLS
 2. ✅ **DB-002**: `usage_metering` table created with RLS
@@ -281,7 +281,7 @@ All 12 critical items are resolved:
 ### Pre-Release Validation | التحقق قبل الإصدار
 
 - [x] All 46 gaps identified and tracked
-- [x] All 12 critical gaps closed
+- [x] All 13 critical gaps closed
 - [x] All 20 high-priority gaps closed
 - [x] All medium/info gaps closed or verified
 - [x] Database migration `011_tenant_gaps_closure.sql` tested

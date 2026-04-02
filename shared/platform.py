@@ -20,7 +20,7 @@ from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass, field, replace
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any, BinaryIO, Generic, TypeVar
 
 import asyncpg
@@ -39,7 +39,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     USER = "user"
     ADMIN = "admin"
     SUPER_ADMIN = "super_admin"

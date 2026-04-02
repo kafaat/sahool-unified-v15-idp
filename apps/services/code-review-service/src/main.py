@@ -27,6 +27,7 @@ import aiohttp
 import uvicorn
 from config.settings import Settings
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -734,6 +735,20 @@ app = FastAPI(
 
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# CORS middleware - تكوين مشاركة الموارد عبر المصادر
+ALLOWED_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+).split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-Id"],
+)
 
 app.add_middleware(TenantContextMiddleware)
 

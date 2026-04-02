@@ -54,6 +54,14 @@ from .auto_audit import (
     audit_operation,
     create_audit,
 )
+from .config import (
+    CI_CONFIG,
+    DEFAULT_CONFIG,
+    SAFE_CONFIG,
+    STRICT_CONFIG,
+    AutoFixConfig,
+    DiagnosticToolConfig,
+)
 from .diagnostics import CodeDiagnostics, DiagnosticError
 from .engine import AutoFixEngine, quick_diagnose, quick_fix
 from .fixers import CodeFixer, FixerError
@@ -113,6 +121,13 @@ __all__ = [
     "AutoFixEngine",
     "quick_diagnose",
     "quick_fix",
+    # Configuration
+    "AutoFixConfig",
+    "DiagnosticToolConfig",
+    "DEFAULT_CONFIG",
+    "SAFE_CONFIG",
+    "STRICT_CONFIG",
+    "CI_CONFIG",
     # Diagnostics
     "CodeDiagnostics",
     "DiagnosticError",

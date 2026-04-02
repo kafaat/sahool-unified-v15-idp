@@ -105,6 +105,135 @@ class SemanticSimilarityProvider:
         raise NotImplementedError
 
 
+class KeywordSimilarityProvider(SemanticSimilarityProvider):
+    """Lightweight keyword-based similarity provider (offline-first fallback).
+    مزود التشابه القائم على الكلمات المفتاحية (بديل بدون اتصال)
+
+    Uses TF-IDF-style word overlap with agricultural domain boosting.
+    Suitable for environments without embedding model access.
+    """
+
+    # Agricultural terms that carry extra weight in similarity
+    _AGRI_TERMS = {
+        "wheat",
+        "rice",
+        "corn",
+        "barley",
+        "tomato",
+        "date",
+        "palm",
+        "irrigation",
+        "fertilizer",
+        "pesticide",
+        "soil",
+        "NDVI",
+        "yield",
+        "harvest",
+        "planting",
+        "drought",
+        "salinity",
+        "pest",
+        "disease",
+        "قمح",
+        "أرز",
+        "ذرة",
+        "شعير",
+        "طماطم",
+        "نخيل",
+        "ري",
+        "سماد",
+        "مبيد",
+        "تربة",
+        "محصول",
+        "حصاد",
+        "زراعة",
+        "جفاف",
+        "ملوحة",
+        "آفة",
+        "مرض",
+    }
+
+    def similarity(self, text_a: str, text_b: str) -> float:
+        """Compute word-overlap similarity with agricultural term boosting."""
+        if not text_a or not text_b:
+            return 0.0
+
+        words_a = set(text_a.lower().split())
+        words_b = set(text_b.lower().split())
+
+        if not words_a or not words_b:
+            return 0.0
+
+        # Jaccard-style overlap
+        intersection = words_a & words_b
+        union = words_a | words_b
+        base_score = len(intersection) / len(union) if union else 0.0
+
+        # Boost for shared agricultural terms
+        agri_overlap = intersection & self._AGRI_TERMS
+        agri_boost = min(0.2, len(agri_overlap) * 0.05)
+
+        return min(1.0, base_score + agri_boost)
+
+
+class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
+    """Semantic similarity via EmbeddingsAdapter (GAP-18).
+    التشابه الدلالي عبر محول التضمين
+
+    Uses the shared EmbeddingsAdapter for high-quality vector-based similarity.
+    Falls back to KeywordSimilarityProvider if embeddings are unavailable.
+
+    Example:
+        from shared.ai.embeddings import EmbeddingsAdapter, EmbeddingConfig
+        adapter = EmbeddingsAdapter(EmbeddingConfig(...))
+        provider = EmbeddingsSimilarityProvider(adapter)
+        score = provider.similarity("wheat irrigation", "ري القمح")
+    """
+
+    def __init__(self, embeddings_adapter: Any = None) -> None:
+        self._adapter = embeddings_adapter
+        self._fallback = KeywordSimilarityProvider()
+        self._initialized = False
+
+    def similarity(self, text_a: str, text_b: str) -> float:
+        """Compute semantic similarity using embeddings with keyword fallback."""
+        if not text_a or not text_b:
+            return 0.0
+
+        # Try embedding-based similarity
+        if self._adapter is not None:
+            try:
+                import asyncio
+
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # Cannot await in sync context; fall back
+                    return self._sync_similarity(text_a, text_b)
+                return loop.run_until_complete(self._async_similarity(text_a, text_b))
+            except Exception:
+                logger.debug("embeddings_similarity_fallback", reason="adapter_error")
+                return self._fallback.similarity(text_a, text_b)
+
+        return self._fallback.similarity(text_a, text_b)
+
+    def _sync_similarity(self, text_a: str, text_b: str) -> float:
+        """Synchronous cosine similarity using cached embeddings if available."""
+        if hasattr(self._adapter, "similarity_sync"):
+            try:
+                return float(self._adapter.similarity_sync(text_a, text_b))
+            except Exception:
+                pass
+        return self._fallback.similarity(text_a, text_b)
+
+    async def _async_similarity(self, text_a: str, text_b: str) -> float:
+        """Async embedding-based similarity."""
+        try:
+            result = await self._adapter.similarity(text_a, text_b)
+            return float(result)
+        except Exception:
+            return self._fallback.similarity(text_a, text_b)
+
+
 class CorrectiveRetrievalEngine:
     """CRAG-based engine for evaluating and refining retrieved knowledge chunks.
 

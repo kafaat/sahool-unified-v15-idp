@@ -369,7 +369,7 @@ class QualityOrchestrator:
                             warnings += 1
                     result.details.append({"tool": "bandit", "issues": len(results_list)})
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("bandit: failed to parse JSON output | فشل في تحليل مخرجات Bandit")
         else:
             result.tools_skipped.append("bandit")
 
@@ -384,7 +384,7 @@ class QualityOrchestrator:
                     errors += len(sg_results)
                     result.details.append({"tool": "semgrep", "issues": len(sg_results)})
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("semgrep: failed to parse JSON output | فشل في تحليل مخرجات Semgrep")
         else:
             result.tools_skipped.append("semgrep")
 
@@ -420,7 +420,7 @@ class QualityOrchestrator:
                             warnings += 1
                     result.details.append({"tool": "npm_audit", "vulnerabilities": len(vulns)})
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("npm_audit: failed to parse JSON output | فشل في تحليل مخرجات npm audit")
         else:
             result.tools_skipped.append("npm_audit")
 
@@ -436,7 +436,7 @@ class QualityOrchestrator:
                     errors += len(vuln_deps)
                     result.details.append({"tool": "pip_audit", "vulnerable_deps": len(vuln_deps)})
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("pip_audit: failed to parse JSON output | فشل في تحليل مخرجات pip-audit")
         else:
             result.tools_skipped.append("pip_audit")
 
@@ -466,7 +466,7 @@ class QualityOrchestrator:
                         warnings += len(cycles)
                         result.details.append({"tool": "madge", "circular_deps": len(cycles)})
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("madge: failed to parse JSON output | فشل في تحليل مخرجات madge")
         else:
             result.tools_skipped.append("madge")
 
@@ -481,7 +481,7 @@ class QualityOrchestrator:
                     warnings += unused_count
                     result.details.append({"tool": "knip", "unused": unused_count})
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("knip: failed to parse JSON output | فشل في تحليل مخرجات knip")
         else:
             result.tools_skipped.append("knip")
 
@@ -525,7 +525,7 @@ class QualityOrchestrator:
                     warnings += complex_funcs
                     result.details.append({"tool": "radon", "complex_functions": complex_funcs})
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("radon: failed to parse JSON output | فشل في تحليل مخرجات radon")
         else:
             result.tools_skipped.append("radon")
 
@@ -597,7 +597,7 @@ class QualityOrchestrator:
                             elif lvl == "warning":
                                 warnings += 1
                     except json.JSONDecodeError:
-                        pass
+                        logger.warning("hadolint: failed to parse JSON output for %s | فشل في تحليل Hadolint", df)
             result.tools_run.append("hadolint")
             result.details.append(
                 {
@@ -622,7 +622,7 @@ class QualityOrchestrator:
                         errors += secrets_found
                         result.details.append({"tool": "detect_secrets", "secrets": secrets_found})
                 except json.JSONDecodeError:
-                    pass
+                    logger.warning("detect_secrets: failed to parse JSON output | فشل في تحليل detect-secrets")
         else:
             result.tools_skipped.append("detect_secrets")
 

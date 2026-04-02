@@ -99,12 +99,16 @@ class WeatherPublisher:
         # of 60 retries × 2s = 120s, which would push past the health-check window.
         # max_reconnect_attempts=3 caps the wait to ~6s; the publisher falls back to
         # a no-op if it cannot connect, which is the correct degraded behaviour.
-        await self.nc.connect(
-            self.nats_url,
-            max_reconnect_attempts=3,
-        )
-        self._connected = True
-        logger.info("Weather Publisher connected to NATS")
+        try:
+            await self.nc.connect(
+                self.nats_url,
+                max_reconnect_attempts=3,
+            )
+            self._connected = True
+            logger.info("Weather Publisher connected to NATS")
+        except Exception as e:
+            logger.error("Failed to connect to NATS (degraded mode): %s", e)
+            self.nc = None
 
     @property
     def _is_available(self) -> bool:

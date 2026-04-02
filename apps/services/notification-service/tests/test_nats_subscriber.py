@@ -36,7 +36,7 @@ class TestSubscriberConfig:
         config = SubscriberConfig()
         assert config.name == "notification-subscriber"
         assert config.reconnect_time_wait == 2
-        assert config.max_reconnect_attempts == 60
+        assert config.max_reconnect_attempts == 10
         assert config.user is None
         assert config.password is None
         assert len(config.analysis_subjects) > 0

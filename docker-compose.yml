@@ -4701,6 +4701,21 @@ volumes:
   # FIX: Volumes originally created under project "sahool-1" must be declared as
   # external so Docker Compose uses the existing named volumes instead of trying
   # to create new project-scoped ones (which would emit ownership-mismatch warnings).
+  #
+  # NEW MACHINE SETUP: Before running `docker compose up` for the first time,
+  # pre-create all external volumes with:
+  #   docker volume create sahool-postgres-data
+  #   docker volume create sahool-nats-data
+  #   docker volume create sahool-vault-data
+  #   docker volume create sahool-mlflow-artifacts
+  #   docker volume create sahool-redis-data
+  #   docker volume create sahool-qdrant-data
+  #   docker volume create sahool-mqtt-data
+  #   docker volume create sahool-mqtt-logs
+  #   docker volume create sahool-mqtt-passwd
+  #   docker volume create sahool-etcd-data
+  #   docker volume create sahool-minio-data
+  #   docker volume create sahool-terrain-dem-data
   postgres_data:
     name: sahool-postgres-data
     external: true
@@ -4712,11 +4727,13 @@ volumes:
     external: true
   mlflow_artifacts:
     name: sahool-mlflow-artifacts
+    external: true
   redis_data:
     name: sahool-redis-data
     external: true
   qdrant_data:
     name: sahool-qdrant-data
+    external: true
   mqtt_data:
     name: sahool-mqtt-data
     external: true

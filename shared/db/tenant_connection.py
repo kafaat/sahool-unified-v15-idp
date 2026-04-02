@@ -40,21 +40,21 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # ──────────────────────────────────────────────────────────────────────────────
-# WARNING: Row-Level Security (RLS) gap
+# NOTICE: Row-Level Security (RLS) adoption in progress
 # ──────────────────────────────────────────────────────────────────────────────
-# This module provides tenant_connection() for RLS-enforced DB access, but
-# most services still use raw asyncpg pools WITHOUT setting RLS session
-# variables.  Until all 72 services adopt tenant_connection() or call
-# setup_tenant_rls(), cross-tenant data leaks are possible at the DB layer.
+# This module provides tenant_connection() for RLS-enforced DB access.
+# Migration 011_tenant_gaps_closure.sql enables FORCE ROW LEVEL SECURITY on
+# all multi-tenant tables (core, billing, audit, metering), so even the table
+# owner is subject to RLS policies.
 #
-# To close the gap incrementally, call setup_tenant_rls(app, db_pool) in your
-# service's lifespan function.  See docstring below for details.
+# Services should call setup_tenant_rls(app, db_pool) in their lifespan
+# function and use tenant_pool.acquire() for all tenant-scoped queries.
+# Until all services have adopted this pattern, the CI enforcement script
+# (scripts/ci/enforce-tenant-isolation.py) tracks remaining violations.
 # ──────────────────────────────────────────────────────────────────────────────
-logger.warning(
-    "shared.db.tenant_connection loaded but RLS is NOT enforced by default. "
-    "Services must explicitly call setup_tenant_rls(app, db_pool) in their "
-    "lifespan to enable Row-Level Security.  Without this, cross-tenant data "
-    "access is only prevented by application-layer filtering."
+logger.info(
+    "shared.db.tenant_connection loaded. Call setup_tenant_rls(app, db_pool) "
+    "in your service lifespan to enable Row-Level Security enforcement."
 )
 
 
@@ -234,7 +234,22 @@ async def verify_tenant_isolation(app: FastAPI) -> bool:
         logger.warning("verify_tenant_isolation: no db_pool on app.state, skipping RLS check")
         return False
 
-    critical_tables = ["fields", "tasks", "farms", "ndvi_readings", "sync_status"]
+    critical_tables = [
+        # Core tables (from migration 010)
+        "fields",
+        "tasks",
+        "users",
+        "equipment",
+        # Billing tables (from billing-core migration)
+        "subscriptions",
+        "invoices",
+        "payments",
+        "usage_records",
+        # Audit & metering tables (from migration 011)
+        "tenant_audit_log",
+        "usage_metering",
+        "security_audit_log",
+    ]
     all_ok = True
 
     try:

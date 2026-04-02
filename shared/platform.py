@@ -379,7 +379,8 @@ class ContextMiddleware(BaseHTTPMiddleware):
             else:
                 context = RequestContext.from_headers(dict(request.headers), self.service_name)
         except Exception as e:
-            raise HTTPException(status_code=401, detail=f"Invalid authentication: {e}") from e
+            logger.warning("Authentication failed: %s", e)
+            raise HTTPException(status_code=401, detail="Invalid or missing authentication credentials") from e
 
         with ContextManager(context):
             request.state.context = context
@@ -552,7 +553,7 @@ class TenantRedis:
     def _get_key(self, resource: str, key: str) -> str:
         """Generate tenant-isolated key: {tenant_id}:{service}:{resource}:{key}"""
         ctx = get_current_context()
-        return f"{ctx.tenant_id[:12]}:{self._service}:{resource}:{key}"
+        return f"{ctx.tenant_id}:{self._service}:{resource}:{key}"
 
     @require_context()
     async def get(self, resource: str, key: str) -> Any | None:
@@ -591,7 +592,7 @@ class TenantRedis:
     async def scan(self, resource: str, pattern: str = "*") -> list[str]:
         """Scan keys for current tenant ONLY"""
         ctx = get_current_context()
-        full_pattern = f"{ctx.tenant_id[:12]}:{self._service}:{resource}:{pattern}"
+        full_pattern = f"{ctx.tenant_id}:{self._service}:{resource}:{pattern}"
 
         keys = []
         cursor = 0
@@ -603,7 +604,7 @@ class TenantRedis:
                 break
 
         # Strip tenant, service and resource prefix, return resource-local keys
-        prefix = f"{ctx.tenant_id[:12]}:{self._service}:{resource}:"
+        prefix = f"{ctx.tenant_id}:{self._service}:{resource}:"
         prefix_len = len(prefix)
         return [k[prefix_len:] for k in keys]
 

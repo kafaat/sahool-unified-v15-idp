@@ -275,7 +275,7 @@ class TokenRevocationService:
         # Also persist to Redis for cross-instance revocation
         if self._redis_backend.available:
             if not self._redis_backend.revoke_token(jti, expires_at, reason):
-                logger.error(
+                logger.error(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
                     "Redis revoke_token write failed for jti=%s... — revocation is local-only; "
                     "other instances may still accept this token.",
                     jti[:8] if len(jti) >= 8 else jti,
@@ -331,7 +331,7 @@ class TokenRevocationService:
         # Also persist to Redis for cross-instance revocation
         if self._redis_backend.available:
             if not self._redis_backend.revoke_user_tokens(user_id):
-                logger.error(
+                logger.error(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
                     "Redis revoke_user_tokens write failed for user=%s — revocation is local-only; "
                     "other instances may still accept tokens for this user.",
                     user_id,
@@ -401,7 +401,7 @@ class TokenRevocationService:
         # Also persist to Redis for cross-instance revocation
         if self._redis_backend.available:
             if not self._redis_backend.revoke_tenant_tokens(tenant_id):
-                logger.error(
+                logger.error(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
                     "Redis revoke_tenant_tokens write failed for tenant=%s — revocation is local-only; "
                     "other instances may still accept tokens for this tenant.",
                     tenant_id,

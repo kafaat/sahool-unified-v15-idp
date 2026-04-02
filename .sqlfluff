@@ -2,6 +2,9 @@
 dialect = postgres
 templater = raw
 max_line_length = 120
+# Disable RF06 (unnecessary quoting) - we quote SQL keyword identifiers
+# intentionally to satisfy RF04 (keywords as identifiers)
+exclude_rules = RF06
 
 [sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper

@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS wallet_audit_log (
     wallet_id UUID NOT NULL REFERENCES wallets (id) ON DELETE CASCADE,
     transaction_id UUID REFERENCES transactions (id) ON DELETE SET NULL,
     user_id UUID REFERENCES users (id),
-    operation VARCHAR(50) NOT NULL,
+    "operation" VARCHAR(50) NOT NULL,
     balance_before DECIMAL(14, 2) NOT NULL,
     balance_after DECIMAL(14, 2) NOT NULL,
     amount DECIMAL(14, 2) NOT NULL,

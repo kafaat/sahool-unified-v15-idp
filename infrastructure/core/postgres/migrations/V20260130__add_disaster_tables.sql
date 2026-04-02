@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS public.disaster_reports (
     tenant_id UUID NOT NULL,
 
     -- Classification
-    type VARCHAR(50) NOT NULL, -- drought, flood, pest, disease, frost, hail, fire
+    "type" VARCHAR(50) NOT NULL, -- drought, flood, pest, disease, frost, hail, fire
     severity VARCHAR(20) NOT NULL, -- low, medium, high, critical
     status VARCHAR(20) NOT NULL DEFAULT 'reported', -- reported, verified, active, resolved
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.disaster_reports (
     -- Location
     governorate VARCHAR(100),
     district VARCHAR(100),
-    location GEOMETRY (POINT, 4326),
+    "location" GEOMETRY (POINT, 4326),
 
     -- Impact assessment
     affected_radius_km NUMERIC(10, 2),

@@ -14,6 +14,7 @@ import gzip
 import inspect
 import json
 import logging
+import os
 import re
 import uuid
 from collections.abc import Callable
@@ -346,6 +347,11 @@ def with_event_context(func: Callable):
 class ContextMiddleware(BaseHTTPMiddleware):
     """Extracts RequestContext from HTTP requests — MUST be first middleware"""
 
+    # When True, JWT signature verification is skipped because an upstream
+    # gateway (e.g. Kong) already validated the token.  Set via the
+    # TRUST_GATEWAY_JWT environment variable.  Default: False (verify).
+    _trust_gateway: bool = os.getenv("TRUST_GATEWAY_JWT", "").lower() in ("1", "true", "yes")
+
     def __init__(self, app, service_name: str):
         super().__init__(app)
         self.service_name = service_name
@@ -356,8 +362,19 @@ class ContextMiddleware(BaseHTTPMiddleware):
         try:
             if auth_header.startswith("Bearer "):
                 token = auth_header.replace("Bearer ", "")
-                # Signature verification disabled — Kong gateway validates JWT upstream
-                payload = jwt.decode(token, options={"verify_signature": False})
+                if self._trust_gateway:
+                    # Signature already validated by upstream gateway (Kong).
+                    # Still enforce expiry + algorithm allowlist.
+                    # nosemgrep: python.jwt.security.unverified-jwt-decode
+                    payload = jwt.decode(
+                        token,
+                        options={"verify_signature": False, "verify_exp": True},
+                        algorithms=["HS256", "HS384", "HS512"],
+                    )
+                else:
+                    secret = os.getenv("JWT_SECRET_KEY", "")
+                    algorithm = os.getenv("JWT_ALGORITHM", "HS256")
+                    payload = jwt.decode(token, secret, algorithms=[algorithm])
                 context = RequestContext.from_jwt_payload(payload, self.service_name)
             else:
                 context = RequestContext.from_headers(dict(request.headers), self.service_name)

@@ -109,7 +109,7 @@ class KeywordSimilarityProvider(SemanticSimilarityProvider):
     """Lightweight keyword-based similarity provider (offline-first fallback).
     مزود التشابه القائم على الكلمات المفتاحية (بديل بدون اتصال)
 
-    Uses TF-IDF-style word overlap with agricultural domain boosting.
+    Uses Jaccard-style word overlap with agricultural domain boosting.
     Suitable for environments without embedding model access.
     """
 
@@ -196,7 +196,12 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
         self._initialized = False
 
     def similarity(self, text_a: str, text_b: str) -> float:
-        """Compute semantic similarity using embeddings with keyword fallback."""
+        """Compute semantic similarity using embeddings with keyword fallback.
+
+        When called from an async context (e.g., FastAPI), runs the async
+        embedding call in a separate thread to avoid blocking the event loop
+        while still using the embeddings adapter (not just keyword fallback).
+        """
         if not text_a or not text_b:
             return 0.0
 
@@ -204,6 +209,7 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
         if self._adapter is not None:
             try:
                 import asyncio
+                import concurrent.futures
 
                 try:
                     loop = asyncio.get_running_loop()
@@ -211,10 +217,29 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
                     loop = None
 
                 if loop is not None and loop.is_running():
-                    # Already inside an async context; use sync fallback
-                    return self._sync_similarity(text_a, text_b)
+                    # Inside an async context — run async adapter in a new thread
+                    # so embeddings are actually used (not just keyword fallback)
+                    if hasattr(self._adapter, "similarity_sync"):
+                        try:
+                            return float(self._adapter.similarity_sync(text_a, text_b))
+                        except Exception:
+                            pass  # Fall through to thread-based async call
 
-                # No running loop — safe to run_until_complete
+                    # Use a thread to run the async adapter call
+                    def _run_in_new_loop() -> float:
+                        new_loop = asyncio.new_event_loop()
+                        try:
+                            return new_loop.run_until_complete(
+                                self._async_similarity(text_a, text_b)
+                            )
+                        finally:
+                            new_loop.close()
+
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                        future = pool.submit(_run_in_new_loop)
+                        return future.result(timeout=10)
+
+                # No running loop — safe to run_until_complete directly
                 new_loop = asyncio.new_event_loop()
                 try:
                     return new_loop.run_until_complete(self._async_similarity(text_a, text_b))
@@ -232,7 +257,7 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
             try:
                 return float(self._adapter.similarity_sync(text_a, text_b))
             except Exception:
-                pass
+                pass  # Fall through to keyword fallback
         return self._fallback.similarity(text_a, text_b)
 
     async def _async_similarity(self, text_a: str, text_b: str) -> float:

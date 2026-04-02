@@ -193,12 +193,10 @@ class TestNoGhostServices:
         for service_name, service_config in kong_services.items():
             if service_name in excluded:
                 continue
-            if service_name.endswith("-health") or service_name.endswith("-public"):
-                continue  # Route variants — same backend as canonical service
             if service_config.get("port") is None:
                 continue  # Meta-entries without a port
 
-            # For route variants, check the base service name exists in Docker
+            # For route variants (e.g. chat-service-health), strip suffix to find base Docker service
             check_name = service_name
             for suffix in route_suffixes:
                 if service_name.endswith(suffix):

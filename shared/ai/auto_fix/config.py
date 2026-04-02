@@ -115,13 +115,13 @@ class AutoFixConfig:
             try:
                 config.max_files_per_run = int(max_files)
             except ValueError:
-                pass
+                pass  # Keep default if env var is not a valid integer
 
         if timeout := os.getenv("AUTO_FIX_TIMEOUT"):
             try:
                 config.diagnostic_timeout = int(timeout)
             except ValueError:
-                pass
+                pass  # Keep default if env var is not a valid integer
 
         if os.getenv("AUTO_FIX_AUDIT_ENABLED", "").lower() in ("0", "false", "no"):
             config.audit_enabled = False
@@ -130,13 +130,13 @@ class AutoFixConfig:
             try:
                 config.ruff_line_length = int(line_length)
             except ValueError:
-                pass
+                pass  # Keep default if env var is not a valid integer
 
         if complexity := os.getenv("AUTO_FIX_COMPLEXITY_THRESHOLD"):
             try:
                 config.complexity_threshold = int(complexity)
             except ValueError:
-                pass
+                pass  # Keep default if env var is not a valid integer
 
         if working_dir := os.getenv("AUTO_FIX_WORKING_DIR"):
             config.working_dir = working_dir

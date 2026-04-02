@@ -31,8 +31,10 @@ _REDIS_PREFIX = "sahool:revocation:"
 # TTL for user/tenant revocation keys in Redis.
 # Must be >= max token lifetime so that a revocation entry outlives every
 # token that could have been issued before the revocation was recorded.
-# Aligned with MAX_REFRESH_TOKEN_DAYS (30 days) from shared/auth/config.py.
-_REVOCATION_TTL = 30 * 24 * 3600  # 30 days in seconds
+# Aligned with the maximum refresh token lifetime (see MAX_REFRESH_TOKEN_DAYS
+# configuration, typically defined in shared/auth/config.py).
+_MAX_REFRESH_TOKEN_DAYS = int(os.getenv("MAX_REFRESH_TOKEN_DAYS", "30"))
+_REVOCATION_TTL = _MAX_REFRESH_TOKEN_DAYS * 24 * 3600  # seconds
 
 
 class RedisRevocationBackend:

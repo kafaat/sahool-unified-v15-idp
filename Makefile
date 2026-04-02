@@ -590,6 +590,7 @@ secrets-scan: ## فحص الأسرار المسربة - Scan for leaked secrets
 
 tenant-isolation: ## فحص عزل المستأجرين - Enforce tenant isolation patterns
 	@echo "$(BLUE)🔒 فحص عزل المستأجرين - Tenant isolation check...$(RESET)"
+	@# Advisory mode: || true suppresses exit code so make continues. Remove || true to enforce in CI.
 	@$(PYTHON) scripts/ci/enforce-tenant-isolation.py || true
 
 licenses: ## فحص التراخيص - Check dependency licenses

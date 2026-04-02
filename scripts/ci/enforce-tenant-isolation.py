@@ -24,7 +24,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ANSI colours (disabled when piped)
+# ANSI colors (disabled when piped)
 # ─────────────────────────────────────────────────────────────────────────────
 NO_COLOR = not sys.stdout.isatty()
 RED = "" if NO_COLOR else "\033[91m"
@@ -45,6 +45,9 @@ FORBIDDEN_PATTERNS: list[tuple[str, str]] = [
     (r"boto3\.client\s*\(\s*['\"]s3", "Direct S3 client — use TenantStorage"),
     (r"WHERE\s+tenant_id\s*=", "Manual tenant_id in query — rely on RLS"),
     (r"tenant_id\s*=\s*\?", "Manual tenant_id parameter — rely on RLS"),
+    # NOTE: The negative lookahead (?!.*headers) checks the rest of the line, so
+    # it may produce false positives if 'headers' appears in an unrelated context
+    # on the same line. Manual review is recommended for flagged NATS violations.
     (r"nc\.publish\s*\([^,]+,\s*[^,]+\s*\)(?!.*headers)", "NATS publish without headers — use TenantNATSPublisher"),
 ]
 

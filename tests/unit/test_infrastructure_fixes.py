@@ -187,16 +187,25 @@ class TestNoGhostServices:
             "kong",  # infrastructure
             "root-endpoint",  # Kong meta-route (no backend needed)
         }
+        # Kong route suffixes that map to a base service
+        # (e.g. chat-service-health → chat-service, ws-gateway-ws → ws-gateway)
+        route_suffixes = ("-health", "-public", "-ws")
 
         for service_name, service_config in kong_services.items():
             if service_name in excluded:
                 continue
-            if service_name.endswith("-health") or service_name.endswith("-public"):
-                continue  # Route variants — same backend as canonical service
             if service_config.get("port") is None:
                 continue  # Meta-entries without a port
-            assert service_name in docker_services, (
-                f"Kong service '{service_name}' has no Docker container - will return 502"
+
+            # For route variants (e.g. chat-service-health), strip suffix to find base Docker service
+            check_name = service_name
+            for suffix in route_suffixes:
+                if service_name.endswith(suffix):
+                    check_name = service_name[: -len(suffix)]
+                    break
+
+            assert check_name in docker_services, (
+                f"Kong service '{service_name}' (base: '{check_name}') has no Docker container - will return 502"
             )
 
 

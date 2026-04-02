@@ -41,9 +41,12 @@ from .corrective_retrieval import (
     ConfidenceLevel,
     CorrectiveRetrievalEngine,
     CRAGResult,
+    EmbeddingsSimilarityProvider,
+    KeywordSimilarityProvider,
     RefinedChunk,
     RetrievalAction,
     RetrievalEvaluation,
+    SemanticSimilarityProvider,
 )
 from .events import KnowledgeEventPublisher
 from .freshness_monitor import KnowledgeFreshnessMonitor
@@ -127,6 +130,10 @@ __all__ = [
     "RetrievalAction",
     "RetrievalEvaluation",
     "ConfidenceLevel",
+    # Semantic Similarity Providers (GAP-18)
+    "SemanticSimilarityProvider",
+    "KeywordSimilarityProvider",
+    "EmbeddingsSimilarityProvider",
     # Vector Store Integration (GAP-01)
     "KnowledgeVectorStore",
     "VectorSearchResult",

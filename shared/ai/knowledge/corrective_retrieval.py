@@ -105,6 +105,169 @@ class SemanticSimilarityProvider:
         raise NotImplementedError
 
 
+class KeywordSimilarityProvider(SemanticSimilarityProvider):
+    """Lightweight keyword-based similarity provider (offline-first fallback).
+    مزود التشابه القائم على الكلمات المفتاحية (بديل بدون اتصال)
+
+    Uses Jaccard-style word overlap with agricultural domain boosting.
+    Suitable for environments without embedding model access.
+    """
+
+    # Agricultural terms that carry extra weight in similarity
+    # NOTE: All terms are lowercase to match lowercased tokens in similarity()
+    _AGRI_TERMS = {
+        "wheat",
+        "rice",
+        "corn",
+        "barley",
+        "tomato",
+        "date",
+        "palm",
+        "irrigation",
+        "fertilizer",
+        "pesticide",
+        "soil",
+        "ndvi",
+        "yield",
+        "harvest",
+        "planting",
+        "drought",
+        "salinity",
+        "pest",
+        "disease",
+        "قمح",
+        "أرز",
+        "ذرة",
+        "شعير",
+        "طماطم",
+        "نخيل",
+        "ري",
+        "سماد",
+        "مبيد",
+        "تربة",
+        "محصول",
+        "حصاد",
+        "زراعة",
+        "جفاف",
+        "ملوحة",
+        "آفة",
+        "مرض",
+    }
+
+    def similarity(self, text_a: str, text_b: str) -> float:
+        """Compute word-overlap similarity with agricultural term boosting."""
+        if not text_a or not text_b:
+            return 0.0
+
+        words_a = set(text_a.lower().split())
+        words_b = set(text_b.lower().split())
+
+        if not words_a or not words_b:
+            return 0.0
+
+        # Jaccard-style overlap
+        intersection = words_a & words_b
+        union = words_a | words_b
+        base_score = len(intersection) / len(union) if union else 0.0
+
+        # Boost for shared agricultural terms
+        agri_overlap = intersection & self._AGRI_TERMS
+        agri_boost = min(0.2, len(agri_overlap) * 0.05)
+
+        return min(1.0, base_score + agri_boost)
+
+
+class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
+    """Semantic similarity via EmbeddingsAdapter (GAP-18).
+    التشابه الدلالي عبر محول التضمين
+
+    Uses the shared EmbeddingsAdapter for high-quality vector-based similarity.
+    Falls back to KeywordSimilarityProvider if embeddings are unavailable.
+
+    Example:
+        from shared.ai.embeddings import EmbeddingsAdapter, EmbeddingConfig
+        adapter = EmbeddingsAdapter(EmbeddingConfig(...))
+        provider = EmbeddingsSimilarityProvider(adapter)
+        score = provider.similarity("wheat irrigation", "ري القمح")
+    """
+
+    def __init__(self, embeddings_adapter: Any = None) -> None:
+        self._adapter = embeddings_adapter
+        self._fallback = KeywordSimilarityProvider()
+        self._initialized = False
+
+    def similarity(self, text_a: str, text_b: str) -> float:
+        """Compute semantic similarity using embeddings with keyword fallback.
+
+        When called from an async context (e.g., FastAPI), runs the async
+        embedding call in a separate thread with a fresh adapter/client to
+        avoid cross-loop httpx.AsyncClient reuse issues.
+        """
+        if not text_a or not text_b:
+            return 0.0
+
+        # Try embedding-based similarity
+        if self._adapter is not None:
+            try:
+                import asyncio
+                import concurrent.futures
+
+                try:
+                    loop = asyncio.get_running_loop()
+                except RuntimeError:
+                    loop = None
+
+                if loop is not None and loop.is_running():
+                    # Inside an async context — run in a separate thread with
+                    # a fresh adapter to avoid reusing httpx.AsyncClient across loops
+                    def _run_in_new_loop() -> float:
+                        new_loop = asyncio.new_event_loop()
+                        try:
+                            return new_loop.run_until_complete(self._async_similarity_isolated(text_a, text_b))
+                        finally:
+                            new_loop.close()
+
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                        future = pool.submit(_run_in_new_loop)
+                        return future.result(timeout=10)
+
+                # No running loop — safe to run_until_complete directly
+                new_loop = asyncio.new_event_loop()
+                try:
+                    return new_loop.run_until_complete(self._async_similarity_isolated(text_a, text_b))
+                finally:
+                    new_loop.close()
+            except Exception:
+                logger.debug("embeddings_similarity_fallback", reason="adapter_error")
+                return self._fallback.similarity(text_a, text_b)
+
+        return self._fallback.similarity(text_a, text_b)
+
+    async def _async_similarity_isolated(self, text_a: str, text_b: str) -> float:
+        """Run async similarity with a fresh adapter to avoid cross-loop client reuse.
+
+        Creates a temporary adapter clone bound to the current event loop,
+        ensuring httpx.AsyncClient is not shared across loops/threads.
+        """
+        adapter = self._adapter
+        # If the adapter supports cloning for a new loop, use it;
+        # otherwise use the original and hope for the best
+        if hasattr(adapter, "clone"):
+            adapter = adapter.clone()
+        try:
+            result = await adapter.similarity(text_a, text_b)
+            return float(result)
+        except Exception:
+            return self._fallback.similarity(text_a, text_b)
+        finally:
+            # Close the cloned adapter's client if we created one
+            if adapter is not self._adapter and hasattr(adapter, "close"):
+                try:
+                    await adapter.close()
+                except Exception:
+                    pass
+
+
 class CorrectiveRetrievalEngine:
     """CRAG-based engine for evaluating and refining retrieved knowledge chunks.
 

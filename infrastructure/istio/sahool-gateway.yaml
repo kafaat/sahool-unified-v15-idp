@@ -1,0 +1,143 @@
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL v16 - Istio Gateway & Service Routing
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Defines the Istio ingress gateway and VirtualService routing for SAHOOL
+# production services. Works alongside the existing virtual-service.yaml
+# (canary/stable routing for sahool-agent).
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: sahool-v16-gateway
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/component: gateway
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: sahool-tls-secret
+        minProtocolVersion: TLSV1_2
+      hosts:
+        - "api.sahool.io"
+        - "*.sahool.io"
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "api.sahool.io"
+        - "*.sahool.io"
+      tls:
+        httpsRedirect: true
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sahool-v16-routes
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  hosts:
+    - "api.sahool.io"
+  gateways:
+    - sahool-v16-gateway
+  http:
+    # Auth Service
+    - match:
+        - uri:
+            prefix: /auth/
+      route:
+        - destination:
+            host: user-service
+            port:
+              number: 3025
+      timeout: 10s
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: 5xx,reset,connect-failure
+
+    # User Service
+    - match:
+        - uri:
+            prefix: /users/
+      route:
+        - destination:
+            host: user-service
+            port:
+              number: 3025
+
+    # Field Service
+    - match:
+        - uri:
+            prefix: /fields/
+      route:
+        - destination:
+            host: field-management-service
+            port:
+              number: 3000
+      corsPolicy:
+        allowOrigins:
+          - exact: "https://app.sahool.io"
+        allowMethods: ["GET", "POST", "PUT", "DELETE"]
+        allowHeaders: ["authorization", "content-type", "x-tenant-id"]
+
+    # AI Advisor
+    - match:
+        - uri:
+            prefix: /ai/
+      route:
+        - destination:
+            host: ai-advisor
+            port:
+              number: 8112
+      timeout: 30s
+
+    # Notification Service (default)
+    - route:
+        - destination:
+            host: notification-service
+            port:
+              number: 8110
+
+---
+# Circuit Breaker for AI Service (slow responses expected)
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ai-advisor-circuit-breaker
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  host: ai-advisor
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    tls:
+      mode: ISTIO_MUTUAL

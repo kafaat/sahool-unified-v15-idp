@@ -5,24 +5,57 @@ on:
     branches: [main, develop, "feature/**", "hotfix/**"]
   pull_request:
     branches: [main, develop]
+  release:
+    types: [published]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: sahool
 
 jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 1: Code Quality & Security
+  # ═══════════════════════════════════════════════════════════════════════════
   lint-and-security:
-    name: "\U0001F50D Lint & Security"
+    name: "\U0001F50D Lint & Security Scan"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install ruff bandit
-      - run: ruff check apps/services/ packages/ shared/
-      - run: bandit -r apps/services/ packages/ shared/ -f json || true
 
+      - name: Install dependencies
+        run: |
+          pip install ruff bandit safety
+
+      - name: Ruff (Python linting)
+        run: ruff check apps/services/ packages/ shared/
+
+      - name: Bandit (Security scan)
+        run: bandit -r apps/services/ packages/ shared/ -f json -o bandit-report.json || true
+
+      - name: Safety (Dependency check)
+        run: safety check -r requirements/base.txt || true
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-scan-results
+          path: bandit-report.json
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 2: Build & Test
+  # ═══════════════════════════════════════════════════════════════════════════
   build-and-test:
     name: "\U0001F3D7\uFE0F Build & Test"
     runs-on: ubuntu-latest
@@ -34,15 +67,33 @@ jobs:
           - user-service
           - field-management-service
           - ai-advisor
+          - irrigation-smart
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.service }}
+        uses: docker/build-push-action@v5
         with:
           context: ./apps/services/${{ matrix.service }}
           push: false
+          load: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 3: Integration Tests (NATS Event Bus)
+  # ═══════════════════════════════════════════════════════════════════════════
   integration-tests:
     name: "\U0001F517 Integration Tests"
     runs-on: ubuntu-latest
@@ -52,6 +103,12 @@ jobs:
         image: nats:2.10-alpine
         ports:
           - 4222:4222
+          - 8222:8222
+        options: >-
+          --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:8222/healthz"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       postgres:
         image: postgres:16-alpine
         env:
@@ -60,31 +117,157 @@ jobs:
           POSTGRES_DB: sahool_test
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -r requirements/test.txt
-      - run: python -m pytest tests/integration/ -v
 
+      - name: Install test dependencies
+        run: pip install -r requirements/test.txt
+
+      - name: Run integration tests
+        env:
+          NATS_URL: nats://localhost:4222
+          DATABASE_URL: postgresql://test:test@localhost:5432/sahool_test
+          REDIS_URL: redis://localhost:6379
+        run: python -m pytest tests/integration/ -v
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: test-results.xml
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 4: Push to Registry (main branch only)
+  # ═══════════════════════════════════════════════════════════════════════════
   push-images:
-    name: "\U0001F4E4 Push Images"
+    name: "\U0001F4E4 Push to Registry"
     runs-on: ubuntu-latest
-    needs: integration-tests
-    if: github.ref == 'refs/heads/main'
+    needs: [integration-tests, build-and-test]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/login-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/setup-buildx-action@v3
-      - run: |
-          for svc in notification-service user-service field-management-service ai-advisor; do
-            docker buildx build --push \
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push all services
+        run: |
+          services=("notification-service" "user-service" "field-management-service" "ai-advisor" "irrigation-smart")
+          for svc in "${services[@]}"; do
+            docker buildx build \
+              --push \
               --tag ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${svc}:${{ github.sha }} \
               --tag ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${svc}:latest \
               ./apps/services/${svc}
           done
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 5: Deploy to Staging
+  # ═══════════════════════════════════════════════════════════════════════════
+  deploy-staging:
+    name: "\U0001F680 Deploy to Staging"
+    runs-on: ubuntu-latest
+    needs: push-images
+    environment: staging
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name sahool-staging
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install sahool-v16 ./helm/sahool \
+            --namespace sahool-staging \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --wait --timeout 10m
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n sahool-staging
+          kubectl rollout status deployment/notification-service -n sahool-staging
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 6: Production Deployment (manual approval)
+  # ═══════════════════════════════════════════════════════════════════════════
+  deploy-production:
+    name: "\U0001F680 Deploy to Production"
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment: production
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Production EKS
+        run: |
+          aws eks update-kubeconfig --name sahool-production
+          helm upgrade --install sahool-v16 ./helm/sahool \
+            --namespace sahool-production \
+            --set image.tag=${{ github.ref_name }} \
+            --set environment=production \
+            --wait --timeout 15m
+
+      - name: Run smoke tests
+        run: |
+          kubectl exec deploy/notification-service -n sahool-production -- wget -q -O- http://localhost:8110/healthz
+          kubectl exec deploy/user-service -n sahool-production -- wget -q -O- http://localhost:3025/healthz
+
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: "#deployments"
+          text: "SAHOOL v16 ${{ github.ref_name }} deployed to production!"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

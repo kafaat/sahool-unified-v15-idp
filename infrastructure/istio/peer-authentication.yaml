@@ -1,0 +1,64 @@
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL v16 - Istio Peer Authentication & Authorization
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Enforce mTLS for all services in sahool-production namespace
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: sahool-strict-mtls
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  mtls:
+    mode: STRICT
+
+---
+# Authorization policy for inter-service communication
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: sahool-v16-authz
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  rules:
+    # Allow auth-service to handle authentication endpoints
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/sahool-production/sa/auth-service"
+      to:
+        - operation:
+            methods: ["POST"]
+            paths: ["/auth/*"]
+
+    # Allow all sahool services to communicate internally
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/sahool-production/sa/*"
+      to:
+        - operation:
+            methods: ["GET", "POST", "PUT", "DELETE"]
+            paths: ["/api/*"]
+
+    # Allow health checks from anywhere
+    - to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/healthz", "/readyz", "/health"]
+
+    # Allow Prometheus metrics scraping
+    - from:
+        - source:
+            namespaces: ["monitoring"]
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/metrics"]

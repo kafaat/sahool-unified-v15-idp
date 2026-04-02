@@ -12,6 +12,7 @@ Usage:
 """
 
 import contextvars
+import uuid
 
 _tenant_context: contextvars.ContextVar[str | None] = contextvars.ContextVar("tenant_id", default=None)
 
@@ -46,3 +47,42 @@ class TenantContext:
     def get_current() -> str | None:
         """Get the current tenant ID from context."""
         return _tenant_context.get()
+
+    @staticmethod
+    def validate_tenant_id(tenant_id: str) -> bool:
+        """Validate UUID format tenant ID."""
+        try:
+            uuid.UUID(tenant_id)
+            return True
+        except ValueError:
+            return False
+
+
+class TenantAwareNATS:
+    """Adds tenant headers to all NATS messages automatically."""
+
+    def __init__(self, event_bus, tenant_id: str):
+        self.event_bus = event_bus
+        self.tenant_id = tenant_id
+
+    async def publish_event(self, domain: str, action: str, data: dict) -> None:
+        """Publish with tenant context."""
+        await self.event_bus.publish_event(
+            domain=domain,
+            action=action,
+            data=data,
+            tenant_id=self.tenant_id,
+        )
+
+    async def subscribe_events(self, domain: str, handler, **kwargs) -> None:
+        """Subscribe with automatic tenant filtering."""
+
+        async def wrapped_handler(event):
+            if hasattr(event, "tenant_id") and event.tenant_id == self.tenant_id:
+                await handler(event)
+
+        await self.event_bus.subscribe_events(
+            domain=domain,
+            handler=wrapped_handler,
+            **kwargs,
+        )

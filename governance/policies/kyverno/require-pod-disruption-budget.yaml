@@ -40,7 +40,7 @@ spec:
         - name: pdbcount
           apiCall:
             urlPath: "/apis/policy/v1/namespaces/{{request.namespace}}/poddisruptionbudgets"
-            jmesPath: "items[?spec.selector.matchLabels.app == '{{request.object.metadata.labels.app}}'] | length(@)"
+            jmesPath: "items[?spec.selector.matchLabels.\"app.kubernetes.io/name\" == '{{request.object.metadata.labels.\"app.kubernetes.io/name\"}}' && spec.selector.matchLabels.\"app.kubernetes.io/instance\" == '{{request.object.metadata.labels.\"app.kubernetes.io/instance\"}}'] | length(@)"
       validate:
         message: >-
           يجب إنشاء PodDisruptionBudget لـ Deployment {{request.object.metadata.name}}.

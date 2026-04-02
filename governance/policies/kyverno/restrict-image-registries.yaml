@@ -25,7 +25,7 @@ spec:
         message: >-
           الصورة {{ element.image }} ليست من سجل معتمد.
           Image {{ element.image }} is not from an approved registry.
-          Allowed registries: docker.io, ghcr.io, gcr.io, nvidia (for GPU services).
+          Allowed registries: docker.io, ghcr.io, gcr.io, nvcr.io, nvidia (for GPU services), registry.k8s.io, quay.io.
           Contact the platform team to add a new approved registry.
         foreach:
           - list: "request.object.spec.containers"

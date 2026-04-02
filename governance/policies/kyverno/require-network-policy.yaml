@@ -22,15 +22,15 @@ spec:
         any:
           - resources:
               kinds:
-                - Pod
-              namespaces:
+                - Namespace
+              names:
                 - "sahool-*"
                 - "production"
                 - "staging"
       exclude:
         any:
           - resources:
-              namespaces:
+              names:
                 - "kube-system"
                 - "kube-public"
                 - "kyverno"
@@ -38,12 +38,12 @@ spec:
       context:
         - name: networkpolicies
           apiCall:
-            urlPath: "/apis/networking.k8s.io/v1/namespaces/{{request.namespace}}/networkpolicies"
+            urlPath: "/apis/networking.k8s.io/v1/namespaces/{{request.object.metadata.name}}/networkpolicies"
             jmesPath: "items | length(@)"
       validate:
         message: >-
-          يجب وجود NetworkPolicy في namespace {{request.namespace}}.
-          Namespace {{request.namespace}} must have at least one NetworkPolicy
+          يجب وجود NetworkPolicy في namespace {{request.object.metadata.name}}.
+          Namespace {{request.object.metadata.name}} must have at least one NetworkPolicy
           for network isolation. See ADR-0005 for service mesh strategy.
         deny:
           conditions:

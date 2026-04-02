@@ -90,8 +90,11 @@ class RedisRevocationBackend:
     def is_token_revoked(self, jti: str) -> bool:
         try:
             return self._redis.exists(f"{_REDIS_PREFIX}jti:{jti}") > 0  # type: ignore[union-attr]
-        except Exception:
-            return False
+        except Exception as exc:
+            # Fail-closed: if Redis was available but now errors, treat token
+            # as revoked to prevent accepting tokens revoked by other instances.
+            logger.warning("Redis is_token_revoked read error (fail-closed): %s", exc)
+            return True
 
     # -- User ---------------------------------------------------------------
 
@@ -111,9 +114,12 @@ class RedisRevocationBackend:
             val = self._redis.get(f"{_REDIS_PREFIX}user:{user_id}")  # type: ignore[union-attr]
             if val is not None and token_issued_at < float(val):
                 return True
-        except Exception:
-            pass
-        return False
+            return False
+        except Exception as exc:
+            # Fail-closed: treat as revoked when Redis read fails to prevent
+            # accepting tokens that were revoked on another instance.
+            logger.warning("Redis is_user_token_revoked read error (fail-closed): %s", exc)
+            return True
 
     def clear_user_revocation(self, user_id: str) -> bool:
         try:
@@ -140,9 +146,12 @@ class RedisRevocationBackend:
             val = self._redis.get(f"{_REDIS_PREFIX}tenant:{tenant_id}")  # type: ignore[union-attr]
             if val is not None and token_issued_at < float(val):
                 return True
-        except Exception:
-            pass
-        return False
+            return False
+        except Exception as exc:
+            # Fail-closed: treat as revoked when Redis read fails to prevent
+            # accepting tokens that were revoked on another instance.
+            logger.warning("Redis is_tenant_token_revoked read error (fail-closed): %s", exc)
+            return True
 
 
 @dataclass

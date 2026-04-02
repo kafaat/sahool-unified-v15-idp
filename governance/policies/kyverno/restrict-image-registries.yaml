@@ -34,7 +34,8 @@ spec:
                 all:
                   - key: "{{ element.image }}"
                     operator: AnyNotIn
-                    value:
+                    # Approved registries — update both containers and initContainers lists together
+                    value: &approved-registries
                       - "docker.io/*"
                       - "ghcr.io/*"
                       - "gcr.io/*"
@@ -48,11 +49,4 @@ spec:
                 all:
                   - key: "{{ element.image }}"
                     operator: AnyNotIn
-                    value:
-                      - "docker.io/*"
-                      - "ghcr.io/*"
-                      - "gcr.io/*"
-                      - "nvcr.io/*"
-                      - "nvidia/*"
-                      - "registry.k8s.io/*"
-                      - "quay.io/*"
+                    value: *approved-registries

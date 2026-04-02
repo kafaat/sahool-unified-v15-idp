@@ -164,8 +164,16 @@ jobs:
             echo "  Ensure CONTRACT_VERSION major version is bumped."
 
             # Allow intentional breaking changes with BREAKING: commit prefix
-            COMMIT_MSG=$(git log -1 --format='%s' 2>/dev/null || echo "")
-            if echo "$COMMIT_MSG" | grep -q "^BREAKING:"; then
+            # Check all commits in the PR branch (not just the last one)
+            BREAKING_FOUND=0
+            while IFS= read -r msg; do
+              if echo "$msg" | grep -q "^BREAKING:"; then
+                BREAKING_FOUND=1
+                break
+              fi
+            done < <(git log "origin/${BASE_BRANCH}..HEAD" --format='%s' 2>/dev/null || git log -5 --format='%s')
+
+            if [ "$BREAKING_FOUND" -eq 1 ]; then
               echo "  ✅ BREAKING: prefix found in commit message — intentional breaking change accepted."
             else
               echo "  ❌ Add 'BREAKING:' prefix to commit message if intentional."

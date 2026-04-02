@@ -40,7 +40,7 @@ class RedisRevocationBackend:
     """
 
     def __init__(self, redis_url: str | None = None):
-        self._redis = None
+        self._redis: object | None = None
         self._available = False
         redis_url = redis_url or os.getenv("REDIS_URL", "")
         if redis_url:
@@ -53,13 +53,21 @@ class RedisRevocationBackend:
                     socket_connect_timeout=3,
                     socket_timeout=2,
                 )
-                self._redis.ping()
+                self._redis.ping()  # type: ignore[union-attr]
                 self._available = True
-                logger.info("Redis revocation backend connected")
+                logger.info("Redis revocation backend connected to %s", redis_url.split("@")[-1])
+            except ImportError:
+                logger.warning(
+                    "Redis package not installed — token revocation will use "
+                    "in-memory backend only. Install with: pip install redis"
+                )
+                self._redis = None
+                self._available = False
             except Exception as exc:
                 logger.warning(
-                    "Redis revocation backend unavailable, falling back to "
-                    "in-memory: %s",
+                    "Redis revocation backend unavailable (url=%s), falling "
+                    "back to in-memory: %s",
+                    redis_url.split("@")[-1],
                     exc,
                 )
                 self._redis = None

@@ -191,15 +191,15 @@ services:
     image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-1
     command: >
-      sh -c "echo '
+      sh -c "echo \"
       port 26379
       sentinel monitor sahool-master redis-master 6379 2
-      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
+      sentinel auth-pass sahool-master $${REDIS_PASSWORD}
       sentinel down-after-milliseconds sahool-master 5000
       sentinel parallel-syncs sahool-master 1
       sentinel failover-timeout sahool-master 10000
       sentinel deny-scripts-reconfig yes
-      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+      \" > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       - SENTINEL_QUORUM=2
@@ -243,15 +243,15 @@ services:
     image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-2
     command: >
-      sh -c "echo '
+      sh -c "echo \"
       port 26379
       sentinel monitor sahool-master redis-master 6379 2
-      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
+      sentinel auth-pass sahool-master $${REDIS_PASSWORD}
       sentinel down-after-milliseconds sahool-master 5000
       sentinel parallel-syncs sahool-master 1
       sentinel failover-timeout sahool-master 10000
       sentinel deny-scripts-reconfig yes
-      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+      \" > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       - SENTINEL_QUORUM=2
@@ -295,15 +295,15 @@ services:
     image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-3
     command: >
-      sh -c "echo '
+      sh -c "echo \"
       port 26379
       sentinel monitor sahool-master redis-master 6379 2
-      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
+      sentinel auth-pass sahool-master $${REDIS_PASSWORD}
       sentinel down-after-milliseconds sahool-master 5000
       sentinel parallel-syncs sahool-master 1
       sentinel failover-timeout sahool-master 10000
       sentinel deny-scripts-reconfig yes
-      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+      \" > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       - SENTINEL_QUORUM=2

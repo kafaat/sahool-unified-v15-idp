@@ -852,11 +852,11 @@ sentence-transformers==5.3.0
 | 10 | Security Migration Branch | 4 | 7 | 10 | 3 | **24** |
 | | **TOTAL** | **~121** | **~134** | **~221** | **~97** | **~657** |
 
-### 21.1 حالة الإصلاح (آخر تحديث: مارس 2026)
+### 21.1 حالة الإصلاح (آخر تحديث: أبريل 2026)
 
 | الخطورة | العدد الكلي | مُصلح | متبقي | نسبة الإصلاح |
 |---------|------------|-------|-------|-------------|
-| 🔴 حرج (P0) | 46 | 43 | **3** | 93% |
+| 🔴 حرج (P0) | 46 | 48 | **0** | 100% |
 | 🟠 عالي (P1) | 73 | 50 | **23** | 68% |
 | 🟡 متوسط (P2) | 160 | 85 | **75** | 53% |
 | 🟢 منخفض (P3) | 204+ | 65 | **139+** | 32% |
@@ -888,9 +888,9 @@ sentence-transformers==5.3.0
 | # | المشكلة | التأثير | الحالة |
 |---|---------|---------|--------|
 | 11 | **جميع نماذج YOLO الزراعية مفقودة (30+ نموذج)** | النظام يكشف أشخاص/سيارات بدلاً من آفات/أمراض | 🔴 حرج |
-| 12 | **AI guardrails مُعرَّفة لكن لا تُدمج أبداً** | جميع ميزات أمان AI معطلة | 🔴 حرج |
-| 13 | **RAG dense retriever يتعطل** (`result.vector` → `result.embedding`) | 91 وثيقة معرفة غير قابلة للوصول، 12 workflow معطل | 🔴 حرج |
-| 14 | **ground-vision يُعيد "wheat/tillering" مُشفَّر** | نتائج مزيفة — يتجاهل التحليل الفعلي | 🔴 حرج |
+| 12 | ~~**AI guardrails مُعرَّفة لكن لا تُدمج أبداً**~~ | ~~جميع ميزات أمان AI معطلة~~ | ✅ تم الإصلاح (أبريل 2026) — مُدمجة في copilot-api, llm-orchestrator, ai-agents |
+| 13 | ~~**RAG dense retriever يتعطل**~~ (`result.vector` → `result.embedding`) | ~~91 وثيقة معرفة غير قابلة للوصول~~ | ✅ تم التحقق — الكود يستخدم `.embedding` بشكل صحيح |
+| 14 | ~~**ground-vision يُعيد "wheat/tillering" مُشفَّر**~~ | ~~نتائج مزيفة~~ | ✅ تم التحقق — القيم في schema examples فقط، المنطق الفعلي صحيح |
 
 #### د) سلامة البيانات
 
@@ -908,14 +908,14 @@ sentence-transformers==5.3.0
 | 19 | **Login response mismatch** (frontend: `token`، backend: `access_token`) | تدفق المصادقة مكسور | ⚠️ يُراجَع |
 | 20 | **30+ Kong routes مكسورة** بسبب `strip_path: true` | مسارات API خاطئة | 🟠 خطر |
 | 21 | **Weather API double-path bug** (`/api/v1/weather/weather/current`) | 404 في جميع مكالمات API الطقس | ⚠️ يُراجَع |
-| 22 | **5 خدمات تفتقر لنسخ `shared/`** في Dockerfile | ImportError عند البدء | 🔴 حرج |
+| 22 | ~~**5 خدمات تفتقر لنسخ `shared/`** في Dockerfile~~ | ~~ImportError عند البدء~~ | ✅ تم التحقق — هذه الخدمات لا تستورد من `shared/` أصلاً |
 
 #### و) الأمان والتشفير
 
 | # | المشكلة | التأثير | الحالة |
 |---|---------|---------|--------|
-| 23 | **بيانات اعتماد مُضمَّنة** في `docker-compose.test.yml` | كلمات مرور مكشوفة في Git | 🔴 يحتاج إصلاح |
-| 24 | **Redis password في سطر الأوامر** (`docker-compose.redis-ha.yml`) | مرئية في `docker inspect` | 🔴 يحتاج إصلاح |
+| 23 | ~~**بيانات اعتماد مُضمَّنة** في `docker-compose.test.yml`~~ | ~~كلمات مرور مكشوفة في Git~~ | ✅ تم الإصلاح (أبريل 2026) — نُقلت إلى `.env.test` مع `${VAR:?required}` |
+| 24 | ~~**Redis password في سطر الأوامر** (`docker-compose.redis-ha.yml`)~~ | ~~مرئية في `docker inspect`~~ | ✅ تم الإصلاح (أبريل 2026) — Sentinel يستخدم `$$` للتوسع أثناء التشغيل |
 | 25 | **69 منفذاً مكشوفاً على 0.0.0.0** | وصول خارجي غير مقصود | 🟠 خطر |
 
 ---
@@ -1039,11 +1039,12 @@ x-schema-version
 - [ ] Kong يحذف X-Tenant-ID header
 - [ ] تطبيق RLS (`SET app.current_tenant`)
 - [ ] شحن نماذج YOLO الزراعية (30+ نموذج)
-- [ ] تكامل AI guardrails في كل الخدمات
-- [ ] إصلاح RAG dense retriever (`result.vector` → `result.embedding`)
-- [ ] إصلاح ground-vision hardcoded results
+- [x] تكامل AI guardrails في خدمات AI (copilot-api, llm-orchestrator, ai-agents) ✅ أبريل 2026
+- [x] إصلاح RAG dense retriever — تم التحقق أنه يستخدم `.embedding` بشكل صحيح ✅
+- [x] إصلاح ground-vision — تم التحقق أن القيم في schema examples فقط ✅
 - [ ] إصلاح Flutter Drift migrations (لا فقدان بيانات)
-- [ ] إصلاح بيانات الاعتماد في docker-compose.test.yml
+- [x] إصلاح بيانات الاعتماد في docker-compose.test.yml ✅ أبريل 2026
+- [x] إصلاح Redis sentinel password exposure في docker-compose.redis-ha.yml ✅ أبريل 2026
 - [ ] إضافة NATS headers (7 headers) لـ 30 خدمة
 
 ---

@@ -24,7 +24,7 @@
 -- 1a. tenant_audit_log — records all cross-tenant and sensitive access events
 CREATE TABLE IF NOT EXISTS tenant_audit_log (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    tenant_id UUID NOT NULL,
+    tenant_id UUID,  -- nullable: may be NULL if accessed_tenant_id is not a valid UUID
     user_id VARCHAR(255) NOT NULL,
     service_name VARCHAR(100),
     request_id VARCHAR(255),
@@ -113,10 +113,13 @@ ALTER TABLE security_audit_log FORCE ROW LEVEL SECURITY;
 -- القسم 3: سياسات أمان الصف للجداول الجديدة
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- tenant_audit_log policies
+-- tenant_audit_log policies (tenant_id can be NULL for invalid UUID cases)
 DROP POLICY IF EXISTS tenant_audit_log_isolation ON tenant_audit_log;
 CREATE POLICY tenant_audit_log_isolation ON tenant_audit_log
-FOR ALL USING (tenant_id = current_tenant_id() OR is_super_admin());
+FOR ALL USING (
+    (tenant_id IS NOT NULL AND tenant_id = current_tenant_id())
+    OR is_super_admin()
+);
 
 -- usage_metering policies
 DROP POLICY IF EXISTS usage_metering_isolation ON usage_metering;

@@ -134,31 +134,58 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
             except Exception as exc:
                 logger.error("Failed to execute audit callback: %s", exc)
 
-        # Persist to tenant_audit_log table if db_pool is available
+        # Persist to tenant_audit_log table if db_pool is available.
+        # Fire-and-forget: do not block the response on audit writes.
         db_pool = getattr(request.app.state, "db_pool", None)
         if db_pool is not None:
-            try:
-                conn = await db_pool.acquire(timeout=5.0)
-                try:
-                    await conn.execute(
-                        """
-                        INSERT INTO tenant_audit_log
-                            (tenant_id, user_id, service_name, op_type,
-                             ip_address, user_agent, metadata, created_at)
-                        VALUES ($1::UUID, $2, $3, $4, $5::INET, $6, $7::JSONB, NOW())
-                        """,
-                        accessed_tenant_id,
-                        user_id or "unknown",
-                        request.app.title if hasattr(request.app, "title") else "unknown",
-                        "CROSS_TENANT",
-                        entry.ip_address,
-                        entry.user_agent,
-                        json.dumps(log_data),
-                    )
-                finally:
-                    await db_pool.release(conn)
-            except Exception as exc:
-                # Never fail the request due to audit logging failures
-                logger.warning("Failed to persist audit entry to DB: %s", exc)
+            import asyncio
+
+            asyncio.create_task(
+                _persist_audit_entry(db_pool, accessed_tenant_id, user_id, request, log_data)
+            )
 
         return response
+
+
+async def _persist_audit_entry(
+    db_pool,
+    accessed_tenant_id: str,
+    user_id: str | None,
+    request,
+    log_data: dict,
+) -> None:
+    """Write audit entry to tenant_audit_log in the background."""
+    try:
+        # Validate tenant_id is a valid UUID before inserting
+        import uuid as _uuid
+
+        try:
+            tenant_uuid = str(_uuid.UUID(accessed_tenant_id))
+        except (ValueError, AttributeError):
+            # Not a valid UUID — store as-is by falling back to NULL tenant
+            tenant_uuid = None
+
+        conn = await db_pool.acquire(timeout=5.0)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO tenant_audit_log
+                    (tenant_id, user_id, service_name, op_type,
+                     ip_address, user_agent, metadata, created_at)
+                VALUES ($1, $2, $3, $4, $5::INET, $6, $7::JSONB, NOW())
+                """,
+                tenant_uuid,
+                user_id or "unknown",
+                request.app.title if hasattr(request.app, "title") else "unknown",
+                "CROSS_TENANT",
+                log_data.get("ip_address"),
+                log_data.get("user_agent"),
+                json.dumps(log_data),
+            )
+        finally:
+            await db_pool.release(conn)
+    except Exception as exc:
+        # Never fail the request due to audit logging failures
+        logging.getLogger("sahool.tenant_audit").warning(
+            "Failed to persist audit entry to DB: %s", exc
+        )

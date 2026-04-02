@@ -172,7 +172,7 @@ jobs:
           done
 
       - name: Upload Python scan results
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4.6.2
         if: always()
         with:
           name: python-dependency-scans
@@ -211,7 +211,7 @@ jobs:
           args: --severity-threshold=high --json-file-output=snyk-report.json
 
       - name: Upload Node.js scan results
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4.6.2
         if: always()
         with:
           name: nodejs-dependency-scans
@@ -320,7 +320,7 @@ jobs:
             .
 
       - name: Upload Semgrep gate results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         if: always()
         with:
           name: semgrep-gate-results

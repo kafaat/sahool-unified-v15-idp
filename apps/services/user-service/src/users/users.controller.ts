@@ -15,6 +15,8 @@ import {
   HttpCode,
   HttpStatus,
   ForbiddenException,
+  NotFoundException,
+  BadRequestException,
   UseGuards,
   ParseIntPipe,
   DefaultValuePipe,
@@ -200,10 +202,7 @@ export class UsersController {
   async findByEmail(@Param("email") email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      return {
-        success: false,
-        message: "User not found",
-      };
+      throw new NotFoundException("User not found");
     }
     const { passwordHash, ...userWithoutPassword } = user;
     return {
@@ -356,12 +355,19 @@ export class UsersController {
     description: "Active users count retrieved successfully",
   })
   @ApiResponse({
+    status: 400,
+    description: "Bad Request - Authentication context is missing tenant information",
+  })
+  @ApiResponse({
     status: 403,
     description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
   async countActive(@CurrentUser() currentUser: any) {
     // SECURITY: Filter by tenant to prevent cross-tenant user count leakage
     const tenantId = currentUser?.tenantId;
+    if (!tenantId) {
+      throw new BadRequestException("Authentication context is invalid");
+    }
     const count = await this.usersService.countActive(tenantId);
     return {
       success: true,

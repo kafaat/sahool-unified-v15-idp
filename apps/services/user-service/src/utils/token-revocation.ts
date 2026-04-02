@@ -446,14 +446,23 @@ export class RedisTokenRevocationStore
   }
 
   /**
-   * Increment OTP verification attempts (expires after 15 minutes)
+   * Increment OTP verification attempts (expires after 15 minutes).
+   * Uses the INCR return value to decide whether to set TTL: TTL is applied
+   * only when newCount === 1 (i.e. the key was just created), so concurrent
+   * increments never reset the 15-minute window.
+   *
+   * Note: INCR and EXPIRE are two separate Redis commands and are not atomic.
+   * In the unlikely event that the process crashes between them the key will
+   * persist without a TTL; a periodic cleanup job or a Lua-script approach
+   * would be required if strict atomicity is needed.
    */
   async incrementOtpAttempts(key: string): Promise<void> {
     if (!this.initialized) await this.initialize();
     try {
-      const exists = await this.redis!.exists(key);
-      await this.redis!.incr(key);
-      if (!exists) {
+      const newCount = await this.redis!.incr(key);
+      // Only set TTL on first creation. Subsequent concurrent increments will
+      // see newCount > 1 and leave the existing expiry untouched.
+      if (newCount === 1) {
         await this.redis!.expire(key, 900); // 15 minutes TTL
       }
     } catch (error) {

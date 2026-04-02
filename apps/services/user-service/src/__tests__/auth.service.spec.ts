@@ -12,7 +12,7 @@
  */
 
 import { Test, TestingModule } from "@nestjs/testing";
-import { UnauthorizedException, BadRequestException } from "@nestjs/common";
+import { UnauthorizedException, BadRequestException, ConflictException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
@@ -61,6 +61,15 @@ describe("AuthService", () => {
       update: jest.fn(),
       updateMany: jest.fn(),
     },
+    // Interactive transaction: execute the callback with a proxy that delegates
+    // back to the top-level mocks so individual mock implementations are shared.
+    $transaction: jest.fn().mockImplementation(async (callback: (tx: any) => Promise<any>) => {
+      const tx = {
+        user: mockPrismaService.user,
+        refreshToken: mockPrismaService.refreshToken,
+      };
+      return callback(tx);
+    }),
   };
 
   const mockJwtService = {
@@ -468,7 +477,7 @@ describe("AuthService", () => {
     it("should throw if email already exists", async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
 
-      await expect(service.register(registerDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
     });
 
     it("should hash password with salt rounds 12", async () => {

@@ -148,26 +148,31 @@ class BaseEvent:
         schema = self._load_schema(self.SCHEMA_PATH)
         event_data = self.to_dict()
 
-        # Create a registry with local schemas for $ref resolution
-        try:
-            from referencing import Registry, Resource
-        except ImportError:
-            # Fallback: validate without $ref resolution if referencing is not installed
-            jsonschema.validate(event_data, schema)
-            return True
-
-        registry = Registry()
-
-        # Load all local schemas to resolve $ref references
+        # Build a local schema store so $ref resolution never hits the network.
+        # All schemas in _SCHEMA_DIR are indexed by both their $id URI and their
+        # bare filename so that references like "$ref": "base-event.v1.json" work.
+        schema_store: dict[str, dict] = {}
         for schema_file in _SCHEMA_DIR.glob("*.json"):
             local_schema = self._load_schema(schema_file.name)
             schema_id = local_schema.get("$id", f"file://{schema_file}")
-            # Also register by filename for relative refs
-            resource = Resource.from_contents(local_schema)
-            registry = registry.with_resource(schema_id, resource)
-            registry = registry.with_resource(schema_file.name, resource)
+            schema_store[schema_id] = local_schema
+            schema_store[schema_file.name] = local_schema
 
-        validator = jsonschema.Draft7Validator(schema, registry=registry)
+        try:
+            from referencing import Registry, Resource
+
+            registry = Registry()
+            for uri, sch in schema_store.items():
+                resource = Resource.from_contents(sch)
+                registry = registry.with_resource(uri, resource)
+
+            validator = jsonschema.Draft7Validator(schema, registry=registry)
+        except ImportError:
+            # Fallback: build a RefResolver with a local store so $ref URIs
+            # (e.g. "base-event.v1.json") are resolved from disk, not the network.
+            resolver = jsonschema.RefResolver.from_schema(schema, store=schema_store)
+            validator = jsonschema.Draft7Validator(schema, resolver=resolver)
+
         validator.validate(event_data)
         return True
 

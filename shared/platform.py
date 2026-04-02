@@ -34,6 +34,19 @@ from nats.aio.msg import Msg
 from prometheus_client import Counter, Histogram
 from starlette.middleware.base import BaseHTTPMiddleware
 
+logger = logging.getLogger("sahool.platform")
+
+# Regex for validating SQL identifiers — prevents injection via column/key names
+_IDENTIFIER_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+
+def _validate_identifier(name: str) -> str:
+    """Validate that *name* is a safe SQL identifier (column / table)."""
+    if not _IDENTIFIER_RE.match(name):
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return name
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Core Data Types
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -418,12 +431,14 @@ class TenantDB:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         try:
             if self._conn:
-                # Reset context (CRITICAL for pool safety)
+                # Reset ALL per-request GUCs (CRITICAL for pool safety)
                 await self._conn.execute("""
                     SELECT
                         set_config('app.current_tenant', '', false),
                         set_config('app.current_user', '', false),
-                        set_config('app.current_role', '', false)
+                        set_config('app.current_role', '', false),
+                        set_config('app.current_service', '', false),
+                        set_config('app.request_id', '', false)
                 """)
 
                 # Audit log
@@ -435,8 +450,8 @@ class TenantDB:
     async def _audit(self, exc_type, exc_val):
         """Async audit logging"""
         with contextlib.suppress(Exception):
-            duration = (datetime.utcnow() - self._start_time).total_seconds() * 1000  # noqa: F841
-            # Log to audit table
+            _duration_ms = (datetime.utcnow() - self._start_time).total_seconds() * 1000
+            logger.debug("tenant_db_session", duration_ms=_duration_ms, error=str(exc_val) if exc_val else None)
 
 
 def tenant_db() -> TenantDB:
@@ -466,6 +481,7 @@ class TenantRepository(Generic[T]):
             where_parts = []
             values = []
             for key, val in filters.items():
+                _validate_identifier(key)
                 where_parts.append(f"{key} = ${len(values) + 1}")
                 values.append(val)
 
@@ -490,6 +506,8 @@ class TenantRepository(Generic[T]):
 
         async with tenant_db() as conn:
             columns = list(data.keys())
+            for col in columns:
+                _validate_identifier(col)
             placeholders = [f"${i + 1}" for i in range(len(columns))]
 
             query = f"""
@@ -536,7 +554,12 @@ class TenantRedis:
     async def set(self, resource: str, key: str, value: Any, ttl: int | None = None) -> bool:
         full_key = self._get_key(resource, key)
 
-        data = json.dumps(value).encode() if isinstance(value, (dict, list)) else json.dumps(str(value)).encode()
+        try:
+            # Preserve type information for JSON-serializable values
+            data = json.dumps(value).encode()
+        except TypeError:
+            # Fallback for values that the JSON encoder cannot handle
+            data = str(value).encode()
 
         if ttl:
             return await self._redis.setex(full_key, ttl, data)
@@ -562,8 +585,9 @@ class TenantRedis:
             if cursor == 0:
                 break
 
-        # Strip tenant prefix
-        prefix_len = len(ctx.tenant_id[:12]) + len(self._service) + 2
+        # Strip tenant, service and resource prefix, return resource-local keys
+        prefix = f"{ctx.tenant_id[:12]}:{self._service}:{resource}:"
+        prefix_len = len(prefix)
         return [k[prefix_len:] for k in keys]
 
 
@@ -639,11 +663,11 @@ class TenantStorage:
         bucket = self._get_bucket_name()
         key = self._get_key(path)
 
-        # Ensure bucket exists
+        # Ensure bucket exists (run sync boto3 in threadpool to avoid blocking the event loop)
         try:
-            self._s3.head_bucket(Bucket=bucket)
+            await asyncio.to_thread(self._s3.head_bucket, Bucket=bucket)
         except ClientError:
-            self._s3.create_bucket(Bucket=bucket)
+            await asyncio.to_thread(self._s3.create_bucket, Bucket=bucket)
 
         # Prepare metadata with tenant info
         ctx = get_current_context()
@@ -658,11 +682,13 @@ class TenantStorage:
         extra_args = {"Metadata": full_metadata, "ContentType": content_type or "application/octet-stream"}
 
         if isinstance(data, bytes):
-            self._s3.put_object(Bucket=bucket, Key=key, Body=data, **extra_args)
+            await asyncio.to_thread(self._s3.put_object, Bucket=bucket, Key=key, Body=data, **extra_args)
         else:
-            self._s3.upload_fileobj(data, bucket, key, ExtraArgs=extra_args)
+            await asyncio.to_thread(self._s3.upload_fileobj, data, bucket, key, ExtraArgs=extra_args)
 
-        url = self._s3.generate_presigned_url("get_object", Params={"Bucket": bucket, "Key": key}, ExpiresIn=3600)
+        url = await asyncio.to_thread(
+            self._s3.generate_presigned_url, "get_object", Params={"Bucket": bucket, "Key": key}, ExpiresIn=3600
+        )
 
         return {"bucket": bucket, "key": key, "path": path, "url": url}
 
@@ -671,7 +697,7 @@ class TenantStorage:
         bucket = self._get_bucket_name()
         key = self._get_key(path)
 
-        response = self._s3.get_object(Bucket=bucket, Key=key)
+        response = await asyncio.to_thread(self._s3.get_object, Bucket=bucket, Key=key)
 
         # Verify tenant matches
         metadata = response.get("Metadata", {})
@@ -1015,10 +1041,8 @@ class TenantBackupService:
 
         with ContextManager(system_ctx):
             for table in self.BACKUP_TABLES:
-                if table not in self.BACKUP_TABLES:
-                    raise ValueError(f"Table {table} not in allowed backup tables")
                 async with tenant_db() as conn:
-                    await conn.execute("SET app.current_tenant = $1", tenant_id)
+                    await conn.execute("SELECT set_config('app.current_tenant', $1, true)", tenant_id)
                     # Table name from BACKUP_TABLES constant (not user input)
                     rows = await conn.fetch(f"SELECT * FROM {table}")  # noqa: B608
                     backup_data["tables"][table] = [dict(row) for row in rows]

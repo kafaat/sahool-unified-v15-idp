@@ -23,7 +23,7 @@
 
 -- 1a. tenant_audit_log — records all cross-tenant and sensitive access events
 CREATE TABLE IF NOT EXISTS tenant_audit_log (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     tenant_id UUID,  -- nullable: may be NULL if accessed_tenant_id is not a valid UUID
     user_id VARCHAR(255) NOT NULL,
     service_name VARCHAR(100),
@@ -52,7 +52,7 @@ ON tenant_audit_log (user_id);
 
 -- 1b. usage_metering — records resource usage for billing (referenced by shared/platform.py)
 CREATE TABLE IF NOT EXISTS usage_metering (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     tenant_id UUID NOT NULL,
     resource_type VARCHAR(100) NOT NULL,
     quantity DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -72,7 +72,7 @@ ON usage_metering (resource_type);
 
 -- 1c. security_audit_log — records security-relevant events (login, auth failures, etc.)
 CREATE TABLE IF NOT EXISTS security_audit_log (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     tenant_id UUID NOT NULL,
     user_id VARCHAR(255),
     event_type VARCHAR(100) NOT NULL,  -- login, logout, auth_failure, permission_denied, etc.
@@ -114,9 +114,22 @@ ALTER TABLE security_audit_log FORCE ROW LEVEL SECURITY;
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- tenant_audit_log policies (tenant_id can be NULL for invalid UUID cases)
+-- Split into separate read and write policies so audit inserts work from
+-- system/super-admin context without requiring a matching tenant GUC.
 DROP POLICY IF EXISTS tenant_audit_log_isolation ON tenant_audit_log;
-CREATE POLICY tenant_audit_log_isolation ON tenant_audit_log
-FOR ALL USING (
+DROP POLICY IF EXISTS tenant_audit_log_read ON tenant_audit_log;
+DROP POLICY IF EXISTS tenant_audit_log_write ON tenant_audit_log;
+
+-- Restrictive read/update/delete: only the current tenant or super admin
+CREATE POLICY tenant_audit_log_read ON tenant_audit_log
+FOR SELECT USING (
+    (tenant_id IS NOT NULL AND tenant_id = current_tenant_id())
+    OR is_super_admin()
+);
+
+-- Permissive insert: current tenant or super admin
+CREATE POLICY tenant_audit_log_write ON tenant_audit_log
+FOR INSERT WITH CHECK (
     (tenant_id IS NOT NULL AND tenant_id = current_tenant_id())
     OR is_super_admin()
 );

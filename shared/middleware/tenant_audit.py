@@ -165,6 +165,16 @@ async def _persist_audit_entry(
 
         conn = await db_pool.acquire(timeout=5.0)
         try:
+            # Set RLS context so FORCE RLS policies allow the INSERT.
+            # Use is_super_admin=true since audit writes are system-level.
+            await conn.execute(
+                """
+                SELECT
+                    set_config('app.current_tenant', COALESCE($1, ''), false),
+                    set_config('app.is_super_admin', 'true', false)
+                """,
+                tenant_uuid or "",
+            )
             await conn.execute(
                 """
                 INSERT INTO tenant_audit_log
@@ -181,6 +191,14 @@ async def _persist_audit_entry(
                 json.dumps(log_data),
             )
         finally:
+            # Reset GUCs before returning connection to pool
+            await conn.execute(
+                """
+                SELECT
+                    set_config('app.current_tenant', '', false),
+                    set_config('app.is_super_admin', 'false', false)
+                """
+            )
             await db_pool.release(conn)
     except Exception as exc:
         # Never fail the request due to audit logging failures

@@ -69,8 +69,6 @@ class TestOllamaStreamingJsonErrors:
 
         يجب أن يتم تجاهل سطر JSON غير صالح وليس إنهاء الـ stream.
         """
-        import httpx
-
         good_line = json.dumps({"response": "hello", "done": False})
         bad_line = "NOT JSON{{{"
         final_line = json.dumps({"response": " world", "done": True})

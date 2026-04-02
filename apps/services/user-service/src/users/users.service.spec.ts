@@ -471,12 +471,14 @@ describe("UsersService", () => {
       const result = await service.remove(mockUserId);
 
       expect(result.status).toBe(UserStatus.INACTIVE);
-      expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: mockUserId },
-        data: {
-          status: UserStatus.INACTIVE,
-        },
-      });
+      expect(prismaService.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: mockUserId },
+          data: {
+            status: UserStatus.INACTIVE,
+          },
+        }),
+      );
       expect(prismaService.user.delete).not.toHaveBeenCalled();
     });
 

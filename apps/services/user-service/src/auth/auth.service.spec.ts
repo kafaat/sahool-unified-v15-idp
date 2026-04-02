@@ -77,6 +77,35 @@ describe("AuthService", () => {
         updateMany: jest.fn(),
         findMany: jest.fn(),
       },
+      // Interactive transaction: delegate to the shared mocks so individual
+      // mock implementations are reused inside the transaction callback.
+      $transaction: jest.fn().mockImplementation(async (callback: (tx: any) => Promise<any>) => {
+        const tx = {
+          user: { findUnique: jest.fn(), update: jest.fn() },
+          refreshToken: {
+            findUnique: jest.fn(),
+            update: jest.fn(),
+            updateMany: jest.fn(),
+          },
+        };
+        // Proxy to the outer mocks so test setup works seamlessly
+        tx.user.findUnique.mockImplementation((...args: any[]) =>
+          (mockPrismaService.user.findUnique as jest.Mock)(...args),
+        );
+        tx.user.update.mockImplementation((...args: any[]) =>
+          (mockPrismaService.user.update as jest.Mock)(...args),
+        );
+        tx.refreshToken.findUnique.mockImplementation((...args: any[]) =>
+          (mockPrismaService.refreshToken.findUnique as jest.Mock)(...args),
+        );
+        tx.refreshToken.update.mockImplementation((...args: any[]) =>
+          (mockPrismaService.refreshToken.update as jest.Mock)(...args),
+        );
+        tx.refreshToken.updateMany.mockImplementation((...args: any[]) =>
+          (mockPrismaService.refreshToken.updateMany as jest.Mock)(...args),
+        );
+        return callback(tx);
+      }),
     };
 
     const mockJwtService = {
@@ -368,14 +397,29 @@ describe("AuthService", () => {
         token_type: "Bearer",
       });
 
-      expect(prismaService.refreshToken.update).toHaveBeenCalledWith({
-        where: { jti: mockJti },
-        data: {
-          used: true,
-          usedAt: expect.any(Date),
-          replacedBy: expect.any(String),
-        },
-      });
+      // The service makes exactly two separate update calls:
+      // 1. Inside the transaction: mark token as used
+      // 2. Outside the transaction: record the replacement JTI
+      expect(prismaService.refreshToken.update).toHaveBeenCalledTimes(2);
+      expect(prismaService.refreshToken.update).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          where: { jti: mockJti },
+          data: expect.objectContaining({
+            used: true,
+            usedAt: expect.any(Date),
+          }),
+        }),
+      );
+      expect(prismaService.refreshToken.update).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          where: { jti: mockJti },
+          data: expect.objectContaining({
+            replacedBy: expect.any(String),
+          }),
+        }),
+      );
     });
 
     it("should throw UnauthorizedException for invalid token type", async () => {

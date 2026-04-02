@@ -14,6 +14,7 @@ import {
   UnauthorizedException,
   NotFoundException,
   BadRequestException,
+  ConflictException,
   Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -631,7 +632,7 @@ export class AuthService {
         `Registration attempt with existing email`,
         { email: this.sanitizeForLog(email) },
       );
-      throw new UnauthorizedException("Email already registered");
+      throw new ConflictException("Email already registered");
     }
 
     // Hash password

@@ -373,7 +373,7 @@ export class AuthController {
     description: "Invalid registration data",
   })
   @ApiResponse({
-    status: 401,
+    status: 409,
     description: "Email already registered",
   })
   @ApiResponse({ status: 429, description: "Too many registration attempts" })

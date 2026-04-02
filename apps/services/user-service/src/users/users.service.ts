@@ -319,6 +319,10 @@ export class UsersService {
       data: {
         status: UserStatus.INACTIVE,
       },
+      select: {
+        ...CommonSelects.userBasic,
+        tenantId: true,
+      },
     });
   }
 

@@ -25,7 +25,12 @@ class AIEventHandlers:
 
     async def initialize(self, nats_url: str) -> None:
         """Connect to event bus and subscribe to streams."""
-        from packages.platform_bootstrap.src.event_bus import SAHOOLEventBus
+        try:
+            from packages.platform_bootstrap.src.event_bus import SAHOOLEventBus
+        except ImportError:
+            # Fallback: platform-bootstrap may live under a different
+            # PYTHONPATH in some container layouts (e.g. /app/packages).
+            from platform_bootstrap.src.event_bus import SAHOOLEventBus
 
         self.bus = await SAHOOLEventBus.get_instance()
         await self.bus.connect(nats_url, service_name="ai-advisor")
@@ -51,11 +56,12 @@ class AIEventHandlers:
             durable="ai_weather_processor",
         )
 
-        # Command handler for on-demand predictions
+        # Command handler for on-demand predictions (uses commands bus)
         await self.bus.subscribe_events(
-            domain="commands",
+            domain="ai",
             handler=self.on_prediction_request,
             durable="ai_command_processor",
+            message_type="commands",
         )
 
         logger.info("ai_event_handlers_initialized")

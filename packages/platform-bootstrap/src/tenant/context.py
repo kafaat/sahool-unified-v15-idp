@@ -6,12 +6,13 @@ PostgreSQL Row-Level Security (RLS). Sets app.current_tenant on the
 database connection so RLS policies automatically filter by tenant.
 
 Usage:
-    async with TenantContext(tenant_id="t-123", db_pool=pool):
-        # All queries within this block are scoped to tenant t-123
-        rows = await conn.fetch("SELECT * FROM fields")
+    async with TenantContext(tenant_id="123e4567-e89b-12d3-a456-426614174000", db_pool=pool) as ctx:
+        # All queries within this block are scoped to this tenant
+        rows = await ctx.conn.fetch("SELECT * FROM fields")
 """
 
 import contextvars
+import json
 import uuid
 
 _tenant_context: contextvars.ContextVar[str | None] = contextvars.ContextVar("tenant_id", default=None)
@@ -26,11 +27,20 @@ class TenantContext:
         self.token: contextvars.Token | None = None
         self._conn = None
 
+    @property
+    def conn(self):
+        """Return the acquired database connection (available inside the context)."""
+        return self._conn
+
     async def __aenter__(self):
         self.token = _tenant_context.set(self.tenant_id)
         if self.db_pool:
             self._conn = await self.db_pool.acquire()
-            await self._conn.execute("SET app.current_tenant = $1", self.tenant_id)
+            # Use set_config() which is SQL-injection safe (takes text parameters)
+            await self._conn.execute(
+                "SELECT set_config('app.current_tenant', $1, true)",
+                self.tenant_id,
+            )
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -38,7 +48,9 @@ class TenantContext:
             _tenant_context.reset(self.token)
         if self._conn is not None:
             try:
-                await self._conn.execute("RESET app.current_tenant")
+                await self._conn.execute(
+                    "SELECT set_config('app.current_tenant', '', true)"
+                )
             finally:
                 await self.db_pool.release(self._conn)
                 self._conn = None
@@ -75,11 +87,19 @@ class TenantAwareNATS:
         )
 
     async def subscribe_events(self, domain: str, handler, **kwargs) -> None:
-        """Subscribe with automatic tenant filtering."""
+        """Subscribe with automatic tenant filtering.
 
-        async def wrapped_handler(event):
-            if hasattr(event, "tenant_id") and event.tenant_id == self.tenant_id:
-                await handler(event)
+        The handler receives a raw NATS ``Msg``; the JSON payload is parsed
+        to extract and compare ``tenant_id`` before delegating.
+        """
+
+        async def wrapped_handler(msg):
+            try:
+                payload = json.loads(msg.data)
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                return
+            if payload.get("tenant_id") == self.tenant_id:
+                await handler(msg)
 
         await self.event_bus.subscribe_events(
             domain=domain,

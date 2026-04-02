@@ -77,7 +77,8 @@ jobs:
       - name: Build ${{ matrix.service }}
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/services/${{ matrix.service }}
+          context: .
+          file: ./apps/services/${{ matrix.service }}/Dockerfile
           push: false
           load: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
@@ -85,7 +86,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Scan image for vulnerabilities
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1  # v0.35.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
           format: "sarif"
@@ -140,14 +141,14 @@ jobs:
           python-version: "3.11"
 
       - name: Install test dependencies
-        run: pip install -r requirements/test.txt
+        run: pip install -r requirements/testing.txt
 
       - name: Run integration tests
         env:
           NATS_URL: nats://localhost:4222
           DATABASE_URL: postgresql://test:test@localhost:5432/sahool_test
           REDIS_URL: redis://localhost:6379
-        run: python -m pytest tests/integration/ -v
+        run: python -m pytest tests/integration/ -v --junitxml=test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -220,8 +221,7 @@ jobs:
         run: |
           helm upgrade --install sahool-v16 ./helm/sahool \
             --namespace sahool-staging \
-            --set image.tag=${{ github.sha }} \
-            --set environment=staging \
+            --set global.environment=staging \
             --wait --timeout 10m
 
       - name: Verify deployment
@@ -253,8 +253,7 @@ jobs:
           aws eks update-kubeconfig --name sahool-production
           helm upgrade --install sahool-v16 ./helm/sahool \
             --namespace sahool-production \
-            --set image.tag=${{ github.ref_name }} \
-            --set environment=production \
+            --set global.environment=production \
             --wait --timeout 15m
 
       - name: Run smoke tests

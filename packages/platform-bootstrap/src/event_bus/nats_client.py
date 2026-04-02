@@ -12,12 +12,15 @@ Usage:
 
 import json
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable, Optional
 
 import nats
 from nats.aio.client import Client as NATS
 from nats.js import JetStreamContext
+
+# Subject prefix must match NATS ACLs in config/nats/nats.conf (lowercase)
+_SUBJECT_PREFIX = "sahool"
 
 
 class EventMessage:
@@ -83,11 +86,22 @@ class SAHOOLEventBus:
         action: str,
         data: dict[str, Any],
         tenant_id: str | None = None,
+        *,
+        message_type: str = "events",
     ) -> None:
-        """Publish a domain event to the SAHOOL event bus."""
+        """Publish a domain event to the SAHOOL event bus.
+
+        Args:
+            domain: The domain area (e.g. "field", "weather", "ai").
+            action: The action name (e.g. "sensor-data.received").
+            data: The event payload.
+            tenant_id: Optional tenant ID for multi-tenant isolation.
+            message_type: The bus type - "events", "commands", "registry",
+                          "health", or "audit".  Defaults to "events".
+        """
         if self.js is None:
             raise RuntimeError("Event bus not connected. Call connect() first.")
-        subject = f"SAHOOL.events.{domain}.{action}.v1"
+        subject = f"{_SUBJECT_PREFIX}.{message_type}.{domain}.{action}.v1"
         event = EventMessage(subject, data, self.service_name, tenant_id)
         await self.js.publish(subject, event.to_json())
 
@@ -96,11 +110,21 @@ class SAHOOLEventBus:
         domain: str,
         handler: Callable,
         durable: str | None = None,
+        *,
+        message_type: str = "events",
     ) -> None:
-        """Subscribe to domain events with a durable consumer."""
+        """Subscribe to domain events with a durable consumer.
+
+        Args:
+            domain: The domain area to subscribe to.
+            handler: Async callback receiving a NATS ``Msg``.
+            durable: Optional durable consumer name.
+            message_type: The bus type - "events", "commands", "registry",
+                          "health", or "audit".  Defaults to "events".
+        """
         if self.js is None:
             raise RuntimeError("Event bus not connected. Call connect() first.")
-        subject = f"SAHOOL.events.{domain}.>"
+        subject = f"{_SUBJECT_PREFIX}.{message_type}.{domain}.>"
         await self.js.subscribe(
             subject,
             durable=durable or f"{self.service_name}_{domain}",

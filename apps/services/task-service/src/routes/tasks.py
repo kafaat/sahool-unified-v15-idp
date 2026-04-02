@@ -152,6 +152,10 @@ async def get_tenant_id(
 # ═══════════════════════════════════════════════════════════════════════════
 
 
+# Strict UUID v4 format regex used for assigned_to validation.
+_UUID_PATTERN = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+
+
 class TaskCreateRequest(BaseModel):
     """Create a new task - إنشاء مهمة جديدة"""
 
@@ -166,11 +170,7 @@ class TaskCreateRequest(BaseModel):
     # Validate assigned_to as a UUID to prevent cross-tenant assignment with
     # arbitrary strings. Full tenant-scoped user existence verification should
     # be added when a user-lookup service is available.
-    assigned_to: str | None = Field(
-        None,
-        max_length=100,
-        pattern=r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-    )
+    assigned_to: str | None = Field(None, max_length=100, pattern=_UUID_PATTERN)
     due_date: datetime | None = None
     scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)
@@ -196,11 +196,7 @@ class TaskUpdateRequest(BaseModel):
     priority: TaskPriority | None = None
     field_id: str | None = Field(None, max_length=100)
     zone_id: str | None = None
-    assigned_to: str | None = Field(
-        None,
-        max_length=100,
-        pattern=r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-    )
+    assigned_to: str | None = Field(None, max_length=100, pattern=_UUID_PATTERN)
     due_date: datetime | None = None
     scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)

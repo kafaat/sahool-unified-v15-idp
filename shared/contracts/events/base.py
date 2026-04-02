@@ -170,6 +170,9 @@ class BaseEvent:
         except ImportError:
             # Fallback: build a RefResolver with a local store so $ref URIs
             # (e.g. "base-event.v1.json") are resolved from disk, not the network.
+            # NOTE: RefResolver is deprecated in jsonschema >=4.18 in favour of
+            # referencing.Registry; this path is only reached when 'referencing'
+            # is not installed and will be removed once it becomes a hard dependency.
             resolver = jsonschema.RefResolver.from_schema(schema, store=schema_store)
             validator = jsonschema.Draft7Validator(schema, resolver=resolver)
 

@@ -13,7 +13,7 @@ Unified agricultural weather service providing weather data, risk assessment, fo
 ## Port
 
 ```
-8108
+8092
 ```
 
 ## Features | الميزات
@@ -75,7 +75,7 @@ Unified agricultural weather service providing weather data, risk assessment, fo
 
 | Variable                 | Default | Description                    |
 | ------------------------ | ------- | ------------------------------ |
-| `PORT`                   | 8108    | Service port                   |
+| `PORT`                   | 8092    | Service port                   |
 | `USE_MOCK_WEATHER`       | false   | Use mock data for testing      |
 | `USE_MULTI_PROVIDER`     | true    | Enable multi-provider fallback |
 | `OPENWEATHERMAP_API_KEY` | -       | OpenWeatherMap API key         |
@@ -92,8 +92,8 @@ Unified agricultural weather service providing weather data, risk assessment, fo
 
 This service replaces both:
 
-- `weather-core` (Port 8098/8108) - Core assessment features
-- `weather-advanced` (Port 8092) - Advanced forecasting features
+- `weather-core` (Port 8098/8108) - Core assessment features (deprecated)
+- `weather-advanced` (Port 8092) - Advanced forecasting features (deprecated)
 
 All functionality is now available in this unified service.
 
@@ -101,7 +101,7 @@ All functionality is now available in this unified service.
 
 ```bash
 docker build -t weather-service .
-docker run -p 8108:8108 weather-service
+docker run -p 8092:8092 weather-service
 ```
 
 ## Development
@@ -109,5 +109,5 @@ docker run -p 8108:8108 weather-service
 ```bash
 cd apps/services/weather-service
 pip install -r requirements.txt
-python -m uvicorn src.main:app --reload --port 8108
+python -m uvicorn src.main:app --reload --port 8092
 ```

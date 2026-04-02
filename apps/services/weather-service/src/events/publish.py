@@ -261,19 +261,13 @@ class WeatherPublisher:
 
 # Singleton
 _publisher: WeatherPublisher | None = None
-_publisher_lock: asyncio.Lock | None = None
-
-
-def _get_lock() -> asyncio.Lock:
-    """Lazily create the lock inside the running event loop."""
-    global _publisher_lock
-    if _publisher_lock is None:
-        _publisher_lock = asyncio.Lock()
-    return _publisher_lock
+# Lock is created eagerly at module level so it always belongs to the same event loop.
+# Callers must be running inside an asyncio event loop (FastAPI guarantees this).
+_publisher_lock = asyncio.Lock()
 
 
 async def get_publisher() -> WeatherPublisher:
-    async with _get_lock():
+    async with _publisher_lock:
         global _publisher
         if _publisher is None:
             _publisher = WeatherPublisher()

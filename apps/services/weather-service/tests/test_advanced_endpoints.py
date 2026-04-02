@@ -261,6 +261,60 @@ class TestSprayWindowEndpoint:
         assert "wind_too_strong" in spray["issues"]
         assert "rain_likely" in spray["issues"]
 
+    def test_spray_unsuitable_triggers_publish(self, client):
+        """Test publish_weather_alert is called when spray window is unsuitable and publisher is set"""
+        mock_publisher = MagicMock()
+        mock_publisher.publish_weather_alert = AsyncMock(return_value="event-id-spray")
+
+        with patch("src.main.app.state") as mock_state:
+            mock_state.publisher = mock_publisher
+
+            response = client.post(
+                "/weather/spray-window",
+                json={
+                    "tenant_id": TENANT_ID,
+                    "field_id": FIELD_ID,
+                    "temp_c": 22.0,
+                    "humidity_pct": 55.0,
+                    "wind_speed_kmh": 30.0,  # Very windy → is_suitable=False
+                    "precipitation_probability": 80.0,  # Rain likely
+                },
+            )
+
+        assert response.status_code == 200
+        spray = response.json()["spray_window"]
+        assert spray["is_suitable"] is False
+        mock_publisher.publish_weather_alert.assert_awaited_once()
+        call_kwargs = mock_publisher.publish_weather_alert.call_args.kwargs
+        assert call_kwargs["tenant_id"] == TENANT_ID
+        assert call_kwargs["field_id"] == FIELD_ID
+        assert call_kwargs["alert_type"] == "spray_window_unsuitable"
+
+    def test_spray_suitable_does_not_publish(self, client):
+        """Test publish_weather_alert is NOT called when spray window is suitable"""
+        mock_publisher = MagicMock()
+        mock_publisher.publish_weather_alert = AsyncMock(return_value="event-id-spray")
+
+        with patch("src.main.app.state") as mock_state:
+            mock_state.publisher = mock_publisher
+
+            response = client.post(
+                "/weather/spray-window",
+                json={
+                    "tenant_id": TENANT_ID,
+                    "field_id": FIELD_ID,
+                    "temp_c": 22.0,
+                    "humidity_pct": 55.0,
+                    "wind_speed_kmh": 8.0,  # Calm → is_suitable=True
+                    "precipitation_probability": 5.0,
+                },
+            )
+
+        assert response.status_code == 200
+        spray = response.json()["spray_window"]
+        assert spray["is_suitable"] is True
+        mock_publisher.publish_weather_alert.assert_not_awaited()
+
 
 # ============== Frost Risk ==============
 
@@ -548,3 +602,87 @@ class TestInputValidation:
             },
         )
         assert response.status_code == 422
+
+
+# ============== Agricultural Report ==============
+
+
+class TestAgriculturalReportEndpoint:
+    """Test /weather/agricultural-report endpoint — publisher integration"""
+
+    def _make_weather(self, temp_c=28.0, humidity_pct=50.0, wind_speed_kmh=10.0):
+        """Build a minimal mock weather object."""
+        w = MagicMock()
+        w.temperature_c = temp_c
+        w.humidity_pct = humidity_pct
+        w.wind_speed_kmh = wind_speed_kmh
+        w.precipitation_mm = 0.0
+        w.cloud_cover_pct = 20.0
+        return w
+
+    def test_publish_forecast_issued_called_with_correct_args(self, client):
+        """
+        /weather/agricultural-report must call publish_forecast_issued with
+        provider, days=1, and correlation_id when a publisher is present.
+        Prevents regression of the TypeError fixed in the previous session.
+        """
+        mock_publisher = MagicMock()
+        mock_publisher.publish_forecast_issued = AsyncMock(return_value="event-ag-001")
+        mock_publisher.publish_weather_alert = AsyncMock(return_value="event-alert-001")
+
+        mock_weather = self._make_weather(temp_c=25.0)
+
+        with patch("src.main.app.state") as mock_state:
+            mock_state.publisher = mock_publisher
+            mock_state.multi_provider = None
+            mock_provider = MagicMock()
+            mock_provider.get_current = AsyncMock(return_value=mock_weather)
+            mock_state.weather_provider = mock_provider
+
+            response = client.post(
+                "/weather/agricultural-report",
+                json={
+                    "tenant_id": TENANT_ID,
+                    "field_id": FIELD_ID,
+                    "lat": 15.35,
+                    "lon": 44.20,
+                    "correlation_id": "corr-ag-001",
+                },
+            )
+
+        assert response.status_code == 200
+        mock_publisher.publish_forecast_issued.assert_awaited_once()
+        call_kwargs = mock_publisher.publish_forecast_issued.call_args.kwargs
+        assert call_kwargs["tenant_id"] == TENANT_ID
+        assert call_kwargs["field_id"] == FIELD_ID
+        assert call_kwargs["provider"] == "Open-Meteo"
+        assert call_kwargs["days"] == 1
+        assert call_kwargs["correlation_id"] == "corr-ag-001"
+
+    def test_publish_forecast_issued_not_called_without_publisher(self, client):
+        """publish_forecast_issued must not be called when no publisher is configured."""
+        mock_weather = self._make_weather(temp_c=25.0)
+
+        with patch("src.main.app.state") as mock_state:
+            mock_state.publisher = None
+            mock_state.multi_provider = None
+            mock_provider = MagicMock()
+            mock_provider.get_current = AsyncMock(return_value=mock_weather)
+            mock_state.weather_provider = mock_provider
+
+            response = client.post(
+                "/weather/agricultural-report",
+                json={
+                    "tenant_id": TENANT_ID,
+                    "field_id": FIELD_ID,
+                    "lat": 15.35,
+                    "lon": 44.20,
+                },
+            )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "evapotranspiration" in data
+        assert "growing_degree_days" in data
+        assert "spray_window" in data
+        assert "irrigation_adjustment" in data

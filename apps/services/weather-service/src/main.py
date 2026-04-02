@@ -203,10 +203,14 @@ try:
 
         app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
     except ImportError:
-        ALLOWED_ORIGINS = os.getenv(
-            "CORS_ORIGINS",
-            "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
-        ).split(",")
+        ALLOWED_ORIGINS = [
+            o.strip()
+            for o in os.getenv(
+                "CORS_ORIGINS",
+                "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+            ).split(",")
+            if o.strip()
+        ]
         _allow_credentials = "*" not in ALLOWED_ORIGINS
         app.add_middleware(
             CORSMiddleware,
@@ -799,7 +803,7 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                 }
             )
         weather = result.data
-        provider = result.provider
+        provider = getattr(result, "provider", "Open-Meteo")
     else:
         weather = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
         provider = "Open-Meteo"

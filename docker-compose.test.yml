@@ -6,7 +6,12 @@
 # and E2E tests. It uses the same services as production but with test-specific
 # configurations.
 #
+# SECURITY: All credentials are sourced from environment variables (.env.test).
+# No default passwords are embedded in this file.
+# الأمان: جميع بيانات الاعتماد تُقرأ من متغيرات البيئة (.env.test).
+#
 # Usage:
+#   cp .env.test .env   # or: set -a && source .env.test && set +a
 #   docker-compose -f docker-compose.test.yml up -d
 #   docker-compose -f docker-compose.test.yml down
 #
@@ -22,7 +27,7 @@ services:
     container_name: sahool-postgres-test
     environment:
       POSTGRES_USER: sahool_test
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test_password_123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set - source .env.test}
       POSTGRES_DB: sahool_test
     ports:
       - "5433:5432"  # Different port to avoid conflicts
@@ -37,13 +42,13 @@ services:
   redis_test:
     image: redis:7.4-alpine
     container_name: sahool-redis-test
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-test_redis_pass}"]
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD must be set}"]
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-test_redis_pass}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
     ports:
       - "6380:6379"  # Different port
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-test_redis_pass} ping | grep PONG"]
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -77,7 +82,7 @@ services:
       - QDRANT__SERVICE__GRPC_PORT=6334
       # SECURITY: API Key authentication required even in test environments
       # الأمان: مصادقة مفتاح API مطلوبة حتى في بيئات الاختبار
-      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-test_qdrant_api_key_for_ci}
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY must be set}
     healthcheck:
       # Qdrant image doesn't include curl/wget, use bash to check if port is listening
       test: ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/localhost/6333' || exit 1"]
@@ -105,10 +110,10 @@ services:
       - PORT=8089
       - LOG_LEVEL=DEBUG
       - ENVIRONMENT=test
-      - DATABASE_URL=postgresql://sahool_test:${POSTGRES_PASSWORD:-test_password_123}@postgres_test:5432/sahool_test
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test_redis_pass}@redis_test:6379/0
-      - STRIPE_API_KEY=${STRIPE_API_KEY:-test_stripe_key}
-      - THARWATT_API_KEY=${THARWATT_API_KEY:-test_tharwatt_key}
+      - DATABASE_URL=postgresql://sahool_test:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres_test:5432/sahool_test
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis_test:6379/0
+      - STRIPE_API_KEY=${STRIPE_API_KEY:?STRIPE_API_KEY must be set}
+      - THARWATT_API_KEY=${THARWATT_API_KEY:-}
       - THARWATT_BASE_URL=https://developers-test.tharwatt.com:5253
     ports:
       - "8189:8089"
@@ -136,14 +141,14 @@ services:
       - PORT=8092
       - LOG_LEVEL=DEBUG
       - ENVIRONMENT=test
-      - DATABASE_URL=postgresql://sahool_test:${POSTGRES_PASSWORD:-test_password_123}@postgres_test:5432/sahool_test
+      - DATABASE_URL=postgresql://sahool_test:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres_test:5432/sahool_test
       - NATS_URL=nats://nats_test:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test_redis_pass}@redis_test:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis_test:6379/0
       # Weather API - use mock provider in test
       - USE_MOCK_WEATHER=true
       - USE_MULTI_PROVIDER=false
-      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-test_openweather_key}
-      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-test_weatherapi_key}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
       # Cache Configuration
       - WEATHER_CACHE_ENABLED=true
       - WEATHER_CACHE_CURRENT_TTL=10
@@ -189,19 +194,19 @@ services:
     environment:
       - ENVIRONMENT=test
       - POSTGRES_USER=sahool_test
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test_password_123}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - POSTGRES_HOST=postgres_test
       - POSTGRES_PORT=5432
       - POSTGRES_DB=sahool_test
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-test_redis_pass}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
       - REDIS_HOST=redis_test
       - REDIS_PORT=6379
       - NATS_HOST=nats_test
       - NATS_PORT=4222
       - QDRANT_HOST=qdrant_test
       - QDRANT_PORT=6333
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-test-secret-key-for-tests-only-do-not-use-in-production-32chars}
-      - TEST_JWT_TOKEN=test-jwt-token-for-e2e-tests
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set}
+      - TEST_JWT_TOKEN=${TEST_JWT_TOKEN:-}
     depends_on:
       - postgres_test
       - redis_test

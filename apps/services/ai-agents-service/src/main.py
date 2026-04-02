@@ -55,6 +55,14 @@ from shared.events.contracts import (
 )
 from shared.middleware.tenant_context import TenantContextMiddleware
 
+# AI Safety Guardrails (Issue #12 — guardrails integration)
+try:
+    from shared.guardrails import GuardrailsConfig, setup_guardrails
+
+    GUARDRAILS_AVAILABLE = True
+except ImportError:
+    GUARDRAILS_AVAILABLE = False
+
 # Database layer
 from . import db
 
@@ -392,6 +400,32 @@ except ImportError:
 # Configure rate limiter
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+
+# AI Safety Guardrails (Issue #12 — protect agent execution endpoints)
+# حماية نقاط نهاية تنفيذ الوكلاء بحواجز الأمان
+if GUARDRAILS_AVAILABLE:
+    _guardrails_config = GuardrailsConfig(
+        enabled=os.getenv("GUARDRAILS_ENABLED", "true").lower() == "true",
+        block_violations=True,
+        mask_pii=True,
+        strict_topic_check=False,
+        exclude_paths=[
+            "/healthz",
+            "/health",
+            "/readyz",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/metrics",
+            "/",
+        ],
+        strict_paths=[
+            "/api/v1/agents/execute",
+            "/api/v1/agents/chat",
+        ],
+    )
+    setup_guardrails(app, _guardrails_config)
+    logger.info("guardrails_enabled", service=SERVICE_NAME)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

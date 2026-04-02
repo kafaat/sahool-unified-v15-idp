@@ -126,6 +126,15 @@ try:
 except ImportError:
     RATE_LIMIT_AVAILABLE = False
 
+# AI Safety Guardrails middleware (Issue #12 — guardrails integration)
+try:
+    from shared.guardrails import GuardrailsConfig, setup_guardrails
+
+    GUARDRAILS_AVAILABLE = True
+except ImportError:
+    GUARDRAILS_AVAILABLE = False
+    logger.info("guardrails_not_available", reason="shared.guardrails not importable")
+
 
 # Authentication imports
 try:
@@ -370,6 +379,33 @@ if REVOCATION_AVAILABLE:
         TokenRevocationMiddleware,
         exempt_paths=["/healthz", "/health", "/readyz", "/docs", "/redoc", "/openapi.json"],
     )
+
+# AI Safety Guardrails (Issue #12 — protect AI endpoints)
+# حماية نقاط نهاية الذكاء الاصطناعي بحواجز الأمان
+if GUARDRAILS_AVAILABLE:
+    guardrails_config = GuardrailsConfig(
+        enabled=os.getenv("GUARDRAILS_ENABLED", "true").lower() == "true",
+        block_violations=True,
+        mask_pii=True,
+        strict_topic_check=False,
+        exclude_paths=[
+            "/healthz",
+            "/health",
+            "/readyz",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/metrics",
+            "/",
+        ],
+        strict_paths=[
+            "/api/v1/orchestrate",
+            "/api/v1/integrations/nlp/process",
+            "/api/v1/integrations/crew/query",
+        ],
+    )
+    setup_guardrails(app, guardrails_config)
+    logger.info("guardrails_enabled", service="llm-orchestrator-service")
 
 # Include routers
 app.include_router(orchestrator_router)

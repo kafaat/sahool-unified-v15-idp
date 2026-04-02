@@ -223,9 +223,7 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
                     def _run_in_new_loop() -> float:
                         new_loop = asyncio.new_event_loop()
                         try:
-                            return new_loop.run_until_complete(
-                                self._async_similarity_isolated(text_a, text_b)
-                            )
+                            return new_loop.run_until_complete(self._async_similarity_isolated(text_a, text_b))
                         finally:
                             new_loop.close()
 
@@ -236,9 +234,7 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
                 # No running loop — safe to run_until_complete directly
                 new_loop = asyncio.new_event_loop()
                 try:
-                    return new_loop.run_until_complete(
-                        self._async_similarity_isolated(text_a, text_b)
-                    )
+                    return new_loop.run_until_complete(self._async_similarity_isolated(text_a, text_b))
                 finally:
                     new_loop.close()
             except Exception:

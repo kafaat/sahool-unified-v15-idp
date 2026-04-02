@@ -355,6 +355,10 @@ export class UsersController {
     description: "Active users count retrieved successfully",
   })
   @ApiResponse({
+    status: 400,
+    description: "Bad Request - Authentication context is missing tenant information",
+  })
+  @ApiResponse({
     status: 403,
     description: "Forbidden - User does not have ADMIN or MANAGER role",
   })

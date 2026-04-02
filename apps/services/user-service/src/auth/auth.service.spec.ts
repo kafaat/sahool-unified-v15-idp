@@ -397,10 +397,12 @@ describe("AuthService", () => {
         token_type: "Bearer",
       });
 
-      // The service makes two separate update calls:
+      // The service makes exactly two separate update calls:
       // 1. Inside the transaction: mark token as used
       // 2. Outside the transaction: record the replacement JTI
-      expect(prismaService.refreshToken.update).toHaveBeenCalledWith(
+      expect(prismaService.refreshToken.update).toHaveBeenCalledTimes(2);
+      expect(prismaService.refreshToken.update).toHaveBeenNthCalledWith(
+        1,
         expect.objectContaining({
           where: { jti: mockJti },
           data: expect.objectContaining({
@@ -409,7 +411,8 @@ describe("AuthService", () => {
           }),
         }),
       );
-      expect(prismaService.refreshToken.update).toHaveBeenCalledWith(
+      expect(prismaService.refreshToken.update).toHaveBeenNthCalledWith(
+        2,
         expect.objectContaining({
           where: { jti: mockJti },
           data: expect.objectContaining({

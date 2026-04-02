@@ -309,13 +309,24 @@ jobs:
             --config p/python \
             --config p/javascript \
             --config p/typescript \
-            --error --severity ERROR \
+            --severity ERROR \
+            --error \
+            --text \
+            --json --output semgrep-gate-results.json \
             --exclude "archive" --exclude "node_modules" --exclude ".git" \
             --exclude "tests" --exclude "test" --exclude "**/test*" \
             --exclude "legacy" --exclude "docs" --exclude "idp/templates" \
             --exclude "packages/mock-data" --exclude "**/__tests__" \
             --exclude "**/*.spec.*" --exclude "**/*.test.*" \
             .
+
+      - name: Upload Semgrep gate results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-gate-results
+          path: semgrep-gate-results.json
+          retention-days: 30
 
       - name: Upload Semgrep SARIF
         uses: github/codeql-action/upload-sarif@v4

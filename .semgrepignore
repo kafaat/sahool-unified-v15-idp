@@ -37,6 +37,12 @@ legacy/**
 **/.pytest_cache/**
 **/.mypy_cache/**
 
+# Prisma generated files (large, auto-generated, should not be SAST-scanned)
+**/.prisma/**
+**/prisma/.prisma/**
+**/prisma/client/**
+**/@prisma/client/**
+
 # Documentation and configuration
 **/docs/**
 **/*.md

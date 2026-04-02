@@ -163,10 +163,10 @@ class TaskCreateRequest(BaseModel):
     priority: TaskPriority = TaskPriority.MEDIUM
     field_id: str | None = Field(None, max_length=100)
     zone_id: str | None = None
-    # TODO: assigned_to should be validated against the tenant's user list to prevent
-    # cross-tenant assignment. Currently accepts any string; a future enhancement should
-    # verify that the user exists within the same tenant before accepting the value.
-    assigned_to: str | None = None
+    # Validate assigned_to as a UUID to prevent cross-tenant assignment with
+    # arbitrary strings. Full tenant-scoped user existence verification should
+    # be added when a user-lookup service is available.
+    assigned_to: str | None = Field(None, max_length=100, pattern=r"^[0-9a-fA-F\-]{36}$")
     due_date: datetime | None = None
     scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)
@@ -192,7 +192,7 @@ class TaskUpdateRequest(BaseModel):
     priority: TaskPriority | None = None
     field_id: str | None = Field(None, max_length=100)
     zone_id: str | None = None
-    assigned_to: str | None = None
+    assigned_to: str | None = Field(None, max_length=100, pattern=r"^[0-9a-fA-F\-]{36}$")
     due_date: datetime | None = None
     scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)

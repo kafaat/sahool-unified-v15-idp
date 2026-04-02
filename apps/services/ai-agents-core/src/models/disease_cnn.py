@@ -290,8 +290,12 @@ class DiseaseCNNModel:
                 with open(metadata_path) as f:
                     metadata = json.load(f)
                     return metadata.get("version", self.config.DEFAULT_MODEL_VERSION)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(
+                    "metadata_parse_failed",
+                    model_path=model_path,
+                    error=str(exc),
+                )
 
         # Default version
         return self.config.DEFAULT_MODEL_VERSION

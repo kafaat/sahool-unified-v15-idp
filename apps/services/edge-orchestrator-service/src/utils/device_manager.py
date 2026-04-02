@@ -641,8 +641,12 @@ class DeviceManager:
                                 device_id,
                                 DeviceStatus.ONLINE,
                             )
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            logger.warning(
+                                "device_metrics_update_failed",
+                                device_id=str(device_id),
+                                error=str(exc),
+                            )
                     else:
                         # Mark device as offline if heartbeat fails
                         timeout = timedelta(seconds=settings.edge_timeout_threshold)
@@ -685,7 +689,13 @@ class DeviceManager:
                         timeout=httpx.Timeout(10.0),
                     )
                     results[device_id] = response.status_code == 200
-                except Exception:
+                except Exception as exc:
+                    logger.warning(
+                        "broadcast_message_failed",
+                        device_id=str(device_id),
+                        message_type=message_type,
+                        error=str(exc),
+                    )
                     results[device_id] = False
             else:
                 results[device_id] = False

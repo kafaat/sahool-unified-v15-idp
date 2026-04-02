@@ -4,7 +4,7 @@ SAHOOL Notification Service - Data Repository Layer
 """
 
 import logging
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 

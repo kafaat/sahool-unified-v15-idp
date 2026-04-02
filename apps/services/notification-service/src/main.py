@@ -21,13 +21,13 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, date, datetime, timezone
+from datetime import UTC, date, datetime
 from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID
 
 import structlog
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
@@ -92,6 +92,15 @@ except ImportError:
 
     def setup_security_headers(app):
         pass
+
+
+# CORS configuration via shared module
+try:
+    from shared.cors_config import setup_cors_middleware
+
+    CORS_SETUP_AVAILABLE = True
+except ImportError:
+    CORS_SETUP_AVAILABLE = False
 
 
 from shared.middleware.tenant_context import TenantContextMiddleware
@@ -714,15 +723,36 @@ async def send_email_notification(notification, farmer_id: str):
         # Send Email
         language = farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
 
-        # Create HTML email body
-        html_body = f"""
+        # Build separate HTML bodies for each language.
+        # Notification title/body were sanitised with html.escape() during creation,
+        # so they must be unescape'd before insertion into the HTML template to avoid
+        # double-escaping (e.g. "&amp;" appearing in rendered email).
+        title_en = html.unescape(notification.title)
+        title_ar_text = html.unescape(notification.title_ar or notification.title)
+        body_en = html.unescape(notification.body)
+        body_ar_text = html.unescape(notification.body_ar or notification.body)
+
+        html_body_en = f"""
         <html>
-            <body dir="{"rtl" if language == "ar" else "ltr"}">
-                <h2>{notification.title_ar if language == "ar" else notification.title}</h2>
-                <p>{notification.body_ar if language == "ar" else notification.body}</p>
+            <body dir="ltr">
+                <h2>{html.escape(title_en)}</h2>
+                <p>{html.escape(body_en)}</p>
                 <br>
                 <p style="color: #666; font-size: 12px;">
-                    {"هذه رسالة آلية من منصة SAHOOL الزراعية" if language == "ar" else "This is an automated message from SAHOOL Agriculture Platform"}
+                    This is an automated message from SAHOOL Agriculture Platform
+                </p>
+            </body>
+        </html>
+        """
+
+        html_body_ar = f"""
+        <html>
+            <body dir="rtl">
+                <h2>{html.escape(title_ar_text)}</h2>
+                <p>{html.escape(body_ar_text)}</p>
+                <br>
+                <p style="color: #666; font-size: 12px;">
+                    هذه رسالة آلية من منصة SAHOOL الزراعية
                 </p>
             </body>
         </html>
@@ -732,8 +762,8 @@ async def send_email_notification(notification, farmer_id: str):
             to=farmer_profile.email,
             subject=notification.title,
             subject_ar=notification.title_ar,
-            body=html_body,
-            body_ar=html_body,
+            body=html_body_en,
+            body_ar=html_body_ar,
             language=language,
             is_html=True,
         )
@@ -802,14 +832,17 @@ async def send_push_notification(notification, farmer_id: str):
         }
         priority = priority_map.get(notification.priority, NPriority.MEDIUM)
 
-        # Send push notification
-        message_id = firebase_client.send_notification(
+        # Send push notification — Firebase Admin SDK is synchronous; run in thread pool
+        # to avoid blocking the asyncio event loop.
+        message_id = await asyncio.to_thread(
+            firebase_client.send_notification,
             token=farmer_profile.fcm_token,
             title=notification.title,
             body=notification.body,
             title_ar=notification.title_ar,
             body_ar=notification.body_ar,
-            data=notification.data or {},
+            # FCM data payload only accepts string values (Firebase API requirement)
+            data={k: str(v) for k, v in (notification.data or {}).items()},
             priority=priority,
         )
 
@@ -1061,6 +1094,7 @@ async def create_notification_from_nats(notification_data: dict[str, Any]):
             target_farmers=notification_data.get("target_farmers", []),
             channels=channels,
             expires_in_hours=notification_data.get("expires_in_hours", 24),
+            tenant_id=notification_data.get("tenant_id"),
         )
         logger.info("NATS: Created notification from analysis event")
     except Exception as e:
@@ -1340,16 +1374,12 @@ async def health_check():
 async def readiness():
     checks = {}
 
-    db_pool = getattr(app.state, "db_pool", None)
-    if db_pool:
-        try:
-            async with db_pool.acquire() as conn:
-                await conn.fetchval("SELECT 1")
-            checks["database"] = "connected"
-        except Exception:
-            checks["database"] = "disconnected"
-    else:
-        checks["database"] = "not_configured"
+    # Use Tortoise ORM health check (service uses Tortoise, not a raw asyncpg pool)
+    try:
+        db_ok = await check_db_health()
+        checks["database"] = "connected" if db_ok else "disconnected"
+    except Exception:
+        checks["database"] = "disconnected"
 
     nc = getattr(app.state, "nc", None)
     checks["nats"] = "connected" if nc and not nc.is_closed else "not_configured"
@@ -1426,7 +1456,6 @@ async def create_custom_notification(
 @app.post("/weather")
 async def create_weather_alert(
     request: WeatherAlertRequest,
-    background_tasks: BackgroundTasks,
     user: User | None = Depends(get_current_user),
 ):
     """إنشاء تنبيه طقس لمحافظات محددة"""
@@ -1450,6 +1479,12 @@ async def create_weather_alert(
         channels=[NotificationChannel.PUSH, NotificationChannel.IN_APP],
         expires_in_hours=48,
     )
+
+    if not notification:
+        raise HTTPException(
+            status_code=400,
+            detail="No matching farmers found for this weather alert | لا يوجد مزارعون مطابقون لهذا التنبيه الجوي",
+        )
 
     logger.info(f"🌤️ Weather alert created for {len(request.governorates)} governorates")
 
@@ -1493,6 +1528,12 @@ async def create_pest_alert(
         expires_in_hours=72,
     )
 
+    if not notification:
+        raise HTTPException(
+            status_code=400,
+            detail="No matching farmers found for this pest alert | لا يوجد مزارعون مطابقون لتنبيه الآفات هذا",
+        )
+
     logger.info(f"🐛 Pest alert created for {request.governorate.value}")
 
     return {
@@ -1531,6 +1572,12 @@ async def create_irrigation_reminder(
         channels=[NotificationChannel.PUSH, NotificationChannel.IN_APP],
         expires_in_hours=12,
     )
+
+    if not notification:
+        raise HTTPException(
+            status_code=404,
+            detail="Farmer not found or has no active profile | المزارع غير موجود أو ليس لديه ملف نشط",
+        )
 
     return {
         "id": str(notification.id),
@@ -1736,6 +1783,14 @@ async def update_preferences(
     user: User | None = Depends(get_current_user),
 ):
     """تحديث تفضيلات الإشعارات"""
+    # Security: Verify the authenticated user can only update their own preferences
+    if AUTH_AVAILABLE and user is not None:
+        if str(user.id) != farmer_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Not authorized to update preferences for another user | غير مصرح لك بتحديث تفضيلات مستخدم آخر",
+            )
+
     # Update preferences for each channel
     channels = ["push", "sms", "in_app"]
     updated_prefs = []
@@ -1777,7 +1832,7 @@ async def update_preferences(
     return {
         "success": True,
         "farmer_id": farmer_id,
-        "preferences": preferences.dict(),
+        "preferences": preferences.model_dump(),
         "message": "تم تحديث التفضيلات",
         "message_en": "Preferences updated successfully",
     }

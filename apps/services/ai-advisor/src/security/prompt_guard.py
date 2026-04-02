@@ -41,10 +41,17 @@ class PromptGuard:
         # Data exfiltration
         r"(send|post|transmit)\s+(to|data\s+to)\s+",
         r"fetch\s+from\s+url",
-        # Arabic injection patterns
-        r"تجاهل\s+(كل|جميع)\s+التعليمات",
-        r"انس\s+(كل|ما)\s+قلته",
-        r"تصرف\s+ك",
+        # Arabic injection patterns - أنماط حقن عربية
+        r"تجاهل\s+(كل|جميع)\s+التعليمات",  # "ignore all instructions"
+        r"تجاهل\s+التعليمات\s+(السابقة|أعلاه)",  # "ignore previous/above instructions"
+        r"انس\s+(كل|ما)\s+قلته",  # "forget everything/what I said"
+        r"تصرف\s+ك",  # "act as"
+        r"أنت\s+الآن\s+",  # "you are now"
+        r"تظاهر\s+(أنك|بأنك)",  # "pretend you are"
+        r"(أظهر|اكشف|اعرض)\s+(تعليمات|أوامر)\s+(النظام|الأصلية)",  # "show/reveal system instructions"
+        r"كسر\s+(الحماية|القيود)",  # "break the protection/restrictions"
+        r"تجاوز\s+(الحماية|المرشح|القيود)",  # "bypass protection/filter/restrictions"
+        r"نفذ\s+(هذا\s+)?(الكود|الأمر)",  # "execute this code/command"
     ]
 
     # Compile patterns for performance

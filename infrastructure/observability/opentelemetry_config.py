@@ -131,10 +131,12 @@ def setup_tracing(
     provider = TracerProvider(resource=resource)
 
     # Add OTLP exporter (sends to Jaeger/Zipkin/Collector)
+    # Use TLS in production; allow insecure only in development/test
     try:
-        otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True)
+        use_insecure = environment in ("development", "test", "local")
+        otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint, insecure=use_insecure)
         provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-        logger.info(f"OTLP exporter configured: {otlp_endpoint}")
+        logger.info(f"OTLP exporter configured: {otlp_endpoint} (insecure={use_insecure})")
     except Exception as e:
         logger.warning(f"Could not configure OTLP exporter: {e}")
 

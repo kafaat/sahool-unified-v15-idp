@@ -90,6 +90,22 @@ try:
 except ImportError:
     REVOCATION_AVAILABLE = False
 
+# Import observability middleware (H-21)
+try:
+    from shared.observability.middleware import ObservabilityMiddleware
+
+    OBSERVABILITY_AVAILABLE = True
+except ImportError:
+    OBSERVABILITY_AVAILABLE = False
+
+# Import security headers middleware (H-21)
+try:
+    from shared.middleware.security_headers import setup_security_headers
+
+    SECURITY_HEADERS_AVAILABLE = True
+except ImportError:
+    SECURITY_HEADERS_AVAILABLE = False
+
 
 # ============== Input Validation Helpers ==============
 
@@ -397,6 +413,17 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Security headers middleware (H-21)
+if SECURITY_HEADERS_AVAILABLE:
+    setup_security_headers(app)
+
+# Observability middleware - distributed tracing (H-21)
+if OBSERVABILITY_AVAILABLE:
+    app.add_middleware(
+        ObservabilityMiddleware,
+        service_name="advisory-service",
+    )
 
 # CORS - Secure configuration
 try:

@@ -610,7 +610,7 @@ jobs:
           NATS_URL=nats://localhost:4222
           WEATHER_API_KEY=test_weather_key
           WEATHER_PROVIDER=open-meteo
-          MAPS_API_KEY=test_maps_key
+          GOOGLE_MAPS_API_KEY=test_maps_key
           MAP_PROVIDER=osm
           MAPBOX_ACCESS_TOKEN=pk.test_token
           CONNECT_TIMEOUT_SECONDS=30
@@ -633,6 +633,14 @@ jobs:
           SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
+
+      - name: Run code generation
+        uses: ./.github/actions/flutter-codegen
+        with:
+          working-directory: apps/mobile
+          clean-first: 'true'
+
+      - name: Run Flutter Analyze
         id: analyze
         run: |
           echo "Running Flutter analyze..."
@@ -697,7 +705,7 @@ jobs:
           NATS_URL=nats://localhost:4222
           WEATHER_API_KEY=test_weather_key
           WEATHER_PROVIDER=open-meteo
-          MAPS_API_KEY=test_maps_key
+          GOOGLE_MAPS_API_KEY=test_maps_key
           MAP_PROVIDER=osm
           MAPBOX_ACCESS_TOKEN=pk.test_token
           CONNECT_TIMEOUT_SECONDS=30
@@ -850,7 +858,7 @@ jobs:
           NATS_URL=nats://localhost:4222
           WEATHER_API_KEY=test_weather_key
           WEATHER_PROVIDER=open-meteo
-          MAPS_API_KEY=test_maps_key
+          GOOGLE_MAPS_API_KEY=test_maps_key
           MAP_PROVIDER=osm
           MAPBOX_ACCESS_TOKEN=pk.test_token
           CONNECT_TIMEOUT_SECONDS=30
@@ -962,7 +970,7 @@ jobs:
           NATS_URL=nats://localhost:4222
           WEATHER_API_KEY=test_weather_key
           WEATHER_PROVIDER=open-meteo
-          MAPS_API_KEY=test_maps_key
+          GOOGLE_MAPS_API_KEY=test_maps_key
           MAP_PROVIDER=osm
           MAPBOX_ACCESS_TOKEN=pk.test_token
           CONNECT_TIMEOUT_SECONDS=30
@@ -1234,7 +1242,7 @@ jobs:
           NATS_URL=nats://localhost:4222
           WEATHER_API_KEY=test_weather_key
           WEATHER_PROVIDER=open-meteo
-          MAPS_API_KEY=test_maps_key
+          GOOGLE_MAPS_API_KEY=test_maps_key
           MAP_PROVIDER=osm
           MAPBOX_ACCESS_TOKEN=pk.test_token
           CONNECT_TIMEOUT_SECONDS=30

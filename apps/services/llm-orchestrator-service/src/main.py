@@ -94,6 +94,30 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+# Observability middleware (H-25)
+try:
+    from shared.observability.middleware import ObservabilityMiddleware
+
+    OBSERVABILITY_AVAILABLE = True
+except ImportError:
+    OBSERVABILITY_AVAILABLE = False
+
+# Input sanitization middleware (H-25)
+try:
+    from shared.middleware.input_sanitizer import InputSanitizationMiddleware
+
+    INPUT_SANITIZATION_AVAILABLE = True
+except ImportError:
+    INPUT_SANITIZATION_AVAILABLE = False
+
+# Token revocation middleware (H-25)
+try:
+    from shared.auth.revocation_middleware import TokenRevocationMiddleware
+
+    REVOCATION_AVAILABLE = True
+except ImportError:
+    REVOCATION_AVAILABLE = False
+
 
 # Authentication imports
 try:
@@ -313,9 +337,27 @@ except ImportError:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Observability middleware - distributed tracing (H-25)
+if OBSERVABILITY_AVAILABLE:
+    app.add_middleware(
+        ObservabilityMiddleware,
+        service_name="llm-orchestrator-service",
+    )
+
 # Tenant context middleware - عزل المستأجرين
 if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)
+
+# Input sanitization middleware (H-25)
+if INPUT_SANITIZATION_AVAILABLE:
+    app.add_middleware(InputSanitizationMiddleware)
+
+# Token revocation middleware (H-25)
+if REVOCATION_AVAILABLE:
+    app.add_middleware(
+        TokenRevocationMiddleware,
+        exempt_paths=["/healthz", "/health", "/readyz", "/docs", "/redoc", "/openapi.json"],
+    )
 
 # Include routers
 app.include_router(orchestrator_router)

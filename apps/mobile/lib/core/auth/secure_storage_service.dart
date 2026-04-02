@@ -90,7 +90,7 @@ class SecureStorageService {
     try {
       final value = await _storage.read(key: _keyTokenExpiry);
       if (value == null) return null;
-      return DateTime.tryParse(value) ?? DateTime.now();
+      return DateTime.tryParse(value);
     } catch (e) {
       AppLogger.e('Failed to read token expiry', error: e);
       return null;
@@ -222,7 +222,7 @@ class SecureStorageService {
     try {
       final value = await _storage.read(key: _keyLastSyncTime);
       if (value == null) return null;
-      return DateTime.tryParse(value) ?? DateTime.now();
+      return DateTime.tryParse(value);
     } catch (e) {
       return null;
     }

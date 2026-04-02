@@ -28,6 +28,14 @@ logger = logging.getLogger(__name__)
 
 _REDIS_PREFIX = "sahool:revocation:"
 
+# TTL for user/tenant revocation keys in Redis.
+# Must be >= max token lifetime so that a revocation entry outlives every
+# token that could have been issued before the revocation was recorded.
+# Aligned with the maximum refresh token lifetime (see MAX_REFRESH_TOKEN_DAYS
+# configuration, typically defined in shared/auth/config.py).
+_MAX_REFRESH_TOKEN_DAYS = int(os.getenv("MAX_REFRESH_TOKEN_DAYS", "30"))
+_REVOCATION_TTL = _MAX_REFRESH_TOKEN_DAYS * 24 * 3600  # seconds
+
 
 class RedisRevocationBackend:
     """
@@ -100,8 +108,11 @@ class RedisRevocationBackend:
 
     def revoke_user_tokens(self, user_id: str) -> bool:
         try:
-            self._redis.set(  # type: ignore[union-attr]
+            # setex with TTL to prevent unbounded key growth; TTL covers the
+            # maximum possible token lifetime (30 days = max refresh token).
+            self._redis.setex(  # type: ignore[union-attr]
                 f"{_REDIS_PREFIX}user:{user_id}",
+                _REVOCATION_TTL,
                 str(time.time()),
             )
             return True
@@ -125,15 +136,19 @@ class RedisRevocationBackend:
         try:
             self._redis.delete(f"{_REDIS_PREFIX}user:{user_id}")  # type: ignore[union-attr]
             return True
-        except Exception:
+        except Exception as exc:
+            logger.warning("Redis clear_user_revocation failed: %s", exc)
             return False
 
     # -- Tenant -------------------------------------------------------------
 
     def revoke_tenant_tokens(self, tenant_id: str) -> bool:
         try:
-            self._redis.set(  # type: ignore[union-attr]
+            # setex with TTL to prevent unbounded key growth; TTL covers the
+            # maximum possible token lifetime (30 days = max refresh token).
+            self._redis.setex(  # type: ignore[union-attr]
                 f"{_REDIS_PREFIX}tenant:{tenant_id}",
+                _REVOCATION_TTL,
                 str(time.time()),
             )
             return True
@@ -259,7 +274,12 @@ class TokenRevocationService:
 
         # Also persist to Redis for cross-instance revocation
         if self._redis_backend.available:
-            self._redis_backend.revoke_token(jti, expires_at, reason)
+            if not self._redis_backend.revoke_token(jti, expires_at, reason):
+                logger.error(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
+                    "Redis revoke_token write failed for jti=%s... — revocation is local-only; "
+                    "other instances may still accept this token.",
+                    jti[:8] if len(jti) >= 8 else jti,
+                )
 
         logger.info(f"Token revoked: jti={jti[:8]}..., reason={reason}")
         self._cleanup_expired()
@@ -310,7 +330,12 @@ class TokenRevocationService:
 
         # Also persist to Redis for cross-instance revocation
         if self._redis_backend.available:
-            self._redis_backend.revoke_user_tokens(user_id)
+            if not self._redis_backend.revoke_user_tokens(user_id):
+                logger.error(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
+                    "Redis revoke_user_tokens write failed for user=%s — revocation is local-only; "
+                    "other instances may still accept tokens for this user.",
+                    user_id,
+                )
 
         logger.info(f"All tokens revoked for user: {user_id}, reason={reason}")
         return True
@@ -375,7 +400,12 @@ class TokenRevocationService:
 
         # Also persist to Redis for cross-instance revocation
         if self._redis_backend.available:
-            self._redis_backend.revoke_tenant_tokens(tenant_id)
+            if not self._redis_backend.revoke_tenant_tokens(tenant_id):
+                logger.error(  # nosemgrep: python.lang.security.audit.logging.logger-credential-leak.python-logger-credential-disclosure
+                    "Redis revoke_tenant_tokens write failed for tenant=%s — revocation is local-only; "
+                    "other instances may still accept tokens for this tenant.",
+                    tenant_id,
+                )
 
         logger.warning(f"All tokens revoked for tenant: {tenant_id}, reason={reason}")
         return True

@@ -47,15 +47,15 @@ try:
     HAS_GUARDRAILS = True
 except ImportError:
     HAS_GUARDRAILS = False
-    import logging as _logging
-
-    _logging.getLogger(__name__).warning(
-        "SECURITY WARNING: shared.guardrails not available — "
-        "prompt injection filtering is DISABLED. "
-        "Install shared.guardrails to enable input validation."
-    )
 
 logger = structlog.get_logger(__name__)
+
+if not HAS_GUARDRAILS:
+    logger.warning(
+        "guardrails_unavailable",
+        message="shared.guardrails not available — prompt injection filtering is DISABLED. "
+        "Install shared.guardrails to enable input validation.",
+    )
 router = APIRouter(tags=["Chat"])
 
 # Intent classification and routing (module-level singletons)

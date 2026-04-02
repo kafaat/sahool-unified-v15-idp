@@ -11,6 +11,7 @@ import asyncio
 import contextlib
 import functools
 import gzip
+import hashlib
 import inspect
 import json
 import logging
@@ -579,7 +580,7 @@ class TenantRedis:
             # Fallback for values that the JSON encoder cannot handle
             data = str(value).encode()
 
-        if ttl:
+        if ttl is not None:
             return await self._redis.setex(full_key, ttl, data)
         return await self._redis.set(full_key, data)
 
@@ -659,7 +660,9 @@ class TenantStorage:
         if self._use_prefix_mode:
             return f"{self._bucket_prefix}-global"
 
-        return f"{self._bucket_prefix}-{tenant_id[:20]}"
+        # Use hash suffix to keep bucket names valid (≤63 chars, no collisions)
+        tenant_hash = hashlib.sha256(tenant_id.encode()).hexdigest()[:16]
+        return f"{self._bucket_prefix}-{tenant_hash}"
 
     def _get_key(self, path: str, tenant_id: str | None = None) -> str:
         if tenant_id is None:
@@ -725,7 +728,7 @@ class TenantStorage:
         if stored_tenant and stored_tenant != current_tenant:
             raise TenantIsolationError(f"Tenant mismatch: {stored_tenant} != {current_tenant}")
 
-        return response["Body"].read()
+        return await asyncio.to_thread(response["Body"].read)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1060,9 +1063,11 @@ class TenantBackupService:
         with ContextManager(system_ctx):
             for table in self.BACKUP_TABLES:
                 async with tenant_db() as conn:
-                    await conn.execute("SELECT set_config('app.current_tenant', $1, true)", tenant_id)
-                    # Table name from BACKUP_TABLES constant (not user input)
-                    rows = await conn.fetch(f"SELECT * FROM {table}")  # noqa: B608
+                    # Wrap in a transaction so set_config(..., true) persists
+                    async with conn.transaction():
+                        await conn.execute("SELECT set_config('app.current_tenant', $1, true)", tenant_id)
+                        # Table name from BACKUP_TABLES constant (not user input)
+                        rows = await conn.fetch(f"SELECT * FROM {table}")  # noqa: B608
                     backup_data["tables"][table] = [dict(row) for row in rows]
 
         # Compress and upload

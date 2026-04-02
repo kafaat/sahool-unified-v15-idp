@@ -398,36 +398,44 @@ class CorrectiveRetrievalEngine:
         return min(1.0, regional_chunks / max(1, len(chunks)))
 
     def _score_freshness(self, chunks: list[dict[str, Any]]) -> float:
-        """Score the freshness/recency of retrieved chunks."""
+        """Score the freshness/recency of retrieved chunks.
+
+        Returns:
+            1.0  — at least one chunk has an expiration_date in the future
+            0.2  — all chunks with expiration_date are already expired
+            0.5  — no expiration_date metadata found (default / unknown freshness)
+        """
         from datetime import UTC, datetime
 
+        _DEFAULT = 0.5
+        if not chunks:
+            return _DEFAULT
+
         now = datetime.now(UTC)
-        freshness_scores = []
+        scores: list[float] = []
 
         for chunk in chunks:
-            metadata = chunk.get("metadata", {})
-            fresh = metadata.get("fresh", {})
+            metadata = (chunk or {}).get("metadata") or {}
+            fresh = metadata.get("fresh") or {}
             exp_date = fresh.get("expiration_date") if isinstance(fresh, dict) else None
 
-            if exp_date:
-                try:
-                    if isinstance(exp_date, str):
-                        exp = datetime.fromisoformat(exp_date)
-                    else:
-                        exp = exp_date
-                    days_until_expiry = (exp - now).days
-                    if days_until_expiry < 0:
-                        freshness_scores.append(0.2)  # Expired but might still be useful
-                    elif days_until_expiry < 90:
-                        freshness_scores.append(0.6)
-                    else:
-                        freshness_scores.append(1.0)
-                except (ValueError, TypeError):
-                    freshness_scores.append(0.5)
-            else:
-                freshness_scores.append(0.5)  # Unknown freshness
+            if not exp_date or not isinstance(exp_date, str):
+                continue
 
-        return sum(freshness_scores) / max(1, len(freshness_scores))
+            try:
+                # Replace "Z" suffix so fromisoformat accepts UTC timestamps
+                # (fromisoformat with "Z" requires Python 3.11+; this keeps the
+                # code defensive in mixed-version CI images).
+                normalised = exp_date.strip().replace("Z", "+00:00")
+                exp = datetime.fromisoformat(normalised)
+                if exp.tzinfo is None:
+                    # Naive datetime — treat as UTC so comparisons are safe
+                    exp = exp.replace(tzinfo=UTC)
+                scores.append(1.0 if exp > now else 0.2)
+            except (ValueError, TypeError):
+                continue  # Unparseable date — skip this chunk
+
+        return max(scores) if scores else _DEFAULT
 
     # ─── Refinement ───────────────────────────────────────────────────────────
 

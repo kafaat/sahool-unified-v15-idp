@@ -13,7 +13,7 @@ Usage:
 
 import asyncio
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import wraps
 
 from prometheus_client import Counter, Gauge, Histogram, Info
@@ -228,7 +228,7 @@ def instrument_fastapi(app, service_name: str):
             "status": "healthy",
             "service": service_name,
             "version": "16.0.0",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     return app

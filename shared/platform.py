@@ -16,11 +16,12 @@ import json
 import logging
 import re
 import uuid
+from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass, field, replace
 from datetime import datetime
 from enum import Enum
-from typing import Any, BinaryIO, Callable, Dict, Generic, List, Optional, TypeVar, Union
+from typing import Any, BinaryIO, Generic, TypeVar
 
 import asyncpg
 import boto3
@@ -55,16 +56,16 @@ class RequestContext:
     """Immutable tenant context — propagated across all layers"""
 
     tenant_id: str
-    user_id: Optional[str] = None
+    user_id: str | None = None
     role: UserRole = UserRole.USER
     request_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    correlation_id: Optional[str] = None
-    trace_id: Optional[str] = None
-    span_id: Optional[str] = None
-    service_name: Optional[str] = None
-    client_ip: Optional[str] = None
+    correlation_id: str | None = None
+    trace_id: str | None = None
+    span_id: str | None = None
+    service_name: str | None = None
+    client_ip: str | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    claims: Dict[str, Any] = field(default_factory=dict)
+    claims: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         if not self.tenant_id:
@@ -74,7 +75,7 @@ class RequestContext:
         if isinstance(self.role, str):
             object.__setattr__(self, "role", UserRole(self.role))
 
-    def to_headers(self) -> Dict[str, str]:
+    def to_headers(self) -> dict[str, str]:
         return {
             "X-Tenant-ID": self.tenant_id,
             "X-User-ID": self.user_id or "",
@@ -87,7 +88,7 @@ class RequestContext:
             "traceparent": self._format_traceparent(),
         }
 
-    def to_event_envelope(self, event_type: str, data: Dict) -> "EventEnvelope":
+    def to_event_envelope(self, event_type: str, data: dict) -> "EventEnvelope":
         return EventEnvelope(
             event_id=str(uuid.uuid4()), event_type=event_type, timestamp=datetime.utcnow(), context=self, data=data
         )
@@ -98,7 +99,7 @@ class RequestContext:
         return ""
 
     @classmethod
-    def from_headers(cls, headers: Dict[str, str], service_name: Optional[str] = None) -> "RequestContext":
+    def from_headers(cls, headers: dict[str, str], service_name: str | None = None) -> "RequestContext":
         return cls(
             tenant_id=headers.get("X-Tenant-ID") or headers.get("x-tenant-id"),
             user_id=headers.get("X-User-ID") or headers.get("x-user-id") or None,
@@ -112,7 +113,7 @@ class RequestContext:
         )
 
     @classmethod
-    def from_jwt_payload(cls, payload: Dict[str, Any], service_name: Optional[str] = None) -> "RequestContext":
+    def from_jwt_payload(cls, payload: dict[str, Any], service_name: str | None = None) -> "RequestContext":
         return cls(
             tenant_id=payload.get("tid") or payload.get("tenant_id"),
             user_id=payload.get("sub"),
@@ -132,9 +133,9 @@ class EventEnvelope:
     event_type: str
     timestamp: datetime
     context: RequestContext
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "event_id": self.event_id,
             "event_type": self.event_type,
@@ -153,7 +154,7 @@ class EventEnvelope:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "EventEnvelope":
+    def from_dict(cls, data: dict[str, Any]) -> "EventEnvelope":
         ctx_data = data.get("context", {})
         context = RequestContext(
             tenant_id=ctx_data["tenant_id"],
@@ -178,7 +179,7 @@ class EventEnvelope:
 # Context Management — Thread-safe / Async-safe
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_REQUEST_CONTEXT: ContextVar[Optional[RequestContext]] = ContextVar("request_context", default=None)
+_REQUEST_CONTEXT: ContextVar[RequestContext | None] = ContextVar("request_context", default=None)
 
 
 class ContextManager:
@@ -277,7 +278,7 @@ class QuotaExceededError(Exception):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def require_context(allowed_roles: Optional[List[UserRole]] = None):
+def require_context(allowed_roles: list[UserRole] | None = None):
     """Decorator: Operation requires valid context"""
 
     def decorator(func: Callable):
@@ -316,7 +317,7 @@ def with_event_context(func: Callable):
     """Decorator: Extract context from event envelope"""
 
     @functools.wraps(func)
-    async def wrapper(event_data: Dict[str, Any], *args, **kwargs):
+    async def wrapper(event_data: dict[str, Any], *args, **kwargs):
         envelope = EventEnvelope.from_dict(event_data)
         with ContextManager(envelope.context):
             return await func(envelope.data, *args, **kwargs)
@@ -460,7 +461,7 @@ class TenantRepository(Generic[T]):
             raise TypeError(f"{cls.__name__} must define _model_class")
 
     @require_context()
-    async def find_many(self, **filters) -> List[T]:
+    async def find_many(self, **filters) -> list[T]:
         async with tenant_db() as conn:
             where_parts = []
             values = []
@@ -475,13 +476,13 @@ class TenantRepository(Generic[T]):
             return [self._model_class(**dict(row)) for row in rows]
 
     @require_context()
-    async def find_one(self, id: str) -> Optional[T]:
+    async def find_one(self, id: str) -> T | None:
         async with tenant_db() as conn:
             row = await conn.fetchrow(f"SELECT * FROM {self._table} WHERE id = $1", id)
             return self._model_class(**dict(row)) if row else None
 
     @require_context()
-    async def create(self, data: Dict[str, Any]) -> T:
+    async def create(self, data: dict[str, Any]) -> T:
         # Auto-inject tenant_id
         data["tenant_id"] = get_current_tenant_id()
         data["created_at"] = datetime.utcnow()
@@ -519,7 +520,7 @@ class TenantRedis:
         return f"{ctx.tenant_id[:12]}:{self._service}:{resource}:{key}"
 
     @require_context()
-    async def get(self, resource: str, key: str) -> Optional[Any]:
+    async def get(self, resource: str, key: str) -> Any | None:
         full_key = self._get_key(resource, key)
         data = await self._redis.get(full_key)
 
@@ -532,7 +533,7 @@ class TenantRedis:
             return data.decode("utf-8")
 
     @require_context()
-    async def set(self, resource: str, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, resource: str, key: str, value: Any, ttl: int | None = None) -> bool:
         full_key = self._get_key(resource, key)
 
         data = json.dumps(value).encode() if isinstance(value, (dict, list)) else json.dumps(str(value)).encode()
@@ -547,7 +548,7 @@ class TenantRedis:
         return await self._redis.delete(full_key)
 
     @require_context()
-    async def scan(self, resource: str, pattern: str = "*") -> List[str]:
+    async def scan(self, resource: str, pattern: str = "*") -> list[str]:
         """Scan keys for current tenant ONLY"""
         ctx = get_current_context()
         full_pattern = f"{ctx.tenant_id[:12]}:{self._service}:{resource}:{pattern}"
@@ -609,7 +610,7 @@ class TenantStorage:
         self._bucket_prefix = bucket_prefix
         self._use_prefix_mode = use_prefix_mode
 
-    def _get_bucket_name(self, tenant_id: Optional[str] = None) -> str:
+    def _get_bucket_name(self, tenant_id: str | None = None) -> str:
         if tenant_id is None:
             tenant_id = get_current_tenant_id()
 
@@ -618,7 +619,7 @@ class TenantStorage:
 
         return f"{self._bucket_prefix}-{tenant_id[:20]}"
 
-    def _get_key(self, path: str, tenant_id: Optional[str] = None) -> str:
+    def _get_key(self, path: str, tenant_id: str | None = None) -> str:
         if tenant_id is None:
             tenant_id = get_current_tenant_id()
 
@@ -631,10 +632,10 @@ class TenantStorage:
     async def upload(
         self,
         path: str,
-        data: Union[bytes, BinaryIO],
-        content_type: Optional[str] = None,
-        metadata: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Any]:
+        data: bytes | BinaryIO,
+        content_type: str | None = None,
+        metadata: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         bucket = self._get_bucket_name()
         key = self._get_key(path)
 
@@ -688,7 +689,7 @@ class TenantStorage:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def build_nats_headers(context: Optional[RequestContext] = None) -> Dict[str, str]:
+def build_nats_headers(context: RequestContext | None = None) -> dict[str, str]:
     """Build standard NATS headers from context"""
     if context is None:
         context = get_current_context()
@@ -705,7 +706,7 @@ def build_nats_headers(context: Optional[RequestContext] = None) -> Dict[str, st
     }
 
 
-def extract_context_from_headers(headers: Dict[str, Any]) -> RequestContext:
+def extract_context_from_headers(headers: dict[str, Any]) -> RequestContext:
     """Extract RequestContext from NATS message headers"""
 
     def get(k, d=""):
@@ -730,7 +731,7 @@ class TenantNATSPublisher:
         self._nc = nc
         self._service = service_name
 
-    async def publish(self, subject: str, data: Dict[str, Any], event_type: Optional[str] = None) -> None:
+    async def publish(self, subject: str, data: dict[str, Any], event_type: str | None = None) -> None:
         context = get_current_context()
 
         std_headers = build_nats_headers(context)
@@ -750,9 +751,7 @@ class TenantNATSSubscriber:
         self._nc = nc
         self._service = service_name
 
-    async def subscribe(
-        self, subject: str, handler: Callable[[Dict[str, Any]], Any], queue: Optional[str] = None
-    ) -> None:
+    async def subscribe(self, subject: str, handler: Callable[[dict[str, Any]], Any], queue: str | None = None) -> None:
         async def message_handler(msg: Msg):
             context = extract_context_from_headers(msg.headers)
 
@@ -849,7 +848,7 @@ class UsageRecord:
     quantity: float
     unit: str
     timestamp: datetime
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 class UsageMeter:
@@ -861,9 +860,9 @@ class UsageMeter:
     }
 
     def __init__(self):
-        self._buffer: List[UsageRecord] = []
+        self._buffer: list[UsageRecord] = []
 
-    async def record(self, resource_type: str, quantity: float, metadata: Optional[Dict] = None):
+    async def record(self, resource_type: str, quantity: float, metadata: dict | None = None):
         if not has_context():
             return
 
@@ -956,7 +955,7 @@ class ThreatDetector:
         "path_traversal": [r"\.\./", r"\.\.\\\\"],
     }
 
-    def check_request(self, path: str, params: Dict, body: str = "") -> Optional[str]:
+    def check_request(self, path: str, params: dict, body: str = "") -> str | None:
         content = f"{path} {str(params)} {body}"
 
         for threat_type, patterns in self.PATTERNS.items():
@@ -975,7 +974,7 @@ class DataLossPrevention:
         (r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", "email"),
     ]
 
-    def scan_response(self, data: Any) -> tuple[bool, List[str]]:
+    def scan_response(self, data: Any) -> tuple[bool, list[str]]:
         content = str(data)
         detected = []
 
@@ -1000,7 +999,7 @@ class TenantBackupService:
         self.storage = storage
 
     @require_context(allowed_roles=[UserRole.SUPER_ADMIN])
-    async def create_full_backup(self, tenant_id: str) -> Dict[str, Any]:
+    async def create_full_backup(self, tenant_id: str) -> dict[str, Any]:
         """Create full backup of tenant data"""
         backup_id = f"backup-{tenant_id[:8]}-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}"
 

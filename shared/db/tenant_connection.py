@@ -236,11 +236,19 @@ async def verify_tenant_isolation(app: FastAPI) -> bool:
 
     critical_tables = [
         # Core tables (from migration 010)
-        "fields", "tasks", "users", "equipment",
+        "fields",
+        "tasks",
+        "users",
+        "equipment",
         # Billing tables (from billing-core migration)
-        "subscriptions", "invoices", "payments", "usage_records",
+        "subscriptions",
+        "invoices",
+        "payments",
+        "usage_records",
         # Audit & metering tables (from migration 011)
-        "tenant_audit_log", "usage_metering", "security_audit_log",
+        "tenant_audit_log",
+        "usage_metering",
+        "security_audit_log",
     ]
     all_ok = True
 

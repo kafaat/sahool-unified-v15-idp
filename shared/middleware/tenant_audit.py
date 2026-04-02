@@ -140,9 +140,7 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
         if db_pool is not None:
             import asyncio
 
-            asyncio.create_task(
-                _persist_audit_entry(db_pool, accessed_tenant_id, user_id, request, log_data)
-            )
+            asyncio.create_task(_persist_audit_entry(db_pool, accessed_tenant_id, user_id, request, log_data))
 
         return response
 
@@ -186,6 +184,4 @@ async def _persist_audit_entry(
             await db_pool.release(conn)
     except Exception as exc:
         # Never fail the request due to audit logging failures
-        logging.getLogger("sahool.tenant_audit").warning(
-            "Failed to persist audit entry to DB: %s", exc
-        )
+        logging.getLogger("sahool.tenant_audit").warning("Failed to persist audit entry to DB: %s", exc)

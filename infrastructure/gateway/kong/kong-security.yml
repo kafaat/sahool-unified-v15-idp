@@ -116,6 +116,11 @@ plugins:
           - "X-Forwarded-Host"
           - "X-Original-URL"
           - "X-Rewrite-URL"
+          # SECURITY: Strip client-provided X-Tenant-Id to prevent tenant spoofing.
+          # The tenant-validation plugin re-derives the tenant from JWT tid claim.
+          # أمان: حذف رأس X-Tenant-Id لمنع انتحال هوية المستأجر.
+          - "X-Tenant-Id"
+          - "X-Tenant-ID"
       add:
         headers:
           # Add security context - إضافة سياق الأمان

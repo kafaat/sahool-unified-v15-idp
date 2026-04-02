@@ -48,7 +48,7 @@ from shared.llm.router import (
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def _make_response(text: str = "ok") -> GenerationResponse:
+def _make_ollama_response(text: str = "ok") -> GenerationResponse:
     return GenerationResponse(
         text=text,
         model="llama3.2",
@@ -320,7 +320,7 @@ class TestProviderFailoverChain:
 
         async def second_ok(*_a, **_kw):
             call_log.append("second")
-            return _make_response("fallback ok")
+            return _make_ollama_response("fallback ok")
 
         primary_provider = MagicMock()
         primary_provider.generate = AsyncMock(side_effect=first_fail)
@@ -401,7 +401,7 @@ class TestProviderFailoverChain:
 
         async def second_ok(*_a, **_kw):  # must NOT be reached
             call_log.append("fallback")
-            return _make_response("should not be returned")
+            return _make_ollama_response("should not be returned")
 
         providers_map = {
             ProviderType.OLLAMA: MagicMock(generate=AsyncMock(side_effect=first_fail)),
@@ -448,7 +448,7 @@ class TestProviderHealthChecks:
         async def should_not_be_called(*_a, **_kw):
             nonlocal generate_called
             generate_called = True
-            return _make_response()
+            return _make_ollama_response()
 
         mock_provider = MagicMock()
         mock_provider.is_available = AsyncMock(return_value=False)
@@ -794,7 +794,7 @@ class TestRouterStats:
         router = LLMRouter()
 
         mock_provider = MagicMock()
-        mock_provider.generate = AsyncMock(return_value=_make_response("hello"))
+        mock_provider.generate = AsyncMock(return_value=_make_ollama_response("hello"))
         mock_provider.is_available = AsyncMock(return_value=True)
 
         decision = RoutingDecision(

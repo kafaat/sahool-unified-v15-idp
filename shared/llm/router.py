@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 # Seconds before a cached availability result is considered stale and re-checked.
 # A short TTL means a temporarily-unavailable provider is retried quickly instead
 # of being blacklisted for the lifetime of the router instance.
-_AVAILABILITY_CACHE_TTL: float = 30.0
+_AVAILABILITY_CACHE_TTL: float = 30.0  # seconds
 
 
 class AllProvidersFailedError(LLMProviderError):

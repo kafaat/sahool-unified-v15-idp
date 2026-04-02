@@ -15,8 +15,8 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
-    # Run weekly on Sunday at 00:00 UTC
-    - cron: '0 0 * * 0'
+    # Run daily at 02:00 UTC for faster vulnerability detection
+    - cron: '0 2 * * *'
 
 concurrency:
   group: codeql-${{ github.ref }}

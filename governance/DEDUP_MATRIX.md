@@ -260,16 +260,16 @@ The following pairs of similarly-named services have been reviewed and their dis
 | yield-prediction (3021) | yield-prediction-service (8152) | **DEPRECATED** yield-prediction. Code 100% identical. yield-prediction-service has rate limiting + Prisma. | 2026-02-19 |
 | ndvi-processor (8118) | vegetation-analysis-service (8090) | **DISTINCT** purposes. ndvi-processor handles satellite NDVI computation. vegetation-analysis-service is broader (multi-index, multi-provider). | 2026-02-19 |
 
-### 8.2 Requires Clarification
+### 8.2 Clarified (Previously Requires Clarification)
 
-| Service 1 | Port | Service 2 | Port | Overlap | Recommendation |
-|-----------|------|-----------|------|---------|----------------|
-| code-review-agent | 8145 | code-review-service | 8102 | AI code review | Document: agent = Claude SDK agent, service = general code review API |
-| ai-advisor | 8112 | ai-agents-core | 8161 | AI advisory | Document: ai-advisor = agricultural advisory, ai-agents-core = agent framework |
-| ai-agents-core | 8161 | ai-agents-service | 8130 | Agent services | Document: core = framework/base, service = orchestration/deployment |
+| Service 1 | Port | Service 2 | Port | Distinction | Status |
+|-----------|------|-----------|------|-------------|--------|
+| code-review-agent | 8145 | code-review-service | 8102 | **code-review-agent** is a Claude SDK-powered autonomous agent that performs deep AI code review with context-aware analysis. **code-review-service** is a general-purpose API service for rule-based code review (linting, complexity, standards). They are **complementary**: the service handles deterministic checks while the agent handles nuanced analysis. | ✅ DISTINCT |
+| ai-advisor | 8112 | ai-agents-core | 8161 | **ai-advisor** is a domain-specific service for agricultural advisory (crop recommendations, irrigation scheduling, fertilizer guidance). **ai-agents-core** is the foundational framework providing agent lifecycle management, tool registration, and multi-agent orchestration (CrewAI). ai-advisor may *use* ai-agents-core as infrastructure. | ✅ DISTINCT |
+| ai-agents-core | 8161 | ai-agents-service | 8130 | **ai-agents-core** provides the base framework (agent definitions, tool registry, memory management). **ai-agents-service** handles deployment, orchestration, and external API exposure for end-user agent interactions. Core = library, Service = runtime orchestration. | ✅ DISTINCT |
 
 ---
 
 **Document Owner**: Platform Team
-**Last Updated**: 2026-03-10
+**Last Updated**: 2026-04-02
 **Next Review**: v17 planning

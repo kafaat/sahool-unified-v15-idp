@@ -1,4 +1,4 @@
-# ═══════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════��══════════════
 # Semgrep Ignore Configuration
 # Files and directories to exclude from security scanning
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -36,6 +36,10 @@ legacy/**
 **/coverage/**
 **/.pytest_cache/**
 **/.mypy_cache/**
+
+# Prisma generated client artifacts (can be huge and frequently trigger rule timeouts)
+**/prisma/.prisma/**
+**/.prisma/**
 
 # Documentation and configuration
 **/docs/**

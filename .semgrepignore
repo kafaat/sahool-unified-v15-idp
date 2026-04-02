@@ -39,7 +39,6 @@ legacy/**
 
 # Prisma generated files (large, auto-generated, should not be SAST-scanned)
 **/.prisma/**
-**/prisma/.prisma/**
 **/prisma/client/**
 **/@prisma/client/**
 

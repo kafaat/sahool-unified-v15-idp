@@ -145,9 +145,10 @@ class TestGetOptionalPrincipal:
 class TestTenantAndUserId:
     @pytest.mark.asyncio
     async def test_get_tenant_id_from_tenant_id(self):
+        # When both claims are present, 'tid' (the canonical claim) takes precedence
         principal = {"sub": "u1", "tenant_id": "t-abc", "tid": "t-def"}
         result = await get_tenant_id(principal)
-        assert result == "t-abc"
+        assert result == "t-def"
 
     @pytest.mark.asyncio
     async def test_get_tenant_id_falls_back_to_tid(self):

@@ -520,6 +520,9 @@ class TenantAwareLoadTester:
     def _generate_test_token(self, tenant_id: str) -> str:
         """Generate test JWT for load testing (test environments only)."""
         secret = os.getenv("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+        env = os.getenv("ENVIRONMENT", "test")
+        if env == "production":
+            logger.warning("Load test token generation called in production — ensure this is intentional")
         payload = {
             "tid": tenant_id,
             "sub": f"test-user-{tenant_id[:8]}",

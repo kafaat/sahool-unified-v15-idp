@@ -259,11 +259,20 @@ jobs:
               for change in breaking_changes:
                   print(f'  🚨 {change}')
               print('\\n⚠️  Breaking changes require version bump and migration plan')
-              print('   Add \"BREAKING:\" prefix to commit message if intentional')
 
               # Check if commit message indicates intentional breaking change
-              # For now, just warn but don't fail
-              print('\\n::warning::Breaking changes detected in event schemas')
+              result = subprocess.run(
+                  ['git', 'log', '-1', '--format=%s'],
+                  capture_output=True, text=True
+              )
+              commit_msg = result.stdout.strip() if result.returncode == 0 else ''
+
+              if commit_msg.startswith('BREAKING:'):
+                  print('\\n✅ BREAKING: prefix found — intentional breaking change accepted.')
+              else:
+                  print('\\n❌ Add \"BREAKING:\" prefix to commit message if intentional.')
+                  print('::error::Breaking changes detected in event schemas without BREAKING: commit prefix.')
+                  sys.exit(1)
           else:
               print('\\n✅ No breaking changes detected')
           "

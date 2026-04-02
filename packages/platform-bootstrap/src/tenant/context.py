@@ -13,6 +13,7 @@ Usage:
 
 import contextvars
 import json
+import logging
 import uuid
 
 _tenant_context: contextvars.ContextVar[str | None] = contextvars.ContextVar("tenant_id", default=None)
@@ -97,6 +98,11 @@ class TenantAwareNATS:
             try:
                 payload = json.loads(msg.data)
             except (json.JSONDecodeError, UnicodeDecodeError):
+                logging.getLogger(__name__).warning(
+                    "TenantAwareNATS: failed to decode message on %s (%d bytes)",
+                    getattr(msg, "subject", "?"),
+                    len(msg.data) if msg.data else 0,
+                )
                 return
             if payload.get("tenant_id") == self.tenant_id:
                 await handler(msg)

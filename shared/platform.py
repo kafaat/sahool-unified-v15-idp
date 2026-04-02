@@ -369,7 +369,7 @@ class ContextMiddleware(BaseHTTPMiddleware):
                     # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
                     payload = jwt.decode(
                         token,
-                        options={"verify_signature": False, "verify_exp": True},  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+                        options={"verify_signature": False, "verify_exp": True},
                         algorithms=["HS256", "HS384", "HS512"],
                     )
                 else:

@@ -6,13 +6,13 @@ NATS server rejected connections with `Authorization Violation` due to bcrypt ha
 
 ## Solution
 
-Updated `config/nats/nats.conf` to use bcrypt-hashed passwords that correspond to the `.env.example` credentials, with `$NATS_USER` / `$NATS_ADMIN_USER` / `$NATS_MONITOR_USER` environment variable substitution for usernames.
+Ensured `config/nats/nats.conf` uses bcrypt-hashed passwords that correspond to the `.env.example` credentials, with `$NATS_USER` / `$NATS_ADMIN_USER` / `$NATS_MONITOR_USER` environment variable substitution for usernames.
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `config/nats/nats.conf` | Uses bcrypt hashes matching `.env.example` passwords |
+| `config/nats/nats.conf` | Already contains bcrypt hashes matching `.env.example` passwords |
 | `scripts/apply-hotfix-002.ps1` | Automated hotfix application script |
 
 ## Security Note

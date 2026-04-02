@@ -17,7 +17,7 @@ Write-Host "Applying HOTFIX-002..." -ForegroundColor Cyan
 
 if ($FullReset) {
     docker compose -f docker-compose-core.yml down
-    docker volume rm sahool_nats-data 2>$null
+    docker volume rm sahool-nats-data 2>$null
 }
 
 docker compose -f docker-compose-core.yml up -d nats

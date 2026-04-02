@@ -12,7 +12,6 @@ aws eks update-kubeconfig --name sahool-$Environment
 helm upgrade --install sahool-v16 ./helm/sahool `
     --namespace sahool-$Environment `
     --create-namespace `
-    --set global.imageTag=$Version `
     --set global.environment=$Environment `
     --wait --timeout 15m
 

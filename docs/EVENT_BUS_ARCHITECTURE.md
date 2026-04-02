@@ -7,16 +7,16 @@ SAHOOL uses NATS JetStream as its core event bus for service-to-service communic
 ## Naming Convention
 
 ```
-SAHOOL.{domain}.{type}.{action}.{version}
+sahool.{type}.{domain}.{action}.{version}
 ```
 
 ### Examples
 
-- `SAHOOL.events.user.created.v1`
-- `SAHOOL.commands.irrigation.start.v1`
-- `SAHOOL.registry.service.register.v1`
-- `SAHOOL.health.field-service.heartbeat.v1`
-- `SAHOOL.audit.user.login.v1`
+- `sahool.events.user.created.v1`
+- `sahool.commands.irrigation.start.v1`
+- `sahool.registry.service.register.v1`
+- `sahool.health.field-service.heartbeat.v1`
+- `sahool.audit.user.login.v1`
 
 ## Streams
 

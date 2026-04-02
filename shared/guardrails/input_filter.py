@@ -75,12 +75,12 @@ class PromptInjectionDetector:
             r"you\s+are\s+now\s+a?\s*\w+",
             r"act\s+as\s+a?\s*\w+",
             r"pretend\s+to\s+be",
-            r"تجاهل\s+التعليمات",
-            r"تجاهل\s+(كل|جميع)\s+التعليمات",
-            r"انسى\s+كل\s+شيء",
-            r"تصرف\s+ك",
-            r"أنت\s+الآن\s+",
-            r"تظاهر\s+(أنك|بأنك)",
+            r"تجاهل\s+التعليمات",  # "ignore instructions"
+            r"تجاهل\s+(كل|جميع)\s+التعليمات",  # "ignore all instructions"
+            r"انسى\s+كل\s+شيء",  # "forget everything"
+            r"تصرف\s+ك",  # "act as"
+            r"أنت\s+الآن\s+",  # "you are now"
+            r"تظاهر\s+(أنك|بأنك)",  # "pretend you are"
         ]
 
         # Jailbreak and bypass patterns (H-06)
@@ -90,8 +90,8 @@ class PromptInjectionDetector:
             r"\bdeveloper\s+mode\b",
             r"\broleplay\s+as\b",
             r"bypass\s+(safety|filter|restriction|guardrail)",
-            r"كسر\s+(الحماية|القيود)",
-            r"تجاوز\s+(الحماية|المرشح|القيود)",
+            r"كسر\s+(الحماية|القيود)",  # "break protection/restrictions"
+            r"تجاوز\s+(الحماية|المرشح|القيود)",  # "bypass protection/filter/restrictions"
         ]
 
         # Data exfiltration patterns
@@ -100,8 +100,8 @@ class PromptInjectionDetector:
             r"reveal\s+(the\s+|your\s+)?(system|hidden)\s+(prompt|instructions)",
             r"what\s+(are|were)\s+your\s+(original|system)\s+instructions",
             r"repeat\s+(your|the)\s+(instructions|prompt)",
-            r"أظهر\s+التعليمات",
-            r"(أظهر|اكشف|اعرض)\s+(تعليمات|أوامر)\s+(النظام|الأصلية)",
+            r"أظهر\s+التعليمات",  # "show instructions"
+            r"(أظهر|اكشف|اعرض)\s+(تعليمات|أوامر)\s+(النظام|الأصلية)",  # "show/reveal system instructions"
         ]
 
         # Role confusion patterns

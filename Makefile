@@ -15,6 +15,7 @@
 .PHONY: quality-quick quality-orchestrate quality-report quality-install
 .PHONY: deps-check deps-tree deps-audit deps-outdated deps-security deps-install-tools
 .PHONY: perf-install dead-code complexity unused-deps docstring-coverage secrets-scan licenses benchmark quality-full-legacy quality-quick-legacy
+.PHONY: tenant-isolation
 .PHONY: service-health check-services db-migrate-all db-generate logs-all
 .PHONY: dev-ai dev-agents build-ai test-ai
 .PHONY: pr-merge pr-merge-all pr-status pr-monitor pr-help
@@ -586,6 +587,10 @@ validate-env: ## التحقق من متغيرات البيئة - Validate .env f
 secrets-scan: ## فحص الأسرار المسربة - Scan for leaked secrets
 	@echo "$(BLUE)🔐 فحص الأسرار - Scanning for secrets...$(RESET)"
 	@detect-secrets scan apps/ shared/ --all-files 2>/dev/null | $(PYTHON) -c "import sys,json; d=json.load(sys.stdin); n=len(d.get('results',{})); print(f'Found {n} potential secrets' if n else '✅ No secrets found')" || echo "$(GREEN)✅ لا توجد أسرار مسربة$(RESET)"
+
+tenant-isolation: ## فحص عزل المستأجرين - Enforce tenant isolation patterns
+	@echo "$(BLUE)🔒 فحص عزل المستأجرين - Tenant isolation check...$(RESET)"
+	@$(PYTHON) scripts/ci/enforce-tenant-isolation.py || true
 
 licenses: ## فحص التراخيص - Check dependency licenses
 	@echo "$(BLUE)📜 فحص التراخيص - License check...$(RESET)"

@@ -187,7 +187,8 @@ class TestNoGhostServices:
             "kong",  # infrastructure
             "root-endpoint",  # Kong meta-route (no backend needed)
         }
-        # Kong route suffixes that map to a base service (e.g. chat-service-health → chat-service)
+        # Kong route suffixes that map to a base service
+        # (e.g. chat-service-health → chat-service, ws-gateway-ws → ws-gateway)
         route_suffixes = ("-health", "-public", "-ws")
 
         for service_name, service_config in kong_services.items():

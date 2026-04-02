@@ -114,6 +114,7 @@ class KeywordSimilarityProvider(SemanticSimilarityProvider):
     """
 
     # Agricultural terms that carry extra weight in similarity
+    # NOTE: All terms are lowercase to match lowercased tokens in similarity()
     _AGRI_TERMS = {
         "wheat",
         "rice",
@@ -126,7 +127,7 @@ class KeywordSimilarityProvider(SemanticSimilarityProvider):
         "fertilizer",
         "pesticide",
         "soil",
-        "NDVI",
+        "ndvi",
         "yield",
         "harvest",
         "planting",
@@ -199,8 +200,8 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
         """Compute semantic similarity using embeddings with keyword fallback.
 
         When called from an async context (e.g., FastAPI), runs the async
-        embedding call in a separate thread to avoid blocking the event loop
-        while still using the embeddings adapter (not just keyword fallback).
+        embedding call in a separate thread with a fresh adapter/client to
+        avoid cross-loop httpx.AsyncClient reuse issues.
         """
         if not text_a or not text_b:
             return 0.0
@@ -217,19 +218,14 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
                     loop = None
 
                 if loop is not None and loop.is_running():
-                    # Inside an async context — run async adapter in a new thread
-                    # so embeddings are actually used (not just keyword fallback)
-                    if hasattr(self._adapter, "similarity_sync"):
-                        try:
-                            return float(self._adapter.similarity_sync(text_a, text_b))
-                        except Exception:
-                            pass  # Fall through to thread-based async call
-
-                    # Use a thread to run the async adapter call
+                    # Inside an async context — run in a separate thread with
+                    # a fresh adapter to avoid reusing httpx.AsyncClient across loops
                     def _run_in_new_loop() -> float:
                         new_loop = asyncio.new_event_loop()
                         try:
-                            return new_loop.run_until_complete(self._async_similarity(text_a, text_b))
+                            return new_loop.run_until_complete(
+                                self._async_similarity_isolated(text_a, text_b)
+                            )
                         finally:
                             new_loop.close()
 
@@ -240,7 +236,9 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
                 # No running loop — safe to run_until_complete directly
                 new_loop = asyncio.new_event_loop()
                 try:
-                    return new_loop.run_until_complete(self._async_similarity(text_a, text_b))
+                    return new_loop.run_until_complete(
+                        self._async_similarity_isolated(text_a, text_b)
+                    )
                 finally:
                     new_loop.close()
             except Exception:
@@ -249,22 +247,29 @@ class EmbeddingsSimilarityProvider(SemanticSimilarityProvider):
 
         return self._fallback.similarity(text_a, text_b)
 
-    def _sync_similarity(self, text_a: str, text_b: str) -> float:
-        """Synchronous cosine similarity using cached embeddings if available."""
-        if hasattr(self._adapter, "similarity_sync"):
-            try:
-                return float(self._adapter.similarity_sync(text_a, text_b))
-            except Exception:
-                pass  # Fall through to keyword fallback
-        return self._fallback.similarity(text_a, text_b)
+    async def _async_similarity_isolated(self, text_a: str, text_b: str) -> float:
+        """Run async similarity with a fresh adapter to avoid cross-loop client reuse.
 
-    async def _async_similarity(self, text_a: str, text_b: str) -> float:
-        """Async embedding-based similarity."""
+        Creates a temporary adapter clone bound to the current event loop,
+        ensuring httpx.AsyncClient is not shared across loops/threads.
+        """
+        adapter = self._adapter
+        # If the adapter supports cloning for a new loop, use it;
+        # otherwise use the original and hope for the best
+        if hasattr(adapter, "clone"):
+            adapter = adapter.clone()
         try:
-            result = await self._adapter.similarity(text_a, text_b)
+            result = await adapter.similarity(text_a, text_b)
             return float(result)
         except Exception:
             return self._fallback.similarity(text_a, text_b)
+        finally:
+            # Close the cloned adapter's client if we created one
+            if adapter is not self._adapter and hasattr(adapter, "close"):
+                try:
+                    await adapter.close()
+                except Exception:
+                    pass
 
 
 class CorrectiveRetrievalEngine:

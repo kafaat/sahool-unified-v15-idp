@@ -738,21 +738,35 @@ add_request_id_middleware(app)
 
 # CORS middleware - تكوين مشاركة الموارد عبر المصادر
 try:
-    from shared.cors_config import CORS_SETTINGS
+    from shared.cors_config import setup_cors_middleware
 
-    app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
+    setup_cors_middleware(app)
 except ImportError:
     ALLOWED_ORIGINS = os.getenv(
         "CORS_ORIGINS",
         "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
     ).split(",")
 
+    # Disable credentials when wildcard origin is used to avoid invalid CORS config
+    allow_credentials = all(origin != "*" for origin in ALLOWED_ORIGINS)
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ALLOWED_ORIGINS,
-        allow_credentials=True,
+        allow_credentials=allow_credentials,
         allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-Id"],
+        allow_headers=[
+            "Accept",
+            "Accept-Language",
+            "Authorization",
+            "Content-Type",
+            "Content-Language",
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Tenant-ID",
+            "X-API-Key",
+            "X-User-ID",
+        ],
     )
 
 app.add_middleware(TenantContextMiddleware)

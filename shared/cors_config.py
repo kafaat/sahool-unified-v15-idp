@@ -157,9 +157,13 @@ class _CORSSettings:
 
     def _ensure_loaded(self):
         if self._settings is None:
+            origins = get_allowed_origins()
+            # SECURITY: Disable credentials when wildcard origin is used
+            # Browsers reject Access-Control-Allow-Credentials with wildcard origin
+            allow_creds = "*" not in origins
             self._settings = {
-                "allow_origins": get_allowed_origins(),
-                "allow_credentials": True,
+                "allow_origins": origins,
+                "allow_credentials": allow_creds,
                 "allow_methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
                 "allow_headers": [
                     "Accept",

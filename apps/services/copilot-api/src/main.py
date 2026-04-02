@@ -331,12 +331,14 @@ def create_app() -> FastAPI:
             path=request.url.path,
             request_id=getattr(request.state, "request_id", "unknown"),
         )
+        # Only expose exception details in development debug mode, never in production/staging
+        show_detail = settings.debug and settings.environment in ("development", "test")
         return JSONResponse(
             status_code=500,
             content={
                 "error": "Internal server error",
                 "error_ar": "خطأ داخلي في الخادم",
-                "detail": str(exc) if settings.debug else None,
+                "detail": str(exc) if show_detail else None,
             },
         )
 

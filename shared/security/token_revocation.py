@@ -65,8 +65,7 @@ class RedisRevocationBackend:
                 self._available = False
             except Exception as exc:
                 logger.warning(
-                    "Redis revocation backend unavailable (url=%s), falling "
-                    "back to in-memory: %s",
+                    "Redis revocation backend unavailable (url=%s), falling back to in-memory: %s",
                     redis_url.split("@")[-1],
                     exc,
                 )
@@ -107,9 +106,7 @@ class RedisRevocationBackend:
             logger.warning("Redis revoke_user_tokens failed: %s", exc)
             return False
 
-    def is_user_token_revoked(
-        self, user_id: str, token_issued_at: float
-    ) -> bool:
+    def is_user_token_revoked(self, user_id: str, token_issued_at: float) -> bool:
         try:
             val = self._redis.get(f"{_REDIS_PREFIX}user:{user_id}")  # type: ignore[union-attr]
             if val is not None and token_issued_at < float(val):
@@ -138,9 +135,7 @@ class RedisRevocationBackend:
             logger.warning("Redis revoke_tenant_tokens failed: %s", exc)
             return False
 
-    def is_tenant_token_revoked(
-        self, tenant_id: str, token_issued_at: float
-    ) -> bool:
+    def is_tenant_token_revoked(self, tenant_id: str, token_issued_at: float) -> bool:
         try:
             val = self._redis.get(f"{_REDIS_PREFIX}tenant:{tenant_id}")  # type: ignore[union-attr]
             if val is not None and token_issued_at < float(val):

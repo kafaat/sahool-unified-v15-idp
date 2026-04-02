@@ -36,6 +36,8 @@ from __future__ import annotations
 import json
 import logging
 import os
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -408,15 +410,8 @@ def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
 
     dlq_manager = manager or DLQManager()
 
-    @router.on_event("startup")
-    async def startup():
-        """Connect DLQ manager on startup."""
-        await dlq_manager.connect()
-
-    @router.on_event("shutdown")
-    async def shutdown():
-        """Close DLQ manager on shutdown."""
-        await dlq_manager.close()
+    # NOTE: Lifecycle management (connect/close) is handled by the application
+    # lifespan in create_app(), not via deprecated router.on_event hooks.
 
     @router.get("/messages", response_model=DLQMessageList)
     async def list_dlq_messages(
@@ -469,13 +464,25 @@ def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
 
 def create_app() -> FastAPI:
     """Create standalone FastAPI application for DLQ management."""
+    dlq_manager = DLQManager()
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+        """Application lifespan: connect DLQ on startup, close on shutdown."""
+        await dlq_manager.connect()
+        try:
+            yield
+        finally:
+            await dlq_manager.close()
+
     app = FastAPI(
         title="SAHOOL DLQ Management API",
         description="Dead Letter Queue management and monitoring",
         version="1.0.0",
+        lifespan=lifespan,
     )
 
-    app.include_router(create_dlq_router())
+    app.include_router(create_dlq_router(manager=dlq_manager))
 
     return app
 

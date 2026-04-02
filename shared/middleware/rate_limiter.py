@@ -94,7 +94,11 @@ def setup_rate_limiting(
                 # Store resolved config on request state to avoid mutating shared limiter
                 request.state.rate_limit_config_override = config
             except Exception:
-                pass  # Fall back to default tier detection
+                logger.warning(
+                    "tier_detection_failed",
+                    extra={"path": str(request.url.path)},
+                    exc_info=True,
+                )  # Fall back to default tier detection
 
         allowed, headers = await limiter.check_rate_limit(request)
 

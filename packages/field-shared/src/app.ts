@@ -165,19 +165,154 @@ export function createFieldApp(serviceName: string = 'field-service'): Applicati
   });
 
   /**
+   * GET /api/v1/fields/nearby
+   * Find fields within a radius of a point (geospatial query)
+   * Registered before /:id to prevent Express wildcard capture.
+   */
+  app.get('/api/v1/fields/nearby', async (req: Request, res: Response) => {
+    try {
+      const { lat, lng, radius = 5000 } = req.query; // radius in meters
+
+      if (!lat || !lng) {
+        return res.status(400).json({
+          success: false,
+          error: 'Missing required parameters: lat, lng',
+        });
+      }
+
+      const fields = await AppDataSource.query(
+        `
+                SELECT
+                    id, name, crop_type, status, area_hectares, health_score,
+                    ST_AsGeoJSON(boundary) as boundary,
+                    ST_AsGeoJSON(centroid) as centroid,
+                    ST_Distance(
+                        centroid::geography,
+                        ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography
+                    ) as distance_meters
+                FROM fields
+                WHERE ST_DWithin(
+                    centroid::geography,
+                    ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography,
+                    $3
+                )
+                ORDER BY distance_meters ASC
+            `,
+        [parseFloat(lng as string), parseFloat(lat as string), parseInt(radius as string)]
+      );
+
+      res.json({
+        success: true,
+        data: fields.map((f: any) => ({
+          ...f,
+          boundary: f.boundary ? JSON.parse(f.boundary) : null,
+          centroid: f.centroid ? JSON.parse(f.centroid) : null,
+        })),
+        query: { lat, lng, radius },
+      });
+    } catch (error) {
+      logger.error('Error finding nearby fields:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to find nearby fields',
+      });
+    }
+  });
+
+  /**
+   * GET /api/v1/fields/sync
+   * Delta sync endpoint for mobile clients.
+   * Registered before /:id to prevent Express wildcard capture.
+   *
+   * Query params:
+   *   - tenantId: Required tenant ID
+   *   - since: ISO timestamp - returns fields modified after this time
+   *   - includeDeleted: Include soft-deleted fields (default: false)
+   *   - limit: Max results (default: 100)
+   *
+   * Returns fields with server_version for conflict resolution
+   */
+  app.get('/api/v1/fields/sync', async (req: Request, res: Response) => {
+    try {
+      const { tenantId, since, includeDeleted = 'false', limit = 100 } = req.query;
+
+      if (!tenantId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Missing required parameter: tenantId',
+        });
+      }
+
+      const fieldRepo = AppDataSource.getRepository(Field);
+      const queryBuilder = fieldRepo.createQueryBuilder('field');
+
+      queryBuilder.where('field.tenantId = :tenantId', { tenantId });
+
+      // Delta sync - only fields modified after 'since' timestamp
+      if (since) {
+        const sinceDate = new Date(since as string);
+        if (isNaN(sinceDate.getTime())) {
+          return res.status(400).json({
+            success: false,
+            error: "Invalid 'since' timestamp format. Use ISO 8601.",
+          });
+        }
+        queryBuilder.andWhere('field.updatedAt > :since', { since: sinceDate });
+      }
+
+      // Filter by status if not including deleted
+      if (includeDeleted !== 'true') {
+        queryBuilder.andWhere('field.status != :deleted', {
+          deleted: 'deleted',
+        });
+      }
+
+      const fields = await queryBuilder
+        .orderBy('field.updatedAt', 'ASC')
+        .take(Number(limit))
+        .getMany();
+
+      // Calculate sync metadata
+      const hasMore = fields.length === Number(limit);
+      const lastUpdated = fields.length > 0 ? fields[fields.length - 1].updatedAt : null;
+
+      // Transform fields with server_version for mobile sync
+      const syncData = fields.map((field: any) => ({
+        ...field,
+        server_version: field.version,
+        etag: generateETag(field.id, field.version),
+        _syncMeta: {
+          serverTime: new Date().toISOString(),
+          action: field.status === 'deleted' ? 'delete' : 'upsert',
+        },
+      }));
+
+      res.json({
+        success: true,
+        data: syncData,
+        sync: {
+          serverTime: new Date().toISOString(),
+          lastUpdated: lastUpdated?.toISOString() || null,
+          count: fields.length,
+          hasMore,
+          nextSince: lastUpdated?.toISOString() || since,
+        },
+      });
+    } catch (error) {
+      logger.error('Error in delta sync:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to perform delta sync',
+      });
+    }
+  });
+
+  /**
    * GET /api/v1/fields/:id
    * Get a single field by ID
    * Returns ETag header for optimistic locking
    */
-  app.get('/api/v1/fields/:id', async (req: Request, res: Response, next: NextFunction) => {
-    // Skip fixed sub-paths that have their own handlers registered after this route.
-    // TODO: Move /nearby, /sync, /stats routes BEFORE /:id to use Express route
-    // ordering instead of this workaround. Add any new fixed sub-path here until then.
-    const reservedPaths = ['nearby', 'sync', 'stats'];
-    if (reservedPaths.includes(req.params.id)) {
-      return next();
-    }
-
+  app.get('/api/v1/fields/:id', async (req: Request, res: Response) => {
     try {
       const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const fieldRepo = AppDataSource.getRepository(Field);
@@ -457,60 +592,6 @@ export function createFieldApp(serviceName: string = 'field-service'): Applicati
     }
   });
 
-  /**
-   * GET /api/v1/fields/nearby
-   * Find fields within a radius of a point (geospatial query)
-   */
-  app.get('/api/v1/fields/nearby', async (req: Request, res: Response) => {
-    try {
-      const { lat, lng, radius = 5000 } = req.query; // radius in meters
-
-      if (!lat || !lng) {
-        return res.status(400).json({
-          success: false,
-          error: 'Missing required parameters: lat, lng',
-        });
-      }
-
-      const fields = await AppDataSource.query(
-        `
-                SELECT
-                    id, name, crop_type, status, area_hectares, health_score,
-                    ST_AsGeoJSON(boundary) as boundary,
-                    ST_AsGeoJSON(centroid) as centroid,
-                    ST_Distance(
-                        centroid::geography,
-                        ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography
-                    ) as distance_meters
-                FROM fields
-                WHERE ST_DWithin(
-                    centroid::geography,
-                    ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography,
-                    $3
-                )
-                ORDER BY distance_meters ASC
-            `,
-        [parseFloat(lng as string), parseFloat(lat as string), parseInt(radius as string)]
-      );
-
-      res.json({
-        success: true,
-        data: fields.map((f: any) => ({
-          ...f,
-          boundary: f.boundary ? JSON.parse(f.boundary) : null,
-          centroid: f.centroid ? JSON.parse(f.centroid) : null,
-        })),
-        query: { lat, lng, radius },
-      });
-    } catch (error) {
-      logger.error('Error finding nearby fields:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to find nearby fields',
-      });
-    }
-  });
-
   // ─────────────────────────────────────────────────────────────────────────────
   // NDVI Analysis Endpoints
   // ─────────────────────────────────────────────────────────────────────────────
@@ -751,94 +832,9 @@ export function createFieldApp(serviceName: string = 'field-service'): Applicati
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Mobile Sync Endpoints (Delta Sync)
+  // NOTE: GET /api/v1/fields/sync is registered above (before /:id) to prevent
+  // Express wildcard capture. Only POST routes remain here.
   // ─────────────────────────────────────────────────────────────────────────────
-
-  /**
-   * GET /api/v1/fields/sync
-   * Delta Sync endpoint for mobile clients
-   *
-   * Query params:
-   *   - tenantId: Required tenant ID
-   *   - since: ISO timestamp - returns fields modified after this time
-   *   - includeDeleted: Include soft-deleted fields (default: false)
-   *   - limit: Max results (default: 100)
-   *
-   * Returns fields with server_version for conflict resolution
-   */
-  app.get('/api/v1/fields/sync', async (req: Request, res: Response) => {
-    try {
-      const { tenantId, since, includeDeleted = 'false', limit = 100 } = req.query;
-
-      if (!tenantId) {
-        return res.status(400).json({
-          success: false,
-          error: 'Missing required parameter: tenantId',
-        });
-      }
-
-      const fieldRepo = AppDataSource.getRepository(Field);
-      const queryBuilder = fieldRepo.createQueryBuilder('field');
-
-      queryBuilder.where('field.tenantId = :tenantId', { tenantId });
-
-      // Delta sync - only fields modified after 'since' timestamp
-      if (since) {
-        const sinceDate = new Date(since as string);
-        if (isNaN(sinceDate.getTime())) {
-          return res.status(400).json({
-            success: false,
-            error: "Invalid 'since' timestamp format. Use ISO 8601.",
-          });
-        }
-        queryBuilder.andWhere('field.updatedAt > :since', { since: sinceDate });
-      }
-
-      // Filter by status if not including deleted
-      if (includeDeleted !== 'true') {
-        queryBuilder.andWhere('field.status != :deleted', {
-          deleted: 'deleted',
-        });
-      }
-
-      const fields = await queryBuilder
-        .orderBy('field.updatedAt', 'ASC')
-        .take(Number(limit))
-        .getMany();
-
-      // Calculate sync metadata
-      const hasMore = fields.length === Number(limit);
-      const lastUpdated = fields.length > 0 ? fields[fields.length - 1].updatedAt : null;
-
-      // Transform fields with server_version for mobile sync
-      const syncData = fields.map((field: any) => ({
-        ...field,
-        server_version: field.version,
-        etag: generateETag(field.id, field.version),
-        _syncMeta: {
-          serverTime: new Date().toISOString(),
-          action: field.status === 'deleted' ? 'delete' : 'upsert',
-        },
-      }));
-
-      res.json({
-        success: true,
-        data: syncData,
-        sync: {
-          serverTime: new Date().toISOString(),
-          lastUpdated: lastUpdated?.toISOString() || null,
-          count: fields.length,
-          hasMore,
-          nextSince: lastUpdated?.toISOString() || since,
-        },
-      });
-    } catch (error) {
-      logger.error('Error in delta sync:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to perform delta sync',
-      });
-    }
-  });
 
   /**
    * POST /api/v1/fields/sync/batch

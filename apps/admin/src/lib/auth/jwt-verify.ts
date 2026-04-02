@@ -190,7 +190,8 @@ export async function getUserFromToken(token: string): Promise<User | null> {
       name: payload.name || payload.email,
       role: userRole,
       tenant_id: (() => {
-        const tid = payload.tenant_id || payload.tid;
+        // Backend uses 'tid' as the canonical claim; accept 'tenant_id' for compatibility
+        const tid = payload.tid || payload.tenant_id;
         return typeof tid === 'string' && isValidUUID(tid) ? tid : undefined;
       })(),
     };

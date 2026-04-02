@@ -287,8 +287,10 @@ async def _log_rate_limit_exceeded(request: Request, tier: str):
             )
         )
     except ImportError:
-        # Audit module not available, skip
-        pass
+        logger.debug(
+            "Audit module not available, skipping rate-limit audit log",
+            extra={"path": str(request.url.path)},
+        )
 
 
 async def rate_limit_middleware(request: Request, call_next: Callable) -> Response:

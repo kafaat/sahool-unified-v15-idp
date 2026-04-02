@@ -38,11 +38,16 @@ async def require_auth(request: Request):
     Require authentication for A2A endpoints.
     طلب المصادقة لنقاط نهاية A2A.
 
-    Falls back to no-op if auth module is not available (test environments).
-    يعود إلى عدم التشغيل إذا لم تكن وحدة المصادقة متاحة (بيئات الاختبار).
+    Raises HTTPException 401 if auth module is not available or token is invalid.
+    يرفع HTTPException 401 إذا لم تكن وحدة المصادقة متاحة أو كان الرمز غير صالح.
     """
     if not _auth_available:
-        return None
+        # SECURITY: Do NOT silently allow unauthenticated access.
+        # If shared.auth is missing, the service is misconfigured.
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication module not available — A2A endpoints require auth",
+        )
     auth_header = request.headers.get("authorization", "")
     if not auth_header.startswith("Bearer "):
         raise HTTPException(

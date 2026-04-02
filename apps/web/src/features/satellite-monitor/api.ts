@@ -15,7 +15,7 @@
  * getHistoricalData    → vegetation-analysis-service:8090 /v1/ndvi-timeseries/analyze/{id}
  * getFieldZones        → terrain-core-service:8185 POST /api/v1/terrain/analyze
  *
- * SAR Fallback Logic (TODO — P1):
+ * SAR Fallback Logic (implemented as getSoilMoistureSARFallback):
  * if cloudCoverage > 30% → GET vegetation-analysis:8090/v1/soil-moisture/{fieldId}
  * Uses Water Cloud Model calibrated for Yemen (A=15.0, B=8.5, C=-0.3)
  *
@@ -190,6 +190,31 @@ export const satelliteMonitorApi = {
     return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}`, async () => {
       const response = await api.patch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}`, data);
       return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * SAR Fallback: Get soil moisture from SAR data when optical imagery is
+   * unavailable due to cloud coverage exceeding the threshold (>30%).
+   * Uses Water Cloud Model calibrated for Yemen (A=15.0, B=8.5, C=-0.3).
+   *
+   * احتياطي SAR: يحصل على رطوبة التربة من بيانات الرادار عندما تتجاوز التغطية
+   * السحابية الحد المسموح (>30%).
+   */
+  getSoilMoistureSARFallback: async (
+    fieldId: string,
+    cloudCoverage: number,
+  ): Promise<{ soilMoisture: number; source: 'sar'; cloudCoverage: number } | null> => {
+    const SAR_FALLBACK_THRESHOLD = 30; // percent
+    if (cloudCoverage <= SAR_FALLBACK_THRESHOLD) {
+      return null; // Optical imagery is usable; no fallback needed.
+    }
+    return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/soil-moisture-sar`, async () => {
+      const response = await api.get(
+        `${API_PREFIX}/satellite-monitor/fields/${fieldId}/soil-moisture-sar`,
+      );
+      const data = response.data.data || response.data;
+      return { ...data, source: 'sar' as const, cloudCoverage };
     });
   },
 };

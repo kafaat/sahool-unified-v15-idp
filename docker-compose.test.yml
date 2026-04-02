@@ -2,9 +2,10 @@
 # SAHOOL v16.0.0 Test Environment - Docker Compose
 # بيئة الاختبار لمنصة سهول
 #
-# This docker-compose file sets up a test environment for running integration
-# and E2E tests. It uses the same services as production but with test-specific
-# configurations.
+# ⚠️ SECURITY WARNING: This file contains default test credentials.
+# These defaults are ONLY for local testing and CI. Never use these in
+# production. Set proper secrets via environment variables or a .env file.
+# تحذير أمني: يحتوي هذا الملف على بيانات اعتماد افتراضية للاختبار فقط.
 #
 # Usage:
 #   docker-compose -f docker-compose.test.yml up -d

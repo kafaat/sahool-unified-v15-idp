@@ -111,12 +111,17 @@ export async function validateJwtToken(
       };
     }
 
-    if (!payload.tenant_id || typeof payload.tenant_id !== 'string') {
+    // Backend uses 'tid' claim; accept both 'tid' and 'tenant_id' for compatibility
+    // الخلفية تستخدم 'tid'؛ قبول كلا الادعاءين للتوافق
+    const tenantId = (payload as Record<string, unknown>).tid ?? payload.tenant_id;
+    if (!tenantId || typeof tenantId !== 'string') {
       return {
         valid: false,
-        error: 'Invalid JWT payload: missing or invalid tenant_id',
+        error: 'Invalid JWT payload: missing or invalid tenant_id (tid)',
       };
     }
+    // Normalize: always expose as tenant_id for downstream consumers
+    (payload as Record<string, unknown>).tenant_id = tenantId;
 
     // Token is valid
     return {

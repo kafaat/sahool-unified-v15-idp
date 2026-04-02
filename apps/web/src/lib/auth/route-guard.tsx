@@ -92,7 +92,9 @@ export async function getCurrentUser(): Promise<User | null> {
       return null;
     }
 
-    if (!payload.tenant_id || typeof payload.tenant_id !== 'string') {
+    // Backend uses 'tid' claim; accept both 'tid' and 'tenant_id' for compatibility
+    const tenantId = (payload as Record<string, unknown>).tid ?? payload.tenant_id;
+    if (!tenantId || typeof tenantId !== 'string') {
       return null;
     }
 
@@ -101,7 +103,7 @@ export async function getCurrentUser(): Promise<User | null> {
       id: payload.sub,
       roles: Array.isArray(payload.roles) ? (payload.roles as string[]) : [],
       permissions: Array.isArray(payload.permissions) ? (payload.permissions as string[]) : [],
-      tenantId: payload.tenant_id,
+      tenantId: tenantId as string,
     };
   } catch (error) {
     // Log specific JWT errors for debugging (in development only)

@@ -204,7 +204,7 @@ export const satelliteMonitorApi = {
   getSoilMoistureSARFallback: async (
     fieldId: string,
     cloudCoverage: number,
-  ): Promise<{ soilMoisture: number; source: 'optical' | 'sar'; cloudCoverage: number } | null> => {
+  ): Promise<{ soilMoisture: number; source: 'sar'; cloudCoverage: number } | null> => {
     const SAR_FALLBACK_THRESHOLD = 30; // percent
     if (cloudCoverage <= SAR_FALLBACK_THRESHOLD) {
       return null; // Optical imagery is usable; no fallback needed.

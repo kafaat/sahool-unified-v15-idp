@@ -190,6 +190,10 @@ def analyze_performance(environment: str, output: str | None) -> None:
     async def _analyze() -> None:
         from shared.devops import PerformanceAnalyzer
 
+        # PerformanceAnalyzer requires redis/metrics for cache analysis;
+        # when invoked via CLI without live connections, database and
+        # resource analysis still work.  Cache-related methods return
+        # empty results gracefully.
         analyzer = PerformanceAnalyzer(redis=None, metrics=None)  # type: ignore[arg-type]
         report = await analyzer.generate_optimization_report()
 

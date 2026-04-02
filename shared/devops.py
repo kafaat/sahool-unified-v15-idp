@@ -518,10 +518,14 @@ class TenantAwareLoadTester:
 
     def _generate_test_token(self, tenant_id: str) -> str:
         """Generate test JWT for load testing (test environments only)."""
-        secret = os.getenv("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
+        _default_test_secret = "test-secret-key-for-unit-tests-only-32chars"
+        secret = os.getenv("JWT_SECRET_KEY", _default_test_secret)
         env = os.getenv("ENVIRONMENT", "test")
-        if env == "production":
-            logger.warning("Load test token generation called in production — ensure this is intentional")
+        if env in ("production", "staging") and secret == _default_test_secret:
+            raise RuntimeError(
+                "JWT_SECRET_KEY must be set to a real secret in "
+                f"{env} — refusing to use default test key"
+            )
         payload = {
             "tid": tenant_id,
             "sub": f"test-user-{tenant_id[:8]}",

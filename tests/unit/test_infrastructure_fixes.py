@@ -179,21 +179,29 @@ class TestNoGhostServices:
 
     def test_all_kong_services_have_docker_container(self, kong_services, docker_services):
         """Every Kong service must have a corresponding Docker container."""
-        # Exclude Kong meta-entries (no port), route variants, and infrastructure
+        # Exclude Kong meta-entries (no port), and infrastructure
         excluded = {
-            "user-service-health",
-            "user-service-public",  # route variants of user-service
             "kong",  # infrastructure
             "root-endpoint",  # Kong meta-route (no backend needed)
         }
+        # Kong route suffixes that map to a base service (e.g. chat-service-health → chat-service)
+        route_suffixes = ("-health", "-public", "-ws")
 
         for service_name, service_config in kong_services.items():
             if service_name in excluded:
                 continue
             if service_config.get("port") is None:
                 continue  # Meta-entries without a port
-            assert service_name in docker_services, (
-                f"Kong service '{service_name}' has no Docker container - will return 502"
+
+            # For route variants, check the base service name exists in Docker
+            check_name = service_name
+            for suffix in route_suffixes:
+                if service_name.endswith(suffix):
+                    check_name = service_name[: -len(suffix)]
+                    break
+
+            assert check_name in docker_services, (
+                f"Kong service '{service_name}' (base: '{check_name}') has no Docker container - will return 502"
             )
 
 
@@ -377,9 +385,9 @@ class TestKongConfigIntegrity:
         assert not conflicts, f"Duplicate route paths: {conflicts}"
 
     def test_kong_service_count_reasonable(self, kong_config):
-        """Kong should have between 50-80 services (not too few, not too many)."""
+        """Kong should have between 50-100 services (72 canonical + health/public variants)."""
         count = len(kong_config.get("services", []))
-        assert 50 <= count <= 80, f"Kong has {count} services, expected 50-80"
+        assert 50 <= count <= 100, f"Kong has {count} services, expected 50-100"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

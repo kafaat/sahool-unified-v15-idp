@@ -600,20 +600,39 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
           ENV=test
+          ENVIRONMENT=test
+          API_BASE_URL=https://api.sahool.app
+          API_URL=http://localhost:8000
+          DEV_HOST=localhost
+          GATEWAY_PORT=8000
+          WS_GATEWAY_URL=ws://localhost:8081
+          NATS_URL=nats://localhost:4222
+          WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
+          MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
-
-      - name: Run code generation
-        uses: ./.github/actions/flutter-codegen
-        with:
-          working-directory: apps/mobile
-          clean-first: 'true'
-
-      - name: Run Flutter Analyze
         id: analyze
         run: |
           echo "Running Flutter analyze..."
@@ -668,10 +687,37 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
           ENV=test
+          ENVIRONMENT=test
+          API_BASE_URL=https://api.sahool.app
+          API_URL=http://localhost:8000
+          DEV_HOST=localhost
+          GATEWAY_PORT=8000
+          WS_GATEWAY_URL=ws://localhost:8081
+          NATS_URL=nats://localhost:4222
+          WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
+          MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
@@ -794,10 +840,37 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
           ENV=test
+          ENVIRONMENT=test
+          API_BASE_URL=https://api.sahool.app
+          API_URL=http://localhost:8000
+          DEV_HOST=localhost
+          GATEWAY_PORT=8000
+          WS_GATEWAY_URL=ws://localhost:8081
+          NATS_URL=nats://localhost:4222
+          WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
+          MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
@@ -879,10 +952,37 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
           ENV=test
+          ENVIRONMENT=test
+          API_BASE_URL=https://api.sahool.app
+          API_URL=http://localhost:8000
+          DEV_HOST=localhost
+          GATEWAY_PORT=8000
+          WS_GATEWAY_URL=ws://localhost:8081
+          NATS_URL=nats://localhost:4222
+          WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
+          MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
@@ -1124,12 +1224,37 @@ jobs:
         run: |
           cat > .env <<'EOF'
           ENV=test
+          ENVIRONMENT=test
           API_URL=http://localhost:8080
-          WS_URL=ws://localhost:8080
           API_BASE_URL=https://api.sahool.app
+          WS_URL=ws://localhost:8080
+          WS_GATEWAY_URL=ws://localhost:8081
+          DEV_HOST=localhost
+          GATEWAY_PORT=8080
+          NATS_URL=nats://localhost:4222
           WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
           MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
           MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 

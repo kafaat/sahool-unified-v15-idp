@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FieldSnapshot:
     """Snapshot of a field's state at a point in time."""
+
     field_id: str
     field_name: str
     field_name_ar: str
@@ -51,6 +52,7 @@ class FieldSnapshot:
 @dataclass
 class ComparisonMetric:
     """Single metric comparison between two fields."""
+
     metric_name: str
     metric_name_ar: str
     unit: str
@@ -65,6 +67,7 @@ class ComparisonMetric:
 @dataclass
 class FieldComparisonResult:
     """Complete comparison between two fields."""
+
     field_a: FieldSnapshot
     field_b: FieldSnapshot
     metrics: list[ComparisonMetric] = field(default_factory=list)
@@ -85,39 +88,67 @@ class FieldComparator:
         metrics = []
 
         # NDVI comparison
-        metrics.append(self._compare_metric(
-            "NDVI", "مؤشر الغطاء النباتي", "",
-            field_a.ndvi, field_b.ndvi, higher_is_better=True,
-        ))
+        metrics.append(
+            self._compare_metric(
+                "NDVI",
+                "مؤشر الغطاء النباتي",
+                "",
+                field_a.ndvi,
+                field_b.ndvi,
+                higher_is_better=True,
+            )
+        )
 
         # EVI
         if field_a.evi is not None and field_b.evi is not None:
-            metrics.append(self._compare_metric(
-                "EVI", "مؤشر الغطاء المحسّن", "",
-                field_a.evi, field_b.evi, higher_is_better=True,
-            ))
+            metrics.append(
+                self._compare_metric(
+                    "EVI",
+                    "مؤشر الغطاء المحسّن",
+                    "",
+                    field_a.evi,
+                    field_b.evi,
+                    higher_is_better=True,
+                )
+            )
 
         # LAI
         if field_a.lai is not None and field_b.lai is not None:
-            metrics.append(self._compare_metric(
-                "LAI", "مؤشر مساحة الورقة", "m²/m²",
-                field_a.lai, field_b.lai, higher_is_better=True,
-            ))
+            metrics.append(
+                self._compare_metric(
+                    "LAI",
+                    "مؤشر مساحة الورقة",
+                    "m²/m²",
+                    field_a.lai,
+                    field_b.lai,
+                    higher_is_better=True,
+                )
+            )
 
         # Soil moisture
         if field_a.soil_moisture_pct is not None and field_b.soil_moisture_pct is not None:
-            metrics.append(self._compare_metric(
-                "Soil Moisture", "رطوبة التربة", "%",
-                field_a.soil_moisture_pct, field_b.soil_moisture_pct,
-                higher_is_better=True,
-            ))
+            metrics.append(
+                self._compare_metric(
+                    "Soil Moisture",
+                    "رطوبة التربة",
+                    "%",
+                    field_a.soil_moisture_pct,
+                    field_b.soil_moisture_pct,
+                    higher_is_better=True,
+                )
+            )
 
         # Area
-        metrics.append(self._compare_metric(
-            "Area", "المساحة", "ha",
-            field_a.area_hectares, field_b.area_hectares,
-            higher_is_better=None,  # Neutral
-        ))
+        metrics.append(
+            self._compare_metric(
+                "Area",
+                "المساحة",
+                "ha",
+                field_a.area_hectares,
+                field_b.area_hectares,
+                higher_is_better=None,  # Neutral
+            )
+        )
 
         # Determine overall winner
         a_wins = sum(1 for m in metrics if m.winner == "a")
@@ -136,8 +167,12 @@ class FieldComparator:
         )
 
     def _compare_metric(
-        self, name: str, name_ar: str, unit: str,
-        val_a: float | None, val_b: float | None,
+        self,
+        name: str,
+        name_ar: str,
+        unit: str,
+        val_a: float | None,
+        val_b: float | None,
         higher_is_better: bool | None = True,
     ) -> ComparisonMetric:
         if val_a is None or val_b is None:
@@ -156,10 +191,15 @@ class FieldComparator:
         sig = "high" if abs(diff_pct) > 15 else "medium" if abs(diff_pct) > 5 else "low"
 
         return ComparisonMetric(
-            metric_name=name, metric_name_ar=name_ar, unit=unit,
-            field_a_value=round(val_a, 4), field_b_value=round(val_b, 4),
-            difference=round(diff, 4), difference_pct=round(diff_pct, 1),
-            winner=winner, significance=sig,
+            metric_name=name,
+            metric_name_ar=name_ar,
+            unit=unit,
+            field_a_value=round(val_a, 4),
+            field_b_value=round(val_b, 4),
+            difference=round(diff, 4),
+            difference_pct=round(diff_pct, 1),
+            winner=winner,
+            significance=sig,
         )
 
 
@@ -171,6 +211,7 @@ class FieldComparator:
 @dataclass
 class BenchmarkResult:
     """Field performance relative to regional average."""
+
     field_id: str
     field_name_ar: str
     metric: str
@@ -229,15 +270,18 @@ class PerformanceBenchmark:
                 break
 
         return BenchmarkResult(
-            field_id=field_id, field_name_ar=field_name_ar,
-            metric=metric, metric_ar=metric_ar,
+            field_id=field_id,
+            field_name_ar=field_name_ar,
+            metric=metric,
+            metric_ar=metric_ar,
             field_value=round(field_value, 4),
             regional_avg=round(avg, 4),
             regional_min=round(sorted_vals[0], 4),
             regional_max=round(sorted_vals[-1], 4),
             percentile=round(percentile, 1),
             deviation_pct=round(deviation, 1),
-            rating=rating, rating_ar=rating_ar,
+            rating=rating,
+            rating_ar=rating_ar,
         )
 
 
@@ -248,6 +292,7 @@ class PerformanceBenchmark:
 
 class ImageryType(StrEnum):
     """FieldView-inspired imagery types."""
+
     VEGETATION = "vegetation"  # NDVI false color (existing)
     TRUE_COLOR = "true_color"  # RGB natural color (B04, B03, B02)
     FALSE_COLOR_IR = "false_color_ir"  # NIR false color (B08, B04, B03)
@@ -300,6 +345,7 @@ function evaluatePixel(s) {
 @dataclass
 class VarietyRecommendation:
     """Single variety recommendation."""
+
     variety_name: str
     variety_name_ar: str
     crop_type: str
@@ -316,6 +362,7 @@ class VarietyRecommendation:
 @dataclass
 class SeedAdvisorResult:
     """Complete seed advisory for a field."""
+
     field_id: str
     crop_type: str
     recommendations: list[VarietyRecommendation]
@@ -327,33 +374,96 @@ class SeedAdvisorResult:
 # Yemen crop variety database
 YEMEN_VARIETIES = {
     "wheat": [
-        {"name": "Sakha 95", "name_ar": "سخا 95", "yield": 4.5, "drought": "medium",
-         "diseases": ["rust", "blight"], "seed_rate": 120, "planting": "Nov-Dec",
-         "soil": ["loamy", "clay"], "temp_range": [10, 30], "water_need": 450},
-        {"name": "Giza 171", "name_ar": "جيزة 171", "yield": 5.0, "drought": "low",
-         "diseases": ["rust", "fusarium"], "seed_rate": 130, "planting": "Nov",
-         "soil": ["loamy", "silt"], "temp_range": [12, 28], "water_need": 500},
-        {"name": "Misr 3", "name_ar": "مصر 3", "yield": 4.2, "drought": "high",
-         "diseases": ["rust"], "seed_rate": 110, "planting": "Nov-Jan",
-         "soil": ["sandy-loam", "loamy"], "temp_range": [8, 35], "water_need": 380},
+        {
+            "name": "Sakha 95",
+            "name_ar": "سخا 95",
+            "yield": 4.5,
+            "drought": "medium",
+            "diseases": ["rust", "blight"],
+            "seed_rate": 120,
+            "planting": "Nov-Dec",
+            "soil": ["loamy", "clay"],
+            "temp_range": [10, 30],
+            "water_need": 450,
+        },
+        {
+            "name": "Giza 171",
+            "name_ar": "جيزة 171",
+            "yield": 5.0,
+            "drought": "low",
+            "diseases": ["rust", "fusarium"],
+            "seed_rate": 130,
+            "planting": "Nov",
+            "soil": ["loamy", "silt"],
+            "temp_range": [12, 28],
+            "water_need": 500,
+        },
+        {
+            "name": "Misr 3",
+            "name_ar": "مصر 3",
+            "yield": 4.2,
+            "drought": "high",
+            "diseases": ["rust"],
+            "seed_rate": 110,
+            "planting": "Nov-Jan",
+            "soil": ["sandy-loam", "loamy"],
+            "temp_range": [8, 35],
+            "water_need": 380,
+        },
     ],
     "barley": [
-        {"name": "Giza 136", "name_ar": "جيزة 136", "yield": 3.8, "drought": "high",
-         "diseases": ["powdery_mildew"], "seed_rate": 100, "planting": "Oct-Nov",
-         "soil": ["sandy", "loamy"], "temp_range": [5, 32], "water_need": 300},
+        {
+            "name": "Giza 136",
+            "name_ar": "جيزة 136",
+            "yield": 3.8,
+            "drought": "high",
+            "diseases": ["powdery_mildew"],
+            "seed_rate": 100,
+            "planting": "Oct-Nov",
+            "soil": ["sandy", "loamy"],
+            "temp_range": [5, 32],
+            "water_need": 300,
+        },
     ],
     "sorghum": [
-        {"name": "Local Red", "name_ar": "أحمر محلي", "yield": 2.5, "drought": "high",
-         "diseases": [], "seed_rate": 8, "planting": "Jun-Jul",
-         "soil": ["clay", "loamy"], "temp_range": [20, 45], "water_need": 350},
+        {
+            "name": "Local Red",
+            "name_ar": "أحمر محلي",
+            "yield": 2.5,
+            "drought": "high",
+            "diseases": [],
+            "seed_rate": 8,
+            "planting": "Jun-Jul",
+            "soil": ["clay", "loamy"],
+            "temp_range": [20, 45],
+            "water_need": 350,
+        },
     ],
     "date_palm": [
-        {"name": "Sukkari", "name_ar": "سكري", "yield": 8.0, "drought": "high",
-         "diseases": ["rpw"], "seed_rate": 0, "planting": "Mar-Apr",
-         "soil": ["sandy", "sandy-loam"], "temp_range": [15, 50], "water_need": 600},
-        {"name": "Khalas", "name_ar": "خلاص", "yield": 7.0, "drought": "high",
-         "diseases": ["rpw", "bayoud"], "seed_rate": 0, "planting": "Mar-Apr",
-         "soil": ["sandy", "loamy"], "temp_range": [18, 48], "water_need": 550},
+        {
+            "name": "Sukkari",
+            "name_ar": "سكري",
+            "yield": 8.0,
+            "drought": "high",
+            "diseases": ["rpw"],
+            "seed_rate": 0,
+            "planting": "Mar-Apr",
+            "soil": ["sandy", "sandy-loam"],
+            "temp_range": [15, 50],
+            "water_need": 600,
+        },
+        {
+            "name": "Khalas",
+            "name_ar": "خلاص",
+            "yield": 7.0,
+            "drought": "high",
+            "diseases": ["rpw", "bayoud"],
+            "seed_rate": 0,
+            "planting": "Mar-Apr",
+            "soil": ["sandy", "loamy"],
+            "temp_range": [18, 48],
+            "water_need": 550,
+        },
     ],
 }
 
@@ -380,8 +490,10 @@ class SeedAdvisor:
         varieties = YEMEN_VARIETIES.get(crop_type, [])
         if not varieties:
             return SeedAdvisorResult(
-                field_id=field_id, crop_type=crop_type,
-                recommendations=[], soil_suitability="unknown",
+                field_id=field_id,
+                crop_type=crop_type,
+                recommendations=[],
+                soil_suitability="unknown",
                 climate_zone=climate_zone,
                 timestamp=datetime.now(UTC).isoformat(),
             )
@@ -414,22 +526,25 @@ class SeedAdvisor:
                 rationale_parts_ar.append("مقاوم للجفاف")
                 rationale_parts_en.append("Drought tolerant")
 
-            recommendations.append(VarietyRecommendation(
-                variety_name=v["name"],
-                variety_name_ar=v["name_ar"],
-                crop_type=crop_type,
-                match_score=round(score, 1),
-                expected_yield_tons_ha=v["yield"],
-                drought_tolerance=v.get("drought", "medium"),
-                disease_resistance=v.get("diseases", []),
-                optimal_planting_date=v.get("planting", ""),
-                seed_rate_kg_ha=v.get("seed_rate", 0),
-                rationale_ar=" • ".join(rationale_parts_ar),
-                rationale_en=" • ".join(rationale_parts_en),
-            ))
+            recommendations.append(
+                VarietyRecommendation(
+                    variety_name=v["name"],
+                    variety_name_ar=v["name_ar"],
+                    crop_type=crop_type,
+                    match_score=round(score, 1),
+                    expected_yield_tons_ha=v["yield"],
+                    drought_tolerance=v.get("drought", "medium"),
+                    disease_resistance=v.get("diseases", []),
+                    optimal_planting_date=v.get("planting", ""),
+                    seed_rate_kg_ha=v.get("seed_rate", 0),
+                    rationale_ar=" • ".join(rationale_parts_ar),
+                    rationale_en=" • ".join(rationale_parts_en),
+                )
+            )
 
         return SeedAdvisorResult(
-            field_id=field_id, crop_type=crop_type,
+            field_id=field_id,
+            crop_type=crop_type,
             recommendations=recommendations,
             soil_suitability="good" if any(soil_type in v.get("soil", []) for v in varieties) else "marginal",
             climate_zone=climate_zone,
@@ -437,7 +552,12 @@ class SeedAdvisor:
         )
 
     def _score_variety(
-        self, v: dict, soil: str, water: float, temp: float, diseases: list[str],
+        self,
+        v: dict,
+        soil: str,
+        water: float,
+        temp: float,
+        diseases: list[str],
     ) -> float:
         score = 50.0  # Base
 
@@ -496,6 +616,7 @@ class SplitMethod(StrEnum):
 @dataclass
 class SplitZone:
     """One zone in an A/B split test."""
+
     zone_id: str
     zone_label: str  # "A" or "B"
     treatment: str
@@ -510,6 +631,7 @@ class SplitZone:
 @dataclass
 class ABTestResult:
     """Complete A/B split test result."""
+
     field_id: str
     test_name: str
     test_name_ar: str
@@ -570,21 +692,29 @@ class ABSplitTest:
         zone_ha = total_ha / 2
 
         zone_a = SplitZone(
-            zone_id=f"{field_id}_A", zone_label="A",
-            treatment=treatment_a, treatment_ar=treatment_a_ar,
-            bbox=bbox_a, area_hectares=round(zone_ha, 2),
+            zone_id=f"{field_id}_A",
+            zone_label="A",
+            treatment=treatment_a,
+            treatment_ar=treatment_a_ar,
+            bbox=bbox_a,
+            area_hectares=round(zone_ha, 2),
         )
         zone_b = SplitZone(
-            zone_id=f"{field_id}_B", zone_label="B",
-            treatment=treatment_b, treatment_ar=treatment_b_ar,
-            bbox=bbox_b, area_hectares=round(zone_ha, 2),
+            zone_id=f"{field_id}_B",
+            zone_label="B",
+            treatment=treatment_b,
+            treatment_ar=treatment_b_ar,
+            bbox=bbox_b,
+            area_hectares=round(zone_ha, 2),
         )
 
         return ABTestResult(
             field_id=field_id,
-            test_name=test_name, test_name_ar=test_name_ar,
+            test_name=test_name,
+            test_name_ar=test_name_ar,
             split_method=split_method,
-            zone_a=zone_a, zone_b=zone_b,
+            zone_a=zone_a,
+            zone_b=zone_b,
             start_date=date.today(),
         )
 

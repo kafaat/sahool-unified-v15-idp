@@ -12,6 +12,7 @@ Usage:
 
 import asyncio
 import json
+import logging
 import uuid
 from datetime import UTC, datetime
 from typing import Any, Callable, Optional
@@ -20,8 +21,13 @@ import nats
 from nats.aio.client import Client as NATS
 from nats.js import JetStreamContext
 
+logger = logging.getLogger(__name__)
+
 # Subject prefix must match NATS ACLs in config/nats/nats.conf (lowercase)
 _SUBJECT_PREFIX = "sahool"
+
+# Allowed message types to prevent arbitrary subject injection
+_ALLOWED_MESSAGE_TYPES = frozenset({"events", "commands", "registry", "health", "audit"})
 
 
 class EventMessage:
@@ -77,13 +83,34 @@ class SAHOOLEventBus:
         return cls._instance
 
     async def connect(self, nats_url: str, service_name: str) -> None:
-        """Connect to NATS server and initialize JetStream context."""
+        """Connect to NATS server and initialize JetStream context.
+
+        Configures automatic reconnection so transient network failures
+        do not permanently sever the event bus connection.
+        """
         self.service_name = service_name
         try:
-            self.nc = await nats.connect(nats_url, name=service_name)
+            self.nc = await nats.connect(
+                nats_url,
+                name=service_name,
+                max_reconnect_attempts=60,
+                reconnect_time_wait=2,
+                reconnected_cb=self._on_reconnected,
+                disconnected_cb=self._on_disconnected,
+                error_cb=self._on_error,
+            )
             self.js = self.nc.jetstream()
         except Exception as exc:
             raise ConnectionError(f"Failed to connect {service_name} to NATS at {nats_url}: {exc}") from exc
+
+    async def _on_reconnected(self) -> None:
+        logger.info("NATS reconnected for service=%s", self.service_name)
+
+    async def _on_disconnected(self) -> None:
+        logger.warning("NATS disconnected for service=%s", self.service_name)
+
+    async def _on_error(self, exc: Exception) -> None:
+        logger.error("NATS error for service=%s: %s", self.service_name, exc)
 
     async def publish_event(
         self,
@@ -106,9 +133,15 @@ class SAHOOLEventBus:
         """
         if self.js is None:
             raise RuntimeError("Event bus not connected. Call connect() first.")
+        if message_type not in _ALLOWED_MESSAGE_TYPES:
+            raise ValueError(f"Invalid message_type '{message_type}'. Allowed: {sorted(_ALLOWED_MESSAGE_TYPES)}")
         subject = f"{_SUBJECT_PREFIX}.{message_type}.{domain}.{action}.v1"
         event = EventMessage(subject, data, self.service_name, tenant_id)
-        await self.js.publish(subject, event.to_json())
+        try:
+            await self.js.publish(subject, event.to_json())
+        except Exception as exc:
+            logger.error("Failed to publish event to %s: %s", subject, exc)
+            raise
 
     async def subscribe_events(
         self,
@@ -137,8 +170,15 @@ class SAHOOLEventBus:
         )
 
     async def close(self) -> None:
-        """Close the NATS connection."""
+        """Close the NATS connection and reset the singleton.
+
+        After calling close(), a subsequent ``get_instance()`` will create
+        a fresh ``SAHOOLEventBus`` that must be connected again via
+        ``connect()``.
+        """
         if self.nc:
             await self.nc.close()
             self.nc = None
             self.js = None
+        # Reset singleton so next get_instance() creates a fresh bus
+        SAHOOLEventBus._instance = None

@@ -8,12 +8,19 @@ predictions and publish advisory recommendations.
 
 import asyncio
 import json
+import os
+import re
 from datetime import UTC, datetime
 from typing import Any
 
 import structlog
 
 logger = structlog.get_logger()
+
+# Whitelist of prediction types that may appear in NATS subject names.
+# Prevents arbitrary strings from being injected into event subjects.
+_ALLOWED_PREDICTION_TYPES = frozenset({"yield", "disease", "pest", "irrigation", "weather"})
+_SAFE_SUBJECT_RE = re.compile(r"^[a-z][a-z0-9_-]{0,30}$")
 
 # Cache configuration — bounded to prevent unbounded memory growth
 _CACHE_MAX_SIZE = 1000  # maximum entries per cache dict
@@ -140,12 +147,15 @@ class AIEventHandlers:
                 "actions": ["increase_irrigation", "check_sensors"],
             }
 
-            await self.bus.publish_event(
-                domain="ai",
-                action="yield-prediction.updated",
-                data=prediction,
-                tenant_id=tenant_id,
-            )
+            try:
+                await self.bus.publish_event(
+                    domain="ai",
+                    action="yield-prediction.updated",
+                    data=prediction,
+                    tenant_id=tenant_id,
+                )
+            except Exception as exc:
+                logger.error("publish_yield_prediction_failed", error=str(exc), field_id=field_id)
 
             logger.info(
                 "yield_prediction_generated",
@@ -171,20 +181,23 @@ class AIEventHandlers:
 
         if moisture < 30:
             water_needed = (30 - moisture) * 50
-            await self.bus.publish_event(
-                domain="ai",
-                action="irrigation.recommended",
-                data={
-                    "field_id": field_id,
-                    "recommended_duration_minutes": int(water_needed / 20),
-                    "optimal_time": "06:00",
-                    "water_savings_liters": 1200,
-                    "confidence": min(0.95, 0.7 + (30 - moisture) / 100),
-                    "trigger": "low_moisture",
-                    "current_moisture": moisture,
-                },
-                tenant_id=tenant_id,
-            )
+            try:
+                await self.bus.publish_event(
+                    domain="ai",
+                    action="irrigation.recommended",
+                    data={
+                        "field_id": field_id,
+                        "recommended_duration_minutes": int(water_needed / 20),
+                        "optimal_time": "06:00",
+                        "water_savings_liters": 1200,
+                        "confidence": min(0.95, 0.7 + (30 - moisture) / 100),
+                        "trigger": "low_moisture",
+                        "current_moisture": moisture,
+                    },
+                    tenant_id=tenant_id,
+                )
+            except Exception as exc:
+                logger.error("publish_irrigation_failed", error=str(exc), field_id=field_id)
 
             logger.info(
                 "irrigation_recommended",
@@ -211,18 +224,21 @@ class AIEventHandlers:
 
         # Heavy rain - delay irrigation
         if rainfall_forecast > 50:
-            await self.bus.publish_event(
-                domain="ai",
-                action="irrigation.adjusted",
-                data={
-                    "region": region,
-                    "adjustment": "delay_48h",
-                    "reason": "heavy_rain_forecast",
-                    "rainfall_mm": rainfall_forecast,
-                    "recommended_action": "postpone_scheduled_irrigation",
-                },
-                tenant_id=tenant_id,
-            )
+            try:
+                await self.bus.publish_event(
+                    domain="ai",
+                    action="irrigation.adjusted",
+                    data={
+                        "region": region,
+                        "adjustment": "delay_48h",
+                        "reason": "heavy_rain_forecast",
+                        "rainfall_mm": rainfall_forecast,
+                        "recommended_action": "postpone_scheduled_irrigation",
+                    },
+                    tenant_id=tenant_id,
+                )
+            except Exception as exc:
+                logger.error("publish_irrigation_adjusted_failed", error=str(exc), region=region)
             logger.info(
                 "irrigation_delayed",
                 region=region,
@@ -231,20 +247,23 @@ class AIEventHandlers:
 
         # Heat wave detection
         elif temperature_forecast > 40:
-            await self.bus.publish_event(
-                domain="ai",
-                action="heat-wave.alert",
-                data={
-                    "region": region,
-                    "temperature_c": temperature_forecast,
-                    "recommended_actions": [
-                        "increase_shade",
-                        "extra_irrigation",
-                        "monitor_stress",
-                    ],
-                },
-                tenant_id=tenant_id,
-            )
+            try:
+                await self.bus.publish_event(
+                    domain="ai",
+                    action="heat-wave.alert",
+                    data={
+                        "region": region,
+                        "temperature_c": temperature_forecast,
+                        "recommended_actions": [
+                            "increase_shade",
+                            "extra_irrigation",
+                            "monitor_stress",
+                        ],
+                    },
+                    tenant_id=tenant_id,
+                )
+            except Exception as exc:
+                logger.error("publish_heat_wave_failed", error=str(exc), region=region)
 
         await msg.ack()
 
@@ -290,12 +309,23 @@ class AIEventHandlers:
         else:
             result = {"error": f"Unknown prediction type: {prediction_type}"}
 
-        await self.bus.publish_event(
-            domain="ai",
-            action=f"prediction.{prediction_type}.completed",
-            data=result,
-            tenant_id=tenant_id,
-        )
+        # Validate prediction_type before embedding in subject to prevent
+        # arbitrary strings from being injected into NATS subject hierarchy.
+        if prediction_type not in _ALLOWED_PREDICTION_TYPES:
+            if not _SAFE_SUBJECT_RE.match(prediction_type):
+                logger.warning("prediction_type_invalid", prediction_type=prediction_type)
+                result = {"error": f"Invalid prediction type: {prediction_type}"}
+                prediction_type = "unknown"
+
+        try:
+            await self.bus.publish_event(
+                domain="ai",
+                action=f"prediction.{prediction_type}.completed",
+                data=result,
+                tenant_id=tenant_id,
+            )
+        except Exception as exc:
+            logger.error("publish_prediction_failed", error=str(exc), field_id=field_id)
 
         await msg.ack()
         return result
@@ -303,10 +333,11 @@ class AIEventHandlers:
 
 async def main():
     """Entry point for AI event handler service."""
+    nats_url = os.getenv("NATS_URL", "nats://nats:4222")
     handlers = AIEventHandlers()
-    await handlers.initialize(nats_url="nats://nats:4222")
+    await handlers.initialize(nats_url=nats_url)
 
-    logger.info("ai_advisor_event_service_running")
+    logger.info("ai_advisor_event_service_running", nats_url=nats_url)
     while True:
         await asyncio.sleep(1)
 

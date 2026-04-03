@@ -17,6 +17,12 @@ import { Search, List, Map as MapIcon, Plus, RefreshCw, Download, Eye } from 'lu
 import Link from 'next/link';
 import { logger } from '../../lib/logger';
 
+// Dynamic import for Field Create Dialog
+const FieldCreateDialog = dynamic(
+  () => import('@/components/fields/FieldCreateDialog'),
+  { ssr: false }
+);
+
 // Dynamic import for map (no SSR)
 const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
   ssr: false,
@@ -39,6 +45,7 @@ export default function FarmsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [governorateFilter, setGovernorateFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     loadFarms();
@@ -280,12 +287,12 @@ export default function FarmsPage() {
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <button
-            disabled
-            className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="إضافة مزرعة (قريبًا)"
+            onClick={() => setShowCreateDialog(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-sahool-600 hover:bg-sahool-700 text-white rounded-lg transition-colors"
+            title="إنشاء حقل جديد"
           >
             <Plus className="w-5 h-5" />
-            إضافة مزرعة
+            إنشاء حقل
           </button>
         </div>
       </div>
@@ -381,6 +388,15 @@ export default function FarmsPage() {
           </div>
         </div>
       )}
+      {/* Field Create Dialog */}
+      <FieldCreateDialog
+        open={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        onSuccess={() => {
+          setShowCreateDialog(false);
+          loadFarms();
+        }}
+      />
     </div>
   );
 }

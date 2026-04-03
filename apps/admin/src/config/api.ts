@@ -177,13 +177,17 @@ export type ServicePortKey = keyof typeof SERVICE_PORTS;
 /**
  * Generates a service URL based on environment
  * In production: Uses base URL (Kong gateway handles routing)
- * In development: Uses direct port access
+ * In development: Uses API_GATEWAY_URL if set (Docker), otherwise direct port access
  *
  * @param port - The service port number
  * @returns The complete service URL
  */
 export function getServiceUrl(port: number): string {
-  return IS_PRODUCTION ? API_BASE_URL : `${API_BASE_HOST}:${port}`;
+  if (IS_PRODUCTION) return API_BASE_URL;
+  // When running inside Docker, use Kong gateway for all requests
+  const gatewayUrl = process.env.API_GATEWAY_URL;
+  if (gatewayUrl) return gatewayUrl;
+  return `${API_BASE_HOST}:${port}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -320,18 +324,20 @@ export const API_PATHS = {
     analyze: CROP_HEALTH_ENDPOINTS.ANALYZE,
   },
 
-  // Weather Services (direct service paths - not Kong-routed)
+  // Weather Services
+  // Kong route: /api/v1/weather with strip_path: true + service path /weather
   weather: {
     current: '/weather/current',
     forecast: '/weather/forecast',
     agricultural: '/weather/agricultural-report',
-    alerts: (locationId: string) => `/v1/alerts/${locationId}`,
-    locations: '/v1/locations',
-    byLocation: (locationId: string) => `/v1/current/${locationId}`,
-    forecastByLocation: (locationId: string) => `/v1/forecast/${locationId}`,
+    alerts: (locationId: string) => `/weather/alerts/${locationId}`,
+    locations: '/weather/locations',
+    byLocation: (locationId: string) => `/weather/current/${locationId}`,
+    forecastByLocation: (locationId: string) => `/weather/forecast/${locationId}`,
   },
 
-  // Satellite & Vegetation (direct service paths - not Kong-routed)
+  // Satellite & Vegetation
+  // Kong route: /api/v1/satellite with strip_path: true → strips prefix, service gets /v1/...
   satellite: {
     timeseries: (fieldId: string) => `/v1/timeseries/${fieldId}`,
     analyze: '/v1/analyze',

@@ -23,6 +23,7 @@ interface YieldPrediction {
   confidence_percent: number;
   factors_applied: string[];
   recommendations: string[];
+  data_source?: string;
 }
 
 const CROP_OPTIONS = [

@@ -412,6 +412,14 @@ export default function SoilMapPage() {
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [expandedZoneId, setExpandedZoneId] = useState<string | null>('highlands');
   const [activeTab, setActiveTab] = useState<'zones' | 'tests' | 'amendments'>('zones');
+  const [apiStatus, setApiStatus] = useState<'loading' | 'connected' | 'offline'>('loading');
+
+  // Try to connect to soil-analysis-service for live data
+  React.useEffect(() => {
+    fetch('/api/satellite?action=eo-status')
+      .then((r) => r.ok ? setApiStatus('connected') : setApiStatus('offline'))
+      .catch(() => setApiStatus('offline'));
+  }, []);
 
   const selectedZone = AGRO_ECO_ZONES.find((z) => z.id === selectedZoneId);
 
@@ -429,6 +437,14 @@ export default function SoilMapPage() {
         title="خريطة التربة اليمنية"
         subtitle="خريطة تفاعلية لأنواع التربة والمناطق الزراعية والمناخية في اليمن"
       />
+
+      {/* Data source indicator */}
+      {apiStatus === 'offline' && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+          <span>بيانات مرجعية ثابتة — خدمة تحليل التربة غير متاحة حالياً</span>
+        </div>
+      )}
 
       {/* ── Stats Row ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

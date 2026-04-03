@@ -160,7 +160,8 @@ export async function rejectPrescription(id: string): Promise<boolean> {
 // GDD API Functions
 export async function fetchGDDData(): Promise<GDDField[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.weather}/v1/gdd`);
+    // Kong: /api/v1/weather/gdd → strip → /gdd → prepend /weather → /weather/gdd ✓
+    const response = await apiClient.get(`${API_URLS.weather}/gdd`);
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch GDD data:', error);
@@ -171,7 +172,8 @@ export async function fetchGDDData(): Promise<GDDField[]> {
 // Spray Management API Functions
 export async function fetchSprayWindows(): Promise<SprayWindow[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.weather}/v1/spray-windows`);
+    // Kong: /api/v1/weather/spray-windows → strip → /spray-windows → prepend /weather → /weather/spray-windows ✓
+    const response = await apiClient.get(`${API_URLS.weather}/spray-windows`);
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch spray windows:', error);

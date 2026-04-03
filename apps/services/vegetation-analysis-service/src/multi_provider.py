@@ -552,6 +552,179 @@ class CopernicusSTACProvider(SatelliteProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+class AgromonitoringProvider(SatelliteProvider):
+    """
+    OpenWeather Agromonitoring API — FREE NDVI/EVI satellite images
+    Uses same API key as OpenWeatherMap (OPENWEATHERMAP_API_KEY)
+    Free tier: 25,000 API calls/month
+    Data sources: Sentinel-2 + Landsat 8
+    https://agromonitoring.com/api/images
+    """
+
+    BASE_URL = "https://api.agromonitoring.com/agro/1.0"
+
+    def __init__(self):
+        super().__init__("Agromonitoring", "أجرو مونيتورينج")
+        self.api_key = os.getenv("OPENWEATHERMAP_API_KEY") or os.getenv("OPENWEATHER_API_KEY")
+
+    @property
+    def is_configured(self) -> bool:
+        return bool(self.api_key)
+
+    @property
+    def supported_satellites(self) -> list[SatelliteType]:
+        return [SatelliteType.SENTINEL2, SatelliteType.LANDSAT8]
+
+    async def search_scenes(
+        self,
+        lat: float,
+        lon: float,
+        start_date: date,
+        end_date: date,
+        max_cloud_cover: float = 30.0,
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
+        if not self.api_key:
+            return []
+
+        client = await self._get_client()
+        buffer = 0.01
+
+        try:
+            # Step 1: Create/find polygon
+            polygon_body = {
+                "name": f"field_{lat:.4f}_{lon:.4f}",
+                "geo_json": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [lon - buffer, lat - buffer],
+                        [lon + buffer, lat - buffer],
+                        [lon + buffer, lat + buffer],
+                        [lon - buffer, lat + buffer],
+                        [lon - buffer, lat - buffer],
+                    ]],
+                },
+            }
+            poly_resp = await client.post(
+                f"{self.BASE_URL}/polygons?appid={self.api_key}",
+                json=polygon_body,
+            )
+
+            if poly_resp.status_code == 409:
+                # Polygon already exists — list and find
+                list_resp = await client.get(f"{self.BASE_URL}/polygons?appid={self.api_key}")
+                polygons = list_resp.json() if list_resp.status_code == 200 else []
+                poly_id = polygons[0]["id"] if polygons else None
+            elif poly_resp.status_code in (200, 201):
+                poly_id = poly_resp.json().get("id")
+            else:
+                return []
+
+            if not poly_id:
+                return []
+
+            # Step 2: Get satellite images for polygon
+            start_unix = int(datetime.combine(start_date, datetime.min.time()).replace(tzinfo=UTC).timestamp())
+            end_unix = int(datetime.combine(end_date, datetime.min.time()).replace(tzinfo=UTC).timestamp())
+
+            img_resp = await client.get(
+                f"{self.BASE_URL}/image/search?polyid={poly_id}&start={start_unix}&end={end_unix}&appid={self.api_key}"
+            )
+
+            if img_resp.status_code != 200:
+                return []
+
+            scenes = []
+            for img in img_resp.json()[:10]:
+                dt = datetime.fromtimestamp(img.get("dt", 0), tz=UTC)
+                scenes.append(
+                    SatelliteScene(
+                        scene_id=f"agro_{img.get('dt', '')}",
+                        satellite=SatelliteType.SENTINEL2 if img.get("type") == 2 else SatelliteType.LANDSAT8,
+                        acquisition_date=dt,
+                        cloud_cover_pct=img.get("cl", 0),
+                        sun_elevation=img.get("sun", {}).get("elevation", 45),
+                        bbox=(lon - buffer, lat - buffer, lon + buffer, lat + buffer),
+                        thumbnail_url=img.get("image", {}).get("ndvi"),
+                        provider=self.name,
+                    )
+                )
+            return scenes
+
+        except Exception as e:
+            logger.error(f"Agromonitoring search failed: {e}")
+            return []
+
+    async def get_ndvi(
+        self,
+        lat: float,
+        lon: float,
+        field_id: str = "",
+        acquisition_date: date | None = None,
+    ) -> dict | None:
+        """Get NDVI stats from Agromonitoring API"""
+        if not self.api_key:
+            return None
+
+        client = await self._get_client()
+        buffer = 0.01
+
+        try:
+            # Create polygon
+            poly_resp = await client.post(
+                f"{self.BASE_URL}/polygons?appid={self.api_key}",
+                json={
+                    "name": f"ndvi_{field_id or 'default'}",
+                    "geo_json": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [lon - buffer, lat - buffer],
+                            [lon + buffer, lat - buffer],
+                            [lon + buffer, lat + buffer],
+                            [lon - buffer, lat + buffer],
+                            [lon - buffer, lat - buffer],
+                        ]],
+                    },
+                },
+            )
+
+            if poly_resp.status_code in (200, 201):
+                poly_id = poly_resp.json().get("id")
+            elif poly_resp.status_code == 409:
+                list_resp = await client.get(f"{self.BASE_URL}/polygons?appid={self.api_key}")
+                polygons = list_resp.json() if list_resp.status_code == 200 else []
+                poly_id = polygons[0]["id"] if polygons else None
+            else:
+                return None
+
+            if not poly_id:
+                return None
+
+            # Get NDVI stats
+            stats_resp = await client.get(
+                f"{self.BASE_URL}/ndvi?polyid={poly_id}&appid={self.api_key}"
+            )
+
+            if stats_resp.status_code == 200:
+                data = stats_resp.json()
+                if data:
+                    latest = data[-1] if isinstance(data, list) else data
+                    return {
+                        "ndvi": latest.get("data", {}).get("mean", 0),
+                        "ndvi_min": latest.get("data", {}).get("min", 0),
+                        "ndvi_max": latest.get("data", {}).get("max", 0),
+                        "ndvi_std": latest.get("data", {}).get("std", 0),
+                        "data_source": "agromonitoring",
+                        "provider": self.name,
+                    }
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Agromonitoring NDVI failed: {e}")
+            return None
+
+
 class PlanetLabsProvider(SatelliteProvider):
     """
     Planet Labs API - High-frequency 3-5m resolution imagery
@@ -750,10 +923,11 @@ class MultiSatelliteService:
 
     Priority:
     1. Sentinel Hub / CDSE (if configured) — Sentinel-2 10m + Landsat 30m
-    2. Planet Labs (if configured) — 3-5m daily imagery
-    3. Copernicus STAC (free, no auth) — Sentinel-2 search
-    4. NASA Earthdata (if configured) — MODIS/VIIRS
-    5. Simulated (always available) — fallback
+    2. Agromonitoring (if OWM key set) — FREE NDVI from Sentinel-2/Landsat
+    3. Planet Labs (if configured) — 3-5m daily imagery
+    4. Copernicus STAC (free, no auth) — Sentinel-2 search
+    5. NASA Earthdata (if configured) — MODIS/VIIRS
+    6. Simulated (always available) — fallback
     """
 
     def __init__(self):
@@ -764,6 +938,12 @@ class MultiSatelliteService:
         if sentinel_hub.is_configured:
             self.providers.append(sentinel_hub)
             logger.info("Sentinel Hub provider configured (Sentinel-2 + Landsat 8/9)")
+
+        # Agromonitoring — FREE NDVI (uses same OpenWeather API key)
+        agro = AgromonitoringProvider()
+        if agro.is_configured:
+            self.providers.append(agro)
+            logger.info("Agromonitoring provider configured (FREE NDVI — Sentinel-2 + Landsat)")
 
         # Planet Labs — high-frequency 3-5m imagery
         planet = PlanetLabsProvider()

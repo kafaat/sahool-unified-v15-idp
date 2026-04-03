@@ -98,10 +98,15 @@ const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
 interface NdviData {
   ndvi?: number;
   lai?: number;
+  evi?: number;
+  savi?: number;
+  ndwi?: number;
+  ndre?: number;
   health_status?: string;
   trend?: string;
   timestamp?: string;
   data_source?: string;
+  indices?: Record<string, number>;
 }
 
 function getHealthColor(status: string | undefined): string {
@@ -490,6 +495,29 @@ export default function FieldDetailPage() {
                     </span>
                   </div>
                 </div>
+
+                {/* Additional indices grid */}
+                {(ndvi?.indices || ndvi?.evi != null || ndvi?.savi != null || ndvi?.ndwi != null) && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { key: 'evi', label: 'EVI', labelAr: 'الغطاء المحسّن', color: 'emerald' },
+                      { key: 'savi', label: 'SAVI', labelAr: 'المعدّل للتربة', color: 'amber' },
+                      { key: 'ndwi', label: 'NDWI', labelAr: 'مؤشر المياه', color: 'blue' },
+                      { key: 'ndre', label: 'NDRE', labelAr: 'الحافة الحمراء', color: 'violet' },
+                    ].map(({ key, label, labelAr, color }) => {
+                      const val = (ndvi?.indices as Record<string, number> | undefined)?.[key]
+                        ?? (ndvi as Record<string, unknown>)?.[key];
+                      if (val == null) return null;
+                      return (
+                        <div key={key} className={`bg-${color}-50 rounded-lg p-2 text-center`}>
+                          <p className="text-[10px] text-gray-500">{labelAr}</p>
+                          <p className="text-sm font-bold text-gray-800">{Number(val).toFixed(2)}</p>
+                          <p className="text-[9px] text-gray-400">{label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Data source banner + Timestamp */}
                 {ndvi?.data_source === 'mock' || ndvi?.data_source === 'simulated' ? (

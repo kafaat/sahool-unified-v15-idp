@@ -84,7 +84,7 @@ class TestAdvisorEndpoints:
         request_data = {
             "crop_type": "tomato",
             "symptoms": {"leaf_spots": True},
-            "image_path": "/tmp/crop_image.jpg",
+            "image_path": "/tmp/crop_image.jpg",  # nosec B108 - test fixture path
         }
 
         response = await async_client.post("/v1/advisor/diagnose", json=request_data)
@@ -355,7 +355,7 @@ class TestErrorHandling:
             request_data = {
                 "crop_type": "tomato",
                 "symptoms": {"spots": True},
-                "image_path": "/tmp/image.jpg",
+                "image_path": "/tmp/image.jpg",  # nosec B108 - test fixture path
             }
 
             response = await async_client.post("/v1/advisor/diagnose", json=request_data)

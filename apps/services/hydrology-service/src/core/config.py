@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     debug: bool = Field(default=False, alias="DEBUG")
 
     # Server
-    host: str = Field(default="0.0.0.0", alias="HOST")
+    host: str = Field(default="0.0.0.0", alias="HOST")  # nosec B104 - default for containerized deployment, overridden by env
     port: int = Field(default=8165, alias="PORT")
 
     # Database

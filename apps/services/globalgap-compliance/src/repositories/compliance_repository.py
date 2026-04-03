@@ -465,7 +465,7 @@ class ComplianceRepository:
                     FROM compliance_records cr
                     JOIN globalgap_registrations gr ON cr.registration_id = gr.id
                     WHERE 1=1 {date_filter}
-                """
+                """  # nosec B608 - date_filter is built from hardcoded SQL fragments, not user input
 
                 if params:
                     params.append(min_compliance_threshold)
@@ -487,7 +487,7 @@ class ComplianceRepository:
                     FROM non_conformances nc
                     JOIN compliance_records cr ON nc.compliance_record_id = cr.id
                     WHERE 1=1 {date_filter}
-                """
+                """  # nosec B608 - date_filter is built from hardcoded SQL fragments, not user input
 
                 nc_stats = await conn.fetchrow(
                     nc_query,
@@ -508,7 +508,7 @@ class ComplianceRepository:
                     WHERE gr.scope IS NOT NULL {date_filter}
                     GROUP BY gr.scope
                     ORDER BY avg_compliance DESC
-                """
+                """  # nosec B608 - date_filter is built from hardcoded SQL fragments, not user input
 
                 scope_stats = await conn.fetch(scope_query, *(params[:-1] if params else []))
 
@@ -598,7 +598,7 @@ class ComplianceRepository:
                     WHERE chk.checklist_item_id = $1 {date_filter}
                     GROUP BY chk.response
                     ORDER BY response_count DESC
-                """
+                """  # nosec B608 - date_filter is built from hardcoded SQL fragments, not user input
 
                 response_stats = await conn.fetch(query, *params)
 
@@ -612,7 +612,7 @@ class ComplianceRepository:
                     FROM non_conformances nc
                     JOIN compliance_records cr ON nc.compliance_record_id = cr.id
                     WHERE nc.checklist_item_id = $1 {date_filter}
-                """
+                """  # nosec B608 - date_filter is built from hardcoded SQL fragments, not user input
 
                 nc_stats = await conn.fetchrow(nc_query, *params)
 
@@ -670,7 +670,7 @@ class ComplianceRepository:
                     JOIN globalgap_registrations gr ON cr.registration_id = gr.id
                     WHERE {where_clause}
                     ORDER BY nc.severity DESC, days_overdue DESC, nc.due_date ASC
-                """
+                """  # nosec B608 - where_clause is built from hardcoded filter strings with parameterized values
 
                 rows = await conn.fetch(query, *params)
                 return [dict(row) for row in rows]
@@ -746,7 +746,7 @@ class ComplianceRepository:
                     WHERE cr.audit_date >= CURRENT_DATE - $1::interval {farm_filter}
                     GROUP BY DATE_TRUNC('month', cr.audit_date)
                     ORDER BY month DESC
-                """
+                """  # nosec B608 - farm_filter is a hardcoded SQL fragment, not user input
 
                 rows = await conn.fetch(query, f"{months} months", *params[1:])
 

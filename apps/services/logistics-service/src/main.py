@@ -1544,5 +1544,5 @@ if __name__ == "__main__":
     import uvicorn
 
     # Host binding configurable via environment variable for security
-    host = os.getenv("HOST", "0.0.0.0")
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker container
     uvicorn.run(app, host=host, port=SERVICE_PORT)

@@ -112,9 +112,7 @@ def setup_tracing(service_name: str, otlp_endpoint: str = "http://tempo:4317"):
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
         provider = TracerProvider()
-        processor = BatchSpanProcessor(
-            OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True)
-        )
+        processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True))
         provider.add_span_processor(processor)
         trace.set_tracer_provider(provider)
         return trace.get_tracer(service_name)
@@ -223,9 +221,7 @@ def instrument_fastapi(app, service_name: str):
         if not _HAS_PROMETHEUS:
             from starlette.responses import JSONResponse
 
-            return JSONResponse(
-                {"error": "prometheus_client not installed"}, status_code=501
-            )
+            return JSONResponse({"error": "prometheus_client not installed"}, status_code=501)
         from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
         from starlette.responses import Response
 

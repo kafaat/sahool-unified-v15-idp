@@ -2,7 +2,7 @@
 🛰️ SAHOOL Satellite Service - eo-learn Integration
 تكامل خدمة الأقمار الصناعية مع eo-learn
 
-This module provides integration between the satellite-service API
+This module provides integration between the vegetation-analysis-service API
 and the sahool-eo package for real satellite data processing.
 
 When sahool-eo and sentinelhub are installed, the service uses

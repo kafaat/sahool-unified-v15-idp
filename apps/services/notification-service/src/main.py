@@ -40,6 +40,19 @@ shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."
 sys.path.insert(0, shared_path)
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+# DLQ support for failed notification delivery
+try:
+    from shared.events.dlq_config import DLQConfig, DLQMessageMetadata
+
+    _dlq_config = DLQConfig.from_env()
+    _dlq_available = True
+except (ImportError, ValueError, TypeError) as _dlq_err:
+    _dlq_available = False
+    _dlq_config = None
+    import logging as _logging
+
+    _logging.getLogger(__name__).warning("DLQ disabled: %s", _dlq_err)
+
 
 def sanitize_log_input(value: str) -> str:
     """Sanitize user input for safe logging to prevent log injection attacks."""
@@ -462,6 +475,101 @@ FARMER_PROFILES: dict[str, Any] = {}
 # =============================================================================
 
 
+async def _publish_to_dlq(send_func_name: str, error: Exception, max_retries: int, kwargs: dict[str, Any]):
+    """Publish failed notification to dead-letter queue for manual retry."""
+    import json
+    import traceback
+
+    dlq_subject = "sahool.dlq.sahool.notification.delivery.failed"
+    notification = kwargs.get("notification")
+    channel = kwargs.get("channel")
+    farmer_id = kwargs.get("farmer_id")
+
+    # Build DLQ payload
+    if _dlq_available:
+        metadata = DLQMessageMetadata(
+            original_subject="sahool.notification.send",
+            retry_count=max_retries,
+            failure_reason=str(error),
+            failure_timestamp=datetime.now(UTC).isoformat(),
+            error_type=error.__class__.__name__,
+            error_traceback="".join(traceback.format_exception(type(error), error, error.__traceback__))[:1000],
+            consumer_service="notification-service",
+            consumer_version="16.0.0",
+            handler_function=send_func_name,
+        )
+        dlq_subject = _dlq_config.get_dlq_subject("sahool.notification.delivery.failed")
+        dlq_payload = {
+            "metadata": metadata.model_dump(),
+            "original_message": json.dumps(
+                {
+                    "notification_id": str(getattr(notification, "id", "")),
+                    "channel": str(channel) if channel else None,
+                    "farmer_id": farmer_id,
+                },
+                default=str,
+            ),
+        }
+    else:
+        dlq_payload = {
+            "metadata": {
+                "original_subject": "sahool.notification.send",
+                "retry_count": max_retries,
+                "failure_reason": str(error),
+                "failure_timestamp": datetime.now(UTC).isoformat(),
+                "error_type": error.__class__.__name__,
+                "consumer_service": "notification-service",
+                "handler_function": send_func_name,
+            },
+            "original_message": json.dumps(
+                {
+                    "notification_id": str(getattr(notification, "id", "")),
+                    "channel": str(channel) if channel else None,
+                    "farmer_id": farmer_id,
+                },
+                default=str,
+            ),
+        }
+
+    # Try to publish to NATS DLQ stream
+    published = False
+    if _nats_subscriber and hasattr(_nats_subscriber, "_nc") and _nats_subscriber._nc:
+        try:
+            await _nats_subscriber._nc.publish(
+                dlq_subject,
+                json.dumps(dlq_payload, default=str).encode("utf-8"),
+            )
+            published = True
+            logger.warning(
+                "notification_moved_to_dlq",
+                dlq_subject=dlq_subject,
+                notification_id=sanitize_log_input(str(getattr(notification, "id", ""))),
+                channel=sanitize_log_input(str(channel)) if channel else None,
+                farmer_id=sanitize_log_input(str(farmer_id)) if farmer_id else None,
+                error_type=sanitize_log_input(error.__class__.__name__),
+            )
+        except Exception as dlq_error:
+            logger.error(
+                "notification_dlq_publish_failed",
+                dlq_error=sanitize_log_input(str(dlq_error)),
+                original_error=sanitize_log_input(str(error)),
+            )
+
+    if not published:
+        # Fallback: structured log for manual recovery when NATS is unavailable
+        logger.error(
+            "notification_dlq_fallback",
+            dlq_subject=dlq_subject,
+            notification_id=sanitize_log_input(str(getattr(notification, "id", ""))),
+            channel=sanitize_log_input(str(channel)) if channel else None,
+            farmer_id=sanitize_log_input(str(farmer_id)) if farmer_id else None,
+            error_type=sanitize_log_input(error.__class__.__name__),
+            error=sanitize_log_input(str(error)),
+            retries=max_retries,
+            dlq_payload=json.dumps(dlq_payload, default=str),
+        )
+
+
 async def _send_with_retry(send_func, *args, max_retries=3, **kwargs):
     """Send notification with retry on failure."""
     for attempt in range(max_retries):
@@ -485,7 +593,12 @@ async def _send_with_retry(send_func, *args, max_retries=3, **kwargs):
                     error=str(e),
                     retries=max_retries,
                 )
-                # TODO: Add to dead-letter queue for manual retry
+                await _publish_to_dlq(
+                    send_func_name=getattr(send_func, "__name__", "unknown"),
+                    error=e,
+                    max_retries=max_retries,
+                    kwargs=kwargs,
+                )
                 raise
 
 

@@ -91,7 +91,7 @@ class ServerConfig:
     name: str = "sahool-mcp-server"
     name_ar: str = "خادم سهول MCP"
     version: str = "1.0.0"
-    host: str = field(default_factory=lambda: os.getenv("MCP_HOST", "0.0.0.0"))
+    host: str = field(default_factory=lambda: os.getenv("MCP_HOST", "0.0.0.0"))  # nosec B104 - default for containerized deployment, overridden by env
     port: int = field(default_factory=lambda: int(os.getenv("MCP_PORT", "8200")))
     transport: TransportType = field(default_factory=lambda: TransportType(os.getenv("MCP_TRANSPORT", "http")))
     debug: bool = field(default_factory=lambda: os.getenv("MCP_DEBUG", "false").lower() == "true")

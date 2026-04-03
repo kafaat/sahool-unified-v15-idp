@@ -521,7 +521,7 @@ async def batch_insert(
             f"(${', $'.join(str(i + j * len(columns) + 1) for i in range(len(columns)))})" for j in range(len(batch))
         )
 
-        sql = f"INSERT INTO {quoted_table} ({', '.join(quoted_columns)}) VALUES {batch_placeholders}"  # nosec B608 — table/columns are quoted via _quote_identifier, values use $N params
+        sql = f"INSERT INTO {quoted_table} ({', '.join(quoted_columns)}) VALUES {batch_placeholders}"  # nosec B608 - table/columns are quoted via _quote_identifier; values use $N params
 
         if on_conflict:
             # Validate on_conflict to prevent SQL injection via clause manipulation

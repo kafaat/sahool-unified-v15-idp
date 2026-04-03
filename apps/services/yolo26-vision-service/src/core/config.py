@@ -32,7 +32,7 @@ class Settings(BaseSettings):
         default="development", description="Deployment environment"
     )
     debug: bool = Field(default=False, description="Enable debug mode")
-    host: str = Field(default="0.0.0.0", description="Service host")
+    host: str = Field(default="0.0.0.0", description="Service host")  # nosec B104 - default for containerized deployment, overridden by env
     port: int = Field(default=8150, description="Service port")
 
     # Database Configuration

@@ -366,10 +366,12 @@ class ContextMiddleware(BaseHTTPMiddleware):
                 if self._trust_gateway:
                     # Signature already validated by upstream gateway (Kong).
                     # Still enforce expiry + algorithm allowlist.
-                    # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
                     payload = jwt.decode(
                         token,
-                        options={"verify_signature": False, "verify_exp": True},
+                        options={
+                            "verify_signature": False,
+                            "verify_exp": True,
+                        },  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
                         algorithms=["HS256", "HS384", "HS512"],
                     )
                 else:
@@ -507,7 +509,7 @@ class TenantRepository(Generic[T]):
                 values.append(val)
 
             where_sql = f"WHERE {' AND '.join(where_parts)}" if where_parts else ""
-            query = f"SELECT * FROM {self._table} {where_sql}"  # nosec B608 — table name from class constant, not user input
+            query = f"SELECT * FROM {self._table} {where_sql}"  # nosec B608 - _table is a class constant defined in subclass, not user input
 
             rows = await conn.fetch(query, *values)
             return [self._model_class(**dict(row)) for row in rows]
@@ -515,7 +517,7 @@ class TenantRepository(Generic[T]):
     @require_context()
     async def find_one(self, id: str) -> T | None:
         async with tenant_db() as conn:
-            row = await conn.fetchrow(f"SELECT * FROM {self._table} WHERE id = $1", id)  # nosec B608
+            row = await conn.fetchrow(f"SELECT * FROM {self._table} WHERE id = $1", id)  # nosec B608 - _table is a class constant, not user input
             return self._model_class(**dict(row)) if row else None
 
     @require_context()
@@ -531,11 +533,11 @@ class TenantRepository(Generic[T]):
                 _validate_identifier(col)
             placeholders = [f"${i + 1}" for i in range(len(columns))]
 
-            query = (
-                f"INSERT INTO {self._table} ({', '.join(columns)})"  # nosec B608
-                f" VALUES ({', '.join(placeholders)})"
-                f" RETURNING *"
-            )
+            query = f"""
+                INSERT INTO {self._table} ({", ".join(columns)})
+                VALUES ({", ".join(placeholders)})
+                RETURNING *
+            """  # nosec B608 - _table is a class constant; columns are validated by _validate_identifier
 
             row = await conn.fetchrow(query, *data.values())
             return self._model_class(**dict(row))
@@ -1065,11 +1067,11 @@ class TenantBackupService:
         with ContextManager(system_ctx):
             for table in self.BACKUP_TABLES:
                 async with tenant_db() as conn:
-                    # Wrap in a transaction so set_config(..., true) persists
+                    # Set tenant context at session level for RLS consistency
                     async with conn.transaction():
-                        await conn.execute("SELECT set_config('app.current_tenant', $1, true)", tenant_id)
+                        await conn.execute("SELECT set_config('app.current_tenant', $1, false)", tenant_id)
                         # Table name from BACKUP_TABLES constant (not user input)
-                        rows = await conn.fetch(f"SELECT * FROM {table}")  # nosec B608
+                        rows = await conn.fetch(f"SELECT * FROM {table}")  # noqa: B608  # nosec B608 - table is from BACKUP_TABLES class constant, not user input
                     backup_data["tables"][table] = [dict(row) for row in rows]
 
         # Compress and upload

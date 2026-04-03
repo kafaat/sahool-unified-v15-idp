@@ -8,9 +8,15 @@
 pytest==8.4.2
 pytest-asyncio==0.26.0
 pytest-cov>=6.0.0
+pytest-timeout>=2.2.0
 
 # HTTP Testing
 httpx==0.28.1
 
 # Mocking
 pytest-mock==3.15.1
+
+# Integration test dependencies (imported by test modules)
+pydantic>=2.10.0
+PyJWT>=2.7.0
+PyYAML>=6.0.0

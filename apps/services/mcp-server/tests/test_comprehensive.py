@@ -73,7 +73,7 @@ class TestConfiguration:
         assert PORT == 8201
 
     def test_default_host(self):
-        assert HOST == "0.0.0.0"
+        assert HOST == "0.0.0.0"  # nosec B104 - test configuration
 
     def test_default_log_level(self):
         assert LOG_LEVEL == "INFO"

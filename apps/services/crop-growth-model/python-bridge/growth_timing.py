@@ -640,4 +640,4 @@ async def list_supported_crops():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8098)
+    uvicorn.run(app, host="0.0.0.0", port=8098)  # nosec B104 - binding to all interfaces required for Docker container

@@ -188,7 +188,7 @@ class TestCodeReviewServiceMethods:
             watch_paths="",
             cache_backend="memory",
             redis_url="redis://localhost:6379",
-            cache_file_path="/tmp/test.json",
+            cache_file_path="/tmp/test.json",  # nosec B108 - test fixture config, not used for real file I/O
             cache_max_size=10,
             cache_ttl=3600,
             github_api_url="https://api.github.com",
@@ -410,7 +410,7 @@ class TestCodeReviewServiceAsync:
             watch_paths="",
             cache_backend="memory",
             redis_url="redis://localhost:6379",
-            cache_file_path="/tmp/test.json",
+            cache_file_path="/tmp/test.json",  # nosec B108 - test fixture config
             cache_max_size=10,
             cache_ttl=3600,
             github_api_url="https://api.github.com",
@@ -508,7 +508,7 @@ class TestCodeReviewServiceReviewFile:
             watch_paths="",
             cache_backend="memory",
             redis_url="redis://localhost:6379",
-            cache_file_path="/tmp/test.json",
+            cache_file_path="/tmp/test.json",  # nosec B108 - test fixture config
             cache_max_size=10,
             cache_ttl=3600,
             github_api_url="https://api.github.com",

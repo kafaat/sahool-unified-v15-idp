@@ -105,10 +105,10 @@ class Settings(BaseSettings):
     FLOW_THRESHOLD: int = Field(default=100, description="Flow accumulation threshold | عتبة تراكم التدفق")
 
     # Storage Configuration
-    TEMP_DIR: str = Field(default="/tmp/terrain", description="Temporary directory | المجلد المؤقت")
+    TEMP_DIR: str = Field(default="/tmp/terrain", description="Temporary directory | المجلد المؤقت")  # nosec B108 - configurable default, overridden by env var
     MAX_UPLOAD_SIZE_MB: int = Field(default=500, description="Maximum upload size in MB | أقصى حجم للرفع")
     DEM_CACHE_DIR: str = Field(
-        default="/tmp/terrain/dem_cache",
+        default="/tmp/terrain/dem_cache",  # nosec B108 - configurable default, overridden by env var
         description="DEM cache directory | مجلد تخزين الارتفاعات",
     )
 

@@ -492,7 +492,7 @@ if __name__ == "__main__":
     app = example_10_complete_production_app()
 
     # Run the application
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)  # nosec B104 - example code
 
     print("\n" + "=" * 80)
     print("Rate Limiting Examples - SAHOOL Platform")

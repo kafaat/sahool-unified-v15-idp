@@ -9,6 +9,7 @@ This module provides a comprehensive wrapper for disease detection in Yemen crop
 import json
 import logging
 import os
+import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
@@ -102,7 +103,7 @@ class DiseaseConfig:
     DEFAULT_MODEL_VERSION = "v1.0.0"
     MODEL_DOWNLOAD_URL = "https://models.sahool.com/disease-detection/"
     MODELS_DIR = Path("/app/models/disease_detection")
-    CACHE_DIR = Path("/tmp/sahool_model_cache")
+    CACHE_DIR = Path(tempfile.gettempdir()) / "sahool_model_cache"
 
     # Preprocessing configuration - إعدادات المعالجة المسبقة
     NORMALIZATION_MEAN = [0.485, 0.456, 0.406]  # ImageNet mean

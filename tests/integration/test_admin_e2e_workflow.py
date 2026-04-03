@@ -15,12 +15,9 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import asyncio
-import json
 import os
 import uuid
 from datetime import UTC, datetime, timedelta
-from typing import Any
 
 import httpx
 import pytest

@@ -13,3 +13,32 @@ e0d17aec80cd47a0ce21116a2a1136820dd30101:shared/auth/config.py:generic-secret:46
 # test_infra_providers_group.py: checks env var names (REDIS_PASSWORD, NATS_PASSWORD) exist in compose
 c7b3d6424474e2bf2291e13da9f93f3aa2cef7e9:tests/container/test_infra_providers_group.py:generic-secret:328
 c7b3d6424474e2bf2291e13da9f93f3aa2cef7e9:tests/container/test_infra_providers_group.py:generic-secret:348
+
+# E2E & integration test files — os.getenv("JWT_SECRET_KEY", "test-only-...") fallback strings
+# These are NOT production secrets, only used in local mock test servers
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_docker_compose_core.py:generic-secret:187
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_admin_services_integration.py:generic-secret:338
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_admin_services_integration.py:generic-secret:374
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_admin_services_integration.py:generic-secret:400
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_admin_services_integration.py:generic-secret:421
+7846f407b11e37aa501e60ce63bfaa94fac7d1c8:tests/integration/test_admin_services_integration.py:generic-secret:49
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_admin_e2e_workflow.py:generic-secret:46
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_admin_e2e_workflow.py:generic-secret:150
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_admin_e2e_workflow.py:generic-secret:170
+ae7d7a560f10dacac76ed88a762d8ec73c096fa7:tests/integration/test_admin_e2e_workflow.py:generic-secret:178
+7846f407b11e37aa501e60ce63bfaa94fac7d1c8:tests/integration/test_admin_e2e_workflow.py:generic-secret:46
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/mock_services.py:generic-secret:41
+7846f407b11e37aa501e60ce63bfaa94fac7d1c8:tests/e2e/mock_services.py:generic-secret:41
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:117
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:134
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:139
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:147
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:152
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:162
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:166
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:173
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:187
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:207
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:474
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:483
+de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:568

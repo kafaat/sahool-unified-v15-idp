@@ -2,8 +2,8 @@
  * Satellite/NDVI API Proxy Routes
  * وكيل واجهة برمجة تطبيقات الأقمار الصناعية
  *
- * Proxies satellite data requests to vegetation-analysis-service
- * through Kong gateway for proper auth and rate limiting.
+ * Proxies satellite data requests to vegetation-analysis-service directly
+ * (server-side only — not exposed to browser).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -89,12 +89,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
     }
 
+    const { latitude, longitude, coordinates } = body;
     const response = await fetch(`${VEGETATION_SERVICE_URL}/v1/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         field_id: fieldId,
         analysis_type: analysisType || 'ndvi',
+        ...(latitude != null && { latitude }),
+        ...(longitude != null && { longitude }),
+        ...(coordinates != null && { coordinates }),
       }),
       signal: AbortSignal.timeout(60000),
     });

@@ -53,7 +53,7 @@ YEMEN_LNG = 44.205
 @pytest.fixture(scope="session", autouse=True)
 def mock_servers():
     """Start all mock servers for the test session."""
-    threads = start_all_servers()
+    start_all_servers()
     # Give servers time to bind
     time.sleep(1)
     yield

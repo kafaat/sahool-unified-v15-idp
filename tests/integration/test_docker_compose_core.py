@@ -13,7 +13,6 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
@@ -141,7 +140,6 @@ def test_sentinel_hub_configured(env_vars: dict[str, str]):
     if not env_vars:
         pytest.skip("No .env file available")
     key = "SENTINEL_HUB_CLIENT_ID"
-    value = env_vars.get(key, "")
     # In CI or dev, the value may be empty but must be defined
     assert key in env_vars, f"{key} not defined in .env file"
 

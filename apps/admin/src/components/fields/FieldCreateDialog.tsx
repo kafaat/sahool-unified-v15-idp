@@ -130,6 +130,7 @@ export default function FieldCreateDialog({
       setIrrigationType('');
       setBoundary(null);
       setError(null);
+      boundaryRef.current = {};
     }
   }, [open]);
 

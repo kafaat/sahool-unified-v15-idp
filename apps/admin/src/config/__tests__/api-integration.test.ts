@@ -634,8 +634,6 @@ describe('API_URLS integration', () => {
 
 describe('Cross-service consistency', () => {
   it('all SERVICE_PORTS values are unique (no port conflicts)', () => {
-    const ports = Object.values(SERVICE_PORTS);
-
     // fieldCore and fieldManagement share port 3000, auth and users share 3025,
     // fieldChat/communityChat may share ports with chat-related services, etc.
     // We check that deliberate aliases are the only duplicates.

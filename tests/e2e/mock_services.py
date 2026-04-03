@@ -12,19 +12,16 @@ Usage:
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import json
 import math
 import os
 import random
-import signal
-import sys
 import threading
 import time
 import uuid
 from datetime import UTC, datetime, timedelta
-from typing import Any
+
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Header, Request
@@ -43,7 +40,7 @@ DEFAULT_TENANT = "a0000000-0000-0000-0000-000000000001"
 
 
 def _hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    return hashlib.sha256(password.encode()).hexdigest()  # noqa: S324 — test-only mock, not production
 
 
 def _make_jwt(user_id: str, email: str, roles: list[str], tenant_id: str) -> str:
@@ -76,9 +73,11 @@ def _decode_token(token: str) -> dict | None:
         parts = token.split(".")
         if len(parts) != 3:
             return None
-        payload = parts[1] + "=" * (4 - len(parts[1]) % 4)
+        raw = parts[1]
+        padding = (4 - len(raw) % 4) % 4  # 0 when already aligned
+        payload = raw + "=" * padding
         return json.loads(base64.urlsafe_b64decode(payload))
-    except Exception:
+    except Exception:  # noqa: BLE001 — catch-all OK for test mock
         return None
 
 
@@ -598,8 +597,9 @@ def start_all_servers():
                 r = httpx.get(f"http://127.0.0.1:{port}/healthz", timeout=2)
                 if r.status_code == 200:
                     break
-            except Exception:
-                pass
+            except Exception:  # noqa: BLE001 — expected during server startup
+                time.sleep(0.3)
+                continue
             time.sleep(0.3)
 
     return threads
@@ -607,7 +607,7 @@ def start_all_servers():
 
 if __name__ == "__main__":
     print("Starting SAHOOL mock services...")
-    threads = start_all_servers()
+    start_all_servers()
     print("\nAll mock services running. Press Ctrl+C to stop.\n")
     print("  User Service:       http://localhost:3025")
     print("  Field Management:   http://localhost:3000")

@@ -714,6 +714,8 @@ services:
       KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_TIMEOUT: 60s
       KONG_MEM_CACHE_SIZE: 128m
     ports:
+      # 0.0.0.0 required so admin container (and other Docker services) can reach Kong.
+      # In production, use firewall rules or bind to internal Docker network only.
       - 0.0.0.0:8000:8000
       - 127.0.0.1:8001:8001
     volumes:
@@ -4075,7 +4077,9 @@ services:
     container_name: sahool-admin
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://kong:8000
+      # NEXT_PUBLIC_API_URL: used by browser (must be host-resolvable)
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      # API_GATEWAY_URL: used by server-side code (Docker-internal)
       - API_GATEWAY_URL=http://kong:8000
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - WEATHER_SERVICE_URL=http://weather-service:8092

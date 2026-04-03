@@ -519,6 +519,12 @@ export default function FieldDetailPage() {
                   </div>
                 )}
 
+                {/* Sentinel-1 SAR info — cloud-penetrating radar */}
+                <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                  <Activity className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>Sentinel-1 SAR (رادار) — يعمل في كل الأحوال الجوية بما في ذلك السحب والظلام</span>
+                </div>
+
                 {/* Data source banner + Timestamp */}
                 {ndvi?.data_source === 'mock' || ndvi?.data_source === 'simulated' ? (
                   <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">

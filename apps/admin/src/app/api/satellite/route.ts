@@ -62,6 +62,24 @@ export async function GET(request: NextRequest) {
       case 'eo-status':
         path = '/v1/eo-status';
         break;
+      case 'sar-timeseries':
+        if (!fieldId) {
+          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+        }
+        path = `/v1/sar-timeseries/${fieldId}?start_date=${searchParams.get('start_date') || ''}&end_date=${searchParams.get('end_date') || ''}${lat ? `&lat=${lat}` : ''}${lon ? `&lon=${lon}` : ''}`;
+        break;
+      case 'cloud-cover':
+        if (!fieldId) {
+          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+        }
+        path = `/v1/cloud-cover/${fieldId}${lat ? `?lat=${lat}` : ''}${lon ? `&lon=${lon}` : ''}`;
+        break;
+      case 'clear-observations':
+        if (!fieldId) {
+          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+        }
+        path = `/v1/clear-observations/${fieldId}`;
+        break;
       default:
         return NextResponse.json(
           { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status' },

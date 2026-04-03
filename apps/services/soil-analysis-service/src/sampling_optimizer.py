@@ -144,9 +144,7 @@ class SamplingPlan:
 _COST_PER_SAMPLE_SAR = 250.0  # lab analysis fee — رسوم التحليل المخبري
 _COST_TRAVEL_PER_SAMPLE_SAR = 35.0  # field travel overhead — تكلفة التنقل
 _COST_EQUIPMENT_PER_SAMPLE_SAR = 15.0  # consumables (bags, auger) — المستهلكات
-_TOTAL_COST_PER_SAMPLE_SAR = (
-    _COST_PER_SAMPLE_SAR + _COST_TRAVEL_PER_SAMPLE_SAR + _COST_EQUIPMENT_PER_SAMPLE_SAR
-)
+_TOTAL_COST_PER_SAMPLE_SAR = _COST_PER_SAMPLE_SAR + _COST_TRAVEL_PER_SAMPLE_SAR + _COST_EQUIPMENT_PER_SAMPLE_SAR
 
 # ---------------------------------------------------------------------------
 # Geometry helpers
@@ -344,7 +342,7 @@ class SoilSamplingOptimizer:
 
         # Enforce bounds
         if len(points) > self.MAX_SAMPLES_TOTAL:
-            points = sorted(points, key=lambda p: p.priority)[:self.MAX_SAMPLES_TOTAL]
+            points = sorted(points, key=lambda p: p.priority)[: self.MAX_SAMPLES_TOTAL]
 
         actual_samples = len(points)
 

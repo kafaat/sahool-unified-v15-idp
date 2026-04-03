@@ -131,9 +131,7 @@ class HeterogeneityScorer:
     # Public API
     # ------------------------------------------------------------------
 
-    def score_from_ndvi_grid(
-        self, ndvi_values: list[list[float]]
-    ) -> HeterogeneityScore:
+    def score_from_ndvi_grid(self, ndvi_values: list[list[float]]) -> HeterogeneityScore:
         """Score heterogeneity from a 2-D grid of NDVI values.
 
         Args:
@@ -148,18 +146,14 @@ class HeterogeneityScorer:
         """
         flat = self._flatten_grid(ndvi_values)
         if len(flat) < 4:
-            raise ValueError(
-                "At least 4 NDVI values are required for heterogeneity scoring."
-            )
+            raise ValueError("At least 4 NDVI values are required for heterogeneity scoring.")
 
         cv = self._coefficient_of_variation(flat)
         morans_i = self._morans_i_grid(ndvi_values)
 
         return self._build_score(cv, morans_i)
 
-    def score_from_observations(
-        self, observations: list[float]
-    ) -> HeterogeneityScore:
+    def score_from_observations(self, observations: list[float]) -> HeterogeneityScore:
         """Score heterogeneity from a flat list of NDVI samples.
 
         This is a simpler interface when spatial arrangement is unknown.
@@ -175,9 +169,7 @@ class HeterogeneityScorer:
             ValueError: If fewer than 2 observations are provided.
         """
         if len(observations) < 2:
-            raise ValueError(
-                "At least 2 observations are required for heterogeneity scoring."
-            )
+            raise ValueError("At least 2 observations are required for heterogeneity scoring.")
 
         cv = self._coefficient_of_variation(observations)
         morans_i = 0.0  # No spatial structure available
@@ -196,9 +188,7 @@ class HeterogeneityScorer:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _build_score(
-        self, cv: float, morans_i: float
-    ) -> HeterogeneityScore:
+    def _build_score(self, cv: float, morans_i: float) -> HeterogeneityScore:
         """Build a HeterogeneityScore from CV and Moran's I."""
         classification = self._classify(cv)
         zones = self._zones_for_classification(classification, cv)
@@ -212,10 +202,7 @@ class HeterogeneityScorer:
         # We map [0, 1] → [0, 100]; negative values contribute 0.
         spatial_component = max(morans_i, 0.0) * 100.0
 
-        raw_score = (
-            self._CV_WEIGHT * cv_component
-            + self._SPATIAL_WEIGHT * spatial_component
-        )
+        raw_score = self._CV_WEIGHT * cv_component + self._SPATIAL_WEIGHT * spatial_component
         final_score = round(min(max(raw_score, 0.0), 100.0), 1)
 
         vra_recommended = classification in (
@@ -242,9 +229,7 @@ class HeterogeneityScorer:
                 return label
         return "highly_heterogeneous"
 
-    def _zones_for_classification(
-        self, classification: ClassificationEN, cv: float
-    ) -> int:
+    def _zones_for_classification(self, classification: ClassificationEN, cv: float) -> int:
         """Determine optimal management zone count."""
         zone_map: dict[ClassificationEN, int] = {
             "homogeneous": 1,
@@ -332,9 +317,14 @@ class HeterogeneityScorer:
 
         # Queen contiguity: 8-neighbor offsets
         neighbors_offsets = [
-            (-1, -1), (-1, 0), (-1, 1),
-            (0, -1),           (0, 1),
-            (1, -1),  (1, 0),  (1, 1),
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+            (0, -1),
+            (0, 1),
+            (1, -1),
+            (1, 0),
+            (1, 1),
         ]
 
         # Compute numerator and total weight

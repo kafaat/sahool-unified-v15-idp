@@ -79,8 +79,7 @@ services:
         paths:
           - /api/v1/fields
           - /api/v1/field
-          - /field
-        strip_path: true
+        strip_path: false
         protocols:
           - http
           - https
@@ -325,12 +324,12 @@ services:
     host: weather-service
     port: 8092
     protocol: http
+    path: /weather
     routes:
       - name: weather-service-route
         paths:
           - /api/v1/weather
-          - /weather
-        strip_path: false
+        strip_path: true
         protocols:
           - http
           - https

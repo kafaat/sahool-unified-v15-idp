@@ -46,7 +46,7 @@ jobs:
 
       - name: Bandit (Security scan)
         run: |
-          bandit -r apps/services/ packages/ shared/ -f json -o bandit-report.json --severity-level medium || true
+          bandit -r apps/services/ packages/ shared/ -c pyproject.toml -f json -o bandit-report.json --severity-level medium || true
           # Fail only if MEDIUM+ issues exist
           MEDIUM_COUNT=$(python3 -c "import json; d=json.load(open('bandit-report.json')); print(len([r for r in d.get('results',[]) if r['issue_severity'] != 'LOW']))" 2>/dev/null || echo "0")
           echo "Bandit MEDIUM+ findings: $MEDIUM_COUNT"

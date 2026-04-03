@@ -29,8 +29,10 @@ logger = logging.getLogger(__name__)
 
 class SatelliteType(Enum):
     SENTINEL2 = "sentinel-2"
+    SENTINEL1 = "sentinel-1"
     LANDSAT8 = "landsat-8"
     LANDSAT9 = "landsat-9"
+    PLANET = "planet"
     MODIS = "modis"
     VIIRS = "viirs"
 
@@ -550,6 +552,118 @@ class CopernicusSTACProvider(SatelliteProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+class PlanetLabsProvider(SatelliteProvider):
+    """
+    Planet Labs API - High-frequency 3-5m resolution imagery
+    تسجيل في: https://www.planet.com/
+    Free trial: 30,000 processing units for 30 days
+
+    Requires PLANET_API_KEY environment variable.
+    """
+
+    BASE_URL = "https://api.planet.com/data/v1"
+    ORDERS_URL = "https://api.planet.com/compute/ops/orders/v2"
+
+    def __init__(self):
+        super().__init__("Planet Labs", "بلانيت لابز")
+        self.api_key = os.getenv("PLANET_API_KEY")
+
+    @property
+    def is_configured(self) -> bool:
+        return bool(self.api_key)
+
+    @property
+    def supported_satellites(self) -> list[SatelliteType]:
+        return [SatelliteType.PLANET]
+
+    async def search_scenes(
+        self,
+        lat: float,
+        lon: float,
+        start_date: date,
+        end_date: date,
+        max_cloud_cover: float = 30.0,
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
+        if not self.api_key:
+            return []
+
+        client = await self._get_client()
+        buffer = 0.005  # ~500m for higher resolution
+
+        try:
+            response = await client.post(
+                f"{self.BASE_URL}/quick-search",
+                auth=(self.api_key, ""),
+                json={
+                    "item_types": ["PSScene"],
+                    "filter": {
+                        "type": "AndFilter",
+                        "config": [
+                            {
+                                "type": "GeometryFilter",
+                                "field_name": "geometry",
+                                "config": {
+                                    "type": "Polygon",
+                                    "coordinates": [[
+                                        [lon - buffer, lat - buffer],
+                                        [lon + buffer, lat - buffer],
+                                        [lon + buffer, lat + buffer],
+                                        [lon - buffer, lat + buffer],
+                                        [lon - buffer, lat - buffer],
+                                    ]],
+                                },
+                            },
+                            {
+                                "type": "DateRangeFilter",
+                                "field_name": "acquired",
+                                "config": {
+                                    "gte": f"{start_date.isoformat()}T00:00:00Z",
+                                    "lte": f"{end_date.isoformat()}T23:59:59Z",
+                                },
+                            },
+                            {
+                                "type": "RangeFilter",
+                                "field_name": "cloud_cover",
+                                "config": {"lte": max_cloud_cover / 100},
+                            },
+                        ],
+                    },
+                },
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            scenes = []
+            for feature in data.get("features", [])[:10]:
+                props = feature.get("properties", {})
+                acquired = props.get("acquired", "")
+                if acquired:
+                    acquired = acquired.replace("Z", "").split(".")[0]
+                scenes.append(
+                    SatelliteScene(
+                        scene_id=feature.get("id", ""),
+                        satellite=SatelliteType.PLANET,
+                        acquisition_date=datetime.fromisoformat(acquired) if acquired else datetime.now(UTC),
+                        cloud_cover_pct=props.get("cloud_cover", 0) * 100,
+                        sun_elevation=props.get("sun_elevation", 45),
+                        bbox=tuple(feature.get("bbox", [0, 0, 0, 0])) if feature.get("bbox") else (0, 0, 0, 0),
+                        thumbnail_url=feature.get("_links", {}).get("thumbnail"),
+                        provider=self.name,
+                    )
+                )
+            return scenes
+
+        except Exception as e:
+            logger.error(f"Planet Labs search failed: {e}")
+            return []
+
+    async def get_ndvi(self, *args, **kwargs) -> dict | None:
+        # Planet NDVI requires ordering + download workflow (async)
+        # For real-time, use search_scenes + external NDVI calculation
+        return None
+
+
 class SimulatedProvider(SatelliteProvider):
     """
     Simulated satellite data for testing/fallback
@@ -635,10 +749,11 @@ class MultiSatelliteService:
     خدمة الأقمار الصناعية متعددة المزودين مع التبديل التلقائي
 
     Priority:
-    1. Sentinel Hub (if configured)
-    2. Copernicus STAC (free, no auth)
-    3. NASA Earthdata (if configured)
-    4. Simulated (always available)
+    1. Sentinel Hub / CDSE (if configured) — Sentinel-2 10m + Landsat 30m
+    2. Planet Labs (if configured) — 3-5m daily imagery
+    3. Copernicus STAC (free, no auth) — Sentinel-2 search
+    4. NASA Earthdata (if configured) — MODIS/VIIRS
+    5. Simulated (always available) — fallback
     """
 
     def __init__(self):
@@ -648,7 +763,13 @@ class MultiSatelliteService:
         sentinel_hub = SentinelHubProvider()
         if sentinel_hub.is_configured:
             self.providers.append(sentinel_hub)
-            logger.info("Sentinel Hub provider configured")
+            logger.info("Sentinel Hub provider configured (Sentinel-2 + Landsat 8/9)")
+
+        # Planet Labs — high-frequency 3-5m imagery
+        planet = PlanetLabsProvider()
+        if planet.is_configured:
+            self.providers.append(planet)
+            logger.info("Planet Labs provider configured (3-5m daily)")
 
         # Copernicus STAC is always available (no auth for search)
         self.providers.append(CopernicusSTACProvider())

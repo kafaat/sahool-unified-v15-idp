@@ -38,7 +38,7 @@ from pydantic import BaseModel
 USERS: dict[str, dict] = {}
 FIELDS: dict[str, dict] = {}
 REFRESH_TOKENS: dict[str, dict] = {}
-JWT_SECRET = "sahool_jwt_d3v_secret_2026_min32chars!!"
+JWT_SECRET = os.getenv("JWT_SECRET_KEY", "test-only-jwt-secret-not-for-production")
 DEFAULT_TENANT = "a0000000-0000-0000-0000-000000000001"
 
 

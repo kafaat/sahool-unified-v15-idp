@@ -141,11 +141,6 @@ async function renderDrawableMap(props: Record<string, any> = {}) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('DrawableMap', () => {
-  const defaultProps = {
-    onBboxSelect: vi.fn(),
-    onBoundaryDraw: vi.fn(),
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     mapClickHandler = null;

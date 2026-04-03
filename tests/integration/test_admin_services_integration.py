@@ -46,7 +46,7 @@ NATS_MONITORING_PORT = int(os.getenv("NATS_MONITORING_PORT", "8222"))
 
 JWT_SECRET = os.getenv(
     "JWT_SECRET_KEY",
-    "sahool_jwt_d3v_secret_2026_min32chars!!",
+    os.getenv("JWT_SECRET_KEY", "test-only-jwt-secret-not-for-production"),
 )
 DEFAULT_TENANT_ID = "a0000000-0000-0000-0000-000000000001"
 

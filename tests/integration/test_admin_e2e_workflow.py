@@ -43,7 +43,7 @@ FIELD_URL = os.getenv("FIELD_SERVICE_URL", "http://localhost:3000")
 USER_URL = os.getenv("USER_SERVICE_URL", "http://localhost:3025")
 
 JWT_SECRET = os.getenv(
-    "JWT_SECRET_KEY", "sahool_jwt_d3v_secret_2026_min32chars!!"
+    "JWT_SECRET_KEY", os.getenv("JWT_SECRET_KEY", "test-only-jwt-secret-not-for-production")
 )
 DEFAULT_TENANT = "a0000000-0000-0000-0000-000000000001"
 

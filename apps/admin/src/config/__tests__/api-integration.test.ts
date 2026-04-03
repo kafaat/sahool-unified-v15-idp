@@ -9,7 +9,7 @@
  * @module config/__tests__/api-integration
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Mock @sahool/shared-types/contracts
@@ -335,14 +335,14 @@ describe('SERVICE_PORTS', () => {
   });
 
   it('all ports are positive numbers', () => {
-    for (const [key, port] of Object.entries(SERVICE_PORTS)) {
+    for (const [_key, port] of Object.entries(SERVICE_PORTS)) {
       expect(typeof port).toBe('number');
       expect(port).toBeGreaterThan(0);
     }
   });
 
   it('all ports are within valid TCP port range', () => {
-    for (const [key, port] of Object.entries(SERVICE_PORTS)) {
+    for (const [_key, port] of Object.entries(SERVICE_PORTS)) {
       expect(port).toBeGreaterThanOrEqual(1);
       expect(port).toBeLessThanOrEqual(65535);
     }
@@ -481,7 +481,7 @@ describe('API_PATHS', () => {
 
 describe('SERVICE_URLS', () => {
   it('all service URLs are defined and non-empty strings', () => {
-    for (const [key, url] of Object.entries(SERVICE_URLS)) {
+    for (const [_key, url] of Object.entries(SERVICE_URLS)) {
       expect(url).toBeDefined();
       expect(typeof url).toBe('string');
       expect((url as string).length).toBeGreaterThan(0);
@@ -513,7 +513,7 @@ describe('SERVICE_URLS', () => {
   });
 
   it('all URLs have valid URL format', () => {
-    for (const [key, url] of Object.entries(SERVICE_URLS)) {
+    for (const [_key, url] of Object.entries(SERVICE_URLS)) {
       expect(url).toMatch(/^https?:\/\/.+/);
     }
   });
@@ -635,15 +635,14 @@ describe('API_URLS integration', () => {
 describe('Cross-service consistency', () => {
   it('all SERVICE_PORTS values are unique (no port conflicts)', () => {
     const ports = Object.values(SERVICE_PORTS);
-    const uniquePorts = new Set(ports);
 
     // fieldCore and fieldManagement share port 3000, auth and users share 3025,
     // fieldChat/communityChat may share ports with chat-related services, etc.
     // We check that deliberate aliases are the only duplicates.
     const portCounts = new Map<number, string[]>();
-    for (const [key, port] of Object.entries(SERVICE_PORTS)) {
+    for (const [portKey, port] of Object.entries(SERVICE_PORTS)) {
       const existing = portCounts.get(port as number) || [];
-      existing.push(key);
+      existing.push(portKey);
       portCounts.set(port as number, existing);
     }
 
@@ -690,8 +689,8 @@ describe('Cross-service consistency', () => {
 
   it('SERVICE_URLS are built from SERVICE_PORTS correctly', () => {
     // Each SERVICE_URL should contain its corresponding port number
-    for (const [key, port] of Object.entries(SERVICE_PORTS)) {
-      const url = (SERVICE_URLS as Record<string, string>)[key];
+    for (const [svcKey, port] of Object.entries(SERVICE_PORTS)) {
+      const url = (SERVICE_URLS as Record<string, string>)[svcKey];
       if (url) {
         expect(url).toContain(String(port));
       }

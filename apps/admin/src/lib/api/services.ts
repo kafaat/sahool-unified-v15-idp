@@ -510,8 +510,8 @@ export const irrigationService = {
 
 export interface Alert {
   id: string;
-  type: 'weather' | 'disease' | 'pest' | 'irrigation' | 'sensor' | 'system';
-  severity: 'info' | 'warning' | 'critical';
+  type: 'weather' | 'disease' | 'pest' | 'irrigation' | 'sensor' | 'system' | 'ndvi_low';
+  severity: 'info' | 'warning' | 'critical' | 'high' | 'medium' | 'low';
   title: string;
   titleAr: string;
   message: string;
@@ -519,14 +519,28 @@ export interface Alert {
   source: string;
   fieldId?: string;
   fieldName?: string;
-  status: 'unread' | 'read' | 'acknowledged' | 'resolved';
+  status: 'unread' | 'read' | 'acknowledged' | 'resolved' | 'dismissed';
   acknowledgedBy?: string;
   acknowledgedAt?: string;
   resolvedBy?: string;
   resolvedAt?: string;
+  dismissedBy?: string;
+  dismissedAt?: string;
   metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AlertRule {
+  id: string;
+  name: string;
+  nameAr: string;
+  condition: string;
+  conditionAr: string;
+  severity: Alert['severity'];
+  type: Alert['type'];
+  enabled: boolean;
+  createdAt: string;
 }
 
 export interface CreateAlertData {
@@ -539,6 +553,11 @@ export interface CreateAlertData {
   source: string;
   fieldId?: string;
   metadata?: Record<string, unknown>;
+}
+
+export interface AlertRulesResponse {
+  data: AlertRule[];
+  meta: { total: number };
 }
 
 export const alertService = {
@@ -649,6 +668,24 @@ export const alertService = {
   },
 
   /**
+   * Dismiss alert
+   * تجاهل التنبيه
+   */
+  async dismiss(id: string) {
+    try {
+      const response = await fetch(buildUrl(ALERT_ENDPOINTS.DISMISS, { alertId: id }), {
+        ...fetchDefaults,
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return (await response.json()) as Alert;
+    } catch (error) {
+      logger.error('Failed to dismiss alert', { id, error });
+      throw error;
+    }
+  },
+
+  /**
    * Delete alert
    * حذف تنبيه
    */
@@ -662,6 +699,21 @@ export const alertService = {
       return (await response.json()) as { success: boolean };
     } catch (error) {
       logger.error('Failed to delete alert', { id, error });
+      throw error;
+    }
+  },
+
+  /**
+   * Get alert rules
+   * جلب قواعد التنبيهات
+   */
+  async getRules() {
+    try {
+      const response = await fetch(ALERT_ENDPOINTS.RULES, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return (await response.json()) as AlertRulesResponse;
+    } catch (error) {
+      logger.error('Failed to fetch alert rules', { error });
       throw error;
     }
   },

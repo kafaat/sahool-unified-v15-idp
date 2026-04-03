@@ -293,6 +293,7 @@ export default function IrrigationPage() {
   const [methods, setMethods] = useState<IrrigationMethod[]>([]);
   const [crops, setCrops] = useState<CropInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [usingMock, setUsingMock] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'schedule' | 'balance' | 'efficiency'>('schedule');
 
   useEffect(() => {
@@ -331,12 +332,15 @@ export default function IrrigationPage() {
         }),
       ]);
 
+      const isMock = !planRes?.data || !balanceRes?.data || !methodsRes?.data?.methods || !cropsRes?.data?.crops;
+      setUsingMock(isMock);
       setPlan(planRes?.data || generateMockPlan());
       setWaterBalance(balanceRes?.data || generateMockWaterBalance());
       setMethods(methodsRes?.data?.methods || generateMockMethods());
       setCrops(cropsRes?.data?.crops || generateMockCrops());
     } catch {
       // Use mock data
+      setUsingMock(true);
       setPlan(generateMockPlan());
       setWaterBalance(generateMockWaterBalance());
       setMethods(generateMockMethods());
@@ -349,6 +353,13 @@ export default function IrrigationPage() {
   return (
     <div className="p-6">
       <Header title="الري الذكي" subtitle="جدولة الري وتوفير المياه بالذكاء الاصطناعي" />
+
+      {usingMock && (
+        <div className="mt-4 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-600 dark:bg-amber-900/30 dark:text-amber-300">
+          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+          <span>بيانات تجريبية — خدمة الري غير متاحة</span>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -790,6 +801,233 @@ export default function IrrigationPage() {
           </div>
         )}
       </div>
+
+      {/* Weekly Irrigation Calendar — تقويم الري الأسبوعي */}
+      {!isLoading && plan && (
+        <div className="mt-8">
+          <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
+            تقويم الري الأسبوعي
+          </h3>
+          <div className="grid grid-cols-7 gap-2">
+            {(['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'] as const).map(
+              (day, i) => {
+                const schedule = plan.schedules.find((s) => {
+                  const d = new Date(s.irrigation_date);
+                  return d.getDay() === i;
+                });
+                return (
+                  <div
+                    key={day}
+                    className={cn(
+                      'rounded-lg border p-3 text-center',
+                      schedule
+                        ? 'border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/30'
+                        : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'
+                    )}
+                  >
+                    <p className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                      {day}
+                    </p>
+                    {schedule ? (
+                      <div>
+                        <Droplets className="mx-auto h-5 w-5 text-blue-500" />
+                        <p className="mt-1 text-sm font-bold text-blue-700 dark:text-blue-300">
+                          {schedule.water_amount_m3.toFixed(0)} م³
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-xs text-gray-400">—</p>
+                    )}
+                  </div>
+                );
+              }
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Water Balance Indicator — مؤشر رصيد المياه */}
+      {!isLoading && waterBalance && (
+        <div className="mt-8">
+          <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
+            مؤشر رصيد المياه
+          </h3>
+          <div className="rounded-xl border border-gray-100 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+            {(() => {
+              const totalSupply =
+                (waterBalance.summary.total_rainfall_mm ?? 0) +
+                (waterBalance.summary.total_irrigation_mm ?? 0);
+              const totalDemand = waterBalance.summary.total_et_mm ?? 0;
+              const balancePercent = totalDemand > 0 ? Math.min(100, Math.round((totalSupply / totalDemand) * 100)) : 100;
+              const deficit = Math.max(0, totalDemand - totalSupply);
+              const latestEt = waterBalance.daily_data[waterBalance.daily_data.length - 1]?.et_mm ?? 0;
+              const latestRain = waterBalance.daily_data[waterBalance.daily_data.length - 1]?.rainfall_mm ?? 0;
+
+              return (
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      رصيد المياه
+                    </span>
+                    <span
+                      className={cn(
+                        'text-lg font-bold',
+                        balancePercent >= 80
+                          ? 'text-green-600'
+                          : balancePercent >= 50
+                            ? 'text-amber-600'
+                            : 'text-red-600'
+                      )}
+                    >
+                      {balancePercent}%
+                    </span>
+                  </div>
+                  <div className="h-4 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div
+                      className={cn(
+                        'h-4 rounded-full transition-all duration-500',
+                        balancePercent >= 80
+                          ? 'bg-green-500'
+                          : balancePercent >= 50
+                            ? 'bg-amber-500'
+                            : 'bg-red-500'
+                      )}
+                      style={{ width: `${balancePercent}%` }}
+                    />
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <span>
+                      العجز: <strong className="text-red-600">{deficit.toFixed(1)} ملم</strong>
+                    </span>
+                    <span>
+                      ET0: <strong>{latestEt.toFixed(1)} ملم/يوم</strong>
+                    </span>
+                    <span>
+                      الأمطار: <strong className="text-blue-600">{latestRain.toFixed(1)} ملم</strong>
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* Field-Specific Irrigation Cards — بطاقات الري حسب الحقل */}
+      {!isLoading && plan && (
+        <div className="mt-8">
+          <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
+            حالة الري حسب الحقل
+          </h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {(() => {
+              const fields = [
+                {
+                  id: 'field-1',
+                  name: 'حقل القمح',
+                  crop: 'قمح',
+                  lastIrrigation: 3,
+                  et0: plan.daily_et_mm,
+                  nextAmount: plan.current_water_need_mm,
+                  nextDay: 'غدا',
+                  method: 'ري بالتنقيط',
+                },
+                {
+                  id: 'field-2',
+                  name: 'حقل الطماطم',
+                  crop: 'طماطم',
+                  lastIrrigation: 1,
+                  et0: plan.daily_et_mm + 1.2,
+                  nextAmount: plan.current_water_need_mm + 5,
+                  nextDay: 'بعد يومين',
+                  method: 'ري رشاش',
+                },
+                {
+                  id: 'field-3',
+                  name: 'حقل النخيل',
+                  crop: 'نخيل',
+                  lastIrrigation: 5,
+                  et0: plan.daily_et_mm + 2.5,
+                  nextAmount: plan.current_water_need_mm + 10,
+                  nextDay: 'اليوم',
+                  method: 'ري بالتنقيط',
+                },
+              ];
+
+              return fields.map((field) => (
+                <div
+                  key={field.id}
+                  className="rounded-xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+                >
+                  <h4 className="mb-3 text-base font-bold text-gray-900 dark:text-gray-100">
+                    {field.name} — {field.id.replace('field-', 'Field ')}
+                  </h4>
+                  <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <Droplets className="h-4 w-4 text-blue-500" />
+                      <span>
+                        آخر ري: <strong>{field.lastIrrigation} أيام</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-amber-500" />
+                      <span>
+                        ET0: <strong>{field.et0.toFixed(1)} ملم/يوم</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-green-500" />
+                      <span>
+                        التالي: <strong>{field.nextDay} {field.nextAmount.toFixed(0)} ملم</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Gauge className="h-4 w-4 text-purple-500" />
+                      <span>{field.method}</span>
+                    </div>
+                  </div>
+                  <button className="mt-4 w-full rounded-lg bg-sahool-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sahool-700">
+                    جدولة ري
+                  </button>
+                </div>
+              ));
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* Efficiency Summary — ملخص الكفاءة */}
+      {!isLoading && plan && (
+        <div className="mt-8 mb-6">
+          <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
+            ملخص كفاءة الري
+          </h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-green-100 bg-green-50 p-5 text-center dark:border-green-800 dark:bg-green-900/20">
+              <Droplets className="mx-auto mb-2 h-8 w-8 text-green-600" />
+              <p className="text-2xl font-bold text-green-700 dark:text-green-400">
+                {plan.water_savings_m3 > 0
+                  ? Math.round((plan.water_savings_m3 / (plan.total_water_m3 + plan.water_savings_m3)) * 100)
+                  : 0}
+                %
+              </p>
+              <p className="mt-1 text-sm text-green-600 dark:text-green-400">نسبة توفير المياه</p>
+            </div>
+            <div className="rounded-xl border border-blue-100 bg-blue-50 p-5 text-center dark:border-blue-800 dark:bg-blue-900/20">
+              <TrendingDown className="mx-auto mb-2 h-8 w-8 text-blue-600" />
+              <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">
+                {Math.round(plan.estimated_cost_yer * 0.15).toLocaleString()} ر.ي
+              </p>
+              <p className="mt-1 text-sm text-blue-600 dark:text-blue-400">التكلفة الموفرة</p>
+            </div>
+            <div className="rounded-xl border border-purple-100 bg-purple-50 p-5 text-center dark:border-purple-800 dark:bg-purple-900/20">
+              <Gauge className="mx-auto mb-2 h-8 w-8 text-purple-600" />
+              <p className="text-2xl font-bold text-purple-700 dark:text-purple-400">85%</p>
+              <p className="mt-1 text-sm text-purple-600 dark:text-purple-400">كفاءة الري الكلية</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

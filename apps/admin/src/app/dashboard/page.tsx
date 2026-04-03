@@ -40,12 +40,26 @@ import Link from 'next/link';
 import { useWebSocket, useWebSocketEvent } from '@/hooks/useWebSocket';
 import { useRealTimeAlerts } from '@/hooks/useRealTimeAlerts';
 import type { SensorMessage, DiagnosisMessage } from '@/hooks/useWebSocket';
+import ExpertView from '@/components/fields/ExpertView';
 import { logger } from '../../lib/logger';
 import {
   YieldTrendChart,
   WeeklyActivityChart,
   CropDistributionChart,
 } from './DashboardCharts.dynamic';
+
+// Dynamic import for CrossFarmDashboard (no SSR)
+const CrossFarmDashboard = dynamic(
+  () => import('@/components/dashboard/CrossFarmDashboard'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">جاري تحميل لوحة المقارنة...</p>
+      </div>
+    ),
+  }
+);
 
 // Dynamic import for map (no SSR) with error handling
 const FarmsMap = dynamic(
@@ -297,6 +311,45 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Real-time Status Indicators */}
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
+          {isConnected ? (
+            <><span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> الخدمات: متصلة</>
+          ) : (
+            <><span className="w-2 h-2 rounded-full bg-red-500" /> الخدمات: غير متصلة</>
+          )}
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
+          🛰️ آخر صورة: {farms.length > 0 ? formatDate(farms[0].lastUpdated) : '—'}
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
+          ☁️ الطقس: {platformMetrics?.avgTemperature ? `${platformMetrics.avgTemperature}°` : '—'}
+        </span>
+      </div>
+
+      {/* Quick Actions Bar */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/farms" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors">
+          🌿 إنشاء حقل
+        </Link>
+        <Link href="/irrigation" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
+          💧 جدولة ري
+        </Link>
+        <Link href="/epidemic" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors">
+          🔬 تشخيص مرض
+        </Link>
+        <Link href="/analytics/satellite" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">
+          📊 تقارير
+        </Link>
+        <Link href="/alerts" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
+          ⚠️ التنبيهات
+        </Link>
+        <Link href="/tasks" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors">
+          ✅ المهام
+        </Link>
+      </div>
+
       {/* Statistics Cards */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
@@ -535,6 +588,50 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Cross-Farm Dashboard — لوحة مقارنة المزارع */}
+      <div className="mt-8">
+        <CrossFarmDashboard
+          fields={farms.map((farm) => ({
+            id: farm.id,
+            name: farm.name,
+            nameAr: farm.nameAr || farm.name,
+            cropType: farm.crops?.[0] || '—',
+            areaHa: farm.area,
+            ndvi: 0,
+            healthScore: farm.healthScore,
+            diseaseRisk: farm.healthScore >= 70 ? 'low' as const : farm.healthScore >= 40 ? 'medium' as const : 'high' as const,
+          }))}
+          onFieldClick={(fieldId) => {
+            const farm = farms.find((f) => f.id === fieldId);
+            if (farm) setSelectedFarm(farm);
+          }}
+        />
+      </div>
+
+      {/* Expert View — نظرة خبير */}
+      {(selectedFarm || farms.length > 0) && (
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-gray-900 dark:text-gray-100">
+              نظرة خبير — {selectedFarm?.nameAr || farms[0]?.nameAr || farms[0]?.name}
+            </h2>
+          </div>
+          <ExpertView
+            fieldId={selectedFarm?.id || farms[0]?.id}
+            cropType={selectedFarm?.crops?.[0] || farms[0]?.crops?.[0] || '—'}
+            temperature={platformMetrics?.avgTemperature}
+            soilMoisture={undefined}
+            diseaseRisk={
+              (selectedFarm?.healthScore ?? farms[0]?.healthScore ?? 70) >= 70
+                ? 'low'
+                : (selectedFarm?.healthScore ?? farms[0]?.healthScore ?? 70) >= 40
+                  ? 'medium'
+                  : 'high'
+            }
+          />
+        </div>
+      )}
 
       {/* Selected Farm Detail (if any) */}
       {selectedFarm && (

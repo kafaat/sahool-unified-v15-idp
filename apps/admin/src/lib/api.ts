@@ -811,6 +811,8 @@ export {
   type CreateIrrigationData,
   type Alert,
   type CreateAlertData,
+  type AlertRule,
+  type AlertRulesResponse,
   type Equipment,
   type CreateEquipmentData,
   type PaginationParams,

@@ -187,18 +187,21 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="صور الأقمار الصناعية">
             <TileLayer
               attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="التضاريس">
             <TileLayer
               attribution='&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
               url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
           </LayersControl.BaseLayer>
         </LayersControl>

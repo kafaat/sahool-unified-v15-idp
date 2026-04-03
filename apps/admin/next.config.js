@@ -24,6 +24,18 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
+// ── Startup Validation ────────────────────────────────────────────────────────
+// Validate critical environment variables at build/boot time (not at runtime)
+if (process.env.NODE_ENV === 'production') {
+  const jwtSecret = process.env.JWT_SECRET_KEY;
+  if (!jwtSecret || jwtSecret.length < 32) {
+    throw new Error(
+      'FATAL: JWT_SECRET_KEY must be at least 32 characters in production. ' +
+      'Set it via environment variable before starting the admin portal.'
+    );
+  }
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,

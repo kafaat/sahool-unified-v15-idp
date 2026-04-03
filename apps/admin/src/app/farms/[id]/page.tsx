@@ -101,6 +101,7 @@ interface NdviData {
   health_status?: string;
   trend?: string;
   timestamp?: string;
+  data_source?: string;
 }
 
 function getHealthColor(status: string | undefined): string {
@@ -490,10 +491,17 @@ export default function FieldDetailPage() {
                   </div>
                 </div>
 
-                {/* Timestamp */}
+                {/* Data source banner + Timestamp */}
+                {ndvi?.data_source === 'mock' || ndvi?.data_source === 'simulated' ? (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
+                    <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>بيانات محاكاة — لم يتم الاتصال بـ Sentinel Hub. تحقق من إعدادات SENTINEL_HUB_CLIENT_ID</span>
+                  </div>
+                ) : null}
                 {ndvi?.timestamp && (
                   <p className="text-xs text-gray-400">
                     آخر تحديث: {new Date(ndvi.timestamp).toLocaleDateString('ar')}
+                    {ndvi?.data_source ? ` • ${ndvi.data_source === 'sentinel-2' ? 'Sentinel-2' : ndvi.data_source}` : ''}
                   </p>
                 )}
               </div>

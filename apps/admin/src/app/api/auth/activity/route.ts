@@ -16,13 +16,25 @@ export async function POST() {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    // Update last activity timestamp
+    const expireSeconds = Number(process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS) || 1800;
+
+    // Update last activity timestamp (aligned with JWT expiry)
     cookieStore.set('sahool_admin_last_activity', Date.now().toString(), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 86400, // 1 day
+      maxAge: expireSeconds,
       path: '/',
+    });
+
+    // Forward activity to backend for server-side audit trail (fire-and-forget)
+    const apiUrl = process.env.API_GATEWAY_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    fetch(`${apiUrl}/api/v1/auth/activity`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(3000),
+    }).catch(() => {
+      // Best-effort — don't block client on backend activity tracking
     });
 
     return NextResponse.json({ success: true });

@@ -392,6 +392,7 @@ export default function DrawableMap({
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution="&copy; OpenStreetMap contributors"
               maxZoom={19}
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="صور فضائية">
@@ -399,6 +400,7 @@ export default function DrawableMap({
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
               attribution="&copy; Esri, Maxar, Earthstar Geographics"
               maxZoom={18}
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
           </LayersControl.BaseLayer>
         </LayersControl>

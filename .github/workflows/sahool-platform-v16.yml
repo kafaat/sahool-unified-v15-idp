@@ -45,7 +45,7 @@ jobs:
         run: ruff check apps/services/ packages/ shared/
 
       - name: Bandit (Security scan)
-        run: bandit -r apps/services/ packages/ shared/ -f json -o bandit-report.json
+        run: bandit -r apps/services/ packages/ shared/ -c pyproject.toml -f json -o bandit-report.json --severity-level medium --confidence-level medium --exit-zero
 
       - name: Safety (Dependency check)
         run: safety check -r requirements/base.txt

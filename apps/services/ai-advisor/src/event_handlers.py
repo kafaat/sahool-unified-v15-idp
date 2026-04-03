@@ -29,7 +29,13 @@ class AIEventHandlers:
         self.bus = None
         self.ndvi_cache: dict[str, dict[str, Any]] = {}
         self.weather_cache: dict[str, dict[str, Any]] = {}
-        self._yield_prediction_url = os.getenv("YIELD_PREDICTION_URL", "http://yield-prediction-service:8152")
+        # Load from Settings to avoid config drift with config.py
+        try:
+            from src.config import settings
+
+            self._yield_prediction_url = settings.yield_prediction_url
+        except Exception:
+            self._yield_prediction_url = os.getenv("YIELD_PREDICTION_URL", "http://yield-prediction-service:8152")
         self._http_timeout = 10.0
 
     # ── Cache helpers ────────────────────────────────────────────────────────

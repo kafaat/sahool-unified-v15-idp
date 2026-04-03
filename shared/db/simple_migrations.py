@@ -314,7 +314,7 @@ class SimpleMigrationRunner:
     async def _get_applied_versions(self, conn: asyncpg.Connection, *, dry_run: bool = False) -> set[int]:
         """Return set of already-applied version numbers."""
         try:
-            rows = await conn.fetch(f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version")  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
+            rows = await conn.fetch(f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version")  # nosec B608  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli  -- _TRACKING_TABLE is a module constant, not user input
             return {row["version"] for row in rows}
         except Exception:
             # Table may not exist yet (first run or dry_run before real run).

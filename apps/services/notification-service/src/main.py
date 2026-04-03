@@ -480,7 +480,7 @@ async def _publish_to_dlq(send_func_name: str, error: Exception, max_retries: in
     import json
     import traceback
 
-    dlq_subject = "sahool.dlq.notification.delivery.failed"
+    dlq_subject = "sahool.dlq.sahool.notification.delivery.failed"
     notification = kwargs.get("notification")
     channel = kwargs.get("channel")
     farmer_id = kwargs.get("farmer_id")
@@ -543,16 +543,16 @@ async def _publish_to_dlq(send_func_name: str, error: Exception, max_retries: in
             logger.warning(
                 "notification_moved_to_dlq",
                 dlq_subject=dlq_subject,
-                notification_id=str(getattr(notification, "id", "")),
-                channel=str(channel) if channel else None,
-                farmer_id=farmer_id,
-                error_type=error.__class__.__name__,
+                notification_id=sanitize_log_input(str(getattr(notification, "id", ""))),
+                channel=sanitize_log_input(str(channel)) if channel else None,
+                farmer_id=sanitize_log_input(str(farmer_id)) if farmer_id else None,
+                error_type=sanitize_log_input(error.__class__.__name__),
             )
         except Exception as dlq_error:
             logger.error(
                 "notification_dlq_publish_failed",
-                dlq_error=str(dlq_error),
-                original_error=str(error),
+                dlq_error=sanitize_log_input(str(dlq_error)),
+                original_error=sanitize_log_input(str(error)),
             )
 
     if not published:
@@ -560,11 +560,11 @@ async def _publish_to_dlq(send_func_name: str, error: Exception, max_retries: in
         logger.error(
             "notification_dlq_fallback",
             dlq_subject=dlq_subject,
-            notification_id=str(getattr(notification, "id", "")),
-            channel=str(channel) if channel else None,
-            farmer_id=farmer_id,
-            error_type=error.__class__.__name__,
-            error=str(error),
+            notification_id=sanitize_log_input(str(getattr(notification, "id", ""))),
+            channel=sanitize_log_input(str(channel)) if channel else None,
+            farmer_id=sanitize_log_input(str(farmer_id)) if farmer_id else None,
+            error_type=sanitize_log_input(error.__class__.__name__),
+            error=sanitize_log_input(str(error)),
             retries=max_retries,
             dlq_payload=json.dumps(dlq_payload, default=str),
         )

@@ -1,6 +1,7 @@
+library;
+
 /// Season Summary Screen - شاشة ملخص الموسم
 /// Overview of all crops performance in a season
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

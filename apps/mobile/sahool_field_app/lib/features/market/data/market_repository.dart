@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Market Repository
 /// مستودع السوق - Clean Architecture Pattern
 ///
 /// يوفر طبقة تجريد للوصول إلى بيانات السوق والمحفظة
 /// مع استخدام نمط ApiResult للتعامل الآمن مع الأخطاء
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

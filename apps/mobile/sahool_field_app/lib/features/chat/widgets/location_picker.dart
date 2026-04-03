@@ -1,3 +1,5 @@
+library;
+
 /// Location Picker Widget
 /// أداة اختيار الموقع
 ///
@@ -6,7 +8,6 @@
 /// - Show location on map for confirmation
 /// - Allow user to adjust pin position
 /// - Return selected location coordinates
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';

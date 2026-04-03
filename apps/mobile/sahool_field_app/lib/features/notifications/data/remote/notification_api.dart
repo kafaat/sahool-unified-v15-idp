@@ -1,6 +1,7 @@
+library;
+
 /// Notification API Client - Integrated with Notification Service (port 8110)
 /// عميل API الإشعارات - متكامل مع خدمة الإشعارات
-library;
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;

@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Offline Data Manager
 /// إدارة البيانات المحلية مع المزامنة التلقائية
 ///
@@ -6,7 +8,6 @@
 /// - Automatic sync when connection restored
 /// - Conflict resolution with user notification
 /// - Pending changes indicator
-library;
 
 import 'dart:async' show StreamController, StreamSubscription, Timer, unawaited;
 import 'dart:convert';

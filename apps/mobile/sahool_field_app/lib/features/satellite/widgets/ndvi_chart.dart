@@ -1,6 +1,7 @@
+library;
+
 /// NDVI Chart Widget - ودجت مخطط NDVI
 /// Line chart for NDVI time series data using fl_chart
-library;
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';

@@ -1,5 +1,6 @@
-/// Growth Stage Timeline Widget - ويدجت المخطط الزمني لمراحل النمو
 library;
+
+/// Growth Stage Timeline Widget - ويدجت المخطط الزمني لمراحل النمو
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

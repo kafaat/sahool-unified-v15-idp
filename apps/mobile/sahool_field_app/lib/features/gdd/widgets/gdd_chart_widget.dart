@@ -1,5 +1,6 @@
-/// GDD Chart Widget - ويدجت الرسم البياني لدرجات النمو الحراري
 library;
+
+/// GDD Chart Widget - ويدجت الرسم البياني لدرجات النمو الحراري
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';

@@ -1,8 +1,9 @@
+library;
+
 /// SAHOOL Authentication Service
 /// خدمة التوثيق والمصادقة
 ///
 /// Handles user authentication, token storage, and logout
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';

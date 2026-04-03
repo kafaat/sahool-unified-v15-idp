@@ -1,5 +1,6 @@
-/// Category Filter Widget - فلتر الفئات
 library;
+
+/// Category Filter Widget - فلتر الفئات
 
 import 'package:flutter/material.dart';
 

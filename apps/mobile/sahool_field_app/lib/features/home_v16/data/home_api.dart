@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Home API v16
 /// واجهة برمجة الشاشة الرئيسية
-library;
 
 import '../../../core/http/api_client.dart';
 import '../../../core/config/api_config.dart';

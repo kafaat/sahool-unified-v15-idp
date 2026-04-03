@@ -1,6 +1,7 @@
+library;
+
 /// Analytics Providers - Riverpod State Management for Analytics
 /// موفرو التحليلات - إدارة الحالة بـ Riverpod للتحليلات
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/analytics_models.dart';

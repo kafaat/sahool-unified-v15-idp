@@ -1,6 +1,7 @@
+library;
+
 /// Pivot Setup Screen - شاشة إعداد المحوري
 /// Configure pivot irrigation system with optional sector drawing
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

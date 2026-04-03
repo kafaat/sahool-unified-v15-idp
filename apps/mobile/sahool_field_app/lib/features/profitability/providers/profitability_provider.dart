@@ -1,6 +1,7 @@
+library;
+
 /// Profitability Providers - مزودات تحليل الربحية
 /// State management for profitability analysis
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

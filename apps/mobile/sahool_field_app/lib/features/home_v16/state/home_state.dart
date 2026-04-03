@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Home State v16
 /// حالة الشاشة الرئيسية
-library;
 
 class HomeState {
   final bool loading;

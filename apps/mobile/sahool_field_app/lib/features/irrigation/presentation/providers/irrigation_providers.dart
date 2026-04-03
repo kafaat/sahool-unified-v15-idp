@@ -1,3 +1,5 @@
+library;
+
 /// Irrigation Providers - State Management
 /// مزودو الري - إدارة الحالة
 ///
@@ -6,7 +8,6 @@
 /// - Schedule management providers
 /// - Weather integration providers
 /// - Sensor data providers
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

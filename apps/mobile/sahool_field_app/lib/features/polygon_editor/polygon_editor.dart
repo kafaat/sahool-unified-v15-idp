@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Polygon Editor - Enterprise GIS Drawing Tools
 ///
 /// محرر المضلعات الاحترافي لرسم حدود الحقول
@@ -10,7 +12,6 @@
 /// - GeoJSON / WKT export
 /// - Arabic UI labels
 
-library;
 
 export 'domain/polygon_editor_state.dart';
 export 'ui/polygon_editor_widget.dart';

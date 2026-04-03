@@ -1,9 +1,10 @@
+library;
+
 /// YOLO26 On-Device Inference Service
 /// خدمة الاستدلال على الجهاز YOLO26
 ///
 /// Provides on-device object detection for pests, diseases, and plant counting
 /// using YOLO26 models with automatic fallback to cloud inference.
-library;
 
 import 'dart:async';
 import 'dart:convert';

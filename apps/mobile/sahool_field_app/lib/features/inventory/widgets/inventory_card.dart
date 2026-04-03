@@ -1,5 +1,6 @@
-/// Inventory Card Widget - بطاقة عنصر المخزون
 library;
+
+/// Inventory Card Widget - بطاقة عنصر المخزون
 
 import 'package:flutter/material.dart';
 

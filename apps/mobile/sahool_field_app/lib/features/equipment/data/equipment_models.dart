@@ -1,7 +1,8 @@
+library;
+
 /// Equipment Models - نماذج المعدات
 /// مطابقة لـ FastAPI Equipment Service
 /// Enhanced for offline-first support
-library;
 
 import 'package:flutter/foundation.dart';
 

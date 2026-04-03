@@ -1,6 +1,7 @@
+library;
+
 /// Satellite Dashboard Screen - شاشة لوحة الأقمار الصناعية
 /// Main dashboard for satellite monitoring features
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

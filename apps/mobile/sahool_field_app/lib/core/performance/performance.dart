@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Performance Core
 /// ملفات تحسين الأداء
 ///
@@ -6,7 +8,6 @@
 /// - قوائم محسّنة
 /// - إدارة الذاكرة
 /// - كاش الشبكة
-library;
 
 export 'image_cache_manager.dart';
 export 'memory_manager.dart';

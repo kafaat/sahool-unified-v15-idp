@@ -1,8 +1,9 @@
+library;
+
 /// Crop Health Repository - Sahool Vision API Integration
 /// مستودع صحة المحاصيل - تكامل API سهول فيجن
 ///
 /// استخدام نمط ApiResult للتعامل الآمن مع الأخطاء
-library;
 
 import 'dart:convert';
 import 'dart:io';

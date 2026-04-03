@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Wallet Screen
 /// شاشة المحفظة الرقمية
 ///
@@ -6,7 +8,6 @@
 /// - Credit score gauge
 /// - Quick actions (deposit, withdraw, loan)
 /// - Transaction history
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

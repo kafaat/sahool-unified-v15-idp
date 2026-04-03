@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Home Controller v16
 /// متحكم الشاشة الرئيسية
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';

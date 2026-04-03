@@ -1,3 +1,5 @@
+library;
+
 /// Conversation Tile Widget
 /// عنصر قائمة المحادثات
 ///
@@ -7,7 +9,6 @@
 /// - Unread badge
 /// - Timestamp
 /// - Typing indicator
-library;
 
 import 'package:flutter/material.dart';
 import '../../../core/config/theme.dart';

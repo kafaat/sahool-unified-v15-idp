@@ -1,6 +1,7 @@
+library;
+
 /// Sahool Diagnosis Model
 /// نموذج نتيجة تشخيص أمراض النبات
-library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 

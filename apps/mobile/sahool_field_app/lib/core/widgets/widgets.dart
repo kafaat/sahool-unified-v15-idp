@@ -1,8 +1,9 @@
+library;
+
 /// SAHOOL Core Widgets
 /// مكونات النواة المشتركة
 ///
 /// تصدير جميع الـ widgets المشتركة في مكان واحد
-library;
 
 // Accessibility Utilities
 // أدوات إمكانية الوصول للمستخدمين ضعاف البصر

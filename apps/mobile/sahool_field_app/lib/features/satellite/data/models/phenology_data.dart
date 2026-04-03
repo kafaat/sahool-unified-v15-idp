@@ -1,6 +1,7 @@
+library;
+
 /// Phenology Data Model - نموذج بيانات مراحل النمو
 /// Crop growth stage tracking from satellite monitoring
-library;
 
 import 'package:equatable/equatable.dart';
 

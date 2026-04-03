@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Theme System
 /// نظام الثيم لتطبيق سهول
 ///
@@ -21,7 +23,6 @@
 ///   // ...
 /// )
 /// ```
-library;
 
 // Main theme - الثيم الرئيسي
 export 'sahool_theme.dart';

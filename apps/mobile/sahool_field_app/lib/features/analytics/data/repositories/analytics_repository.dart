@@ -1,9 +1,10 @@
+library;
+
 /// Analytics Repository - Data Access Layer for Predictive Analytics
 /// مستودع التحليلات - طبقة الوصول للبيانات للتحليلات التنبؤية
 ///
 /// Connected to field-intelligence service (port 8120) via Kong gateway
 /// Falls back to local computation when offline
-library;
 
 import 'dart:math' as math;
 import '../../../../core/api/kong_gateway_client.dart';

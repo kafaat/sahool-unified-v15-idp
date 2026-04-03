@@ -1,6 +1,7 @@
+library;
+
 /// Crop Profitability Screen - شاشة ربحية المحصول
 /// Individual crop analysis with detailed metrics
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

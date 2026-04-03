@@ -1,3 +1,5 @@
+library;
+
 /// Chat Screen
 /// شاشة المحادثة الفردية
 ///
@@ -8,7 +10,6 @@
 /// - Message input
 /// - Online status
 /// - Load more messages (pagination)
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

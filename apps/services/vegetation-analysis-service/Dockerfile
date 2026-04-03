@@ -51,6 +51,11 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --prefix=/install \
     -c constraints.txt -r requirements.txt
 
+# Install sahool-eo local package for Sentinel Hub integration
+COPY packages/sahool-eo /tmp/sahool-eo
+RUN pip install --no-cache-dir --prefix=/install /tmp/sahool-eo || \
+    echo "WARNING: sahool-eo install failed — satellite data will use simulation mode"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production
 # ─────────────────────────────────────────────────────────────────────────────

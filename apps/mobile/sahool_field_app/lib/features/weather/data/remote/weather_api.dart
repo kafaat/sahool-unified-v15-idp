@@ -1,6 +1,7 @@
+library;
+
 /// Weather API Client - Integrated with Weather Service (port 8092)
 /// عميل API الطقس - متكامل مع خدمة الطقس
-library;
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;

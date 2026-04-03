@@ -1,6 +1,7 @@
+library;
+
 /// Irrigation API Client - Integrated with Irrigation Smart Service (port 8094)
 /// عميل API الري الذكي - متكامل مع خدمة الري
-library;
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;

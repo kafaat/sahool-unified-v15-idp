@@ -1,3 +1,4 @@
+library;
 
 /// SAHOOL Scout Session Models
 /// نماذج جلسة مسح الحقول
@@ -7,7 +8,6 @@
 /// - نقطة التفتيش
 /// - الملاحظة
 /// - المسار
-library;
 
 /// جلسة مسح الحقل
 class ScoutSession {

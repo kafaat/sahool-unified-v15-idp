@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Astronomical Task Suggestions Widget
 /// ويدجت اقتراحات المهام الفلكية
 ///
 /// عرض أفضل الأيام للأنشطة الزراعية بناءً على التقويم الفلكي اليمني
 /// مع إمكانية إنشاء مهام مباشرة من الأيام المقترحة
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

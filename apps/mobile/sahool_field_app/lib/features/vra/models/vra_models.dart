@@ -1,6 +1,7 @@
+library;
+
 /// VRA Models - نماذج التطبيق المتغير
 /// Variable Rate Application - تطبيق الجرعات المتغيرة
-library;
 
 import 'package:flutter/foundation.dart';
 

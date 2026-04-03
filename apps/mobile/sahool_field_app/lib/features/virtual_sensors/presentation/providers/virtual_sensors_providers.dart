@@ -1,6 +1,7 @@
+library;
+
 /// Virtual Sensors Providers - Riverpod State Management
 /// موفرو المستشعرات الافتراضية - إدارة الحالة بـ Riverpod
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/virtual_sensor_models.dart';

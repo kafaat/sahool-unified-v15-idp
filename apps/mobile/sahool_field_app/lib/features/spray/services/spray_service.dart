@@ -1,7 +1,8 @@
+library;
+
 /// Spray Advisor Service - خدمة مستشار الرش
 /// يتواصل مع Spray Advisor API Service
 /// Supports offline-first architecture with local caching
-library;
 
 import 'dart:convert';
 import 'package:dio/dio.dart';

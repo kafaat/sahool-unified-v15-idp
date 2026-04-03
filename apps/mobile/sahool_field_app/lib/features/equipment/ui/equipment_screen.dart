@@ -1,6 +1,7 @@
+library;
+
 /// Equipment Screen - شاشة إدارة المعدات
 /// متكاملة مع FastAPI Equipment Service
-library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

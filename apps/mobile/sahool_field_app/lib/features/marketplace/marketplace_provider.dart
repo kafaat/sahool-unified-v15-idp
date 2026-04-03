@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Marketplace Provider
 /// مزود السوق - إدارة المنتجات والطلبات
 ///
@@ -6,7 +8,6 @@
 /// - Shopping cart management
 /// - Order creation
 /// - Smart harvest listing
-library;
 
 import 'dart:async';
 import 'dart:convert';

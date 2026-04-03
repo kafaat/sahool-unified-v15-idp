@@ -1,6 +1,7 @@
+library;
+
 /// Weather Data Model for Satellite Feature - نموذج بيانات الطقس
 /// Simplified weather data for satellite monitoring integration
-library;
 
 import 'package:equatable/equatable.dart';
 

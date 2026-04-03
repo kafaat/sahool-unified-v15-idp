@@ -1,6 +1,7 @@
+library;
+
 /// Cost Breakdown Widget - تفصيل التكاليف
 /// Pie chart showing cost breakdown by category
-library;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,7 @@
+library;
+
 /// Yield Prediction Card Widget
 /// ودجت بطاقة توقع الإنتاجية
-library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;

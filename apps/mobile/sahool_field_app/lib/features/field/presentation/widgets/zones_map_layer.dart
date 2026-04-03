@@ -1,3 +1,5 @@
+library;
+
 /// Health Zones Map Layer Widget
 /// طبقة خريطة مناطق الصحة النباتية
 ///
@@ -9,7 +11,6 @@
 /// - Zone selection with animation
 /// - Bilingual support (Arabic/English)
 
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';

@@ -1,3 +1,5 @@
+library;
+
 /// Water Calculator Service - Smart Irrigation Calculations
 /// خدمة حاسبة المياه - حسابات الري الذكي
 ///
@@ -9,7 +11,6 @@
 /// - Sector area calculations
 /// - Efficiency calculations
 /// - Water balance calculations
-library;
 
 import 'dart:math' as math;
 

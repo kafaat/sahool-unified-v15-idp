@@ -1,6 +1,7 @@
+library;
+
 /// Profitability Models - نماذج تحليل الربحية
 /// تحليل ربحية المحاصيل وتكاليف الإنتاج
-library;
 
 import 'package:flutter/foundation.dart';
 

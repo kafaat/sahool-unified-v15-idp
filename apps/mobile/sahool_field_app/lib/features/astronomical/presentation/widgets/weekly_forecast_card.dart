@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Weekly Forecast Card
 /// بطاقة التوقعات الأسبوعية
-library;
 
 import 'package:flutter/material.dart';
 import '../../models/astronomical_models.dart';

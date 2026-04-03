@@ -1,6 +1,7 @@
+library;
+
 /// Risk Indicator Widget
 /// ودجت مؤشر المخاطر
-library;
 
 import 'package:flutter/material.dart';
 import '../../data/models/analytics_models.dart';

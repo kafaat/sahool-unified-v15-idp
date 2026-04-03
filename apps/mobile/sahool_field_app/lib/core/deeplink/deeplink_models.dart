@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Deep Link Models
 /// نماذج الروابط العميقة
 ///
 /// Data models, enums, and helper functions for deep links.
 /// Separated from handler to allow testing without platform dependencies.
-library;
 
 import 'package:flutter/foundation.dart';
 

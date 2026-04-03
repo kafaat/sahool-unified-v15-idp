@@ -1,7 +1,8 @@
+library;
+
 /// Equipment Providers - مزودات بيانات المعدات
 /// Riverpod providers للتواصل مع Equipment Service
 /// Enhanced with offline-first support and comprehensive state management
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

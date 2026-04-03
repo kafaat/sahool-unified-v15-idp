@@ -1,5 +1,6 @@
-/// VRA Detail Screen - شاشة تفاصيل الوصفة
 library;
+
+/// VRA Detail Screen - شاشة تفاصيل الوصفة
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Crash Reporting Usage Examples
 /// أمثلة استخدام خدمة تتبع الأعطال
 ///
 /// This file demonstrates how to use the crash reporting service
 /// throughout the application.
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

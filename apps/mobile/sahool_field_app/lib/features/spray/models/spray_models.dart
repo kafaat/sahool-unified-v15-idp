@@ -1,6 +1,7 @@
+library;
+
 /// Spray Advisor Models - نماذج مستشار الرش
 /// Spray timing and recommendations - توقيت الرش والتوصيات
-library;
 
 import 'package:flutter/foundation.dart';
 

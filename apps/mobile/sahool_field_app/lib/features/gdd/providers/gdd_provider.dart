@@ -1,6 +1,7 @@
+library;
+
 /// GDD Providers - مزودات بيانات درجات النمو الحراري
 /// Riverpod providers للتواصل مع GDD Service
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

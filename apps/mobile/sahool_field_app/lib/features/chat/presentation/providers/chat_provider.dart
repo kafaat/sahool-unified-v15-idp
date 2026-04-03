@@ -1,3 +1,5 @@
+library;
+
 /// Chat Provider
 /// مزود المحادثات - إدارة الحالة باستخدام Riverpod
 ///
@@ -8,7 +10,6 @@
 /// - Typing indicators
 /// - Online status
 /// - Auto-disposal with keepAlive for session persistence
-library;
 
 import 'dart:async';
 

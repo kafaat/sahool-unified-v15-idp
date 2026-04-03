@@ -1,6 +1,7 @@
+library;
+
 /// شاشة المدفوعات - بوابة ثروات
 /// Payment Screen - Tharwatt Gateway
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

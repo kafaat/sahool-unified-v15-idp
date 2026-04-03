@@ -1,6 +1,7 @@
+library;
+
 /// Satellite History Screen - شاشة سجل الأقمار الصناعية
 /// Displays historical satellite analyses for a field
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

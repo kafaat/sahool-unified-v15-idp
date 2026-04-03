@@ -1,6 +1,7 @@
+library;
+
 /// Health Indicator Widget - ودجت مؤشر الصحة
 /// Circular gauge widget for field health score (0-100)
-library;
 
 import 'package:flutter/material.dart';
 import 'dart:math' as math;

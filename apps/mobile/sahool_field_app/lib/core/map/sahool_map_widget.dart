@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Map Widget - Multi-Provider Map Component
 /// مكون الخريطة متعدد المزودين
 ///
@@ -7,7 +9,6 @@
 /// - Field polygon drawing
 /// - Marker clustering
 /// - Yemen-optimized defaults
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';

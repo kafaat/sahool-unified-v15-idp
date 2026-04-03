@@ -1,3 +1,5 @@
+library;
+
 /// Weather-Irrigation Integration Service
 /// خدمة تكامل الطقس والري
 ///
@@ -6,7 +8,6 @@
 /// - Rain-adjusted irrigation scheduling
 /// - Weather alerts for irrigation
 /// - Optimal irrigation timing recommendations
-library;
 
 import 'dart:math' as math;
 

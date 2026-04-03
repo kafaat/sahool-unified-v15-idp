@@ -1,5 +1,6 @@
-/// Movement Tile Widget - عنصر حركة المخزون
 library;
+
+/// Movement Tile Widget - عنصر حركة المخزون
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

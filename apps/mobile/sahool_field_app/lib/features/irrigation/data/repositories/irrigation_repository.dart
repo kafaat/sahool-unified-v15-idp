@@ -1,3 +1,5 @@
+library;
+
 /// Irrigation Repository - Data Layer with Offline Support
 /// مستودع الري - طبقة البيانات مع دعم عدم الاتصال
 ///
@@ -6,7 +8,6 @@
 /// - Local caching for offline support
 /// - Sync management
 /// - Conflict resolution
-library;
 
 import 'dart:convert';
 

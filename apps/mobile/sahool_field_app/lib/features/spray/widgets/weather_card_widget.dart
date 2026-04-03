@@ -1,6 +1,7 @@
+library;
+
 /// Weather Card Widget - بطاقة الطقس
 /// عرض معلومات الطقس الحالية وملاءمة الرش
-library;
 
 import 'package:flutter/material.dart';
 

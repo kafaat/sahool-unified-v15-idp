@@ -1,8 +1,9 @@
+library;
+
 /// SAHOOL Astronomical Task Widget - Usage Example
 /// مثال على استخدام ويدجت المهام الفلكية
 ///
 /// هذا الملف يوضح كيفية دمج ويدجت المهام الفلكية في التطبيق
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

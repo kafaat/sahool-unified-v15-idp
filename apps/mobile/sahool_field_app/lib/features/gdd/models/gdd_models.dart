@@ -1,6 +1,7 @@
+library;
+
 /// GDD Models - نماذج درجات النمو الحراري (Growing Degree Days)
 /// مطابقة لـ FastAPI GDD Service
-library;
 
 import 'package:flutter/foundation.dart';
 

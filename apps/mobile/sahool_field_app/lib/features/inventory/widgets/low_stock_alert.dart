@@ -1,5 +1,6 @@
-/// Low Stock Alert Widget - تنبيه المخزون المنخفض
 library;
+
+/// Low Stock Alert Widget - تنبيه المخزون المنخفض
 
 import 'package:flutter/material.dart';
 

@@ -1,6 +1,7 @@
+library;
+
 /// Profitability Service - خدمة تحليل الربحية
 /// يتواصل مع FastAPI Profitability Analysis Service
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

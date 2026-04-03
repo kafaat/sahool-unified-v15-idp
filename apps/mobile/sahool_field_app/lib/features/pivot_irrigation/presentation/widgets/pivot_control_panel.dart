@@ -1,6 +1,7 @@
+library;
+
 /// Pivot Control Panel - Valley Style
 /// لوحة تحكم المحوري - بأسلوب فالي
-library;
 
 import 'package:flutter/material.dart';
 import '../../domain/models/pivot_models.dart';

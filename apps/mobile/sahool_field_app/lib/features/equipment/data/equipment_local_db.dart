@@ -1,6 +1,7 @@
+library;
+
 /// Equipment Local Database - قاعدة بيانات المعدات المحلية
 /// Offline-first storage for equipment data
-library;
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';

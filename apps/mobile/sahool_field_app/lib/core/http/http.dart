@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL HTTP/Network Layer
 /// طبقة الشبكة والاتصالات
 ///
@@ -30,7 +32,6 @@
 /// final result = await client.get('/fields');
 /// ```
 
-library;
 
 // Core API Client
 export 'api_client.dart';

@@ -1,7 +1,8 @@
+library;
+
 /// Equipment Repository - مستودع بيانات المعدات
 /// يتواصل مع FastAPI Equipment Service
 /// Enhanced with offline-first support
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

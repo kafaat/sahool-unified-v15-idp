@@ -1,5 +1,6 @@
-/// Stock Level Indicator Widget - مؤشر مستوى المخزون
 library;
+
+/// Stock Level Indicator Widget - مؤشر مستوى المخزون
 
 import 'package:flutter/material.dart';
 

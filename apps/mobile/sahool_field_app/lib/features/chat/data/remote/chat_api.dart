@@ -1,8 +1,9 @@
+library;
+
 /// Chat API
 /// طبقة الاتصال بخدمة المحادثات
 ///
 /// Handles REST API calls and WebSocket connections
-library;
 
 import 'dart:async';
 import 'package:dio/dio.dart';

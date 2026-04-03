@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Error Handler Utilities
 /// أدوات معالجة الأخطاء لتطبيق سهول
 ///
@@ -6,7 +8,6 @@
 /// - Error recovery mechanisms
 /// - User-facing error display helpers
 /// - Error reporting integration
-library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';

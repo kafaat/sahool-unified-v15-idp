@@ -1,9 +1,10 @@
+library;
+
 /// Crop Data Model
 /// نموذج بيانات المحصول
 ///
 /// Based on SAHOOL Unified Crop Catalog
 /// يطابق كتالوج المحاصيل الموحد في السيرفر
-library;
 
 /// تصنيفات المحاصيل الرئيسية
 enum CropCategory {

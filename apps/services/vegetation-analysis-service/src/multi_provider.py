@@ -552,6 +552,136 @@ class CopernicusSTACProvider(SatelliteProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+class USGSLandsatArchiveProvider(SatelliteProvider):
+    """
+    USGS EarthExplorer — FREE Landsat historical archive (1972-present)
+    أرشيف لاندسات التاريخي المجاني (من 1972)
+
+    Provides access to 50+ years of global satellite imagery:
+    - Landsat 1-5 MSS (1972-2013): 60-80m resolution
+    - Landsat 4-5 TM (1982-2012): 30m resolution
+    - Landsat 7 ETM+ (1999-present): 30m resolution
+    - Landsat 8-9 (2013-present): 30m resolution (also via Sentinel Hub)
+
+    Uses USGS M2M (Machine-to-Machine) API.
+    Free registration: https://ers.cr.usgs.gov/register
+    API docs: https://m2m.cr.usgs.gov/
+    """
+
+    M2M_URL = "https://m2m.cr.usgs.gov/api/api/json/stable"
+
+    # Landsat dataset IDs for different eras
+    DATASETS = {
+        "landsat_tm_c2_l2": {"name": "Landsat 4-5 TM C2 L2", "start": 1982, "end": 2012, "resolution": 30},
+        "landsat_etm_c2_l2": {"name": "Landsat 7 ETM+ C2 L2", "start": 1999, "end": 2026, "resolution": 30},
+        "landsat_ot_c2_l2": {"name": "Landsat 8-9 OLI/TIRS C2 L2", "start": 2013, "end": 2026, "resolution": 30},
+    }
+
+    def __init__(self):
+        super().__init__("USGS Landsat Archive", "أرشيف لاندسات")
+        self.username = os.getenv("USGS_USERNAME") or os.getenv("NASA_EARTHDATA_USERNAME")
+        self.password = os.getenv("USGS_PASSWORD") or os.getenv("NASA_EARTHDATA_PASSWORD")
+        self._api_key: str | None = None
+
+    @property
+    def is_configured(self) -> bool:
+        return bool(self.username and self.password)
+
+    @property
+    def supported_satellites(self) -> list[SatelliteType]:
+        return [SatelliteType.LANDSAT8, SatelliteType.LANDSAT9]
+
+    async def _login(self) -> str | None:
+        """Authenticate with USGS M2M API"""
+        if self._api_key:
+            return self._api_key
+        if not self.is_configured:
+            return None
+
+        client = await self._get_client()
+        try:
+            resp = await client.post(
+                f"{self.M2M_URL}/login",
+                json={"username": self.username, "password": self.password},
+            )
+            resp.raise_for_status()
+            self._api_key = resp.json().get("data")
+            return self._api_key
+        except Exception as e:
+            logger.error(f"USGS login failed: {e}")
+            return None
+
+    async def search_scenes(
+        self,
+        lat: float,
+        lon: float,
+        start_date: date,
+        end_date: date,
+        max_cloud_cover: float = 30.0,
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
+        api_key = await self._login()
+        if not api_key:
+            return []
+
+        client = await self._get_client()
+        scenes = []
+
+        # Select dataset based on date range
+        for ds_id, ds_info in self.DATASETS.items():
+            if start_date.year > ds_info["end"] or end_date.year < ds_info["start"]:
+                continue
+
+            try:
+                resp = await client.post(
+                    f"{self.M2M_URL}/scene-search",
+                    json={
+                        "datasetName": ds_id,
+                        "sceneFilter": {
+                            "spatialFilter": {
+                                "filterType": "mbr",
+                                "lowerLeft": {"latitude": lat - 0.01, "longitude": lon - 0.01},
+                                "upperRight": {"latitude": lat + 0.01, "longitude": lon + 0.01},
+                            },
+                            "acquisitionFilter": {
+                                "start": start_date.isoformat(),
+                                "end": end_date.isoformat(),
+                            },
+                            "cloudCoverFilter": {"max": max_cloud_cover},
+                        },
+                        "maxResults": 10,
+                    },
+                    headers={"X-Auth-Token": api_key},
+                )
+                resp.raise_for_status()
+                results = resp.json().get("data", {}).get("results", [])
+
+                for r in results:
+                    acq = r.get("temporalCoverage", {}).get("startDate", "")
+                    if acq:
+                        acq = acq.split("T")[0]
+                    scenes.append(
+                        SatelliteScene(
+                            scene_id=r.get("entityId", ""),
+                            satellite=SatelliteType.LANDSAT8,
+                            acquisition_date=datetime.fromisoformat(acq) if acq else datetime.now(UTC),
+                            cloud_cover_pct=r.get("cloudCover", 0),
+                            sun_elevation=r.get("sunElevation", 45),
+                            bbox=(lon - 0.01, lat - 0.01, lon + 0.01, lat + 0.01),
+                            thumbnail_url=r.get("browse", [{}])[0].get("browsePath") if r.get("browse") else None,
+                            provider=f"{self.name} ({ds_info['name']})",
+                        )
+                    )
+            except Exception as e:
+                logger.error(f"USGS search failed for {ds_id}: {e}")
+
+        return scenes
+
+    async def get_ndvi(self, *args, **kwargs) -> dict | None:
+        # USGS provides raw imagery — NDVI calculation done post-download
+        return None
+
+
 class AgromonitoringProvider(SatelliteProvider):
     """
     OpenWeather Agromonitoring API — FREE NDVI/EVI satellite images
@@ -930,8 +1060,9 @@ class MultiSatelliteService:
     2. Agromonitoring (if OWM key set) — FREE NDVI from Sentinel-2/Landsat
     3. Planet Labs (if configured) — 3-5m daily imagery
     4. Copernicus STAC (free, no auth) — Sentinel-2 search
-    5. NASA Earthdata (if configured) — MODIS/VIIRS
-    6. Simulated (always available) — fallback
+    5. NASA Earthdata (if configured) — MODIS/VIIRS (2000-present)
+    6. USGS Landsat Archive (if configured) — Historical 1972-present
+    7. Simulated (always available) — fallback
     """
 
     def __init__(self):
@@ -963,6 +1094,12 @@ class MultiSatelliteService:
         if nasa.is_configured:
             self.providers.append(nasa)
             logger.info("NASA Earthdata provider configured")
+
+        # USGS Landsat Archive — historical data from 1972
+        usgs = USGSLandsatArchiveProvider()
+        if usgs.is_configured:
+            self.providers.append(usgs)
+            logger.info("USGS Landsat Archive configured (historical 1972-present)")
 
         # Simulated is always last (fallback)
         self.providers.append(SimulatedProvider())

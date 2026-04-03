@@ -142,6 +142,11 @@ VALUES
      ARRAY['NDVI', 'EVI'],
      TRUE, NULL, NULL),
 
+    ('usgs_landsat_archive', 'أرشيف لاندسات', 'satellite', 60, 'https://m2m.cr.usgs.gov/api/api/json/stable', 'basic', 30, 16,
+     ARRAY['Landsat-1', 'Landsat-2', 'Landsat-3', 'Landsat-4', 'Landsat-5', 'Landsat-7', 'Landsat-8', 'Landsat-9'],
+     ARRAY['NDVI', 'EVI', 'SAVI', 'NDWI'],
+     TRUE, NULL, NULL),
+
     ('open_meteo', 'أوبن ميتيو', 'weather', 10, 'https://api.open-meteo.com/v1/forecast', 'none', NULL, NULL,
      NULL, NULL, TRUE, 10000, NULL),
 

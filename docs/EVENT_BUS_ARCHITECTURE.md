@@ -32,8 +32,10 @@ sahool.{type}.{domain}.{action}.{version}
 
 ### Python (Event Bus SDK)
 
+Assuming `packages/platform-bootstrap/src` is on `PYTHONPATH`:
+
 ```python
-from platform_bootstrap.src.event_bus import SAHOOLEventBus
+from event_bus import SAHOOLEventBus
 
 bus = await SAHOOLEventBus.get_instance()
 await bus.connect("nats://nats:4222", "my-service")

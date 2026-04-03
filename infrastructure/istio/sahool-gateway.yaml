@@ -108,13 +108,6 @@ spec:
               number: 8112
       timeout: 30s
 
-    # Notification Service (default)
-    - route:
-        - destination:
-            host: notification-service
-            port:
-              number: 8110
-
 ---
 # Circuit Breaker for AI Service (slow responses expected)
 apiVersion: networking.istio.io/v1beta1

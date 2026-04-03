@@ -38,9 +38,12 @@ class TenantContext:
         try:
             if self.db_pool:
                 self._conn = await self.db_pool.acquire()
-                # Use set_config() which is SQL-injection safe (takes text parameters)
+                # Use set_config() which is SQL-injection safe (takes text parameters).
+                # The third argument is false = session-level (persists for the connection
+                # lifetime), not true = transaction-local (which would be lost without an
+                # explicit BEGIN).
                 await self._conn.execute(
-                    "SELECT set_config('app.current_tenant', $1, true)",
+                    "SELECT set_config('app.current_tenant', $1, false)",
                     self.tenant_id,
                 )
             return self
@@ -61,7 +64,7 @@ class TenantContext:
         if self._conn is not None:
             try:
                 await self._conn.execute(
-                    "SELECT set_config('app.current_tenant', '', true)"
+                    "SELECT set_config('app.current_tenant', '', false)"
                 )
             finally:
                 await self.db_pool.release(self._conn)

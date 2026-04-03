@@ -7,12 +7,14 @@
 --
 -- Prerequisites:
 --   - Tables must have a tenant_id TEXT column
---   - Application must call set_config('app.current_tenant', '<id>', true) before queries
+--   - Application must call set_config('app.current_tenant', '<id>', false) before queries
 --   - Use TenantContext from packages/platform-bootstrap/src/tenant/
 --
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- Helper function to retrieve current tenant from session variable
+-- Helper function to retrieve current tenant from session variable.
+-- Uses SECURITY INVOKER so it runs with the caller's privileges, not the
+-- function creator's.  search_path is pinned to prevent object-hijacking.
 CREATE OR REPLACE FUNCTION get_current_tenant_id()
 RETURNS TEXT AS $$
 DECLARE
@@ -20,14 +22,19 @@ DECLARE
 BEGIN
     tid := current_setting('app.current_tenant', true);
     IF tid IS NULL OR tid = '' THEN
-        RAISE EXCEPTION 'Tenant context not set. Use set_config(''app.current_tenant'', ''<tenant_id>'', true)';
+        RAISE EXCEPTION 'Tenant context not set. Use set_config(''app.current_tenant'', ''<tenant_id>'', false)';
     END IF;
     RETURN tid;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql
+   SET search_path = pg_catalog, public
+   SECURITY INVOKER;
 
 -- Create tenant isolation policies and enable RLS only on tables that exist.
 -- This allows the script to be applied safely across different environments.
+-- Uses DROP + CREATE instead of IF NOT EXISTS (not valid for CREATE POLICY).
+-- WITH CHECK clause prevents cross-tenant INSERT/UPDATE.
+-- FORCE ROW LEVEL SECURITY ensures table owners cannot bypass RLS.
 DO $$
 DECLARE
     tbl TEXT;
@@ -39,11 +46,15 @@ BEGIN
         ])
     LOOP
         IF to_regclass(tbl) IS NOT NULL THEN
+            EXECUTE format('DROP POLICY IF EXISTS tenant_isolation_%I ON %I', tbl, tbl);
             EXECUTE format(
-                'CREATE POLICY IF NOT EXISTS tenant_isolation_%I ON %I USING (tenant_id = get_current_tenant_id())',
+                'CREATE POLICY tenant_isolation_%I ON %I '
+                'USING (tenant_id = get_current_tenant_id()) '
+                'WITH CHECK (tenant_id = get_current_tenant_id())',
                 tbl, tbl
             );
             EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', tbl);
+            EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', tbl);
         ELSE
             RAISE NOTICE 'Skipping RLS for missing table: %', tbl;
         END IF;
@@ -52,10 +63,11 @@ END;
 $$;
 
 -- Bypass RLS for admin users (use carefully)
+-- NOLOGIN prevents direct authentication; access is via SET ROLE only (audit-logged).
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'sahool_admin') THEN
-        CREATE ROLE sahool_admin BYPASSRLS;
+        CREATE ROLE sahool_admin NOLOGIN BYPASSRLS;
     END IF;
 END;
 $$;

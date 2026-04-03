@@ -4,8 +4,8 @@ SAHOOL Observability - Prometheus Metrics & OpenTelemetry Tracing
 Provides pre-configured metrics counters, histograms, and gauges for
 SAHOOL microservices, plus OpenTelemetry tracing setup.
 
-Usage:
-    from platform_bootstrap.src.observability import instrument_fastapi, setup_tracing
+Usage (assuming ``packages/platform-bootstrap/src`` is on ``PYTHONPATH``):
+    from observability import instrument_fastapi, setup_tracing
 
     tracer = setup_tracing("my-service")
     instrument_fastapi(app, "my-service")
@@ -31,31 +31,32 @@ if _HAS_PROMETHEUS:
     # Service info
     SERVICE_INFO = Info("sahool_service", "Service information")
 
-    # HTTP requests
+    # HTTP requests — avoid high-cardinality labels (endpoint full-path, tenant_id)
+    # to prevent unbounded time-series growth that crashes Prometheus.
     HTTP_REQUESTS_TOTAL = Counter(
         "sahool_http_requests_total",
         "Total HTTP requests",
-        ["method", "endpoint", "status", "tenant_id"],
+        ["method", "status"],
     )
 
     HTTP_REQUEST_DURATION = Histogram(
         "sahool_http_request_duration_seconds",
         "HTTP request duration",
-        ["method", "endpoint"],
+        ["method"],
         buckets=[0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0],
     )
 
-    # NATS events
+    # NATS events — tenant_id excluded to avoid cardinality explosion
     NATS_EVENTS_PUBLISHED = Counter(
         "sahool_nats_events_published_total",
         "Events published to NATS",
-        ["domain", "action", "tenant_id"],
+        ["domain", "action"],
     )
 
     NATS_EVENTS_CONSUMED = Counter(
         "sahool_nats_events_consumed_total",
         "Events consumed from NATS",
-        ["domain", "consumer", "tenant_id"],
+        ["domain", "consumer"],
     )
 
     NATS_EVENT_PROCESSING_DURATION = Histogram(
@@ -77,23 +78,23 @@ if _HAS_PROMETHEUS:
         ["query_type", "table"],
     )
 
-    # Business metrics
+    # Business metrics — tenant_id/field_id excluded to avoid cardinality explosion
     FIELDS_MONITORED = Gauge(
         "sahool_fields_monitored_total",
         "Total fields being monitored",
-        ["tenant_id", "region"],
+        ["region"],
     )
 
     IRRIGATION_COMMANDS = Counter(
         "sahool_irrigation_commands_total",
         "Irrigation commands executed",
-        ["field_id", "status", "tenant_id"],
+        ["status"],
     )
 
     AI_PREDICTIONS = Counter(
         "sahool_ai_predictions_total",
         "AI predictions generated",
-        ["model_type", "tenant_id"],
+        ["model_type"],
     )
 
 
@@ -206,17 +207,13 @@ def instrument_fastapi(app, service_name: str):
         duration = time.time() - start_time
 
         if _HAS_PROMETHEUS:
-            tenant_id = request.headers.get("X-Tenant-ID", "unknown")
             HTTP_REQUESTS_TOTAL.labels(
                 method=request.method,
-                endpoint=request.url.path,
                 status=response.status_code,
-                tenant_id=tenant_id,
             ).inc()
 
             HTTP_REQUEST_DURATION.labels(
                 method=request.method,
-                endpoint=request.url.path,
             ).observe(duration)
 
         return response

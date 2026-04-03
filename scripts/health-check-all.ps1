@@ -2,7 +2,7 @@
 # SAHOOL Health Check - All Services
 $services = @(
     @{Name="nats"; Url="http://localhost:8222/healthz"},
-    @{Name="auth-service"; Url="http://localhost:3025/healthz"},
+    @{Name="user-service"; Url="http://localhost:3025/healthz"},
     @{Name="field-service"; Url="http://localhost:3000/healthz"},
     @{Name="ai-advisor"; Url="http://localhost:8112/healthz"},
     @{Name="notification"; Url="http://localhost:8110/healthz"}
@@ -15,6 +15,9 @@ foreach ($svc in $services) {
     try {
         $null = Invoke-RestMethod -Uri $svc.Url -TimeoutSec 5 -ErrorAction Stop
         $status = "UP"; $color = "Green"
-    } catch {}
+    } catch {
+        # Log the failure reason at verbose level for troubleshooting
+        Write-Verbose "Health check failed for $($svc.Name) ($($svc.Url)): $($_.Exception.Message)"
+    }
     Write-Host "$($svc.Name): $status" -ForegroundColor $color
 }

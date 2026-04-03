@@ -57,10 +57,10 @@ spec:
   gateways:
     - sahool-v16-gateway
   http:
-    # Auth Service
+    # Auth endpoints (handled by user-service)
     - match:
         - uri:
-            prefix: /auth/
+            prefix: /api/v1/auth/
       route:
         - destination:
             host: user-service
@@ -75,17 +75,17 @@ spec:
     # User Service
     - match:
         - uri:
-            prefix: /users/
+            prefix: /api/v1/users/
       route:
         - destination:
             host: user-service
             port:
               number: 3025
 
-    # Field Service
+    # Field Management Service
     - match:
         - uri:
-            prefix: /fields/
+            prefix: /api/v1/fields/
       route:
         - destination:
             host: field-management-service
@@ -100,7 +100,7 @@ spec:
     # AI Advisor
     - match:
         - uri:
-            prefix: /ai/
+            prefix: /api/v1/ai/
       route:
         - destination:
             host: ai-advisor

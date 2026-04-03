@@ -35,14 +35,25 @@ class TenantContext:
 
     async def __aenter__(self):
         self.token = _tenant_context.set(self.tenant_id)
-        if self.db_pool:
-            self._conn = await self.db_pool.acquire()
-            # Use set_config() which is SQL-injection safe (takes text parameters)
-            await self._conn.execute(
-                "SELECT set_config('app.current_tenant', $1, true)",
-                self.tenant_id,
-            )
-        return self
+        try:
+            if self.db_pool:
+                self._conn = await self.db_pool.acquire()
+                # Use set_config() which is SQL-injection safe (takes text parameters)
+                await self._conn.execute(
+                    "SELECT set_config('app.current_tenant', $1, true)",
+                    self.tenant_id,
+                )
+            return self
+        except Exception:
+            if self._conn is not None:
+                try:
+                    await self.db_pool.release(self._conn)
+                finally:
+                    self._conn = None
+            if self.token is not None:
+                _tenant_context.reset(self.token)
+                self.token = None
+            raise
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self.token is not None:
@@ -103,9 +114,16 @@ class TenantAwareNATS:
                     getattr(msg, "subject", "?"),
                     len(msg.data) if msg.data else 0,
                 )
+                # ACK malformed messages to prevent redelivery backlog
+                if hasattr(msg, "ack"):
+                    await msg.ack()
                 return
             if payload.get("tenant_id") == self.tenant_id:
                 await handler(msg)
+            else:
+                # ACK messages for other tenants to prevent redelivery
+                if hasattr(msg, "ack"):
+                    await msg.ack()
 
         await self.event_bus.subscribe_events(
             domain=domain,

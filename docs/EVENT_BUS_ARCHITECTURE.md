@@ -33,7 +33,7 @@ sahool.{type}.{domain}.{action}.{version}
 ### Python (Event Bus SDK)
 
 ```python
-from packages.platform_bootstrap.src.event_bus import SAHOOLEventBus
+from platform_bootstrap.src.event_bus import SAHOOLEventBus
 
 bus = await SAHOOLEventBus.get_instance()
 await bus.connect("nats://nats:4222", "my-service")

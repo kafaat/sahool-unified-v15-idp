@@ -5,7 +5,7 @@ Provides pre-configured metrics counters, histograms, and gauges for
 SAHOOL microservices, plus OpenTelemetry tracing setup.
 
 Usage:
-    from packages.platform_bootstrap.src.observability import instrument_fastapi, setup_tracing
+    from platform_bootstrap.src.observability import instrument_fastapi, setup_tracing
 
     tracer = setup_tracing("my-service")
     instrument_fastapi(app, "my-service")

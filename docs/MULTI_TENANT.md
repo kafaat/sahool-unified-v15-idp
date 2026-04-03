@@ -14,7 +14,7 @@ SAHOOL uses PostgreSQL Row-Level Security (RLS) for complete tenant isolation at
 ## Usage
 
 ```python
-from packages.platform_bootstrap.src.tenant import TenantContext, TenantAwareNATS
+from platform_bootstrap.src.tenant import TenantContext, TenantAwareNATS
 
 # Database-level tenant isolation
 async with TenantContext(tenant_id="123e4567-e89b-12d3-a456-426614174000", db_pool=pool) as ctx:

@@ -23,7 +23,8 @@ if ($FullReset) {
 docker compose -f docker-compose-core.yml up -d nats
 Start-Sleep -Seconds 5
 
-$test = docker compose -f docker-compose-core.yml exec -T nats nats --user sahool_app --password $env:NATS_PASSWORD pub test "hotfix-ok" 2>&1
+$natsContainer = docker compose -f docker-compose-core.yml ps -q nats
+$test = docker run --rm --network "container:$natsContainer" natsio/nats-box nats --server nats://127.0.0.1:4222 --user sahool_app --password $env:NATS_PASSWORD pub test "hotfix-ok" 2>&1
 if ($test -match "Published") {
     Write-Host "✅ HOTFIX-002 applied successfully" -ForegroundColor Green
 } else {

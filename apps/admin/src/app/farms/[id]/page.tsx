@@ -222,8 +222,13 @@ export default function FieldDetailPage() {
     setNdviLoading(true);
     setNdviError(false);
     try {
-      const response = await apiClient.get(`/api/v1/satellite/v1/indices/${fieldId}`);
-      setNdvi(response.data?.data ?? response.data);
+      // Use internal satellite proxy route (server-side, bypasses CORS)
+      const response = await fetch(
+        `/api/satellite?action=indices&fieldId=${fieldId}${lat ? `&lat=${lat}` : ''}${lng ? `&lon=${lng}` : ''}`,
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      setNdvi(data?.data ?? data);
     } catch {
       setNdviError(true);
     } finally {
@@ -237,9 +242,16 @@ export default function FieldDetailPage() {
   }, [fieldId]);
 
   // ── Weather data ────────────────────────────────────────────────────────
-  const lat = field?.coordinates?.lat ?? 0;
-  const lng = field?.coordinates?.lng ?? 0;
-  const hasCoords = !!field?.coordinates;
+  // Use field coordinates if available, otherwise derive center from boundary
+  const lat = field?.coordinates?.lat
+    ?? (field?.boundary?.[0]
+      ? field.boundary[0].reduce((s: number, c: number[]) => s + (c[1] ?? 0), 0) / field.boundary[0].length
+      : 0);
+  const lng = field?.coordinates?.lng
+    ?? (field?.boundary?.[0]
+      ? field.boundary[0].reduce((s: number, c: number[]) => s + (c[0] ?? 0), 0) / field.boundary[0].length
+      : 0);
+  const hasCoords = lat !== 0 || lng !== 0;
 
   const {
     data: weatherRaw,

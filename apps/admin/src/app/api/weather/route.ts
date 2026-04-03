@@ -142,3 +142,54 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 502 });
   }
 }
+
+/**
+ * GET /api/weather?action=providers|locations|current&locationId=xxx
+ *
+ * Proxy for GET-based weather endpoints (providers list, location queries).
+ * Injects tenant_id from httpOnly cookie for authenticated requests.
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+    const locationId = searchParams.get('locationId');
+
+    let path: string;
+    switch (action) {
+      case 'providers':
+        path = '/weather/providers';
+        break;
+      case 'locations':
+        path = '/weather/locations';
+        break;
+      case 'current':
+        if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
+        path = `/weather/current/${locationId}`;
+        break;
+      case 'forecast':
+        if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
+        path = `/weather/forecast/${locationId}`;
+        break;
+      default:
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    }
+
+    const response = await fetch(`${WEATHER_SERVICE_URL}${path}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json({ error: 'Weather service returned non-JSON' }, { status: 502 });
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    logger.error('Weather GET proxy error:', error);
+    return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 502 });
+  }
+}

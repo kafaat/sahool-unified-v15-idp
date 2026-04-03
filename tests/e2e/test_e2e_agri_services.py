@@ -7,17 +7,15 @@ Tests 12 agricultural services + 2 full workflow scenarios.
 
 from __future__ import annotations
 
-import sys
 import time
 import uuid
-from pathlib import Path
 
 import httpx
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-from tests.e2e.mock_services import start_all_servers
-from tests.e2e.mock_agri_services import start_all_agri_servers
+# Imports via package (conftest adds project root to sys.path)
+from .mock_services import start_all_servers
+from .mock_agri_services import start_all_agri_servers
 
 # Service URLs
 ADVISORY = "http://127.0.0.1:8093"
@@ -58,6 +56,7 @@ def _get_token(client):
     email = f"agri_{uuid.uuid4().hex[:6]}@test.com"
     reg = client.post(f"{USER}/api/v1/auth/register",
                       json={"email": email, "password": "Pass123!", "firstName": "T", "lastName": "U"})
+    assert reg.status_code in (200, 201), f"Registration failed: {reg.status_code}"
     return reg.json()["access_token"]
 
 

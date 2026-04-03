@@ -4083,11 +4083,16 @@ services:
       - API_GATEWAY_URL=http://kong:8000
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - WEATHER_SERVICE_URL=http://weather-service:8092
+      - VEGETATION_SERVICE_URL=http://vegetation-analysis-service:8090
       - NEXT_PUBLIC_APP_VERSION=16.0.0
     ports:
-      - 0.0.0.0:3002:3002
+      - 127.0.0.1:3002:3002
     depends_on:
       kong:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      field-management-service:
         condition: service_healthy
     healthcheck:
       test:

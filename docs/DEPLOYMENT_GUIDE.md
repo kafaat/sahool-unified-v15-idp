@@ -20,10 +20,10 @@ docker compose up -d
 
 ```bash
 # 1. Deploy to staging
-.\scripts\deploy-production.ps1 -Environment "staging" -Version "v16.0.0"
+.\scripts\deploy-production.ps1 -Environment "staging" -Version "16.0.0"
 
 # 2. Deploy to production
-.\scripts\deploy-production.ps1 -Environment "production" -Version "v16.0.0"
+.\scripts\deploy-production.ps1 -Environment "production" -Version "16.0.0"
 ```
 
 ## Monitoring

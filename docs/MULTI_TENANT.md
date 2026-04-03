@@ -32,5 +32,5 @@ await tenant_nats.publish_event("field", "created", {"name": "North Field"})
 
 - No tenant can access another tenant's data
 - Enforced at database level (bypasses application bugs)
-- 7 tables covered: fields, sensors, irrigation_schedules, ndvi_data, weather_data, marketplace_listings, chat_messages
+- RLS policies applied across all tenant-scoped tables (fields, users, tasks, equipment, sensors, irrigation_schedules, ndvi_data, weather_data, marketplace_listings, chat_messages, subscriptions, invoices, payments, usage_records, and more via migrations 010/011)
 - Admin bypass via `sahool_admin` role (audit-logged)

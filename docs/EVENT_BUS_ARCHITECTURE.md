@@ -35,6 +35,7 @@ sahool.{type}.{domain}.{action}.{version}
 Assuming `packages/platform-bootstrap/src` is on `PYTHONPATH`:
 
 ```python
+import json
 from event_bus import SAHOOLEventBus
 
 bus = await SAHOOLEventBus.get_instance()

@@ -165,7 +165,7 @@ class SAHOOLEventBus:
         subject = f"{_SUBJECT_PREFIX}.{message_type}.{domain}.>"
         await self.js.subscribe(
             subject,
-            durable=durable or f"{self.service_name}_{domain}",
+            durable=durable or f"{self.service_name}_{message_type}_{domain}",
             cb=handler,
         )
 

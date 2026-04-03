@@ -33,14 +33,25 @@ spec:
     matchLabels:
       app.kubernetes.io/name: user-service
   rules:
+    # Allow external traffic via Istio ingress gateway
     - from:
         - source:
             principals:
-              - "cluster.local/ns/sahool-production/sa/user-service"
+              - "cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"
       to:
         - operation:
             methods: ["GET", "POST"]
-            paths: ["/api/v1/auth/*"]
+            paths: ["/api/v1/auth/*", "/api/v1/users/*"]
+    # Allow internal service-to-service calls
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/sahool-production/sa/field-management-service"
+              - "cluster.local/ns/sahool-production/sa/notification-service"
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            paths: ["/api/*"]
 
 ---
 # Authorization policy — field management service
@@ -58,6 +69,16 @@ spec:
     matchLabels:
       app.kubernetes.io/name: field-management-service
   rules:
+    # Allow external traffic via Istio ingress gateway
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"
+      to:
+        - operation:
+            methods: ["GET", "POST", "PUT", "DELETE"]
+            paths: ["/api/v1/fields/*"]
+    # Allow internal service-to-service calls
     - from:
         - source:
             principals:
@@ -86,6 +107,16 @@ spec:
     matchLabels:
       app.kubernetes.io/name: ai-advisor
   rules:
+    # Allow external traffic via Istio ingress gateway
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            paths: ["/api/v1/ai/*"]
+    # Allow internal service-to-service calls
     - from:
         - source:
             principals:

@@ -381,6 +381,12 @@ class ContextMiddleware(BaseHTTPMiddleware):
                 context = RequestContext.from_jwt_payload(payload, self.service_name)
             else:
                 context = RequestContext.from_headers(dict(request.headers), self.service_name)
+        except ValueError as e:
+            # Configuration errors (e.g. missing JWT_SECRET_KEY) are server
+            # faults, not client auth failures — surface as 500 so operators
+            # notice the misconfiguration instead of seeing misleading 401s.
+            logger.error("Server configuration error during auth: %s", e)
+            raise HTTPException(status_code=500, detail="Internal server configuration error") from e
         except Exception as e:
             logger.warning("Authentication failed: %s", e)
             raise HTTPException(status_code=401, detail="Invalid or missing authentication credentials") from e

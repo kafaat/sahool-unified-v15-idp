@@ -1,3 +1,5 @@
+library;
+
 /// Spray Feature - ميزة الرش
 /// Spray planning, weather integration, drift risk, and application logging
 ///
@@ -8,7 +10,6 @@
 /// - Drift risk assessment
 /// - Spray application logging
 /// - Offline-first support with caching
-library;
 
 // Models
 export 'models/spray_models.dart';

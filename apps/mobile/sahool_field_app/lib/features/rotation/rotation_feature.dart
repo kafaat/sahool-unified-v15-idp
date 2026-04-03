@@ -1,3 +1,5 @@
+library;
+
 /// Crop Rotation Feature Entry Point
 ///
 /// This file provides the main entry points for the Crop Rotation feature.
@@ -25,7 +27,6 @@
 ///   ),
 /// );
 /// ```
-library;
 
 // Models
 export 'models/rotation_models.dart';

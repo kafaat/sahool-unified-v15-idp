@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Badge Widget
 /// شارة عدد الإشعارات غير المقروءة
 ///
@@ -7,7 +9,6 @@
 ///   child: Icon(Icons.notifications),
 /// )
 /// ```
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

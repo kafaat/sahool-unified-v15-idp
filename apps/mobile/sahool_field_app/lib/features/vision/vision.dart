@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Vision Feature
 /// ميزة الرؤية في سهول
 ///
 /// On-device YOLO26 inference for pest detection, disease detection,
 /// and plant counting with offline-first support.
-library;
 
 // Domain
 export 'domain/detection_model.dart';

@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Astronomical Calendar Models
 /// نماذج التقويم الفلكي
 ///
 /// هذه النماذج تمثل البيانات الفلكية للتقويم الزراعي اليمني التقليدي
 /// تشمل: المنازل القمرية، أطوار القمر، التاريخ الهجري، الأمثال الزراعية
-library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 

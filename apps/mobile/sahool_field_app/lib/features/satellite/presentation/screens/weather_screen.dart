@@ -1,6 +1,7 @@
+library;
+
 /// Weather Screen - شاشة الطقس
 /// 7-day weather forecast with charts and alerts
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

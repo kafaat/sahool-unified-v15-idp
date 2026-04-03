@@ -1,6 +1,7 @@
+library;
+
 /// Advisor Feature Providers - Riverpod State Management
 /// موفرو ميزة المستشار - إدارة الحالة بـ Riverpod
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/fertilizer_models.dart';

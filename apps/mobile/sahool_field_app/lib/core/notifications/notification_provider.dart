@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Notification Provider
 /// مزود الإشعارات
 ///
 /// Provides notification services and state management for the app.
 /// يوفر خدمات الإشعارات وإدارة الحالة للتطبيق.
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

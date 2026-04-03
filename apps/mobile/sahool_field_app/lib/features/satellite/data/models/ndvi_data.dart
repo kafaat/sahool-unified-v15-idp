@@ -1,6 +1,7 @@
+library;
+
 /// NDVI Data Model - نموذج بيانات NDVI
 /// Vegetation index data from satellite imagery
-library;
 
 import 'package:equatable/equatable.dart';
 

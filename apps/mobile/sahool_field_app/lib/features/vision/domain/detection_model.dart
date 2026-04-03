@@ -1,9 +1,10 @@
+library;
+
 /// SAHOOL Vision Detection Models
 /// نماذج الكشف لرؤية سهول
 ///
 /// On-device YOLO26 object detection models for pest, disease,
 /// and plant counting with offline-first support.
-library;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Enums - التعدادات

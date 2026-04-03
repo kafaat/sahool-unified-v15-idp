@@ -1,6 +1,7 @@
+library;
+
 /// Satellite API Client - عميل API الأقمار الصناعية
 /// Integrated with Satellite Service (port 8090)
-library;
 
 import 'dart:convert';
 import 'dart:developer' as developer;

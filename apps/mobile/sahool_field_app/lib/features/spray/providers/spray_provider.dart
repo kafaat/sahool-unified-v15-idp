@@ -1,6 +1,7 @@
+library;
+
 /// Spray Advisor Providers - مزودات بيانات مستشار الرش
 /// Riverpod providers للتواصل مع Spray Service
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

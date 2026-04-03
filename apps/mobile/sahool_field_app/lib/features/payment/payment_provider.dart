@@ -1,6 +1,7 @@
+library;
+
 /// مزود خدمة المدفوعات
 /// Payment Provider with Riverpod
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'data/payment_models.dart';

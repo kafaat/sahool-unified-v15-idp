@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL IoT Control Screen
 /// شاشة التحكم عن بعد - إنترنت الأشياء
 ///
@@ -6,7 +8,6 @@
 /// - Pump and valve control
 /// - Irrigation scheduling
 /// - Device status monitoring
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

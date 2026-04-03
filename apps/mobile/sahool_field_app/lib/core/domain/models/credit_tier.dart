@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Credit Tier Model
 /// نموذج التصنيف الائتماني الموحد
 ///
@@ -5,7 +7,6 @@
 /// - features/wallet/
 /// - features/market/
 /// - features/marketplace/
-library;
 
 import 'package:flutter/material.dart';
 

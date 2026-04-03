@@ -1,6 +1,7 @@
+library;
+
 /// Sector Drawing Tool - أداة رسم القطاعات
 /// Interactive tool for drawing and editing pivot sectors on a circular field
-library;
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';

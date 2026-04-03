@@ -1,3 +1,5 @@
+library;
+
 /// Chat Input Widget
 /// حقل إدخال الرسائل
 ///
@@ -11,7 +13,6 @@
 ///   - Location picker
 ///   - Product picker (marketplace)
 ///   - Order picker (user orders)
-library;
 
 import 'dart:async';
 import 'dart:io';

@@ -1,6 +1,7 @@
+library;
+
 /// Spray Window Card Widget - بطاقة نافذة الرش
 /// عرض معلومات نافذة الرش المثلى
-library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

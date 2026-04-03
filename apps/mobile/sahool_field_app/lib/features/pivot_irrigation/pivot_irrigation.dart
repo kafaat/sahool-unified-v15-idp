@@ -1,3 +1,5 @@
+library;
+
 /// Pivot Irrigation Feature - Valley Style
 /// ميزة الري المحوري - بأسلوب فالي
 ///
@@ -38,7 +40,6 @@
 ///   ),
 /// );
 /// ```
-library;
 
 // Domain Models
 export 'domain/models/pivot_models.dart';

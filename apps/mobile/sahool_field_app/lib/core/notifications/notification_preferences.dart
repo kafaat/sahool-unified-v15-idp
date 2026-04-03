@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Preferences
 /// تفضيلات الإشعارات
 ///
@@ -6,7 +8,6 @@
 /// - Quiet hours settings
 /// - Sound and vibration preferences
 /// - Priority filtering
-library;
 
 import 'dart:convert';
 

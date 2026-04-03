@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Error Display Widgets
 /// عناصر عرض الأخطاء لتطبيق سهول
 ///
@@ -5,7 +7,6 @@
 /// - Bilingual support (Arabic/English)
 /// - Recovery action buttons
 /// - Error type-specific styling
-library;
 
 import 'package:flutter/material.dart';
 import 'app_exceptions.dart';

@@ -1,6 +1,7 @@
+library;
+
 /// Spray Dashboard Screen - شاشة لوحة مستشار الرش
 /// لوحة معلومات الرش الرئيسية
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

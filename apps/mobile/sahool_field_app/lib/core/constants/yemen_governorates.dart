@@ -1,6 +1,7 @@
+library;
+
 /// جميع محافظات اليمن الـ 22
 /// All 22 Yemen Governorates with geographic data
-library;
 
 /// Yemen Governorate data model
 class YemenGovernorate {

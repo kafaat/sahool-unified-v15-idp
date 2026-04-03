@@ -1,6 +1,7 @@
+library;
+
 /// Inventory Providers - مزودات بيانات المخزون
 /// Riverpod providers للتواصل مع Inventory Service
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

@@ -1,6 +1,7 @@
+library;
+
 /// Satellite Map Overlay Widget - ودجت تراكب خريطة الأقمار الصناعية
 /// Map overlay showing NDVI visualization on field polygon
-library;
 
 import 'package:flutter/material.dart';
 

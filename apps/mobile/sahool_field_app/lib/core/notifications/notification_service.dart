@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Notification Service
 /// خدمة الإشعارات
-library;
 
 import 'dart:convert';
 import 'dart:io';

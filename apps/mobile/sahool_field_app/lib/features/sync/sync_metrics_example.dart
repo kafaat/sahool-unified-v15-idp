@@ -1,8 +1,9 @@
+library;
+
 /// Example: How to integrate Sync Metrics into your app
 ///
 /// This file demonstrates how to set up and use the sync metrics monitoring system.
 /// DO NOT import this file directly - it's for reference only.
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

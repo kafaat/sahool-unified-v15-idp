@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Super Home Screen v16
 /// الشاشة الرئيسية المحسنة
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

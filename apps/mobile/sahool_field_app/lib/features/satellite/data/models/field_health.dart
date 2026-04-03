@@ -1,6 +1,7 @@
+library;
+
 /// Field Health Model - نموذج صحة الحقل
 /// Complete field health assessment from satellite data
-library;
 
 import 'package:equatable/equatable.dart';
 

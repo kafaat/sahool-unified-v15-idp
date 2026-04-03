@@ -1,9 +1,10 @@
+library;
+
 /// NAVIGATION INTEGRATION EXAMPLES
 /// أمثلة على دمج نظام التنقل
 ///
 /// This file provides examples of how to use the new navigation system
 /// in your Flutter app.
-library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

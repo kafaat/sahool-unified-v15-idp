@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL NDVI Analysis Module
 ///
 /// تحليل مؤشر صحة النباتات (NDVI)
@@ -10,7 +12,6 @@
 /// - Time series trend analysis
 /// - Offline support for field monitoring
 
-library;
 
 // Domain
 export 'domain/ndvi_value.dart';

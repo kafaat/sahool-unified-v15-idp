@@ -1,8 +1,9 @@
+library;
+
 /// Field Task Domain Entity
 /// كيان مهمة الحقل - Domain Layer نظيف (بدون Flutter)
 ///
 /// يمثل المهام الزراعية المطلوبة للحقول
-library;
 
 /// أنواع المهام الزراعية
 enum TaskType {

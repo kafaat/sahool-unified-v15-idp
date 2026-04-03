@@ -1,6 +1,7 @@
+library;
+
 /// GDD Service - خدمة درجات النمو الحراري
 /// يتواصل مع FastAPI GDD Service
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

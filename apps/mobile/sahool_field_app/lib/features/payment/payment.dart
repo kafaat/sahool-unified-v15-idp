@@ -1,3 +1,5 @@
+library;
+
 /// بوابة المدفوعات - SAHOOL Payment Gateway
 ///
 /// تكامل مع بوابة ثروات للمدفوعات المحلية
@@ -9,7 +11,6 @@
 /// - تحويل لرقم آخر
 /// - شحن رصيد موبايل
 /// - سجل المعاملات
-library;
 
 export 'data/payment_models.dart';
 export 'data/tharwatt_service.dart';

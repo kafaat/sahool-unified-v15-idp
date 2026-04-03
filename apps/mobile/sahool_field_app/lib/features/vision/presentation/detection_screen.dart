@@ -1,8 +1,9 @@
+library;
+
 /// Detection Screen - شاشة الكشف
 ///
 /// Camera preview with real-time YOLO26 detection overlay.
 /// Supports on-device and cloud inference with seamless switching.
-library;
 
 import 'dart:async';
 import 'dart:io';

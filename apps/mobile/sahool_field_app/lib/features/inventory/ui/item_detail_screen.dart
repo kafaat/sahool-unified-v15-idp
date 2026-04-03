@@ -1,5 +1,6 @@
-/// Item Detail Screen - شاشة تفاصيل العنصر
 library;
+
+/// Item Detail Screen - شاشة تفاصيل العنصر
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

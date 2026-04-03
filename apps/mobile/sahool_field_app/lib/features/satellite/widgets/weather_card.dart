@@ -1,6 +1,7 @@
+library;
+
 /// Weather Card Widget - ودجت بطاقة الطقس
 /// Summary card for weather information
-library;
 
 import 'package:flutter/material.dart';
 import '../data/models/weather_data.dart';

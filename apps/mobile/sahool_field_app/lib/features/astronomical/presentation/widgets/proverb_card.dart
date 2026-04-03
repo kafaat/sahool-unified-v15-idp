@@ -1,6 +1,7 @@
+library;
+
 /// SAHOOL Proverb Card
 /// بطاقة المثل الزراعي
-library;
 
 import 'package:flutter/material.dart';
 

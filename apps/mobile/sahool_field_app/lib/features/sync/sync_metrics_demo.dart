@@ -1,8 +1,9 @@
+library;
+
 /// Sync Metrics Demo - Demonstrates how metrics are recorded
 ///
 /// This file shows how sync operations are tracked and can be used for testing.
 /// Run this in a test environment to see metrics in action.
-library;
 
 import 'dart:async';
 import 'package:flutter/material.dart';

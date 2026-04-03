@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Local Notification Service
 /// خدمة الإشعارات المحلية
 ///
@@ -7,7 +9,6 @@
 /// - Arabic notification support
 /// - Scheduled notifications
 /// - Notification actions and buttons
-library;
 
 import 'dart:convert';
 import 'dart:io';

@@ -1,6 +1,7 @@
+library;
+
 /// VRA Providers - مزودات بيانات التطبيق المتغير
 /// Riverpod providers للتواصل مع VRA Service
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

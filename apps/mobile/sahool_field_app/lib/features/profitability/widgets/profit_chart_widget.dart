@@ -1,6 +1,7 @@
+library;
+
 /// Profit Chart Widget - رسوم بيانية للربحية
 /// Bar charts and line charts for profit analysis
-library;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';

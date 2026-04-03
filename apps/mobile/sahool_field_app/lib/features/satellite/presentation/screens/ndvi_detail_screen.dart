@@ -1,6 +1,7 @@
+library;
+
 /// NDVI Detail Screen - شاشة تفاصيل NDVI
 /// Detailed view of NDVI time series and vegetation indices
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

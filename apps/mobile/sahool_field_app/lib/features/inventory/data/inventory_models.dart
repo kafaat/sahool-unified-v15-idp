@@ -1,6 +1,7 @@
+library;
+
 /// Inventory Models - نماذج المخزون
 /// مطابقة لـ FastAPI Inventory Service
-library;
 
 import 'package:flutter/foundation.dart';
 

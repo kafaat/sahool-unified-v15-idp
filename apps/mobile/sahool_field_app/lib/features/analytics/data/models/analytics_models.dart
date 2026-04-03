@@ -1,6 +1,7 @@
+library;
+
 /// Analytics Models - Predictive Analytics Data Models
 /// نماذج التحليلات - نماذج بيانات التحليلات التنبؤية
-library;
 
 import 'package:flutter/foundation.dart';
 

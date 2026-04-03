@@ -4,38 +4,38 @@
 # Web Framework
 fastapi==0.135.2
 uvicorn[standard]==0.42.0
-pydantic>=2.10.0,<3.0.0
-pydantic-settings>=2.1.0,<3.0.0
+pydantic==2.10.0,<3.0.0
+pydantic-settings==2.1.0,<3.0.0
 # Database (PostgreSQL async)
-asyncpg>=0.30.0
+asyncpg==0.30.0
 # HTTP Client
-httpx>=0.28.1,<1.0.0
-aiohttp>=3.13.3  # CVE-2025-53643 (zip bomb), CVE-2025-69223
+httpx==0.28.1,<1.0.0
+aiohttp==3.13.3  # CVE-2025-53643 (zip bomb), CVE-2025-69223
 # Async Support
-asyncio-throttle>=1.0.0
+asyncio-throttle==1.0.0
 # Vector Database
-qdrant-client>=1.7.0,<2.0.0
+qdrant-client==1.7.0,<2.0.0
 # Embeddings (local, offline-first)
-sentence-transformers>=2.2.0,<6.0.0
-torch>=2.2.0,<2.7.0
+sentence-transformers==2.2.0,<6.0.0
+torch==2.2.0,<2.7.0
 # Scientific Computing (required by torch/sentence-transformers)
-numpy>=1.26.0,<2.5.0
+numpy==1.26.0,<2.5.0
 # Caching & Message Queue
-redis>=7.1.0,<8.0.0
+redis==7.1.0,<8.0.0
 nats-py==2.14.0
 # Logging & Monitoring
-structlog>=24.1.0
-prometheus-client>=0.19.0
+structlog==24.1.0
+prometheus-client==0.19.0
 # Security
-PyJWT[crypto]>=2.8.0,<3.0.0
-passlib[bcrypt]>=1.7.4
+PyJWT[crypto]==2.8.0,<3.0.0
+passlib[bcrypt]==1.7.4
 # Utilities
-python-dotenv>=1.0.0
-python-multipart>=0.0.6
+python-dotenv==1.0.0
+python-multipart==0.0.6
 # Testing (dev)
-pytest>=7.4.0
+pytest==7.4.0
 pytest-asyncio==0.26.0
-pytest-cov>=4.1.0
+pytest-cov==4.1.0
 # Type checking (dev)
-mypy>=1.8.0
-types-redis>=4.6.0
+mypy==1.8.0
+types-redis==4.6.0

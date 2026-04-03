@@ -2,7 +2,7 @@
 # تبعيات FastAPI وإطار العمل
 # Updated: December 2025 - Unified versions across all services
 fastapi==0.135.2
-starlette>=0.49.1
+starlette==0.49.1
 uvicorn[standard]==0.42.0
 httpx==0.28.1
 pydantic==2.12.5
@@ -14,33 +14,33 @@ pydantic-settings==2.13.1
 #   CVE-2025-68664, CVE-2025-65106 - Fixed in langchain-core 0.3.81
 #   CVE-2025-6984  - Fixed in langchain-community 0.3.27
 #   Path Traversal in load_prompt  - Fixed in langchain-core 1.2.22 (requires 1.x stack)
-# langchain-community 0.4.x requires langchain-core>=1.0.1; all packages now on 1.x series.
-langchain>=1.2.0,<2.0.0
-langchain-anthropic>=1.4.0,<2.0.0
-langchain-community>=0.4.0,<1.0.0
-langchain-core>=1.2.22,<2.0.0  # Path Traversal fix (load_prompt); replaces 0.3.x series
-langsmith>=0.3.45,<1.0.0
+# langchain-community 0.4.x requires langchain-core==1.0.1; all packages now on 1.x series.
+langchain==1.2.0,<2.0.0
+langchain-anthropic==1.4.0,<2.0.0
+langchain-community==0.4.0,<1.0.0
+langchain-core==1.2.22,<2.0.0  # Path Traversal fix (load_prompt); replaces 0.3.x series
+langsmith==0.3.45,<1.0.0
 
 # Anthropic Claude API (Primary)
 # واجهة برمجة Claude من Anthropic (الأساسي)
-anthropic>=0.85.0,<1.0.0  # langchain-anthropic>=1.0.0 requires anthropic>=0.85.0
+anthropic==0.85.0,<1.0.0  # langchain-anthropic==1.0.0 requires anthropic==0.85.0
 
 # OpenAI GPT API (Optional Fallback)
 # واجهة برمجة OpenAI (بديل اختياري)
-openai>=2.26.0,<3.0.0  # langchain-openai>=1.0.0 requires openai>=2.26.0
+openai==2.26.0,<3.0.0  # langchain-openai==1.0.0 requires openai==2.26.0
 
 # Google Gemini API (Optional)
 # واجهة برمجة Google Gemini (اختياري)
-google-generativeai>=0.3.0
+google-generativeai==0.3.0
 
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه
 sentence-transformers==5.3.0
-qdrant-client>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1  # 1.17.x has no manylinux wheel for Python 3.11
+qdrant-client==1.12.0,<2.0.0,!=1.17.0,!=1.17.1  # 1.17.x has no manylinux wheel for Python 3.11
 
 # Agent-to-Agent Protocol
 # بروتوكول الوكيل إلى الوكيل
-a2a>=0.1.0
+a2a==0.1.0
 
 # NATS Messaging
 # نظام الرسائل NATS
@@ -61,7 +61,7 @@ structlog==25.5.0
 # Data Processing
 # معالجة البيانات
 # Pin numpy <2.0 to avoid compiled module mismatch with dependencies built against 1.x
-numpy>=1.26.0,<2.0.0
+numpy==1.26.0,<2.0.0
 pandas==2.2.2
 
 # Testing (optional)
@@ -71,9 +71,9 @@ pytest-asyncio==0.26.0
 
 # Authentication
 # المصادقة
-PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861
-cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
+PyJWT==2.10.1,<3.0.0  # CVE-2024-53861
+cryptography==44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
 
 # Redis for token revocation
 # Redis لإلغاء الرموز
-redis[hiredis]>=7.1.0,<8.0.0
+redis[hiredis]==7.1.0,<8.0.0

@@ -192,7 +192,37 @@ async def lifespan(app: FastAPI):
                 tenant_id = data.get("tenant_id")
                 field_id = data.get("field_id")
                 logger.info("field_created_event_received", field_id=field_id, tenant_id=tenant_id)
-                # TODO: Initialize default indicators for new field
+                # Initialize default indicators for new field
+                if field_id and app.state.db_pool:
+                    default_indicators = {
+                        "ndvi": 0.0,
+                        "evi": 0.0,
+                        "lai": 0.0,
+                        "ndwi": 0.0,
+                        "soil_moisture": 0.0,
+                        "irrigation_efficiency": 0.0,
+                        "soil_ph": 7.0,
+                        "nitrogen_level": 0.0,
+                    }
+                    for ind_type, default_value in default_indicators.items():
+                        defn = INDICATOR_DEFINITIONS.get(ind_type)
+                        if not defn:
+                            continue
+                        status = determine_status(
+                            default_value,
+                            defn.get("optimal_min", defn["min"]),
+                            defn.get("optimal_max", defn["max"]),
+                            defn["min"],
+                            defn["max"],
+                        )
+                        indicator_data = {
+                            "value": default_value,
+                            "trend": TrendDirection.STABLE.value,
+                            "trend_percent": 0.0,
+                            "status": status,
+                        }
+                        await save_indicator(field_id, ind_type, indicator_data, tenant_id)
+                    logger.info("default_indicators_initialized", field_id=field_id, indicator_count=len(default_indicators))
             except Exception as e:
                 logger.error("event_handler_failed", subject="field.created", error=str(e))
 
@@ -202,7 +232,38 @@ async def lifespan(app: FastAPI):
                 tenant_id = data.get("tenant_id")
                 field_id = data.get("field_id")
                 logger.info("ndvi_calculated_received", field_id=field_id, tenant_id=tenant_id)
-                # TODO: Update NDVI indicator for field
+                # Update NDVI indicator for field
+                ndvi_value = data.get("ndvi_value") or data.get("value") or data.get("mean_ndvi")
+                if field_id and ndvi_value is not None and app.state.db_pool:
+                    ndvi_value = float(ndvi_value)
+                    defn = INDICATOR_DEFINITIONS["ndvi"]
+                    status = determine_status(
+                        ndvi_value,
+                        defn["optimal_min"],
+                        defn["optimal_max"],
+                        defn["min"],
+                        defn["max"],
+                    )
+                    # Check previous value for trend calculation
+                    previous = await get_indicator(field_id, "ndvi", tenant_id)
+                    trend = TrendDirection.STABLE
+                    trend_percent = 0.0
+                    if previous and previous.get("value") is not None:
+                        prev_val = float(previous["value"])
+                        if prev_val != 0:
+                            trend_percent = round(((ndvi_value - prev_val) / abs(prev_val)) * 100, 2)
+                        if ndvi_value > prev_val:
+                            trend = TrendDirection.UP
+                        elif ndvi_value < prev_val:
+                            trend = TrendDirection.DOWN
+                    indicator_data = {
+                        "value": ndvi_value,
+                        "trend": trend.value,
+                        "trend_percent": trend_percent,
+                        "status": status,
+                    }
+                    await save_indicator(field_id, "ndvi", indicator_data, tenant_id)
+                    logger.info("ndvi_indicator_updated", field_id=field_id, ndvi_value=ndvi_value, status=status)
             except Exception as e:
                 logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))
 

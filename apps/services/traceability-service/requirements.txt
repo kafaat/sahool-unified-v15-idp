@@ -5,19 +5,19 @@
 # Core Framework
 fastapi==0.135.2
 uvicorn[standard]==0.42.0
-pydantic>=2.10.0,<3.0.0
+pydantic==2.10.0,<3.0.0
 python-dotenv==1.2.2
 
 # Database (async - uses asyncpg directly)
-asyncpg>=0.30.0
+asyncpg==0.30.0
 
 # Messaging
 nats-py==2.14.0
 
 # Observability
-structlog>=24.1.0
-prometheus-client>=0.21.0
+structlog==24.1.0
+prometheus-client==0.21.0
 
 # Traceability-specific
-qrcode[pil]>=7.4.2,<9.0.0
+qrcode[pil]==7.4.2,<9.0.0
 python-barcode==0.16.1

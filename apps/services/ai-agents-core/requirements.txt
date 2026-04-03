@@ -1,19 +1,19 @@
 fastapi==0.135.2
 uvicorn[standard]==0.42.0
 pydantic==2.12.5
-python-multipart>=0.0.22
-httpx>=0.28.1,<1.0.0
+python-multipart==0.0.22
+httpx==0.28.1,<1.0.0
 
 # ML/AI Dependencies for Disease Detection - مكتبات التعلم الآلي لاكتشاف الأمراض
-numpy>=1.26.0,<2.0.0  # Pin <2.0 to prevent compiled module mismatch with torch/transformers built against 1.x
-Pillow>=12.1.1,<13.0.0  # CVE-2026-25990
-opencv-python-headless>=4.9.0,<5.0.0
-aiohttp>=3.13.3
+numpy==1.26.0,<2.0.0  # Pin <2.0 to prevent compiled module mismatch with torch/transformers built against 1.x
+Pillow==12.1.1,<13.0.0  # CVE-2026-25990
+opencv-python-headless==4.9.0,<5.0.0
+aiohttp==3.13.3
 
 # ML Frameworks (at least one required) - أطر عمل التعلم الآلي (مطلوب واحد على الأقل)
 # Uncomment based on your preference - قم بإلغاء التعليق بناءً على تفضيلاتك
-tensorflow-cpu>=2.20.0  # Aligned with platform constraint (tensorflow-cpu==2.21.0 in constraints.txt)
-# torch>=2.0.0  # For PyTorch support
-# torchvision>=0.15.0  # For PyTorch vision utilities
+tensorflow-cpu==2.20.0  # Aligned with platform constraint (tensorflow-cpu==2.21.0 in constraints.txt)
+# torch==2.0.0  # For PyTorch support
+# torchvision==0.15.0  # For PyTorch vision utilities
 
-structlog>=24.1.0
+structlog==24.1.0

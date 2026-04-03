@@ -4,30 +4,30 @@
 # Core Framework
 fastapi==0.135.2
 uvicorn[standard]==0.42.0
-pydantic>=2.10.0,<3.0.0
+pydantic==2.10.0,<3.0.0
 
 # Async Support
-asyncpg>=0.30.0
-httpx>=0.28.1,<1.0.0
-aiofiles>=24.1.0
+asyncpg==0.30.0
+httpx==0.28.1,<1.0.0
+aiofiles==24.1.0
 
 # Code Analysis
-astroid>=3.3.0
-pylint>=3.3.0
-mypy>=1.14.0,<2.0.0
-bandit>=1.8.0
+astroid==3.3.0
+pylint==3.3.0
+mypy==1.14.0,<2.0.0
+bandit==1.8.0
 
 # Testing & Coverage
-pytest>=8.3.0
+pytest==8.3.0
 pytest-asyncio==0.26.0
-pytest-cov>=4.1.0
+pytest-cov==4.1.0
 
 # Git Integration
-gitpython>=3.1.0
+gitpython==3.1.0
 
 # Utilities
-structlog>=24.4.0
-python-json-logger>=3.2.0,<4.0.0
+structlog==24.4.0
+python-json-logger==3.2.0,<4.0.0
 
 # NATS Messaging
 nats-py==2.14.0

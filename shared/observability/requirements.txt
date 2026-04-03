@@ -10,15 +10,15 @@
 # ============================================================================
 
 # Prometheus client for metrics collection and exposition
-prometheus-client>=0.24.1,<1.0.0
+prometheus-client==0.24.1,<1.0.0
 
 # ============================================================================
 # OpenTelemetry - Distributed Tracing
 # ============================================================================
 
 # OpenTelemetry API and SDK
-opentelemetry-api>=1.39.1,<2.0.0
-opentelemetry-sdk>=1.39.1,<2.0.0
+opentelemetry-api==1.39.1,<2.0.0
+opentelemetry-sdk==1.39.1,<2.0.0
 
 # OpenTelemetry Instrumentation
 opentelemetry-instrumentation>=0.60b1,<1.0.0
@@ -31,18 +31,18 @@ opentelemetry-instrumentation-logging>=0.60b1,<1.0.0
 
 # OpenTelemetry Exporters
 # OTLP exporter for general-purpose trace export
-opentelemetry-exporter-otlp-proto-grpc>=1.39.1,<2.0.0
-opentelemetry-exporter-otlp-proto-http>=1.39.1,<2.0.0
+opentelemetry-exporter-otlp-proto-grpc==1.39.1,<2.0.0
+opentelemetry-exporter-otlp-proto-http==1.39.1,<2.0.0
 
 # Google Cloud Trace exporter (for GCP deployments)
-opentelemetry-exporter-gcp-trace>=1.6.0,<2.0.0
+opentelemetry-exporter-gcp-trace==1.6.0,<2.0.0
 
 # Jaeger exporter (optional, for local development)
-opentelemetry-exporter-jaeger>=1.39.1,<2.0.0
+opentelemetry-exporter-jaeger==1.39.1,<2.0.0
 
 # Propagators for context propagation
-opentelemetry-propagator-b3>=1.39.1,<2.0.0
-opentelemetry-propagator-jaeger>=1.39.1,<2.0.0
+opentelemetry-propagator-b3==1.39.1,<2.0.0
+opentelemetry-propagator-jaeger==1.39.1,<2.0.0
 
 # ============================================================================
 # Structured Logging
@@ -52,7 +52,7 @@ opentelemetry-propagator-jaeger>=1.39.1,<2.0.0
 # JSON logging is built-in via custom formatters
 
 # Optional: python-json-logger for advanced JSON logging
-python-json-logger>=3.2.0,<4.0.0
+python-json-logger==3.2.0,<4.0.0
 
 # ============================================================================
 # FastAPI Integration
@@ -61,47 +61,47 @@ python-json-logger>=3.2.0,<4.0.0
 # FastAPI and Starlette - pinned centrally in constraints.txt
 # Use: pip install -c constraints.txt -r requirements.txt
 fastapi
-starlette>=0.37.0,<1.0.0
+starlette==0.37.0,<1.0.0
 
 # ============================================================================
 # Google Cloud Integration
 # ============================================================================
 
 # Google Cloud Logging (Cloud Logging API)
-google-cloud-logging>=3.8.0,<4.0.0
+google-cloud-logging==3.8.0,<4.0.0
 
 # Google Cloud Monitoring (for custom metrics)
-google-cloud-monitoring>=2.18.0,<3.0.0
+google-cloud-monitoring==2.18.0,<3.0.0
 
 # Google Cloud Trace (for distributed tracing)
-google-cloud-trace>=1.11.0,<2.0.0
+google-cloud-trace==1.11.0,<2.0.0
 
 # Google Cloud Error Reporting
-google-cloud-error-reporting>=1.9.0,<2.0.0
+google-cloud-error-reporting==1.9.0,<2.0.0
 
 # ============================================================================
 # Additional Utilities
 # ============================================================================
 
 # For async support in monitoring
-aiohttp>=3.13.3,<4.0.0  # Security fix for CVE-2025-53643, CVE-2025-69223
+aiohttp==3.13.3,<4.0.0  # Security fix for CVE-2025-53643, CVE-2025-69223
 
 # For better performance with JSON
-orjson>=3.9.0,<4.0.0
+orjson==3.9.0,<4.0.0
 
 # Type hints support
-typing-extensions>=4.9.0
+typing-extensions==4.9.0
 
 # ============================================================================
 # Development and Testing (Optional)
 # ============================================================================
 
 # pytest with async support (for testing observability)
-# pytest>=7.4.0,<8.0.0
-# pytest-asyncio>=0.23.0,<1.0.0
+# pytest==7.4.0,<8.0.0
+# pytest-asyncio==0.23.0,<1.0.0
 
 # Mock for testing
-# pytest-mock>=3.12.0,<4.0.0
+# pytest-mock==3.12.0,<4.0.0
 
 # ============================================================================
 # Notes

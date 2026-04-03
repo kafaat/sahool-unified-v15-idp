@@ -370,9 +370,9 @@ def main():
 
     except requests.exceptions.RequestException as e:
         print(f"\n❌ Error: {e}")
-        print(f"\nMake sure the satellite service is running on {API_BASE_URL}")
+        print(f"\nMake sure the vegetation-analysis-service is running on {API_BASE_URL}")
         print(
-            "Start it with: cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service && python -m src.main"
+            "Start it with: cd /home/user/sahool-unified-v15-idp/apps/services/vegetation-analysis-service && python -m src.main"
         )
 
 

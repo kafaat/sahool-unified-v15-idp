@@ -213,15 +213,15 @@ async def main():
         async with httpx.AsyncClient() as client:
             health = await client.get(f"{BASE_URL}/healthz", timeout=5.0)
             if health.status_code != 200:
-                print("✗ Service not available. Please start the satellite service:")
-                print("  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service")
+                print("✗ Service not available. Please start the vegetation-analysis-service:")
+                print("  cd /home/user/sahool-unified-v15-idp/apps/services/vegetation-analysis-service")
                 print("  python -m src.main")
                 return
             print("✓ Service is running\n")
     except Exception as e:
         print(f"✗ Could not connect to service: {e}")
-        print("\nPlease start the satellite service:")
-        print("  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service")
+        print("\nPlease start the vegetation-analysis-service:")
+        print("  cd /home/user/sahool-unified-v15-idp/apps/services/vegetation-analysis-service")
         print("  python -m src.main")
         return
 

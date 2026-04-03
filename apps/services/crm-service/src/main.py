@@ -2198,5 +2198,5 @@ if __name__ == "__main__":
     import uvicorn
 
     # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
-    host = os.getenv("HOST", "0.0.0.0")
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker container
     uvicorn.run(app, host=host, port=SERVICE_PORT)

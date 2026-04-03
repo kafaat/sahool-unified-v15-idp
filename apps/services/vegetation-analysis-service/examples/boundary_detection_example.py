@@ -8,6 +8,8 @@ Demonstrates how to use the field boundary detection API endpoints.
 
 import asyncio
 import json
+import os
+import tempfile
 
 import httpx
 
@@ -51,9 +53,10 @@ async def example_detect_boundaries():
                 print(f"  - Mean NDVI: {props['mean_ndvi']}")
 
             # Save to file
-            with open("/tmp/detected_boundaries.geojson", "w") as f:
+            output_path = os.path.join(tempfile.gettempdir(), "detected_boundaries.geojson")
+            with open(output_path, "w") as f:
                 json.dump(data, f, indent=2)
-            print("\n✓ Saved to /tmp/detected_boundaries.geojson")
+            print(f"\n✓ Saved to {output_path}")
         else:
             print(f"✗ Error: {response.status_code}")
             print(response.text)
@@ -91,9 +94,10 @@ async def example_refine_boundary():
             print(f"✓ Quality score: {stats['quality_score']}")
 
             # Save to file
-            with open("/tmp/refined_boundary.geojson", "w") as f:
+            output_path = os.path.join(tempfile.gettempdir(), "refined_boundary.geojson")
+            with open(output_path, "w") as f:
                 json.dump(data["refined_boundary"], f, indent=2)
-            print("\n✓ Saved to /tmp/refined_boundary.geojson")
+            print(f"\n✓ Saved to {output_path}")
         else:
             print(f"✗ Error: {response.status_code}")
             print(response.text)
@@ -140,9 +144,10 @@ async def example_detect_changes():
             print(f"  AR: {data['interpretation']['ar']}")
 
             # Save to file
-            with open("/tmp/boundary_changes.json", "w") as f:
+            output_path = os.path.join(tempfile.gettempdir(), "boundary_changes.json")
+            with open(output_path, "w") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-            print("\n✓ Saved to /tmp/boundary_changes.json")
+            print(f"\n✓ Saved to {output_path}")
         else:
             print(f"✗ Error: {response.status_code}")
             print(response.text)
@@ -190,9 +195,10 @@ async def example_workflow():
                         "timestamp": boundaries["metadata"]["detection_date"],
                     }
 
-                    with open("/tmp/workflow_result.json", "w") as f:
+                    output_path = os.path.join(tempfile.gettempdir(), "workflow_result.json")
+                    with open(output_path, "w") as f:
                         json.dump(workflow_result, f, indent=2)
-                    print("\n✓ Workflow complete! Saved to /tmp/workflow_result.json")
+                    print(f"\n✓ Workflow complete! Saved to {output_path}")
 
 
 async def main():

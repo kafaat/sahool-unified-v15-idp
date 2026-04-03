@@ -393,7 +393,7 @@ class GeospatialMetadataRepository:
 
         sql = (
             "UPDATE geospatial_metadata.metadata_records "
-            "SET " + set_sql + " "
+            "SET " + set_sql + " "  # nosec B608 - set_sql is built from allowlisted column names; values use $N params
             "WHERE tenant_id = $1::uuid AND id = $2::uuid AND deleted_at IS NULL "
             "RETURNING id"
         )

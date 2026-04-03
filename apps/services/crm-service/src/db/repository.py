@@ -124,7 +124,7 @@ class FarmerRepository:
             WHERE {where_clause}
             ORDER BY created_at DESC
             LIMIT ${param_idx} OFFSET ${param_idx + 1}
-        """
+        """  # nosec B608 - where_clause uses hardcoded column names; all values use $N parameterized placeholders
         params.extend([limit, offset])
 
         async with self.pool.acquire() as conn:
@@ -185,7 +185,7 @@ class FarmerRepository:
                 id, tenant_id, name, name_ar, phone, email, national_id,
                 farm_size_hectares, location, location_ar, crops, status,
                 engagement_score, tags, created_at, updated_at, last_interaction_at
-        """
+        """  # nosec B608 - set_clauses uses hardcoded allowed_fields column names; all values use $N parameterized placeholders
 
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(query, *params)
@@ -350,7 +350,7 @@ class DealRepository:
             WHERE {where_clause}
             ORDER BY created_at DESC
             LIMIT ${param_idx} OFFSET ${param_idx + 1}
-        """
+        """  # nosec B608 - where_clause uses hardcoded column names; all values use $N parameterized placeholders
         params.extend([limit, offset])
 
         async with self.pool.acquire() as conn:
@@ -425,7 +425,7 @@ class DealRepository:
                 price_per_ton, total_value, actual_quantity_tons, actual_harvest_date,
                 expected_harvest_date, stage, probability, notes, notes_ar,
                 created_at, updated_at, closed_at
-        """
+        """  # nosec B608 - set_clauses uses hardcoded allowed_fields column names; all values use $N parameterized placeholders
 
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(query, *params)
@@ -629,7 +629,7 @@ class InteractionRepository:
             WHERE {where_clause}
             ORDER BY created_at DESC
             LIMIT ${param_idx} OFFSET ${param_idx + 1}
-        """
+        """  # nosec B608 - where_clause uses hardcoded column names; all values use $N parameterized placeholders
         params.extend([limit, offset])
 
         async with self.pool.acquire() as conn:

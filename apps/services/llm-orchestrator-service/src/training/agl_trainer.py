@@ -8,6 +8,7 @@ https://github.com/Agent-Lightning/agent-lightning
 
 import asyncio
 import os
+import tempfile
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum, StrEnum
@@ -66,7 +67,7 @@ class TrainingConfig:
 
     # Checkpointing
     checkpoint_interval: int = 10
-    checkpoint_dir: str = "/tmp/agl_checkpoints"
+    checkpoint_dir: str = os.path.join(tempfile.gettempdir(), "agl_checkpoints")
 
 
 @dataclass

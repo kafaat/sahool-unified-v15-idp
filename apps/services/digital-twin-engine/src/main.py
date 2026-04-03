@@ -900,5 +900,5 @@ async def get_dt_info():
 if __name__ == "__main__":
     import uvicorn
 
-    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- bind all interfaces for Docker
+    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- bind all interfaces for Docker  # nosec B104 - binding to all interfaces required for Docker container
     uvicorn.run(app, host=host, port=PORT)

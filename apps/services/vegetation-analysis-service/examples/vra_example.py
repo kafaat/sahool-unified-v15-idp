@@ -62,7 +62,7 @@ def generate_fertilizer_prescription(
     print(f"  Target Rate: {target_rate} kg/ha")
     print(f"  Zones: {num_zones}")
 
-    response = requests.post(url, json=payload)
+    response = requests.post(url, json=payload, timeout=30)
     response.raise_for_status()
 
     prescription = response.json()
@@ -128,7 +128,7 @@ def generate_seed_prescription(
     print("  Target Rate: 50,000 seeds/ha")
     print("  Rate Range: 40,000 - 60,000 seeds/ha")
 
-    response = requests.post(url, json=payload)
+    response = requests.post(url, json=payload, timeout=30)
     response.raise_for_status()
 
     prescription = response.json()
@@ -172,7 +172,7 @@ def preview_management_zones(field_id: str, latitude: float, longitude: float, n
     print(f"  Location: ({latitude}, {longitude})")
     print(f"  Zones: {num_zones}")
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=30)
     response.raise_for_status()
 
     zones_data = response.json()
@@ -215,7 +215,7 @@ def export_prescription(prescription_id: str, format: str = "geojson") -> Any:
     print(f"  Prescription ID: {prescription_id}")
     print(f"  Format: {format}")
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=30)
     response.raise_for_status()
 
     data = response.json()
@@ -266,7 +266,7 @@ def get_prescription_history(field_id: str) -> dict[str, Any]:
 
     print(f"\nField: {field_id}")
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=30)
     response.raise_for_status()
 
     history = response.json()
@@ -296,7 +296,7 @@ def get_vra_info() -> dict[str, Any]:
 
     url = f"{API_BASE_URL}/v1/vra/info"
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=30)
     response.raise_for_status()
 
     info = response.json()

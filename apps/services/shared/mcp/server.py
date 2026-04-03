@@ -457,7 +457,7 @@ class MCPServer:
 # ==================== Standalone Server Runner ====================
 
 
-async def run_server(transport: str = "stdio", host: str = "0.0.0.0", port: int = 8200):
+async def run_server(transport: str = "stdio", host: str = "0.0.0.0", port: int = 8200):  # nosec B104 - binding to all interfaces required for Docker container
     """
     Run MCP server with specified transport
 

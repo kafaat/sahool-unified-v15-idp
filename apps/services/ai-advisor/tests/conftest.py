@@ -249,7 +249,7 @@ def sample_diagnose_request() -> dict[str, Any]:
     return {
         "crop_type": "wheat",
         "symptoms": {"leaf_color": "yellow", "spots": True, "wilting": False},
-        "image_path": "/tmp/test-crop-image.jpg",
+        "image_path": "/tmp/test-crop-image.jpg",  # nosec B108 - test fixture path, not used for real file I/O
         "location": "test-field-123",
     }
 

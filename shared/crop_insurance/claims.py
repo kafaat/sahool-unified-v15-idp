@@ -19,6 +19,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import tempfile
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -663,12 +664,12 @@ class ClaimStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
-        # Default to /var/lib/sahool in production, /tmp for development only
+        # Default to /var/lib/sahool in production, tempdir for development only
         default_path = (
             "/var/lib/sahool/insurance_claims"
             if os.getenv("ENVIRONMENT") == "production"
-            else "/tmp/sahool_insurance_claims"
-        )  # nosec B108
+            else os.path.join(tempfile.gettempdir(), "sahool_insurance_claims")
+        )
         self.storage_path = Path(storage_path or os.getenv("INSURANCE_CLAIMS_STORAGE_PATH", default_path))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()

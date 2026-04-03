@@ -323,7 +323,7 @@ class EventsRepository(BaseRepository):
         where_clause = " AND ".join(conditions)
 
         # Count query
-        count_query = f"SELECT COUNT(*) FROM field_intelligence_events WHERE {where_clause}"  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        count_query = f"SELECT COUNT(*) FROM field_intelligence_events WHERE {where_clause}"  # nosec B608 - where_clause built from hardcoded conditions with parameterized placeholders, not user input  # nosemgrep: python.lang.security.audit.formatted-sql-query
         total = await self._fetchval(count_query, *params)
 
         # Data query with pagination
@@ -332,7 +332,7 @@ class EventsRepository(BaseRepository):
             WHERE {where_clause}
             ORDER BY created_at DESC
             OFFSET ${param_idx} LIMIT ${param_idx + 1}
-        """  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        """  # nosec B608 - where_clause built from hardcoded conditions with parameterized placeholders, not user input  # nosemgrep: python.lang.security.audit.formatted-sql-query
         params.extend([skip, limit])
 
         rows = await self._fetch(data_query, *params)
@@ -509,7 +509,7 @@ class RulesRepository(BaseRepository):
         where_clause = " AND ".join(conditions)
 
         # Count query
-        count_query = f"SELECT COUNT(*) FROM field_intelligence_rules WHERE {where_clause}"  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        count_query = f"SELECT COUNT(*) FROM field_intelligence_rules WHERE {where_clause}"  # nosec B608 - where_clause built from hardcoded conditions with parameterized placeholders, not user input  # nosemgrep: python.lang.security.audit.formatted-sql-query
         total = await self._fetchval(count_query, *params)
 
         # Data query with pagination
@@ -518,7 +518,7 @@ class RulesRepository(BaseRepository):
             WHERE {where_clause}
             ORDER BY priority ASC
             OFFSET ${param_idx} LIMIT ${param_idx + 1}
-        """  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        """  # nosec B608 - where_clause built from hardcoded conditions with parameterized placeholders, not user input  # nosemgrep: python.lang.security.audit.formatted-sql-query
         params.extend([skip, limit])
 
         rows = await self._fetch(data_query, *params)
@@ -552,20 +552,29 @@ class RulesRepository(BaseRepository):
         if not updates:
             return await self.get_by_id(rule_id, tenant_id)
 
+        # Allowlist of valid column names for dynamic UPDATE
+        _ALLOWED_UPDATE_FIELDS = frozenset({
+            "name", "name_ar", "description", "description_ar",
+            "status", "field_ids", "event_types", "conditions",
+            "actions", "cooldown_minutes", "priority", "metadata",
+        })
+
         # Build UPDATE clause dynamically
         set_clauses = []
         params: list[Any] = [rule_id, tenant_id]
         param_idx = 3
 
         for field, value in updates.items():
+            if field not in _ALLOWED_UPDATE_FIELDS:
+                raise ValueError(f"Invalid update field: {field}")
             if field in ("conditions", "actions", "metadata"):
-                set_clauses.append(f"{field} = ${param_idx}")
+                set_clauses.append(f"{field} = ${param_idx}")  # nosec B608 - field validated against allowlist above
                 params.append(json.dumps(value))
             elif field in ("field_ids", "event_types"):
-                set_clauses.append(f"{field} = ${param_idx}")
+                set_clauses.append(f"{field} = ${param_idx}")  # nosec B608 - field validated against allowlist above
                 params.append(value or [])
             else:
-                set_clauses.append(f"{field} = ${param_idx}")
+                set_clauses.append(f"{field} = ${param_idx}")  # nosec B608 - field validated against allowlist above
                 params.append(value)
             param_idx += 1
 
@@ -580,7 +589,7 @@ class RulesRepository(BaseRepository):
             SET {set_clause}
             WHERE rule_id = $1 AND tenant_id = $2
             RETURNING *
-        """
+        """  # nosec B608 - set_clause built from allowlisted column names with parameterized values
         row = await self._fetchrow(query, *params)
         return self._row_to_dict(row) if row else None
 

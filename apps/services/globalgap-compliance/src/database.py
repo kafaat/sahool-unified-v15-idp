@@ -821,7 +821,7 @@ class NonConformanceRepository(BaseRepository):
             JOIN compliance_records comp ON nc.compliance_record_id = comp.id
             WHERE {where_clause}
             ORDER BY nc.severity DESC, nc.due_date ASC
-        """
+        """  # nosec B608 - where_clause is built from hardcoded filter strings with parameterized values
         rows = await self._fetch(query, *params)
 
         return [dict(row) for row in rows]

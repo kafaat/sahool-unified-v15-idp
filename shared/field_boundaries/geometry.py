@@ -723,8 +723,7 @@ def generate_postgis_overlap_query(table1: str, table2: str, geometry_column: st
     not user input. This is safe from SQL injection.
     """
     g = geometry_column
-    # nosec B608 - table/column names are application constants, not user input
-    return f"""
+    sql = f"""
     SELECT
         a.id AS boundary_id_a,
         b.id AS boundary_id_b,
@@ -734,7 +733,8 @@ def generate_postgis_overlap_query(table1: str, table2: str, geometry_column: st
     JOIN {table2} b ON ST_Intersects(a.{g}, b.{g})
     WHERE a.id != b.id
         AND ST_Area(ST_Intersection(a.{g}, b.{g})::geography) > 1.0
-    """
+    """  # nosec B608 - table/column names are application constants, not user input
+    return sql
 
 
 def generate_postgis_neighbors_query(
@@ -757,7 +757,7 @@ def generate_postgis_neighbors_query(
     """
     g = geometry_column
     # SECURITY: Use parameterized placeholders ($1, $2) to prevent SQL injection
-    return f"""
+    sql = f"""
     SELECT
         b.id,
         b.field_id,
@@ -772,4 +772,5 @@ def generate_postgis_neighbors_query(
             OR ST_DWithin(a.{g}::geography, b.{g}::geography, $2)
         )
     ORDER BY distance_m ASC
-    """
+    """  # nosec B608 - table/column names are application constants; boundary_id and buffer_m use $1/$2 params
+    return sql

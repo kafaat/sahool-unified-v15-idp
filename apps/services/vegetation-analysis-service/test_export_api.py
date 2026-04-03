@@ -212,6 +212,7 @@ def test_error_handling():
     response = requests.get(
         f"{BASE_URL}/v1/export/analysis/FIELD_001",
         params={"lat": 15.3694, "lon": 44.1910, "format": "invalid"},
+        timeout=30,
     )
     print(f"  Status: {response.status_code}")
     print(f"  Message: {response.json().get('detail')}")
@@ -227,6 +228,7 @@ def test_error_handling():
             "end_date": "2023-12-15",
             "format": "csv",
         },
+        timeout=30,
     )
     print(f"  Status: {response.status_code}")
     if response.status_code != 200:
@@ -234,7 +236,7 @@ def test_error_handling():
 
     # Test missing parameters
     print("\n3. Missing required parameters:")
-    response = requests.get(f"{BASE_URL}/v1/export/boundaries")
+    response = requests.get(f"{BASE_URL}/v1/export/boundaries", timeout=30)
     print(f"  Status: {response.status_code}")
     if response.status_code != 200:
         print(f"  Message: {response.json().get('detail')}")

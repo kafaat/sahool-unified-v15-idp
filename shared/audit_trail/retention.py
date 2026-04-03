@@ -19,6 +19,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import tempfile
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -820,10 +821,12 @@ def get_retention_manager(
     """
     global _global_manager
     if _global_manager is None:
-        # Default to /var/lib/sahool in production, /tmp for development only
+        # Default to /var/lib/sahool in production, tempdir for development only
         default_path = (
-            "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"
-        )  # nosec B108
+            "/var/lib/sahool/audit_trail"
+            if os.getenv("ENVIRONMENT") == "production"
+            else os.path.join(tempfile.gettempdir(), "sahool_audit_trail")
+        )
         storage = storage_path or os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         archive = archive_path or os.path.join(storage, "archive")
         _global_manager = RetentionManager(

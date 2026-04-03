@@ -306,7 +306,7 @@ if __name__ == "__main__":
     # Run server
     uvicorn.run(
         app,
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - binding to all interfaces required for Docker container
         port=SERVICE_PORT,
         log_level=get_log_level().lower(),
         access_log=not is_production(),  # Disable access log in production (use structured logging)

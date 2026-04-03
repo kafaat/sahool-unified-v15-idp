@@ -359,11 +359,17 @@ export const API_PATHS = {
     deviceById: (id: string) => buildUrl(IOT_ENDPOINTS.DEVICE_GET, { deviceId: id }),
   },
 
-  // Irrigation (from unified contracts)
+  // Irrigation (from unified contracts + service-specific paths)
   irrigation: {
     schedules: IRRIGATION_ENDPOINTS.SCHEDULES_LIST,
     recommendations: IRRIGATION_ENDPOINTS.RECOMMENDATIONS,
     history: (fieldId: string) => buildUrl(IRRIGATION_ENDPOINTS.HISTORY, { fieldId }),
+    // Service-specific paths (routed via Kong /api/v1/irrigation → strip → /v1/...)
+    calculate: '/v1/calculate',
+    methods: '/v1/methods',
+    crops: '/v1/crops',
+    waterBalance: (fieldId: string) => `/v1/water-balance/${fieldId}`,
+    efficiency: (fieldId: string) => `/v1/efficiency-report/${fieldId}`,
   },
 
   // Notifications (from unified contracts)
@@ -396,17 +402,25 @@ export const API_PATHS = {
     comments: (postId: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_COMMENTS, { postId }),
   },
 
-  // Advisory (from unified contracts)
+  // Advisory (from unified contracts + service-specific paths)
   advisory: {
     recommendations: ADVISORY_ENDPOINTS.RECOMMENDATIONS,
     fertilizer: ADVISORY_ENDPOINTS.FERTILIZER_ADVISORY,
     calculate: ADVISORY_ENDPOINTS.FERTILIZER_CALCULATE,
+    // Service-specific (Kong /api/v1/advisory → strip → /api/v1/...)
+    diseaseAssess: '/api/v1/disease/assess',
+    diseasesByCrop: (crop: string) => `/api/v1/disease/crop/${crop}`,
+    fertilizerPlan: '/api/v1/fertilizer/plan',
+    crops: '/api/v1/crops',
+    cropDetail: (code: string) => `/api/v1/crops/${code}`,
+    cropVarieties: (code: string) => `/api/v1/crops/${code}/varieties`,
   },
 
-  // Yield (from unified contracts)
+  // Yield (from unified contracts + service-specific paths)
   yield: {
     predictions: YIELD_ENDPOINTS.PREDICTIONS,
     history: (fieldId: string) => buildUrl(YIELD_ENDPOINTS.HISTORY, { fieldId }),
+    predict: '/v1/predict',
   },
 
   // Analytics (admin-specific, no unified contract)
@@ -458,11 +472,16 @@ export const API_PATHS = {
     devices: DRONE_ENDPOINTS.DEVICES,
   },
 
-  // Soil Analysis (from unified contracts)
+  // Soil Analysis (from unified contracts + service-specific)
   soilAnalysis: {
     tests: SOIL_ENDPOINTS.TESTS,
     testById: (id: string) => buildUrl(SOIL_ENDPOINTS.TEST_GET, { testId: id }),
     recommendations: SOIL_ENDPOINTS.RECOMMENDATIONS,
+    // Service-specific (Kong /api/v1/soil strip_path=false → service keeps full path)
+    interpret: '/v1/interpret',
+    amendmentPlan: '/v1/recommendations/amendment-plan',
+    cropRequirements: (crop: string) => `/v1/crops/${crop}/requirements`,
+    fieldTests: (fieldId: string) => `/v1/tests/field/${fieldId}`,
   },
 
   // Traceability (from unified contracts)

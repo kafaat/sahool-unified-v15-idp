@@ -31,7 +31,8 @@ export function useAlerts(params?: {
 export function useAcknowledgeAlert() {
   return useApiMutation(
     async (id: string) => {
-      const response = await apiClient.patch(`${API_URLS.alerts}/api/v1/alerts/${id}/acknowledge`);
+      // Kong route: /api/v1/alert-management (strip_path=true) → service receives /alerts/{id}/acknowledge
+      const response = await apiClient.patch(`${API_URLS.alerts}/alerts/${id}/acknowledge`);
       return response.data;
     },
     { invalidateKeys: ['alerts'] }

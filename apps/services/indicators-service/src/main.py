@@ -193,7 +193,7 @@ async def lifespan(app: FastAPI):
                 field_id = data.get("field_id")
                 logger.info("field_created_event_received", field_id=field_id, tenant_id=tenant_id)
                 # Initialize default indicators for new field
-                if field_id and app.state.db_pool:
+                if field_id and tenant_id and app.state.db_pool:
                     default_indicators = {
                         "ndvi": 0.0,
                         "evi": 0.0,
@@ -236,7 +236,7 @@ async def lifespan(app: FastAPI):
                 logger.info("ndvi_calculated_received", field_id=field_id, tenant_id=tenant_id)
                 # Update NDVI indicator for field
                 ndvi_value = data.get("ndvi_value") or data.get("value") or data.get("mean_ndvi")
-                if field_id and ndvi_value is not None and app.state.db_pool:
+                if field_id and tenant_id and ndvi_value is not None and app.state.db_pool:
                     ndvi_value = float(ndvi_value)
                     defn = INDICATOR_DEFINITIONS["ndvi"]
                     status = determine_status(

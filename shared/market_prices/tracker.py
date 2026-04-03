@@ -62,7 +62,7 @@ class PriceStorage:
         resolved = Path(storage_path or os.getenv("MARKET_PRICES_STORAGE_PATH", default_path)).resolve()
         # Validate path is under allowed directories to prevent path traversal
         _allowed_bases = (Path(tempfile.gettempdir()).resolve(), Path("/var/lib/sahool").resolve())
-        if not any(str(resolved).startswith(str(base)) for base in _allowed_bases):
+        if not any(resolved.is_relative_to(base) for base in _allowed_bases):
             raise ValueError(f"storage_path must be under {_allowed_bases}, got: {resolved}")
         self.storage_path = resolved
         self.storage_path.mkdir(parents=True, exist_ok=True)

@@ -46,9 +46,12 @@ try:
 
     _dlq_config = DLQConfig.from_env()
     _dlq_available = True
-except ImportError:
+except (ImportError, ValueError, TypeError) as _dlq_err:
     _dlq_available = False
     _dlq_config = None
+    import logging as _logging
+
+    _logging.getLogger(__name__).warning("DLQ disabled: %s", _dlq_err)
 
 
 def sanitize_log_input(value: str) -> str:

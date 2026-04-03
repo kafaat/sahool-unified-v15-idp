@@ -366,14 +366,16 @@ class ContextMiddleware(BaseHTTPMiddleware):
                 if self._trust_gateway:
                     # Signature already validated by upstream gateway (Kong).
                     # Still enforce expiry + algorithm allowlist.
-                    # nosemgrep: python.jwt.security.unverified-jwt-decode
+                    # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
                     payload = jwt.decode(
                         token,
                         options={"verify_signature": False, "verify_exp": True},
                         algorithms=["HS256", "HS384", "HS512"],
                     )
                 else:
-                    secret = os.getenv("JWT_SECRET_KEY", "")
+                    secret = os.getenv("JWT_SECRET_KEY")
+                    if not secret:
+                        raise ValueError("JWT_SECRET_KEY environment variable is required")
                     algorithm = os.getenv("JWT_ALGORITHM", "HS256")
                     payload = jwt.decode(token, secret, algorithms=[algorithm])
                 context = RequestContext.from_jwt_payload(payload, self.service_name)

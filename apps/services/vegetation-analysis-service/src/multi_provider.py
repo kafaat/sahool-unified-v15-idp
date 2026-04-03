@@ -171,9 +171,12 @@ class SentinelHubProvider(SatelliteProvider):
     Free tier: 30,000 processing units/month
     """
 
-    OAUTH_URL = "https://services.sentinel-hub.com/oauth/token"
-    CATALOG_URL = "https://services.sentinel-hub.com/api/v1/catalog/search"
-    PROCESS_URL = "https://services.sentinel-hub.com/api/v1/process"
+    # Configurable via env vars — supports both legacy Sentinel Hub and Copernicus CDSE
+    # CDSE: set SENTINEL_HUB_AUTH_URL=https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token
+    #        SENTINEL_HUB_PROCESS_URL=https://sh.dataspace.copernicus.eu/api/v1/process
+    OAUTH_URL = os.getenv("SENTINEL_HUB_AUTH_URL", "https://services.sentinel-hub.com/oauth/token")
+    CATALOG_URL = os.getenv("SENTINEL_HUB_CATALOG_URL", "https://services.sentinel-hub.com/api/v1/catalog/search")
+    PROCESS_URL = os.getenv("SENTINEL_HUB_PROCESS_URL", "https://services.sentinel-hub.com/api/v1/process")
 
     def __init__(self):
         super().__init__("Sentinel Hub", "سنتينل هب")

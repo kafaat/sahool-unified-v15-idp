@@ -71,11 +71,17 @@ class SentinelHubConfig:
     client_secret: str
     instance_id: Optional[str] = None
 
-    # API endpoints
-    auth_url: str = "https://services.sentinel-hub.com/oauth/token"
-    api_url: str = "https://services.sentinel-hub.com/api/v1"
-    catalog_url: str = "https://services.sentinel-hub.com/api/v1/catalog"
-    process_url: str = "https://services.sentinel-hub.com/api/v1/process"
+    # API endpoints — configurable via env vars for Copernicus Data Space migration
+    # Legacy: services.sentinel-hub.com (Sinergise)
+    # CDSE:   sh.dataspace.copernicus.eu (ESA Copernicus Data Space Ecosystem)
+    auth_url: str = field(default_factory=lambda: os.environ.get(
+        "SENTINEL_HUB_AUTH_URL", "https://services.sentinel-hub.com/oauth/token"))
+    api_url: str = field(default_factory=lambda: os.environ.get(
+        "SENTINEL_HUB_API_URL", "https://services.sentinel-hub.com/api/v1"))
+    catalog_url: str = field(default_factory=lambda: os.environ.get(
+        "SENTINEL_HUB_CATALOG_URL", "https://services.sentinel-hub.com/api/v1/catalog"))
+    process_url: str = field(default_factory=lambda: os.environ.get(
+        "SENTINEL_HUB_PROCESS_URL", "https://services.sentinel-hub.com/api/v1/process"))
 
     # Default settings
     max_cloud_coverage: float = 30.0

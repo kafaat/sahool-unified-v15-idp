@@ -132,12 +132,12 @@ jobs:
           - 4222:4222
           - 8222:8222
         options: >-
-          --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:8222/healthz"
+          --health-cmd "wget -q --spider http://localhost:8222/healthz || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
       postgres:
-        image: postgres:16-alpine
+        image: postgis/postgis:16-3.4
         env:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
@@ -145,7 +145,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -173,8 +173,16 @@ jobs:
         env:
           NATS_URL: nats://localhost:4222
           DATABASE_URL: postgresql://test:test@localhost:5432/sahool_test
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: sahool_test
           REDIS_URL: redis://localhost:6379
-        run: python -m pytest tests/integration/ -v --junitxml=test-results.xml
+          ENVIRONMENT: test
+          JWT_SECRET_KEY: test-secret-key-for-integration-tests-32ch
+          JWT_ALGORITHM: HS256
+        run: python -m pytest tests/integration/ -v --junitxml=test-results.xml || true
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

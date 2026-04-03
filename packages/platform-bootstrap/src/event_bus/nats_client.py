@@ -10,6 +10,7 @@ Usage:
     await bus.publish_event("field", "sensor-data.received", {"moisture": 45.2})
 """
 
+import asyncio
 import json
 import uuid
 from datetime import UTC, datetime
@@ -59,6 +60,9 @@ class SAHOOLEventBus:
     """Singleton NATS JetStream event bus for SAHOOL platform."""
 
     _instance: Optional["SAHOOLEventBus"] = None
+    # Class-level lock so all coroutines share one lock object.
+    # asyncio.Lock() is safe to create at import time in Python >=3.10.
+    _lock: asyncio.Lock = asyncio.Lock()
 
     def __init__(self) -> None:
         self.nc: NATS | None = None
@@ -67,8 +71,9 @@ class SAHOOLEventBus:
 
     @classmethod
     async def get_instance(cls) -> "SAHOOLEventBus":
-        if cls._instance is None:
-            cls._instance = SAHOOLEventBus()
+        async with cls._lock:
+            if cls._instance is None:
+                cls._instance = SAHOOLEventBus()
         return cls._instance
 
     async def connect(self, nats_url: str, service_name: str) -> None:

@@ -17,44 +17,170 @@ spec:
     mode: STRICT
 
 ---
-# Authorization policy for inter-service communication
+# Authorization policy — authentication endpoints
+# Only user-service may handle /api/v1/auth/* paths.
+# GET is included for logout, token-validation, and PKCE callback endpoints.
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: sahool-v16-authz
+  name: sahool-authz-auth
   namespace: sahool-production
   labels:
     app.kubernetes.io/name: sahool
     app.kubernetes.io/version: "16.0.0"
 spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: user-service
   rules:
-    # Allow user-service to handle authentication endpoints
     - from:
         - source:
             principals:
               - "cluster.local/ns/sahool-production/sa/user-service"
       to:
         - operation:
-            methods: ["POST"]
+            methods: ["GET", "POST"]
             paths: ["/api/v1/auth/*"]
 
-    # Allow all sahool services to communicate internally
+---
+# Authorization policy — field management service
+# Accessible from: user-service, ai-advisor, irrigation-smart, notification-service
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: sahool-authz-fields
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: field-management-service
+  rules:
     - from:
         - source:
             principals:
-              - "cluster.local/ns/sahool-production/sa/*"
+              - "cluster.local/ns/sahool-production/sa/user-service"
+              - "cluster.local/ns/sahool-production/sa/ai-advisor"
+              - "cluster.local/ns/sahool-production/sa/irrigation-smart"
+              - "cluster.local/ns/sahool-production/sa/notification-service"
       to:
         - operation:
             methods: ["GET", "POST", "PUT", "DELETE"]
             paths: ["/api/*"]
 
-    # Allow health checks from anywhere
+---
+# Authorization policy — AI advisor service
+# Accessible from: field-management-service, irrigation-smart, user-service
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: sahool-authz-ai
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ai-advisor
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/sahool-production/sa/field-management-service"
+              - "cluster.local/ns/sahool-production/sa/irrigation-smart"
+              - "cluster.local/ns/sahool-production/sa/user-service"
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            paths: ["/api/*"]
+
+---
+# Authorization policy — irrigation service
+# Accessible from: ai-advisor, field-management-service, notification-service
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: sahool-authz-irrigation
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: irrigation-smart
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/sahool-production/sa/ai-advisor"
+              - "cluster.local/ns/sahool-production/sa/field-management-service"
+              - "cluster.local/ns/sahool-production/sa/notification-service"
+      to:
+        - operation:
+            methods: ["GET", "POST", "PUT"]
+            paths: ["/api/*"]
+
+---
+# Authorization policy — notification service
+# Accessible from all internal sahool services (sends alerts)
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: sahool-authz-notifications
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: notification-service
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/sahool-production/sa/ai-advisor"
+              - "cluster.local/ns/sahool-production/sa/field-management-service"
+              - "cluster.local/ns/sahool-production/sa/irrigation-smart"
+              - "cluster.local/ns/sahool-production/sa/user-service"
+      to:
+        - operation:
+            methods: ["POST"]
+            paths: ["/api/*"]
+
+---
+# Allow health checks from anywhere (liveness/readiness probes)
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: sahool-authz-health
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  rules:
     - to:
         - operation:
             methods: ["GET"]
             paths: ["/healthz", "/readyz", "/health"]
 
-    # Allow Prometheus metrics scraping
+---
+# Allow Prometheus metrics scraping from monitoring namespace
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: sahool-authz-metrics
+  namespace: sahool-production
+  labels:
+    app.kubernetes.io/name: sahool
+    app.kubernetes.io/version: "16.0.0"
+spec:
+  rules:
     - from:
         - source:
             namespaces: ["monitoring"]

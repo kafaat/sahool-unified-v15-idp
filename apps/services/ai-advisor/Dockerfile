@@ -104,6 +104,11 @@ COPY --chown=sahool:sahool shared/ /app/shared/
 # Copy services shared modules overlay (shared.errors_py, shared.middleware, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
 
+# Copy platform-bootstrap package (event bus, tenant context, observability)
+# Placed at /app/platform_bootstrap/ so that PYTHONPATH=/app resolves it as
+# `from platform_bootstrap.event_bus import SAHOOLEventBus`.
+COPY --chown=sahool:sahool packages/platform-bootstrap/src/ /app/platform_bootstrap/
+
 # Copy application code | نسخ كود التطبيق
 COPY --chown=sahool:sahool apps/services/ai-advisor/src /app/src
 

@@ -284,24 +284,36 @@ export default function SatelliteMap({ fields, selectedFieldId, onFieldClick }: 
         <h4 className="text-xs font-bold text-gray-700 mb-2">مؤشر الغطاء النباتي</h4>
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#004d00' }}></span>
+            <span>{'ممتاز (NDVI > 0.85)'}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
             <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#1B5E20' }}></span>
-            <span>{'ممتاز (NDVI > 0.7)'}</span>
+            <span>صحي جداً (0.7 - 0.85)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></span>
-            <span>جيد (0.5 - 0.7)</span>
+            <span>صحي (0.55 - 0.7)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#8BC34A' }}></span>
+            <span>معتدل (0.45 - 0.55)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FDD835' }}></span>
-            <span>متوسط (0.3 - 0.5)</span>
+            <span>مجهد (0.35 - 0.45)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF9800' }}></span>
-            <span>ضعيف (0.15 - 0.3)</span>
+            <span>مجهد جداً (0.25 - 0.35)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F44336' }}></span>
-            <span>{'حرج (< 0.15)'}</span>
+            <span>حرج (0.15 - 0.25)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#8B0000' }}></span>
+            <span>{'تربة عارية (< 0.15)'}</span>
           </div>
         </div>
       </div>
@@ -310,17 +322,23 @@ export default function SatelliteMap({ fields, selectedFieldId, onFieldClick }: 
 }
 
 export function getNDVIColor(ndvi: number): string {
-  if (ndvi >= 0.7) return '#1B5E20'; // Dark green - excellent
-  if (ndvi >= 0.5) return '#4CAF50'; // Green - good
-  if (ndvi >= 0.3) return '#FDD835'; // Yellow - moderate
-  if (ndvi >= 0.15) return '#FF9800'; // Orange - poor
-  return '#F44336'; // Red - critical
+  if (ndvi >= 0.85) return '#004d00'; // Very dark green - excellent
+  if (ndvi >= 0.7) return '#1B5E20'; // Dark green - very healthy
+  if (ndvi >= 0.55) return '#4CAF50'; // Green - healthy
+  if (ndvi >= 0.45) return '#8BC34A'; // Light green - moderate
+  if (ndvi >= 0.35) return '#FDD835'; // Yellow - stressed
+  if (ndvi >= 0.25) return '#FF9800'; // Orange - very stressed
+  if (ndvi >= 0.15) return '#F44336'; // Red - critical
+  return '#8B0000'; // Dark red - bare soil/dead
 }
 
 export function getHealthLabel(ndvi: number): string {
-  if (ndvi >= 0.7) return 'ممتاز';
-  if (ndvi >= 0.5) return 'جيد';
-  if (ndvi >= 0.3) return 'متوسط';
-  if (ndvi >= 0.15) return 'ضعيف';
-  return 'حرج';
+  if (ndvi >= 0.85) return 'ممتاز';
+  if (ndvi >= 0.7) return 'صحي جداً';
+  if (ndvi >= 0.55) return 'صحي';
+  if (ndvi >= 0.45) return 'معتدل';
+  if (ndvi >= 0.35) return 'مجهد';
+  if (ndvi >= 0.25) return 'مجهد جداً';
+  if (ndvi >= 0.15) return 'حرج';
+  return 'تربة عارية';
 }

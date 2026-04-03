@@ -7,7 +7,7 @@
  */
 
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
   MapPin,
@@ -158,6 +158,121 @@ function TrendIcon({ trend }: { trend?: string }) {
   if (trend === 'up') return <TrendingUp className="w-4 h-4 text-green-500" />;
   if (trend === 'down') return <TrendingDown className="w-4 h-4 text-red-500" />;
   return <Minus className="w-4 h-4 text-gray-400" />;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NDVI View Mode Toggle - أوضاع عرض NDVI
+// ─────────────────────────────────────────────────────────────────────────────
+
+type NdviViewMode = 'basic' | 'contrasted' | 'average' | 'heterogeneous';
+
+const NDVI_VIEW_MODES: { key: NdviViewMode; label: string; description: string }[] = [
+  { key: 'basic', label: 'أساسي', description: 'تدرج أخضر → أحمر قياسي' },
+  { key: 'contrasted', label: 'متباين', description: 'تباين محسّن لإبراز الفروقات' },
+  { key: 'average', label: 'متوسط', description: 'الانحراف عن متوسط الحقل' },
+  { key: 'heterogeneous', label: 'متنوع', description: 'إبراز مناطق التباين العالي' },
+];
+
+function NdviViewModeToggle() {
+  const [ndviViewMode, setNdviViewMode] = useState<NdviViewMode>('basic');
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs text-gray-500">وضع العرض</p>
+      <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+        {NDVI_VIEW_MODES.map((mode) => (
+          <button
+            key={mode.key}
+            type="button"
+            title={mode.description}
+            onClick={() => setNdviViewMode(mode.key)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              ndviViewMode === mode.key
+                ? 'bg-white text-green-700 shadow-sm border border-green-200'
+                : 'text-gray-500 hover:text-gray-700 border border-transparent'
+            }`}
+          >
+            {mode.label}
+          </button>
+        ))}
+      </div>
+      <p className="text-[10px] text-gray-400">
+        {NDVI_VIEW_MODES.find((m) => m.key === ndviViewMode)?.description}
+      </p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NDVI Index Histogram - رسم بياني لتوزيع NDVI
+// ─────────────────────────────────────────────────────────────────────────────
+
+const NDVI_HISTOGRAM_RANGES: { min: number; max: number; color: string; label: string }[] = [
+  { min: 0, max: 0.2, color: 'bg-red-500', label: '٠ - ٠٫٢' },
+  { min: 0.2, max: 0.4, color: 'bg-orange-500', label: '٠٫٢ - ٠٫٤' },
+  { min: 0.4, max: 0.6, color: 'bg-yellow-500', label: '٠٫٤ - ٠٫٦' },
+  { min: 0.6, max: 0.8, color: 'bg-green-400', label: '٠٫٦ - ٠٫٨' },
+  { min: 0.8, max: 1.0, color: 'bg-green-700', label: '٠٫٨ - ١٫٠' },
+];
+
+function generateMockDistribution(ndviValue: number): number[] {
+  // Generate a plausible distribution centered around the NDVI value
+  const center = Math.max(0, Math.min(1, ndviValue));
+  const raw = NDVI_HISTOGRAM_RANGES.map(({ min, max }) => {
+    const mid = (min + max) / 2;
+    const dist = Math.abs(center - mid);
+    // Gaussian-like falloff from the center value
+    return Math.exp(-((dist * dist) / (2 * 0.12)));
+  });
+  const total = raw.reduce((s, v) => s + v, 0);
+  return raw.map((v) => Math.round((v / total) * 100));
+}
+
+function NdviHistogram({ ndviValue }: { ndviValue: number | null }) {
+  const distribution = useMemo(
+    () => (ndviValue != null ? generateMockDistribution(ndviValue) : null),
+    [ndviValue],
+  );
+
+  if (distribution == null) return null;
+
+  const maxPct = Math.max(...distribution, 1);
+  // Mock total area in m² (representative)
+  const totalAreaM2 = 52000;
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-gray-500">توزيع المساحة حسب NDVI</p>
+      <div className="flex items-end gap-1.5 h-20">
+        {NDVI_HISTOGRAM_RANGES.map((range, i) => {
+          const pct = distribution[i] ?? 0;
+          const heightPct = maxPct > 0 ? (pct / maxPct) * 100 : 0;
+          const areaM2 = Math.round((pct / 100) * totalAreaM2);
+          return (
+            <div
+              key={range.label}
+              className="flex-1 flex flex-col items-center gap-0.5"
+              title={`${range.label}: ${pct}% (${areaM2.toLocaleString('ar-SA')} م²)`}
+            >
+              <span className="text-[9px] text-gray-500">{pct}%</span>
+              <div className="w-full relative" style={{ height: '48px' }}>
+                <div
+                  className={`absolute bottom-0 w-full rounded-t ${range.color} transition-all`}
+                  style={{ height: `${heightPct}%`, minHeight: pct > 0 ? '4px' : '0px' }}
+                />
+              </div>
+              <span className="text-[8px] text-gray-400 leading-tight text-center">
+                {range.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-[10px] text-gray-400 text-left" dir="rtl">
+        المساحة الإجمالية: {totalAreaM2.toLocaleString('ar-SA')} م²
+      </p>
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -456,6 +571,12 @@ export default function FieldDetailPage() {
                   <Leaf className="w-4 h-4" />
                   {getHealthLabel(ndvi?.health_status)}
                 </div>
+
+                {/* NDVI View Mode Toggle - أوضاع عرض NDVI */}
+                <NdviViewModeToggle />
+
+                {/* NDVI Index Histogram - رسم بياني لتوزيع NDVI */}
+                <NdviHistogram ndviValue={ndvi?.ndvi ?? null} />
 
                 {/* NDVI value */}
                 <div className="grid grid-cols-2 gap-4">

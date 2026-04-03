@@ -368,7 +368,10 @@ class ContextMiddleware(BaseHTTPMiddleware):
                     # Still enforce expiry + algorithm allowlist.
                     payload = jwt.decode(
                         token,
-                        options={"verify_signature": False, "verify_exp": True},  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+                        options={
+                            "verify_signature": False,
+                            "verify_exp": True,
+                        },  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
                         algorithms=["HS256", "HS384", "HS512"],
                     )
                 else:

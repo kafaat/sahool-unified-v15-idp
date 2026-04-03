@@ -29,12 +29,8 @@ class AIEventHandlers:
         self.bus = None
         self.ndvi_cache: dict[str, dict[str, Any]] = {}
         self.weather_cache: dict[str, dict[str, Any]] = {}
-        self._crop_growth_model_url = os.getenv(
-            "CROP_GROWTH_MODEL_URL", "http://crop-growth-model:3023"
-        )
-        self._yield_prediction_url = os.getenv(
-            "YIELD_PREDICTION_URL", "http://yield-prediction-service:8152"
-        )
+        self._crop_growth_model_url = os.getenv("CROP_GROWTH_MODEL_URL", "http://crop-growth-model:3023")
+        self._yield_prediction_url = os.getenv("YIELD_PREDICTION_URL", "http://yield-prediction-service:8152")
         self._http_timeout = 10.0
 
     # ── Cache helpers ────────────────────────────────────────────────────────
@@ -65,9 +61,7 @@ class AIEventHandlers:
 
     # ── ML service helpers ───────────────────────────────────────────────────
 
-    async def _fetch_yield_prediction(
-        self, field_id: str, ndvi_value: float
-    ) -> dict[str, Any] | None:
+    async def _fetch_yield_prediction(self, field_id: str, ndvi_value: float) -> dict[str, Any] | None:
         """Call yield-prediction-service for an ML-based yield estimate.
 
         Falls back to None on any error so callers can use hardcoded defaults.

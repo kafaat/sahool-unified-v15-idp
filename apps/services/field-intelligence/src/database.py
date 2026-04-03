@@ -553,11 +553,22 @@ class RulesRepository(BaseRepository):
             return await self.get_by_id(rule_id, tenant_id)
 
         # Allowlist of valid column names for dynamic UPDATE
-        _ALLOWED_UPDATE_FIELDS = frozenset({
-            "name", "name_ar", "description", "description_ar",
-            "status", "field_ids", "event_types", "conditions",
-            "actions", "cooldown_minutes", "priority", "metadata",
-        })
+        _ALLOWED_UPDATE_FIELDS = frozenset(
+            {
+                "name",
+                "name_ar",
+                "description",
+                "description_ar",
+                "status",
+                "field_ids",
+                "event_types",
+                "conditions",
+                "actions",
+                "cooldown_minutes",
+                "priority",
+                "metadata",
+            }
+        )
 
         # Build UPDATE clause dynamically
         set_clauses = []

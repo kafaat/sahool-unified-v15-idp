@@ -222,7 +222,9 @@ async def lifespan(app: FastAPI):
                             "status": status,
                         }
                         await save_indicator(field_id, ind_type, indicator_data, tenant_id)
-                    logger.info("default_indicators_initialized", field_id=field_id, indicator_count=len(default_indicators))
+                    logger.info(
+                        "default_indicators_initialized", field_id=field_id, indicator_count=len(default_indicators)
+                    )
             except Exception as e:
                 logger.error("event_handler_failed", subject="field.created", error=str(e))
 

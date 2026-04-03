@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 class FusionMethod(str, Enum):
     """Available fusion methods — طرق الدمج المتاحة"""
+
     WEIGHTED_AVERAGE = "weighted_average"  # Simple weighted by quality + resolution
     STARFM_LIKE = "starfm_like"  # Spatial-Temporal Adaptive Reflectance Fusion
     BEST_PIXEL = "best_pixel"  # Select best cloud-free pixel per date
@@ -44,6 +45,7 @@ class FusionMethod(str, Enum):
 @dataclass
 class SensorObservation:
     """Single observation from one sensor — رصد واحد من مستشعر"""
+
     provider: str  # sentinel-2, planet, landsat, modis, agromonitoring
     date: date
     ndvi: float | None = None
@@ -61,6 +63,7 @@ class SensorObservation:
 @dataclass
 class HybridIndex:
     """Fused hybrid vegetation index — مؤشر نباتي هجين مدمج"""
+
     date: date
     ndvi: float
     confidence: float  # 0-1
@@ -85,6 +88,7 @@ class HybridIndex:
 @dataclass
 class HybridTimeSeriesResult:
     """Fused time series result — نتيجة السلسلة الزمنية المدمجة"""
+
     field_id: str
     start_date: date
     end_date: date
@@ -258,19 +262,21 @@ class HybridIndexEngine:
             # Best resolution from sources
             best_res = min(obs.resolution_m for obs, _, _ in valid)
 
-            results.append(HybridIndex(
-                date=d,
-                ndvi=round(fused_ndvi, 4),
-                confidence=round(min(1.0, total_weight / len(valid)), 2),
-                sources_used=[obs.provider for obs, _, _ in valid],
-                fusion_method="weighted_average",
-                resolution_effective_m=best_res,
-                evi=round(fused_evi, 4) if fused_evi is not None else None,
-                savi=round(fused_savi, 4) if fused_savi is not None else None,
-                ndwi=round(fused_ndwi, 4) if fused_ndwi is not None else None,
-                lai=round(fused_lai, 2) if fused_lai is not None else None,
-                cloud_free=all(obs.cloud_cover_pct < 20 for obs, _, _ in valid),
-            ))
+            results.append(
+                HybridIndex(
+                    date=d,
+                    ndvi=round(fused_ndvi, 4),
+                    confidence=round(min(1.0, total_weight / len(valid)), 2),
+                    sources_used=[obs.provider for obs, _, _ in valid],
+                    fusion_method="weighted_average",
+                    resolution_effective_m=best_res,
+                    evi=round(fused_evi, 4) if fused_evi is not None else None,
+                    savi=round(fused_savi, 4) if fused_savi is not None else None,
+                    ndwi=round(fused_ndwi, 4) if fused_ndwi is not None else None,
+                    lai=round(fused_lai, 2) if fused_lai is not None else None,
+                    cloud_free=all(obs.cloud_cover_pct < 20 for obs, _, _ in valid),
+                )
+            )
 
         return results
 
@@ -292,19 +298,21 @@ class HybridIndexEngine:
                 continue
 
             h_ndvi = harmonize_index(best.ndvi, "ndvi", best.provider)
-            results.append(HybridIndex(
-                date=d,
-                ndvi=round(h_ndvi, 4),
-                confidence=round(compute_observation_weight(best), 2),
-                sources_used=[best.provider],
-                fusion_method="best_pixel",
-                resolution_effective_m=best.resolution_m,
-                evi=best.evi,
-                savi=best.savi,
-                ndwi=best.ndwi,
-                lai=best.lai,
-                cloud_free=best.cloud_cover_pct < 20,
-            ))
+            results.append(
+                HybridIndex(
+                    date=d,
+                    ndvi=round(h_ndvi, 4),
+                    confidence=round(compute_observation_weight(best), 2),
+                    sources_used=[best.provider],
+                    fusion_method="best_pixel",
+                    resolution_effective_m=best.resolution_m,
+                    evi=best.evi,
+                    savi=best.savi,
+                    ndwi=best.ndwi,
+                    lai=best.lai,
+                    cloud_free=best.cloud_cover_pct < 20,
+                )
+            )
 
         return results
 
@@ -329,17 +337,19 @@ class HybridIndexEngine:
             if s.date not in covered_dates and s.soil_moisture is not None:
                 # Empirical NDVI estimation from soil moisture
                 estimated_ndvi = min(0.9, max(0.05, 0.1 + 0.015 * s.soil_moisture))
-                results.append(HybridIndex(
-                    date=s.date,
-                    ndvi=round(estimated_ndvi, 4),
-                    confidence=0.5,  # Lower confidence for SAR-derived
-                    sources_used=["sentinel-1 (SAR)"],
-                    fusion_method="sar_gap_fill",
-                    resolution_effective_m=s.resolution_m,
-                    soil_moisture=s.soil_moisture,
-                    cloud_free=True,  # SAR penetrates clouds
-                    sar_supplemented=True,
-                ))
+                results.append(
+                    HybridIndex(
+                        date=s.date,
+                        ndvi=round(estimated_ndvi, 4),
+                        confidence=0.5,  # Lower confidence for SAR-derived
+                        sources_used=["sentinel-1 (SAR)"],
+                        fusion_method="sar_gap_fill",
+                        resolution_effective_m=s.resolution_m,
+                        soil_moisture=s.soil_moisture,
+                        cloud_free=True,  # SAR penetrates clouds
+                        sar_supplemented=True,
+                    )
+                )
 
         return sorted(results, key=lambda r: r.date)
 
@@ -402,10 +412,7 @@ class HybridIndexEngine:
                 continue
 
             # Find low-res observation on same date as high-res
-            lr_at_hr_date = next(
-                (l for l in low_res if l.date == nearest_hr.date and l.ndvi is not None),
-                None
-            )
+            lr_at_hr_date = next((l for l in low_res if l.date == nearest_hr.date and l.ndvi is not None), None)
 
             if lr_at_hr_date and lr_at_hr_date.ndvi is not None:
                 # STARFM formula
@@ -417,30 +424,34 @@ class HybridIndexEngine:
                 days_gap = abs((lr.date - nearest_hr.date).days)
                 confidence = max(0.3, 1.0 - days_gap * 0.02)
 
-                results.append(HybridIndex(
-                    date=lr.date,
-                    ndvi=round(fused_ndvi, 4),
-                    confidence=round(confidence, 2),
-                    sources_used=[nearest_hr.provider, lr.provider],
-                    fusion_method="starfm_like",
-                    resolution_effective_m=nearest_hr.resolution_m,
-                    cloud_free=lr.cloud_cover_pct < 20,
-                ))
+                results.append(
+                    HybridIndex(
+                        date=lr.date,
+                        ndvi=round(fused_ndvi, 4),
+                        confidence=round(confidence, 2),
+                        sources_used=[nearest_hr.provider, lr.provider],
+                        fusion_method="starfm_like",
+                        resolution_effective_m=nearest_hr.resolution_m,
+                        cloud_free=lr.cloud_cover_pct < 20,
+                    )
+                )
 
         # Also include original high-res observations
         for hr in high_res:
             if hr.ndvi is not None:
-                results.append(HybridIndex(
-                    date=hr.date,
-                    ndvi=round(harmonize_index(hr.ndvi, "ndvi", hr.provider), 4),
-                    confidence=round(compute_observation_weight(hr), 2),
-                    sources_used=[hr.provider],
-                    fusion_method="starfm_like (original)",
-                    resolution_effective_m=hr.resolution_m,
-                    evi=hr.evi,
-                    savi=hr.savi,
-                    cloud_free=hr.cloud_cover_pct < 20,
-                ))
+                results.append(
+                    HybridIndex(
+                        date=hr.date,
+                        ndvi=round(harmonize_index(hr.ndvi, "ndvi", hr.provider), 4),
+                        confidence=round(compute_observation_weight(hr), 2),
+                        sources_used=[hr.provider],
+                        fusion_method="starfm_like (original)",
+                        resolution_effective_m=hr.resolution_m,
+                        evi=hr.evi,
+                        savi=hr.savi,
+                        cloud_free=hr.cloud_cover_pct < 20,
+                    )
+                )
 
         return sorted(results, key=lambda r: r.date)
 

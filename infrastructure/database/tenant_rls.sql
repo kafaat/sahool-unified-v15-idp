@@ -36,17 +36,22 @@ CREATE OR REPLACE FUNCTION get_current_tenant_id()
 RETURNS TEXT AS $$
 DECLARE
     tid TEXT;
+    _func_exists BOOLEAN;
 BEGIN
-    -- Prefer the canonical implementation from migration 010 when available.
-    BEGIN
+    -- Detect whether current_tenant_id() exists (migration 010 applied).
+    SELECT EXISTS (
+        SELECT 1 FROM pg_proc p
+        JOIN pg_namespace n ON n.oid = p.pronamespace
+        WHERE p.proname = 'current_tenant_id' AND n.nspname = 'public'
+    ) INTO _func_exists;
+
+    IF _func_exists THEN
+        -- Delegate to canonical implementation; propagate any NULL it returns.
         tid := current_tenant_id();
         RETURN tid;
-    EXCEPTION
-        WHEN undefined_function THEN
-            -- Standalone fallback (dev/test environments without migration 010).
-            NULL;
-    END;
+    END IF;
 
+    -- Standalone fallback (dev/test environments without migration 010).
     tid := current_setting('app.current_tenant', true);
     IF tid IS NULL OR tid = '' THEN
         RAISE EXCEPTION 'Tenant context not set. Use set_config(''app.current_tenant'', ''<tenant_id>'', false)';

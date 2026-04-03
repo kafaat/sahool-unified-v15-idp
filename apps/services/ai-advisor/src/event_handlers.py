@@ -30,10 +30,14 @@ class AIEventHandlers:
 
     # ── Cache helpers ────────────────────────────────────────────────────────
 
+    # Sentinel timestamp used when an entry has no 'cached_at' field so that
+    # min() comparisons during eviction always produce a defined ordering.
+    _EPOCH = "1970-01-01T00:00:00+00:00"
+
     def _cache_put(self, cache: dict, key: str, value: dict) -> None:
         """Insert *value* into *cache*, evicting the oldest entry when full."""
         if len(cache) >= _CACHE_MAX_SIZE:
-            oldest = min(cache, key=lambda k: cache[k].get("cached_at", ""))
+            oldest = min(cache, key=lambda k: cache[k].get("cached_at", self._EPOCH))
             cache.pop(oldest, None)
         cache[key] = {**value, "cached_at": datetime.now(UTC).isoformat()}
 
@@ -122,7 +126,8 @@ class AIEventHandlers:
         if ndvi_value < 0.3:
             # TODO: Replace with ML model (crop-growth-model service or yield-prediction-service)
             # This linear approximation is a temporary placeholder only.
-            predicted_yield_tons = round(2.5 * ndvi_value * 100, 2)
+            # Capped at 15 t/ha to prevent obviously wrong values pending ML integration.
+            predicted_yield_tons = min(round(2.5 * ndvi_value * 100, 2), 15.0)
             prediction = {
                 "field_id": field_id,
                 "predicted_yield_tons": predicted_yield_tons,
@@ -257,10 +262,11 @@ class AIEventHandlers:
             ndvi_data = self._cache_get(self.ndvi_cache, field_id) or {"value": 0.5}
             # TODO: Replace with ML model (crop-growth-model service or yield-prediction-service)
             # This linear approximation is a temporary placeholder only.
+            # Capped at 15 t/ha to prevent obviously wrong values pending ML integration.
             result = {
                 "field_id": field_id,
                 "type": "yield",
-                "predicted_yield_tons": round(2.5 * ndvi_data["value"] * 100, 2),
+                "predicted_yield_tons": min(round(2.5 * ndvi_data["value"] * 100, 2), 15.0),
                 "confidence": 0.87,
                 "based_on": ["ndvi", "historical_data", "weather"],
                 "timestamp": datetime.now(UTC).isoformat(),

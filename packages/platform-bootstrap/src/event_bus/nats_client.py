@@ -60,7 +60,9 @@ class SAHOOLEventBus:
     """Singleton NATS JetStream event bus for SAHOOL platform."""
 
     _instance: Optional["SAHOOLEventBus"] = None
-    _lock: asyncio.Lock | None = None
+    # Class-level lock so all coroutines share one lock object.
+    # asyncio.Lock() is safe to create at import time in Python >=3.10.
+    _lock: asyncio.Lock = asyncio.Lock()
 
     def __init__(self) -> None:
         self.nc: NATS | None = None
@@ -69,10 +71,6 @@ class SAHOOLEventBus:
 
     @classmethod
     async def get_instance(cls) -> "SAHOOLEventBus":
-        if cls._lock is None:
-            # Lock is created lazily; safe in asyncio (single-threaded) because
-            # there is no await between the None check and the assignment.
-            cls._lock = asyncio.Lock()
         async with cls._lock:
             if cls._instance is None:
                 cls._instance = SAHOOLEventBus()

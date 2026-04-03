@@ -46,24 +46,38 @@ jobs:
 
       - name: Bandit (Security scan)
         run: |
-          bandit -r apps/services/ packages/ shared/ -c pyproject.toml -f json -o bandit-report.json --severity-level medium || true
+          # Run bandit; exit code 1 = findings exist (expected for LOW), other codes = real error
+          bandit -r apps/services/ packages/ shared/ -c pyproject.toml -f json -o bandit-report.json --severity-level medium; BANDIT_EXIT=$?
+          if [ "$BANDIT_EXIT" -gt 1 ]; then
+            echo "::error::Bandit encountered an execution error (exit code $BANDIT_EXIT)"
+            exit $BANDIT_EXIT
+          fi
+          # Verify report was generated
+          if [ ! -f bandit-report.json ]; then
+            echo "::error::bandit-report.json not generated"
+            exit 1
+          fi
           # Fail only if MEDIUM+ issues exist
-          MEDIUM_COUNT=$(python3 -c "import json; d=json.load(open('bandit-report.json')); print(len([r for r in d.get('results',[]) if r['issue_severity'] != 'LOW']))" 2>/dev/null || echo "0")
+          MEDIUM_COUNT=$(python3 -c "import json; d=json.load(open('bandit-report.json')); print(len([r for r in d.get('results',[]) if r['issue_severity'] != 'LOW']))")
           echo "Bandit MEDIUM+ findings: $MEDIUM_COUNT"
           if [ "$MEDIUM_COUNT" -gt 0 ]; then
             echo "::error::Found $MEDIUM_COUNT MEDIUM+ severity Bandit findings"
             exit 1
           fi
 
-      - name: Safety (Dependency check)
-        run: safety check -r requirements/base.txt || true
+      - name: Safety (Dependency vulnerability check — informational)
+        run: |
+          safety check -r requirements/base.txt -o json --save-json safety-report.json || true
+          echo "::notice::Safety check is informational only — review safety-report.json for details"
 
       - name: Upload security report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-scan-results
-          path: bandit-report.json
+          path: |
+            bandit-report.json
+            safety-report.json
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Stage 2: Build & Test

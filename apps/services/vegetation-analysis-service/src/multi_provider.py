@@ -596,13 +596,15 @@ class AgromonitoringProvider(SatelliteProvider):
                 "name": f"field_{lat:.4f}_{lon:.4f}",
                 "geo_json": {
                     "type": "Polygon",
-                    "coordinates": [[
-                        [lon - buffer, lat - buffer],
-                        [lon + buffer, lat - buffer],
-                        [lon + buffer, lat + buffer],
-                        [lon - buffer, lat + buffer],
-                        [lon - buffer, lat - buffer],
-                    ]],
+                    "coordinates": [
+                        [
+                            [lon - buffer, lat - buffer],
+                            [lon + buffer, lat - buffer],
+                            [lon + buffer, lat + buffer],
+                            [lon - buffer, lat + buffer],
+                            [lon - buffer, lat - buffer],
+                        ]
+                    ],
                 },
             }
             poly_resp = await client.post(
@@ -677,13 +679,15 @@ class AgromonitoringProvider(SatelliteProvider):
                     "name": f"ndvi_{field_id or 'default'}",
                     "geo_json": {
                         "type": "Polygon",
-                        "coordinates": [[
-                            [lon - buffer, lat - buffer],
-                            [lon + buffer, lat - buffer],
-                            [lon + buffer, lat + buffer],
-                            [lon - buffer, lat + buffer],
-                            [lon - buffer, lat - buffer],
-                        ]],
+                        "coordinates": [
+                            [
+                                [lon - buffer, lat - buffer],
+                                [lon + buffer, lat - buffer],
+                                [lon + buffer, lat + buffer],
+                                [lon - buffer, lat + buffer],
+                                [lon - buffer, lat - buffer],
+                            ]
+                        ],
                     },
                 },
             )
@@ -701,9 +705,7 @@ class AgromonitoringProvider(SatelliteProvider):
                 return None
 
             # Get NDVI stats
-            stats_resp = await client.get(
-                f"{self.BASE_URL}/ndvi?polyid={poly_id}&appid={self.api_key}"
-            )
+            stats_resp = await client.get(f"{self.BASE_URL}/ndvi?polyid={poly_id}&appid={self.api_key}")
 
             if stats_resp.status_code == 200:
                 data = stats_resp.json()
@@ -778,13 +780,15 @@ class PlanetLabsProvider(SatelliteProvider):
                                 "field_name": "geometry",
                                 "config": {
                                     "type": "Polygon",
-                                    "coordinates": [[
-                                        [lon - buffer, lat - buffer],
-                                        [lon + buffer, lat - buffer],
-                                        [lon + buffer, lat + buffer],
-                                        [lon - buffer, lat + buffer],
-                                        [lon - buffer, lat - buffer],
-                                    ]],
+                                    "coordinates": [
+                                        [
+                                            [lon - buffer, lat - buffer],
+                                            [lon + buffer, lat - buffer],
+                                            [lon + buffer, lat + buffer],
+                                            [lon - buffer, lat + buffer],
+                                            [lon - buffer, lat - buffer],
+                                        ]
+                                    ],
                                 },
                             },
                             {

@@ -123,7 +123,7 @@ function DrawingLayer({
 
 function DrawingLayerInner({
   mode,
-  vertices,
+  vertices: _vertices,
   onAddVertex,
   useMapEvents,
 }: {
@@ -154,7 +154,7 @@ function computeBbox(vertices: Vertex[]): [number, number, number, number] {
 function verticesToGeoJSON(vertices: Vertex[]): number[][][] {
   // GeoJSON Polygon: [[[lng, lat], ...]] — ring must be closed
   const ring = vertices.map((v) => [v.lng, v.lat]);
-  if (ring.length > 0) {
+  if (ring.length > 0 && ring[0]) {
     ring.push([...ring[0]]); // close the ring
   }
   return [ring];

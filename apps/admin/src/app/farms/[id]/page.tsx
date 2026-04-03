@@ -35,6 +35,53 @@ import {
 import { apiClient } from '@/lib/api';
 import type { BaseFarmData } from '@/components/maps/FarmsMap';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Weather / Agricultural data types
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface WeatherData {
+  temperature_c?: number;
+  condition?: string;
+  condition_ar?: string;
+  humidity_percent?: number;
+  humidity_pct?: number;
+  wind_speed_kmh?: number;
+  precipitation_mm?: number;
+  cloud_cover_pct?: number;
+  pressure_hpa?: number;
+  uv_index?: number;
+  [key: string]: unknown;
+}
+
+interface ForecastDay {
+  date?: string;
+  temp_max_c?: number;
+  temp_min_c?: number;
+  temperature_c?: number;
+  precipitation_mm?: number;
+  condition?: string;
+  condition_ar?: string;
+  [key: string]: unknown;
+}
+
+interface ForecastData {
+  daily?: ForecastDay[];
+  forecast?: ForecastDay[];
+  data?: ForecastDay[] | { forecast?: ForecastDay[] };
+  [key: string]: unknown;
+}
+
+interface AgReportData {
+  et0?: number;
+  evapotranspiration?: number | { et0?: number };
+  gdd?: number;
+  growing_degree_days?: number | { gdd?: number };
+  spray_window?: { suitable?: boolean; suitability?: string } | boolean;
+  spray_suitable?: boolean;
+  data?: AgReportData;
+  [key: string]: unknown;
+}
+
 // Dynamically import the map component (no SSR for Leaflet)
 const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
   ssr: false,
@@ -195,26 +242,29 @@ export default function FieldDetailPage() {
   const hasCoords = !!field?.coordinates;
 
   const {
-    data: weather,
+    data: weatherRaw,
     isLoading: weatherLoading,
     isError: weatherError,
     refetch: refetchWeather,
   } = useWeatherCurrent(lat, lng, fieldId);
+  const weather = ((weatherRaw as Record<string, unknown>)?.data ?? weatherRaw ?? {}) as WeatherData;
 
   const {
-    data: forecast,
+    data: forecastRaw,
     isLoading: forecastLoading,
     isError: forecastError,
     refetch: refetchForecast,
   } = useWeatherForecast(lat, lng, 7, fieldId);
+  const forecast = forecastRaw as ForecastData | null;
 
   // ── Agricultural report ─────────────────────────────────────────────────
   const {
-    data: agReport,
+    data: agRaw,
     isLoading: agLoading,
     isError: agError,
     refetch: refetchAg,
   } = useAgriculturalReport(lat, lng, fieldId);
+  const agReport = ((agRaw as Record<string, unknown>)?.data ?? agRaw ?? null) as AgReportData | null;
 
   // ── Map data ────────────────────────────────────────────────────────────
   const mapFarms: BaseFarmData[] = field
@@ -491,7 +541,7 @@ export default function FieldDetailPage() {
                     <Droplets className="w-4 h-4 text-blue-500 mx-auto mb-1" />
                     <p className="text-xs text-gray-500">الرطوبة</p>
                     <p className="text-sm font-semibold text-gray-800">
-                      {weather?.humidity_percent != null ? `${weather.humidity_percent}%` : '—'}
+                      {weather?.humidity_pct ?? weather?.humidity_percent != null ? `${weather.humidity_percent}%` : '—'}
                     </p>
                   </div>
                   <div className="bg-cyan-50 rounded-lg p-3 text-center">
@@ -548,9 +598,9 @@ export default function FieldDetailPage() {
               <div>
                 <p className="text-xs text-gray-500 mb-2">التوقعات - 7 أيام</p>
                 <div className="flex gap-2 overflow-x-auto pb-1">
-                  {(Array.isArray(forecast) ? forecast : forecast?.daily ?? [])
+                  {(Array.isArray(forecast) ? forecast : (forecast?.daily ?? forecast?.forecast ?? (forecast?.data as ForecastDay[] | undefined) ?? []))
                     .slice(0, 7)
-                    .map((day: any, i: number) => (
+                    .map((day: ForecastDay, i: number) => (
                       <div
                         key={i}
                         className="flex-shrink-0 w-16 bg-gray-50 rounded-lg p-2 text-center"
@@ -599,8 +649,8 @@ export default function FieldDetailPage() {
                     <p className="text-sm font-bold text-gray-800">
                       {agReport.et0 != null
                         ? `${Number(agReport.et0).toFixed(1)} مم`
-                        : (agReport as any).evapotranspiration != null
-                          ? `${Number((agReport as any).evapotranspiration).toFixed(1)} مم`
+                        : agReport.evapotranspiration != null
+                          ? `${Number(typeof agReport.evapotranspiration === 'object' ? (agReport.evapotranspiration as { et0?: number }).et0 : agReport.evapotranspiration).toFixed(1)} مم`
                           : '—'}
                     </p>
                   </div>
@@ -612,8 +662,8 @@ export default function FieldDetailPage() {
                     <p className="text-sm font-bold text-gray-800">
                       {agReport.gdd != null
                         ? `${Number(agReport.gdd).toFixed(0)}`
-                        : (agReport as any).growing_degree_days != null
-                          ? `${Number((agReport as any).growing_degree_days).toFixed(0)}`
+                        : agReport.growing_degree_days != null
+                          ? `${Number(typeof agReport.growing_degree_days === 'object' ? (agReport.growing_degree_days as { gdd?: number }).gdd : agReport.growing_degree_days).toFixed(0)}`
                           : '—'}
                     </p>
                   </div>
@@ -623,15 +673,12 @@ export default function FieldDetailPage() {
                     <Droplets className="w-4 h-4 text-sky-500 mx-auto mb-1" />
                     <p className="text-[10px] text-gray-500">نافذة الرش</p>
                     <p className="text-sm font-bold text-gray-800">
-                      {agReport.spray_window != null
-                        ? agReport.spray_window
-                          ? 'مناسبة'
-                          : 'غير مناسبة'
-                        : (agReport as any).sprayWindow != null
-                          ? (agReport as any).sprayWindow
-                            ? 'مناسبة'
-                            : 'غير مناسبة'
-                          : '—'}
+                      {(() => {
+                        const sw = agReport.spray_window ?? agReport.spray_suitable;
+                        if (sw == null) return '—';
+                        const ok = typeof sw === 'object' ? (sw as { suitable?: boolean }).suitable : sw;
+                        return ok ? 'مناسبة' : 'غير مناسبة';
+                      })()}
                     </p>
                   </div>
                 </div>

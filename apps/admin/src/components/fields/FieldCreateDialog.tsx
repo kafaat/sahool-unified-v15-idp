@@ -133,10 +133,6 @@ export default function FieldCreateDialog({
     }
   }, [open]);
 
-  const handleBoundaryChange = useCallback((data: BoundaryData | null) => {
-    setBoundary(data);
-  }, []);
-
   // Adapters for DrawableMap's separate callbacks
   const boundaryRef = useRef<Partial<BoundaryData>>({});
 

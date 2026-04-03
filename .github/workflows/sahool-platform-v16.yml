@@ -45,10 +45,10 @@ jobs:
         run: ruff check apps/services/ packages/ shared/
 
       - name: Bandit (Security scan)
-        run: bandit -r apps/services/ packages/ shared/ -f json -o bandit-report.json || true
+        run: bandit -r apps/services/ packages/ shared/ -f json -o bandit-report.json
 
       - name: Safety (Dependency check)
-        run: safety check -r requirements/base.txt || true
+        run: safety check -r requirements/base.txt
 
       - name: Upload security report
         uses: actions/upload-artifact@v4

@@ -541,7 +541,9 @@ export default function FieldDetailPage() {
                     <Droplets className="w-4 h-4 text-blue-500 mx-auto mb-1" />
                     <p className="text-xs text-gray-500">الرطوبة</p>
                     <p className="text-sm font-semibold text-gray-800">
-                      {weather?.humidity_pct ?? weather?.humidity_percent != null ? `${weather.humidity_percent}%` : '—'}
+                      {(weather?.humidity_pct ?? weather?.humidity_percent) != null
+                        ? `${weather?.humidity_pct ?? weather?.humidity_percent}%`
+                        : '—'}
                     </p>
                   </div>
                   <div className="bg-cyan-50 rounded-lg p-3 text-center">

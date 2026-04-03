@@ -23,15 +23,22 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get('action');
     const fieldId = searchParams.get('fieldId');
     const days = searchParams.get('days') || '90';
+    const lat = searchParams.get('lat');
+    const lon = searchParams.get('lon');
 
     let path: string;
     switch (action) {
-      case 'indices':
+      case 'indices': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
         }
-        path = `/v1/indices/${fieldId}`;
+        const params = new URLSearchParams();
+        if (lat) params.set('lat', lat);
+        if (lon) params.set('lon', lon);
+        const qs = params.toString();
+        path = `/v1/indices/${fieldId}${qs ? `?${qs}` : ''}`;
         break;
+      }
       case 'timeseries':
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });

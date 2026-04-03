@@ -40,7 +40,7 @@ DEFAULT_TENANT = "a0000000-0000-0000-0000-000000000001"
 
 
 def _hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()  # noqa: S324 — test-only mock, not production
+    return hashlib.sha256(password.encode()).hexdigest()  # nosec B324 — test-only mock, not production
 
 
 def _make_jwt(user_id: str, email: str, roles: list[str], tenant_id: str) -> str:
@@ -395,7 +395,7 @@ async def weather_forecast(request: Request):
 
 @weather_app.post("/weather/agricultural-report")
 async def weather_agri_report(request: Request):
-    body = await request.json()
+    await request.json()  # consume body (lat/lon/tenant_id)
     temp = random.uniform(22, 35)
     humidity = random.uniform(30, 60)
     wind = random.uniform(5, 20)
@@ -422,7 +422,6 @@ async def weather_agri_report(request: Request):
 async def weather_et0(request: Request):
     body = await request.json()
     temp = body.get("temperature_c", 28)
-    humidity = body.get("humidity_pct", 45)
     et0 = round((0.0023 * (temp + 17.8) * ((temp + 5) ** 0.5) * 15), 2)
     return {"et0": et0, "classification": "moderate" if et0 < 6 else "high", "unit": "mm/day"}
 

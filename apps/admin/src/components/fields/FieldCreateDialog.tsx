@@ -121,6 +121,9 @@ export default function FieldCreateDialog({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, isSubmitting, onClose]);
 
+  // Ref for accumulating boundary data from DrawableMap callbacks
+  const boundaryRef = useRef<Partial<BoundaryData>>({});
+
   // Reset form when dialog opens
   useEffect(() => {
     if (open) {
@@ -133,9 +136,6 @@ export default function FieldCreateDialog({
       boundaryRef.current = {};
     }
   }, [open]);
-
-  // Adapters for DrawableMap's separate callbacks
-  const boundaryRef = useRef<Partial<BoundaryData>>({});
 
   const handleBboxSelect = useCallback((bbox: [number, number, number, number]) => {
     boundaryRef.current.bbox = bbox;

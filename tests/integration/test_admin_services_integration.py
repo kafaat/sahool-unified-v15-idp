@@ -114,23 +114,22 @@ async def async_client() -> httpx.AsyncClient:
 # ---------------------------------------------------------------------------
 
 
-async def _get_or_skip(client: httpx.AsyncClient, url: str, **kwargs):
+async def _get_or_skip(client: httpx.AsyncClient, url: str, **kwargs) -> httpx.Response:
     """Issue GET; skip test if connection refused."""
     try:
-        resp = await client.get(url, **kwargs)
+        return await client.get(url, **kwargs)
     except (httpx.ConnectError, httpx.ConnectTimeout):
         pytest.skip(f"Service unreachable: {url}")
-        return None  # unreachable, satisfies type checker
-    return resp
+        raise  # unreachable — pytest.skip raises, but this satisfies linters
 
 
-async def _post_or_skip(client: httpx.AsyncClient, url: str, **kwargs):
+async def _post_or_skip(client: httpx.AsyncClient, url: str, **kwargs) -> httpx.Response:
     """Issue POST; skip test if connection refused."""
     try:
-        resp = await client.post(url, **kwargs)
+        return await client.post(url, **kwargs)
     except (httpx.ConnectError, httpx.ConnectTimeout):
         pytest.skip(f"Service unreachable: {url}")
-        return None  # unreachable, satisfies type checker
+        raise  # unreachable — pytest.skip raises, but this satisfies linters
     return resp
 
 

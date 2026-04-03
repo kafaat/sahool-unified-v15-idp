@@ -324,7 +324,9 @@ async def main():
     except httpx.ConnectError:
         print("\n❌ Error: Could not connect to vegetation analysis service.")
         print("   Make sure the service is running on http://localhost:8090")
-        print("   Start it with: cd apps/services/vegetation-analysis-service && python -m uvicorn src.main:app --port 8090\n")
+        print(
+            "   Start it with: cd apps/services/vegetation-analysis-service && python -m uvicorn src.main:app --port 8090\n"
+        )
     except Exception as e:
         print(f"\n❌ Error: {e}\n")
 

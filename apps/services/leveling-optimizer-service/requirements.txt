@@ -12,18 +12,18 @@ starlette==0.52.1
 # HTTP client (for potential external calls)
 httpx==0.28.1
 # Database (optional)
-asyncpg==0.30.0,<1.0.0
+asyncpg>=0.30.0,<1.0.0
 # Message queue (optional)
 nats-py==2.14.0
 # Logging
 structlog==25.5.0
 # Scientific computing for algorithms
-numpy==1.26.0,<2.5.0  # Compatible with TensorFlow 2.20.0
+numpy>=1.26.0,<2.5.0  # Compatible with TensorFlow 2.20.0
 # Geospatial (optional, for advanced features)
 # shapely==2.1.2
 # Testing
 pytest==8.4.2
 pytest-asyncio==0.26.0
-pytest-cov==6.0.0
+pytest-cov>=6.0.0
 # Development
 ruff==0.15.8

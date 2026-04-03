@@ -4,35 +4,35 @@
 
 # Base requirements (inlined from requirements/base.txt)
 fastapi==0.135.2
-starlette==0.49.1
+starlette>=0.49.1
 uvicorn[standard]==0.42.0
 pydantic==2.12.5
 httpx==0.28.1
 python-dotenv==1.2.2
 
 # Authentication
-PyJWT==2.10.1,<3.0.0  # CVE-2024-53861
-cryptography==44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
+PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861
+cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
 
 # Redis (required by shared.auth token revocation)
-redis==7.1.0,<8.0.0
+redis>=7.1.0,<8.0.0
 
 # Service-specific dependencies
 python-multipart==0.0.22
 
 # Database dependencies - قاعدة البيانات
 sqlalchemy==2.0.48
-psycopg2-binary==2.9.0
-alembic==1.13.0
-greenlet==3.0.0
+psycopg2-binary>=2.9.0
+alembic>=1.13.0
+greenlet>=3.0.0
 
-structlog==24.1.0
+structlog>=24.1.0
 
 # Password hashing (shared.auth fallback)
-bcrypt==4.0.0,<6.0.0
+bcrypt>=4.0.0,<6.0.0
 
 # 2FA/MFA support (shared.auth.twofa_service)
-pyotp==2.8.0,<3.0.0
+pyotp>=2.8.0,<3.0.0
 
 # NATS messaging
 nats-py==2.14.0

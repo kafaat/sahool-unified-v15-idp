@@ -4,7 +4,7 @@
 
 # Web Framework
 fastapi==0.135.2
-starlette==0.49.1
+starlette>=0.49.1
 uvicorn[standard]==0.42.0
 python-multipart==0.0.22
 
@@ -13,22 +13,22 @@ pydantic==2.12.5
 pydantic-settings==2.13.1
 
 # Authentication
-PyJWT==2.10.1,<3.0.0  # CVE-2024-53861
-cryptography==44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
+PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861
+cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f, GHSA-9v9h-cgj8-h64p
 
 # Redis (required by shared.auth token revocation)
-redis==7.1.0,<8.0.0
+redis>=7.1.0,<8.0.0
 
 # HTTP Client (for weather integration)
 httpx==0.28.1
-aiohttp==3.13.3  # Security fix
+aiohttp>=3.13.3  # Security fix
 
 # Date/Time utilities
 python-dateutil==2.9.0.post0
 
 # NumPy for advanced calculations
 # Note: Pinned to <2.1.0 for TensorFlow compatibility across services
-numpy==1.26.0,<2.5.0
+numpy>=1.26.0,<2.5.0
 
 # Testing
 pytest==8.4.2
@@ -37,7 +37,7 @@ pytest-asyncio==0.26.0
 # Utilities
 python-dotenv==1.2.2
 
-structlog==24.1.0
+structlog>=24.1.0
 
 # Metrics
 prometheus-client==0.24.1

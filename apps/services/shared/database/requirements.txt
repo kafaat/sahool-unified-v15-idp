@@ -5,12 +5,12 @@
 sqlalchemy==2.0.46
 
 # PostgreSQL drivers
-psycopg2-binary==2.9.0  # Synchronous driver
-asyncpg==0.30.0         # Async driver
+psycopg2-binary>=2.9.0  # Synchronous driver
+asyncpg>=0.30.0         # Async driver
 
 # Alembic for migrations
-alembic==1.13.0
+alembic>=1.13.0
 
 # Connection pooling (included in SQLAlchemy)
 # greenlet for async support
-greenlet==3.0.0
+greenlet>=3.0.0

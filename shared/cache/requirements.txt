@@ -2,10 +2,10 @@
 # ====================================
 
 # Redis client with Sentinel support
-redis==7.1.0,<8.0.0
+redis>=7.1.0,<8.0.0
 
 # Optional: hiredis for better performance
-hiredis==2.2.0,<3.0.0
+hiredis>=2.2.0,<3.0.0
 
 # Type hints support
-typing-extensions==4.5.0
+typing-extensions>=4.5.0

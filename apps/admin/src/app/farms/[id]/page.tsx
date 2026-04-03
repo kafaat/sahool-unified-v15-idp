@@ -7,7 +7,7 @@
  */
 
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
   MapPin,
@@ -212,37 +212,7 @@ export default function FieldDetailPage() {
     refetch: refetchField,
   } = useField(fieldId);
 
-  // ── NDVI / Satellite data (inline fetch) ────────────────────────────────
-  const [ndvi, setNdvi] = useState<NdviData | null>(null);
-  const [ndviLoading, setNdviLoading] = useState(true);
-  const [ndviError, setNdviError] = useState(false);
-
-  const fetchNdvi = async () => {
-    if (!fieldId) return;
-    setNdviLoading(true);
-    setNdviError(false);
-    try {
-      // Use internal satellite proxy route (server-side, bypasses CORS)
-      const response = await fetch(
-        `/api/satellite?action=indices&fieldId=${fieldId}${lat ? `&lat=${lat}` : ''}${lng ? `&lon=${lng}` : ''}`,
-      );
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      setNdvi(data?.data ?? data);
-    } catch {
-      setNdviError(true);
-    } finally {
-      setNdviLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNdvi();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fieldId]);
-
-  // ── Weather data ────────────────────────────────────────────────────────
-  // Use field coordinates if available, otherwise derive center from boundary
+  // ── Coordinates (must be computed before NDVI/Weather hooks) ─────────────
   const lat = field?.coordinates?.lat
     ?? (field?.boundary?.[0]
       ? field.boundary[0].reduce((s: number, c: number[]) => s + (c[1] ?? 0), 0) / field.boundary[0].length
@@ -252,6 +222,36 @@ export default function FieldDetailPage() {
       ? field.boundary[0].reduce((s: number, c: number[]) => s + (c[0] ?? 0), 0) / field.boundary[0].length
       : 0);
   const hasCoords = lat !== 0 || lng !== 0;
+
+  // ── NDVI / Satellite data ──────────────────────────────────────────────
+  const [ndvi, setNdvi] = useState<NdviData | null>(null);
+  const [ndviLoading, setNdviLoading] = useState(true);
+  const [ndviError, setNdviError] = useState(false);
+
+  const fetchNdvi = useCallback(async () => {
+    if (!fieldId) return;
+    setNdviLoading(true);
+    setNdviError(false);
+    try {
+      const params = new URLSearchParams({ action: 'indices', fieldId });
+      if (lat) params.set('lat', String(lat));
+      if (lng) params.set('lon', String(lng));
+      const response = await fetch(`/api/satellite?${params}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      setNdvi(data?.data ?? data);
+    } catch {
+      setNdviError(true);
+    } finally {
+      setNdviLoading(false);
+    }
+  }, [fieldId, lat, lng]);
+
+  useEffect(() => {
+    fetchNdvi();
+  }, [fetchNdvi]);
+
+  // ── Weather data ────────────────────────────────────────────────────────
 
   const {
     data: weatherRaw,

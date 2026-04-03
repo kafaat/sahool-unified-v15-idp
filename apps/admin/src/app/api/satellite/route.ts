@@ -26,6 +26,14 @@ export async function GET(request: NextRequest) {
     const lat = searchParams.get('lat');
     const lon = searchParams.get('lon');
 
+    // Validate coordinates if provided
+    if (lat && (isNaN(Number(lat)) || Number(lat) < -90 || Number(lat) > 90)) {
+      return NextResponse.json({ error: 'lat must be between -90 and 90' }, { status: 400 });
+    }
+    if (lon && (isNaN(Number(lon)) || Number(lon) < -180 || Number(lon) > 180)) {
+      return NextResponse.json({ error: 'lon must be between -180 and 180' }, { status: 400 });
+    }
+
     let path: string;
     switch (action) {
       case 'indices': {
@@ -77,7 +85,10 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json({ error: 'Satellite service timeout. Please retry.' }, { status: 504 });
+    }
     console.error('Satellite API proxy error:', error);
     return NextResponse.json({ error: 'Failed to fetch satellite data' }, { status: 502 });
   }
@@ -120,7 +131,10 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json({ error: 'Satellite analysis timeout. Please retry.' }, { status: 504 });
+    }
     console.error('Satellite analyze proxy error:', error);
     return NextResponse.json({ error: 'Failed to analyze satellite data' }, { status: 502 });
   }

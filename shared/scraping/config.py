@@ -6,6 +6,8 @@ user agents, timeouts, retry settings, and rate limiting parameters.
 
 from __future__ import annotations
 
+import os
+import tempfile
 from dataclasses import dataclass, field
 
 # Common user agents for rotation
@@ -191,7 +193,7 @@ class ScrapingConfig:
     screenshot_on_error: bool = True
 
     # Screenshot directory
-    screenshot_dir: str = "/tmp/scraping_screenshots"
+    screenshot_dir: str = os.path.join(tempfile.gettempdir(), "scraping_screenshots")
 
 
 # Default configuration instance

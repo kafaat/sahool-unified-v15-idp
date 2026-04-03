@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import tempfile
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -939,10 +940,12 @@ def get_audit_logger(tenant_id: str = "sahool") -> AuditTrailLogger:
     """
     global _global_logger
     if _global_logger is None or _global_logger.tenant_id != tenant_id:
-        # Default to /var/lib/sahool in production, /tmp for development only
+        # Default to /var/lib/sahool in production, tempdir for development only
         default_path = (
-            "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"
-        )  # nosec B108
+            "/var/lib/sahool/audit_trail"
+            if os.getenv("ENVIRONMENT") == "production"
+            else os.path.join(tempfile.gettempdir(), "sahool_audit_trail")
+        )
         storage_path = os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         _global_logger = AuditTrailLogger(tenant_id=tenant_id, storage_path=storage_path)
     return _global_logger

@@ -24,7 +24,7 @@ else
     echo -e "${RED}✗ Service not running!${NC}"
     echo ""
     echo "Please start the service first:"
-    echo "  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service"
+    echo "  cd /home/user/sahool-unified-v15-idp/apps/services/vegetation-analysis-service"
     echo "  python -m src.main"
     exit 1
 fi

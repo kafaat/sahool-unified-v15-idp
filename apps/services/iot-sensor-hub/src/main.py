@@ -861,4 +861,4 @@ async def list_sensor_types():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)  # nosec B104 - binding to all interfaces required for Docker container

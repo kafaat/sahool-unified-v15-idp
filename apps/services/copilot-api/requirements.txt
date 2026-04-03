@@ -14,10 +14,10 @@ aiohttp>=3.13.3  # CVE-2025-53643 (zip bomb), CVE-2025-69223
 # Async Support
 asyncio-throttle>=1.0.0
 # Vector Database
-qdrant-client>=1.7.0,<2.0.0
+qdrant-client>=1.9.0,<2.0.0  # CVE-2024-3829 (input validation) fixed in 1.9.0
 # Embeddings (local, offline-first)
 sentence-transformers>=2.2.0,<6.0.0
-torch>=2.2.0,<2.7.0
+torch>=2.6.0,<2.7.0  # CVE-2025-32434 (CRITICAL) fixed in 2.6.0
 # Scientific Computing (required by torch/sentence-transformers)
 numpy>=1.26.0,<2.5.0
 # Caching & Message Queue

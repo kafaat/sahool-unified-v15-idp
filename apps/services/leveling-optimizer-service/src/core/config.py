@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # Server
-    HOST: str = "0.0.0.0"
+    HOST: str = "0.0.0.0"  # nosec B104 - default for containerized deployment, overridden by env
     PORT: int = 8170
 
     # Database

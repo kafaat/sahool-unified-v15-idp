@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "example_integration:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - example code
         port=3000,
         reload=True,
         log_level="info",

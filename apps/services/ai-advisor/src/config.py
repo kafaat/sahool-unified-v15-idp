@@ -47,6 +47,7 @@ class Settings(BaseSettings):
     weather_core_url: str = "http://weather-service:8092"
     satellite_service_url: str = "http://vegetation-analysis-service:8090"
     agro_advisor_url: str = "http://advisory-service:8093"
+    yield_prediction_url: str = "http://yield-prediction-service:8152"
 
     # Qdrant Vector Database | قاعدة بيانات المتجهات Qdrant
     qdrant_host: str = "qdrant"

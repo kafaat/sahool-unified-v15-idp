@@ -58,11 +58,11 @@ chromadb>=0.4.0,<2.0.0  # Alternative vector DB
 # ─────────────────────────────────────────────────────────────────────────────
 # NOTE: torch/torchvision versions vary per service due to framework compatibility.
 # Each service pins its own version in Dockerfile or requirements.txt:
-#   - yolo26-vision-service: torch==2.2.0, torchvision==0.17.0 (ultralytics 8.x compat)
-#   - copilot-api: torch>=2.2.0,<2.7.0 (sentence-transformers compat)
-#   - Default (new AI services): torch>=2.2.0,<3.0.0
+#   - yolo26-vision-service: torch>=2.6.0,<2.7.0 (ultralytics 8.x compat, CVE-2025-32434)
+#   - copilot-api: torch>=2.6.0,<2.7.0 (sentence-transformers compat, CVE-2025-32434)
+#   - Default (new AI services): torch>=2.6.0,<3.0.0
 # Do NOT use exact pins here — they conflict with per-service needs.
-torch>=2.2.0,<3.0.0
+torch>=2.6.0,<3.0.0  # CVE-2025-32434 (CRITICAL) fixed in 2.6.0
 torchvision>=0.17.0,<1.0.0
 numpy>=1.26.0,<2.0.0  # Pin <2.0 to prevent compiled module mismatch (torch, transformers built against 1.x)
 pandas>=2.2.0,<4.0.0

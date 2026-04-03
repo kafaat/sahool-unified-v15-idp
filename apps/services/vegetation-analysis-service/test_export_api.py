@@ -2,7 +2,7 @@
 """
 Integration test for SAHOOL Data Export API endpoints
 
-Run the satellite service first:
+Run the vegetation-analysis-service first:
     python src/main.py
 
 Then run this test:
@@ -212,6 +212,7 @@ def test_error_handling():
     response = requests.get(
         f"{BASE_URL}/v1/export/analysis/FIELD_001",
         params={"lat": 15.3694, "lon": 44.1910, "format": "invalid"},
+        timeout=30,
     )
     print(f"  Status: {response.status_code}")
     print(f"  Message: {response.json().get('detail')}")
@@ -227,6 +228,7 @@ def test_error_handling():
             "end_date": "2023-12-15",
             "format": "csv",
         },
+        timeout=30,
     )
     print(f"  Status: {response.status_code}")
     if response.status_code != 200:
@@ -234,7 +236,7 @@ def test_error_handling():
 
     # Test missing parameters
     print("\n3. Missing required parameters:")
-    response = requests.get(f"{BASE_URL}/v1/export/boundaries")
+    response = requests.get(f"{BASE_URL}/v1/export/boundaries", timeout=30)
     print(f"  Status: {response.status_code}")
     if response.status_code != 200:
         print(f"  Message: {response.json().get('detail')}")
@@ -245,13 +247,13 @@ def check_service():
     try:
         response = requests.get(f"{BASE_URL}/healthz", timeout=5)
         if response.status_code == 200:
-            print("✓ Satellite service is running")
+            print("✓ Vegetation analysis service is running")
             return True
         else:
-            print("✗ Satellite service returned non-200 status")
+            print("✗ Vegetation analysis service returned non-200 status")
             return False
     except requests.exceptions.ConnectionError:
-        print("✗ Cannot connect to satellite service")
+        print("✗ Cannot connect to vegetation analysis service")
         print(f"  Make sure the service is running on {BASE_URL}")
         print("  Start it with: python src/main.py")
         return False
@@ -267,8 +269,8 @@ if __name__ == "__main__":
 
     # Check if service is running
     if not check_service():
-        print("\nPlease start the satellite service first:")
-        print("  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service")
+        print("\nPlease start the vegetation-analysis-service first:")
+        print("  cd /home/user/sahool-unified-v15-idp/apps/services/vegetation-analysis-service")
         print("  python src/main.py")
         exit(1)
 

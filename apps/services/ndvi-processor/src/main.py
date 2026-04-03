@@ -625,6 +625,6 @@ async def download_composite(
 if __name__ == "__main__":
     import uvicorn
 
-    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- Binding to all interfaces required for Docker
+    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- Binding to all interfaces required for Docker  # nosec B104 - binding to all interfaces required for Docker container
     port = int(os.getenv("PORT", 8118))
     uvicorn.run(app, host=host, port=port)

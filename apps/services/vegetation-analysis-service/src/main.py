@@ -358,7 +358,7 @@ async def lifespan(app: FastAPI):
         _land_detector, \
         _boundary_detector
 
-    logger.info("service_starting", service="satellite-service")
+    logger.info("service_starting", service="vegetation-analysis-service")
 
     # Initialize multi-provider service
     if USE_MULTI_PROVIDER and MultiSatelliteService:
@@ -418,12 +418,12 @@ async def lifespan(app: FastAPI):
     if _vra_generator:
         register_vra_endpoints(app, _vra_generator)
 
-    logger.info("service_ready", service="satellite-service", port=8090)
+    logger.info("service_ready", service="vegetation-analysis-service", port=8090)
 
     yield
 
     # Cleanup
-    logger.info("service_shutting_down", service="satellite-service")
+    logger.info("service_shutting_down", service="vegetation-analysis-service")
     if _multi_provider:
         try:
             await _multi_provider.close()
@@ -434,7 +434,7 @@ async def lifespan(app: FastAPI):
             await _sar_processor.close()
         except Exception as e:
             logger.warning(f"Error closing SAR processor: {e}")
-    logger.info("service_shutdown_complete", service="satellite-service")
+    logger.info("service_shutdown_complete", service="vegetation-analysis-service")
 
 
 app = FastAPI(
@@ -1254,7 +1254,7 @@ def _create_satellite_action_template(
         "description_ar": " | ".join(analysis.recommendations_ar),
         "description_en": " | ".join(analysis.recommendations_en),
         "summary_ar": f"صحة الحقل: {analysis.health_status} (NDVI: {analysis.indices.ndvi})",
-        "source_service": "satellite-service",
+        "source_service": "vegetation-analysis-service",
         "source_analysis_type": "satellite_vegetation_analysis",
         "confidence": round(analysis.health_score / 100, 2),
         "urgency": urgency,
@@ -1327,7 +1327,7 @@ async def analyze_field_with_action(
         try:
             publish_analysis_completed_sync(
                 event_type="satellite.analysis_completed",
-                source_service="satellite-service",
+                source_service="vegetation-analysis-service",
                 field_id=request.field_id,
                 data=action_template.get("data", {}),
                 action_template=action_template,
@@ -2006,7 +2006,7 @@ async def analyze_phenology_with_action(
         try:
             publish_analysis_completed_sync(
                 event_type="phenology.stage_detected",
-                source_service="satellite-service",
+                source_service="vegetation-analysis-service",
                 field_id=request.field_id,
                 data={
                     "crop_type": result.crop_type,
@@ -2126,7 +2126,7 @@ def _create_phenology_action_template(
         "description_ar": " | ".join(result.recommendations_ar),
         "description_en": " | ".join(result.recommendations_en),
         "summary_ar": f"المحصول في مرحلة {stage.label_ar} - تقدم الموسم: {result.season_progress_percent:.0f}%",
-        "source_service": "satellite-service",
+        "source_service": "vegetation-analysis-service",
         "source_analysis_type": "phenology_detection",
         "confidence": result.confidence,
         "urgency": urgency,
@@ -4343,4 +4343,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8090))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

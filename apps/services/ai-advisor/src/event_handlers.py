@@ -8,9 +8,11 @@ predictions and publish advisory recommendations.
 
 import asyncio
 import json
+import os
 from datetime import UTC, datetime
 from typing import Any
 
+import httpx
 import structlog
 
 logger = structlog.get_logger()
@@ -27,6 +29,14 @@ class AIEventHandlers:
         self.bus = None
         self.ndvi_cache: dict[str, dict[str, Any]] = {}
         self.weather_cache: dict[str, dict[str, Any]] = {}
+        # Load from Settings to avoid config drift with config.py
+        try:
+            from src.config import settings
+
+            self._yield_prediction_url = settings.yield_prediction_url
+        except Exception:
+            self._yield_prediction_url = os.getenv("YIELD_PREDICTION_URL", "http://yield-prediction-service:8152")
+        self._http_timeout = 10.0
 
     # ── Cache helpers ────────────────────────────────────────────────────────
 
@@ -53,6 +63,51 @@ class AIEventHandlers:
                 cache.pop(key, None)
                 return None
         return entry
+
+    # ── ML service helpers ───────────────────────────────────────────────────
+
+    async def _fetch_yield_prediction(self, field_id: str, ndvi_value: float) -> dict[str, Any] | None:
+        """Call yield-prediction-service for an ML-based yield estimate.
+
+        Falls back to None on any error so callers can use hardcoded defaults.
+        """
+        try:
+            async with httpx.AsyncClient(timeout=self._http_timeout) as client:
+                response = await client.post(
+                    f"{self._yield_prediction_url}/api/v1/predict",
+                    json={"field_id": field_id, "ndvi_value": ndvi_value},
+                )
+                response.raise_for_status()
+                data = response.json()
+                logger.info(
+                    "yield_prediction_service_ok",
+                    field_id=field_id,
+                    status=response.status_code,
+                )
+                return data
+        except httpx.HTTPStatusError as exc:
+            logger.warning(
+                "yield_prediction_service_http_error",
+                field_id=field_id,
+                status=exc.response.status_code,
+                detail=str(exc),
+            )
+        except Exception as exc:
+            logger.warning(
+                "yield_prediction_service_unavailable",
+                field_id=field_id,
+                error=str(exc),
+            )
+        return None
+
+    @staticmethod
+    def _fallback_yield(ndvi_value: float) -> dict[str, Any]:
+        """Hardcoded linear approximation used when the ML service is unreachable."""
+        return {
+            "predicted_yield_tons": min(round(2.5 * ndvi_value * 100, 2), 15.0),
+            "confidence": 0.65,
+            "model_source": "fallback_linear",
+        }
 
     # ── Initialisation ───────────────────────────────────────────────────────
 
@@ -128,14 +183,25 @@ class AIEventHandlers:
 
         # Trigger real-time prediction if low vegetation detected
         if ndvi_value < 0.3:
-            # TODO: Replace with ML model (crop-growth-model service or yield-prediction-service)
-            # This linear approximation is a temporary placeholder only.
-            # Capped at 15 t/ha to prevent obviously wrong values pending ML integration.
-            predicted_yield_tons = min(round(2.5 * ndvi_value * 100, 2), 15.0)
+            ml_result = await self._fetch_yield_prediction(field_id, ndvi_value)
+            if ml_result is not None:
+                predicted_yield_tons = ml_result.get(
+                    "predicted_yield_tons",
+                    self._fallback_yield(ndvi_value)["predicted_yield_tons"],
+                )
+                confidence = ml_result.get("confidence", 0.85)
+                model_source = "yield-prediction-service"
+            else:
+                fb = self._fallback_yield(ndvi_value)
+                predicted_yield_tons = fb["predicted_yield_tons"]
+                confidence = fb["confidence"]
+                model_source = fb["model_source"]
+
             prediction = {
                 "field_id": field_id,
                 "predicted_yield_tons": predicted_yield_tons,
-                "confidence": 0.85,
+                "confidence": confidence,
+                "model_source": model_source,
                 "factors": ["low_ndvi", "irrigation_needed"],
                 "actions": ["increase_irrigation", "check_sensors"],
             }
@@ -264,14 +330,28 @@ class AIEventHandlers:
 
         if prediction_type == "yield":
             ndvi_data = self._cache_get(self.ndvi_cache, field_id) or {"value": 0.5}
-            # TODO: Replace with ML model (crop-growth-model service or yield-prediction-service)
-            # This linear approximation is a temporary placeholder only.
-            # Capped at 15 t/ha to prevent obviously wrong values pending ML integration.
+            ndvi_value = ndvi_data["value"]
+
+            ml_result = await self._fetch_yield_prediction(field_id, ndvi_value)
+            if ml_result is not None:
+                predicted_yield_tons = ml_result.get(
+                    "predicted_yield_tons",
+                    self._fallback_yield(ndvi_value)["predicted_yield_tons"],
+                )
+                confidence = ml_result.get("confidence", 0.87)
+                model_source = "yield-prediction-service"
+            else:
+                fb = self._fallback_yield(ndvi_value)
+                predicted_yield_tons = fb["predicted_yield_tons"]
+                confidence = fb["confidence"]
+                model_source = fb["model_source"]
+
             result = {
                 "field_id": field_id,
                 "type": "yield",
-                "predicted_yield_tons": min(round(2.5 * ndvi_data["value"] * 100, 2), 15.0),
-                "confidence": 0.87,
+                "predicted_yield_tons": predicted_yield_tons,
+                "confidence": confidence,
+                "model_source": model_source,
                 "based_on": ["ndvi", "historical_data", "weather"],
                 "timestamp": datetime.now(UTC).isoformat(),
             }

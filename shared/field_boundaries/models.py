@@ -329,7 +329,7 @@ class FieldBoundary(BaseModel):
             $11, $12,
             $13, $14
         );
-        """
+        """  # nosec B608 - table_name is an application constant per caller contract
 
         params = [
             self.id,

@@ -33,7 +33,7 @@ class TestSettings:
         assert s.service_name_ar == "خدمة الهيدرولوجيا"
         assert s.version == "16.0.0"
         assert s.port == 8165
-        assert s.host == "0.0.0.0"
+        assert s.host == "0.0.0.0"  # nosec B104 - test configuration
         assert s.debug is False
         assert s.log_level == "INFO"
 

@@ -124,7 +124,7 @@ from shared.mcp.server import MCPServer
 
 # Configuration
 PORT = int(os.getenv("MCP_SERVER_PORT", "8201"))
-HOST = os.getenv("MCP_SERVER_HOST", "0.0.0.0")
+HOST = os.getenv("MCP_SERVER_HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker container
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 SAHOOL_API_URL = os.getenv("SAHOOL_API_URL", "http://localhost:8000")
 

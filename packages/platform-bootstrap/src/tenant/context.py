@@ -63,9 +63,7 @@ class TenantContext:
             _tenant_context.reset(self.token)
         if self._conn is not None:
             try:
-                await self._conn.execute(
-                    "SELECT set_config('app.current_tenant', '', false)"
-                )
+                await self._conn.execute("SELECT set_config('app.current_tenant', '', false)")
             finally:
                 await self.db_pool.release(self._conn)
                 self._conn = None

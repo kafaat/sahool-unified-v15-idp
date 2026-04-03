@@ -20,7 +20,7 @@ def _test_env(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "")
     monkeypatch.setenv("NATS_URL", "")
     monkeypatch.setenv("REDIS_URL", "")
-    monkeypatch.setenv("MODEL_BASE_PATH", "/tmp/yolo26-test-models")
+    monkeypatch.setenv("MODEL_BASE_PATH", "/tmp/yolo26-test-models")  # nosec B108 - test env var for model path
     monkeypatch.setenv("DEVICE", "cpu")
     monkeypatch.setenv("HALF_PRECISION", "false")
     monkeypatch.setenv("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")

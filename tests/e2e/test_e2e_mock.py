@@ -13,18 +13,15 @@ Usage:
 
 from __future__ import annotations
 
-import sys
 import time
 import uuid
-from pathlib import Path
 
 import httpx
 import pytest
 
 # Ensure project root is on path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from tests.e2e.mock_services import start_all_servers
+from .mock_services import start_all_servers
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration

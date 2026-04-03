@@ -9,8 +9,6 @@ ai-advisor, inventory.
 
 from __future__ import annotations
 
-import math
-import os
 import random
 import threading
 import time
@@ -19,7 +17,7 @@ from datetime import UTC, datetime, timedelta
 
 import httpx
 import uvicorn
-from fastapi import FastAPI, HTTPException, Header, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 # ═══════════════════════════════════════════════════════════════════════════════

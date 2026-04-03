@@ -29,7 +29,6 @@ class AIEventHandlers:
         self.bus = None
         self.ndvi_cache: dict[str, dict[str, Any]] = {}
         self.weather_cache: dict[str, dict[str, Any]] = {}
-        self._crop_growth_model_url = os.getenv("CROP_GROWTH_MODEL_URL", "http://crop-growth-model:3023")
         self._yield_prediction_url = os.getenv("YIELD_PREDICTION_URL", "http://yield-prediction-service:8152")
         self._http_timeout = 10.0
 

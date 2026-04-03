@@ -1067,9 +1067,9 @@ class TenantBackupService:
         with ContextManager(system_ctx):
             for table in self.BACKUP_TABLES:
                 async with tenant_db() as conn:
-                    # Wrap in a transaction so set_config(..., true) persists
+                    # Set tenant context at session level for RLS consistency
                     async with conn.transaction():
-                        await conn.execute("SELECT set_config('app.current_tenant', $1, true)", tenant_id)
+                        await conn.execute("SELECT set_config('app.current_tenant', $1, false)", tenant_id)
                         # Table name from BACKUP_TABLES constant (not user input)
                         rows = await conn.fetch(f"SELECT * FROM {table}")  # noqa: B608  # nosec B608 - table is from BACKUP_TABLES class constant, not user input
                     backup_data["tables"][table] = [dict(row) for row in rows]

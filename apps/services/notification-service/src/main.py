@@ -493,7 +493,7 @@ async def _publish_to_dlq(send_func_name: str, error: Exception, max_retries: in
             failure_reason=str(error),
             failure_timestamp=datetime.now(UTC).isoformat(),
             error_type=error.__class__.__name__,
-            error_traceback=traceback.format_exc()[:1000],
+            error_traceback="".join(traceback.format_exception(type(error), error, error.__traceback__))[:1000],
             consumer_service="notification-service",
             consumer_version="16.0.0",
             handler_function=send_func_name,

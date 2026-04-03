@@ -40,7 +40,9 @@ DEFAULT_TENANT = "a0000000-0000-0000-0000-000000000001"
 
 
 def _hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()  # nosec B324 — test-only mock, not production
+    # Use hashlib.pbkdf2_hmac (computationally expensive) instead of raw SHA256
+    salt = b"sahool-test-mock-salt"
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), salt, iterations=100_000).hex()
 
 
 def _make_jwt(user_id: str, email: str, roles: list[str], tenant_id: str) -> str:

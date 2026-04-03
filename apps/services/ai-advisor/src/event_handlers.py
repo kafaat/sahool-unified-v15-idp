@@ -16,8 +16,8 @@ import structlog
 logger = structlog.get_logger()
 
 # Cache configuration — bounded to prevent unbounded memory growth
-_CACHE_MAX_SIZE = 1000       # maximum entries per cache dict
-_CACHE_TTL_SECONDS = 3600    # 1 hour — stale data should not drive decisions
+_CACHE_MAX_SIZE = 1000  # maximum entries per cache dict
+_CACHE_TTL_SECONDS = 3600  # 1 hour — stale data should not drive decisions
 
 
 class AIEventHandlers:
@@ -116,11 +116,15 @@ class AIEventHandlers:
         ndvi_value = data.get("ndvi_index", 0.5)
 
         # Cache with TTL for downstream prediction requests
-        self._cache_put(self.ndvi_cache, field_id, {
-            "value": ndvi_value,
-            "timestamp": datetime.now(UTC).isoformat(),
-            "tenant_id": tenant_id,
-        })
+        self._cache_put(
+            self.ndvi_cache,
+            field_id,
+            {
+                "value": ndvi_value,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "tenant_id": tenant_id,
+            },
+        )
 
         # Trigger real-time prediction if low vegetation detected
         if ndvi_value < 0.3:

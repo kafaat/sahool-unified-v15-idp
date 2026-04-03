@@ -1,0 +1,1746 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>مراجعة شاملة للتوثيق — منصة SAHOOL - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              مراجعة شاملة للتوثيق — منصة SAHOOL
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool">مراجعة شاملة للتوثيق — منصة SAHOOL<a class="headerlink" href="#sahool" title="Permanent link">&para;</a></h1>
+<p><strong>المراجع</strong>: Claude Code Review
+<strong>التاريخ</strong>: 2026-04-03
+<strong>النطاق</strong>: جميع ملفات التوثيق عبر المشروع (603+ ملف في docs/، 84 في services-docs/، 71 README خدمة، governance/, knowledge-base/, CLAUDE.md)</p>
+<hr />
+<h2 id="_1">ملخص تنفيذي<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>المنصة تمتلك <strong>قاعدة توثيق ضخمة ومتنوعة</strong> (603+ ملف توثيق، 105 ملف قاعدة معرفية زراعية، 84 وثيقة خدمات). الجودة العامة <strong>جيدة جداً</strong> مع دعم ثنائي اللغة (عربي/إنجليزي) ممتد. المشكلة الرئيسية هي <strong>تناقض أرقام المنافذ</strong> بين مصادر متعددة و<strong>تشتت التوثيق</strong> عبر مواقع كثيرة بدون فهرس موحد.</p>
+<hr />
+<h2 id="1">1. هيكل التوثيق العام<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="_2">إحصائيات<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الموقع</th>
+<th>عدد الملفات</th>
+<th>الحجم التقريبي</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docs/</code> (جذر)</td>
+<td>154</td>
+<td>~1.6 MB</td>
+</tr>
+<tr>
+<td><code>docs/</code> (مجلدات فرعية)</td>
+<td>449</td>
+<td>~7.7 MB</td>
+</tr>
+<tr>
+<td><code>docs/knowledge-base/</code></td>
+<td>105</td>
+<td>~2.0 MB</td>
+</tr>
+<tr>
+<td><code>docs/reports/</code></td>
+<td>117</td>
+<td>~2.2 MB</td>
+</tr>
+<tr>
+<td><code>apps/services-docs/</code></td>
+<td>84</td>
+<td>~1.2 MB</td>
+</tr>
+<tr>
+<td><code>governance/</code></td>
+<td>26</td>
+<td>~300 KB</td>
+</tr>
+<tr>
+<td>Service READMEs</td>
+<td>71</td>
+<td>~800 KB</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>1</td>
+<td>~85 KB</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>~600+</strong></td>
+<td><strong>~13+ MB</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="710">التقييم: 7/10<a class="headerlink" href="#710" title="Permanent link">&para;</a></h3>
+<p><strong>إيجابي</strong>: تغطية شاملة لكل جانب من جوانب المنصة.
+<strong>سلبي</strong>: تشتت المعلومات — نفس الموضوع قد يكون موثقاً في 3-4 مواقع مختلفة بمعلومات متناقضة.</p>
+<hr />
+<h2 id="2-claudemd-910">2. CLAUDE.md — تقييم: 9/10<a class="headerlink" href="#2-claudemd-910" title="Permanent link">&para;</a></h2>
+<h3 id="_3">النتيجة: دقيق للغاية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفحص</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>منافذ الخدمات (docker-compose ↔ service-ports.ts)</td>
+<td>مطابقة 100%</td>
+</tr>
+<tr>
+<td>قائمة الخدمات في apps/services/</td>
+<td>72 خدمة — صحيح (مع استثناء المجلدات غير الخدمية)</td>
+</tr>
+<tr>
+<td>إصدار package.json = 16.0.0</td>
+<td>مطابق في pyproject.toml وdocker-compose.yml وMakefile</td>
+</tr>
+<tr>
+<td>تكوين Ruff</td>
+<td>مطابق 100% لـ pyproject.toml</td>
+</tr>
+<tr>
+<td>أهداف Makefile المذكورة</td>
+<td>جميعها موجودة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">ملاحظات<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <strong>DOC-1</strong> (منخفض): CLAUDE.md يذكر "537 docs" لكن العدد الفعلي 603+ — تحديث العدد</li>
+<li>CLAUDE.md هو أدق وأشمل وثيقة في المشروع — يُعتبر المرجع الأساسي</li>
+</ul>
+<hr />
+<h2 id="3-services-docs-610">3. توثيق الخدمات (services-docs/) — تقييم: 6/10<a class="headerlink" href="#3-services-docs-610" title="Permanent link">&para;</a></h2>
+<h3 id="_5">مشاكل حرجة في أرقام المنافذ<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ في الوثيقة</th>
+<th>المنفذ في service-ports.ts</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>chat-service</strong></td>
+<td>8114</td>
+<td>8115</td>
+<td>تناقض حرج</td>
+</tr>
+<tr>
+<td><strong>wechat-service</strong></td>
+<td>8133</td>
+<td>8135</td>
+<td>تناقض حرج</td>
+</tr>
+<tr>
+<td><strong>notification-service</strong></td>
+<td>8109 (README)</td>
+<td>8110 (docker-compose)</td>
+<td>تناقض</td>
+</tr>
+<tr>
+<td><strong>code-review-service</strong></td>
+<td>8102, 8124, 8096 (ثلاثة!)</td>
+<td>8102</td>
+<td>تناقض</td>
+</tr>
+<tr>
+<td><strong>weather-service</strong></td>
+<td>8108 / 8092</td>
+<td>8092</td>
+<td>مختلط</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_6">تفاصيل المشاكل<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p><strong>DOC-2</strong> (حرج): <code>chat-service</code> — الوثيقة تذكر منفذ 8114 لكن المنفذ الفعلي 8115. هذا موثق كإصلاح في BUGS-AND-FIXES.md لكن لم يُحدّث في وثيقة الخدمة ذاتها.</p>
+<p><strong>DOC-3</strong> (حرج): <code>wechat-service</code> — الوثيقة تذكر منفذ 8133 (وهو منفذ community-service)، المنفذ الصحيح هو 8135.</p>
+<p><strong>DOC-4</strong> (عالي): <code>code-review-service</code> — ثلاثة منافذ مختلفة في نفس الوثيقة (8102 في docker-compose، 8124 في Dockerfile، 8096 في settings default).</p>
+<p><strong>DOC-5</strong> (عالي): <code>community-chat.md</code> يشير إلى أن البديل هو chat-service على المنفذ 8114 — المنفذ الصحيح 8115.</p>
+<h3 id="_7">ملاحظات إيجابية<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>لا يوجد TODO/FIXME/HACK في أي وثيقة</li>
+<li>جميع الخدمات المهملة تحمل علامة deprecation واضحة (باستثناء wechat-service)</li>
+<li>هيكل endpoint متسق (<code>/api/v1/...</code>)</li>
+</ul>
+<hr />
+<h2 id="4-readme-710">4. README الخدمات الفردية — تقييم: 7/10<a class="headerlink" href="#4-readme-710" title="Permanent link">&para;</a></h2>
+<h3 id="_8">التغطية<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الجانب</th>
+<th>النسبة</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>وجود README لكل خدمة</td>
+<td>71/71 (100%)</td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>وصف الخدمة</td>
+<td>90%</td>
+<td>جيد جداً</td>
+</tr>
+<tr>
+<td>نقاط API</td>
+<td>98%</td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>متغيرات البيئة</td>
+<td>90%</td>
+<td>جيد جداً</td>
+</tr>
+<tr>
+<td>تعليمات Docker</td>
+<td>66%</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>تطوير محلي</td>
+<td>61%</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td><strong>توثيق المنفذ</strong></td>
+<td><strong>38%</strong></td>
+<td><strong>ضعيف</strong></td>
+</tr>
+<tr>
+<td>مخطط معماري</td>
+<td>40%</td>
+<td>ضعيف</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">الدعم ثنائي اللغة<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>6-8 خدمات</strong> لديها توثيق ثنائي اللغة ممتاز (copilot-api نموذجي)</li>
+<li><strong>20-30 خدمة</strong> لديها دعم جزئي (عناوين وأوصاف فقط)</li>
+<li><strong>10-15 خدمة</strong> بالإنجليزية فقط</li>
+</ul>
+<p><strong>DOC-6</strong> (متوسط): لا يوجد معيار موحد للتوثيق ثنائي اللغة — بعض الخدمات تستخدم جداول مزدوجة، والبعض عناوين مزدوجة، والبعض إنجليزي فقط.</p>
+<p><strong>DOC-7</strong> (متوسط): 38% فقط من READMEs تذكر رقم المنفذ بوضوح — يجب أن يكون إلزامياً.</p>
+<hr />
+<h2 id="5-governance-8510">5. الحوكمة (governance/) — تقييم: 8.5/10<a class="headerlink" href="#5-governance-8510" title="Permanent link">&para;</a></h2>
+<h3 id="servicesyaml-v340">سجل الخدمات (services.yaml v3.4.0)<a class="headerlink" href="#servicesyaml-v340" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>71 خدمة نشطة</strong> مسجلة (يوجد تناقض بسيط مع ادعاء "72" في بعض الأماكن)</li>
+<li>48 خدمة مهملة/مؤرشفة</li>
+<li>4 طبقات حدث موثقة (Acquisition, Intelligence, Decision, Business)</li>
+</ul>
+<p><strong>DOC-8</strong> (متوسط): <code>yield-prediction</code> (منفذ 3021) و<code>yield-prediction-service</code> (منفذ 8152) كلاهما مسجل كـ "active" — يجب تحديد أيهما المهمل.</p>
+<h3 id="adrs">قرارات المعمارية (ADRs)<a class="headerlink" href="#adrs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ADR</th>
+<th>العنوان</th>
+<th>الحالة</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ADR-0001</td>
+<td>مجلد خدمات الخلفية</td>
+<td>مقبول</td>
+<td>مكتمل</td>
+</tr>
+<tr>
+<td>ADR-0002</td>
+<td>استراتيجية تعدد المستأجرين (RLS)</td>
+<td>مقبول</td>
+<td>مكتمل + ثنائي اللغة</td>
+</tr>
+<tr>
+<td>ADR-0003</td>
+<td>إصدار الأحداث</td>
+<td>مقبول</td>
+<td>مكتمل + ثنائي اللغة</td>
+</tr>
+<tr>
+<td>ADR-0004</td>
+<td>إصدار API</td>
+<td>مقبول</td>
+<td>مكتمل + ثنائي اللغة</td>
+</tr>
+<tr>
+<td>ADR-0005</td>
+<td>Service Mesh</td>
+<td>مقبول</td>
+<td>مكتمل + ثنائي اللغة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>جميع الـ ADRs</strong> تحتوي على: Status, Context, Decision, Consequences, Enforcement, Related.</p>
+<p><strong>DOC-9</strong> (منخفض): ADR-0001 يستخدم markdown headers بينما ADR-0002-0005 تستخدم YAML frontmatter — تناقض طفيف في الشكل.</p>
+<h3 id="_10">السياسات والأحداث<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>7 سياسات Kyverno</strong> مُعرّفة ومفعّلة (5 Enforce + 2 Audit)</li>
+<li><strong>4 مخططات أحداث</strong> JSON Schema Draft-07 صالحة (field-created, alert-created, ndvi-calculated, weather-updated)</li>
+<li>سياسة عزل المستأجرين وأتمتة الامتثال <strong>مفصّلة وقابلة للتنفيذ</strong></li>
+</ul>
+<hr />
+<h2 id="6-knowledge-base-910">6. قاعدة المعرفة الزراعية (knowledge-base/) — تقييم: 9/10<a class="headerlink" href="#6-knowledge-base-910" title="Permanent link">&para;</a></h2>
+<h3 id="_11">الهيكل<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>عدد الملفات</th>
+<th>المحتوى</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>المحاصيل</td>
+<td>22 + 11 إقليمي</td>
+<td>قمح، شعير، نخيل، قطن، حمضيات...</td>
+</tr>
+<tr>
+<td>التربة</td>
+<td>7</td>
+<td>رملية، طينية، ملحية، كلسية...</td>
+</tr>
+<tr>
+<td>الري</td>
+<td>11</td>
+<td>تنقيط، محوري، سطحي...</td>
+</tr>
+<tr>
+<td>التسميد</td>
+<td>8</td>
+<td>NPK، عضوي، نقص العناصر...</td>
+</tr>
+<tr>
+<td>الأمراض</td>
+<td>6</td>
+<td>فطرية، بكتيرية، فيروسية...</td>
+</tr>
+<tr>
+<td>الطقس</td>
+<td>6</td>
+<td>إجهاد حراري، مناطق مناخية...</td>
+</tr>
+<tr>
+<td>الزراعة الدقيقة</td>
+<td>4</td>
+<td>GPS، VRA، خرائط الإنتاجية</td>
+</tr>
+<tr>
+<td>التوأم الرقمي</td>
+<td>4</td>
+<td>محاكاة وتحسين</td>
+</tr>
+<tr>
+<td>الاستشعار عن بعد</td>
+<td>7</td>
+<td>NDVI، مراقبة المحاصيل</td>
+</tr>
+<tr>
+<td>الزراعة الذكية</td>
+<td>15</td>
+<td>blockchain، IoT، AI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">التقييم<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p><strong>ممتاز</strong>:
+- محتوى زراعي دقيق تقنياً (تحمل القطن للملوحة 7.7 dS/m، معدلات التسميد، درجات الحرارة المثلى)
+- تخصص إقليمي عميق (اليمن، مصر، السعودية، السودان) مع أصناف محلية
+- <strong>لا توجد ملفات فارغة أو أوليّة</strong> — جميع الملفات ذات محتوى حقيقي
+- ثنائي اللغة عبر 41+ ملف
+- ملفات Q&amp;A ضخمة (1,500+ سطر لأشجار الفاكهة اليمنية)</p>
+<p><strong>لا توجد ملاحظات سلبية جوهرية</strong> — هذا أفضل جزء من التوثيق في المشروع.</p>
+<hr />
+<h2 id="7">7. مشاكل عامة عبر المشروع<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h3 id="_13">روابط مكسورة<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<p><strong>DOC-10</strong> (متوسط): 4 ملفات مفقودة مُشار إليها من <code>docs/mobile-apps-audit/README.md</code>:
+- <code>MOBILE_APPS_AUDIT_INDEX.md</code>
+- <code>MOBILE_APPS_AUDIT_REPORT.md</code>
+- <code>MOBILE_APPS_REPAIR_PLAN.md</code>
+- <code>MOBILE_APPS_VISUAL_SUMMARY.md</code></p>
+<h3 id="_14">ملفات صغيرة جداً<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>الحجم</th>
+<th>المحتوى</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docs/SECRETS_GITOPS.md</code></td>
+<td>370 bytes</td>
+<td>مرجع minimal</td>
+</tr>
+<tr>
+<td><code>docs/PR_PREVIEW_URLS.md</code></td>
+<td>421 bytes</td>
+<td>URLs فقط</td>
+</tr>
+<tr>
+<td><code>docs/PLATFORM_ROADMAP_NEXT.md</code></td>
+<td>522 bytes</td>
+<td>عنوان + جملتين</td>
+</tr>
+</tbody>
+</table>
+<p><strong>DOC-11</strong> (منخفض): هذه الملفات إما تحتاج توسيع أو دمج مع ملفات أخرى.</p>
+<h3 id="_15">مراجع خدمات مهملة في وثائق نشطة<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<p><strong>DOC-12</strong> (متوسط): ~248 مرجع لخدمات مهملة عبر 54+ ملف. معظمها في سياق مناسب (migration guides, deprecation docs)، لكن بعضها في وثائق API endpoints ومخططات خدمات <strong>نشطة</strong>.</p>
+<h3 id="markdown-docs">ملف غير markdown في docs/<a class="headerlink" href="#markdown-docs" title="Permanent link">&para;</a></h3>
+<p><strong>DOC-13</strong> (منخفض): <code>docs/docker-compose.patches.yml</code> — ملف YAML في مجلد التوثيق، يجب نقله إلى <code>docker/</code> أو <code>config/</code>.</p>
+<hr />
+<h2 id="8-issues">8. ملخص Issues المكتشفة<a class="headerlink" href="#8-issues" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الخطورة</th>
+<th>الوصف</th>
+<th>الموقع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DOC-1</td>
+<td>منخفض</td>
+<td>CLAUDE.md يذكر "537 docs" — العدد الفعلي 603+</td>
+<td>CLAUDE.md</td>
+</tr>
+<tr>
+<td>DOC-2</td>
+<td><strong>حرج</strong></td>
+<td>chat-service منفذ 8114 في الوثيقة vs 8115 فعلي</td>
+<td>services-docs/chat-service.md</td>
+</tr>
+<tr>
+<td>DOC-3</td>
+<td><strong>حرج</strong></td>
+<td>wechat-service منفذ 8133 في الوثيقة vs 8135 فعلي</td>
+<td>services-docs/wechat-service.md</td>
+</tr>
+<tr>
+<td>DOC-4</td>
+<td>عالي</td>
+<td>code-review-service ثلاثة منافذ متناقضة</td>
+<td>services-docs/code-review-service.md</td>
+</tr>
+<tr>
+<td>DOC-5</td>
+<td>عالي</td>
+<td>community-chat.md يشير لمنفذ بديل خاطئ (8114)</td>
+<td>services-docs/community-chat.md</td>
+</tr>
+<tr>
+<td>DOC-6</td>
+<td>متوسط</td>
+<td>لا معيار موحد للتوثيق ثنائي اللغة</td>
+<td>Service READMEs</td>
+</tr>
+<tr>
+<td>DOC-7</td>
+<td>متوسط</td>
+<td>38% فقط من READMEs تذكر المنفذ</td>
+<td>Service READMEs</td>
+</tr>
+<tr>
+<td>DOC-8</td>
+<td>متوسط</td>
+<td>yield-prediction مكرر (legacy + جديد) كلاهما active</td>
+<td>governance/services.yaml</td>
+</tr>
+<tr>
+<td>DOC-9</td>
+<td>منخفض</td>
+<td>تناقض شكلي بين ADR-0001 وباقي ADRs</td>
+<td>governance/decisions/</td>
+</tr>
+<tr>
+<td>DOC-10</td>
+<td>متوسط</td>
+<td>4 روابط مكسورة في mobile-apps-audit</td>
+<td>docs/mobile-apps-audit/</td>
+</tr>
+<tr>
+<td>DOC-11</td>
+<td>منخفض</td>
+<td>3 ملفات شبه فارغة</td>
+<td>docs/ root</td>
+</tr>
+<tr>
+<td>DOC-12</td>
+<td>متوسط</td>
+<td>مراجع خدمات مهملة في وثائق نشطة</td>
+<td>54+ ملف في docs/</td>
+</tr>
+<tr>
+<td>DOC-13</td>
+<td>منخفض</td>
+<td>ملف YAML في مجلد التوثيق</td>
+<td>docs/docker-compose.patches.yml</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9">9. التوصيات<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="_16">أولوية حرجة (هذا الأسبوع)<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إصلاح أرقام المنافذ</strong> (DOC-2, DOC-3, DOC-4, DOC-5):</li>
+<li><code>chat-service</code>: 8114 → 8115</li>
+<li><code>wechat-service</code>: 8133 → 8135</li>
+<li><code>code-review-service</code>: توحيد على 8102</li>
+<li>
+<p><code>community-chat.md</code>: تحديث منفذ البديل إلى 8115</p>
+</li>
+<li>
+<p><strong>إضافة CI guard لمنافذ التوثيق</strong>: سكريبت يتحقق أن أرقام المنافذ في الوثائق تطابق <code>service-ports.ts</code></p>
+</li>
+</ol>
+<h3 id="_17">أولوية عالية (هذا الشهر)<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إلزام قسم Port في كل README</strong> (DOC-7)</li>
+<li><strong>تنظيف الخدمات المكررة في services.yaml</strong> (DOC-8): تحديد yield-prediction المهمل</li>
+<li><strong>إصلاح الروابط المكسورة</strong> (DOC-10): إنشاء أو حذف 4 ملفات mobile audit</li>
+</ol>
+<h3 id="_18">أولوية متوسطة (ربع سنوي)<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>معيار توثيق ثنائي اللغة</strong> (DOC-6): اعتماد نموذج copilot-api كمعيار</li>
+<li><strong>تنظيف مراجع الخدمات المهملة</strong> (DOC-12): استبدال بأسماء الخدمات الحالية في الوثائق النشطة</li>
+<li><strong>إنشاء فهرس مركزي</strong>: صفحة واحدة تربط كل الوثائق بتصنيف واضح</li>
+<li><strong>نقل docker-compose.patches.yml</strong> (DOC-13): إلى docker/ أو config/</li>
+</ol>
+<h3 id="_19">أولوية منخفضة<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<ol>
+<li>توسيع الملفات الصغيرة (DOC-11) أو دمجها</li>
+<li>توحيد شكل ADRs (DOC-9)</li>
+<li>تحديث عدد الملفات في CLAUDE.md (DOC-1)</li>
+</ol>
+<hr />
+<h2 id="10">10. التقييم الإجمالي<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>التقييم</th>
+<th>ملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLAUDE.md</strong></td>
+<td>9/10</td>
+<td>دقيق جداً — المرجع الأساسي</td>
+</tr>
+<tr>
+<td><strong>قاعدة المعرفة الزراعية</strong></td>
+<td>9/10</td>
+<td>محتوى عالي الجودة، إقليمي متخصص</td>
+</tr>
+<tr>
+<td><strong>الحوكمة (ADRs, السياسات)</strong></td>
+<td>8.5/10</td>
+<td>مكتمل وقابل للتنفيذ</td>
+</tr>
+<tr>
+<td><strong>README الخدمات</strong></td>
+<td>7/10</td>
+<td>تغطية 100% لكن تناقض في المنافذ والشكل</td>
+</tr>
+<tr>
+<td><strong>services-docs/</strong>*</td>
+<td>6/10</td>
+<td>أرقام منافذ حرجة خاطئة</td>
+</tr>
+<tr>
+<td><strong>docs/ العام</strong></td>
+<td>6.5/10</td>
+<td>شامل لكن مشتت ويحتاج فهرسة</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>7.5/10</strong></td>
+<td>قاعدة توثيق قوية تحتاج تنظيف وتوحيد</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

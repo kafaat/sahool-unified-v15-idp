@@ -1,0 +1,1471 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>مراجعة فرع main — 31 مارس إلى 3 أبريل 2026 - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#main-31-3-2026" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              مراجعة فرع main — 31 مارس إلى 3 أبريل 2026
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="main-31-3-2026">مراجعة فرع main — 31 مارس إلى 3 أبريل 2026<a class="headerlink" href="#main-31-3-2026" title="Permanent link">&para;</a></h1>
+<p><strong>المراجع</strong>: Claude Code Review
+<strong>التاريخ</strong>: 2026-04-03
+<strong>النطاق</strong>: 28 commit, 13 PR, ~130 ملف, +11,962 / -685 سطر</p>
+<hr />
+<h2 id="_1">ملخص تنفيذي<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>شهدت الأيام الثلاثة الماضية <strong>حملة تصليب أمني شاملة</strong> عبر المنصة، مع إصلاحات حرجة في عزل المستأجرين، CORS، JWT، وحماية prompt injection. التغييرات ذات جودة عالية بشكل عام مع اختبارات مرفقة، لكن هناك عدة ملاحظات تحتاج متابعة.</p>
+<hr />
+<h2 id="1">1. إصلاحات الأمان — تقييم: جيد جداً<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="pr-1445-cors-wildcard">PR #1445 — إصلاح CORS wildcard<a class="headerlink" href="#pr-1445-cors-wildcard" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: استبدال <code>os.getenv("CORS_ORIGINS", "*")</code> بتكوين مشترك عبر <code>shared/cors_config.py</code> في 7 خدمات.</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- <code>allow_credentials</code> يُعطّل تلقائياً عند استخدام wildcard — صحيح أمنياً
+- Fallback ذكي عبر <code>try/except ImportError</code> يحافظ على التوافق</p>
+<p><strong>ملاحظات سلبية</strong>:
+- [ ] <strong>ISSUE-1</strong>: الـ fallback في <code>ai-chat-assistant/src/main.py</code> يستخدم <code>CORS_ORIGINS=""</code> (سلسلة فارغة) كـ default بدلاً من <code>"*"</code>. هذا أفضل أمنياً لكنه <strong>breaking change</strong> صامت — خدمة بدون <code>CORS_ORIGINS</code> ستمنع كل الطلبات
+- [ ] <strong>ISSUE-2</strong>: الـ <code>allow_headers</code> في الـ fallback يتضمن <code>X-User-ID</code> — يجب التأكد أن هذا الهيدر لا يُستخدم لتجاوز المصادقة</p>
+<h3 id="pr-1435-13-ai">PR #1435 — سد 13 ثغرة أمنية في خدمات AI<a class="headerlink" href="#pr-1435-13-ai" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: إضافة 5 middleware مفقودة (SecurityHeaders, Observability, InputSanitization, TokenRevocation, RateLimit) لـ copilot-api و llm-orchestrator و advisory-service. تعزيز prompt injection detection بـ 7 أنماط عربية جديدة وأنماط jailbreak.</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- أنماط الحماية العربية ممتازة وتشمل: <code>تجاهل التعليمات</code>, <code>تصرف ك</code>, <code>أنت الآن</code>, <code>تظاهر أنك</code>
+- إضافة فئة <code>jailbreak_patterns</code> منفصلة (DAN mode, developer mode, bypass)
+- 927 سطر اختبارات في <code>test_ai_middleware_security_gaps.py</code>
+- كل middleware محاط بـ <code>try/except ImportError</code> لمنع فشل الخدمة إذا لم تتوفر التبعية</p>
+<p><strong>ملاحظات سلبية</strong>:
+- [ ] <strong>ISSUE-3</strong>: أنماط prompt injection العربية مثل <code>تصرف\s+ك</code> قصيرة جداً وقد تولد false positives في نصوص عادية (مثل "تصرف كمزارع محترف" في سياق تعليمي)
+- [ ] <strong>ISSUE-4</strong>: <code>copilot-api/src/main.py</code> يضيف middleware بترتيب قد يكون مشكلاً — <code>TenantContextMiddleware</code> يأتي قبل <code>TokenRevocationMiddleware</code>. إذا تم إلغاء التوكن، يمكن لـ tenant context أن يُهيّأ قبل رفض الطلب</p>
+<h3 id="pr-1446-user-service-6">PR #1446 — user-service: 6 أخطاء أمنية<a class="headerlink" href="#pr-1446-user-service-6" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: إصلاحات في NestJS user-service تشمل:
+1. تغيير <code>UnauthorizedException</code> → <code>ConflictException</code> عند تسجيل بريد مكرر (كان يكشف وجود الحساب عبر 401 بدلاً من 409)
+2. إخفاء رسائل الخطأ الداخلية في <code>HttpExceptionFilter</code>
+3. إصلاح race condition في <code>incrementOtpAttempts</code> — الآن يستخدم <code>INCR</code> return value بدلاً من <code>EXISTS</code> + <code>INCR</code>
+4. إضافة <code>select</code> لـ <code>deactivateUser</code> لمنع تسريب بيانات Prisma</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- إصلاح OTP race condition ممتاز — <code>newCount === 1</code> أذكى من <code>EXISTS</code> check
+- التعليق يعترف بعدم atomicity بين INCR و EXPIRE ويقترح Lua script كحل</p>
+<p><strong>ملاحظات سلبية</strong>:
+- [ ] <strong>ISSUE-5</strong>: تغيير <code>UnauthorizedException</code> → <code>ConflictException</code> (409) عند "Email already registered" يكشف وجود البريد (user enumeration). الأفضل أمنياً هو إرجاع 200 مع رسالة "If this email exists, a verification link was sent" — لكن هذا يعتمد على متطلبات UX</p>
+<h3 id="pr-1449-redis-ttl-kyverno">PR #1449 — Redis TTL وKyverno<a class="headerlink" href="#pr-1449-redis-ttl-kyverno" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: إضافة TTL (30 يوم) لمفاتيح إلغاء التوكنات في Redis، وإصلاح Kyverno image registry policy.</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- TTL = <code>MAX_REFRESH_TOKEN_DAYS * 86400</code> — منطقي لأن المفتاح يجب أن يعيش أطول من أي توكن صادر
+- إضافة logging عند فشل <code>clear_user_revocation</code> و<code>revoke_token</code> و<code>revoke_user_tokens</code>
+- fail-closed pattern: فشل Redis يُعامل كـ "token is revoked" (أمان أفضل)</p>
+<p><strong>ملاحظات سلبية</strong>:
+- [ ] <strong>ISSUE-6</strong>: <code>_MAX_REFRESH_TOKEN_DAYS</code> يُقرأ من env var عند تحميل الوحدة (module level). إذا تغيرت القيمة في Runtime (مثلاً عبر Vault rotation)، لن تُحدّث</p>
+<hr />
+<h2 id="2">2. إصلاحات الخدمات — تقييم: جيد<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="pr-1450-llm-streaming">PR #1450 — إصلاح انهيار LLM streaming<a class="headerlink" href="#pr-1450-llm-streaming" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: 
+1. <code>ollama.py</code>: إضافة <code>try/except json.JSONDecodeError</code> حول <code>json.loads(line)</code> في <code>generate_stream</code> و <code>chat_stream</code>
+2. <code>router.py</code>: استبدال cache دائم للـ provider availability بـ TTL 30 ثانية</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- 902 سطر اختبارات جديدة تغطي JSON malformed, TTL expiry, failover chain
+- استخدام <code>time.monotonic()</code> بدلاً من <code>time.time()</code> لدقة TTL — ممارسة ممتازة</p>
+<p><strong>ملاحظات سلبية</strong>:
+- [ ] <strong>ISSUE-7</strong>: <code>_AVAILABILITY_CACHE_TTL = 30.0</code> ثابت في الكود. تحت ضغط عالي، 30 ثانية تعني health check كل 30 ثانية لكل provider — يفضل جعله قابل للتكوين عبر env var</p>
+<h3 id="pr-1448-notification-service-10">PR #1448 — notification-service: 10 أخطاء<a class="headerlink" href="#pr-1448-notification-service-10" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: إصلاحات شاملة تشمل:
+1. firebase-admin v7 API break: <code>send_multicast()</code> → <code>send_each_for_multicast()</code>
+2. تشغيل Firebase SDK في thread pool عبر <code>asyncio.to_thread()</code>
+3. إصلاح double-escaping في HTML emails
+4. إضافة فحص authorization في <code>update_preferences</code>
+5. إضافة null checks لنتائج <code>create_notification</code>
+6. FCM data payload يحوّل كل القيم إلى string</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- Backward-compatible fallback: <code>getattr(messaging, "send_each_for_multicast", None) or messaging.send_multicast</code>
+- <code>asyncio.to_thread()</code> لمنع حظر event loop من Firebase sync SDK
+- فحص <code>str(user.id) != farmer_id</code> في preferences — يمنع التلاعب بتفضيلات مستخدم آخر</p>
+<p><strong>ملاحظات سلبية</strong>:
+- [ ] <strong>ISSUE-8</strong>: <code>html.unescape()</code> ثم <code>html.escape()</code> في بناء email templates — هذا النمط غير واضح. إذا كانت البيانات مُطهّرة عند الإنشاء، لماذا يتم <code>unescape</code> ثم <code>escape</code> مرة أخرى؟ يحتاج تعليق أوضح
+- [ ] <strong>ISSUE-9</strong>: <code>asyncio.to_thread(firebase_client.send_notification, ...)</code> — لكن <code>send_notification</code> يستدعي <code>messaging.send()</code> الذي قد يكون async في إصدارات أحدث من Firebase Admin</p>
+<h3 id="pr-1447-weather-service-6">PR #1447 — weather-service: 6 أخطاء<a class="headerlink" href="#pr-1447-weather-service-6" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>:
+1. إصلاح race condition في <code>get_publisher()</code> عبر <code>asyncio.Lock()</code>
+2. تحسين input validation في request models (min_length, max_length, upper bounds)
+3. إصلاح <code>result.get("suitable", True)</code> → <code>result.get("is_suitable", True)</code> (اسم الحقل الصحيح)
+4. إصلاح المنفذ في README (8108 → 8092)</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- <code>_publisher_lock = asyncio.Lock()</code> على مستوى الوحدة — يمنع إنشاء عدة اتصالات NATS متزامنة
+- إضافة <code>wind_speed_kmh: float = Field(ge=0, le=400)</code> — حدود معقولة</p>
+<p><strong>ملاحظات سلبية</strong>:
+- [ ] <strong>ISSUE-10</strong>: <code>_publisher_lock = asyncio.Lock()</code> على مستوى الوحدة قد يسبب مشاكل مع <code>uvicorn --workers &gt; 1</code> لأن كل worker سيكون له lock منفصل. هذا مقبول لأن كل worker يحتاج اتصال NATS خاص به، لكن يجب التوثيق</p>
+<h3 id="pr-1442-security-middleware-ai-guardrails">PR #1442 — إصلاح security middleware وAI guardrails<a class="headerlink" href="#pr-1442-security-middleware-ai-guardrails" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: إضافة <code>KeywordSimilarityProvider</code> كبديل offline للتشابه الدلالي مع دعم مصطلحات زراعية عربية/إنجليزية.</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- Jaccard similarity مع agriculture term boosting — بسيط وفعال للبيئات بدون GPU</p>
+<hr />
+<h2 id="3">3. الحوكمة وعزل المستأجرين — تقييم: جيد مع تحفظات<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="pr-1444">PR #1444 — إغلاق فجوات الحوكمة<a class="headerlink" href="#pr-1444" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: 
+- Redis token revocation مع fail-closed behavior
+- 4 ADRs جديدة (multi-tenancy, event versioning, API versioning, service mesh)
+- سياسات Kyverno (NetworkPolicy, PDB, image registry)
+- Gap Closure Matrix document</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- fail-closed في <code>is_token_revoked</code>: عند فشل Redis، يُعتبر التوكن ملغى — الخيار الأمني الصحيح</p>
+<h3 id="pr-1443">PR #1443 — عزل المستأجرين<a class="headerlink" href="#pr-1443" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>: 
+- FORCE ROW LEVEL SECURITY على جداول core, billing, audit
+- <code>tenant_audit.py</code>: كتابة سجل تدقيق للوصول عبر المستأجرين
+- سكريبت CI لفرض عزل المستأجرين
+- +4,675 سطر تشمل: devops.py, platform.py, CLI, production deploy script</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- <code>verify_tenant_isolation()</code> توسّع ليشمل جداول billing و audit
+- Audit middleware يكتب في background عبر <code>asyncio.create_task()</code> لعدم حظر الاستجابة
+- تنظيف GUCs بعد كل عملية audit write</p>
+<p><strong>ملاحظات سلبية</strong>:
+- [ ] <strong>ISSUE-11</strong>: <code>_persist_audit_entry</code> يستخدم <code>asyncio.create_task()</code> بدون حفظ مرجع للـ task. إذا فشل الـ task، يُبتلع الخطأ بصمت. يُفضل إضافة <code>task.add_done_callback()</code> لتسجيل الأخطاء
+- [ ] <strong>ISSUE-12</strong>: <code>set_config('app.is_super_admin', 'true', false)</code> في audit writer يتجاوز RLS — يجب التأكد أن هذا محصور فقط في INSERT على <code>tenant_audit_log</code> وليس قابلاً للاستغلال
+- [ ] <strong>ISSUE-13</strong>: <code>shared/platform.py</code> (1,133 سطر) و<code>shared/devops.py</code> (1,022 سطر) ملفات ضخمة أُضيفت — تحتاج مراجعة منفصلة لتقييم جودتها وضرورتها</p>
+<hr />
+<h2 id="4-cicd">4. CI/CD والتبعيات — تقييم: مقبول<a class="headerlink" href="#4-cicd" title="Permanent link">&para;</a></h2>
+<h3 id="pr-1441">PR #1441 — إصلاحات اختبارات التكامل<a class="headerlink" href="#pr-1441" title="Permanent link">&para;</a></h3>
+<p><strong>ما تم</strong>:
+- توحيد JWT tenant claim: <code>tid</code> هو الاسم الأساسي (canonical) مع قبول <code>tenant_id</code> كـ fallback
+- A2A server يرفض الطلبات بـ 503 عند غياب وحدة المصادقة بدلاً من السماح الصامت
+- Kong يزيل <code>X-Tenant-Id</code> من الطلبات الواردة لمنع tenant spoofing</p>
+<p><strong>ملاحظات إيجابية</strong>:
+- إصلاح A2A auth bypass حرج — كان يسمح بوصول بدون مصادقة في بيئات بدون shared.auth
+- Kong header stripping يشمل كلا من <code>X-Tenant-Id</code> و <code>X-Tenant-ID</code> (case sensitivity)</p>
+<h3 id="prs-1421-1430-merge-conflicts">PRs #1421-#1430 — إصلاحات merge conflicts<a class="headerlink" href="#prs-1421-1430-merge-conflicts" title="Permanent link">&para;</a></h3>
+<p><strong>ملاحظة</strong>: 6 commits لحل merge conflicts في <code>constraints-ai.txt</code>, <code>package-lock.json</code>, <code>jwt-verify.ts</code>. هذا يشير إلى <strong>مشكلة في عملية الدمج</strong> — عدة فروع تعدّل نفس الملفات بالتوازي.</p>
+<ul>
+<li>[ ] <strong>ISSUE-14</strong>: يُوصى بتوحيد عملية تحديث <code>constraints-ai.txt</code> عبر PR واحد أو أداة Renovate/Dependabot لمنع تكرار conflicts</li>
+</ul>
+<hr />
+<h2 id="5-issues">5. ملخص Issues المكتشفة<a class="headerlink" href="#5-issues" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الخطورة</th>
+<th>الوصف</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>متوسط</td>
+<td>CORS fallback بسلسلة فارغة يمنع كل الطلبات بدون CORS_ORIGINS</td>
+<td>#1445</td>
+</tr>
+<tr>
+<td>2</td>
+<td>منخفض</td>
+<td><code>X-User-ID</code> في CORS allow_headers — يحتاج تحقق</td>
+<td>#1445</td>
+</tr>
+<tr>
+<td>3</td>
+<td>منخفض</td>
+<td>أنماط prompt injection عربية قصيرة — false positives محتملة</td>
+<td>#1435</td>
+</tr>
+<tr>
+<td>4</td>
+<td>متوسط</td>
+<td>ترتيب middleware: tenant context قبل token revocation</td>
+<td>#1435</td>
+</tr>
+<tr>
+<td>5</td>
+<td>منخفض</td>
+<td>409 Conflict يكشف وجود البريد (user enumeration)</td>
+<td>#1446</td>
+</tr>
+<tr>
+<td>6</td>
+<td>منخفض</td>
+<td>TTL ثابت عند تحميل الوحدة — لا يتحدث مع Vault rotation</td>
+<td>#1449</td>
+</tr>
+<tr>
+<td>7</td>
+<td>منخفض</td>
+<td><code>_AVAILABILITY_CACHE_TTL</code> غير قابل للتكوين</td>
+<td>#1450</td>
+</tr>
+<tr>
+<td>8</td>
+<td>منخفض</td>
+<td>نمط unescape/escape في emails غير واضح</td>
+<td>#1448</td>
+</tr>
+<tr>
+<td>9</td>
+<td>منخفض</td>
+<td><code>asyncio.to_thread</code> مع Firebase SDK قد يتعارض مع إصدارات async</td>
+<td>#1448</td>
+</tr>
+<tr>
+<td>10</td>
+<td>info</td>
+<td><code>asyncio.Lock()</code> على مستوى الوحدة — سلوك مقبول لكن يحتاج توثيق</td>
+<td>#1447</td>
+</tr>
+<tr>
+<td>11</td>
+<td>متوسط</td>
+<td><code>asyncio.create_task()</code> بدون done callback في audit</td>
+<td>#1443</td>
+</tr>
+<tr>
+<td>12</td>
+<td>عالي</td>
+<td><code>is_super_admin=true</code> في audit writer — يحتاج تدقيق</td>
+<td>#1443</td>
+</tr>
+<tr>
+<td>13</td>
+<td>متوسط</td>
+<td>ملفات ضخمة (platform.py, devops.py) تحتاج مراجعة منفصلة</td>
+<td>#1443</td>
+</tr>
+<tr>
+<td>14</td>
+<td>متوسط</td>
+<td>merge conflicts متكررة في constraints-ai.txt</td>
+<td>#1421-#1430</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6">6. التوصيات<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="_2">أولوية عالية<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>تدقيق <code>is_super_admin=true</code> في tenant_audit.py</strong> (ISSUE-12) — التأكد أن RLS bypass محصور في INSERT على <code>tenant_audit_log</code> فقط</li>
+<li><strong>مراجعة ترتيب middleware في copilot-api</strong> (ISSUE-4) — TokenRevocation يجب أن يأتي قبل TenantContext</li>
+<li><strong>مراجعة <code>shared/platform.py</code> و <code>shared/devops.py</code></strong> (ISSUE-13) — 2,155 سطر جديد بدون اختبارات واضحة</li>
+</ol>
+<h3 id="_3">أولوية متوسطة<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إضافة done_callback لـ audit tasks</strong> (ISSUE-11)</li>
+<li><strong>توحيد إدارة constraints-ai.txt</strong> (ISSUE-14) — تقليل merge conflicts</li>
+<li><strong>التحقق من CORS fallback behavior</strong> (ISSUE-1)</li>
+</ol>
+<h3 id="_4">أولوية منخفضة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ol>
+<li>جعل <code>_AVAILABILITY_CACHE_TTL</code> قابل للتكوين عبر env var</li>
+<li>مراجعة أنماط prompt injection العربية لتقليل false positives</li>
+<li>توثيق سلوك <code>asyncio.Lock()</code> في weather publisher</li>
+</ol>
+<hr />
+<h2 id="_5">إحصائيات<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>إجمالي الـ PRs</td>
+<td>13</td>
+</tr>
+<tr>
+<td>إصلاحات أمنية</td>
+<td>5</td>
+</tr>
+<tr>
+<td>إصلاحات أخطاء</td>
+<td>4</td>
+</tr>
+<tr>
+<td>حوكمة وبنية تحتية</td>
+<td>2</td>
+</tr>
+<tr>
+<td>CI/CD وأدوات</td>
+<td>2</td>
+</tr>
+<tr>
+<td>ملفات متغيرة</td>
+<td>~130</td>
+</tr>
+<tr>
+<td>أسطر مضافة</td>
+<td>+11,962</td>
+</tr>
+<tr>
+<td>أسطر محذوفة</td>
+<td>-685</td>
+</tr>
+<tr>
+<td>اختبارات جديدة</td>
+<td>~1,900 سطر</td>
+</tr>
+<tr>
+<td>Issues مكتشفة</td>
+<td>14 (1 عالي, 4 متوسط, 6 منخفض, 3 info)</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

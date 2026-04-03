@@ -19,10 +19,10 @@ from src.main import (
     determine_status,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_nats_msg(data: dict) -> SimpleNamespace:
     """Create a fake NATS message with JSON-encoded data."""
@@ -32,6 +32,7 @@ def _make_nats_msg(data: dict) -> SimpleNamespace:
 # ---------------------------------------------------------------------------
 # Tests for handle_field_created
 # ---------------------------------------------------------------------------
+
 
 class TestHandleFieldCreated:
     """Tests for the field.created NATS handler."""
@@ -55,9 +56,14 @@ class TestHandleFieldCreated:
 
             if field_id and tenant_id:
                 default_indicators = {
-                    "ndvi": 0.0, "evi": 0.0, "lai": 0.0, "ndwi": 0.0,
-                    "soil_moisture": 0.0, "irrigation_efficiency": 0.0,
-                    "soil_ph": 7.0, "nitrogen_level": 0.0,
+                    "ndvi": 0.0,
+                    "evi": 0.0,
+                    "lai": 0.0,
+                    "ndwi": 0.0,
+                    "soil_moisture": 0.0,
+                    "irrigation_efficiency": 0.0,
+                    "soil_ph": 7.0,
+                    "nitrogen_level": 0.0,
                 }
                 for ind_type, default_value in default_indicators.items():
                     defn = INDICATOR_DEFINITIONS.get(ind_type)
@@ -108,6 +114,7 @@ class TestHandleFieldCreated:
 # Tests for handle_ndvi_calculated
 # ---------------------------------------------------------------------------
 
+
 class TestHandleNdviCalculated:
     """Tests for the ndvi.calculated NATS handler."""
 
@@ -125,21 +132,28 @@ class TestHandleNdviCalculated:
 
         msg_data = {"field_id": "FIELD-001", "tenant_id": "T-001", "ndvi_value": 0.72}
 
-        with patch("src.main.save_indicator", side_effect=mock_save), \
-             patch("src.main.get_indicator", side_effect=mock_get):
+        with (
+            patch("src.main.save_indicator", side_effect=mock_save),
+            patch("src.main.get_indicator", side_effect=mock_get),
+        ):
             data = msg_data
             field_id = data["field_id"]
             tenant_id = data["tenant_id"]
             ndvi_value = float(data["ndvi_value"])
 
             defn = INDICATOR_DEFINITIONS["ndvi"]
-            status = determine_status(
-                ndvi_value, defn["optimal_min"], defn["optimal_max"], defn["min"], defn["max"]
+            status = determine_status(ndvi_value, defn["optimal_min"], defn["optimal_max"], defn["min"], defn["max"])
+            await mock_save(
+                field_id,
+                "ndvi",
+                {
+                    "value": ndvi_value,
+                    "trend": TrendDirection.STABLE.value,
+                    "trend_percent": 0.0,
+                    "status": status,
+                },
+                tenant_id,
             )
-            await mock_save(field_id, "ndvi", {
-                "value": ndvi_value, "trend": TrendDirection.STABLE.value,
-                "trend_percent": 0.0, "status": status,
-            }, tenant_id)
 
         assert saved["value"] == 0.72
         assert saved["trend"] == TrendDirection.STABLE.value

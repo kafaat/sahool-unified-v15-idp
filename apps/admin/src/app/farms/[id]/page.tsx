@@ -32,7 +32,6 @@ import {
   useWeatherForecast,
   useAgriculturalReport,
 } from '@/hooks/api/use-weather';
-import { apiClient } from '@/lib/api';
 import type { BaseFarmData } from '@/components/maps/FarmsMap';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -213,13 +212,15 @@ export default function FieldDetailPage() {
   } = useField(fieldId);
 
   // ── Coordinates (must be computed before NDVI/Weather hooks) ─────────────
+  // Backend may include boundary (GeoJSON) not in the base Farm type
+  const fieldBoundary = (field as Record<string, unknown> | undefined)?.boundary as number[][][] | undefined;
   const lat = field?.coordinates?.lat
-    ?? (field?.boundary?.[0]
-      ? field.boundary[0].reduce((s: number, c: number[]) => s + (c[1] ?? 0), 0) / field.boundary[0].length
+    ?? (fieldBoundary?.[0]
+      ? fieldBoundary[0].reduce((s: number, c: number[]) => s + (c[1] ?? 0), 0) / fieldBoundary[0].length
       : 0);
   const lng = field?.coordinates?.lng
-    ?? (field?.boundary?.[0]
-      ? field.boundary[0].reduce((s: number, c: number[]) => s + (c[0] ?? 0), 0) / field.boundary[0].length
+    ?? (fieldBoundary?.[0]
+      ? fieldBoundary[0].reduce((s: number, c: number[]) => s + (c[0] ?? 0), 0) / fieldBoundary[0].length
       : 0);
   const hasCoords = lat !== 0 || lng !== 0;
 

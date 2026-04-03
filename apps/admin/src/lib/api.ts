@@ -376,7 +376,7 @@ export async function getWeatherByLocation(locationId: string) {
 
 export async function getWeatherForecastByLocation(locationId: string, days: number = 7) {
   try {
-    const response = await fetch(`/api/weather?action=forecast&locationId=${encodeURIComponent(locationId)}`);
+    const response = await fetch(`/api/weather?action=forecast&locationId=${encodeURIComponent(locationId)}&days=${days}`);
     if (!response.ok) return null;
     return await response.json();
   } catch (error) {

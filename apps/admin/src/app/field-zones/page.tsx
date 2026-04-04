@@ -420,7 +420,7 @@ export default function FieldZonesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header
         title="تقسيم الحقول — Field Zone Management"
         subtitle="إدارة مناطق الري المتغير والزراعة الدقيقة — Valley VRI"

@@ -755,7 +755,7 @@ function FormField({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <div dir="rtl" className="min-h-screen bg-gray-50">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
         {label}
         {required && <span className="text-red-500 mr-1">*</span>}

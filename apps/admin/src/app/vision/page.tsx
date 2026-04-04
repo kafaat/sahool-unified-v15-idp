@@ -10,7 +10,7 @@ import { Eye, ScanLine, Target, Gauge, Camera } from 'lucide-react';
 
 export default function VisionPage() {
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="الرؤية الحاسوبية" subtitle="Computer Vision" />
 
       {/* Stats Cards */}

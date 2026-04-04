@@ -229,7 +229,7 @@ export default function CropHealthPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="صحة المحاصيل" subtitle={`${records.length} حقل تحت المراقبة`} />
 
       {/* Stats */}

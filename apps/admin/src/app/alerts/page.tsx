@@ -345,7 +345,7 @@ export default function AlertsPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة التنبيهات والإشعارات" subtitle={`${alerts.length} تنبيه`} />
 
       {/* Stats */}

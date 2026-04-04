@@ -196,7 +196,7 @@ export default function ResearchPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة الأبحاث" subtitle={`${trials.length} تجربة بحثية`} />
 
       {/* Stats */}

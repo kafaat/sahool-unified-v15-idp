@@ -10,7 +10,7 @@ import { Server, Wifi, WifiOff, Box, Cpu } from 'lucide-react';
 
 export default function EdgeDevicesPage() {
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="أجهزة الحافة" subtitle="Edge Devices" />
 
       {/* Stats Cards */}

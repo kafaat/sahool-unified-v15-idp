@@ -431,7 +431,7 @@ export default function SoilMapPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6 space-y-6">
       {/* ── Header ── */}
       <Header
         title="خريطة التربة اليمنية"

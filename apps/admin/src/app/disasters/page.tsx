@@ -228,7 +228,7 @@ export default function DisastersPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="تقارير الكوارث" subtitle={`${reports.length} تقرير`} />
 
       {/* Stats */}

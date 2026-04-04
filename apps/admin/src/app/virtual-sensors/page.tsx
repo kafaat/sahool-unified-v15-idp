@@ -10,7 +10,7 @@ import { Activity, Thermometer, Droplets, Layers, Radio } from 'lucide-react';
 
 export default function VirtualSensorsPage() {
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="المستشعرات الافتراضية" subtitle="Virtual Sensors" />
 
       {/* Stats Cards */}

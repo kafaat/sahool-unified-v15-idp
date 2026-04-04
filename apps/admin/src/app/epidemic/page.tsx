@@ -143,7 +143,7 @@ export default function EpidemicCenterPage() {
   };
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="مركز رصد الأوبئة" subtitle="المراقبة المتقدمة لانتشار الأمراض في اليمن" />
 
       {/* Quick Stats */}

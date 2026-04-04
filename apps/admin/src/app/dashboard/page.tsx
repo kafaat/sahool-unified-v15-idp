@@ -286,7 +286,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <div className="flex items-center justify-between">
         <Header title={t('dashboard.title')} subtitle={t('dashboard.overview')} />
 

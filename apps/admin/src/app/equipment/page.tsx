@@ -489,7 +489,7 @@ export default function EquipmentPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة المعدات" subtitle={`${equipment.length} معدة مسجلة`} />
 
       {/* Stat Cards */}
@@ -819,7 +819,7 @@ export default function EquipmentPage() {
               </button>
             </div>
 
-            <div className="p-6">
+            <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
               {/* Equipment Header */}
               <div className="flex items-center gap-4 mb-6">
                 <div
@@ -983,7 +983,7 @@ export default function EquipmentPage() {
               </button>
             </div>
 
-            <div className="p-6">
+            <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div
                   className={cn(

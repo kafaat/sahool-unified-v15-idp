@@ -162,7 +162,7 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>

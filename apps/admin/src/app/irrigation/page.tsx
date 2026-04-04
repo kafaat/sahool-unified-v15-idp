@@ -351,7 +351,7 @@ export default function IrrigationPage() {
   }
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="الري الذكي" subtitle="جدولة الري وتوفير المياه بالذكاء الاصطناعي" />
 
       {usingMock && (

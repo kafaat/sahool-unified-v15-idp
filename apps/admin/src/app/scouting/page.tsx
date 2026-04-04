@@ -10,7 +10,7 @@ import { Users, FileText, AlertTriangle, Map, Search } from 'lucide-react';
 
 export default function ScoutingPage() {
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="الاستكشاف الميداني" subtitle="Field Scouting" />
 
       {/* Stats Cards */}

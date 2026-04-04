@@ -5,9 +5,18 @@
 // Exports GeoJSON via onBoundaryChange callback
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import type * as L from 'leaflet';
-import { MapContainer, TileLayer, LayersControl, Marker, Polyline, Polygon } from 'react-leaflet';
 import { Undo2, Pentagon, Square, Trash2, X, Check } from 'lucide-react';
+
+// Dynamic imports — Leaflet/react-leaflet requires browser (no SSR)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types
+const MapContainer = dynamic(() => import('react-leaflet').then((m) => m.MapContainer) as any, { ssr: false }) as any;
+const TileLayer = dynamic(() => import('react-leaflet').then((m) => m.TileLayer) as any, { ssr: false }) as any;
+const LayersControl = dynamic(() => import('react-leaflet').then((m) => m.LayersControl) as any, { ssr: false }) as any;
+const Marker = dynamic(() => import('react-leaflet').then((m) => m.Marker) as any, { ssr: false }) as any;
+const Polyline = dynamic(() => import('react-leaflet').then((m) => m.Polyline) as any, { ssr: false }) as any;
+const Polygon = dynamic(() => import('react-leaflet').then((m) => m.Polygon) as any, { ssr: false }) as any;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -531,7 +540,7 @@ export default function DrawableMap({
           <Marker
             key={`vertex-${i}`}
             position={[v.lat, v.lng]}
-            icon={(i === 0 ? firstVertexIcon : vertexIcon) as unknown as L.Icon}
+            icon={i === 0 ? firstVertexIcon : vertexIcon}
             interactive={false}
           />
         ))}

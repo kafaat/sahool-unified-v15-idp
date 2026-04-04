@@ -320,7 +320,11 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(
                     </label>
                     <select
                       value={filters.category || ''}
-                      onChange={(e) => handleFilterChange('category', (e.target.value || undefined) as ObservationCategory | undefined)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const category = value === '' ? undefined : CATEGORY_OPTIONS.find((opt) => opt.value === value)?.value;
+                        handleFilterChange('category', category);
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent"
                     >
                       <option value="">{isArabic ? 'الكل' : 'All'}</option>
@@ -340,10 +344,11 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(
                     <select
                       value={filters.minSeverity || ''}
                       onChange={(e) =>
-                        handleFilterChange(
-                          'minSeverity',
-                          e.target.value ? (Number(e.target.value) as 1 | 2 | 3 | 4 | 5) : undefined
-                        )
+                        {
+                          const num = Number(e.target.value);
+                          const severity = [1, 2, 3, 4, 5].includes(num) ? (num as 1 | 2 | 3 | 4 | 5) : undefined;
+                          handleFilterChange('minSeverity', severity);
+                        }
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent"
                     >

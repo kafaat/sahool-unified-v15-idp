@@ -683,7 +683,6 @@ export default function GrowthStagesTimeline({
               {stages.map((stage, i) => {
                 const isActive = i === activeIndex;
                 const isCompleted = activeIndex >= 0 && i < activeIndex;
-                const _midPct = ((stage.startDay + stage.endDay) / 2 / totalDays) * 100;
 
                 return (
                   <div

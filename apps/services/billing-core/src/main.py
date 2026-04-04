@@ -593,10 +593,7 @@ if os.getenv("ENVIRONMENT") == "production":
     if not STRIPE_WEBHOOK_SECRET:
         _missing_creds.append("STRIPE_WEBHOOK_SECRET")
     if _missing_creds:
-        raise RuntimeError(
-            "Missing required payment credentials in production: "
-            + ", ".join(_missing_creds)
-        )
+        raise RuntimeError("Missing required payment credentials in production: " + ", ".join(_missing_creds))
 
 
 # =============================================================================

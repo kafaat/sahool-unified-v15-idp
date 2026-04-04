@@ -125,7 +125,12 @@ class TestAdvisoryRateLimiter:
         key = limiter._get_client_key(request, "default")
         assert "jwt_tenant" in key
 
-    def test_client_key_fallback_to_header(self):
+    def test_client_key_fallback_to_anonymous_without_jwt(self):
+        """When no verified JWT tenant is available, use 'anonymous' bucket.
+
+        SECURITY: X-Tenant-ID header is intentionally ignored to prevent
+        attackers from distributing rate-limit counters across fake tenant IDs.
+        """
         limiter = AdvisoryRateLimiter()
         request = MagicMock()
         request.state = MagicMock(spec=[])  # No tenant_id or user attributes
@@ -133,7 +138,9 @@ class TestAdvisoryRateLimiter:
         request.client = MagicMock()
         request.client.host = "127.0.0.1"
         key = limiter._get_client_key(request, "default")
-        assert "header_tenant" in key
+        assert "anonymous" in key
+        assert "header_tenant" not in key
+        assert "127.0.0.1" in key
 
     def test_clean_window(self):
         limiter = AdvisoryRateLimiter()

@@ -390,7 +390,13 @@ class A2AClient:
 
             ws_url = str(agent_card.websocket_endpoint)
 
-            async with websockets.connect(ws_url) as websocket:
+            # SECURITY: Pass auth token to WebSocket connection.
+            # The A2A server enforces Bearer auth on /ws/{client_id}.
+            ws_headers = {"X-Agent-ID": self.sender_agent_id}
+            if self._auth_token:
+                ws_headers["Authorization"] = f"Bearer {self._auth_token}"
+
+            async with websockets.connect(ws_url, additional_headers=ws_headers) as websocket:
                 # Send task
                 # إرسال المهمة
                 await websocket.send(task.model_dump_json())

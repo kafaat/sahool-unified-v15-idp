@@ -52,7 +52,7 @@ try:
     HAS_GUARDRAILS = True
 except ImportError as _guardrails_err:
     HAS_GUARDRAILS = False
-    if _os.getenv("ENVIRONMENT") == "production":
+    if _os.getenv("ENVIRONMENT", "").lower() == "production":
         raise RuntimeError(
             "shared.guardrails is required in production but could not be imported. "
             "Refusing to start — prompt injection filtering would be disabled."

@@ -485,12 +485,12 @@ class AgriculturalMetrics:
 
     def record_ndvi_calculation(
         self,
-        field_id: str | None = None,
-        ndvi_value: float = 0.0,
+        ndvi_value: float,
         crop_type: str = "unknown",
         satellite_source: str = "sentinel-2",
         tenant_id: str = "default",
         region: str = "unknown",
+        field_id: str | None = None,
     ) -> None:
         """Record an NDVI calculation.
 
@@ -589,11 +589,11 @@ class AgriculturalMetrics:
 
     def record_irrigation_event(
         self,
-        field_id: str | None = None,
-        water_volume_liters: float = 0.0,
+        water_volume_liters: float,
         irrigation_type: str = "drip",
         crop_type: str = "unknown",
         tenant_id: str = "default",
+        field_id: str | None = None,
     ) -> None:
         """Record an irrigation event.
 
@@ -680,10 +680,10 @@ class AgriculturalMetrics:
 
     def set_crop_health_score(
         self,
-        field_id: str | None = None,
+        score: float,
         crop_type: str = "unknown",
-        score: float = 0.0,
         region: str = "unknown",
+        field_id: str | None = None,
     ) -> None:
         """Set the crop health score aggregated by region and crop type.
 
@@ -700,10 +700,10 @@ class AgriculturalMetrics:
 
     def set_soil_moisture(
         self,
-        field_id: str | None = None,
-        moisture_percent: float = 0.0,
+        moisture_percent: float,
         depth_cm: str = "30",
         region: str = "unknown",
+        field_id: str | None = None,
     ) -> None:
         """Set aggregated soil moisture for a region/depth combination.
 

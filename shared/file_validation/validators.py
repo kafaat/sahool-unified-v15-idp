@@ -112,16 +112,12 @@ class FileValidator:
         if not self.config.allow_executable:
             self._check_executable(file_content, filename)
 
-        # 5b. ZIP bomb protection — check compression ratio for archive types
-        archive_mimes = {
+        # 5b. ZIP bomb protection — only apply to ZIP MIME types supported by _check_zip_bomb()
+        zip_mimes = {
             "application/zip",
             "application/x-zip-compressed",
-            "application/gzip",
-            "application/x-gzip",
-            "application/x-tar",
-            "application/x-7z-compressed",
         }
-        if declared_mime_type in archive_mimes or (detected_mime and detected_mime in archive_mimes):
+        if declared_mime_type in zip_mimes or (detected_mime and detected_mime in zip_mimes):
             self._check_zip_bomb(file_content, filename)
 
         # 6. Scan for viruses

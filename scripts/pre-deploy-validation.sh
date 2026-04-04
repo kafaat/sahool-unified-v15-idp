@@ -99,8 +99,11 @@ if [[ "${1:-}" == "--strict" ]]; then
   echo "Strict mode: scanning entire repository for CHANGE_ME_BEFORE_DEPLOY..."
   echo ""
 
-  # Build a combined pattern from all PLACEHOLDER_PATTERNS
-  combined_pattern=$(IFS="|"; echo "${PLACEHOLDER_PATTERNS[*]}")
+  # Build a combined regex pattern from all PLACEHOLDER_PATTERNS
+  combined_pattern=""
+  for pat in "${PLACEHOLDER_PATTERNS[@]}"; do
+    combined_pattern="${combined_pattern:+${combined_pattern}|}${pat}"
+  done
 
   # Exclude example/template files, docs, and test fixtures.
   # Helm templates/ are excluded (placeholders replaced at helm install time)

@@ -5,6 +5,7 @@
 
 import { USER_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import {
   Role,
   UserStatus,

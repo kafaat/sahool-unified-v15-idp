@@ -76,25 +76,6 @@ export const ERROR_MESSAGES = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Mock Data for Offline Support
-// ═══════════════════════════════════════════════════════════════════════════
-
-const MOCK_SESSION: ScoutingSession = {
-  id: 'session-1',
-  fieldId: '1',
-  fieldName: 'North Field',
-  fieldNameAr: 'الحقل الشمالي',
-  status: 'active',
-  startTime: new Date().toISOString(),
-  scoutId: 'user-1',
-  scoutName: 'Ahmed Al-Shahrani',
-  observationsCount: 0,
-  observations: [],
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
 // Helper Functions
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -230,12 +211,7 @@ export const scoutingApi = {
         startTime: new Date().toISOString(),
       });
 
-      return response.data.data || {
-        ...MOCK_SESSION,
-        fieldId,
-        notes,
-        id: `offline-session-${Date.now()}`,
-      };
+      return response.data.data;
     });
   },
 
@@ -253,13 +229,7 @@ export const scoutingApi = {
         }
       );
 
-      return (
-        response.data.data || {
-          ...MOCK_SESSION,
-          id: sessionId,
-          status: 'completed' as const,
-        }
-      );
+      return response.data.data;
     });
   },
 
@@ -272,7 +242,7 @@ export const scoutingApi = {
       const response = await api.get<ApiSessionResponse>(
         `${API_PREFIX}/scouting/sessions/${sessionId}`
       );
-      return response.data.data || { ...MOCK_SESSION, id: sessionId };
+      return response.data.data;
     });
   },
 

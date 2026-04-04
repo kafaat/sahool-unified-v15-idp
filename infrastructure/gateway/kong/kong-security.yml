@@ -258,10 +258,16 @@ plugins:
             if string.find(ct, "application/json", 1, true)
                or string.find(ct, "application/x-www-form-urlencoded", 1, true)
                or string.find(ct, "text/plain", 1, true) then
-              local body, err = kong.request.get_raw_body()
-              if body and #body <= 65536 then
-                if check_sql_injection(body) then return reject_malicious("body", "payload") end
-                if check_xss(body)           then return reject_malicious("body", "payload") end
+              -- Avoid reading the full body when the declared size already exceeds
+              -- the scan limit. get_raw_body() buffers the entire payload in memory,
+              -- so we skip the read for large requests to limit overhead and latency.
+              local content_length = tonumber(kong.request.get_header("content-length"))
+              if not content_length or content_length <= 65536 then
+                local body, err = kong.request.get_raw_body()
+                if body and #body <= 65536 then
+                  if check_sql_injection(body) then return reject_malicious("body", "payload") end
+                  if check_xss(body)           then return reject_malicious("body", "payload") end
+                end
               end
             end
           end
@@ -276,30 +282,42 @@ plugins:
           }
           local is_upload = false
           for _, up in ipairs(upload_paths) do
-            if string.find(path, up, 1, true) then is_upload = true; break end
+            -- Use exact path or prefix-boundary match to prevent substring false-positives
+            -- (e.g. "/api/v1/uploads" must not match the "/api/v1/upload" entry).
+            if path == up or path:sub(1, #up + 1) == up .. "/" then is_upload = true; break end
           end
           if is_upload then
             local ct = kong.request.get_header("content-type")
-            if ct then
-              local allowed = {
-                "multipart/form-data", "application/octet-stream",
-                -- Explicit safe image types only; "image/" wildcard is intentionally
-                -- avoided because it would also permit image/svg+xml, which is an
-                -- XSS vector when downstream serves uploaded files back to browsers.
-                "image/jpeg", "image/png", "image/webp", "image/gif",
-                "application/pdf", "application/json",
-              }
-              local ok = false
-              for _, t in ipairs(allowed) do
-                if string.find(ct, t, 1, true) then ok = true; break end
-              end
-              if not ok then
-                kong.log.warn("Invalid content type for upload endpoint: ", ct)
-                return kong.response.exit(415, {
-                  error    = "Unsupported media type",
-                  error_ar = "نوع الوسائط غير مدعوم",
-                })
-              end
+            -- Reject requests that omit Content-Type entirely on upload endpoints.
+            if not ct or ct == "" then
+              kong.log.warn("Missing content type for upload endpoint")
+              return kong.response.exit(415, {
+                error    = "Unsupported media type",
+                error_ar = "نوع الوسائط غير مدعوم",
+              })
+            end
+            -- Normalize: strip MIME parameters (e.g. "multipart/form-data; boundary=…"
+            -- → "multipart/form-data") before comparing to prevent substring bypasses
+            -- such as "application/jsonp" matching "application/json".
+            local mime = ct:match("^([^;]+)"):gsub("%s+", ""):lower()
+            local allowed = {
+              "multipart/form-data", "application/octet-stream",
+              -- Explicit safe image types only; "image/" wildcard is intentionally
+              -- avoided because it would also permit image/svg+xml, which is an
+              -- XSS vector when downstream serves uploaded files back to browsers.
+              "image/jpeg", "image/png", "image/webp", "image/gif",
+              "application/pdf", "application/json",
+            }
+            local ok = false
+            for _, t in ipairs(allowed) do
+              if mime == t then ok = true; break end
+            end
+            if not ok then
+              kong.log.warn("Invalid content type for upload endpoint: ", ct)
+              return kong.response.exit(415, {
+                error    = "Unsupported media type",
+                error_ar = "نوع الوسائط غير مدعوم",
+              })
             end
           end
 
@@ -451,7 +469,7 @@ services:
   # With strip_path: false, a request to /metrics is forwarded as /metrics (not /metrics/metrics).
   # --------------------------------------------------------------------------
   - name: metrics-protected
-    url: http://kong:8001
+    url: http://127.0.0.1:8001
     routes:
       - name: metrics-route
         paths:

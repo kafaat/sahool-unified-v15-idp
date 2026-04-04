@@ -3130,6 +3130,7 @@ plugins:
         - Authorization
         - X-Auth-Token
         - X-Correlation-Id
+        - X-Tenant-Id
       exposed_headers:
         - X-Request-ID
         - X-Correlation-Id

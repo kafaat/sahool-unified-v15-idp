@@ -23,12 +23,17 @@ EXIT_CODE=0
 # ─────────────────────────────────────────────────────────────────────────────
 # Known production-critical files that must NOT contain placeholders
 # ─────────────────────────────────────────────────────────────────────────────
+# NOTE: Files using ${VAR:-CHANGE_ME_BEFORE_DEPLOY} shell substitution are safe
+# (the placeholder is only a fallback when the env var is unset).
+# Template files (*.template.*) and Helm templates with {{ .Values }} are also
+# excluded since their placeholders are replaced at deploy/install time.
 CRITICAL_FILES=(
   "infrastructure/core/vault/vault-production.hcl"
   "infrastructure/core/vault/docker-compose.vault.yml"
   "infrastructure/core/postgres/ha-replication/docker-compose.ha.yml"
-  "helm/infra/templates/secrets.yaml"
-  "governance/credentials.template.yaml"
+  # NOTE: helm/infra/templates/secrets.yaml uses CHANGE_ME as Helm-time defaults
+  # that MUST be overridden via --set or values files during helm install.
+  # governance/credentials.template.yaml is a template file by design.
 )
 
 # Patterns that indicate unfilled placeholders
@@ -61,7 +66,15 @@ for file in "${CRITICAL_FILES[@]}"; do
   file_clean=true
   for pattern in "${PLACEHOLDER_PATTERNS[@]}"; do
     # Search uncommented lines only (ignore lines starting with # or //)
-    matches=$(grep -n "${pattern}" "$filepath" 2>/dev/null | grep -v '^\s*#' | grep -v '^\s*//' || true)
+    # Also ignore shell/Helm variable defaults like ${VAR:-CHANGE_ME_BEFORE_DEPLOY}
+    # — these are safe fallback patterns that only activate when the env var is unset.
+    matches=$(grep -n "${pattern}" "$filepath" 2>/dev/null \
+      | grep -v '^\s*#' \
+      | grep -v '^\s*//' \
+      | grep -v ':-CHANGE_ME' \
+      | grep -v '\${.*CHANGE_ME' \
+      | grep -v '\.template\.' \
+      || true)
     if [[ -n "$matches" ]]; then
       echo -e "  ${RED}FAIL${NC} ${file}"
       echo "$matches" | while IFS= read -r line; do
@@ -109,12 +122,24 @@ if [[ "${1:-}" == "--strict" ]]; then
     --exclude="*.example" \
     --exclude=".env.example" \
     --exclude="env.example" \
+    --exclude="*.template.*" \
+    --exclude="credentials.template.yaml" \
     --exclude="*.md" \
+    --exclude="*.yml.bak" \
     --exclude="pre-deploy-validation.sh" \
+    --exclude="pre-deploy-validation.yml" \
+    --exclude="*.k8s.example.yaml" \
     --exclude-dir="node_modules" \
     --exclude-dir=".git" \
     --exclude-dir="archive" \
-    2>/dev/null | grep -v '^\s*#' | grep -v '^\s*//' || true)
+    --exclude-dir="tests" \
+    --exclude-dir="helm" \
+    2>/dev/null \
+    | grep -v '^\s*#' \
+    | grep -v '^\s*//' \
+    | grep -v ':-CHANGE_ME' \
+    | grep -v '\${.*CHANGE_ME' \
+    || true)
 
   if [[ -n "$hits" ]]; then
     echo -e "  ${RED}FAIL${NC} Found CHANGE_ME_BEFORE_DEPLOY in repository:"

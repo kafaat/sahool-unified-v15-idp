@@ -34,7 +34,8 @@ function LoginForm() {
 
   const validateEmail = (value: string): string => {
     if (!value.trim()) return 'البريد الإلكتروني مطلوب';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'صيغة البريد الإلكتروني غير صحيحة';
+    // RFC 5322 simplified - rejects user@.com, user@com, etc.
+    if (!/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/.test(value)) return 'صيغة البريد الإلكتروني غير صحيحة';
     return '';
   };
 

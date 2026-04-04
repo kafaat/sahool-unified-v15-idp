@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 // Crop Protection Management Page

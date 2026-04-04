@@ -228,6 +228,10 @@ export const scoutingApi = {
       if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
         throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
       }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
+      }
       return session as ScoutingSession;
     });
   },
@@ -250,6 +254,10 @@ export const scoutingApi = {
       if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
         throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
       }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
+      }
       return session as ScoutingSession;
     });
   },
@@ -266,6 +274,10 @@ export const scoutingApi = {
       const session = response.data?.data;
       if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
         throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
       }
       return session as ScoutingSession;
     });

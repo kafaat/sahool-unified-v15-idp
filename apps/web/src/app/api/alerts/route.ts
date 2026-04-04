@@ -243,8 +243,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate Content-Type before parsing
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json(
+        { success: false, error: 'Content-Type must be application/json', error_ar: 'نوع المحتوى يجب أن يكون application/json' },
+        { status: 415 }
+      );
+    }
+
     // Parse and validate request body
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON body', error_ar: 'نص الطلب غير صالح' },
+        { status: 400 }
+      );
+    }
 
     const { alert_id, action, comment } = body as {
       alert_id?: string;

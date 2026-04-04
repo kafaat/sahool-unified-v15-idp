@@ -6,6 +6,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import type L from 'leaflet';
 import { Undo2, Pentagon, Square, Trash2, X, Check } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -44,41 +45,47 @@ const MapLoadingFallback = ({ height }: { height: string }) => (
 // Dynamic imports (Leaflet does not support SSR)
 // ---------------------------------------------------------------------------
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
 const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
   { ssr: false, loading: () => null },
-) as any;
+) as React.ComponentType<Record<string, unknown>>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
 const TileLayer = dynamic(
   () => import('react-leaflet').then((mod) => mod.TileLayer),
   { ssr: false, loading: () => null },
-) as any;
+) as React.ComponentType<Record<string, unknown>>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
 const LayersControl = dynamic(
   () => import('react-leaflet').then((mod) => mod.LayersControl),
   { ssr: false, loading: () => null },
-) as any;
+) as React.ComponentType<Record<string, unknown>> & { BaseLayer: React.ComponentType<Record<string, unknown>> };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
 const Marker = dynamic(
   () => import('react-leaflet').then((mod) => mod.Marker),
   { ssr: false, loading: () => null },
-) as any;
+) as React.ComponentType<Record<string, unknown>>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
 const Polyline = dynamic(
   () => import('react-leaflet').then((mod) => mod.Polyline),
   { ssr: false, loading: () => null },
-) as any;
+) as React.ComponentType<Record<string, unknown>>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
 const Polygon = dynamic(
   () => import('react-leaflet').then((mod) => mod.Polygon),
   { ssr: false, loading: () => null },
-) as any;
+) as React.ComponentType<Record<string, unknown>>;
 
 // ---------------------------------------------------------------------------
 // Helper: build a small circular icon for vertices
 // ---------------------------------------------------------------------------
 
-function createVertexIcon(L: any, color: string = '#2563eb') {
+function createVertexIcon(L: typeof import('leaflet'), color: string = '#2563eb') {
   return L.divIcon({
     className: '',
     html: `<div style="
@@ -109,7 +116,7 @@ function DrawingLayer({
   onAddVertex: (v: Vertex) => void;
   onMouseMove?: (coords: { lat: number; lng: number }) => void;
 }) {
-  const [mapEvents, setMapEvents] = useState<any>(null);
+  const [mapEvents, setMapEvents] = useState<((handlers: Record<string, (e: L.LeafletMouseEvent) => void>) => void) | null>(null);
 
   useEffect(() => {
     import('react-leaflet').then((mod) => {
@@ -140,14 +147,14 @@ function DrawingLayerInner({
   vertices: Vertex[];
   onAddVertex: (v: Vertex) => void;
   onMouseMove?: (coords: { lat: number; lng: number }) => void;
-  useMapEvents: any;
+  useMapEvents: (handlers: Record<string, (e: L.LeafletMouseEvent) => void>) => void;
 }) {
   useMapEvents({
-    click(e: any) {
+    click(e: L.LeafletMouseEvent) {
       if (!mode) return;
       onAddVertex({ lat: e.latlng.lat, lng: e.latlng.lng });
     },
-    mousemove(e: any) {
+    mousemove(e: L.LeafletMouseEvent) {
       onMouseMove?.({ lat: e.latlng.lat, lng: e.latlng.lng });
     },
   });
@@ -245,7 +252,7 @@ export default function DrawableMap({
   height = '500px',
 }: DrawableMapProps) {
   const [isClient, setIsClient] = useState(false);
-  const [leaflet, setLeaflet] = useState<any>(null);
+  const [leaflet, setLeaflet] = useState<typeof import('leaflet') | null>(null);
   const [mode, setMode] = useState<DrawingMode>(null);
   const [vertices, setVertices] = useState<Vertex[]>([]);
   const [completed, setCompleted] = useState(false);

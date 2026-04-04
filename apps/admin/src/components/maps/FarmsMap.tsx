@@ -91,6 +91,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   const [isMounted, setIsMounted] = useState(false);
   const [mapVersion, setMapVersion] = useState(0);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Leaflet Map type is not available due to dynamic import (SSR incompatible)
   const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {

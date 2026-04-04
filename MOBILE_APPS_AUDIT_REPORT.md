@@ -4,7 +4,7 @@
 **تاريخ التحديث | Refresh Date:** 2026-04-04  
 **الإصدار | Version:** 16.0.0  
 **المشروع | Project:** SAHOOL Platform  
-**نوع الوثيقة | Document Type:** تحديث تنفيذي مباشر superseding the older 2026-02 snapshot when conflicts exist
+**نوع الوثيقة | Document Type:** تحديث تنفيذي مباشر يحل محل اللقطات الأقدم عند التعارض | Direct executive refresh that supersedes older snapshots when conflicts exist
 
 ---
 

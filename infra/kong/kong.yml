@@ -3141,7 +3141,9 @@ plugins:
 
   # تحديد حجم الطلب لمنع هجمات الحمولة الكبيرة
   # Request size limiting to prevent large payload attacks
+  # ID matches kong-security.yml so deck deduplicates when both files are merged.
   - name: request-size-limiting
+    id: 5ef0e989-a370-4c6d-9cea-9b38326c26c2
     config:
       allowed_payload_size: 10
       size_unit: megabytes
@@ -3160,7 +3162,9 @@ plugins:
   # NOTE: X-XSS-Protection is deprecated in modern browsers — Content-Security-Policy
   # is the correct mitigation for XSS.  HSTS preload flag is omitted until the domain
   # is submitted to the HSTS preload list (https://hstspreload.org).
+  # ID matches kong-security.yml so deck deduplicates when both files are merged.
   - name: response-transformer
+    id: 885fbc5f-c77c-4f85-b0d8-78cced9105f2
     config:
       add:
         headers:

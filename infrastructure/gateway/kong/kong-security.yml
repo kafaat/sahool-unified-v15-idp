@@ -33,6 +33,8 @@ plugins:
   # microservices, and CI/CD pipelines.
   # --------------------------------------------------------------------------
   - name: bot-detection
+    # Stable ID so deck deduplicates this entry when merged with kong.yml.
+    id: dbcd7983-9db0-4a07-b307-bc8de1dfdf21
     enabled: true
     config:
       deny:
@@ -71,6 +73,9 @@ plugins:
   # Request Size Limiting - تحديد حجم الطلب (default 10 MB for regular API)
   # --------------------------------------------------------------------------
   - name: request-size-limiting
+    # Stable ID so deck deduplicates this entry when merged with kong.yml.
+    # This definition (from kong-security.yml, loaded second) takes precedence.
+    id: 5ef0e989-a370-4c6d-9cea-9b38326c26c2
     enabled: true
     config:
       allowed_payload_size: 10
@@ -84,6 +89,9 @@ plugins:
   # HSTS preload flag is omitted until the domain is submitted to the preload list.
   # --------------------------------------------------------------------------
   - name: response-transformer
+    # Stable ID so deck deduplicates this entry when merged with kong.yml.
+    # This definition (from kong-security.yml, loaded second) takes precedence.
+    id: 885fbc5f-c77c-4f85-b0d8-78cced9105f2
     enabled: true
     config:
       add:

@@ -16,6 +16,7 @@ from __future__ import annotations
 import logging
 import os
 import time
+import uuid
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -109,29 +110,54 @@ class _RedisBackend:
             logger.warning("redis package not installed, falling back to in-memory")
             return False
         except Exception as e:
-            logger.warning("redis_connection_failed", error=str(e))
+            logger.warning("redis_connection_failed: %s", e)
             self._redis = None
             return False
 
+    # Lua script for atomic sliding window check.
+    # Avoids race conditions by performing trim + count + conditional add
+    # in a single atomic operation.
+    _SLIDING_WINDOW_LUA = """
+    local key = KEYS[1]
+    local now = tonumber(ARGV[1])
+    local window = tonumber(ARGV[2])
+    local limit = tonumber(ARGV[3])
+    local member = ARGV[4]
+
+    redis.call('ZREMRANGEBYSCORE', key, 0, now - window)
+    local count = redis.call('ZCARD', key)
+
+    if count < limit then
+        redis.call('ZADD', key, now, member)
+        redis.call('EXPIRE', key, window * 2)
+        return count + 1
+    end
+
+    redis.call('EXPIRE', key, window * 2)
+    return -1
+    """
+
     async def check_window(self, key: str, window_seconds: int, limit: int) -> tuple[bool, int]:
-        """Check sliding window. Returns (allowed, current_count)."""
+        """Check sliding window atomically via Lua script. Returns (allowed, current_count)."""
         if not self._redis:
             raise RuntimeError("Redis not available")
         now = time.time()
         window_key = f"advisory:ratelimit:{key}:{window_seconds}"
+        # Unique member per request to avoid collisions
+        member = f"{now}:{uuid.uuid4().hex[:8]}"
         try:
-            pipe = self._redis.pipeline()
-            pipe.zremrangebyscore(window_key, 0, now - window_seconds)
-            pipe.zcard(window_key)
-            pipe.zadd(window_key, {str(now): now})
-            pipe.expire(window_key, window_seconds * 2)
-            results = await pipe.execute()
-            current_count = results[1]
-            if current_count >= limit:
-                # Remove the request we just added
-                await self._redis.zrem(window_key, str(now))
-                return False, current_count
-            return True, current_count + 1
+            result = await self._redis.eval(
+                self._SLIDING_WINDOW_LUA,
+                1,
+                window_key,
+                str(now),
+                str(window_seconds),
+                str(limit),
+                member,
+            )
+            if result == -1:
+                return False, limit
+            return True, int(result)
         except Exception:
             raise
 
@@ -253,7 +279,7 @@ class AdvisoryRateLimiter:
                 if connected:
                     return await self._check_redis(key, tier_config)
             except Exception as e:
-                logger.warning("redis_rate_limit_fallback", error=str(e))
+                logger.warning("redis_rate_limit_fallback: %s", e)
 
         # Fall back to in-memory
         return self._check_in_memory(key, tier_config)
@@ -264,23 +290,23 @@ class AdvisoryRateLimiter:
 
         # Check burst
         if not await self._redis_backend.check_burst(key, tier_config.burst_limit):
-            logger.warning("burst_limit_exceeded_redis", key=key)
-            return False, self._build_headers(key, tier_config, exceeded=True, source="redis")
+            logger.warning("burst_limit_exceeded_redis: %s", key)
+            return False, self._build_headers(key, tier_config, exceeded=True)
 
         # Check per-minute
         allowed, count = await self._redis_backend.check_window(key, 60, tier_config.requests_per_minute)
         if not allowed:
-            logger.warning("per_minute_limit_exceeded_redis", key=key)
-            return False, self._build_headers(key, tier_config, exceeded=True, source="redis")
+            logger.warning("per_minute_limit_exceeded_redis: %s", key)
+            return False, self._build_headers(key, tier_config, exceeded=True)
 
         # Check per-hour
         allowed, _ = await self._redis_backend.check_window(key, 3600, tier_config.requests_per_hour)
         if not allowed:
-            logger.warning("per_hour_limit_exceeded_redis", key=key)
-            return False, self._build_headers(key, tier_config, exceeded=True, source="redis")
+            logger.warning("per_hour_limit_exceeded_redis: %s", key)
+            return False, self._build_headers(key, tier_config, exceeded=True)
 
         remaining = max(0, tier_config.requests_per_minute - count)
-        return True, self._build_headers_remaining(tier_config, remaining, source="redis")
+        return True, self._build_headers_remaining(tier_config, remaining)
 
     def _check_in_memory(self, key: str, tier_config: RateLimitTier) -> tuple[bool, dict[str, str]]:
         """Check rate limits using in-memory storage."""
@@ -338,7 +364,6 @@ class AdvisoryRateLimiter:
         key: str,
         tier: RateLimitTier,
         exceeded: bool,
-        source: str = "memory",
     ) -> dict[str, str]:
         """Build rate limit response headers."""
         minute_remaining = max(
@@ -361,7 +386,6 @@ class AdvisoryRateLimiter:
         self,
         tier: RateLimitTier,
         remaining: int,
-        source: str = "memory",
     ) -> dict[str, str]:
         """Build rate limit headers with known remaining count."""
         return {

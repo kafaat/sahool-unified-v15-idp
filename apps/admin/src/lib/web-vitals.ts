@@ -27,14 +27,17 @@ function sendMetric(metric: Metric): void {
     timestamp: new Date().toISOString(),
   };
 
+  const payloadJson = JSON.stringify(payload);
+
   // Use sendBeacon for reliable delivery during page transitions
   if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-    navigator.sendBeacon(VITALS_ENDPOINT, JSON.stringify(payload));
+    const beaconBody = new Blob([payloadJson], { type: 'application/json' });
+    navigator.sendBeacon(VITALS_ENDPOINT, beaconBody);
   } else {
     fetch(VITALS_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: payloadJson,
       keepalive: true,
     }).catch(() => {
       // Silently fail - vitals reporting is best-effort

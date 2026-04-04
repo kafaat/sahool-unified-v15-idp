@@ -345,9 +345,9 @@ def get_invalid_geometries(
             LIMIT :limit;
         """  # nosec B608 - table validated against _ALLOWED_TABLES allowlist
     result = db.execute(
-        text(
+        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
             invalid_list_sql
-        ),  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
+        ),
         {"limit": limit},
     )
     return [dict(row._mapping) for row in result]

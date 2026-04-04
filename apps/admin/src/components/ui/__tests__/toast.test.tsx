@@ -114,7 +114,7 @@ describe('ToastProvider', () => {
         <ToastTrigger />
       </ToastProvider>
     );
-    expect(screen.getByLabelText('الإشعارات')).toBeInTheDocument();
+    expect(screen.getByLabelText('الإشعارات - Notifications')).toBeInTheDocument();
   });
 
   it('has a close button on toasts', () => {

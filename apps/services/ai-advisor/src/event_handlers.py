@@ -183,16 +183,16 @@ class AIEventHandlers:
 
         # Trigger real-time prediction if low vegetation detected
         if ndvi_value < 0.3:
+            fb = self._fallback_yield(ndvi_value)
             ml_result = await self._fetch_yield_prediction(field_id, ndvi_value)
-            if ml_result is not None:
-                predicted_yield_tons = ml_result.get(
-                    "predicted_yield_tons",
-                    self._fallback_yield(ndvi_value)["predicted_yield_tons"],
-                )
-                confidence = ml_result.get("confidence", 0.85)
+            raw_yield = ml_result.get("predicted_yield_tons") if isinstance(ml_result, dict) else None
+            raw_conf = ml_result.get("confidence") if isinstance(ml_result, dict) else None
+
+            if isinstance(raw_yield, (int, float)):
+                predicted_yield_tons = raw_yield
+                confidence = raw_conf if isinstance(raw_conf, (int, float)) else fb["confidence"]
                 model_source = "yield-prediction-service"
             else:
-                fb = self._fallback_yield(ndvi_value)
                 predicted_yield_tons = fb["predicted_yield_tons"]
                 confidence = fb["confidence"]
                 model_source = fb["model_source"]
@@ -332,16 +332,16 @@ class AIEventHandlers:
             ndvi_data = self._cache_get(self.ndvi_cache, field_id) or {"value": 0.5}
             ndvi_value = ndvi_data["value"]
 
+            fb = self._fallback_yield(ndvi_value)
             ml_result = await self._fetch_yield_prediction(field_id, ndvi_value)
-            if ml_result is not None:
-                predicted_yield_tons = ml_result.get(
-                    "predicted_yield_tons",
-                    self._fallback_yield(ndvi_value)["predicted_yield_tons"],
-                )
-                confidence = ml_result.get("confidence", 0.87)
+            raw_yield = ml_result.get("predicted_yield_tons") if isinstance(ml_result, dict) else None
+            raw_conf = ml_result.get("confidence") if isinstance(ml_result, dict) else None
+
+            if isinstance(raw_yield, (int, float)):
+                predicted_yield_tons = raw_yield
+                confidence = raw_conf if isinstance(raw_conf, (int, float)) else fb["confidence"]
                 model_source = "yield-prediction-service"
             else:
-                fb = self._fallback_yield(ndvi_value)
                 predicted_yield_tons = fb["predicted_yield_tons"]
                 confidence = fb["confidence"]
                 model_source = fb["model_source"]

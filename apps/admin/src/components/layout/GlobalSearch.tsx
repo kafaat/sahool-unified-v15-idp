@@ -2,7 +2,8 @@
 
 /**
  * Global Search — البحث الشامل
- * Ctrl+K / Cmd+K opens search modal
+ * This component renders the search modal overlay. The parent component
+ * (Sidebar/Layout) is responsible for opening it via Ctrl+K / Cmd+K.
  * Searches: fields, tasks, alerts, crops, equipment, reports
  */
 

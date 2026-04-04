@@ -193,6 +193,7 @@ CREATE TRIGGER trg_satellite_providers_updated_at
 ALTER TABLE satellite_provider_usage ENABLE ROW LEVEL SECURITY;
 ALTER TABLE satellite_provider_usage FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS satellite_provider_usage_tenant_policy ON satellite_provider_usage;
 CREATE POLICY satellite_provider_usage_tenant_policy ON satellite_provider_usage
     FOR ALL
     USING (tenant_id = current_tenant_id() OR is_super_admin())

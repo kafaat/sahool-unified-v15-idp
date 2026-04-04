@@ -158,12 +158,13 @@ export async function GET(request: NextRequest) {
 
     // Extract tenant context (same as POST handler)
     const tenantId = await getTenantId();
-
-    // Public endpoints (providers, locations) don't require auth
-    // Tenant-scoped endpoints (current, forecast) require authentication
-    const requiresAuth = action === 'current' || action === 'forecast';
-    if (requiresAuth && !tenantId) {
+    if (!tenantId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    // Validate locationId against path traversal (must be UUID or slug)
+    if (locationId && !/^[a-zA-Z0-9_-]+$/.test(locationId)) {
+      return NextResponse.json({ error: 'Invalid locationId format' }, { status: 400 });
     }
 
     let path: string;
@@ -176,14 +177,14 @@ export async function GET(request: NextRequest) {
         break;
       case 'current':
         if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
-        path = `/weather/current/${locationId}`;
+        path = `/weather/current/${encodeURIComponent(locationId)}`;
         break;
       case 'forecast': {
         if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
         const forecastParams = new URLSearchParams();
         if (days) forecastParams.set('days', days);
         const forecastQs = forecastParams.toString();
-        path = `/weather/forecast/${locationId}${forecastQs ? `?${forecastQs}` : ''}`;
+        path = `/weather/forecast/${encodeURIComponent(locationId)}${forecastQs ? `?${forecastQs}` : ''}`;
         break;
       }
       default:

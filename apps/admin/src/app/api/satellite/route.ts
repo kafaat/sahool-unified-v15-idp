@@ -63,12 +63,21 @@ export async function GET(request: NextRequest) {
       case 'eo-status':
         path = '/v1/eo-status';
         break;
-      case 'sar-timeseries':
+      case 'sar-timeseries': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
         }
-        path = `/v1/sar-timeseries/${fieldId}?start_date=${searchParams.get('start_date') || ''}&end_date=${searchParams.get('end_date') || ''}${lat ? `&lat=${lat}` : ''}${lon ? `&lon=${lon}` : ''}`;
+        const sarParams = new URLSearchParams();
+        const startDate = searchParams.get('start_date');
+        const endDate = searchParams.get('end_date');
+        if (startDate) sarParams.set('start_date', startDate);
+        if (endDate) sarParams.set('end_date', endDate);
+        if (lat) sarParams.set('lat', lat);
+        if (lon) sarParams.set('lon', lon);
+        const sarQs = sarParams.toString();
+        path = `/v1/sar-timeseries/${fieldId}${sarQs ? `?${sarQs}` : ''}`;
         break;
+      }
       case 'cloud-cover': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });

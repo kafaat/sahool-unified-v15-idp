@@ -28,14 +28,12 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any
-from uuid import uuid4
 
 import structlog
 
-from shared.ai.orchestration.memory import CollectiveMemory, text_similarity
+from shared.ai.orchestration.memory import CollectiveMemory
 from shared.ai.orchestration.models import (
     MemoryEntry,
     MemoryNamespace,
@@ -410,9 +408,7 @@ class SharedMemory:
             elif entry_ns == SharedMemoryNamespace.RESULT:
                 context["results"].append({"key": entry.metadata.get("original_key", entry.key), "value": entry.value})
             elif entry_ns == SharedMemoryNamespace.PATTERN:
-                context["patterns"].append(
-                    {"key": entry.metadata.get("original_key", entry.key), "value": entry.value}
-                )
+                context["patterns"].append({"key": entry.metadata.get("original_key", entry.key), "value": entry.value})
             elif entry_ns == SharedMemoryNamespace.SHARED:
                 context["shared"].append({"key": entry.metadata.get("original_key", entry.key), "value": entry.value})
 

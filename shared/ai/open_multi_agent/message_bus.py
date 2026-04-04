@@ -133,7 +133,7 @@ class _InMemoryBus:
         try:
             result = await asyncio.wait_for(fut, timeout=timeout)
             return result if isinstance(result, bytes) else result.encode()
-        except asyncio.TimeoutError:
+        except TimeoutError:
             self._pending_requests.pop(reply_subject, None)
             raise
 
@@ -350,7 +350,7 @@ class MessageBus:
                 return json.loads(response.data.decode())
             except Exception as e:
                 if "timeout" in str(e).lower():
-                    raise asyncio.TimeoutError(f"Request to {subject} timed out after {timeout}s") from e
+                    raise TimeoutError(f"Request to {subject} timed out after {timeout}s") from e
                 logger.warning("message_bus_request_nats_failed", subject=subject, error=str(e))
 
         # Fallback to in-memory

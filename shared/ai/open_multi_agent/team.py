@@ -30,8 +30,6 @@ from shared.ai.orchestration.models import (
     AgentProfile,
     Task,
     TaskPriority,
-    TaskResult,
-    TaskStatus,
 )
 
 logger = structlog.get_logger()
@@ -107,7 +105,7 @@ class MessageBus:
         """
         self._history.append(message)
         if len(self._history) > self._max_history:
-            self._history = self._history[-self._max_history:]
+            self._history = self._history[-self._max_history :]
 
         subscribers = self._subscribers.get(message.topic, [])
         delivered = 0

@@ -145,12 +145,14 @@ class SharedMemory:
 
     def set(self, key: str, value: Any, *, agent_id: str = "") -> None:
         self._store[key] = value
-        self._history.append({
-            "action": "set",
-            "key": key,
-            "agent_id": agent_id,
-            "timestamp": datetime.now(UTC).isoformat(),
-        })
+        self._history.append(
+            {
+                "action": "set",
+                "key": key,
+                "agent_id": agent_id,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+        )
 
     def delete(self, key: str) -> None:
         self._store.pop(key, None)
@@ -208,9 +210,7 @@ class ToolDispatcher:
         handler = self._handlers.get(tool_name)
         if handler is None:
             available = ", ".join(sorted(self._handlers)) or "(none)"
-            raise KeyError(
-                f"Tool '{tool_name}' is not registered. Available: {available}"
-            )
+            raise KeyError(f"Tool '{tool_name}' is not registered. Available: {available}")
         logger.info("tool_dispatch.start", tool=tool_name, args_keys=list(args.keys()))
         start = time.monotonic()
         try:
@@ -361,38 +361,40 @@ class AgentRunner:
         log.info("agent_runner.start", task_desc=task.description[:80])
 
         # 1. Build initial context ----------------------------------------
-        self._conversation.append(Message(
-            role=MessageRole.SYSTEM,
-            content=self.agent.system_prompt,
-        ))
+        self._conversation.append(
+            Message(
+                role=MessageRole.SYSTEM,
+                content=self.agent.system_prompt,
+            )
+        )
 
         # Inject memory snapshot as context
         mem_snapshot = self.memory.snapshot()
         if mem_snapshot:
-            self._conversation.append(Message(
-                role=MessageRole.SYSTEM,
-                content=f"Shared memory context:\n{json.dumps(mem_snapshot, default=str, ensure_ascii=False)}",
-            ))
+            self._conversation.append(
+                Message(
+                    role=MessageRole.SYSTEM,
+                    content=f"Shared memory context:\n{json.dumps(mem_snapshot, default=str, ensure_ascii=False)}",
+                )
+            )
 
         # Inject available tools
         if self.tools.registered_tools:
             tool_list = ", ".join(self.tools.registered_tools)
-            self._conversation.append(Message(
-                role=MessageRole.SYSTEM,
-                content=(
-                    f"You have the following tools available: {tool_list}. "
-                    "To use a tool, respond with a JSON object: "
-                    '{"tool": "<name>", "args": {<arguments>}}. '
-                    "When you have the final answer, respond normally without a tool call."
-                ),
-            ))
+            self._conversation.append(
+                Message(
+                    role=MessageRole.SYSTEM,
+                    content=(
+                        f"You have the following tools available: {tool_list}. "
+                        "To use a tool, respond with a JSON object: "
+                        '{"tool": "<name>", "args": {<arguments>}}. '
+                        "When you have the final answer, respond normally without a tool call."
+                    ),
+                )
+            )
 
         # Inject task context
-        task_context = (
-            f"Task: {task.description}\n"
-            f"Task (AR): {task.description_ar}\n"
-            f"Priority: {task.priority}\n"
-        )
+        task_context = f"Task: {task.description}\nTask (AR): {task.description_ar}\nPriority: {task.priority}\n"
         if task.context:
             task_context += f"Context data: {json.dumps(task.context, default=str, ensure_ascii=False)}\n"
         if task.field_id:
@@ -419,27 +421,25 @@ class AgentRunner:
                         self.llm.prompt(prompt_text),
                         timeout=self.agent.iteration_timeout_s,
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     log.warning(
                         "agent_runner.iteration_timeout",
                         iteration=self._iteration_count,
                         timeout_s=self.agent.iteration_timeout_s,
                     )
-                    error_msg = (
-                        f"Iteration {self._iteration_count} timed out "
-                        f"after {self.agent.iteration_timeout_s}s"
-                    )
+                    error_msg = f"Iteration {self._iteration_count} timed out after {self.agent.iteration_timeout_s}s"
                     error_msg_ar = (
-                        f"انتهت مهلة التكرار {self._iteration_count} "
-                        f"بعد {self.agent.iteration_timeout_s} ثانية"
+                        f"انتهت مهلة التكرار {self._iteration_count} بعد {self.agent.iteration_timeout_s} ثانية"
                     )
                     self._status = RunnerStatus.TIMEOUT
                     break
 
-                self._conversation.append(Message(
-                    role=MessageRole.ASSISTANT,
-                    content=response_text,
-                ))
+                self._conversation.append(
+                    Message(
+                        role=MessageRole.ASSISTANT,
+                        content=response_text,
+                    )
+                )
 
                 # Check for tool call
                 tool_call = _parse_tool_call(response_text)
@@ -463,11 +463,13 @@ class AgentRunner:
                     tool_result_str = f"Tool execution failed: {type(exc).__name__}: {exc}"
                     log.warning("agent_runner.tool_error", tool=tool_name, error=str(exc))
 
-                self._conversation.append(Message(
-                    role=MessageRole.TOOL,
-                    content=tool_result_str,
-                    name=tool_name,
-                ))
+                self._conversation.append(
+                    Message(
+                        role=MessageRole.TOOL,
+                        content=tool_result_str,
+                        name=tool_name,
+                    )
+                )
                 self._status = RunnerStatus.RUNNING
 
             else:

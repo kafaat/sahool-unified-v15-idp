@@ -32,13 +32,12 @@ from shared.ai.orchestration.models import (
     ConsensusType,
     SwarmTopology,
     Task,
-    TaskPriority,
     TaskResult,
     TaskStatus,
 )
 from shared.ai.orchestration.router import AgentRouter
 
-from .team import AgentPool, MessageBus, SharedMemory, TaskQueue, Team, TeamStatus
+from .team import Team, TeamStatus
 
 logger = structlog.get_logger()
 
@@ -157,6 +156,7 @@ class AgentRunner:
         if self._llm_manager is None:
             try:
                 from shared.ai.llm_provider import LLMProviderManager
+
                 self._llm_manager = LLMProviderManager()
             except ImportError:
                 logger.warning("llm_provider_not_available")
@@ -454,7 +454,7 @@ class OpenMultiAgent:
                 asyncio.gather(*[_process_task(t) for t in pending_tasks], return_exceptions=True),
                 timeout=config.timeout_s,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error("team_run_timeout", team_id=team.team_id, timeout_s=config.timeout_s)
             # Create timeout results for remaining tasks
             task_results = []

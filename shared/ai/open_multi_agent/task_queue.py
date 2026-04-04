@@ -156,19 +156,14 @@ class TaskQueue:
             # Roll back
             self._remove_task_unsafe(task.task_id)
             raise ValueError(
-                f"Adding task '{task.task_id}' would create a cycle | "
-                f"إضافة المهمة '{task.task_id}' ستنشئ دورة"
+                f"Adding task '{task.task_id}' would create a cycle | إضافة المهمة '{task.task_id}' ستنشئ دورة"
             )
 
         # Set initial status
         if deps:
             # Check if all deps are already completed
-            all_met = all(
-                self.status.get(d) == QueueTaskStatus.COMPLETED for d in deps
-            )
-            self.status[task.task_id] = (
-                QueueTaskStatus.READY if all_met else QueueTaskStatus.PENDING
-            )
+            all_met = all(self.status.get(d) == QueueTaskStatus.COMPLETED for d in deps)
+            self.status[task.task_id] = QueueTaskStatus.READY if all_met else QueueTaskStatus.PENDING
         else:
             self.status[task.task_id] = QueueTaskStatus.READY
 
@@ -207,19 +202,11 @@ class TaskQueue:
 
     def get_pending_tasks(self) -> list[Task]:
         """Return tasks still waiting on dependencies | مهام تنتظر التبعيات"""
-        return [
-            self.tasks[tid]
-            for tid, st in self.status.items()
-            if st == QueueTaskStatus.PENDING
-        ]
+        return [self.tasks[tid] for tid, st in self.status.items() if st == QueueTaskStatus.PENDING]
 
     def get_running_tasks(self) -> list[Task]:
         """Return tasks currently running | المهام قيد التشغيل"""
-        return [
-            self.tasks[tid]
-            for tid, st in self.status.items()
-            if st == QueueTaskStatus.RUNNING
-        ]
+        return [self.tasks[tid] for tid, st in self.status.items() if st == QueueTaskStatus.RUNNING]
 
     # ── Completion / Failure ─────────────────────────────────────────────
 
@@ -235,14 +222,11 @@ class TaskQueue:
             ValueError: If task is not in READY status
         """
         if task_id not in self.tasks:
-            raise ValueError(
-                f"Unknown task '{task_id}' | مهمة غير معروفة '{task_id}'"
-            )
+            raise ValueError(f"Unknown task '{task_id}' | مهمة غير معروفة '{task_id}'")
         current = self.status[task_id]
         if current != QueueTaskStatus.READY:
             raise ValueError(
-                f"Task '{task_id}' is {current}, expected READY | "
-                f"المهمة '{task_id}' في حالة {current}، المتوقع READY"
+                f"Task '{task_id}' is {current}, expected READY | المهمة '{task_id}' في حالة {current}، المتوقع READY"
             )
         self.status[task_id] = QueueTaskStatus.RUNNING
 
@@ -262,9 +246,7 @@ class TaskQueue:
             ValueError: If the task is unknown
         """
         if task_id not in self.tasks:
-            raise ValueError(
-                f"Unknown task '{task_id}' | مهمة غير معروفة '{task_id}'"
-            )
+            raise ValueError(f"Unknown task '{task_id}' | مهمة غير معروفة '{task_id}'")
 
         self.status[task_id] = QueueTaskStatus.COMPLETED
         self.results[task_id] = result
@@ -278,10 +260,7 @@ class TaskQueue:
             if self.status.get(dep_id) != QueueTaskStatus.PENDING:
                 continue
             # Check if all deps for this dependent are now completed
-            all_met = all(
-                self.status.get(d) == QueueTaskStatus.COMPLETED
-                for d in self.dependencies.get(dep_id, set())
-            )
+            all_met = all(self.status.get(d) == QueueTaskStatus.COMPLETED for d in self.dependencies.get(dep_id, set()))
             if all_met:
                 self.status[dep_id] = QueueTaskStatus.READY
                 newly_ready.append(dep_id)
@@ -308,9 +287,7 @@ class TaskQueue:
             ValueError: If the task is unknown
         """
         if task_id not in self.tasks:
-            raise ValueError(
-                f"Unknown task '{task_id}' | مهمة غير معروفة '{task_id}'"
-            )
+            raise ValueError(f"Unknown task '{task_id}' | مهمة غير معروفة '{task_id}'")
 
         self.status[task_id] = QueueTaskStatus.FAILED
         self.results[task_id] = TaskResult(
@@ -384,9 +361,7 @@ class TaskQueue:
         for tid, deps in self.dependencies.items():
             in_degree[tid] = len(deps)
 
-        queue: deque[str] = deque(
-            tid for tid, deg in in_degree.items() if deg == 0
-        )
+        queue: deque[str] = deque(tid for tid, deg in in_degree.items() if deg == 0)
         visited = 0
 
         while queue:
@@ -416,10 +391,7 @@ class TaskQueue:
             ValueError: If the graph contains a cycle
         """
         if self.has_cycle():
-            raise ValueError(
-                "Cannot compute execution order: cycle detected | "
-                "لا يمكن حساب ترتيب التنفيذ: تم كشف دورة"
-            )
+            raise ValueError("Cannot compute execution order: cycle detected | لا يمكن حساب ترتيب التنفيذ: تم كشف دورة")
 
         in_degree: dict[str, int] = {}
         for tid in self.tasks:
@@ -430,15 +402,10 @@ class TaskQueue:
 
         while remaining:
             # Current wave: all nodes with in_degree 0 among remaining
-            wave_ids = [
-                tid for tid in remaining if in_degree.get(tid, 0) == 0
-            ]
+            wave_ids = [tid for tid in remaining if in_degree.get(tid, 0) == 0]
             if not wave_ids:
                 # Should not happen if has_cycle() passed
-                raise ValueError(
-                    "Internal error: stuck in topological sort | "
-                    "خطأ داخلي: توقف في الترتيب الطوبولوجي"
-                )
+                raise ValueError("Internal error: stuck in topological sort | خطأ داخلي: توقف في الترتيب الطوبولوجي")
 
             waves.append([self.tasks[tid] for tid in wave_ids])
 

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import asyncio
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -32,16 +32,51 @@ logger = structlog.get_logger(__name__)
 _DEFAULT_COMMAND_TIMEOUT = 30
 _DEFAULT_HTTP_TIMEOUT = 15
 _MAX_FILE_READ_BYTES = 1_048_576  # 1 MB
-_ALLOWED_COMMANDS = frozenset({
-    "ls", "cat", "head", "tail", "wc", "grep", "find", "date",
-    "echo", "df", "du", "whoami", "uname", "hostname", "env",
-    "python", "python3", "pip", "ruff", "pytest", "flutter",
-})
-_BLOCKED_COMMANDS = frozenset({
-    "rm", "rmdir", "mkfs", "dd", "shutdown", "reboot", "kill",
-    "killall", "pkill", "chmod", "chown", "mount", "umount",
-    "iptables", "systemctl", "service",
-})
+_ALLOWED_COMMANDS = frozenset(
+    {
+        "ls",
+        "cat",
+        "head",
+        "tail",
+        "wc",
+        "grep",
+        "find",
+        "date",
+        "echo",
+        "df",
+        "du",
+        "whoami",
+        "uname",
+        "hostname",
+        "env",
+        "python",
+        "python3",
+        "pip",
+        "ruff",
+        "pytest",
+        "flutter",
+    }
+)
+_BLOCKED_COMMANDS = frozenset(
+    {
+        "rm",
+        "rmdir",
+        "mkfs",
+        "dd",
+        "shutdown",
+        "reboot",
+        "kill",
+        "killall",
+        "pkill",
+        "chmod",
+        "chown",
+        "mount",
+        "umount",
+        "iptables",
+        "systemctl",
+        "service",
+    }
+)
 
 
 @dataclass
@@ -220,7 +255,7 @@ class BuiltinTools:
         if not self._is_path_allowed(resolved):
             return {
                 "success": False,
-                "error": f"Access denied: path outside allowed directories | الوصول مرفوض: المسار خارج الأدلة المسموح بها",
+                "error": "Access denied: path outside allowed directories | الوصول مرفوض: المسار خارج الأدلة المسموح بها",
             }
 
         try:
@@ -233,7 +268,7 @@ class BuiltinTools:
 
             text = resolved.read_text(encoding="utf-8", errors="replace")
             lines = text.splitlines()
-            selected = lines[offset: offset + limit]
+            selected = lines[offset : offset + limit]
             return {
                 "success": True,
                 "path": str(resolved),
@@ -364,16 +399,14 @@ class BuiltinTools:
                 cwd=str(self._working_dir),
                 env={**os.environ, "LC_ALL": "C.UTF-8"},
             )
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(), timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
             return {
                 "success": proc.returncode == 0,
                 "exit_code": proc.returncode,
                 "stdout": stdout.decode("utf-8", errors="replace")[:8192],
                 "stderr": stderr.decode("utf-8", errors="replace")[:4096],
             }
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return {
                 "success": False,
                 "error": f"Command timed out after {timeout}s | انتهت المهلة بعد {timeout} ثانية",

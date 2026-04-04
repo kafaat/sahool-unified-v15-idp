@@ -165,9 +165,7 @@ class AgentPool:
             list[TaskResult]: All results (one per agent-task pair)
         """
         if self._shutting_down:
-            raise RuntimeError(
-                "AgentPool is shutting down | تجمع الوكلاء قيد الإيقاف"
-            )
+            raise RuntimeError("AgentPool is shutting down | تجمع الوكلاء قيد الإيقاف")
 
         pairs: list[tuple[AgentConfig, Task]] = []
         for agent in agents:
@@ -199,9 +197,7 @@ class AgentPool:
             TaskResult: Result of the execution
         """
         if self._shutting_down:
-            raise RuntimeError(
-                "AgentPool is shutting down | تجمع الوكلاء قيد الإيقاف"
-            )
+            raise RuntimeError("AgentPool is shutting down | تجمع الوكلاء قيد الإيقاف")
 
         self._stats["tasks_submitted"] += 1
         return await self._run_guarded(agent, task)
@@ -299,16 +295,13 @@ class AgentPool:
         executor = agent.executor or self._executors.get(agent.agent_id)
         if executor is None:
             raise ValueError(
-                f"No executor registered for agent '{agent.agent_id}' | "
-                f"لا يوجد منفذ مسجل للوكيل '{agent.agent_id}'"
+                f"No executor registered for agent '{agent.agent_id}' | لا يوجد منفذ مسجل للوكيل '{agent.agent_id}'"
             )
 
         timeout = agent.timeout_seconds or task.timeout_seconds
 
         if asyncio.iscoroutinefunction(executor):
-            result: TaskResult = await asyncio.wait_for(
-                executor(task), timeout=timeout
-            )
+            result: TaskResult = await asyncio.wait_for(executor(task), timeout=timeout)
         else:
             loop = asyncio.get_running_loop()
             result = await asyncio.wait_for(
@@ -319,9 +312,7 @@ class AgentPool:
         completed_at = datetime.now(UTC)
         result.started_at = started_at
         result.completed_at = completed_at
-        result.execution_time_ms = (
-            completed_at - started_at
-        ).total_seconds() * 1000
+        result.execution_time_ms = (completed_at - started_at).total_seconds() * 1000
 
         if result.success:
             self._stats["tasks_completed"] += 1

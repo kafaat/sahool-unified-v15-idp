@@ -31,7 +31,6 @@ from typing import Any
 import structlog
 
 from shared.ai.llm_provider import (
-    LLMConfig,
     LLMProvider,
     LLMProviderManager,
     LLMResponse,
@@ -226,8 +225,7 @@ class CopilotAdapter(LLMAdapter):
     def _get_provider(self) -> LLMProvider:
         # No enum value yet; kept here for interface symmetry.
         raise NotImplementedError(
-            "CopilotAdapter is a placeholder. "
-            "GitHub Copilot provider is not yet registered in LLMProvider."
+            "CopilotAdapter is a placeholder. GitHub Copilot provider is not yet registered in LLMProvider."
         )
 
     def is_available(self) -> bool:
@@ -297,10 +295,7 @@ class AdapterFactory:
         adapter_cls = _ADAPTER_MAP.get(key)
         if adapter_cls is None:
             supported = ", ".join(sorted(_ADAPTER_MAP))
-            raise ValueError(
-                f"Unknown LLM adapter provider '{provider}'. "
-                f"Supported: {supported}"
-            )
+            raise ValueError(f"Unknown LLM adapter provider '{provider}'. Supported: {supported}")
         return adapter_cls(manager, **kwargs)
 
     @staticmethod

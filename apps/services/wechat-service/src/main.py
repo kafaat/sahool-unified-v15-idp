@@ -947,7 +947,57 @@ app.add_middleware(
 )
 
 # Tenant context middleware
-app.add_middleware(TenantContextMiddleware)
+# /api/v1/callback is exempt: WeChat sends callbacks externally without tenant headers
+app.add_middleware(
+    TenantContextMiddleware,
+    exempt_paths=[
+        "/healthz", "/readyz", "/health", "/metrics",
+        "/docs", "/openapi.json", "/api/v1/callback",
+    ],
+)
+
+
+# ===============================================================================
+# WeChat Callback Endpoints - نقاط نهاية استدعاء ويتشات
+# ===============================================================================
+
+
+@app.get("/api/v1/callback", tags=["Callback"])
+async def wechat_verify_callback(
+    signature: str = Query(..., description="WeChat signature"),
+    timestamp: str = Query(..., description="Timestamp"),
+    nonce: str = Query(..., description="Random nonce"),
+    echostr: str = Query(..., description="Echo string to return on success"),
+) -> str:
+    """WeChat server verification handshake (GET).
+
+    WeChat sends this to verify the server URL during configuration.
+    توثيق خادم ويتشات عند إعداد عنوان الاستدعاء.
+    """
+    if not _verify_wechat_signature(signature, timestamp, nonce):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid WeChat signature")
+    return echostr
+
+
+@app.post("/api/v1/callback", tags=["Callback"])
+async def wechat_receive_callback(
+    request: Request,
+    signature: str = Query(..., description="WeChat signature"),
+    timestamp: str = Query(..., description="Timestamp"),
+    nonce: str = Query(..., description="Random nonce"),
+):
+    """Receive incoming WeChat messages/events (POST).
+
+    WeChat pushes XML payloads to this endpoint for incoming messages.
+    استقبال رسائل وأحداث ويتشات الواردة.
+    """
+    if not _verify_wechat_signature(signature, timestamp, nonce):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid WeChat signature")
+
+    body = await request.body()
+    logger.info("wechat_callback_received", body_length=len(body))
+    # TODO: Parse XML payload and route to message handler
+    return {"status": "ok", "message": "Callback received"}
 
 
 # ===============================================================================

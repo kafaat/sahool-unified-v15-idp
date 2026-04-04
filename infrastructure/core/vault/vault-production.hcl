@@ -152,7 +152,9 @@ plugin_directory = "/vault/plugins"
 # Service Registration (Kubernetes)
 # ─────────────────────────────────────────────────────────────────────────────
 # Enable so Vault pods are discoverable via k8s service annotations (Vault Helm chart).
+# pod_name uses VAULT_K8S_POD_NAME env var (set via Kubernetes Downward API in the
+# StatefulSet pod spec) so each replica registers with its own identity.
+# يتم تحديد اسم البود عبر متغير البيئة من Kubernetes Downward API
 service_registration "kubernetes" {
   namespace = "vault"
-  pod_name  = "vault-0"
 }

@@ -46,9 +46,11 @@ variable "vpc_id" {
 }
 
 variable "vpc_cidr_block" {
-  description = "نطاق CIDR للـ VPC — يُستخدم لتقييد قواعد الخروج / VPC CIDR block – used to scope egress security-group rules"
+  description = "نطاق CIDR للـ VPC — يُستخدم لتقييد قواعد الخروج / VPC CIDR block – used to scope egress security-group rules. MUST match the actual VPC CIDR."
   type        = string
-  default     = "10.0.0.0/16"
+  # No default — callers must explicitly pass the VPC CIDR to avoid
+  # silently applying the wrong CIDR to DNS egress rules.
+  # لا قيمة افتراضية — يجب على المستدعي تحديد CIDR صراحةً
 
   validation {
     condition     = can(cidrhost(var.vpc_cidr_block, 0))

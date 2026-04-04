@@ -24,7 +24,13 @@ logger = logging.getLogger(__name__)
 class RefineBoundaryRequest(BaseModel):
     """Request model for boundary refinement"""
 
-    field_id: str | None = Field(None, description="Field ID to invalidate NDVI cache after refinement")
+    field_id: str | None = Field(
+        None,
+        description="Field ID to invalidate NDVI cache after refinement",
+        min_length=1,
+        max_length=128,
+        pattern=r"^[a-zA-Z0-9_\-]+$",
+    )
     coords: list[list[float]] = Field(..., description="Initial boundary coordinates [[lon, lat], ...]")
     buffer_m: float = Field(50, description="Refinement buffer in meters")
 

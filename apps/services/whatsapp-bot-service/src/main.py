@@ -308,8 +308,16 @@ if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
 # Tenant context middleware - عزل المستأجرين
+# /webhook is exempt: Meta sends webhooks externally without tenant headers
+# مسار /webhook معفى: Meta ترسل webhooks خارجياً بدون ترويسة المستأجر
 if TENANT_MIDDLEWARE_AVAILABLE:
-    app.add_middleware(TenantContextMiddleware)
+    app.add_middleware(
+        TenantContextMiddleware,
+        exempt_paths=[
+            "/healthz", "/readyz", "/health", "/metrics",
+            "/docs", "/openapi.json", "/webhook",
+        ],
+    )
 
 # Include routers
 app.include_router(webhook_router)

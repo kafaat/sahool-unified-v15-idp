@@ -57,12 +57,17 @@ const edgeLogger = {
     if (process.env.NODE_ENV === 'development') {
       console.error('[admin-middleware]', ...args);
     } else {
+      const details = args.slice(1).map((a) =>
+        a instanceof Error ? { error: a.message, stack: a.stack } : a
+      );
       console.error(
         JSON.stringify({
           level: 'error',
           service: 'sahool-admin-middleware',
           timestamp: new Date().toISOString(),
           message: args[0] instanceof Error ? args[0].message : String(args[0]),
+          ...(args[0] instanceof Error && args[0].stack ? { stack: args[0].stack } : {}),
+          ...(details.length > 0 ? { details } : {}),
         })
       );
     }

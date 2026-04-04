@@ -1503,13 +1503,15 @@ class VectorStore:
                     f"filter['tenant_id']={filter['tenant_id']!r}"
                 )
             filter["tenant_id"] = tenant_id
-        elif filter is None:
+        else:
             # Warn when tenant_id is absent so callers notice the gap during
             # development / code review.  This does NOT raise an exception
             # because some collections (e.g. global knowledge base) are
             # legitimately shared across all tenants.
-            logger.debug(
+            # تحذير عند عدم تمرير tenant_id — قد يعني تسرب بيانات بين المستأجرين
+            logger.warning(
                 "VectorStore.search called without tenant_id for collection '%s'. "
+                "Results are UNSCOPED and may include data from all tenants. "
                 "Ensure this is intentional (e.g. a shared knowledge collection).",
                 collection,
             )

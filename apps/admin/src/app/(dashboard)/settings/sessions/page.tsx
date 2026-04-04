@@ -33,7 +33,8 @@ export default function SessionManagementPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [locale, setLocale] = useState<'en' | 'ar'>('en');
+  // The page supports Arabic/English toggling via the locale button in the header.
+  const [locale, setLocale] = useState<'en' | 'ar'>('ar');
 
   useEffect(() => {
     fetchSessions();

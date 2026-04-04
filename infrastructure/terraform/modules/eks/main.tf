@@ -125,17 +125,15 @@ resource "aws_security_group_rule" "cluster_egress_https" {
   description       = "HTTPS outbound (AWS APIs, ECR, S3, external registries)"
 }
 
-# DNS egress — scoped to node SG (in-cluster CoreDNS) + VPC resolver.
-# TODO(security): When var.vpc_cidr is available, restrict cidr_blocks to
-# [var.vpc_cidr] instead of 0.0.0.0/0 to prevent DNS exfiltration.
+# DNS egress — scoped to VPC CIDR (CoreDNS lives within the VPC; no DNS exfiltration path).
 resource "aws_security_group_rule" "cluster_egress_dns_tcp" {
   type              = "egress"
   from_port         = 53
   to_port           = 53
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = [var.vpc_cidr_block]
   security_group_id = aws_security_group.cluster.id
-  description       = "DNS TCP outbound (restrict to VPC CIDR when available)"
+  description       = "DNS TCP outbound (VPC CIDR only)"
 }
 
 resource "aws_security_group_rule" "cluster_egress_dns_udp" {
@@ -143,9 +141,9 @@ resource "aws_security_group_rule" "cluster_egress_dns_udp" {
   from_port         = 53
   to_port           = 53
   protocol          = "udp"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = [var.vpc_cidr_block]
   security_group_id = aws_security_group.cluster.id
-  description       = "DNS UDP outbound (restrict to VPC CIDR when available)"
+  description       = "DNS UDP outbound (VPC CIDR only)"
 }
 
 resource "aws_security_group_rule" "cluster_egress_to_nodes_kubelet" {

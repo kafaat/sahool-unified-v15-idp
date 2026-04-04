@@ -433,19 +433,19 @@ class SahoolMetrics:
         )
 
     @staticmethod
-    def track_ndvi_calculation(field_id: str, duration: float):
+    def track_ndvi_calculation(satellite_source: str, region: str, duration: float):
         """Track NDVI calculation."""
         track_business_metric(
             "sahool_ndvi_calculations_total",
             value=1,
-            labels={"field_id": field_id},
+            labels={"satellite_source": satellite_source, "region": region},
             description="Total number of NDVI calculations",
         )
         track_business_metric(
             "sahool_ndvi_calculation_duration_seconds",
             value=duration,
             metric_type="histogram",
-            labels={"field_id": field_id},
+            labels={"satellite_source": satellite_source, "region": region},
             description="NDVI calculation duration in seconds",
             unit="s",
         )
@@ -469,12 +469,12 @@ class SahoolMetrics:
         )
 
     @staticmethod
-    def track_iot_reading(sensor_type: str, field_id: str, value: float):
+    def track_iot_reading(sensor_type: str, value: float):
         """Track IoT sensor reading."""
         track_business_metric(
             "sahool_iot_readings_total",
             value=1,
-            labels={"sensor_type": sensor_type, "field_id": field_id},
+            labels={"sensor_type": sensor_type},
             description="Total number of IoT sensor readings",
         )
 

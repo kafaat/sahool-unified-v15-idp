@@ -227,8 +227,8 @@ class A2AClient:
         self.sender_agent_id = sender_agent_id
         self.timeout = timeout
         self.max_retries = max_retries
-        self.discovery = AgentDiscovery(timeout=timeout)
         self._auth_token = auth_token or os.getenv("A2A_AUTH_TOKEN", "")
+        self.discovery = AgentDiscovery(timeout=timeout)
 
         logger.info("a2a_client_initialized", sender_agent_id=sender_agent_id)
 
@@ -277,21 +277,29 @@ class A2AClient:
         # Send task via HTTP
         # إرسال المهمة عبر HTTP
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                headers = {
-                    "Content-Type": "application/json",
-                    "X-A2A-Protocol-Version": "1.0",
-                    "X-Agent-ID": self.sender_agent_id,
-                }
-                # SECURITY: Include Bearer token for authentication with target agent.
-                # The A2A server requires Authorization header (see shared/a2a/server.py).
-                if self._auth_token:
-                    headers["Authorization"] = f"Bearer {self._auth_token}"
+            request_headers: dict[str, str] = {
+                "Content-Type": "application/json",
+                "X-A2A-Protocol-Version": "1.0",
+                "X-Sender-Agent-ID": self.sender_agent_id,
+            }
+            # SECURITY: Include Bearer token for authentication with target agent.
+            # The A2A server requires Authorization header (see shared/a2a/server.py).
+            if self._auth_token:
+                request_headers["Authorization"] = f"Bearer {self._auth_token}"
+            else:
+                logger.warning(
+                    "a2a_request_unauthenticated",
+                    task_id=task.task_id,
+                    receiver_agent_id=agent_card.agent_id,
+                    message="No auth_token provided to A2AClient; request will be rejected by servers "
+                    "that enforce authentication. Pass auth_token when constructing A2AClient.",
+                )
 
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(
                     str(agent_card.task_endpoint),
                     json=task.model_dump(),
-                    headers=headers,
+                    headers=request_headers,
                 )
                 response.raise_for_status()
 
@@ -392,7 +400,7 @@ class A2AClient:
 
             # SECURITY: Pass auth token to WebSocket connection.
             # The A2A server enforces Bearer auth on /ws/{client_id}.
-            ws_headers = {"X-Agent-ID": self.sender_agent_id}
+            ws_headers: dict[str, str] = {"X-Sender-Agent-ID": self.sender_agent_id}
             if self._auth_token:
                 ws_headers["Authorization"] = f"Bearer {self._auth_token}"
 

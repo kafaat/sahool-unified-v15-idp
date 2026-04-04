@@ -501,6 +501,27 @@ def start_scheduler():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """App lifespan events"""
+    # Validate payment gateway configuration at startup
+    # التحقق من إعدادات بوابات الدفع عند بدء التشغيل
+    _env = os.getenv("ENVIRONMENT", "production").lower()
+    _missing: list[str] = []
+    if not STRIPE_API_KEY:
+        _missing.append("STRIPE_API_KEY")
+    if not STRIPE_WEBHOOK_SECRET:
+        _missing.append("STRIPE_WEBHOOK_SECRET")
+    if not THARWATT_API_KEY:
+        _missing.append("THARWATT_API_KEY")
+    if not THARWATT_WEBHOOK_SECRET:
+        _missing.append("THARWATT_WEBHOOK_SECRET")
+    if not THARWATT_MERCHANT_ID:
+        _missing.append("THARWATT_MERCHANT_ID")
+    if _missing:
+        _msg = f"Missing payment gateway configuration: {', '.join(_missing)}"
+        if _env in ("production", "staging"):
+            raise ValueError(f"{_msg}. Service cannot start without payment credentials.")
+        else:
+            logger.warning(f"{_msg}. Payment processing will be unavailable until these are set.")
+
     # Initialize NATS
     await init_nats()
 
@@ -1001,6 +1022,10 @@ class CreatePaymentRequest(BaseModel):
     phone_number: str | None = Field(
         default=None, max_length=20
     )  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
+    # Idempotency key prevents double-charging when the client retries a
+    # failed or timed-out request.  Clients SHOULD supply a stable UUID per
+    # payment attempt; the value is forwarded to Stripe's idempotency header.
+    idempotency_key: str | None = Field(default=None, max_length=100)
 
     @field_validator("invoice_id")
     @classmethod
@@ -2890,24 +2915,30 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
             raise HTTPException(502, "Payment gateway temporarily unavailable. Please try again.")
 
 
-async def call_stripe_api(payment: Any, token: str) -> dict:
+async def call_stripe_api(payment: Any, token: str, idempotency_key: str | None = None) -> dict:
     """Call Stripe payment API"""
     try:
         import stripe
 
         stripe.api_key = STRIPE_API_KEY
 
-        charge = stripe.Charge.create(
-            amount=int(payment.amount * 100),  # Stripe uses cents
-            currency=payment.currency.value.lower(),
-            source=token,
-            description=f"SAHOOL Invoice Payment - {payment.invoice_id}",
-            metadata={
+        # Build keyword arguments; include idempotency key when provided so
+        # Stripe deduplicates requests on retries and prevents double-charging.
+        charge_kwargs: dict[str, Any] = {
+            "amount": int(payment.amount * 100),  # Stripe uses cents
+            "currency": payment.currency.value.lower(),
+            "source": token,
+            "description": f"SAHOOL Invoice Payment - {payment.invoice_id}",
+            "metadata": {
                 "payment_id": payment.payment_id,
                 "invoice_id": payment.invoice_id,
                 "tenant_id": payment.tenant_id,
             },
-        )
+        }
+        if idempotency_key:
+            charge_kwargs["idempotency_key"] = idempotency_key
+
+        charge = stripe.Charge.create(**charge_kwargs)
         return {"stripe_charge_id": charge.id, "status": charge.status}
     except Exception as e:
         logger.error("Stripe API error: %s", str(e).replace("\n", " ").replace("\r", " "))
@@ -2973,7 +3004,7 @@ async def create_payment(
                     "currency": payment.currency,
                 },
             )()
-            stripe_response = await call_stripe_api(temp_payment, token)
+            stripe_response = await call_stripe_api(temp_payment, token, idempotency_key=request.idempotency_key)
             if stripe_response.get("status") == "succeeded":
                 await repo.payments.mark_succeeded(payment.id, external_id=stripe_response.get("stripe_charge_id"))
             else:

@@ -61,6 +61,10 @@ class Settings(BaseSettings):
         default="",
         description="Webhook verification token (MUST be set via env) | رمز التحقق من webhook (يجب تعيينه عبر متغير البيئة)",
     )
+    whatsapp_app_secret: str = Field(
+        default="",
+        description="WhatsApp App Secret for X-Hub-Signature-256 HMAC verification (MUST be set via env) | سر التطبيق للتحقق من توقيع HMAC",
+    )
     whatsapp_api_version: str = Field(
         default="v17.0",
         description="WhatsApp Cloud API version | إصدار API واتساب السحابي",
@@ -69,11 +73,6 @@ class Settings(BaseSettings):
         default="",
         description="WhatsApp Business Account ID | معرف حساب الأعمال",
     )
-    whatsapp_app_secret: str = Field(
-        default="",
-        description="WhatsApp App Secret for X-Hub-Signature-256 HMAC verification | سر التطبيق للتحقق من توقيع HMAC",
-    )
-
     # LLM Orchestrator Service Configuration
     llm_orchestrator_url: str = Field(
         default="http://llm-orchestrator-service:8220",

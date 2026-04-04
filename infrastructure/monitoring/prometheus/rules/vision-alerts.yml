@@ -206,8 +206,8 @@ groups:
           category: vision
           platform: sahool
         annotations:
-          summary: "CRITICAL: {{ $labels.pest_type }} detected in field {{ $labels.field_id }}"
-          summary_ar: "حرج: تم اكتشاف {{ $labels.pest_type }} في الحقل {{ $labels.field_id }}"
+          summary: "CRITICAL: {{ $labels.pest_type }} detected in region {{ $labels.region }}"
+          summary_ar: "حرج: تم اكتشاف {{ $labels.pest_type }} في المنطقة {{ $labels.region }}"
           description: "A critical pest (Red Palm Weevil or Locust) has been detected by computer vision. Immediate response required within 24-48 hours."
           description_ar: "تم اكتشاف آفة حرجة (سوسة النخيل الحمراء أو جراد) بواسطة الرؤية الحاسوبية. مطلوب استجابة فورية خلال 24-48 ساعة."
           impact: "Lethal pest with potential for catastrophic crop loss. Rapid spread to neighboring fields."
@@ -218,7 +218,7 @@ groups:
       - alert: VisionDiseaseOutbreak
         expr: |
           count by (disease_type) (
-            count by (disease_type, field_id) (
+            count by (disease_type, region) (
               increase(vision_disease_detections_total[24h]) > 0
             )
           ) >= 3
@@ -228,8 +228,8 @@ groups:
           category: vision
           platform: sahool
         annotations:
-          summary: "Disease outbreak: {{ $labels.disease_type }} detected in {{ $value }} fields"
-          summary_ar: "تفشي مرض: تم اكتشاف {{ $labels.disease_type }} في {{ $value }} حقول"
+          summary: "Disease outbreak: {{ $labels.disease_type }} detected in {{ $value }} regions"
+          summary_ar: "تفشي مرض: تم اكتشاف {{ $labels.disease_type }} في {{ $value }} مناطق"
           description: "The same disease has been detected by vision AI in 3 or more fields within 24 hours. An outbreak pattern is forming."
           description_ar: "تم اكتشاف نفس المرض بواسطة الرؤية الاصطناعية في 3 حقول أو أكثر خلال 24 ساعة. يتشكل نمط تفشي."
           impact: "Rapid disease spread across multiple fields. Regional crop loss risk."

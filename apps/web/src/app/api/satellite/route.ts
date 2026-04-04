@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!fieldId) {
-      return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+      return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
     }
 
     // Validate fieldId format
@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return NextResponse.json(
-        { error: 'Vegetation service returned non-JSON response' },
+        { error: 'Vegetation service returned non-JSON response', error_ar: 'خدمة الغطاء النباتي أرجعت استجابة غير JSON' },
         { status: 502 }
       );
     }
@@ -263,6 +263,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Satellite analysis timeout. Please retry.', error_ar: 'انتهت مهلة تحليل الأقمار الصناعية. يرجى المحاولة مرة أخرى.' }, { status: 504 });
     }
     logger.error('Satellite analyze proxy error:', error);
-    return NextResponse.json({ error: 'Failed to analyze satellite data' }, { status: 502 });
+    return NextResponse.json({ error: 'Failed to analyze satellite data', error_ar: 'فشل في تحليل بيانات الأقمار الصناعية' }, { status: 502 });
   }
 }

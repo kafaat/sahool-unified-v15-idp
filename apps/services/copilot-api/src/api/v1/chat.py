@@ -45,17 +45,14 @@ from ...security import MAX_PROMPT_CHARS
 from ...security.prompt_guard import detect_prompt_injection, sanitize_input
 from ..deps import get_current_user
 
+_guardrails_import_err: Exception | None = None
 try:
     from shared.guardrails import TrustLevel, input_filter
 
     HAS_GUARDRAILS = True
-except ImportError as _guardrails_err:
+except ImportError as _err:
     HAS_GUARDRAILS = False
-    if _os.getenv("ENVIRONMENT", "").lower() == "production":
-        raise RuntimeError(
-            "shared.guardrails is required in production but could not be imported. "
-            "Refusing to start — prompt injection filtering would be disabled."
-        ) from _guardrails_err
+    _guardrails_import_err = _err
 
 logger = structlog.get_logger(__name__)
 
@@ -71,7 +68,7 @@ if not HAS_GUARDRAILS:
         raise RuntimeError(
             f"[FATAL] {_guardrails_msg} "
             f"Environment '{_guardrails_env}' requires guardrails to be installed."
-        ) from _guardrails_err
+        ) from _guardrails_import_err
     else:
         logger.warning(
             "guardrails_unavailable",

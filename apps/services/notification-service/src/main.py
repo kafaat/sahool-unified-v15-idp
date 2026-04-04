@@ -1765,13 +1765,19 @@ async def get_farmer_notifications(
 @app.patch("/{notification_id}/read")
 async def mark_notification_read(
     notification_id: str,
-    farmer_id: str = Query(...),
+    farmer_id: str | None = Query(default=None),
     user: User = Depends(get_current_user),
 ):
     """تحديد إشعار كمقروء"""
     try:
-        # Security: Always use authenticated user ID — ignore client-supplied farmer_id
+        # Security: Always use authenticated user ID.
+        # If farmer_id is provided, it must match user.id (prevent IDOR confusion).
         authorized_farmer_id = str(user.id)
+        if farmer_id is not None and farmer_id != authorized_farmer_id:
+            raise HTTPException(
+                status_code=403,
+                detail="farmer_id does not match authenticated user | معرف المزارع لا يطابق المستخدم المصادق",
+            )
 
         # Convert string to UUID
         notif_uuid = UUID(notification_id)

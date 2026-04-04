@@ -51,13 +51,19 @@ def _verify_whatsapp_signature(payload: bytes, signature: str | None) -> bool:
     if not signature:
         return False
 
+    # Normalize: strip whitespace, parse "sha256=<digest>" prefix
+    normalized = signature.strip()
+    prefix, separator, provided_digest = normalized.partition("=")
+    if separator != "=" or prefix.lower() != "sha256" or not provided_digest.strip():
+        return False
+
     expected = hmac.new(
         settings.whatsapp_app_secret.encode("utf-8"),
         payload,
         hashlib.sha256,
     ).hexdigest()
 
-    return hmac.compare_digest(f"sha256={expected}", signature)
+    return hmac.compare_digest(expected, provided_digest.strip())
 
 
 # Authentication guard - requires valid JWT for send/template/mark-read endpoints

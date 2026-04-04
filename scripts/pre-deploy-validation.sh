@@ -96,7 +96,7 @@ echo ""
 # Strict mode: scan entire repository (excluding known-safe files)
 # ─────────────────────────────────────────────────────────────────────────────
 if [[ "${1:-}" == "--strict" ]]; then
-  echo "Strict mode: scanning entire repository for CHANGE_ME_BEFORE_DEPLOY..."
+  echo "Strict mode: scanning entire repository for placeholder patterns (${PLACEHOLDER_PATTERNS[*]})..."
   echo ""
 
   # Build a combined regex pattern from all PLACEHOLDER_PATTERNS
@@ -135,11 +135,11 @@ if [[ "${1:-}" == "--strict" ]]; then
     || true)
 
   if [[ -n "$hits" ]]; then
-    echo -e "  ${RED}FAIL${NC} Found CHANGE_ME_BEFORE_DEPLOY in repository:"
+    echo -e "  ${RED}FAIL${NC} Found placeholder patterns in repository:"
     echo "$hits" | head -20
     EXIT_CODE=1
   else
-    echo -e "  ${GREEN}PASS${NC} No CHANGE_ME_BEFORE_DEPLOY found in repository"
+    echo -e "  ${GREEN}PASS${NC} No placeholder patterns found in repository"
   fi
 fi
 

@@ -6,7 +6,7 @@ name: Pre-Deploy Validation
 
 on:
   pull_request:
-    branches: [main, release/**]
+    branches: [main, release/**, stabilization/**]
     paths:
       - 'infrastructure/**'
       - 'helm/*/values*.yaml'
@@ -14,7 +14,7 @@ on:
       - 'docker/**'
       - '.env*'
   push:
-    branches: [main, release/**]
+    branches: [main, release/**, stabilization/**]
     paths:
       - 'infrastructure/**'
       - 'helm/*/values*.yaml'

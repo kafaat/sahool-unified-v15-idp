@@ -45,7 +45,7 @@ PR3 (Vault) → PR1 (Satellite) → PR2 (Webhooks) → PR4 (Terraform)
 | Day | PR | Scope | Risk | Rollback |
 |-----|----|-------|------|----------|
 | **Day 1** | **PR3** Vault Auto-Unseal | Enable AWS KMS seal, remove CHANGE_ME | HIGH | Comment `seal "awskms"`, manual unseal |
-| **Day 1** | **PR1** Satellite NDVI | Production guard, reject mock data | MEDIUM | `ENABLE_REAL_NDVI=false` → falls back to mock |
+| **Day 1** | **PR1** Satellite NDVI | Production guard, reject mock data | MEDIUM | Set `ENVIRONMENT=development` to re-enable mock data (guard is keyed off ENVIRONMENT) |
 | **Day 2** | **PR2** Webhooks HMAC | WhatsApp + USSD + pre-deploy validation | LOW | `WHATSAPP_HMAC_REQUIRED=false`, `USSD_VERIFY_DISABLED=true` |
 | **Day 2** | **PR4** Terraform EKS | Restrict egress to HTTPS/DNS/NTP | HIGH | Revert SG rules to `0.0.0.0/0` (terraform apply) |
 | **Day 3-4** | **PR5** Backend Critical | Auth bypass, JWT algo, tenant isolation, rate limiter, exception disclosure | **VERY HIGH** | Feature flags per service; staged rollout |
@@ -217,7 +217,7 @@ Day 12:             Post-deployment monitoring (48h)
 | Change | Rollback Mechanism |
 |--------|--------------------|
 | Vault KMS seal | Comment seal block, manual unseal |
-| NDVI production guard | `ENABLE_REAL_NDVI=false` |
+| NDVI production guard | Set `ENVIRONMENT=development` (guard keyed off ENVIRONMENT) |
 | Webhook HMAC | `WHATSAPP_HMAC_REQUIRED=false` |
 | EKS egress | `terraform apply` with old SG rules |
 | Auth mandatory | `AUTH_STRICT_MODE=false` (per service) |

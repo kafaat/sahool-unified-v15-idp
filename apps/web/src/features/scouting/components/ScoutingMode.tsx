@@ -16,6 +16,7 @@ import React, { useState, useCallback } from 'react';
 import { logger } from '@/lib/logger';
 import { useLocale } from 'next-intl';
 import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
+import type { LeafletMouseEvent } from 'leaflet';
 import { Eye, EyeOff, Play, Square, Plus, List, AlertCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -54,7 +55,7 @@ interface MapClickHandlerProps {
 
 const MapClickHandler: React.FC<MapClickHandlerProps> = ({ onMapClick, enabled }) => {
   useMapEvents({
-    click: (e: any) => {
+    click: (e: LeafletMouseEvent) => {
       if (enabled) {
         onMapClick([e.latlng.lat, e.latlng.lng]);
       }

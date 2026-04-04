@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 /**
@@ -241,8 +240,8 @@ const INITIAL_STEPS: PrepStep[] = [
 // =============================================================================
 
 export default function FieldPrepPage() {
-  const [selectedField, setSelectedField] = useState<string>(FIELDS[0].id);
-  const [selectedSeason, setSelectedSeason] = useState<string>(SEASONS[0].id);
+  const [selectedField, setSelectedField] = useState<string>(FIELDS[0]!.id);
+  const [selectedSeason, setSelectedSeason] = useState<string>(SEASONS[0]!.id);
   const [steps, setSteps] = useState<PrepStep[]>(INITIAL_STEPS);
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set([4]));
 
@@ -257,7 +256,7 @@ export default function FieldPrepPage() {
   );
 
   const totalCost = useMemo(
-    () => (field ? totalCostPerHa * (field?.area ?? 0) : totalCostPerHa),
+    () => (field ? totalCostPerHa * field.areaHa : totalCostPerHa),
     [totalCostPerHa, field]
   );
 

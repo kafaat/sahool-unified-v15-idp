@@ -118,8 +118,17 @@ async def handle_mqtt_message(msg: MqttMessage):
 
         if not device:
             # Auto-register device if enabled (for backward compatibility)
-            # In production, devices should be pre-registered
+            # SECURITY: In production, devices MUST be pre-registered.
+            # IOT_AUTO_REGISTER=true is dangerous: all devices go to DEFAULT_TENANT.
             auto_register_enabled = os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
+            environment = os.getenv("ENVIRONMENT", "development")
+
+            if auto_register_enabled and environment == "production":
+                logger.critical(
+                    "IOT_AUTO_REGISTER is enabled in production — this is a security risk. "
+                    "All unregistered devices would be assigned to DEFAULT_TENANT. Rejecting."
+                )
+                return
 
             if auto_register_enabled:
                 logger.warning(

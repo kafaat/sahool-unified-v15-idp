@@ -114,27 +114,56 @@ resource "aws_security_group" "cluster" {
   }
 }
 
-# Cluster control-plane egress: allow only HTTPS to the VPC (to reach nodes/AWS services).
-# AWS service APIs (ECR, S3, CloudWatch) are reachable via VPC endpoints within the VPC CIDR.
-resource "aws_security_group_rule" "cluster_egress_vpc" {
+# Cluster control-plane egress — restricted to HTTPS (AWS APIs, ECR, S3) and DNS
+resource "aws_security_group_rule" "cluster_egress_https" {
   type              = "egress"
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [var.vpc_cidr_block]
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.cluster.id
-  description       = "Allow HTTPS egress to VPC (nodes, AWS VPC endpoints)"
+  description       = "HTTPS outbound (AWS APIs, ECR, S3, external registries)"
 }
 
-# Allow the control plane to reach the kubelet API on worker nodes (port 10250).
-resource "aws_security_group_rule" "cluster_egress_kubelet" {
+# DNS egress — scoped to VPC CIDR (CoreDNS lives within the VPC; no DNS exfiltration path).
+resource "aws_security_group_rule" "cluster_egress_dns_tcp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "tcp"
+  cidr_blocks       = [var.vpc_cidr_block]
+  security_group_id = aws_security_group.cluster.id
+  description       = "DNS TCP outbound (VPC CIDR only)"
+}
+
+resource "aws_security_group_rule" "cluster_egress_dns_udp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  cidr_blocks       = [var.vpc_cidr_block]
+  security_group_id = aws_security_group.cluster.id
+  description       = "DNS UDP outbound (VPC CIDR only)"
+}
+
+resource "aws_security_group_rule" "cluster_egress_to_nodes_kubelet" {
   type                     = "egress"
   from_port                = 10250
   to_port                  = 10250
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.nodes.id
   security_group_id        = aws_security_group.cluster.id
-  description              = "Allow control plane to reach kubelet on worker nodes"
+  description              = "Allow control plane to reach worker node kubelets"
+}
+
+resource "aws_security_group_rule" "cluster_egress_to_nodes_https" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.nodes.id
+  security_group_id        = aws_security_group.cluster.id
+  description              = "Allow control plane to reach worker node HTTPS services"
 }
 
 resource "aws_security_group_rule" "cluster_ingress_nodes" {
@@ -168,23 +197,7 @@ resource "aws_security_group" "nodes" {
   }
 }
 
-# Worker-node egress rules – scope to VPC and well-known AWS service ports.
-# Nodes must reach: VPC CIDR (internal traffic), AWS APIs via VPC endpoints,
-# NAT gateway (for external pulls like image registries without VPC endpoints).
-
-# All traffic within the VPC (RDS, Redis, NATS, other pods, VPC endpoints).
-resource "aws_security_group_rule" "nodes_egress_vpc" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = [var.vpc_cidr_block]
-  security_group_id = aws_security_group.nodes.id
-  description       = "Allow all outbound traffic within the VPC"
-}
-
-# HTTPS to the internet via NAT gateway – required for ECR image pulls,
-# OS package updates, and external API calls not covered by VPC endpoints.
+# Node egress — restricted to HTTPS, DNS, NTP, and cluster control plane
 resource "aws_security_group_rule" "nodes_egress_https" {
   type              = "egress"
   from_port         = 443
@@ -192,18 +205,47 @@ resource "aws_security_group_rule" "nodes_egress_https" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.nodes.id
-  description       = "Allow HTTPS egress to internet (ECR, AWS APIs, external services)"
+  description       = "HTTPS outbound (AWS APIs, ECR, S3, external services)"
 }
 
-# HTTP – needed for OS package mirrors and some container base image pulls.
-resource "aws_security_group_rule" "nodes_egress_http" {
+resource "aws_security_group_rule" "nodes_egress_dns_tcp" {
   type              = "egress"
-  from_port         = 80
-  to_port           = 80
+  from_port         = 53
+  to_port           = 53
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.nodes.id
-  description       = "Allow HTTP egress to internet (package mirrors)"
+  description       = "DNS TCP outbound"
+}
+
+resource "aws_security_group_rule" "nodes_egress_dns_udp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "DNS UDP outbound"
+}
+
+resource "aws_security_group_rule" "nodes_egress_ntp" {
+  type              = "egress"
+  from_port         = 123
+  to_port           = 123
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "NTP outbound for time sync"
+}
+
+resource "aws_security_group_rule" "nodes_egress_to_cluster" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.cluster.id
+  security_group_id        = aws_security_group.nodes.id
+  description              = "Allow nodes to reach EKS API server"
 }
 
 resource "aws_security_group_rule" "nodes_ingress_self" {

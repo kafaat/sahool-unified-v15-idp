@@ -91,7 +91,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   const [isMounted, setIsMounted] = useState(false);
   const [mapVersion, setMapVersion] = useState(0);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
+  const mapInstanceRef = useRef<import('leaflet').Map | null>(null);
 
   useEffect(() => {
     setIsMounted(true);

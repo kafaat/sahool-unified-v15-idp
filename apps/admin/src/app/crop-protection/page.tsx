@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 // Crop Protection Management Page
@@ -24,6 +23,7 @@ import {
   MapPin,
   Leaf,
   Target,
+  SprayCan,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -379,7 +379,7 @@ type TabKey = 'diseases' | 'pests' | 'spray';
 const TABS: { key: TabKey; label: string; icon: typeof Bug }[] = [
   { key: 'diseases', label: 'الأمراض', icon: Bug },
   { key: 'pests', label: 'الآفات', icon: Target },
-  { key: 'spray', label: 'برنامج الرش', icon: Spray },
+  { key: 'spray', label: 'برنامج الرش', icon: SprayCan },
 ];
 
 // ---------------------------------------------------------------------------
@@ -706,7 +706,7 @@ export default function CropProtectionPage() {
           تشخيص
         </button>
         <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-          <Spray className="w-4 h-4" />
+          <SprayCan className="w-4 h-4" />
           رش
         </button>
         <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
@@ -738,7 +738,7 @@ export default function CropProtectionPage() {
         <StatCard
           title="نوافذ الرش المتاحة"
           value={stats.sprayWindows}
-          icon={Spray}
+          icon={SprayCan}
           iconColor="text-blue-600"
         />
         <StatCard

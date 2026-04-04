@@ -311,16 +311,21 @@ class TestNotificationUpdates:
             assert data["is_read"] is True
 
     def test_mark_notification_unauthorized(self, client):
-        """Test marking notification as read with wrong farmer_id"""
+        """Test marking notification owned by a different user.
+
+        Auth is mandatory: the endpoint uses authenticated user.id (farmer-123
+        from the mock) rather than the client-supplied farmer_id. When the
+        notification belongs to a different user, the endpoint returns 403.
+        """
         notification_id = str(uuid4())
         mock_notification = MagicMock()
-        mock_notification.user_id = "farmer-123"
+        mock_notification.user_id = "other-farmer-999"  # Different from mock user (farmer-123)
 
         with patch(
             "src.repository.NotificationRepository.get_by_id",
             new=AsyncMock(return_value=mock_notification),
         ):
-            response = client.patch(f"/{notification_id}/read", params={"farmer_id": "wrong-farmer"})
+            response = client.patch(f"/{notification_id}/read", params={"farmer_id": "farmer-123"})
 
             assert response.status_code == 403
 

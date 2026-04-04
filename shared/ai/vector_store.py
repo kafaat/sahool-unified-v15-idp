@@ -1468,6 +1468,7 @@ class VectorStore:
         top_k: int = 10,
         filter: dict[str, Any] | None = None,
         include_content: bool = True,
+        tenant_id: str | None = None,
     ) -> list[SearchResult]:
         """Search for similar documents
 
@@ -1480,11 +1481,26 @@ class VectorStore:
             top_k: Number of results
             filter: Metadata filter
             include_content: Include document content
+            tenant_id: Tenant ID for multi-tenant isolation. When provided,
+                       automatically added to the filter to ensure results
+                       are scoped to the tenant's data only.
 
         Returns:
             List of SearchResult
         """
         collection = collection or self.config.default_collection
+
+        # SECURITY: Inject tenant_id into filter for multi-tenant isolation.
+        # This ensures one tenant cannot read another tenant's embeddings.
+        if tenant_id:
+            filter = dict(filter) if filter else {}
+            # Detect conflicting tenant_id — caller bug, not silent override
+            if "tenant_id" in filter and filter["tenant_id"] != tenant_id:
+                raise ValueError(
+                    f"Conflicting tenant_id values: parameter tenant_id={tenant_id!r}, "
+                    f"filter['tenant_id']={filter['tenant_id']!r}"
+                )
+            filter["tenant_id"] = tenant_id
 
         # Get query vector
         if vector is None:

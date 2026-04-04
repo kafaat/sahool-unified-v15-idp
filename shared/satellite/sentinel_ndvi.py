@@ -13,11 +13,15 @@ Uses sentinelhub-py (https://github.com/sentinel-hub/sentinelhub-py) for:
 Copernicus Open Access Hub: Free registration at https://scihub.copernicus.eu
 """
 
-# ⚠️ INTEGRATION STATUS: PROTOTYPE
-# The `sentinelhub` package is not installed in any active service's requirements.txt.
-# All API calls fall back to `_get_mock_ndvi()` which returns randomized demo data.
-# To enable real Sentinel Hub integration, add `sentinelhub>=3.10.0` to the consuming
-# service's requirements.txt and provide SENTINEL_HUB_CLIENT_ID/SECRET env vars.
+# ⚠️ INTEGRATION STATUS: CONDITIONAL
+# Real Sentinel Hub data requires:
+#   1. `sentinelhub>=3.10.0` in the consuming service's requirements.txt
+#   2. SENTINEL_HUB_CLIENT_ID and SENTINEL_HUB_CLIENT_SECRET environment variables
+# When these are missing the analyzer falls back to `_get_mock_ndvi()` which returns
+# randomized demo data (data_source="mock").
+#
+# IMPORTANT: In production (ENVIRONMENT=production), mock data is REJECTED and the
+# analyzer returns None instead. Callers must handle this gracefully.
 
 import os
 from dataclasses import dataclass, field
@@ -425,12 +429,29 @@ class SentinelNDVIAnalyzer:
             pixel_count=ndvi_result.pixel_count,
         )
 
-    def _get_mock_ndvi(self, field: FieldBoundary, date: datetime | None = None) -> NDVIResult:
+    def _get_mock_ndvi(self, field: FieldBoundary, date: datetime | None = None) -> NDVIResult | None:
         """
         Generate mock NDVI data for testing/demo.
         توليد بيانات NDVI وهمية للاختبار
+
+        Returns None in production to prevent fake data from reaching farmers.
         """
+        environment = os.getenv("ENVIRONMENT", "development")
+        if environment == "production":
+            logger.error(
+                "sentinel_hub_unavailable_in_production",
+                field_id=field.field_id,
+                hint="Install sentinelhub and configure SENTINEL_HUB_CLIENT_ID/SECRET",
+            )
+            return None
+
         import random
+
+        logger.warning(
+            "using_mock_ndvi_data",
+            field_id=field.field_id,
+            environment=environment,
+        )
 
         date = date or datetime.now(UTC)
 

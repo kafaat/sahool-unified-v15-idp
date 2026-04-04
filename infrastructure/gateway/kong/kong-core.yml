@@ -48,6 +48,7 @@ plugins:
         - Date
         - X-Request-Id
         - X-Correlation-Id
+        - X-Tenant-Id
       exposed_headers:
         - X-Request-Id
         - X-Correlation-Id

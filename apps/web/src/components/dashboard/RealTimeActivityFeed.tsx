@@ -17,9 +17,6 @@ import {
   CheckSquare,
   Droplets,
   Bell,
-  Thermometer,
-  Bug,
-  Wheat,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -295,6 +292,7 @@ export default function RealTimeActivityFeed({
 
     const interval = setInterval(() => {
       const template = demoEvents[Math.floor(Math.random() * demoEvents.length)];
+      if (!template) return;
       const newEvent: ActivityEvent = {
         ...template,
         id: `evt-live-${Date.now()}`,

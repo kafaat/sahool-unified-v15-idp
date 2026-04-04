@@ -8,15 +8,12 @@
 import React, { useState } from 'react';
 import {
   Plane,
-  MapPin,
-  Clock,
   Battery,
   Plus,
   Play,
   Pause,
   RotateCcw,
   Map,
-  AlertTriangle,
 } from 'lucide-react';
 
 interface Drone {

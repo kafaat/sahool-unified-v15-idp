@@ -9,13 +9,10 @@ import React, { useState } from 'react';
 import {
   Eye,
   Upload,
-  Camera,
   Bug,
   Leaf,
   AlertTriangle,
-  CheckCircle,
   Clock,
-  Image,
   Zap,
 } from 'lucide-react';
 

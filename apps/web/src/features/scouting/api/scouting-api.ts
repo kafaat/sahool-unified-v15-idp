@@ -216,7 +216,7 @@ export const scoutingApi = {
         startTime: new Date().toISOString(),
       });
 
-      return response.data.data;
+      return response.data?.data as ScoutingSession;
     });
   },
 
@@ -234,7 +234,7 @@ export const scoutingApi = {
         }
       );
 
-      return response.data.data;
+      return response.data?.data as ScoutingSession;
     });
   },
 
@@ -247,7 +247,7 @@ export const scoutingApi = {
       const response = await api.get<ApiSessionResponse>(
         `${API_PREFIX}/scouting/sessions/${sessionId}`
       );
-      return response.data.data;
+      return response.data?.data as ScoutingSession;
     });
   },
 

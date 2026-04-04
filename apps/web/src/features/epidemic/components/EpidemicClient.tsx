@@ -7,7 +7,6 @@
 
 import React, { useState } from 'react';
 import {
-  Bug,
   AlertTriangle,
   TrendingUp,
   TrendingDown,
@@ -18,7 +17,6 @@ import {
   Filter,
   CheckCircle,
   Clock,
-  Shield,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -104,12 +102,6 @@ const ALERT_COLORS: Record<string, string> = {
   high: 'bg-orange-500',
   medium: 'bg-yellow-500',
   safe: 'bg-green-500',
-};
-
-const _SEVERITY_STYLES: Record<string, string> = {
-  critical: 'bg-red-100 text-red-700',
-  high: 'bg-orange-100 text-orange-700',
-  medium: 'bg-yellow-100 text-yellow-700',
 };
 
 // ---------------------------------------------------------------------------

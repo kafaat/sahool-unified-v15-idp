@@ -8,7 +8,6 @@
 import React, { useState, useMemo } from 'react';
 import {
   Bug,
-  Shield,
   Calendar,
   AlertTriangle,
   CheckCircle,
@@ -16,7 +15,6 @@ import {
   Thermometer,
   Droplets,
   Clock,
-  MapPin,
   Leaf,
   Target,
   TrendingUp,

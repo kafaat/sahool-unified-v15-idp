@@ -14,7 +14,6 @@ import {
   Clock,
   MapPin,
   Plus,
-  Search,
   ArrowLeft,
   Scan,
 } from 'lucide-react';

@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import {
   Search,
-  Activity,
   Gauge,
   Zap,
   Settings,

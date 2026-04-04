@@ -12,7 +12,6 @@ import { useState, useMemo } from 'react';
 import {
   FlaskConical,
   Leaf,
-  Droplets,
   AlertTriangle,
   CheckCircle2,
   TrendingUp,
@@ -171,7 +170,6 @@ export default function SoilAnalysisClient() {
   const [showAllNutrients, setShowAllNutrients] = useState(false);
 
   const sample = useMemo(() => MOCK_SAMPLES[selectedFieldId] ?? null, [selectedFieldId]);
-  const _field = useMemo(() => FIELDS.find((f) => f.id === selectedFieldId) ?? FIELDS[0], [selectedFieldId]);
 
   const nutrientSummary = useMemo(() => {
     if (!sample) return { optimal: 0, adequate: 0, low: 0, deficient: 0, total: 0 };

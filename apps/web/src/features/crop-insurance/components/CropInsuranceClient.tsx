@@ -16,9 +16,6 @@ import {
   XCircle,
   DollarSign,
   Wheat,
-  CloudRain,
-  Thermometer,
-  Bug,
 } from 'lucide-react';
 
 interface InsurancePolicy {

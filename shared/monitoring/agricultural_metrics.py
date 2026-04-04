@@ -489,8 +489,8 @@ class AgriculturalMetrics:
         crop_type: str = "unknown",
         satellite_source: str = "sentinel-2",
         tenant_id: str = "default",
-        *,
         region: str = "unknown",
+        *,
         field_id: str | None = None,
     ) -> None:
         """Record an NDVI calculation.
@@ -683,8 +683,8 @@ class AgriculturalMetrics:
         self,
         score: float,
         crop_type: str = "unknown",
-        *,
         region: str = "unknown",
+        *,
         field_id: str | None = None,
     ) -> None:
         """Set the crop health score aggregated by region and crop type.
@@ -703,8 +703,8 @@ class AgriculturalMetrics:
         self,
         moisture_percent: float,
         depth_cm: str = "30",
-        *,
         region: str = "unknown",
+        *,
         field_id: str | None = None,
     ) -> None:
         """Set aggregated soil moisture for a region/depth combination.

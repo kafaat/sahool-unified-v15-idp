@@ -279,7 +279,7 @@ class BlockchainTraceability:
 
         # SECURITY: Verify batch belongs to this tenant
         batch = self._batches[batch_id]
-        if self.tenant_id:
+        if self.tenant_id is not None:
             batch_tenant_id = getattr(batch, "tenant_id", None)
             if batch_tenant_id != self.tenant_id:
                 raise PermissionError(

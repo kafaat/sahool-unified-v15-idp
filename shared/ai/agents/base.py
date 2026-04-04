@@ -790,14 +790,16 @@ class BaseAutonomousAgent(ABC):
                         reason=decision.reason,
                         layer=decision.layer,
                     )
+                    elapsed = (datetime.now(UTC) - start_time).total_seconds() * 1000
                     return ToolResult(
                         tool_name=tool.name,
                         success=False,
                         result=None,
                         error=f"Tool blocked by guard: {decision.reason}",
-                        execution_time_ms=0,
+                        execution_time_ms=elapsed,
                     )
             except Exception as guard_err:
+                elapsed = (datetime.now(UTC) - start_time).total_seconds() * 1000
                 logger.error("tool_guard_error", tool=tool.name, error=str(guard_err))
                 # Fail-closed: block tool execution when guard itself fails
                 return ToolResult(
@@ -805,7 +807,7 @@ class BaseAutonomousAgent(ABC):
                     success=False,
                     result=None,
                     error=f"Tool guard check failed: {type(guard_err).__name__}",
-                    execution_time_ms=0,
+                    execution_time_ms=elapsed,
                 )
 
         try:

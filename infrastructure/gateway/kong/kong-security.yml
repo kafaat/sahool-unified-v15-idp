@@ -46,7 +46,6 @@ plugins:
         - "YandexBot"
         - "MegaIndex"
         - "PetalBot"
-        - "Googlebot-Image"
         - "Scrapy"
         - "HTTrack"
         - "sqlmap"
@@ -60,6 +59,7 @@ plugins:
         - "nuclei"
       allow:
         - "Googlebot"
+        - "Googlebot-Image"
         - "bingbot"
         - "facebookexternalhit"
         - "Twitterbot"
@@ -200,6 +200,14 @@ plugins:
             if type(value) == "string" then
               if check_sql_injection(value) then return reject_malicious("query", key) end
               if check_xss(value)           then return reject_malicious("query", key) end
+            elseif type(value) == "table" then
+              -- Multi-value parameter (e.g. ?tag=a&tag=b) — check every element.
+              for _, v in ipairs(value) do
+                if type(v) == "string" then
+                  if check_sql_injection(v) then return reject_malicious("query", key) end
+                  if check_xss(v)           then return reject_malicious("query", key) end
+                end
+              end
             end
           end
 
@@ -209,9 +217,20 @@ plugins:
           local skip_headers = { authorization = true, ["x-api-key"] = true, cookie = true }
           local headers = kong.request.get_headers()
           for key, value in pairs(headers) do
-            if not skip_headers[string.lower(key)] and type(value) == "string" then
-              if check_sql_injection(value) or check_xss(value) then
-                return reject_malicious("header", key)
+            if not skip_headers[string.lower(key)] then
+              if type(value) == "string" then
+                if check_sql_injection(value) or check_xss(value) then
+                  return reject_malicious("header", key)
+                end
+              elseif type(value) == "table" then
+                -- Repeated header (e.g. X-Custom: a, X-Custom: b) — check every element.
+                for _, v in ipairs(value) do
+                  if type(v) == "string" then
+                    if check_sql_injection(v) or check_xss(v) then
+                      return reject_malicious("header", key)
+                    end
+                  end
+                end
               end
             end
           end

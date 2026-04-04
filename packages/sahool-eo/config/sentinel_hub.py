@@ -75,7 +75,7 @@ class SentinelHubConfig:
     # Legacy: services.sentinel-hub.com (Sinergise)
     # CDSE:   sh.dataspace.copernicus.eu (ESA Copernicus Data Space Ecosystem)
     auth_url: str = field(default_factory=lambda: os.getenv(
-        "SENTINEL_HUB_AUTH_URL", "https://services.sentinel-hub.com/oauth/token"))
+        "SENTINEL_HUB_AUTH_URL", "https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token"))
     api_url: str = field(default_factory=lambda: os.getenv(
         "SENTINEL_HUB_API_URL", "https://services.sentinel-hub.com/api/v1"))
     catalog_url: str = field(default_factory=lambda: os.getenv(

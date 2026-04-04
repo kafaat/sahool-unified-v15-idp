@@ -1243,7 +1243,7 @@ class VegetationIndicesCalculator:
         ratio = (1 / b.B11_swir1) - (1 / b.B12_swir2)
         soc_est = 21.7 * ratio + 0.5
 
-        # Clamp to realistic range for Yemen agricultural soils (0.1-5%)
+        # Clamp to realistic range for agricultural soils (0.1-8.0%)
         return round(max(0.1, min(soc_est, 8.0)), 2)
 
     def vci(self, ndvi: float, ndvi_min: float = 0.05, ndvi_max: float = 0.85) -> float:

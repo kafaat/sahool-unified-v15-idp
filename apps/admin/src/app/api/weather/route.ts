@@ -159,6 +159,13 @@ export async function GET(request: NextRequest) {
     // Extract tenant context (same as POST handler)
     const tenantId = await getTenantId();
 
+    // Public endpoints (providers, locations) don't require auth
+    // Tenant-scoped endpoints (current, forecast) require authentication
+    const requiresAuth = action === 'current' || action === 'forecast';
+    if (requiresAuth && !tenantId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     let path: string;
     switch (action) {
       case 'providers':

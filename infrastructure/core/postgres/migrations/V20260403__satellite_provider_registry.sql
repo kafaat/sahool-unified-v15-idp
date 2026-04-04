@@ -168,7 +168,24 @@ ON CONFLICT (name) DO UPDATE SET
     priority = EXCLUDED.priority;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 6. Row Level Security — أمان مستوى الصف
+-- 6. Auto-update updated_at trigger — تحديث تلقائي لوقت التعديل
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE OR REPLACE FUNCTION update_satellite_providers_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_satellite_providers_updated_at
+    BEFORE UPDATE ON satellite_providers
+    FOR EACH ROW
+    EXECUTE FUNCTION update_satellite_providers_updated_at();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 7. Row Level Security — أمان مستوى الصف
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- Providers table is global (no RLS needed — read by all tenants)

@@ -99,7 +99,11 @@ async function uploadPhoto(file: File, sessionId: string): Promise<string> {
     }
     const resData = response.data as Record<string, unknown>;
     const nested = resData.data as Record<string, unknown> | undefined;
-    return (nested?.url as string) || (resData.url as string);
+    const url = (nested?.url as string) || (resData.url as string);
+    if (!url || typeof url !== 'string') {
+      throw new Error('No photo URL in response | لا يوجد رابط صورة في الاستجابة');
+    }
+    return url;
   } catch (error) {
     logger.error('Failed to upload photo:', error);
     throw new Error(ERROR_MESSAGES.PHOTO_UPLOAD_FAILED.en);
@@ -216,7 +220,11 @@ export const scoutingApi = {
         startTime: new Date().toISOString(),
       });
 
-      return response.data?.data as ScoutingSession;
+      const session = response.data?.data;
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session)) {
+        throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      return session as ScoutingSession;
     });
   },
 
@@ -234,7 +242,11 @@ export const scoutingApi = {
         }
       );
 
-      return response.data?.data as ScoutingSession;
+      const session = response.data?.data;
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session)) {
+        throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      return session as ScoutingSession;
     });
   },
 
@@ -247,7 +259,11 @@ export const scoutingApi = {
       const response = await api.get<ApiSessionResponse>(
         `${API_PREFIX}/scouting/sessions/${sessionId}`
       );
-      return response.data?.data as ScoutingSession;
+      const session = response.data?.data;
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session)) {
+        throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      return session as ScoutingSession;
     });
   },
 
@@ -449,8 +465,12 @@ export const scoutingApi = {
         throw new Error('Unexpected response structure from report generation');
       }
       const nested = resData.data as Record<string, unknown> | undefined;
+      const downloadUrl = (nested?.downloadUrl as string) || (resData.downloadUrl as string);
+      if (!downloadUrl || typeof downloadUrl !== 'string') {
+        throw new Error('No download URL in response | لا يوجد رابط تحميل في الاستجابة');
+      }
       return {
-        downloadUrl: (nested?.downloadUrl as string) || (resData.downloadUrl as string),
+        downloadUrl,
       };
     });
   },

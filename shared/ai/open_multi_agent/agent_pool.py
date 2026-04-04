@@ -110,6 +110,7 @@ class AgentPool:
 
         self.active_agents: dict[str, AgentRunner] = {}
         self._executors: dict[str, Callable[..., Any]] = {}
+        self._running_tasks: set[asyncio.Task[Any]] = set()
         self._shutting_down = False
 
         self._stats = {
@@ -218,11 +219,14 @@ class AgentPool:
         for runner in list(self.active_agents.values()):
             runner.cancel_event.set()
 
+        # Cancel tracked asyncio tasks for reliable interruption
+        for task in list(self._running_tasks):
+            if not task.done():
+                task.cancel()
+
         # Wait briefly for agents to finish
-        for _ in range(50):
-            if not self.active_agents:
-                break
-            await asyncio.sleep(0.1)
+        if self._running_tasks:
+            await asyncio.gather(*self._running_tasks, return_exceptions=True)
 
         remaining = len(self.active_agents)
         if remaining:
@@ -231,6 +235,7 @@ class AgentPool:
                 remaining_agents=remaining,
             )
         self.active_agents.clear()
+        self._running_tasks.clear()
         logger.info("agent_pool_shutdown_complete")
 
     # ── Stats ────────────────────────────────────────────────────────────

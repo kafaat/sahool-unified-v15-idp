@@ -298,7 +298,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Alert ${action}d successfully`,
+      message: { acknowledge: 'Alert acknowledged successfully', resolve: 'Alert resolved successfully', dismiss: 'Alert dismissed successfully' }[action] ?? `Alert ${action} completed`,
       data,
     });
   } catch (error) {

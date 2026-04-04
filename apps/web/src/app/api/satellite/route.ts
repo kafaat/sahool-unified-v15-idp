@@ -212,6 +212,12 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Auth enforcement (same as GET handler)
+    const tenantId = await getTenantId();
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Authentication required', error_ar: 'المصادقة مطلوبة' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { action, fieldId, analysisType } = body;
 
@@ -231,7 +237,7 @@ export async function POST(request: NextRequest) {
     const { latitude, longitude, coordinates } = body;
     const response = await fetch(`${VEGETATION_SERVICE_URL}/v1/analyze`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Tenant-Id': tenantId },
       body: JSON.stringify({
         field_id: fieldId,
         analysis_type: analysisType || 'ndvi',

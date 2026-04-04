@@ -33,17 +33,20 @@ export const IS_TEST = process.env.NODE_ENV === 'test';
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Base URL for the API Gateway (Kong)
+ * Base URL for the API Gateway (Kong) — used in client-side code.
  * In production: Uses NEXT_PUBLIC_API_URL
  * In development: Falls back to localhost:8000 (Kong gateway port)
  */
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 /**
- * Alias for API_BASE_URL for backward compatibility
- * @deprecated Use API_BASE_URL instead
+ * Server-side only API URL — NOT exposed to the browser.
+ * Use this in API route handlers (login/route.ts, refresh/route.ts, etc.)
+ * instead of NEXT_PUBLIC_API_URL to avoid leaking the gateway address.
+ *
+ * Falls back to API_BASE_URL for backward compatibility.
  */
-export const API_URL = API_BASE_URL;
+export const API_URL = process.env.API_GATEWAY_URL || API_BASE_URL;
 
 /**
  * Base hostname without port for direct service access in development

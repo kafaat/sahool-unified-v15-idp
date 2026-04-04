@@ -55,11 +55,11 @@ export async function POST(_request: NextRequest) {
     }
 
     // Use env vars for cookie maxAge, aligned with login route (30 min default)
-    const accessTokenMaxAge = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || '1800', 10); // 30 minutes default - must match login route
-    const refreshTokenMaxAge = parseInt(
-      process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || '604800',
-      10
-    ); // 7 days default
+    // NaN guard: fall back to safe defaults if env vars contain non-numeric values
+    const parsedAccess = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || '1800', 10);
+    const accessTokenMaxAge = Number.isFinite(parsedAccess) && parsedAccess > 0 ? parsedAccess : 1800;
+    const parsedRefresh = parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || '604800', 10);
+    const refreshTokenMaxAge = Number.isFinite(parsedRefresh) && parsedRefresh > 0 ? parsedRefresh : 604800;
 
     // Update access token
     cookieStore.set('sahool_admin_token', data.access_token, {

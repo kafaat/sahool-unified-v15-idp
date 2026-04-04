@@ -94,8 +94,9 @@ class LRUDict(OrderedDict):
 
     def __missing__(self, key):
         """Auto-create empty list for missing keys (replaces defaultdict behaviour)."""
-        self[key] = []
-        return self[key]
+        value = []
+        self[key] = value
+        return value  # Return the reference directly — avoids KeyError if evicted during __setitem__
 
     def __getitem__(self, key):
         value = super().__getitem__(key)

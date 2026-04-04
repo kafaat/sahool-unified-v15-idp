@@ -254,15 +254,27 @@ plugins:
           -- ============================================================
           local method = kong.request.get_method()
           if method == "POST" or method == "PUT" or method == "PATCH" then
-            local ct = kong.request.get_header("content-type") or ""
+            -- get_header() returns a table when the client repeats the header.
+            -- Passing a table to string.find() raises a Lua runtime error (500),
+            -- so we must guard for that case and treat it as a non-text body.
+            local ct_raw = kong.request.get_header("content-type")
+            local ct = type(ct_raw) == "string" and ct_raw or ""
             if string.find(ct, "application/json", 1, true)
                or string.find(ct, "application/x-www-form-urlencoded", 1, true)
                or string.find(ct, "text/plain", 1, true) then
-              -- Avoid reading the full body when the declared size already exceeds
-              -- the scan limit. get_raw_body() buffers the entire payload in memory,
-              -- so we skip the read for large requests to limit overhead and latency.
-              local content_length = tonumber(kong.request.get_header("content-length"))
-              if not content_length or content_length <= 65536 then
+              -- get_header("content-length") can also return a table when the header
+              -- is repeated; passing a table to tonumber() raises a Lua runtime error.
+              -- Reject malformed requests with 400 rather than crashing with 500.
+              local cl_raw = kong.request.get_header("content-length")
+              if type(cl_raw) == "table" then
+                return kong.response.exit(400, { message = "Malformed Content-Length header" })
+              end
+              local content_length = tonumber(cl_raw)
+              -- Only scan bodies with a declared, in-range Content-Length.
+              -- Chunked / unknown-size bodies (content_length == nil) are skipped to
+              -- prevent get_raw_body() from buffering an arbitrarily large payload in
+              -- memory, which can be abused for memory/latency DoS.
+              if content_length and content_length <= 65536 then
                 local body, err = kong.request.get_raw_body()
                 if body and #body <= 65536 then
                   if check_sql_injection(body) then return reject_malicious("body", "payload") end
@@ -288,8 +300,18 @@ plugins:
           end
           if is_upload then
             local ct = kong.request.get_header("content-type")
+            -- get_header() returns a table when the client repeats the header.
+            -- Passing a table to ct:match() / :gsub() raises a Lua runtime error (500).
+            -- Reject ambiguous / repeated Content-Type values before any string ops.
+            if type(ct) ~= "string" then
+              kong.log.warn("Invalid content type for upload endpoint: repeated or non-string header")
+              return kong.response.exit(415, {
+                error    = "Unsupported media type",
+                error_ar = "نوع الوسائط غير مدعوم",
+              })
+            end
             -- Reject requests that omit Content-Type entirely on upload endpoints.
-            if not ct or ct == "" then
+            if ct == "" then
               kong.log.warn("Missing content type for upload endpoint")
               return kong.response.exit(415, {
                 error    = "Unsupported media type",

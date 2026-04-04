@@ -42,9 +42,7 @@ SERVICE_VERSION = "16.0.0"
 # (comma-separated CIDR list).  Empty string disables IP filtering.
 _PROVIDER_CIDRS_RAW = os.getenv("USSD_PROVIDER_CIDRS", "")
 USSD_PROVIDER_NETWORKS: list[ipaddress.IPv4Network | ipaddress.IPv6Network] = [
-    ipaddress.ip_network(cidr.strip(), strict=False)
-    for cidr in _PROVIDER_CIDRS_RAW.split(",")
-    if cidr.strip()
+    ipaddress.ip_network(cidr.strip(), strict=False) for cidr in _PROVIDER_CIDRS_RAW.split(",") if cidr.strip()
 ]
 USSD_HMAC_SECRET: str = os.getenv("USSD_HMAC_SECRET", "")
 

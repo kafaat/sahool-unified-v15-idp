@@ -46,6 +46,7 @@ def _verify_whatsapp_signature(payload: bytes, signature: str | None) -> bool:
 
     return hmac.compare_digest(f"sha256={expected}", signature)
 
+
 # Authentication guard - requires valid JWT for send/template/mark-read endpoints
 try:
     from shared.auth.dependencies import get_current_user

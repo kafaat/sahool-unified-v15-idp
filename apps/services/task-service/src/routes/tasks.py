@@ -396,14 +396,14 @@ async def create_task(
     if data.metadata:
         try:
             validate_metadata_size(data.metadata)
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError):
             raise HTTPException(status_code=400, detail="Invalid metadata | بيانات وصفية غير صالحة")
 
     # Validate field_id format
     if data.field_id:
         try:
             validate_field_id(data.field_id)
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError):
             raise HTTPException(status_code=400, detail="Invalid field ID format | صيغة معرف الحقل غير صالحة")
 
     task_id = generate_task_id()

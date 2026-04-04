@@ -249,7 +249,7 @@ def main():
     if not os.getenv("DATABASE_URL"):
         print("\n⚠️  Warning: DATABASE_URL not set, using default")
         print("⚠️  تحذير: DATABASE_URL غير محدد، استخدام الافتراضي")
-        print("Default: postgresql://sahool:password@localhost/sahool\n")
+        print("Default: postgresql://localhost/sahool\n")
 
     # تشغيل الأمثلة
     # Run examples

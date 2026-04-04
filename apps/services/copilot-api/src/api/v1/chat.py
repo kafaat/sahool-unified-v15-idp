@@ -50,13 +50,13 @@ try:
     from shared.guardrails import TrustLevel, input_filter
 
     HAS_GUARDRAILS = True
-except ImportError:
+except ImportError as _guardrails_err:
     HAS_GUARDRAILS = False
     if _os.getenv("ENVIRONMENT") == "production":
         raise RuntimeError(
             "shared.guardrails is required in production but could not be imported. "
             "Refusing to start — prompt injection filtering would be disabled."
-        )
+        ) from _guardrails_err
 
 logger = structlog.get_logger(__name__)
 

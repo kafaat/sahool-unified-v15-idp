@@ -20,6 +20,9 @@ services:
     image: prom/prometheus:v2.48.0
     container_name: sahool-monitoring-prometheus
     restart: unless-stopped
+    # Upgrade note: if existing prometheus_data volume was written by root,
+    # fix permissions before restart:
+    #   docker run --rm -v sahool-monitoring_prometheus_data:/prometheus alpine chown -R 65534:65534 /prometheus
     user: "65534"  # nobody — unprivileged user
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'

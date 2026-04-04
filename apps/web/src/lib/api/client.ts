@@ -135,11 +135,18 @@ class SahoolApiClient {
     return this.request<User>('/api/v1/auth/me');
   }
 
-  async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
+  /**
+   * Gap #4/#13: Token refresh must go through the Next.js server-side proxy
+   * (/api/auth/refresh) which reads the httpOnly refresh_token cookie.
+   * Calling /api/v1/auth/refresh directly from client-side JS would fail
+   * because the httpOnly cookie is not accessible to JavaScript.
+   */
+  async refreshToken() {
+    const response = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+    if (!response.ok) {
+      throw new Error('Token refresh failed');
+    }
+    return response.json() as Promise<{ success: boolean; access_token: string }>;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -457,7 +464,7 @@ class SahoolApiClient {
 
   async getSprayHistory(params?: { limit?: number }) {
     const queryParams = params?.limit ? { limit: String(params.limit) } : undefined;
-    return this.request<any[]>('/api/v1/advisory/v1/spray-history', {
+    return this.request<any[]>('/api/v1/advisory/spray-history', {
       params: queryParams,
     });
   }

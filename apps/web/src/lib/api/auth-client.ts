@@ -10,7 +10,6 @@
  * that need field, weather, sensor, irrigation, and other domain API methods.
  */
 
-import Cookies from 'js-cookie';
 import { logger } from '../logger';
 
 // ---------------------------------------------------------------------------
@@ -157,58 +156,35 @@ class AuthApiClient {
     return this.request<AuthUser>('/api/v1/auth/me');
   }
 
-  async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
+  /**
+   * Gap #4: Token refresh must go through the Next.js server-side proxy
+   * (/api/auth/refresh) which reads the httpOnly refresh_token cookie.
+   * The httpOnly cookie cannot be accessed by client-side JavaScript.
+   */
+  async refreshToken() {
+    const response = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+    if (!response.ok) {
+      throw new Error('Token refresh failed');
+    }
+    return response.json() as Promise<{ success: boolean; access_token?: string }>;
   }
 
   /**
-   * Attempt to refresh the access token using the refresh token from cookies.
-   * Returns true if successful, false otherwise.
+   * Attempt to refresh the access token using the httpOnly refresh_token cookie
+   * via the server-side proxy route. Returns true if successful, false otherwise.
    */
   async attemptTokenRefresh(): Promise<boolean> {
     try {
       if (typeof window === 'undefined') return false;
 
-      // TODO: migrate to server-side /api/auth/refresh route that reads httpOnly refresh_token cookie
-      const refreshTokenValue = Cookies.get('refresh_token');
-      if (!refreshTokenValue) {
-        logger.warn('No refresh token available');
-        return false;
-      }
+      // Gap #4: use server-side proxy which reads the httpOnly refresh_token cookie.
+      // Direct Cookies.get('refresh_token') would fail because it is httpOnly.
+      const response = await this.refreshToken();
 
-      const response = await this.refreshToken(refreshTokenValue);
-
-      if (response.success && response.data?.access_token) {
-        // Set token via server-side route for httpOnly cookie protection
-        try {
-          const sessionResponse = await fetch('/api/auth/session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ access_token: response.data.access_token }),
-            credentials: 'include',
-          });
-
-          if (!sessionResponse.ok) {
-            logger.warn(
-              `Failed to set httpOnly cookie via server route: ${sessionResponse.status} ${sessionResponse.statusText}`
-            );
-            return false;
-          }
-        } catch (error) {
-          logger.warn('Failed to set httpOnly cookie via server route', error);
-          return false;
-        }
-        this.setToken(response.data.access_token);
+      if (response.success && response.access_token) {
+        this.setToken(response.access_token);
         return true;
       } else {
-        // Clear root-scoped + legacy path-scoped cookies
-        Cookies.remove('access_token', { path: '/' });
-        Cookies.remove('refresh_token', { path: '/' });
-        Cookies.remove('access_token');
-        Cookies.remove('refresh_token');
         this.clearToken();
         return false;
       }

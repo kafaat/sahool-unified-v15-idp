@@ -1,5 +1,5 @@
 """
-�satellite SAHOOL Satellite Service - eo-learn Integration
+SAHOOL Satellite Service - eo-learn Integration
 تكامل خدمة الأقمار الصناعية مع eo-learn
 
 This module provides integration between the vegetation-analysis-service API

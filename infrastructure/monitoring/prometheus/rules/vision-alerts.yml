@@ -206,7 +206,7 @@ groups:
           category: vision
           platform: sahool
         annotations:
-          summary: "CRITICAL: {{ $labels.pest_type }} detected in field {{ $labels.region }}"
+          summary: "CRITICAL: {{ $labels.pest_type }} detected in region {{ $labels.region }}"
           summary_ar: "حرج: تم اكتشاف {{ $labels.pest_type }} في المنطقة {{ $labels.region }}"
           description: "A critical pest (Red Palm Weevil or Locust) has been detected by computer vision. Immediate response required within 24-48 hours."
           description_ar: "تم اكتشاف آفة حرجة (سوسة النخيل الحمراء أو جراد) بواسطة الرؤية الحاسوبية. مطلوب استجابة فورية خلال 24-48 ساعة."

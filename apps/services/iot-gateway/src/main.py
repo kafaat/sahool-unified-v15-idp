@@ -121,7 +121,7 @@ async def handle_mqtt_message(msg: MqttMessage):
             # SECURITY: In production/staging, devices MUST be pre-registered via /device/register.
             # IOT_AUTO_REGISTER=true is dangerous: all devices go to DEFAULT_TENANT.
             auto_register_enabled = os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
-            _env = os.getenv("ENVIRONMENT", "production").lower()
+            _env = os.getenv("ENVIRONMENT", "development").lower()
 
             if auto_register_enabled:
                 # Security: Reject auto-registration in production/staging environments

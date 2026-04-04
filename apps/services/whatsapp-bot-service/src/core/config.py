@@ -73,11 +73,6 @@ class Settings(BaseSettings):
         default="",
         description="WhatsApp Business Account ID | معرف حساب الأعمال",
     )
-    whatsapp_app_secret: str = Field(
-        default="",
-        description="WhatsApp App Secret for X-Hub-Signature-256 HMAC verification | سر التطبيق للتحقق من توقيع HMAC",
-    )
-
     # LLM Orchestrator Service Configuration
     llm_orchestrator_url: str = Field(
         default="http://llm-orchestrator-service:8220",

@@ -26,7 +26,7 @@ from uuid import uuid4
 
 import redis.asyncio as redis_client
 import structlog
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from slowapi import Limiter

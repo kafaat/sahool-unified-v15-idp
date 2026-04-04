@@ -39,16 +39,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   React.useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        // Don't trigger inside editable fields
-        const tag = (e.target as HTMLElement)?.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+        // Allow closing palette even from its own search input
+        const target = e.target as HTMLElement | null;
+        const tag = target?.tagName;
+        const isEditableField = tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable;
+        if (!commandPaletteOpen && isEditableField) return;
         e.preventDefault();
         setCommandPaletteOpen((prev) => !prev);
       }
     }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [commandPaletteOpen]);
 
   React.useEffect(() => {
     checkAuth();

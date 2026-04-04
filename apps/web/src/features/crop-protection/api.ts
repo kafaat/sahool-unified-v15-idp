@@ -62,9 +62,10 @@ export const cropProtectionApi = {
    * جلب سجلات اكتشاف الآفات
    */
   getPestRecords: async (fieldId?: string): Promise<PestRecord[]> => {
-    return safeFetch(`${PEST_BASE}/list`, async () => {
-      const params = fieldId ? `?field_id=${fieldId}` : '';
-      const response = await api.get(`${PEST_BASE}/list${params}`);
+    const params = fieldId ? `?field_id=${encodeURIComponent(fieldId)}` : '';
+    const endpoint = `${PEST_BASE}/list${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

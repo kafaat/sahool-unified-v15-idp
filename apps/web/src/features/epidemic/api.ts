@@ -48,9 +48,10 @@ export const epidemicApi = {
    * جلب جميع الأوبئة
    */
   getEpidemics: async (status?: string): Promise<Epidemic[]> => {
-    return safeFetch(BASE, async () => {
-      const params = status ? `?status=${status}` : '';
-      const response = await api.get(`${BASE}${params}`);
+    const params = status ? `?status=${encodeURIComponent(status)}` : '';
+    const endpoint = `${BASE}${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

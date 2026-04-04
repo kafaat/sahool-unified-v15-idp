@@ -109,7 +109,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(
     // Handlers
     // ─────────────────────────────────────────────────────────────────────────
 
-    const handleFilterChange = (key: keyof FilterState, value: FilterState[keyof FilterState]) => {
+    const handleFilterChange = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
       setFilters((prev) => ({ ...prev, [key]: value }));
     };
 

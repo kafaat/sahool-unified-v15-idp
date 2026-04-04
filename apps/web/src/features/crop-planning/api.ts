@@ -54,9 +54,10 @@ export const cropPlanningApi = {
    * جلب جميع خطط المحاصيل
    */
   getPlans: async (fieldId?: string): Promise<CropPlan[]> => {
-    return safeFetch(`${BASE}/plans`, async () => {
-      const params = fieldId ? `?field_id=${fieldId}` : '';
-      const response = await api.get(`${BASE}/plans${params}`);
+    const params = fieldId ? `?field_id=${encodeURIComponent(fieldId)}` : '';
+    const endpoint = `${BASE}/plans${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

@@ -51,9 +51,10 @@ export const seedsApi = {
    * جلب كتالوج البذور
    */
   getSeeds: async (cropType?: string): Promise<Seed[]> => {
-    return safeFetch(BASE, async () => {
-      const params = cropType ? `?crop_type=${cropType}` : '';
-      const response = await api.get(`${BASE}${params}`);
+    const params = cropType ? `?crop_type=${encodeURIComponent(cropType)}` : '';
+    const endpoint = `${BASE}${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

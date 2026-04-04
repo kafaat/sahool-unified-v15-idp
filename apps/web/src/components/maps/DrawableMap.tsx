@@ -5,7 +5,7 @@
 // Exports GeoJSON via onBoundaryChange callback
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import type L from 'leaflet';
+import type * as L from 'leaflet';
 import { Undo2, Pentagon, Square, Trash2, X, Check } from 'lucide-react';
 
 // ---------------------------------------------------------------------------

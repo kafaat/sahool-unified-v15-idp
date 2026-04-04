@@ -80,9 +80,10 @@ export const precisionAgricultureApi = {
    * جلب أيام درجات النمو لحقل معين
    */
   getGdd: async (fieldId: string, startDate?: string): Promise<GddData> => {
-    return safeFetch(`${BASE}/gdd/${fieldId}`, async () => {
-      const params = startDate ? `?start_date=${startDate}` : '';
-      const response = await api.get(`${BASE}/gdd/${fieldId}${params}`);
+    const params = startDate ? `?start_date=${encodeURIComponent(startDate)}` : '';
+    const endpoint = `${BASE}/gdd/${encodeURIComponent(fieldId)}${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

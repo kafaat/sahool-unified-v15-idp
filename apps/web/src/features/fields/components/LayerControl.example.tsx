@@ -334,7 +334,8 @@ export default function LayerControlDemo() {
     { name: 'Without Persistence', component: LayerControlWithoutPersistence },
   ];
 
-  const ActiveComponent = examples[activeExample]!.component;
+  const example = examples[activeExample] ?? examples[0];
+  const ActiveComponent = example.component;
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -362,7 +363,7 @@ export default function LayerControlDemo() {
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">{examples[activeExample]!.name}</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">{example.name}</h2>
           <ActiveComponent />
         </div>
       </div>

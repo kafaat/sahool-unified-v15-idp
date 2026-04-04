@@ -49,9 +49,10 @@ export const traceabilityApi = {
    * جلب جميع دفعات التتبع
    */
   getBatches: async (fieldId?: string): Promise<TraceabilityBatch[]> => {
-    return safeFetch(`${BASE}/batches`, async () => {
-      const params = fieldId ? `?field_id=${fieldId}` : '';
-      const response = await api.get(`${BASE}/batches${params}`);
+    const params = fieldId ? `?field_id=${encodeURIComponent(fieldId)}` : '';
+    const endpoint = `${BASE}/batches${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },
@@ -72,9 +73,10 @@ export const traceabilityApi = {
    * جلب أحداث التتبع لدفعة معينة
    */
   getEvents: async (batchId?: string): Promise<TraceabilityEvent[]> => {
-    return safeFetch(`${BASE}/events`, async () => {
-      const params = batchId ? `?batch_id=${batchId}` : '';
-      const response = await api.get(`${BASE}/events${params}`);
+    const params = batchId ? `?batch_id=${encodeURIComponent(batchId)}` : '';
+    const endpoint = `${BASE}/events${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

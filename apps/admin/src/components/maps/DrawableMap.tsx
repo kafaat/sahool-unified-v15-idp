@@ -4,8 +4,9 @@
 // خريطة الرسم التفاعلية - رسم المضلعات ومربعات الإحاطة بالنقر
 // Supports: polygon drawing via click, bbox calculation, GeoJSON export
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { Undo2 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -101,10 +102,12 @@ function DrawingLayer({
   mode,
   vertices,
   onAddVertex,
+  onMouseMove,
 }: {
   mode: DrawingMode;
   vertices: Vertex[];
   onAddVertex: (v: Vertex) => void;
+  onMouseMove?: (coords: { lat: number; lng: number }) => void;
 }) {
   // useMapEvents is loaded dynamically — we import it at render time on the
   // client so the import is safe (this component is only rendered inside
@@ -118,24 +121,29 @@ function DrawingLayer({
   }, []);
 
   if (!mapEvents) return null;
-  return <DrawingLayerInner mode={mode} vertices={vertices} onAddVertex={onAddVertex} useMapEvents={mapEvents} />;
+  return <DrawingLayerInner mode={mode} vertices={vertices} onAddVertex={onAddVertex} onMouseMove={onMouseMove} useMapEvents={mapEvents} />;
 }
 
 function DrawingLayerInner({
   mode,
   vertices: _vertices,
   onAddVertex,
+  onMouseMove,
   useMapEvents,
 }: {
   mode: DrawingMode;
   vertices: Vertex[];
   onAddVertex: (v: Vertex) => void;
+  onMouseMove?: (coords: { lat: number; lng: number }) => void;
   useMapEvents: any;
 }) {
   useMapEvents({
     click(e: any) {
       if (!mode) return;
       onAddVertex({ lat: e.latlng.lat, lng: e.latlng.lng });
+    },
+    mousemove(e: any) {
+      onMouseMove?.({ lat: e.latlng.lat, lng: e.latlng.lng });
     },
   });
   return null;
@@ -161,6 +169,64 @@ function verticesToGeoJSON(vertices: Vertex[]): number[][][] {
 }
 
 // ---------------------------------------------------------------------------
+// Measurement utilities
+// ---------------------------------------------------------------------------
+
+/** Haversine distance between two points in meters */
+function haversineDistance(a: Vertex, b: Vertex): number {
+  const R = 6371000; // Earth radius in meters
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const sinLat = Math.sin(dLat / 2);
+  const sinLng = Math.sin(dLng / 2);
+  const h = sinLat * sinLat + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinLng * sinLng;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/** Perimeter of the polygon in meters */
+function computePerimeter(vertices: Vertex[]): number {
+  if (vertices.length < 2) return 0;
+  let total = 0;
+  for (let i = 0; i < vertices.length; i++) {
+    const next = (i + 1) % vertices.length;
+    total += haversineDistance(vertices[i]!, vertices[next]!);
+  }
+  return total;
+}
+
+/** Area of a polygon in hectares using the Shoelace formula on projected coordinates */
+function computeAreaHectares(vertices: Vertex[]): number {
+  if (vertices.length < 3) return 0;
+  // Use a simple equirectangular projection centered on the polygon centroid
+  const avgLat = vertices.reduce((s, v) => s + v.lat, 0) / vertices.length;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const cosLat = Math.cos(toRad(avgLat));
+  const R = 6371000; // meters
+
+  // Project to meters
+  const projected = vertices.map((v) => ({
+    x: toRad(v.lng) * cosLat * R,
+    y: toRad(v.lat) * R,
+  }));
+
+  // Shoelace formula
+  let area = 0;
+  for (let i = 0; i < projected.length; i++) {
+    const j = (i + 1) % projected.length;
+    area += projected[i]!.x * projected[j]!.y;
+    area -= projected[j]!.x * projected[i]!.y;
+  }
+  area = Math.abs(area) / 2;
+  return area / 10000; // m² to hectares
+}
+
+/** Format a number with Arabic-appropriate decimal places */
+function formatMeasurement(value: number, decimals: number = 2): string {
+  return value.toFixed(decimals);
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -176,6 +242,7 @@ export default function DrawableMap({
   const [mode, setMode] = useState<DrawingMode>(null);
   const [vertices, setVertices] = useState<Vertex[]>([]);
   const [completed, setCompleted] = useState(false);
+  const [mouseCoords, setMouseCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   // Rectangle-specific: first and second click
   const rectStage = useRef<'first' | 'second'>('first');
@@ -253,6 +320,19 @@ export default function DrawableMap({
     rectStage.current = 'first';
   }, []);
 
+  const handleUndo = useCallback(() => {
+    if (completed || vertices.length === 0) return;
+    setVertices((prev) => prev.slice(0, -1));
+  }, [completed, vertices.length]);
+
+  const handleMouseMove = useCallback((coords: { lat: number; lng: number }) => {
+    setMouseCoords(coords);
+  }, []);
+
+  // Computed measurements
+  const perimeter = useMemo(() => computePerimeter(vertices), [vertices]);
+  const areaHectares = useMemo(() => computeAreaHectares(vertices), [vertices]);
+
   const startPolygon = useCallback(() => {
     handleClear();
     setMode('polygon');
@@ -289,7 +369,16 @@ export default function DrawableMap({
   const firstVertexIcon = createVertexIcon(leaflet, '#16a34a');
 
   return (
-    <div className="relative rounded-lg overflow-hidden border border-gray-200" dir="rtl">
+    <div
+      className={`relative rounded-lg overflow-hidden border-2 ${
+        mode === 'polygon'
+          ? 'border-green-500'
+          : mode === 'rectangle'
+            ? 'border-blue-500'
+            : 'border-gray-200'
+      }`}
+      dir="rtl"
+    >
       {/* Toolbar */}
       <div className="absolute top-3 right-3 z-[1000] flex flex-col gap-2">
         {/* Mode selection buttons */}
@@ -322,6 +411,16 @@ export default function DrawableMap({
                 className="px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-md shadow-md hover:bg-green-700 transition-colors"
               >
                 إكمال ✓
+              </button>
+            )}
+            {mode === 'polygon' && vertices.length > 0 && (
+              <button
+                type="button"
+                onClick={handleUndo}
+                className="px-3 py-2 bg-gray-600 text-white text-sm font-medium rounded-md shadow-md hover:bg-gray-700 transition-colors inline-flex items-center gap-1"
+              >
+                <Undo2 size={14} />
+                تراجع
               </button>
             )}
             <button
@@ -364,18 +463,35 @@ export default function DrawableMap({
 
       {/* Status bar */}
       {modeLabel && !completed && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-[1000] bg-white/95 backdrop-blur px-4 py-2 rounded-md shadow-md text-sm font-medium text-gray-700 border border-gray-200">
-          {modeLabel}
-          {mode === 'polygon' && vertices.length > 0 && (
-            <span className="mr-2 text-blue-600">({vertices.length} نقاط)</span>
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-[1000] bg-white/95 backdrop-blur px-4 py-2 rounded-md shadow-md text-sm font-medium text-gray-700 border border-gray-200 flex flex-col items-center gap-1">
+          <div>
+            {modeLabel}
+            {mode === 'polygon' && vertices.length > 0 && (
+              <span className="mr-2 text-blue-600">النقاط: {vertices.length}</span>
+            )}
+          </div>
+          {vertices.length >= 2 && (
+            <div className="text-xs text-gray-500">
+              المساحة: {formatMeasurement(areaHectares)} هكتار | المحيط: {formatMeasurement(perimeter)} م
+            </div>
           )}
         </div>
       )}
 
       {/* Completion info */}
       {completed && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-[1000] bg-green-50 border border-green-300 px-4 py-2 rounded-md shadow-md text-sm font-medium text-green-800">
-          تم تحديد المنطقة — {vertices.length} نقاط
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-[1000] bg-green-50 border border-green-300 px-4 py-2 rounded-md shadow-md text-sm font-medium text-green-800 flex flex-col items-center gap-1">
+          <div>تم تحديد المنطقة — النقاط: {vertices.length}</div>
+          <div className="text-xs">
+            المساحة: {formatMeasurement(areaHectares)} هكتار | المحيط: {formatMeasurement(perimeter)} م
+          </div>
+        </div>
+      )}
+
+      {/* Mouse coordinates display */}
+      {mouseCoords && (
+        <div className="absolute bottom-3 right-3 z-[1000] bg-black/70 text-white px-3 py-1 rounded text-xs font-mono" dir="ltr">
+          خ.ع: {mouseCoords.lat.toFixed(4)}° | خ.ط: {mouseCoords.lng.toFixed(4)}°
         </div>
       )}
 
@@ -406,7 +522,7 @@ export default function DrawableMap({
         </LayersControl>
 
         {/* Drawing event listener */}
-        <DrawingLayer mode={mode} vertices={vertices} onAddVertex={handleAddVertex} />
+        <DrawingLayer mode={mode} vertices={vertices} onAddVertex={handleAddVertex} onMouseMove={handleMouseMove} />
 
         {/* Vertex markers */}
         {vertices.map((v, i) => (

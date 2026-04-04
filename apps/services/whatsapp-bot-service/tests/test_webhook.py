@@ -241,10 +241,9 @@ class TestSendMessageAPI:
 
     def setup_method(self):
         """Set up test client with auth bypassed for unit testing."""
-        from src.main import app
-
         # Override auth dependency so send endpoints are testable without JWT
         from src.api.endpoints.webhook import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "tid": "test-tenant"}
         self.client = TestClient(app)
@@ -300,9 +299,8 @@ class TestSendTemplateAPI:
 
     def setup_method(self):
         """Set up test client with auth bypassed for unit testing."""
-        from src.main import app
-
         from src.api.endpoints.webhook import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "tid": "test-tenant"}
         self.client = TestClient(app)

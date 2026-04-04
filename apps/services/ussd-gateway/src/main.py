@@ -64,6 +64,11 @@ def _verify_telecom_callback(request: Request, body: bytes) -> bool:
     if environment in ("development", "test") and not USSD_PROVIDER_NETWORKS and not USSD_HMAC_SECRET:
         return True
 
+    # Fail-closed in production: reject if NEITHER verification mechanism is configured
+    if environment == "production" and not USSD_PROVIDER_NETWORKS and not USSD_HMAC_SECRET:
+        logger.error("telecom_callback_no_auth_configured — rejecting in production")
+        return False
+
     # Layer 1: IP whitelist
     ip_ok = True
     if USSD_PROVIDER_NETWORKS:

@@ -71,9 +71,12 @@ api_addr      = "https://vault.sahool.com:8200"
 # ─────────────────────────────────────────────────────────────────────────────
 # Auto-Unseal - AWS KMS (Production)
 # ─────────────────────────────────────────────────────────────────────────────
-# Region and KMS key are injected via environment variables at deploy time:
-#   VAULT_AWSKMS_SEAL_KEY_ID  — KMS key ARN or alias
-# The AWS SDK will use the IAM role attached to the Vault pod/instance.
+# Static configuration — ops must update region/kms_key_id here before deploy.
+# The AWS SDK authenticates via the IAM role attached to the Vault pod/instance
+# (no AWS_ACCESS_KEY_ID needed when using IRSA or EC2 instance profile).
+#
+# To change the KMS key: update kms_key_id below and restart Vault.
+# To migrate/unseal with existing Shamir keys first if changing seal method.
 seal "awskms" {
   region     = "me-south-1"
   kms_key_id = "alias/sahool-vault-unseal"

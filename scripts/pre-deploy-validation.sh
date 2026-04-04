@@ -99,25 +99,7 @@ if [[ "${1:-}" == "--strict" ]]; then
   echo "Strict mode: scanning entire repository for CHANGE_ME_BEFORE_DEPLOY..."
   echo ""
 
-  # Exclude example/template files, docs, and test fixtures
-  EXCLUDE_PATTERNS=(
-    "*.example"
-    ".env.example"
-    "env.example"
-    "*.template.*"
-    "credentials.template.yaml"
-    "*.md"
-    "scripts/pre-deploy-validation.sh"
-    "node_modules/*"
-    ".git/*"
-    "archive/*"
-  )
-
-  EXCLUDE_ARGS=""
-  for pat in "${EXCLUDE_PATTERNS[@]}"; do
-    EXCLUDE_ARGS="${EXCLUDE_ARGS} --exclude=${pat}"
-  done
-
+  # Exclude example/template files, docs, and test fixtures via grep options below
   hits=$(grep -rn "CHANGE_ME_BEFORE_DEPLOY" "${REPO_ROOT}" \
     --exclude="*.example" \
     --exclude=".env.example" \

@@ -28,11 +28,19 @@ def _verify_whatsapp_signature(payload: bytes, signature: str | None) -> bool:
     Meta signs every webhook payload with the App Secret using HMAC-SHA256.
     Without this verification, an attacker can send spoofed webhook events.
 
+    Rollback: set WHATSAPP_HMAC_REQUIRED=false to bypass verification.
+
     See: https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
     """
+    import os
+
+    if os.getenv("WHATSAPP_HMAC_REQUIRED", "true").lower() == "false":
+        return True
+
     if not settings.whatsapp_app_secret:
         # Fail-closed: reject all webhooks if app secret is not configured
-        logger.error("whatsapp_app_secret not configured — rejecting webhook")
+        logger.error("whatsapp_app_secret not configured — rejecting webhook. "
+                     "Set WHATSAPP_HMAC_REQUIRED=false to bypass during rollback.")
         return False
 
     if not signature:

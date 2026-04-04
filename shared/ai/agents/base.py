@@ -22,6 +22,9 @@ Updated: January 2026
 from __future__ import annotations
 
 import asyncio
+
+# Tool Guard integration — enforce allowlist/blocklist before tool execution
+import os as _os
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
@@ -34,9 +37,6 @@ import structlog
 from ..audit import get_audit_logger
 from ..circuit_breaker import get_circuit_breaker
 from ..llm_provider import LLMProviderManager, get_llm_manager
-
-# Tool Guard integration — enforce allowlist/blocklist before tool execution
-import os as _os
 
 try:
     from ..guardrails.tool_guard import ToolCallContext, ToolGuard

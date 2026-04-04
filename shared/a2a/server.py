@@ -483,10 +483,12 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         # Authenticate WebSocket connection before accepting
         # مصادقة اتصال WebSocket قبل القبول
         if _auth_available:
+            # SECURITY: Only accept Bearer token from Authorization header.
+            # Query params (e.g., ?token=...) are logged in access logs, browser
+            # history, and Referer headers — never use for auth tokens.
             auth_header = websocket.headers.get("authorization", "")
-            token = websocket.query_params.get("token", "")
-            if not auth_header.startswith("Bearer ") and not token:
-                await websocket.close(code=4001, reason="Authentication required")
+            if not auth_header.startswith("Bearer "):
+                await websocket.close(code=4001, reason="Authentication required — use Authorization header")
                 return
 
         await server.handle_websocket_connection(websocket, client_id)

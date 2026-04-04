@@ -53,22 +53,43 @@ export function useUpdateField() {
       data: Partial<FieldFormData>;
       tenantId?: string;
     }) => fieldsApi.updateField(id, data, tenantId),
-    onSuccess: (updatedField, variables) => {
-      // Update cache with new data
-      queryClient.setQueryData(fieldKeys.detail(variables.id), updatedField);
+    onMutate: async ({ id, data }) => {
+      // Cancel any outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: fieldKeys.detail(id) });
+      await queryClient.cancelQueries({ queryKey: fieldKeys.lists() });
 
-      // Invalidate lists to refetch
+      // Snapshot the previous value for rollback
+      const previousField = queryClient.getQueryData(fieldKeys.detail(id));
+
+      // Optimistically update the cache
+      queryClient.setQueryData(fieldKeys.detail(id), (old: any) => {
+        if (!old) return old;
+        return { ...old, ...data };
+      });
+
+      return { previousField, id };
+    },
+    onSuccess: (updatedField, variables) => {
+      // Replace optimistic cache entry with server-confirmed data
+      queryClient.setQueryData(fieldKeys.detail(variables.id), updatedField);
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
       queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
     },
-    onError: (error: Error) => {
-      // Parse error message
+    onError: (error: Error, _variables, context) => {
+      // Rollback to the previous value on error
+      if (context?.previousField !== undefined) {
+        queryClient.setQueryData(fieldKeys.detail(context.id), context.previousField);
+      }
       try {
         const errorData = JSON.parse(error.message);
         logger.error('Update field error:', errorData.messageAr || errorData.message);
       } catch {
         logger.error('Update field error:', error.message);
       }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch after error or success to sync with server
+      queryClient.invalidateQueries({ queryKey: fieldKeys.detail(variables.id) });
     },
   });
 }

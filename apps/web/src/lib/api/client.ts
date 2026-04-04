@@ -186,6 +186,15 @@ class SahoolApiClient {
   }
 
   async getNearbyFields(lat: number, lng: number, radius: number = 5000) {
+    if (lat < -90 || lat > 90) {
+      return { success: false as const, error: 'Latitude must be between -90 and 90' };
+    }
+    if (lng < -180 || lng > 180) {
+      return { success: false as const, error: 'Longitude must be between -180 and 180' };
+    }
+    if (radius <= 0 || !isFinite(radius)) {
+      return { success: false as const, error: 'Radius must be a positive finite number' };
+    }
     return this.request<Field[]>('/api/v1/fields/nearby', {
       params: {
         lat: String(lat),
@@ -272,12 +281,21 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async analyzeCropHealth(imageFile: File): Promise<ApiResponse<CropHealthAnalysis>> {
-    // Validate file type
+    // Validate file type by MIME type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(imageFile.type)) {
       return {
         success: false,
         error: 'Invalid file type. Please upload a JPEG, PNG, or WebP image.',
+      };
+    }
+
+    // Validate file extension as a secondary check against extension spoofing
+    const allowedExtensions = /\.(jpg|jpeg|png|webp)$/i;
+    if (!allowedExtensions.test(imageFile.name)) {
+      return {
+        success: false,
+        error: 'Invalid file extension. Please upload a JPEG, PNG, or WebP image.',
       };
     }
 
@@ -416,6 +434,31 @@ class SahoolApiClient {
     return this.request<FertilizerRecommendation>('/api/v1/fertilizer/recommend', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Growing Degree Days (GDD) API
+  // Kong route: /api/v1/weather → weather-service:8092
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getGDDData() {
+    return this.request<any[]>('/api/v1/weather/gdd');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Spray Management API
+  // Kong route: /api/v1/weather → weather-service:8092
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getSprayWindows() {
+    return this.request<any[]>('/api/v1/weather/spray-windows');
+  }
+
+  async getSprayHistory(params?: { limit?: number }) {
+    const queryParams = params?.limit ? { limit: String(params.limit) } : undefined;
+    return this.request<any[]>('/api/v1/advisory/v1/spray-history', {
+      params: queryParams,
     });
   }
 

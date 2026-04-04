@@ -191,6 +191,14 @@ export async function GET(request: NextRequest) {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json(
+        { success: false, error: 'Irrigation service returned non-JSON response', error_ar: 'خدمة الري أرجعت استجابة غير JSON' },
+        { status: 502 }
+      );
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -318,6 +326,14 @@ export async function POST(request: NextRequest) {
       }),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json(
+        { success: false, error: 'Irrigation service returned non-JSON response', error_ar: 'خدمة الري أرجعت استجابة غير JSON' },
+        { status: 502 }
+      );
+    }
 
     const data = await response.json();
 

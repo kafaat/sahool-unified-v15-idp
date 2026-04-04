@@ -294,6 +294,14 @@ export async function POST(request: NextRequest) {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json(
+        { success: false, error: 'Alert service returned non-JSON response', error_ar: 'خدمة التنبيهات أرجعت استجابة غير JSON' },
+        { status: 502 }
+      );
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -301,28 +309,33 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: data.detail || data.message || `Failed to ${action} alert`,
+          error_ar: 'فشل في تنفيذ إجراء التنبيه',
         },
         { status: response.status }
       );
     }
 
+    const messageMap: Record<string, string> = { acknowledge: 'Alert acknowledged successfully', resolve: 'Alert resolved successfully', dismiss: 'Alert dismissed successfully' };
+    const messageMapAr: Record<string, string> = { acknowledge: 'تم الإقرار بالتنبيه بنجاح', resolve: 'تم حل التنبيه بنجاح', dismiss: 'تم تجاهل التنبيه بنجاح' };
+
     return NextResponse.json({
       success: true,
-      message: { acknowledge: 'Alert acknowledged successfully', resolve: 'Alert resolved successfully', dismiss: 'Alert dismissed successfully' }[action] ?? `Alert ${action} completed`,
+      message: messageMap[action] ?? `Alert ${action} completed`,
+      message_ar: messageMapAr[action] ?? 'تم تنفيذ إجراء التنبيه',
       data,
     });
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') {
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
       logger.error('[Alerts API] Request to alert-service timed out');
       return NextResponse.json(
-        { success: false, error: 'Request timed out' },
+        { success: false, error: 'Request timed out', error_ar: 'انتهت مهلة الطلب' },
         { status: 504 }
       );
     }
 
     logger.error('[Alerts API] Error performing alert action:', error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: 'Internal server error', error_ar: 'خطأ داخلي في الخادم' },
       { status: 500 }
     );
   }

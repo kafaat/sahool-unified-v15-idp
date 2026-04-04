@@ -78,9 +78,10 @@ export const cropPlanningApi = {
    * جلب توصيات المحاصيل لحقل معين
    */
   getRecommendations: async (fieldId?: string): Promise<CropRecommendation[]> => {
-    return safeFetch(`${BASE}/recommendations`, async () => {
-      const params = fieldId ? `?field_id=${fieldId}` : '';
-      const response = await api.get(`${BASE}/recommendations${params}`);
+    const params = fieldId ? `?field_id=${encodeURIComponent(fieldId)}` : '';
+    const endpoint = `${BASE}/recommendations${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

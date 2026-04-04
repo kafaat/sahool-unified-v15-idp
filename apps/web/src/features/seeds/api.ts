@@ -75,12 +75,12 @@ export const seedsApi = {
    * جلب توصيات البذور لحقل معين
    */
   getRecommendations: async (fieldId?: string, season?: string): Promise<SeedRecommendation[]> => {
-    return safeFetch(`${BASE}/recommendations`, async () => {
-      const params = new URLSearchParams();
-      if (fieldId) params.set('field_id', fieldId);
-      if (season) params.set('season', season);
-      const query = params.toString() ? `?${params.toString()}` : '';
-      const response = await api.get(`${BASE}/recommendations${query}`);
+    const params = new URLSearchParams();
+    if (fieldId) params.set('field_id', fieldId);
+    if (season) params.set('season', season);
+    const endpoint = `${BASE}/recommendations${params.toString() ? `?${params.toString()}` : ''}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

@@ -86,9 +86,10 @@ export const cropProtectionApi = {
    * جلب نوافذ الرش المثلى
    */
   getSprayWindows: async (fieldId?: string): Promise<SprayWindow[]> => {
-    return safeFetch(`${ADVISORY_BASE}/spray-windows`, async () => {
-      const params = fieldId ? `?field_id=${fieldId}` : '';
-      const response = await api.get(`${ADVISORY_BASE}/spray-windows${params}`);
+    const params = fieldId ? `?field_id=${encodeURIComponent(fieldId)}` : '';
+    const endpoint = `${ADVISORY_BASE}/spray-windows${params}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

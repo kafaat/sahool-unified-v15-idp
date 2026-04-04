@@ -5,6 +5,7 @@
 
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
+import { TRACEABILITY_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // traceability-service:8123
 const BASE = '/api/v1/traceability';
@@ -50,7 +51,7 @@ export const traceabilityApi = {
    */
   getBatches: async (fieldId?: string): Promise<TraceabilityBatch[]> => {
     const params = fieldId ? `?field_id=${encodeURIComponent(fieldId)}` : '';
-    const endpoint = `${BASE}/batches${params}`;
+    const endpoint = `${TRACEABILITY_ENDPOINTS.BATCHES}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data || response.data;
@@ -62,8 +63,9 @@ export const traceabilityApi = {
    * جلب دفعة بواسطة المعرف
    */
   getBatchById: async (id: string): Promise<TraceabilityBatch> => {
-    return safeFetch(`${BASE}/batches/${id}`, async () => {
-      const response = await api.get(`${BASE}/batches/${id}`);
+    const endpoint = TRACEABILITY_ENDPOINTS.BATCH_GET.replace('{batchId}', encodeURIComponent(id));
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },
@@ -74,7 +76,7 @@ export const traceabilityApi = {
    */
   getEvents: async (batchId?: string): Promise<TraceabilityEvent[]> => {
     const params = batchId ? `?batch_id=${encodeURIComponent(batchId)}` : '';
-    const endpoint = `${BASE}/events${params}`;
+    const endpoint = `${TRACEABILITY_ENDPOINTS.EVENTS}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data || response.data;

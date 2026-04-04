@@ -86,6 +86,15 @@ def _verify_wechat_signature(
     Returns False when WECHAT_CALLBACK_TOKEN is set but verification fails.
     """
     if not _WECHAT_CALLBACK_TOKEN:
+        _env = os.getenv("ENVIRONMENT", "development").lower()
+        if _env in ("production", "staging"):
+            # Fail-closed: reject callbacks when token is missing in prod/staging
+            # الرفض في الإنتاج عند غياب الرمز المميز
+            logger.error(
+                "wechat_callback_token_not_set_production",
+                message="WECHAT_CALLBACK_TOKEN is required in production/staging. Rejecting callback.",
+            )
+            return False
         logger.warning(
             "wechat_callback_token_not_set",
             message="WeChat signature verification DISABLED – set WECHAT_CALLBACK_TOKEN in production",

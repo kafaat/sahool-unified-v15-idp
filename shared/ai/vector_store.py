@@ -1504,17 +1504,20 @@ class VectorStore:
                 )
             filter["tenant_id"] = tenant_id
         else:
-            # Warn when tenant_id is absent so callers notice the gap during
-            # development / code review.  This does NOT raise an exception
-            # because some collections (e.g. global knowledge base) are
-            # legitimately shared across all tenants.
-            # تحذير عند عدم تمرير tenant_id — قد يعني تسرب بيانات بين المستأجرين
-            logger.warning(
-                "VectorStore.search called without tenant_id for collection '%s'. "
-                "Results are UNSCOPED and may include data from all tenants. "
-                "Ensure this is intentional (e.g. a shared knowledge collection).",
-                collection,
-            )
+            # Check if the caller already scoped by tenant_id in the filter dict.
+            # If so, the search IS tenant-scoped and no warning is needed.
+            filter_has_tenant = filter.get("tenant_id") if filter else None
+            if filter_has_tenant is None:
+                # Warn when neither parameter nor filter provides tenant scope.
+                # This does NOT raise because some collections (e.g. global
+                # knowledge base) are legitimately shared across all tenants.
+                # تحذير عند عدم تمرير tenant_id — قد يعني تسرب بيانات بين المستأجرين
+                logger.warning(
+                    "VectorStore.search called without tenant_id for collection '%s'. "
+                    "Results are UNSCOPED and may include data from all tenants. "
+                    "Ensure this is intentional (e.g. a shared knowledge collection).",
+                    collection,
+                )
 
         # Get query vector
         if vector is None:

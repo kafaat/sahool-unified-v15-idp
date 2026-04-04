@@ -57,14 +57,16 @@ except ImportError as _err:
 logger = structlog.get_logger(__name__)
 
 if not HAS_GUARDRAILS:
-    _guardrails_env = _os.getenv("ENVIRONMENT", "production").lower()
+    _guardrails_env_raw = _os.getenv("ENVIRONMENT")
+    _guardrails_env = (_guardrails_env_raw or "development").lower()
     _guardrails_msg = (
         "shared.guardrails not available — AI input safety filtering (PII masking, policy enforcement) "
         "is DISABLED. Install shared.guardrails to enable full input validation."
     )
-    if _guardrails_env in ("production", "staging"):
-        # Fail hard in production/staging: running without safety guardrails is not acceptable.
-        # الفشل الصريح في الإنتاج: تشغيل copilot-api بدون حواجز الأمان غير مقبول.
+    if _guardrails_env_raw is not None and _guardrails_env in ("production", "staging"):
+        # Fail hard only when ENVIRONMENT is explicitly set to production/staging.
+        # If unset (local dev / unit tests), warn instead of crashing.
+        # الفشل فقط عند تحديد ENVIRONMENT صراحةً كإنتاج/تجريب
         raise RuntimeError(
             f"[FATAL] {_guardrails_msg} Environment '{_guardrails_env}' requires guardrails to be installed."
         ) from _guardrails_import_err

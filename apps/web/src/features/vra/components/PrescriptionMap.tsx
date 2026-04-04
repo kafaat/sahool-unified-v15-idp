@@ -119,19 +119,19 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
   }, [prescription.zones]);
 
   // GeoJSON style function
-  const getGeoJsonStyle = (feature: any) => {
+  const getGeoJsonStyle = (feature?: GeoJSON.Feature) => {
     return {
-      fillColor: feature.properties.color,
+      fillColor: feature?.properties?.color as string,
       fillOpacity: 0.6,
-      color: feature.properties.color,
+      color: feature?.properties?.color as string,
       weight: 3,
       opacity: 1,
     };
   };
 
   // GeoJSON hover/interaction handlers
-  const onEachFeature = (feature: any, layer: any) => {
-    const props = feature.properties;
+  const onEachFeature = (feature: GeoJSON.Feature, layer: L.Layer) => {
+    const props = feature.properties ?? {};
 
     // Create popup content
     const popupContent = `

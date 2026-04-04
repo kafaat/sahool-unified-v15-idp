@@ -37,7 +37,7 @@ from ..llm_provider import LLMProviderManager, get_llm_manager
 
 # Tool Guard integration — enforce allowlist/blocklist before tool execution
 try:
-    from ..guardrails.tool_guard import GuardDecision, ToolCallContext, ToolGuard
+    from ..guardrails.tool_guard import ToolCallContext, ToolGuard
 
     _tool_guard = ToolGuard()
     _HAS_TOOL_GUARD = True

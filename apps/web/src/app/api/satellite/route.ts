@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
 
     // Validate fieldId format if provided
     if (fieldId && !FIELD_ID_PATTERN.test(fieldId)) {
-      return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid fieldId format', error_ar: 'تنسيق معرف الحقل غير صالح' }, { status: 400 });
     }
 
     // Validate days as integer 1-365
@@ -102,17 +102,17 @@ export async function GET(request: NextRequest) {
 
     // Validate coordinates if provided
     if (lat && (isNaN(Number(lat)) || Number(lat) < -90 || Number(lat) > 90)) {
-      return NextResponse.json({ error: 'lat must be between -90 and 90' }, { status: 400 });
+      return NextResponse.json({ error: 'lat must be between -90 and 90', error_ar: 'يجب أن يكون خط العرض بين -90 و 90' }, { status: 400 });
     }
     if (lon && (isNaN(Number(lon)) || Number(lon) < -180 || Number(lon) > 180)) {
-      return NextResponse.json({ error: 'lon must be between -180 and 180' }, { status: 400 });
+      return NextResponse.json({ error: 'lon must be between -180 and 180', error_ar: 'يجب أن يكون خط الطول بين -180 و 180' }, { status: 400 });
     }
 
     let path: string;
     switch (action) {
       case 'indices': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const params = new URLSearchParams();
         if (lat) params.set('lat', lat);
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
       }
       case 'timeseries': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const tsParams = new URLSearchParams();
         tsParams.set('days', String(parsedDays));
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
         break;
       case 'sar-timeseries': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const sarParams = new URLSearchParams();
         const startDate = searchParams.get('start_date');
@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
       }
       case 'cloud-cover': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const ccParams = new URLSearchParams();
         if (lat) ccParams.set('lat', lat);
@@ -167,13 +167,13 @@ export async function GET(request: NextRequest) {
       }
       case 'clear-observations':
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         path = `/v1/clear-observations/${encodeURIComponent(fieldId)}`;
         break;
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status, sar-timeseries, cloud-cover, clear-observations' },
+          { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status, sar-timeseries, cloud-cover, clear-observations', error_ar: 'إجراء غير صالح' },
           { status: 400 }
         );
     }
@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
 
     // Validate fieldId format
     if (typeof fieldId !== 'string' || !FIELD_ID_PATTERN.test(fieldId)) {
-      return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid fieldId format', error_ar: 'تنسيق معرف الحقل غير صالح' }, { status: 400 });
     }
 
     const { latitude, longitude, coordinates } = body;

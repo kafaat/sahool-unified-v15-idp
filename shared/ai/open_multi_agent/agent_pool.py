@@ -314,7 +314,13 @@ class AgentPool:
     ) -> TaskResult:
         """
         Resolve the executor and invoke it for the given task.
+        Periodically checks ``runner.cancel_event`` between major steps
+        so that graceful shutdown is honoured promptly.
         """
+        # ── Step 1: Check cancellation before starting ───────────────
+        if runner.cancel_event.is_set():
+            raise asyncio.CancelledError()
+
         started_at = datetime.now(UTC)
 
         # Resolve executor: agent-level, then pool-level registry
@@ -324,16 +330,30 @@ class AgentPool:
                 f"No executor registered for agent '{agent.agent_id}' | لا يوجد منفذ مسجل للوكيل '{agent.agent_id}'"
             )
 
+        # ── Step 2: Check cancellation before invoking executor ──────
+        if runner.cancel_event.is_set():
+            raise asyncio.CancelledError()
+
         timeout = agent.timeout_seconds or task.timeout_seconds
 
+        # Use iscoroutinefunction first; fall back to inspect.isawaitable
+        # to handle functools.partial wrapping an async function.
         if asyncio.iscoroutinefunction(executor):
             result: TaskResult = await asyncio.wait_for(executor(task), timeout=timeout)
         else:
-            loop = asyncio.get_running_loop()
-            result = await asyncio.wait_for(
-                loop.run_in_executor(None, executor, task),
-                timeout=timeout,
-            )
+            invocation = executor(task)
+            if inspect.isawaitable(invocation):
+                result = await asyncio.wait_for(invocation, timeout=timeout)
+            else:
+                loop = asyncio.get_running_loop()
+                result = await asyncio.wait_for(
+                    loop.run_in_executor(None, executor, task),
+                    timeout=timeout,
+                )
+
+        # ── Step 3: Check cancellation after execution ───────────────
+        if runner.cancel_event.is_set():
+            raise asyncio.CancelledError()
 
         completed_at = datetime.now(UTC)
         result.started_at = started_at

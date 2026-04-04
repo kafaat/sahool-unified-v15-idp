@@ -1,4 +1,3 @@
-// @ts-nocheck - Example file for demonstration purposes
 /**
  * WeatherOverlay Usage Example
  * مثال استخدام تراكب الطقس
@@ -95,7 +94,7 @@ interface FieldWithWeatherProps {
 export function FieldWithWeather({ field }: FieldWithWeatherProps) {
   // Convert polygon coordinates for Leaflet (expects [lat, lng])
   const polygonPositions =
-    field.polygon?.coordinates[0].map(([lng, lat]) => [lat, lng] as [number, number]) || [];
+    field.polygon?.coordinates[0]?.map((coord: number[]) => [coord[1] ?? 0, coord[0] ?? 0] as [number, number]) || [];
 
   const center = field.centroid?.coordinates
     ? ([field.centroid.coordinates[1], field.centroid.coordinates[0]] as [number, number])
@@ -135,7 +134,7 @@ export function FieldWithWeather({ field }: FieldWithWeatherProps) {
 export function FieldMapWithWeatherAndDetails({ field }: FieldWithWeatherProps) {
   const polygonPositions =
     field.polygon?.coordinates?.[0]?.map(
-      ([lng, lat]: [number, number]) => [lat, lng] as [number, number]
+      (coord: number[]) => [coord[1] ?? 0, coord[0] ?? 0] as [number, number]
     ) ?? [];
 
   const center = field.centroid?.coordinates

@@ -6,10 +6,7 @@
 'use client';
 
 import { useApiQuery, useApiMutation } from './use-api-query';
-import { fetchAlerts } from '@/lib/api';
-import { apiClient } from '@/lib/api';
-import { alertService } from '@/lib/api';
-import { API_URLS } from '@/config/api';
+import { fetchAlerts, alertService } from '@/lib/api';
 import type { AlertRule, AlertRulesResponse } from '@/lib/api';
 
 /**
@@ -56,8 +53,7 @@ export function useAlertCount() {
 export function useAcknowledgeAlert() {
   return useApiMutation(
     async (id: string) => {
-      const response = await apiClient.post(`${API_URLS.alerts}/alerts/${id}/acknowledge`);
-      return response.data;
+      return alertService.acknowledge(id);
     },
     { invalidateKeys: ['alerts'] }
   );

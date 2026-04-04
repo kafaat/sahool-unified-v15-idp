@@ -361,7 +361,7 @@ function SampleCard({ sample }: { sample: Sample }) {
 // List View Component
 function ListView({ samples, statusConfig }: { samples: Sample[]; statusConfig: StatusConfig }) {
   return (
-    <div dir="rtl" className="min-h-screen bg-gray-50 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
       <table className="w-full">
         <thead className="bg-gray-50 dark:bg-gray-700">
           <tr>

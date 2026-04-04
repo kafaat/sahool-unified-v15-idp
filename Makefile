@@ -853,7 +853,9 @@ MOBILE_DIR = apps/mobile
 mobile-test: ## تشغيل اختبارات Flutter - Run Flutter mobile app tests
 	@echo "$(BLUE)📱 تشغيل اختبارات تطبيق الجوال - Running Flutter tests...$(RESET)"
 	@if [ -d "$(MOBILE_DIR)" ]; then \
-		cd $(MOBILE_DIR) && flutter test --coverage --reporter=expanded; \
+		set -e; \
+		cd $(MOBILE_DIR); \
+		flutter test --coverage --reporter=expanded; \
 		if [ -f coverage/lcov.info ]; then \
 			echo "$(GREEN)✅ التغطية: $$(lcov --summary coverage/lcov.info 2>&1 | grep 'lines' | sed 's/.*: //')$(RESET)"; \
 		fi; \

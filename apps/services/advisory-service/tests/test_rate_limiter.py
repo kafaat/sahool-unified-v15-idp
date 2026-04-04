@@ -4,7 +4,7 @@ Tests for Rate Limiter - advisory-service
 
 import asyncio
 import time
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -12,6 +12,7 @@ from src.rate_limiter import (
     TIERS,
     AdvisoryRateLimiter,
     RateLimitTier,
+    _RedisBackend,
     get_rate_limiter,
     rate_limit,
 )
@@ -154,6 +155,41 @@ class TestAdvisoryRateLimiter:
         tier = RateLimitTier(requests_per_minute=60, requests_per_hour=1000, burst_limit=5)
         # First request should pass
         assert limiter._check_burst("test_key", tier) is True
+
+
+class TestAsyncRateLimiter:
+    """Tests for async rate limiting with Redis fallback."""
+
+    def test_async_check_falls_back_to_memory_without_redis(self):
+        """When no REDIS_URL is set, check_async uses in-memory."""
+        limiter = AdvisoryRateLimiter(redis_url=None)
+        assert limiter._redis_backend is None
+        request = _make_mock_request(tenant_id="t1")
+        allowed, headers = asyncio.run(limiter.check_async(request, "default"))
+        assert allowed is True
+        assert "X-RateLimit-Limit" in headers
+
+    def test_async_check_internal_bypass(self):
+        limiter = AdvisoryRateLimiter()
+        request = _make_mock_request(is_service=True)
+        allowed, headers = asyncio.run(limiter.check_async(request, "default"))
+        assert allowed is True
+        assert headers.get("X-RateLimit-Bypass") == "internal"
+
+    def test_async_check_redis_failure_falls_back(self):
+        """When Redis connection fails, falls back to in-memory."""
+        limiter = AdvisoryRateLimiter(redis_url="redis://nonexistent:6379")
+        # Force the redis backend to fail
+        limiter._redis_backend._initialized = True
+        limiter._redis_backend._redis = None
+        request = _make_mock_request(tenant_id="t1")
+        allowed, headers = asyncio.run(limiter.check_async(request, "default"))
+        assert allowed is True  # Falls back to in-memory which allows first request
+
+    def test_redis_backend_init_without_url(self):
+        """RedisBackend requires a URL."""
+        limiter = AdvisoryRateLimiter()
+        assert limiter._redis_backend is None  # No REDIS_URL env var
 
 
 class TestRateLimitDecorator:

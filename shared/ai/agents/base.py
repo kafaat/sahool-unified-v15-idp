@@ -36,6 +36,8 @@ from ..circuit_breaker import get_circuit_breaker
 from ..llm_provider import LLMProviderManager, get_llm_manager
 
 # Tool Guard integration — enforce allowlist/blocklist before tool execution
+import os as _os
+
 try:
     from ..guardrails.tool_guard import ToolCallContext, ToolGuard
 
@@ -44,6 +46,12 @@ try:
 except ImportError:
     _HAS_TOOL_GUARD = False
     _tool_guard = None
+    # Fail-closed in production — tool guard is a security requirement
+    if _os.getenv("ENVIRONMENT", "").lower() == "production":
+        raise RuntimeError(
+            "shared.ai.guardrails.tool_guard is required in production but could not be imported. "
+            "Agent tool execution would be unguarded."
+        )
 
 logger = structlog.get_logger()
 

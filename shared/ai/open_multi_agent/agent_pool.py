@@ -21,6 +21,7 @@ Updated: April 2026
 from __future__ import annotations
 
 import asyncio
+import inspect
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -176,7 +177,7 @@ class AgentPool:
         self._stats["tasks_submitted"] += len(pairs)
 
         coros = [self._run_guarded(agent, task) for agent, task in pairs]
-        tasks_objs = [asyncio.ensure_future(c) for c in coros]
+        tasks_objs = [asyncio.create_task(c) for c in coros]
         self._running_tasks.update(tasks_objs)
         try:
             results = await asyncio.gather(*tasks_objs)
@@ -271,6 +272,21 @@ class AgentPool:
             self.active_agents[runner_key] = runner
             try:
                 return await self._execute(agent, task, runner)
+            except asyncio.CancelledError:
+                logger.warning(
+                    "agent_execution_cancelled",
+                    agent_id=agent.agent_id,
+                    task_id=task.task_id,
+                )
+                self._stats["tasks_failed"] += 1
+                return TaskResult(
+                    task_id=task.task_id,
+                    agent_id=agent.agent_id,
+                    status=TaskStatus.FAILED,
+                    success=False,
+                    error="Task was cancelled",
+                    error_ar="تم إلغاء المهمة",
+                )
             except Exception as exc:
                 logger.error(
                     "agent_execution_error",

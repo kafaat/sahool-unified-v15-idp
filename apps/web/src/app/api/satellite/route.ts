@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
         if (lat) params.set('lat', lat);
         if (lon) params.set('lon', lon);
         const qs = params.toString();
-        path = `/v1/indices/${fieldId}${qs ? `?${qs}` : ''}`;
+        path = `/v1/indices/${encodeURIComponent(fieldId)}${qs ? `?${qs}` : ''}`;
         break;
       }
       case 'timeseries': {
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
         }
         const tsParams = new URLSearchParams();
         tsParams.set('days', String(parsedDays));
-        path = `/v1/timeseries/${fieldId}?${tsParams.toString()}`;
+        path = `/v1/timeseries/${encodeURIComponent(fieldId)}?${tsParams.toString()}`;
         break;
       }
       case 'satellites':
@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
         if (lat) sarParams.set('lat', lat);
         if (lon) sarParams.set('lon', lon);
         const sarQs = sarParams.toString();
-        path = `/v1/sar-timeseries/${fieldId}${sarQs ? `?${sarQs}` : ''}`;
+        path = `/v1/sar-timeseries/${encodeURIComponent(fieldId)}${sarQs ? `?${sarQs}` : ''}`;
         break;
       }
       case 'cloud-cover': {
@@ -162,14 +162,14 @@ export async function GET(request: NextRequest) {
         if (lat) ccParams.set('lat', lat);
         if (lon) ccParams.set('lon', lon);
         const ccQs = ccParams.toString();
-        path = `/v1/cloud-cover/${fieldId}${ccQs ? `?${ccQs}` : ''}`;
+        path = `/v1/cloud-cover/${encodeURIComponent(fieldId)}${ccQs ? `?${ccQs}` : ''}`;
         break;
       }
       case 'clear-observations':
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
         }
-        path = `/v1/clear-observations/${fieldId}`;
+        path = `/v1/clear-observations/${encodeURIComponent(fieldId)}`;
         break;
       default:
         return NextResponse.json(

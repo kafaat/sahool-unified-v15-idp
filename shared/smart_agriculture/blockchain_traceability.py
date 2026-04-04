@@ -130,15 +130,19 @@ class BlockchainTraceability:
         "saudi_gap": "ساغاب السعودية",
     }
 
-    def __init__(self, chain_id: str = "sahool_agri_chain"):
+    def __init__(self, chain_id: str = "sahool_agri_chain", tenant_id: str | None = None):
         """
         Initialize the blockchain traceability system.
         تهيئة نظام تتبع البلوكتشين.
 
         Args:
             chain_id: Unique identifier for this blockchain | معرف فريد للبلوكتشين
+            tenant_id: Tenant ID for multi-tenant authorization. When set,
+                       all write operations (record_operation, record_test_report)
+                       are scoped to this tenant. | معرف المستأجر
         """
         self.chain_id = chain_id
+        self.tenant_id = tenant_id
         self._batches: dict[str, TraceabilityReport] = {}
         self._blockchain: dict[str, list[BlockchainRecord]] = {}
         self._genesis_hash = self._create_genesis_block()
@@ -272,6 +276,16 @@ class BlockchainTraceability:
         """
         if batch_id not in self._batches:
             raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
+
+        # SECURITY: Verify batch belongs to this tenant
+        batch = self._batches[batch_id]
+        if self.tenant_id:
+            batch_tenant_id = getattr(batch, "tenant_id", None)
+            if batch_tenant_id != self.tenant_id:
+                raise PermissionError(
+                    f"Batch {batch_id} does not belong to tenant {self.tenant_id} | "
+                    f"الدفعة {batch_id} لا تنتمي للمستأجر {self.tenant_id}"
+                )
 
         operation_id = f"OP-{uuid.uuid4().hex[:8].upper()}"
 

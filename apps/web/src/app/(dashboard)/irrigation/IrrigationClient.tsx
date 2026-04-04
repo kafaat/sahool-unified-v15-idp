@@ -18,6 +18,7 @@ import {
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/stores/auth.store';
 import { apiClient } from '@/lib/api';
+import type { IrrigationScheduleType, IrrigationFrequency as ApiIrrigationFrequency } from '@/lib/api/types';
 
 type IrrigationStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
 type IrrigationType = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
@@ -43,6 +44,27 @@ interface IrrigationSchedule {
 }
 
 type Field = { id: string; name: string; name_ar?: string };
+
+/**
+ * Map the UI irrigation type (drip/sprinkler/pivot/flood/manual) to the API
+ * contract type (manual/automatic/scheduled). Drip, sprinkler, pivot, and
+ * flood are all scheduled types; manual stays as manual.
+ */
+function toApiIrrigationType(type: IrrigationType): IrrigationScheduleType {
+  if (type === 'manual') return 'manual';
+  return 'scheduled';
+}
+
+/**
+ * Map the UI frequency (daily/weekly/biweekly/custom) to the API contract
+ * frequency (daily/weekly/custom). biweekly falls back to 'custom'.
+ */
+function toApiFrequency(frequency: string): ApiIrrigationFrequency {
+  if (frequency === 'daily' || frequency === 'weekly' || frequency === 'custom') {
+    return frequency as ApiIrrigationFrequency;
+  }
+  return 'custom';
+}
 
 const initialMockSchedules: IrrigationSchedule[] = [
   {
@@ -276,15 +298,12 @@ export default function IrrigationClient() {
 
     if (editingId) {
       try {
-        // Cast to any to bridge the local UI type (drip/pivot/etc) and
-        // the API contract type (manual/automatic/scheduled). The backend
-        // is flexible; the optimistic path covers any type mismatch.
         const response = await apiClient.updateIrrigationSchedule(editingId, {
           fieldId: formData.fieldId || editingId,
           name: formData.name,
-          type: formData.type as any,
+          type: toApiIrrigationType(formData.type),
           startDate: formData.startDate || formData.scheduledAt,
-          frequency: formData.frequency as any,
+          frequency: toApiFrequency(formData.frequency),
           duration: formData.duration,
           waterAmount: formData.waterAmount,
         });
@@ -339,9 +358,9 @@ export default function IrrigationClient() {
         const response = await apiClient.createIrrigationSchedule({
           fieldId: formData.fieldId || 'unknown',
           name: formData.name,
-          type: formData.type as any,
+          type: toApiIrrigationType(formData.type),
           startDate: formData.startDate || formData.scheduledAt || new Date().toISOString(),
-          frequency: formData.frequency as any,
+          frequency: toApiFrequency(formData.frequency),
           duration: formData.duration,
           waterAmount: formData.waterAmount,
         });

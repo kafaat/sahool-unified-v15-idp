@@ -4,6 +4,7 @@
 // صفحة إدارة صحة المحاصيل
 
 import { useEffect, useState, useMemo } from 'react';
+import { PageErrorBoundary } from '@/components/common/PageErrorBoundary';
 import Header from '@/components/layout/Header';
 import DataTable from '@/components/ui/DataTable';
 import { formatDate, cn } from '@/lib/utils';
@@ -229,6 +230,7 @@ export default function CropHealthPage() {
   ];
 
   return (
+    <PageErrorBoundary pageName="Crop Health" pageNameAr="صحة المحاصيل">
     <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="صحة المحاصيل" subtitle={`${records.length} حقل تحت المراقبة`} />
 
@@ -363,5 +365,6 @@ export default function CropHealthPage() {
         )}
       </div>
     </div>
+    </PageErrorBoundary>
   );
 }

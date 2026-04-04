@@ -321,7 +321,7 @@ export default function DashboardPage() {
           )}
         </span>
         <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-          🛰️ آخر صورة: {farms.length > 0 ? formatDate(farms?.[0]?.lastUpdated) : '—'}
+          🛰️ آخر صورة: {farms.length > 0 ? formatDate(farms?.[0]?.lastUpdated ?? '') : '—'}
         </span>
         <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
           ☁️ الطقس: {platformMetrics?.avgTemperature ? `${platformMetrics.avgTemperature}°` : '—'}
@@ -618,8 +618,8 @@ export default function DashboardPage() {
             </h2>
           </div>
           <ExpertView
-            fieldId={selectedFarm?.id || farms[0]?.id}
-            cropType={selectedFarm?.crops?.[0] || farms[0]?.crops?.[0] || '—'}
+            fieldId={selectedFarm?.id ?? farms?.[0]?.id ?? 'default'}
+            cropType={String(selectedFarm?.crops?.[0] ?? farms?.[0]?.crops?.[0] ?? 'wheat')}
             temperature={platformMetrics?.avgTemperature}
             soilMoisture={undefined}
             diseaseRisk={

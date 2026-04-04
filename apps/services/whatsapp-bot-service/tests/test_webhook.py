@@ -237,12 +237,21 @@ class TestWebhookMessageReceive:
 class TestSendMessageAPI:
     """Tests for send message API endpoint."""
 
+    _TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
+
     def setup_method(self):
-        """Set up test client."""
+        """Set up test client with auth bypassed for unit testing."""
         from src.main import app
 
+        # Override auth dependency so send endpoints are testable without JWT
+        from src.api.endpoints.webhook import get_current_user
+
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "tid": "test-tenant"}
         self.client = TestClient(app)
         self.app = app
+
+    def teardown_method(self):
+        self.app.dependency_overrides.clear()
 
     def test_send_text_message(self, mock_whatsapp_client):
         """Test sending a text message."""
@@ -255,6 +264,7 @@ class TestSendMessageAPI:
                 "type": "text",
                 "text": {"body": "مرحبا!"},
             },
+            headers=self._TENANT_HEADER,
         )
         assert response.status_code == 200
         data = response.json()
@@ -275,6 +285,7 @@ class TestSendMessageAPI:
                 "type": "text",
                 "text": {"body": "مرحبا!"},
             },
+            headers=self._TENANT_HEADER,
         )
         assert response.status_code == 200
         data = response.json()
@@ -285,12 +296,20 @@ class TestSendMessageAPI:
 class TestSendTemplateAPI:
     """Tests for send template message API endpoint."""
 
+    _TENANT_HEADER = {"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"}
+
     def setup_method(self):
-        """Set up test client."""
+        """Set up test client with auth bypassed for unit testing."""
         from src.main import app
 
+        from src.api.endpoints.webhook import get_current_user
+
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "tid": "test-tenant"}
         self.client = TestClient(app)
         self.app = app
+
+    def teardown_method(self):
+        self.app.dependency_overrides.clear()
 
     def test_send_template_message(self, mock_whatsapp_client):
         """Test sending a template message."""
@@ -303,6 +322,7 @@ class TestSendTemplateAPI:
                 "template_name": "hello_world",
                 "language_code": "ar",
             },
+            headers=self._TENANT_HEADER,
         )
         assert response.status_code == 200
         data = response.json()

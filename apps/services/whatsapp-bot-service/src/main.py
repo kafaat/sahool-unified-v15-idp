@@ -321,6 +321,7 @@ if TENANT_MIDDLEWARE_AVAILABLE:
             "/docs",
             "/openapi.json",
             "/webhook",
+            "/",
         ],
     )
 

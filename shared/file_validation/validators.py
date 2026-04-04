@@ -114,9 +114,12 @@ class FileValidator:
 
         # 5b. ZIP bomb protection — check compression ratio for archive types
         archive_mimes = {
-            "application/zip", "application/x-zip-compressed",
-            "application/gzip", "application/x-gzip",
-            "application/x-tar", "application/x-7z-compressed",
+            "application/zip",
+            "application/x-zip-compressed",
+            "application/gzip",
+            "application/x-gzip",
+            "application/x-tar",
+            "application/x-7z-compressed",
         }
         if declared_mime_type in archive_mimes or (detected_mime and detected_mime in archive_mimes):
             self._check_zip_bomb(file_content, filename)
@@ -252,8 +255,8 @@ class FileValidator:
         Defense: check compression ratio and total uncompressed size without
         actually extracting the contents.
         """
-        import zipfile
         import io
+        import zipfile
 
         # Only check ZIP files (not gzip/tar/7z — those need separate handling)
         if not zipfile.is_zipfile(io.BytesIO(file_content)):
@@ -269,8 +272,8 @@ class FileValidator:
 
                 if total_uncompressed > max_uncompressed_bytes:
                     raise FileValidationError(
-                        f"حجم الملف المفكوك كبير جداً ({total_uncompressed // (1024*1024)}MB) / "
-                        f"Uncompressed size too large ({total_uncompressed // (1024*1024)}MB)",
+                        f"حجم الملف المفكوك كبير جداً ({total_uncompressed // (1024 * 1024)}MB) / "
+                        f"Uncompressed size too large ({total_uncompressed // (1024 * 1024)}MB)",
                         error_code="ZIP_BOMB_DETECTED",
                     )
 

@@ -7,6 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import * as jose from 'jose';
 import { logger } from '@/lib/logger';
 
 const VEGETATION_SERVICE_URL =
@@ -14,6 +16,53 @@ const VEGETATION_SERVICE_URL =
 
 /** Validate fieldId to prevent path traversal */
 const FIELD_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
+
+/** Validate UUID format for tenant_id injection prevention */
+function isValidUUID(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
+/**
+ * Extract tenant_id from httpOnly cookie server-side.
+ * Uses jose library to decode the JWT from the web app's access_token cookie.
+ */
+async function getTenantId(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access_token')?.value;
+    if (!token) return null;
+
+    const secretKey = process.env.JWT_SECRET_KEY;
+    if (!secretKey) {
+      if (process.env.NODE_ENV === 'development') {
+        try {
+          const payload = jose.decodeJwt(token);
+          const tenantId = (payload as Record<string, unknown>).tid ?? payload.tenant_id;
+          if (typeof tenantId === 'string' && isValidUUID(tenantId)) {
+            return tenantId;
+          }
+        } catch {
+          return null;
+        }
+      }
+      return null;
+    }
+
+    const secret = new TextEncoder().encode(secretKey);
+    const verifyOptions: jose.JWTVerifyOptions = {};
+    if (process.env.JWT_ISSUER) verifyOptions.issuer = process.env.JWT_ISSUER;
+    if (process.env.JWT_AUDIENCE) verifyOptions.audience = process.env.JWT_AUDIENCE;
+
+    const { payload } = await jose.jwtVerify(token, secret, verifyOptions);
+    const tenantId = (payload as Record<string, unknown>).tid ?? payload.tenant_id;
+    if (typeof tenantId === 'string' && isValidUUID(tenantId)) {
+      return tenantId;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * GET /api/satellite?action=indices&fieldId=xxx
@@ -34,9 +83,21 @@ export async function GET(request: NextRequest) {
     const lat = searchParams.get('lat');
     const lon = searchParams.get('lon');
 
+    // Auth enforcement
+    const tenantId = await getTenantId();
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Authentication required', error_ar: 'المصادقة مطلوبة' }, { status: 401 });
+    }
+
     // Validate fieldId format if provided
     if (fieldId && !FIELD_ID_PATTERN.test(fieldId)) {
       return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
+    }
+
+    // Validate days as integer 1-365
+    const parsedDays = parseInt(days, 10);
+    if (isNaN(parsedDays) || parsedDays < 1 || parsedDays > 365) {
+      return NextResponse.json({ error: 'days must be an integer between 1 and 365', error_ar: 'يجب أن يكون عدد الأيام بين 1 و 365' }, { status: 400 });
     }
 
     // Validate coordinates if provided
@@ -60,12 +121,15 @@ export async function GET(request: NextRequest) {
         path = `/v1/indices/${fieldId}${qs ? `?${qs}` : ''}`;
         break;
       }
-      case 'timeseries':
+      case 'timeseries': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
         }
-        path = `/v1/timeseries/${fieldId}?days=${days}`;
+        const tsParams = new URLSearchParams();
+        tsParams.set('days', String(parsedDays));
+        path = `/v1/timeseries/${fieldId}?${tsParams.toString()}`;
         break;
+      }
       case 'satellites':
         path = '/v1/satellites';
         break;
@@ -116,7 +180,10 @@ export async function GET(request: NextRequest) {
 
     const response = await fetch(`${VEGETATION_SERVICE_URL}${path}`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Tenant-Id': tenantId,
+      },
       signal: AbortSignal.timeout(30000),
     });
 
@@ -131,8 +198,8 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error: unknown) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      return NextResponse.json({ error: 'Satellite service timeout. Please retry.' }, { status: 504 });
+    if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
+      return NextResponse.json({ error: 'Satellite service timeout. Please retry.', error_ar: 'انتهت مهلة خدمة الأقمار الصناعية. يرجى المحاولة مرة أخرى.' }, { status: 504 });
     }
     logger.error('Satellite API proxy error:', error);
     return NextResponse.json({ error: 'Failed to fetch satellite data' }, { status: 502 });
@@ -186,8 +253,8 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error: unknown) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      return NextResponse.json({ error: 'Satellite analysis timeout. Please retry.' }, { status: 504 });
+    if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
+      return NextResponse.json({ error: 'Satellite analysis timeout. Please retry.', error_ar: 'انتهت مهلة تحليل الأقمار الصناعية. يرجى المحاولة مرة أخرى.' }, { status: 504 });
     }
     logger.error('Satellite analyze proxy error:', error);
     return NextResponse.json({ error: 'Failed to analyze satellite data' }, { status: 502 });

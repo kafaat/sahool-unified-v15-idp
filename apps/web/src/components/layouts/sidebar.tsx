@@ -86,11 +86,12 @@ interface NavGroup {
  * Client/Farmer navigation items grouped by category.
  * Only includes features relevant to farm operations.
  *
- * Removed (admin-only, available in apps/admin/):
- * - Users (إدارة المستخدمين) → admin portal
- * - Research (الأبحاث) → admin portal
- * - Compliance (الامتثال) → admin portal
- * - Code Review (مراجعات الكود) → admin portal
+ * The following features are NOT included here because they belong
+ * in the admin portal (apps/admin/), not the farmer-facing web app:
+ * - Users (إدارة المستخدمين)
+ * - Research (الأبحاث)
+ * - Compliance (الامتثال)
+ * - Code Review (مراجعات الكود)
  */
 const navGroups: NavGroup[] = [
   {

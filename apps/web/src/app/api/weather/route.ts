@@ -253,9 +253,15 @@ export async function GET(request: NextRequest) {
         path = `/weather/current/${encodeURIComponent(locationId)}`;
         break;
       case 'forecast': {
-        if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
+        if (!locationId) return NextResponse.json({ error: 'locationId required', error_ar: 'معرف الموقع مطلوب' }, { status: 400 });
         const forecastParams = new URLSearchParams();
-        if (days) forecastParams.set('days', days);
+        if (days) {
+          const parsedDays = parseInt(days, 10);
+          if (isNaN(parsedDays) || parsedDays < 1 || parsedDays > 30) {
+            return NextResponse.json({ error: 'days must be an integer between 1 and 30', error_ar: 'يجب أن يكون عدد الأيام بين 1 و 30' }, { status: 400 });
+          }
+          forecastParams.set('days', String(Math.max(1, Math.min(30, parsedDays))));
+        }
         const forecastQs = forecastParams.toString();
         path = `/weather/forecast/${encodeURIComponent(locationId)}${forecastQs ? `?${forecastQs}` : ''}`;
         break;
@@ -285,6 +291,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     logger.error('Weather GET proxy error:', error);
-    return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 502 });
+    return NextResponse.json({ error: 'Failed to fetch weather data', error_ar: 'فشل في جلب بيانات الطقس' }, { status: 502 });
   }
 }

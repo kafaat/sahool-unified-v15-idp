@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') {
+    if (error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
       logger.error('[Tasks API] Request timed out');
       return bilingualError(
         'Task service timed out',
@@ -269,7 +269,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') {
+    if (error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
       logger.error('[Tasks API] Request timed out');
       return bilingualError(
         'Task service timed out',
@@ -371,7 +371,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') {
+    if (error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
       logger.error('[Tasks API] Request timed out');
       return bilingualError(
         'Task service timed out',

@@ -94,7 +94,12 @@ async function uploadPhoto(file: File, sessionId: string): Promise<string> {
       },
     });
 
-    return response.data.data?.url || response.data.url;
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error('Unexpected response structure from photo upload');
+    }
+    const resData = response.data as Record<string, unknown>;
+    const nested = resData.data as Record<string, unknown> | undefined;
+    return (nested?.url as string) || (resData.url as string);
   } catch (error) {
     logger.error('Failed to upload photo:', error);
     throw new Error(ERROR_MESSAGES.PHOTO_UPLOAD_FAILED.en);
@@ -439,8 +444,13 @@ export const scoutingApi = {
         format: config.format ?? 'pdf',
       });
 
+      const resData = response.data as Record<string, unknown> | undefined;
+      if (!resData || typeof resData !== 'object') {
+        throw new Error('Unexpected response structure from report generation');
+      }
+      const nested = resData.data as Record<string, unknown> | undefined;
       return {
-        downloadUrl: response.data.data?.downloadUrl || response.data.downloadUrl,
+        downloadUrl: (nested?.downloadUrl as string) || (resData.downloadUrl as string),
       };
     });
   },

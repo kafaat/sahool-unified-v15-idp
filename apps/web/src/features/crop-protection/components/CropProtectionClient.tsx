@@ -12,7 +12,6 @@ import {
   Calendar,
   AlertTriangle,
   CheckCircle,
-  Search,
   Wind,
   Thermometer,
   Droplets,

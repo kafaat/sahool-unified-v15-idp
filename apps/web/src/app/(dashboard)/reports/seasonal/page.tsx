@@ -78,6 +78,7 @@ export default function SeasonalReportsPage() {
 
   const filtered = reportData.filter((row) => {
     if (seasonFilter !== 'all' && row.season !== seasonFilter) return false;
+    if (yearFilter !== 'all' && !row.id.includes(yearFilter)) return false;
     return true;
   });
 

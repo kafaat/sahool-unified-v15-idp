@@ -8,7 +8,6 @@
  * Every function used across the codebase is stubbed here as a safe no-op.
  */
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 const noop = (..._args: unknown[]): undefined => undefined;
 const noopIntegration = (..._args: unknown[]) => ({ name: 'noop' });

@@ -45,6 +45,17 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "vpc_cidr_block" {
+  description = "نطاق CIDR للـ VPC — يُستخدم لتقييد قواعد الخروج / VPC CIDR block – used to scope egress security-group rules"
+  type        = string
+  default     = "10.0.0.0/16"
+
+  validation {
+    condition     = can(cidrhost(var.vpc_cidr_block, 0))
+    error_message = "vpc_cidr_block must be a valid IPv4 CIDR notation."
+  }
+}
+
 variable "private_subnet_ids" {
   description = "قائمة معرّفات الشبكات الفرعية الخاصة لعقد EKS / List of private subnet IDs for EKS nodes"
   type        = list(string)

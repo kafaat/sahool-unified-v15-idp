@@ -151,7 +151,8 @@ plugin_directory = "/vault/plugins"
 # ─────────────────────────────────────────────────────────────────────────────
 # Service Registration (Kubernetes)
 # ─────────────────────────────────────────────────────────────────────────────
-# service_registration "kubernetes" {
-#   namespace      = "vault"
-#   pod_name       = "vault-0"
-# }
+# Enable so Vault pods are discoverable via k8s service annotations (Vault Helm chart).
+service_registration "kubernetes" {
+  namespace = "vault"
+  pod_name  = "vault-0"
+}

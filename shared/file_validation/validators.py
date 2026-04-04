@@ -258,8 +258,7 @@ class FileValidator:
         if not zipfile.is_zipfile(io.BytesIO(file_content)):
             # MIME says ZIP but magic bytes disagree — reject as invalid
             raise FileValidationError(
-                "ملف ZIP غير صالح (لا يتطابق مع البايتات السحرية) / "
-                "Invalid ZIP file (magic bytes mismatch)",
+                "ملف ZIP غير صالح (لا يتطابق مع البايتات السحرية) / Invalid ZIP file (magic bytes mismatch)",
                 error_code="INVALID_ZIP_FILE",
             )
 

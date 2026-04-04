@@ -58,7 +58,7 @@ export const cropPlanningApi = {
     const endpoint = `${BASE}/plans${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -69,7 +69,7 @@ export const cropPlanningApi = {
   createPlan: async (payload: CreateCropPlanPayload): Promise<CropPlan> => {
     return safeFetch(`${BASE}/plans`, async () => {
       const response = await api.post(`${BASE}/plans`, payload);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -82,7 +82,7 @@ export const cropPlanningApi = {
     const endpoint = `${BASE}/recommendations${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 };

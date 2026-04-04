@@ -52,7 +52,7 @@ export const epidemicApi = {
     const endpoint = `${BASE}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -64,7 +64,7 @@ export const epidemicApi = {
     const endpoint = `${BASE}/${encodeURIComponent(id)}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -75,7 +75,7 @@ export const epidemicApi = {
   reportEpidemic: async (payload: EpidemicReport): Promise<Epidemic> => {
     return safeFetch(`${BASE}/report`, async () => {
       const response = await api.post(`${BASE}/report`, payload);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 };

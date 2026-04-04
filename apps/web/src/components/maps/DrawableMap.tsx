@@ -10,13 +10,16 @@ import type * as L from 'leaflet';
 import { Undo2, Pentagon, Square, Trash2, X, Check } from 'lucide-react';
 
 // Dynamic imports — Leaflet/react-leaflet requires browser (no SSR)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types
-const MapContainer = dynamic(() => import('react-leaflet').then((m) => m.MapContainer) as any, { ssr: false }) as any;
-const TileLayer = dynamic(() => import('react-leaflet').then((m) => m.TileLayer) as any, { ssr: false }) as any;
-const LayersControl = dynamic(() => import('react-leaflet').then((m) => m.LayersControl) as any, { ssr: false }) as any;
-const Marker = dynamic(() => import('react-leaflet').then((m) => m.Marker) as any, { ssr: false }) as any;
-const Polyline = dynamic(() => import('react-leaflet').then((m) => m.Polyline) as any, { ssr: false }) as any;
-const Polygon = dynamic(() => import('react-leaflet').then((m) => m.Polygon) as any, { ssr: false }) as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet types; centralized cast
+const dynamicLeaflet = (loader: () => Promise<unknown>) =>
+  dynamic(loader as any, { ssr: false }) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+const MapContainer = dynamicLeaflet(() => import('react-leaflet').then((m) => m.MapContainer));
+const TileLayer = dynamicLeaflet(() => import('react-leaflet').then((m) => m.TileLayer));
+const LayersControl = dynamicLeaflet(() => import('react-leaflet').then((m) => m.LayersControl));
+const Marker = dynamicLeaflet(() => import('react-leaflet').then((m) => m.Marker));
+const Polyline = dynamicLeaflet(() => import('react-leaflet').then((m) => m.Polyline));
+const Polygon = dynamicLeaflet(() => import('react-leaflet').then((m) => m.Polygon));
 
 // ---------------------------------------------------------------------------
 // Types

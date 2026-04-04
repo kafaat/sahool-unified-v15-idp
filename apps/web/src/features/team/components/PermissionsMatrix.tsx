@@ -5,10 +5,11 @@
 
 import React from 'react';
 import { Check, X, FileText, ListTodo, BarChart3, Users, Settings } from 'lucide-react';
+import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Role, ROLE_CONFIGS, PermissionCategory, PermissionAction } from '../types/team';
 
-const CATEGORY_LABELS: Record<PermissionCategory, { ar: string; en: string; icon: React.ElementType }> = {
+const CATEGORY_LABELS: Record<PermissionCategory, { ar: string; en: string; icon: ElementType }> = {
   [PermissionCategory.FIELDS]: { ar: 'الحقول', en: 'Fields', icon: FileText },
   [PermissionCategory.TASKS]: { ar: 'المهام', en: 'Tasks', icon: ListTodo },
   [PermissionCategory.REPORTS]: {

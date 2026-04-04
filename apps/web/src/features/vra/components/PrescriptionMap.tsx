@@ -122,9 +122,9 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
   // GeoJSON style function
   const getGeoJsonStyle = (feature?: GeoJSON.Feature) => {
     return {
-      fillColor: feature?.properties?.color as string,
+      fillColor: (feature?.properties?.color as string) ?? '#3388ff',
       fillOpacity: 0.6,
-      color: feature?.properties?.color as string,
+      color: (feature?.properties?.color as string) ?? '#3388ff',
       weight: 3,
       opacity: 1,
     };
@@ -147,7 +147,9 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
       </div>
     `;
 
-    (layer as L.Path).bindPopup(popupContent);
+    if ('bindPopup' in layer) {
+      (layer as L.Layer & { bindPopup: (content: string) => L.Layer }).bindPopup(popupContent);
+    }
 
     // Highlight on hover
     layer.on({

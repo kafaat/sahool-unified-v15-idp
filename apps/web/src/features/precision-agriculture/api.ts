@@ -72,7 +72,7 @@ export const precisionAgricultureApi = {
     const endpoint = `${BASE}/vra/${encodeURIComponent(fieldId)}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -85,7 +85,7 @@ export const precisionAgricultureApi = {
     const endpoint = `${BASE}/gdd/${encodeURIComponent(fieldId)}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -96,7 +96,7 @@ export const precisionAgricultureApi = {
   calculateFertilizer: async (payload: FertilizerCalculation): Promise<FertilizerResult> => {
     return safeFetch(`${BASE}/fertilizer/calculate`, async () => {
       const response = await api.post(`${BASE}/fertilizer/calculate`, payload);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 };

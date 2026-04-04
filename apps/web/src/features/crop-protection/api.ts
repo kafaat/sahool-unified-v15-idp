@@ -66,7 +66,7 @@ export const cropProtectionApi = {
     const endpoint = `${PEST_BASE}/list${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -77,7 +77,7 @@ export const cropProtectionApi = {
   identifyPest: async (payload: PestIdentifyPayload): Promise<PestIdentifyResult> => {
     return safeFetch(`${PEST_BASE}/identify`, async () => {
       const response = await api.post(`${PEST_BASE}/identify`, payload);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -90,7 +90,7 @@ export const cropProtectionApi = {
     const endpoint = `${ADVISORY_BASE}/spray-windows${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 };

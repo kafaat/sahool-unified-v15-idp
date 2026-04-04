@@ -51,7 +51,7 @@ export const traceabilityApi = {
     const endpoint = `${TRACEABILITY_ENDPOINTS.BATCHES}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -63,7 +63,7 @@ export const traceabilityApi = {
     const endpoint = TRACEABILITY_ENDPOINTS.BATCH_GET.replace('{batchId}', encodeURIComponent(id));
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -76,7 +76,7 @@ export const traceabilityApi = {
     const endpoint = `${TRACEABILITY_ENDPOINTS.EVENTS}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 };

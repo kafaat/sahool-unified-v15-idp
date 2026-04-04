@@ -55,7 +55,7 @@ export const seedsApi = {
     const endpoint = `${BASE}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -67,7 +67,7 @@ export const seedsApi = {
     const endpoint = `${BASE}/${encodeURIComponent(id)}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 
@@ -82,7 +82,7 @@ export const seedsApi = {
     const endpoint = `${BASE}/recommendations${params.toString() ? `?${params.toString()}` : ''}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data || response.data;
+      return response.data.data ?? response.data;
     });
   },
 };

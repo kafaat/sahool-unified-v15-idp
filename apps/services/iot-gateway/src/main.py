@@ -118,12 +118,33 @@ async def handle_mqtt_message(msg: MqttMessage):
 
         if not device:
             # Auto-register device if enabled (for backward compatibility)
-            # In production, devices should be pre-registered
+            # In production, devices should be pre-registered via /device/register
             auto_register_enabled = os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
+            _env = os.getenv("ENVIRONMENT", "production").lower()
 
             if auto_register_enabled:
+                # Security: Reject auto-registration in production/staging environments
+                # الأمان: رفض التسجيل التلقائي في بيئات الإنتاج والاختبار
+                if _env in ("production", "staging"):
+                    logger.error(
+                        f"MQTT auto-registration BLOCKED in {_env}: Device {reading.device_id} not registered. "
+                        "Pre-register devices via POST /device/register before sending MQTT data."
+                    )
+                    return
+
+                # Security: Reject auto-registration when DEFAULT_TENANT is not explicitly configured
+                # to avoid silently registering all devices under a generic placeholder tenant.
+                if DEFAULT_TENANT == "default":
+                    logger.error(
+                        f"MQTT auto-registration BLOCKED: DEFAULT_TENANT is not configured. "
+                        f"Set DEFAULT_TENANT env var to a valid tenant ID before enabling IOT_AUTO_REGISTER. "
+                        f"Device: {reading.device_id}"
+                    )
+                    return
+
                 logger.warning(
-                    f"Auto-registering device {reading.device_id} from MQTT. This should be disabled in production."
+                    f"Auto-registering device {reading.device_id} from MQTT under tenant {DEFAULT_TENANT}. "
+                    "Disable IOT_AUTO_REGISTER in production and pre-register devices."
                 )
                 # Use async auto-register if Redis-backed registry is available
                 if isinstance(registry, RedisDeviceRegistry):

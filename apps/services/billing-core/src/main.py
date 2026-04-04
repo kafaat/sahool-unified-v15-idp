@@ -501,6 +501,27 @@ def start_scheduler():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """App lifespan events"""
+    # Validate payment gateway configuration at startup
+    # التحقق من إعدادات بوابات الدفع عند بدء التشغيل
+    _env = os.getenv("ENVIRONMENT", "production").lower()
+    _missing: list[str] = []
+    if not STRIPE_API_KEY:
+        _missing.append("STRIPE_API_KEY")
+    if not STRIPE_WEBHOOK_SECRET:
+        _missing.append("STRIPE_WEBHOOK_SECRET")
+    if not THARWATT_API_KEY:
+        _missing.append("THARWATT_API_KEY")
+    if not THARWATT_WEBHOOK_SECRET:
+        _missing.append("THARWATT_WEBHOOK_SECRET")
+    if not THARWATT_MERCHANT_ID:
+        _missing.append("THARWATT_MERCHANT_ID")
+    if _missing:
+        _msg = f"Missing payment gateway configuration: {', '.join(_missing)}"
+        if _env in ("production", "staging"):
+            raise ValueError(f"{_msg}. Service cannot start without payment credentials.")
+        else:
+            logger.warning(f"{_msg}. Payment processing will be unavailable until these are set.")
+
     # Initialize NATS
     await init_nats()
 

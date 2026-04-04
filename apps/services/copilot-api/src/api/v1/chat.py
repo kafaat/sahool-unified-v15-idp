@@ -51,11 +51,23 @@ except ImportError:
 logger = structlog.get_logger(__name__)
 
 if not HAS_GUARDRAILS:
-    logger.warning(
-        "guardrails_unavailable",
-        message="shared.guardrails not available — prompt injection filtering is DISABLED. "
-        "Install shared.guardrails to enable input validation.",
+    import os as _os
+
+    _guardrails_env = _os.getenv("ENVIRONMENT", "production").lower()
+    _guardrails_msg = (
+        "shared.guardrails not available — AI input safety filtering (PII masking, policy enforcement) "
+        "is DISABLED. Install shared.guardrails to enable full input validation."
     )
+    if _guardrails_env in ("production", "staging"):
+        # Fail hard in production/staging: running without safety guardrails is not acceptable.
+        # الفشل الصريح في الإنتاج: تشغيل copilot-api بدون حواجز الأمان غير مقبول.
+        raise ImportError(
+            f"[FATAL] {_guardrails_msg} "
+            f"Environment '{_guardrails_env}' requires guardrails to be installed."
+        )
+    else:
+        logger.warning("guardrails_unavailable", message=_guardrails_msg)
+
 router = APIRouter(tags=["Chat"])
 
 # Intent classification and routing (module-level singletons)

@@ -105,21 +105,21 @@ class AgriculturalMetrics:
         self._metrics["fields_total"] = Gauge(
             "sahool_fields_total",
             "Total number of registered fields | إجمالي عدد الحقول المسجلة",
-            ["tenant_id", "region"],
+            ["region"],
             registry=self.registry,
         )
 
         self._metrics["field_area_hectares"] = Gauge(
             "sahool_field_area_hectares_total",
             "Total field area in hectares | إجمالي مساحة الحقول بالهكتار",
-            ["tenant_id", "region", "crop_type"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
         self._metrics["field_operations_total"] = Counter(
             "sahool_field_operations_total",
             "Total field operations performed | إجمالي العمليات الحقلية المنفذة",
-            ["tenant_id", "operation_type", "crop_type"],
+            ["operation_type", "crop_type"],
             registry=self.registry,
         )
 
@@ -136,7 +136,7 @@ class AgriculturalMetrics:
         self._metrics["ndvi_calculations_total"] = Counter(
             "sahool_ndvi_calculations_total",
             "Total NDVI calculations performed | إجمالي حسابات NDVI المنفذة",
-            ["satellite_source", "tenant_id"],
+            ["satellite_source", "region"],
             registry=self.registry,
         )
 
@@ -158,7 +158,7 @@ class AgriculturalMetrics:
         self._metrics["ndvi_last_update"] = Gauge(
             "sahool_ndvi_last_update_timestamp_seconds",
             "Timestamp of last NDVI update | وقت آخر تحديث NDVI",
-            ["field_id"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -234,14 +234,14 @@ class AgriculturalMetrics:
         self._metrics["irrigation_events_total"] = Counter(
             "sahool_irrigation_events_total",
             "Total irrigation events | إجمالي أحداث الري",
-            ["tenant_id", "irrigation_type", "crop_type"],
+            ["irrigation_type", "crop_type"],
             registry=self.registry,
         )
 
         self._metrics["irrigation_water_volume_liters"] = Counter(
             "sahool_irrigation_water_volume_liters_total",
             "Total water volume used in liters | إجمالي حجم المياه المستخدمة باللتر",
-            ["tenant_id", "field_id"],
+            ["region", "irrigation_type"],
             registry=self.registry,
         )
 
@@ -255,14 +255,14 @@ class AgriculturalMetrics:
         self._metrics["soil_moisture_percent"] = Gauge(
             "sahool_soil_moisture_percent",
             "Current soil moisture percentage | نسبة رطوبة التربة الحالية",
-            ["field_id", "depth_cm"],
+            ["region", "depth_cm"],
             registry=self.registry,
         )
 
         self._metrics["water_stress_index"] = Gauge(
             "sahool_water_stress_index",
             "Water stress index (0-1) | مؤشر الإجهاد المائي",
-            ["field_id", "crop_type"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -271,7 +271,7 @@ class AgriculturalMetrics:
         self._metrics["crop_health_score"] = Gauge(
             "sahool_crop_health_score",
             "Crop health score (0-100) | درجة صحة المحصول",
-            ["field_id", "crop_type"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -361,7 +361,7 @@ class AgriculturalMetrics:
         self._metrics["iot_readings_total"] = Counter(
             "sahool_iot_readings_total",
             "Total sensor readings received | إجمالي قراءات المستشعرات المستلمة",
-            ["sensor_type", "device_id"],
+            ["sensor_type"],
             registry=self.registry,
         )
 
@@ -376,7 +376,7 @@ class AgriculturalMetrics:
         self._metrics["iot_device_last_seen"] = Gauge(
             "sahool_iot_device_last_seen_timestamp_seconds",
             "Last seen timestamp for IoT device | آخر ظهور لجهاز إنترنت الأشياء",
-            ["device_id"],
+            ["device_type"],
             registry=self.registry,
         )
 
@@ -390,7 +390,7 @@ class AgriculturalMetrics:
         self._metrics["iot_battery_level"] = Gauge(
             "sahool_iot_battery_level_percent",
             "IoT device battery level | مستوى بطارية جهاز إنترنت الأشياء",
-            ["device_id", "device_type"],
+            ["device_type"],
             registry=self.registry,
         )
 
@@ -444,14 +444,14 @@ class AgriculturalMetrics:
         self._metrics["active_users"] = Gauge(
             "sahool_active_users_gauge",
             "Number of active users | عدد المستخدمين النشطين",
-            ["tenant_id", "user_type"],
+            ["user_type", "region"],
             registry=self.registry,
         )
 
         self._metrics["api_requests_total"] = Counter(
             "sahool_api_requests_total",
             "Total API requests | إجمالي طلبات API",
-            ["endpoint", "method", "status_code"],
+            ["method", "status_code"],
             registry=self.registry,
         )
 
@@ -482,12 +482,14 @@ class AgriculturalMetrics:
 
     def record_ndvi_calculation(
         self,
-        field_id: str,
         ndvi_value: float,
         crop_type: str = "unknown",
         satellite_source: str = "sentinel-2",
-        tenant_id: str = "default",
         region: str = "unknown",
+        # Deprecated: field_id and tenant_id are no longer used as metric labels
+        # to avoid high-cardinality time-series explosion. Use tracing/logging instead.
+        field_id: str | None = None,
+        tenant_id: str | None = None,
     ) -> None:
         """Record an NDVI calculation."""
         if not PROMETHEUS_AVAILABLE:
@@ -495,7 +497,7 @@ class AgriculturalMetrics:
 
         self._metrics["ndvi_calculations_total"].labels(
             satellite_source=satellite_source,
-            tenant_id=tenant_id,
+            region=region,
         ).inc()
 
         self._metrics["ndvi_value"].labels(
@@ -504,7 +506,8 @@ class AgriculturalMetrics:
         ).observe(ndvi_value)
 
         self._metrics["ndvi_last_update"].labels(
-            field_id=field_id,
+            region=region,
+            crop_type=crop_type,
         ).set(time.time())
 
     def record_weather_update(
@@ -581,25 +584,26 @@ class AgriculturalMetrics:
 
     def record_irrigation_event(
         self,
-        field_id: str,
         water_volume_liters: float,
         irrigation_type: str = "drip",
         crop_type: str = "unknown",
-        tenant_id: str = "default",
+        region: str = "unknown",
+        # Deprecated: field_id and tenant_id no longer used as metric labels.
+        field_id: str | None = None,
+        tenant_id: str | None = None,
     ) -> None:
         """Record an irrigation event."""
         if not PROMETHEUS_AVAILABLE:
             return
 
         self._metrics["irrigation_events_total"].labels(
-            tenant_id=tenant_id,
             irrigation_type=irrigation_type,
             crop_type=crop_type,
         ).inc()
 
         self._metrics["irrigation_water_volume_liters"].labels(
-            tenant_id=tenant_id,
-            field_id=field_id,
+            region=region,
+            irrigation_type=irrigation_type,
         ).inc(water_volume_liters)
 
     def record_yield_prediction(
@@ -646,9 +650,11 @@ class AgriculturalMetrics:
 
     def record_iot_reading(
         self,
-        device_id: str,
         sensor_type: str,
         latency_seconds: float,
+        device_type: str = "unknown",
+        # Deprecated: device_id no longer used as metric label to avoid cardinality explosion.
+        device_id: str | None = None,
     ) -> None:
         """Record an IoT sensor reading."""
         if not PROMETHEUS_AVAILABLE:
@@ -656,7 +662,6 @@ class AgriculturalMetrics:
 
         self._metrics["iot_readings_total"].labels(
             sensor_type=sensor_type,
-            device_id=device_id,
         ).inc()
 
         self._metrics["iot_reading_latency"].labels(
@@ -664,36 +669,40 @@ class AgriculturalMetrics:
         ).observe(latency_seconds)
 
         self._metrics["iot_device_last_seen"].labels(
-            device_id=device_id,
+            device_type=device_type,
         ).set(time.time())
 
     def set_crop_health_score(
         self,
-        field_id: str,
         crop_type: str,
         score: float,
+        region: str = "unknown",
+        # Deprecated: field_id no longer used as metric label to avoid cardinality explosion.
+        field_id: str | None = None,
     ) -> None:
-        """Set the crop health score for a field."""
+        """Set the crop health score for a region/crop type."""
         if not PROMETHEUS_AVAILABLE:
             return
 
         self._metrics["crop_health_score"].labels(
-            field_id=field_id,
+            region=region,
             crop_type=crop_type,
         ).set(score)
 
     def set_soil_moisture(
         self,
-        field_id: str,
         moisture_percent: float,
         depth_cm: str = "30",
+        region: str = "unknown",
+        # Deprecated: field_id no longer used as metric label to avoid cardinality explosion.
+        field_id: str | None = None,
     ) -> None:
         """Set soil moisture reading."""
         if not PROMETHEUS_AVAILABLE:
             return
 
         self._metrics["soil_moisture_percent"].labels(
-            field_id=field_id,
+            region=region,
             depth_cm=depth_cm,
         ).set(moisture_percent)
 

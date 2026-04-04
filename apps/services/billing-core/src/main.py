@@ -584,6 +584,21 @@ THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
 THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
 THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
 
+# SECURITY: Fail-fast if payment credentials are missing in production
+# التحقق من وجود بيانات بوابة الدفع في بيئة الإنتاج
+if os.getenv("ENVIRONMENT") == "production":
+    _missing_creds = []
+    if not STRIPE_API_KEY:
+        _missing_creds.append("STRIPE_API_KEY")
+    if not STRIPE_WEBHOOK_SECRET:
+        _missing_creds.append("STRIPE_WEBHOOK_SECRET")
+    if _missing_creds:
+        logger.critical(
+            "billing_credentials_missing",
+            missing=_missing_creds,
+            hint="Payment processing will fail silently without these credentials",
+        )
+
 
 # =============================================================================
 # Authentication Helpers - مساعدات المصادقة

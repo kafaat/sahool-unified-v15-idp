@@ -1710,17 +1710,15 @@ async def get_farmer_notifications(
     type: NotificationType | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    user: User | None = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ):
     """الحصول على إشعارات مزارع معين"""
-    # Security: Verify the authenticated user can only access their own notifications
-    # التحقق من أن المستخدم المصادق يصل فقط إلى إشعاراته الخاصة
-    if AUTH_AVAILABLE and user is not None:
-        if str(user.id) != farmer_id:
-            raise HTTPException(
-                status_code=403,
-                detail="Not authorized to access notifications for another user",
-            )
+    # Security: Auth is mandatory — user can only access their own notifications
+    if str(user.id) != farmer_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to access notifications for another user | غير مصرح لك بالوصول لإشعارات مستخدم آخر",
+        )
 
     # Get notifications from database
     notifications = await NotificationRepository.get_by_user(
@@ -1768,15 +1766,12 @@ async def get_farmer_notifications(
 async def mark_notification_read(
     notification_id: str,
     farmer_id: str = Query(...),
-    user: User | None = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ):
     """تحديد إشعار كمقروء"""
     try:
-        # Security: Use authenticated user ID when auth is available
-        # الأمان: استخدام معرف المستخدم المصادق عندما يكون المصادقة متاحة
-        authorized_farmer_id = farmer_id
-        if AUTH_AVAILABLE and user is not None:
-            authorized_farmer_id = str(user.id)
+        # Security: Always use authenticated user ID — ignore client-supplied farmer_id
+        authorized_farmer_id = str(user.id)
 
         # Convert string to UUID
         notif_uuid = UUID(notification_id)
@@ -1893,16 +1888,15 @@ async def register_farmer(
 async def update_preferences(
     farmer_id: str,
     preferences: NotificationPreferences,
-    user: User | None = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ):
     """تحديث تفضيلات الإشعارات"""
-    # Security: Verify the authenticated user can only update their own preferences
-    if AUTH_AVAILABLE and user is not None:
-        if str(user.id) != farmer_id:
-            raise HTTPException(
-                status_code=403,
-                detail="Not authorized to update preferences for another user | غير مصرح لك بتحديث تفضيلات مستخدم آخر",
-            )
+    # Security: Auth is mandatory — user can only update their own preferences
+    if str(user.id) != farmer_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to update preferences for another user | غير مصرح لك بتحديث تفضيلات مستخدم آخر",
+        )
 
     # Update preferences for each channel
     channels = ["push", "sms", "in_app"]

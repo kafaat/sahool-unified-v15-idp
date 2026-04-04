@@ -5,7 +5,6 @@
 // Exports GeoJSON via onBoundaryChange callback
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import dynamic from 'next/dynamic';
 import type L from 'leaflet';
 import { Undo2, Pentagon, Square, Trash2, X, Check } from 'lucide-react';
 
@@ -42,44 +41,11 @@ const MapLoadingFallback = ({ height }: { height: string }) => (
 );
 
 // ---------------------------------------------------------------------------
-// Dynamic imports (Leaflet does not support SSR)
+// Leaflet imports (component is 'use client' so these run only in browser)
+// The parent should dynamically import this entire component with { ssr: false }
 // ---------------------------------------------------------------------------
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
-const MapContainer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
-  { ssr: false, loading: () => null },
-) as React.ComponentType<Record<string, unknown>>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
-const TileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
-  { ssr: false, loading: () => null },
-) as React.ComponentType<Record<string, unknown>>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
-const LayersControl = dynamic(
-  () => import('react-leaflet').then((mod) => mod.LayersControl),
-  { ssr: false, loading: () => null },
-) as React.ComponentType<Record<string, unknown>> & { BaseLayer: React.ComponentType<Record<string, unknown>> };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
-const Marker = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Marker),
-  { ssr: false, loading: () => null },
-) as React.ComponentType<Record<string, unknown>>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
-const Polyline = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Polyline),
-  { ssr: false, loading: () => null },
-) as React.ComponentType<Record<string, unknown>>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet component types; SSR-incompatible
-const Polygon = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Polygon),
-  { ssr: false, loading: () => null },
-) as React.ComponentType<Record<string, unknown>>;
+import { MapContainer, TileLayer, LayersControl, Marker, Polyline, Polygon } from 'react-leaflet';
 
 // ---------------------------------------------------------------------------
 // Helper: build a small circular icon for vertices

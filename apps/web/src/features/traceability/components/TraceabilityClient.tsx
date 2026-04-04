@@ -173,7 +173,7 @@ export default function TraceabilityClient() {
           {/* Events Timeline */}
           <h3 className="text-lg font-semibold text-gray-800 mb-4">سجل الأحداث</h3>
           <div className="relative pr-6 border-r-2 border-blue-200 space-y-6">
-            {selected.events.map((event, i) => (
+            {selected.events.map((event, _i) => (
               <div key={event.id} className="relative">
                 <div className="absolute -right-[33px] top-1 w-4 h-4 rounded-full bg-blue-600 border-2 border-white" />
                 <div className="bg-gray-50 rounded-lg p-4">

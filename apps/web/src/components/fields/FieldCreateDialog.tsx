@@ -169,10 +169,10 @@ function DrawableMap({ points, onPointsChange, isDrawing }: DrawableMapProps) {
           {/* Close polygon line */}
           {points.length > 2 && (
             <line
-              x1={`${((points[points.length - 1][0] - 43.95) / 0.5) * 100}%`}
-              y1={`${((15.75 - points[points.length - 1][1]) / 0.5) * 100}%`}
-              x2={`${((points[0][0] - 43.95) / 0.5) * 100}%`}
-              y2={`${((15.75 - points[0][1]) / 0.5) * 100}%`}
+              x1={`${((points[points.length - 1]![0] - 43.95) / 0.5) * 100}%`}
+              y1={`${((15.75 - points[points.length - 1]![1]) / 0.5) * 100}%`}
+              x2={`${((points[0]![0] - 43.95) / 0.5) * 100}%`}
+              y2={`${((15.75 - points[0]![1]) / 0.5) * 100}%`}
               stroke="#22c55e"
               strokeWidth="2"
               strokeDasharray="4 2"
@@ -250,7 +250,7 @@ export default function FieldCreateDialog({
   const buildGeoJSON = useCallback((): FieldBoundary | undefined => {
     if (boundaryPoints.length < 3) return undefined;
     // Close the polygon ring
-    const ring: [number, number][] = [...boundaryPoints, boundaryPoints[0]];
+    const ring: [number, number][] = [...boundaryPoints, boundaryPoints[0]!];
     return {
       type: 'Polygon',
       coordinates: [ring],

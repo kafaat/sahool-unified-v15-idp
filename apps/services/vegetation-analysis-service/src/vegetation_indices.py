@@ -86,9 +86,7 @@ class VegetationIndex(Enum):
     # Phase 4 - Soil & Thermal (reverse-engineered from Farmonaut best practices)
     # المرحلة الرابعة - التربة والحرارة (هندسة عكسية من أفضل الممارسات)
     SOC = "soc"  # Soil Organic Carbon estimation from SWIR (Bartholomeus 2008)
-    TCI = "tci"  # Thermal Condition Index from LST (Kogan 1995)
     VCI = "vci"  # Vegetation Condition Index (Kogan 1990) — drought monitoring
-    ETCI = "etci"  # Evapotranspiration-based Thermal Condition Index
 
 
 class CropType(Enum):
@@ -246,9 +244,7 @@ class AllIndices:
     # Phase 4 - Soil & Thermal (Farmonaut-inspired reverse engineering)
     # المرحلة الرابعة - التربة والحرارة (هندسة عكسية)
     soc: float | None = None  # Soil Organic Carbon (% estimation from SWIR)
-    tci: float | None = None  # Thermal Condition Index (requires LST)
     vci: float | None = None  # Vegetation Condition Index (drought)
-    etci: float | None = None  # Evapotranspiration Thermal Condition
 
     # Valid ranges for normalized difference indices (all follow [-1, 1] range)
     _NORMALIZED_INDICES = frozenset(

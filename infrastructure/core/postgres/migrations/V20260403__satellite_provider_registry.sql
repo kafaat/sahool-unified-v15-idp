@@ -1,3 +1,6 @@
+-- Ensure pgcrypto is available for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- SAHOOL Platform — Satellite & Weather Provider Registry Tables
 -- جداول تسجيل مزودي الأقمار الصناعية والطقس

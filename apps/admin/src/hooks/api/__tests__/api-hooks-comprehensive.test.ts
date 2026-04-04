@@ -128,8 +128,8 @@ describe('use-alerts source analysis', () => {
     expect(source).toContain('staleTime: 15000');
   });
 
-  it('useAcknowledgeAlert uses patch method on alerts endpoint', () => {
-    expect(source).toContain('apiClient.patch');
+  it('useAcknowledgeAlert uses post method on alerts endpoint', () => {
+    expect(source).toContain('apiClient.post');
     expect(source).toContain('/acknowledge');
   });
 

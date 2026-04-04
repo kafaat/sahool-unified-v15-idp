@@ -56,7 +56,7 @@ export function useAlertCount() {
 export function useAcknowledgeAlert() {
   return useApiMutation(
     async (id: string) => {
-      const response = await apiClient.patch(`${API_URLS.alerts}/alerts/${id}/acknowledge`);
+      const response = await apiClient.post(`${API_URLS.alerts}/alerts/${id}/acknowledge`);
       return response.data;
     },
     { invalidateKeys: ['alerts'] }

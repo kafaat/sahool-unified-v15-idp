@@ -285,7 +285,7 @@ export default function FieldZonesPage() {
   const [strategy, setStrategy] = useState<ZoneStrategy>('ndvi');
   const [expandedZoneId, setExpandedZoneId] = useState<string | null>(null);
 
-  const selectedField = useMemo(
+  const _selectedField = useMemo(
     () => FIELDS.find((f) => f.id === selectedFieldId) ?? FIELDS[0],
     [selectedFieldId],
   );

@@ -155,8 +155,7 @@ async def fetch_real_satellite_data(
 
     except TimeoutError:
         logger.error(
-            "Satellite data fetch timed out after %ss for field %s. "
-            "Falling back to simulation.",
+            "Satellite data fetch timed out after %ss for field %s. Falling back to simulation.",
             timeout_seconds,
             field_id,
         )

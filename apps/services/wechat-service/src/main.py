@@ -951,8 +951,13 @@ app.add_middleware(
 app.add_middleware(
     TenantContextMiddleware,
     exempt_paths=[
-        "/healthz", "/readyz", "/health", "/metrics",
-        "/docs", "/openapi.json", "/api/v1/callback",
+        "/healthz",
+        "/readyz",
+        "/health",
+        "/metrics",
+        "/docs",
+        "/openapi.json",
+        "/api/v1/callback",
     ],
 )
 

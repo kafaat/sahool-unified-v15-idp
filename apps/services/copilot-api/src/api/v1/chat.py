@@ -66,8 +66,7 @@ if not HAS_GUARDRAILS:
         # Fail hard in production/staging: running without safety guardrails is not acceptable.
         # الفشل الصريح في الإنتاج: تشغيل copilot-api بدون حواجز الأمان غير مقبول.
         raise RuntimeError(
-            f"[FATAL] {_guardrails_msg} "
-            f"Environment '{_guardrails_env}' requires guardrails to be installed."
+            f"[FATAL] {_guardrails_msg} Environment '{_guardrails_env}' requires guardrails to be installed."
         ) from _guardrails_import_err
     else:
         logger.warning(

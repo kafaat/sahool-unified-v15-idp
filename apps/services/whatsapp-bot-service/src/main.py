@@ -314,8 +314,13 @@ if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(
         TenantContextMiddleware,
         exempt_paths=[
-            "/healthz", "/readyz", "/health", "/metrics",
-            "/docs", "/openapi.json", "/webhook",
+            "/healthz",
+            "/readyz",
+            "/health",
+            "/metrics",
+            "/docs",
+            "/openapi.json",
+            "/webhook",
         ],
     )
 

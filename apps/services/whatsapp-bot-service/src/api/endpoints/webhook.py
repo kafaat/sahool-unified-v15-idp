@@ -11,10 +11,40 @@ Handles:
 - Send template API (POST /api/v1/send-template)
 """
 
+import hashlib
+import hmac
+
 import structlog
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, Response
 
 from ...core.config import settings
+
+
+def _verify_whatsapp_signature(payload: bytes, signature: str | None) -> bool:
+    """
+    Verify X-Hub-Signature-256 from Meta webhook requests.
+    التحقق من توقيع HMAC لطلبات webhook من Meta
+
+    Meta signs every webhook payload with the App Secret using HMAC-SHA256.
+    Without this verification, an attacker can send spoofed webhook events.
+
+    See: https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
+    """
+    if not settings.whatsapp_app_secret:
+        # Fail-closed: reject all webhooks if app secret is not configured
+        logger.error("whatsapp_app_secret not configured — rejecting webhook")
+        return False
+
+    if not signature:
+        return False
+
+    expected = hmac.new(
+        settings.whatsapp_app_secret.encode("utf-8"),
+        payload,
+        hashlib.sha256,
+    ).hexdigest()
+
+    return hmac.compare_digest(f"sha256={expected}", signature)
 
 # Authentication guard - requires valid JWT for send/template/mark-read endpoints
 try:
@@ -102,11 +132,27 @@ async def receive_webhook(
     استقبال رسائل واتساب الواردة وتحديثات الحالة.
 
     This endpoint:
-    1. Validates the webhook payload
-    2. Extracts messages from the payload
-    3. Processes messages asynchronously via background tasks
-    4. Returns 200 OK immediately (WhatsApp requirement)
+    1. Verifies X-Hub-Signature-256 HMAC (Meta webhook security)
+    2. Validates the webhook payload
+    3. Extracts messages from the payload
+    4. Processes messages asynchronously via background tasks
+    5. Returns 200 OK immediately (WhatsApp requirement)
     """
+    # ── HMAC Signature Verification ──────────────────────────────────
+    raw_body = await request.body()
+    signature = request.headers.get("X-Hub-Signature-256")
+
+    if not _verify_whatsapp_signature(raw_body, signature):
+        logger.warning(
+            "webhook_signature_invalid",
+            has_signature=signature is not None,
+            body_length=len(raw_body),
+        )
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid webhook signature | توقيع webhook غير صالح",
+        )
+
     try:
         # Parse the webhook payload
         body = await request.json()

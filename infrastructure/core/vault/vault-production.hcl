@@ -69,25 +69,24 @@ cluster_addr  = "https://VAULT_NODE_IP:8201"
 api_addr      = "https://vault.sahool.com:8200"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Auto-Unseal - AWS KMS (Production Recommended)
+# Auto-Unseal - AWS KMS (Production)
 # ─────────────────────────────────────────────────────────────────────────────
-# Uncomment and configure for AWS deployments
-# seal "awskms" {
-#   region     = "us-east-1"
-#   kms_key_id = "alias/sahool-vault-unseal"
-#   endpoint   = "https://kms.us-east-1.amazonaws.com"
-# }
+# Region and KMS key are injected via environment variables at deploy time:
+#   VAULT_AWSKMS_SEAL_KEY_ID  — KMS key ARN or alias
+# The AWS SDK will use the IAM role attached to the Vault pod/instance.
+seal "awskms" {
+  region     = "me-south-1"
+  kms_key_id = "alias/sahool-vault-unseal"
+}
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Auto-Unseal - Azure Key Vault (Production Recommended)
+# Auto-Unseal - Azure Key Vault (Alternative)
 # ─────────────────────────────────────────────────────────────────────────────
-# Uncomment and configure for Azure deployments
+# For Azure deployments, set these environment variables at deploy time:
+#   AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
 # seal "azurekeyvault" {
-#   tenant_id      = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Tenant ID at deploy time
-#   client_id      = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Client ID at deploy time
-#   client_secret  = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Client Secret at deploy time
-#   vault_name     = "sahool-vault"
-#   key_name       = "vault-unseal-key"
+#   vault_name = "sahool-vault"
+#   key_name   = "vault-unseal-key"
 # }
 
 # ─────────────────────────────────────────────────────────────────────────────

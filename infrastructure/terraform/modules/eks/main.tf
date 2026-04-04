@@ -114,16 +114,45 @@ resource "aws_security_group" "cluster" {
   }
 }
 
-# TODO(security): In production, restrict egress to specific CIDR ranges
-# (e.g., VPC CIDR, ECR/S3 endpoints) instead of 0.0.0.0/0.
-resource "aws_security_group_rule" "cluster_egress" {
+# Cluster control-plane egress — restricted to HTTPS (AWS APIs, ECR, S3) and DNS
+resource "aws_security_group_rule" "cluster_egress_https" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.cluster.id
-  description       = "Allow all outbound traffic from cluster"
+  description       = "HTTPS outbound (AWS APIs, ECR, S3, external registries)"
+}
+
+resource "aws_security_group_rule" "cluster_egress_dns_tcp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.cluster.id
+  description       = "DNS TCP outbound"
+}
+
+resource "aws_security_group_rule" "cluster_egress_dns_udp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.cluster.id
+  description       = "DNS UDP outbound"
+}
+
+resource "aws_security_group_rule" "cluster_egress_to_nodes" {
+  type                     = "egress"
+  from_port                = 1025
+  to_port                  = 65535
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.nodes.id
+  security_group_id        = aws_security_group.cluster.id
+  description              = "Allow control plane to reach worker node kubelets and services"
 }
 
 resource "aws_security_group_rule" "cluster_ingress_nodes" {
@@ -157,16 +186,55 @@ resource "aws_security_group" "nodes" {
   }
 }
 
-# TODO(security): In production, restrict egress to specific CIDR ranges
-# (e.g., VPC CIDR, ECR/S3 endpoints, NAT gateway) instead of 0.0.0.0/0.
-resource "aws_security_group_rule" "nodes_egress" {
+# Node egress — restricted to HTTPS, DNS, NTP, and cluster control plane
+resource "aws_security_group_rule" "nodes_egress_https" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.nodes.id
-  description       = "Allow all outbound traffic from nodes"
+  description       = "HTTPS outbound (AWS APIs, ECR, S3, external services)"
+}
+
+resource "aws_security_group_rule" "nodes_egress_dns_tcp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "DNS TCP outbound"
+}
+
+resource "aws_security_group_rule" "nodes_egress_dns_udp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "DNS UDP outbound"
+}
+
+resource "aws_security_group_rule" "nodes_egress_ntp" {
+  type              = "egress"
+  from_port         = 123
+  to_port           = 123
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "NTP outbound for time sync"
+}
+
+resource "aws_security_group_rule" "nodes_egress_to_cluster" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.cluster.id
+  security_group_id        = aws_security_group.nodes.id
+  description              = "Allow nodes to reach EKS API server"
 }
 
 resource "aws_security_group_rule" "nodes_ingress_self" {

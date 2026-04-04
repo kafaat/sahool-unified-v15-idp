@@ -9,6 +9,9 @@ Features:
 - WhatsApp Business API integration
 """
 
+import hashlib
+import hmac as hmac_mod
+import ipaddress
 import json
 import os
 from contextlib import asynccontextmanager
@@ -16,7 +19,7 @@ from datetime import UTC, datetime, timezone
 
 import asyncpg
 import nats
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
@@ -31,6 +34,75 @@ logger = get_logger(__name__)
 # Service info
 SERVICE_NAME = "ussd-gateway"
 SERVICE_VERSION = "16.0.0"
+
+# ============================================================
+# Callback Authentication — مصادقة الاستدعاءات الخارجية
+# ============================================================
+# Telecom provider IP ranges — override via USSD_PROVIDER_CIDRS env var
+# (comma-separated CIDR list).  Empty string disables IP filtering.
+_PROVIDER_CIDRS_RAW = os.getenv("USSD_PROVIDER_CIDRS", "")
+USSD_PROVIDER_NETWORKS: list[ipaddress.IPv4Network | ipaddress.IPv6Network] = [
+    ipaddress.ip_network(cidr.strip(), strict=False)
+    for cidr in _PROVIDER_CIDRS_RAW.split(",")
+    if cidr.strip()
+]
+USSD_HMAC_SECRET: str = os.getenv("USSD_HMAC_SECRET", "")
+
+
+def _verify_telecom_callback(request: Request, body: bytes) -> bool:
+    """
+    Verify that a USSD/SMS callback originates from a trusted telecom provider.
+    التحقق من أن الاستدعاء قادم من مزود اتصالات موثوق
+
+    Two-layer verification:
+    1. IP whitelist — client IP must belong to a configured CIDR range
+    2. HMAC signature — if X-Callback-Signature header is present
+    Either layer is sufficient when only one is configured; both must pass
+    when both are configured.
+    """
+    environment = os.getenv("ENVIRONMENT", "development")
+
+    # In development/test, skip verification when nothing is configured
+    if environment in ("development", "test") and not USSD_PROVIDER_NETWORKS and not USSD_HMAC_SECRET:
+        return True
+
+    # Layer 1: IP whitelist
+    ip_ok = True
+    if USSD_PROVIDER_NETWORKS:
+        client_ip_str = request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or (
+            request.client.host if request.client else ""
+        )
+        try:
+            client_ip = ipaddress.ip_address(client_ip_str)
+            ip_ok = any(client_ip in network for network in USSD_PROVIDER_NETWORKS)
+        except ValueError:
+            ip_ok = False
+
+        if not ip_ok:
+            logger.warning("telecom_callback_ip_rejected", client_ip=client_ip_str)
+
+    # Layer 2: HMAC signature
+    hmac_ok = True
+    signature = request.headers.get("X-Callback-Signature")
+    if USSD_HMAC_SECRET:
+        if not signature:
+            hmac_ok = False
+        else:
+            expected = hmac_mod.new(
+                USSD_HMAC_SECRET.encode("utf-8"),
+                body,
+                hashlib.sha256,
+            ).hexdigest()
+            hmac_ok = hmac_mod.compare_digest(expected, signature)
+
+        if not hmac_ok:
+            logger.warning("telecom_callback_hmac_rejected")
+
+    # Both layers must pass when both are configured
+    if USSD_PROVIDER_NETWORKS and USSD_HMAC_SECRET:
+        return ip_ok and hmac_ok
+    # Otherwise either configured layer must pass
+    return ip_ok and hmac_ok
 
 
 # ============================================================
@@ -384,6 +456,14 @@ async def ussd_callback(request: Request):
 
     Supports Africa's Talking, Infobip, and local telcos
     """
+    # ── Verify callback origin (IP whitelist + HMAC) ─────────────
+    raw_body = await request.body()
+    if not _verify_telecom_callback(request, raw_body):
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized callback | استدعاء غير مصرح",
+        )
+
     # Parse request based on provider format
     content_type = request.headers.get("content-type", "")
 
@@ -496,6 +576,14 @@ async def receive_sms(request: Request):
 
     Supports keyword-based responses
     """
+    # ── Verify callback origin (IP whitelist + HMAC) ─────────────
+    raw_body = await request.body()
+    if not _verify_telecom_callback(request, raw_body):
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized callback | استدعاء غير مصرح",
+        )
+
     content_type = request.headers.get("content-type", "")
 
     if "application/json" in content_type:

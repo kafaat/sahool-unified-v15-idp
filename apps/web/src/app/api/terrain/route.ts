@@ -222,7 +222,7 @@ export async function POST(request: NextRequest) {
       }
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: analyze' },
+          { error: 'Invalid action. Use: analyze', error_ar: 'إجراء غير صالح. استخدم: analyze' },
           { status: 400 }
         );
     }
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return NextResponse.json(
-        { error: 'Terrain service returned non-JSON response' },
+        { error: 'Terrain service returned non-JSON response', error_ar: 'خدمة التضاريس أرجعت استجابة غير JSON' },
         { status: 502 }
       );
     }
@@ -245,15 +245,15 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error: unknown) {
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
       return NextResponse.json(
-        { error: 'Terrain analysis timeout. Please retry.' },
+        { error: 'Terrain analysis timeout. Please retry.', error_ar: 'انتهت مهلة تحليل التضاريس. يرجى المحاولة مرة أخرى.' },
         { status: 504 }
       );
     }
     logger.error('Terrain POST proxy error:', error);
     return NextResponse.json(
-      { error: 'Failed to process terrain analysis request' },
+      { error: 'Failed to process terrain analysis request', error_ar: 'فشل في معالجة طلب تحليل التضاريس' },
       { status: 502 }
     );
   }

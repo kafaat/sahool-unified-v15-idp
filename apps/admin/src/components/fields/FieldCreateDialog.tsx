@@ -37,7 +37,7 @@ const DrawableMap = dynamic(() => import('../maps/DrawableMap'), {
 interface FieldCreateDialogProps {
   open: boolean;
   onClose: () => void;
-  onSuccess: (field: any) => void;
+  onSuccess: (field: Record<string, unknown>) => void;
 }
 
 interface BoundaryData {
@@ -212,10 +212,11 @@ export default function FieldCreateDialog({
 
         onSuccess(response.data);
         onClose();
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const axiosErr = err as { response?: { data?: { messageAr?: string; message?: string } } };
         const message =
-          err?.response?.data?.messageAr ||
-          err?.response?.data?.message ||
+          axiosErr?.response?.data?.messageAr ||
+          axiosErr?.response?.data?.message ||
           'حدث خطأ أثناء إنشاء الحقل - An error occurred while creating the field';
         setError(message);
         toast.error(

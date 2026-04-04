@@ -78,6 +78,7 @@ const Polygon = dynamic(
 // Helper: build a small circular icon for vertices
 // ---------------------------------------------------------------------------
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Leaflet is dynamically imported and has no static type available here
 function createVertexIcon(L: any, color: string = '#2563eb') {
   return L.divIcon({
     className: '',
@@ -112,6 +113,7 @@ function DrawingLayer({
   // useMapEvents is loaded dynamically — we import it at render time on the
   // client so the import is safe (this component is only rendered inside
   // MapContainer which itself is dynamically loaded with ssr:false).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- useMapEvents is dynamically imported from react-leaflet at runtime
   const [mapEvents, setMapEvents] = useState<any>(null);
 
   useEffect(() => {
@@ -135,14 +137,15 @@ function DrawingLayerInner({
   vertices: Vertex[];
   onAddVertex: (v: Vertex) => void;
   onMouseMove?: (coords: { lat: number; lng: number }) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- useMapEvents is dynamically imported from react-leaflet at runtime
   useMapEvents: any;
 }) {
   useMapEvents({
-    click(e: any) {
+    click(e: { latlng: { lat: number; lng: number } }) {
       if (!mode) return;
       onAddVertex({ lat: e.latlng.lat, lng: e.latlng.lng });
     },
-    mousemove(e: any) {
+    mousemove(e: { latlng: { lat: number; lng: number } }) {
       onMouseMove?.({ lat: e.latlng.lat, lng: e.latlng.lng });
     },
   });
@@ -238,6 +241,7 @@ export default function DrawableMap({
   height = '500px',
 }: DrawableMapProps) {
   const [isClient, setIsClient] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Leaflet is dynamically imported and its type is not available statically
   const [leaflet, setLeaflet] = useState<any>(null);
   const [mode, setMode] = useState<DrawingMode>(null);
   const [vertices, setVertices] = useState<Vertex[]>([]);

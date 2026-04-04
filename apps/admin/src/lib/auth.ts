@@ -42,15 +42,21 @@ export interface LoginCredentials {
  * This function now uses server-side API routes for secure httpOnly cookie management
  */
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
-  // Use server-side login endpoint that sets httpOnly cookies
-  const response = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'same-origin',
-    body: JSON.stringify(credentials),
-  });
+  let response: Response;
+  try {
+    // Use server-side login endpoint that sets httpOnly cookies
+    response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify(credentials),
+    });
+  } catch (error) {
+    logger.error('Login network error:', error);
+    throw new Error('فشل الاتصال بالخادم — Network error');
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'فشل تسجيل الدخول' }));

@@ -119,18 +119,23 @@ def app_client(mock_db, mock_notification_repo, mock_preferences_service, mock_f
     from src.main import app
 
     # Use FastAPI's dependency override mechanism for auth
-    # Return None to bypass auth ownership checks in endpoints
+    # Return a mock user with id="farmer-123" to match test farmer_id values.
+    # Auth is mandatory on farmer endpoints (User, not User | None).
+    mock_user = MagicMock()
+    mock_user.id = "farmer-123"
+    mock_user.tenant_id = "11111111-1111-1111-1111-111111111111"
+
     try:
         from shared.auth.dependencies import get_current_user
 
-        app.dependency_overrides[get_current_user] = lambda: None
+        app.dependency_overrides[get_current_user] = lambda: mock_user
     except BaseException as e:
         if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
             raise
         try:
             from src.main import get_current_user
 
-            app.dependency_overrides[get_current_user] = lambda: None
+            app.dependency_overrides[get_current_user] = lambda: mock_user
         except BaseException as e:
             if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
                 raise
@@ -446,10 +451,14 @@ class TestErrorHandling:
 
         # Use raise_server_exceptions=False so exceptions go through FastAPI's
         # exception handlers instead of propagating to the test client
+        mock_user = MagicMock()
+        mock_user.id = "farmer-123"
+        mock_user.tenant_id = "11111111-1111-1111-1111-111111111111"
+
         try:
             from shared.auth.dependencies import get_current_user
 
-            app.dependency_overrides[get_current_user] = lambda: None
+            app.dependency_overrides[get_current_user] = lambda: mock_user
         except BaseException as e:
             if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
                 raise

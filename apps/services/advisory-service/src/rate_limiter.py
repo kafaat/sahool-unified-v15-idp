@@ -104,9 +104,10 @@ class AdvisoryRateLimiter:
         ):
             tenant_id = request.state.user.tenant_id
         else:
-            # Fallback to header only for unauthenticated routes;
-            # rate limit by IP will still apply
-            tenant_id = request.headers.get("X-Tenant-ID", "default")
+            # Do NOT trust X-Tenant-ID header — an attacker can forge it to
+            # distribute rate-limit counters across fake tenant IDs.
+            # Use "anonymous" bucket; IP-based limiting still applies.
+            tenant_id = "anonymous"
         client_ip = request.client.host if request.client else "unknown"
         return f"{tier}:{tenant_id}:{client_ip}"
 

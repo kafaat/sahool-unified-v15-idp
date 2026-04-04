@@ -1482,24 +1482,27 @@ class VectorStore:
             filter: Metadata filter
             include_content: Include document content
             tenant_id: When provided, scopes the search to this tenant's data
-                by merging a ``tenant_id`` key into the metadata filter.  All
-                callers that operate on per-tenant data SHOULD supply this
-                parameter to prevent cross-tenant information leakage.
+                by automatically adding it to the metadata filter to ensure
+                results are scoped to the tenant's data only.  All callers
+                that operate on per-tenant data SHOULD supply this parameter
+                to prevent cross-tenant information leakage.
 
         Returns:
             List of SearchResult
         """
         collection = collection or self.config.default_collection
 
-        # Enforce tenant isolation: if tenant_id is given, inject it into the
-        # filter so results are always scoped to the calling tenant.
-        # Note: the Qdrant backend also uses per-tenant collection namespacing
-        # (create_collection prepends "{tenant_id}:") when collections are
-        # created with a tenant_id, but that protection requires the correct
-        # collection name to be passed.  Adding the filter here provides a
-        # second layer of defence for shared collections.
+        # SECURITY: Inject tenant_id into filter for multi-tenant isolation.
+        # This ensures one tenant cannot read another tenant's embeddings.
         if tenant_id:
-            filter = {**(filter or {}), "tenant_id": tenant_id}
+            filter = dict(filter) if filter else {}
+            # Detect conflicting tenant_id — caller bug, not silent override
+            if "tenant_id" in filter and filter["tenant_id"] != tenant_id:
+                raise ValueError(
+                    f"Conflicting tenant_id values: parameter tenant_id={tenant_id!r}, "
+                    f"filter['tenant_id']={filter['tenant_id']!r}"
+                )
+            filter["tenant_id"] = tenant_id
         elif filter is None:
             # Warn when tenant_id is absent so callers notice the gap during
             # development / code review.  This does NOT raise an exception

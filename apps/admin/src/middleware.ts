@@ -50,9 +50,9 @@ import {
 // ---------------------------------------------------------------------------
 const edgeLogger = {
   error: (...args: unknown[]) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[admin-middleware]', ...args);
-    }
+    // Always log errors — security events (forged JWTs, auth failures) must be
+    // visible in production for incident detection and forensics.
+    console.error('[admin-middleware]', ...args);
   },
   warn: (...args: unknown[]) => {
     if (process.env.NODE_ENV === 'development') {

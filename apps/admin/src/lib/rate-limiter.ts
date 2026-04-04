@@ -3,6 +3,13 @@
  * Prevents brute-force attacks on authentication endpoints
  *
  * معالج الحد من المحاولات لمنع هجمات القوة الغاشمة
+ *
+ * TODO: This rate limiter uses an in-memory Map, which does NOT persist across
+ * server restarts and does NOT share state across multiple Node.js processes or
+ * serverless function instances. In production, replace with a Redis-backed
+ * implementation (e.g. using REDIS_URL from env) to ensure rate limits are
+ * enforced consistently across all instances. See shared/cache/ for Redis
+ * Sentinel HA utilities.
  */
 
 interface RateLimitEntry {
@@ -11,8 +18,23 @@ interface RateLimitEntry {
   lockedUntil?: number;
 }
 
-// In-memory store (for production, use Redis)
+// WARNING: In-memory store — each serverless/edge instance has its own counter.
+// In production with multiple replicas, brute-force attacks are distributed across
+// instances and effectively bypass the limit. For production, rate limiting should
+// be handled at the API Gateway (Kong) or via Redis-backed middleware.
 const rateLimitStore = new Map<string, RateLimitEntry>();
+
+if (
+  typeof process !== 'undefined' &&
+  process.env.NODE_ENV === 'production' &&
+  !process.env.RATE_LIMIT_IN_MEMORY_ACKNOWLEDGED
+) {
+  console.warn(
+    '[rate-limiter] Running with in-memory rate limiting in production. ' +
+      'This is ineffective in multi-instance deployments. ' +
+      'Rely on Kong rate-limiting plugin or set RATE_LIMIT_IN_MEMORY_ACKNOWLEDGED=1 to suppress.'
+  );
+}
 
 export interface RateLimitConfig {
   maxAttempts: number; // Maximum attempts allowed

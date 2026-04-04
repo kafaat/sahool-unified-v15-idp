@@ -43,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const lastActivityRef = React.useRef<number>(Date.now());
   const idleCheckTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const refreshTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const isLoggingInRef = React.useRef<boolean>(false);
 
   // Logout function - defined first as other callbacks depend on it
   const logout = React.useCallback(async () => {
@@ -130,7 +131,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Track user activity via DOM events. The updateActivity callback
     // throttles server pings internally (at most once per 5 minutes),
     // so attaching to frequent events like scroll is safe.
-    const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+    // Using pointerdown (covers mouse, touch, and pen) + keydown + scroll
+    // instead of 5 separate events (mousedown, keydown, scroll, touchstart, click).
+    const events = ['pointerdown', 'keydown', 'scroll'];
     const handleActivity = () => {
       updateActivity();
     };
@@ -159,6 +162,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, updateActivity, checkIdleTimeout, refreshToken]);
 
   const login = React.useCallback(async (email: string, password: string, totp_code?: string) => {
+    // Prevent concurrent login requests (race condition guard)
+    if (isLoggingInRef.current) {
+      throw new Error('Login already in progress | تسجيل الدخول قيد التنفيذ بالفعل');
+    }
+    isLoggingInRef.current = true;
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -187,6 +196,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return data;
     } catch (error) {
       throw error instanceof Error ? error : new Error('Login failed');
+    } finally {
+      isLoggingInRef.current = false;
     }
   }, []);
 

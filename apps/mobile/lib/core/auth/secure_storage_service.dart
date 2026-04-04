@@ -34,8 +34,12 @@ class SecureStorageService {
         sharedPreferencesName: 'sahool_secure_prefs',
         preferencesKeyPrefix: 'sahool_',
       ),
+      // SECURITY: Use first_unlock_this_device (not unlocked_this_device) to match
+      // database_encryption.dart. Tokens are at least as sensitive as the DB key —
+      // they should be accessible after first device unlock, but not when the
+      // device is locked (protects against physical access attacks).
       iOptions: IOSOptions(
-        accessibility: KeychainAccessibility.unlocked_this_device,
+        accessibility: KeychainAccessibility.first_unlock_this_device,
         accountName: 'com.sahool.field',
       ),
     );

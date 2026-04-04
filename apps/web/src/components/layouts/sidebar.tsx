@@ -4,8 +4,7 @@
  * شريط التنقل الجانبي للعميل (المزارع)
  *
  * This sidebar is for the farmer-facing web app only.
- * Admin-only features (Users, Audit, Vision, Drone, Terrain,
- * Edge Devices, Virtual Sensors, Research, Compliance, Scouting)
+ * Admin-exclusive features (Code Review, Fleet Tracking)
  * are in the admin portal (apps/admin/).
  *
  * Modeled after John Deere Operations Center, Trimble Ag, and similar
@@ -54,6 +53,22 @@ import {
   HelpCircle,
   Bug,
   Radar,
+  Search,
+  Shield,
+  CalendarDays,
+  Eye,
+  Map,
+  Mountain,
+  TestTube,
+  Plane,
+  Radio,
+  Grid3x3,
+  Leaf,
+  ShieldCheck,
+  QrCode,
+  Award,
+  GitCompare,
+  CalendarRange,
 } from 'lucide-react';
 
 interface NavItem {
@@ -71,10 +86,10 @@ interface NavGroup {
  * Client/Farmer navigation items grouped by category.
  * Only includes features relevant to farm operations.
  *
- * Removed (admin-only, available in apps/admin/):
- * - Users (إدارة المستخدمين) → admin portal
- * - Research (الأبحاث) → admin portal
- * - Compliance (الامتثال) → admin portal
+ * The following features are NOT included here because they belong
+ * exclusively in the admin portal (apps/admin/), not the farmer-facing web app:
+ * - Code Review (مراجعات الكود)
+ * - Fleet Tracking (تتبع الأسطول)
  */
 const navGroups: NavGroup[] = [
   {
@@ -90,6 +105,7 @@ const navGroups: NavGroup[] = [
       { labelKey: 'seasons', href: '/seasons', icon: Calendar },
       { labelKey: 'inventory', href: '/inventory', icon: Package },
       { labelKey: 'tasks', href: '/tasks', icon: ListChecks },
+      { labelKey: 'scouting', href: '/scouting', icon: Search },
     ],
   },
   {
@@ -109,6 +125,13 @@ const navGroups: NavGroup[] = [
       { labelKey: 'satelliteMonitor', href: '/satellite-monitor', icon: Radar },
       { labelKey: 'yield', href: '/yield', icon: BarChart3 },
       { labelKey: 'precisionAgriculture', href: '/precision-agriculture/gdd', icon: Crosshair },
+      { labelKey: 'cropProtection', href: '/crop-protection', icon: Shield },
+      { labelKey: 'cropPlanning', href: '/crop-planning', icon: CalendarDays },
+      { labelKey: 'epidemic', href: '/epidemic', icon: Activity },
+      { labelKey: 'vision', href: '/vision', icon: Eye },
+      { labelKey: 'soilMap', href: '/soil-map', icon: Map },
+      { labelKey: 'terrain', href: '/terrain', icon: Mountain },
+      { labelKey: 'soilAnalysis', href: '/soil-analysis', icon: TestTube },
     ],
   },
   {
@@ -117,6 +140,17 @@ const navGroups: NavGroup[] = [
       { labelKey: 'iot', href: '/iot', icon: Cpu },
       { labelKey: 'sensors', href: '/sensors', icon: Activity },
       { labelKey: 'equipment', href: '/equipment', icon: Wrench },
+      { labelKey: 'drone', href: '/drone', icon: Plane },
+      { labelKey: 'edgeDevices', href: '/edge-devices', icon: Cpu },
+      { labelKey: 'virtualSensors', href: '/virtual-sensors', icon: Radio },
+    ],
+  },
+  {
+    groupKey: 'precisionAgriculture',
+    items: [
+      { labelKey: 'sprayWindows', href: '/precision-agriculture/spray', icon: Droplets },
+      { labelKey: 'vra', href: '/precision-agriculture/vra', icon: Grid3x3 },
+      { labelKey: 'fertilizer', href: '/precision-agriculture/fertilizer', icon: Leaf },
     ],
   },
   {
@@ -126,6 +160,11 @@ const navGroups: NavGroup[] = [
       { labelKey: 'wallet', href: '/wallet', icon: Wallet },
       { labelKey: 'community', href: '/community', icon: Users },
       { labelKey: 'logistics', href: '/logistics', icon: Truck },
+      { labelKey: 'marketPrices', href: '/market-prices', icon: TrendingUp },
+      { labelKey: 'cooperatives', href: '/cooperatives', icon: Users },
+      { labelKey: 'cropInsurance', href: '/crop-insurance', icon: ShieldCheck },
+      { labelKey: 'traceability', href: '/traceability', icon: QrCode },
+      { labelKey: 'harvestQuality', href: '/harvest-quality', icon: Award },
     ],
   },
   {
@@ -134,6 +173,8 @@ const navGroups: NavGroup[] = [
       { labelKey: 'reports', href: '/reports', icon: FileBarChart },
       { labelKey: 'analytics', href: '/analytics', icon: TrendingUp },
       { labelKey: 'documents', href: '/documents', icon: FileText },
+      { labelKey: 'fieldCompare', href: '/analytics/field-compare', icon: GitCompare },
+      { labelKey: 'seasonalReports', href: '/reports/seasonal', icon: CalendarRange },
     ],
   },
   {
@@ -150,6 +191,8 @@ const navGroups: NavGroup[] = [
       { labelKey: 'copilot', href: '/copilot', icon: Bot },
       { labelKey: 'support', href: '/support', icon: HelpCircle },
       { labelKey: 'settings', href: '/settings', icon: Settings },
+      { labelKey: 'audit', href: '/audit', icon: FileText },
+      { labelKey: 'seedCatalog', href: '/seeds', icon: Sprout },
     ],
   },
 ];

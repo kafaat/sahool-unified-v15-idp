@@ -60,11 +60,12 @@ export const sahoolClient = new SahoolApiClient({
         });
         if (!res.ok) return null;
         const data = await res.json();
-        if (data.token) {
-          Cookies.set('sahool_admin_token', data.token);
-          return data.token;
-        }
-        return null;
+        // The server-side refresh route sets the httpOnly cookie automatically.
+        // We only return the token value so the unified client can retry the
+        // failed request with the new token in the Authorization header.
+        // IMPORTANT: Do NOT call Cookies.set() here — that would create a
+        // non-httpOnly duplicate cookie readable by JS, defeating XSS protection.
+        return data.token ?? null;
       } catch {
         return null;
       }

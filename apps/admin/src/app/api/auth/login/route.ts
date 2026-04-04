@@ -12,6 +12,18 @@ import { logger } from '@/lib/logger';
 import { API_URL, API_ENDPOINTS, TIMEOUT_TIERS } from '@/config/api';
 import { checkRateLimit, resetRateLimit } from '@/lib/rate-limiter';
 
+/** Typed response from the backend authentication endpoint */
+interface LoginResponse {
+  access_token: string;
+  refresh_token?: string;
+  user?: { id: string; email: string; role: string; tenant_id: string };
+  requires_2fa?: boolean;
+  temp_token?: string;
+  message?: string;
+  detail?: string;
+  [key: string]: unknown;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -67,13 +79,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let data: any;
+    let data: LoginResponse;
     try {
       data = await response.json();
-    } catch {
-      logger.error('Login upstream returned invalid JSON');
+    } catch (parseError) {
+      const statusCode = response.status;
+      const statusText = response.statusText;
+      logger.error(
+        `Failed to parse JSON from auth backend (HTTP ${statusCode} ${statusText}):`,
+        parseError
+      );
       return NextResponse.json(
-        { error: 'Invalid response from authentication server' },
+        {
+          error: `Authentication server returned an unparseable response (HTTP ${statusCode}). Please try again or contact support.`,
+        },
         { status: 502 }
       );
     }

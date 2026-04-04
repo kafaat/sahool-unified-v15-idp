@@ -76,25 +76,6 @@ export const ERROR_MESSAGES = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Mock Data for Offline Support
-// ═══════════════════════════════════════════════════════════════════════════
-
-const MOCK_SESSION: ScoutingSession = {
-  id: 'session-1',
-  fieldId: '1',
-  fieldName: 'North Field',
-  fieldNameAr: 'الحقل الشمالي',
-  status: 'active',
-  startTime: new Date().toISOString(),
-  scoutId: 'user-1',
-  scoutName: 'Ahmed Al-Shahrani',
-  observationsCount: 0,
-  observations: [],
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
 // Helper Functions
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -113,10 +94,23 @@ async function uploadPhoto(file: File, sessionId: string): Promise<string> {
       },
     });
 
-    return response.data.data?.url || response.data.url;
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error('Unexpected response structure from photo upload');
+    }
+    const resData = response.data as Record<string, unknown>;
+    const nested = resData.data as Record<string, unknown> | undefined;
+    const url = (nested?.url as string) || (resData.url as string);
+    if (!url || typeof url !== 'string') {
+      throw new Error('No photo URL in response | لا يوجد رابط صورة في الاستجابة');
+    }
+    return url;
   } catch (error) {
+    // Re-throw validation errors as-is instead of masking with generic message
+    if (error instanceof Error && (error.message.includes('No photo URL') || error.message.includes('Unexpected response'))) {
+      throw error;
+    }
     logger.error('Failed to upload photo:', error);
-    throw new Error(ERROR_MESSAGES.PHOTO_UPLOAD_FAILED.en);
+    throw new Error(`${ERROR_MESSAGES.PHOTO_UPLOAD_FAILED.en} | ${ERROR_MESSAGES.PHOTO_UPLOAD_FAILED.ar}`);
   }
 }
 
@@ -230,12 +224,15 @@ export const scoutingApi = {
         startTime: new Date().toISOString(),
       });
 
-      return response.data.data || {
-        ...MOCK_SESSION,
-        fieldId,
-        notes,
-        id: `offline-session-${Date.now()}`,
-      };
+      const session = response.data?.data;
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
+        throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
+      }
+      return session as ScoutingSession;
     });
   },
 
@@ -253,13 +250,15 @@ export const scoutingApi = {
         }
       );
 
-      return (
-        response.data.data || {
-          ...MOCK_SESSION,
-          id: sessionId,
-          status: 'completed' as const,
-        }
-      );
+      const session = response.data?.data;
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
+        throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
+      }
+      return session as ScoutingSession;
     });
   },
 
@@ -272,7 +271,15 @@ export const scoutingApi = {
       const response = await api.get<ApiSessionResponse>(
         `${API_PREFIX}/scouting/sessions/${sessionId}`
       );
-      return response.data.data || { ...MOCK_SESSION, id: sessionId };
+      const session = response.data?.data;
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
+        throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
+      }
+      return session as ScoutingSession;
     });
   },
 
@@ -469,8 +476,17 @@ export const scoutingApi = {
         format: config.format ?? 'pdf',
       });
 
+      const resData = response.data as Record<string, unknown> | undefined;
+      if (!resData || typeof resData !== 'object') {
+        throw new Error('Unexpected response structure from report generation');
+      }
+      const nested = resData.data as Record<string, unknown> | undefined;
+      const downloadUrl = (nested?.downloadUrl as string) || (resData.downloadUrl as string);
+      if (!downloadUrl || typeof downloadUrl !== 'string') {
+        throw new Error('No download URL in response | لا يوجد رابط تحميل في الاستجابة');
+      }
       return {
-        downloadUrl: response.data.data?.downloadUrl || response.data.downloadUrl,
+        downloadUrl,
       };
     });
   },

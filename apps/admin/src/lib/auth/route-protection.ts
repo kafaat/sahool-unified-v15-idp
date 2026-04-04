@@ -57,6 +57,7 @@ export const PUBLIC_ROUTES = [
   '/api/auth/reset-password',
   '/api/auth/verify-otp',
   '/api/auth/resend-otp',
+  '/api/auth/send-otp',
   '/api/auth/refresh',
   '/api/health',
 ];

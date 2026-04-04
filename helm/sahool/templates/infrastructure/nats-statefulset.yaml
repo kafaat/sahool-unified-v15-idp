@@ -43,8 +43,21 @@ spec:
         app.kubernetes.io/name: {{ include "sahool.name" . }}
         app.kubernetes.io/component: nats
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: nats
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           image: "{{ .Values.infrastructure.nats.image.repository }}:{{ .Values.infrastructure.nats.image.tag }}"
           imagePullPolicy: IfNotPresent
           command:
@@ -77,6 +90,8 @@ spec:
           resources:
             {{- toYaml .Values.infrastructure.nats.resources | nindent 12 }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: config
               mountPath: /etc/nats
             {{- if .Values.infrastructure.nats.jetstream.enabled }}
@@ -84,6 +99,9 @@ spec:
               mountPath: /data
             {{- end }}
       volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 10Mi
         - name: config
           configMap:
             name: {{ include "sahool.fullname" . }}-nats-config

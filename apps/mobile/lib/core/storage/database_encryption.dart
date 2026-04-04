@@ -91,12 +91,24 @@ class DatabaseEncryption {
     }
   }
 
-  /// Rotate the encryption key (for future use)
+  /// Rotate the encryption key
   ///
-  /// Note: Key rotation requires re-encrypting the entire database
-  /// This should be done during a maintenance window
+  /// IMPORTANT: After calling this method, the caller MUST re-encrypt the
+  /// database using the returned new key. Without re-encryption, the database
+  /// remains encrypted with the old key while secure storage holds the new one,
+  /// making the database inaccessible on next open.
+  ///
+  /// Usage:
+  /// ```dart
+  /// final newKey = await encryption.rotateKey();
+  /// // Re-encrypt database with SQLCipher PRAGMA rekey:
+  /// await db.customStatement("PRAGMA rekey = '$newKey'");
+  /// ```
+  ///
+  /// This should be done during a maintenance window or app background state.
   Future<String> rotateKey() async {
     try {
+      final oldKey = await getOrCreateKey();
       final newKey = _generateKey();
       const newVersion = _currentKeyVersion + 1;
 

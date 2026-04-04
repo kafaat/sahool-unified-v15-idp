@@ -256,7 +256,12 @@ class FileValidator:
 
         # Only check ZIP files (not gzip/tar/7z — those need separate handling)
         if not zipfile.is_zipfile(io.BytesIO(file_content)):
-            return
+            # MIME says ZIP but magic bytes disagree — reject as invalid
+            raise FileValidationError(
+                "ملف ZIP غير صالح (لا يتطابق مع البايتات السحرية) / "
+                "Invalid ZIP file (magic bytes mismatch)",
+                error_code="INVALID_ZIP_FILE",
+            )
 
         max_ratio = 100  # Reject if uncompressed > 100x compressed
         max_uncompressed_bytes = 1024 * 1024 * 500  # 500 MB hard limit
@@ -288,9 +293,11 @@ class FileValidator:
                             error_code="ZIP_BOMB_DETECTED",
                         )
 
-        except zipfile.BadZipFile:
-            # Not a valid ZIP despite MIME type — let other validators handle
-            pass
+        except zipfile.BadZipFile as exc:
+            raise FileValidationError(
+                "ملف ZIP تالف أو غير صالح / Corrupted or invalid ZIP file",
+                error_code="INVALID_ZIP_FILE",
+            ) from exc
 
     async def _scan_virus(self, file_content: bytes, filename: str) -> None:
         """

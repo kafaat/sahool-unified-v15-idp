@@ -597,8 +597,9 @@ class AgriculturalMetrics:
     ) -> None:
         """Record an irrigation event.
 
-        The ``field_id`` and ``tenant_id`` parameters are deprecated and
-        ignored — metrics are now aggregated by irrigation_type only.
+        The ``field_id`` parameter is deprecated and ignored.
+        ``tenant_id`` is still used as a label on ``irrigation_events_total``
+        for event counting; water volume is aggregated by ``irrigation_type`` only.
         """
         if not PROMETHEUS_AVAILABLE:
             return

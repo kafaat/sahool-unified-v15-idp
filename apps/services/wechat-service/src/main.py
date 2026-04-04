@@ -13,6 +13,8 @@ Features:
 Port: 8135
 """
 
+import hashlib
+import hmac
 import json
 import os
 import sys
@@ -24,7 +26,7 @@ from uuid import uuid4
 
 import redis.asyncio as redis_client
 import structlog
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from slowapi import Limiter
@@ -53,10 +55,55 @@ SERVICE_PORT = 8135
 # Logger
 logger = structlog.get_logger()
 
+# ===============================================================================
+# WeChat Callback Security - أمان استدعاءات ويتشات
+# ===============================================================================
+# WeChat Official Account webhook signature verification uses SHA1:
+#   sort([token, timestamp, nonce]) → join → sha1 → compare with signature
+# The token is configured in the WeChat developer platform.
+_WECHAT_CALLBACK_TOKEN: str = os.getenv("WECHAT_CALLBACK_TOKEN", "")
 
-# ===============================================================================
-# Enums
-# ===============================================================================
+
+def _verify_wechat_signature(
+    signature: str | None,
+    timestamp: str | None,
+    nonce: str | None,
+) -> bool:
+    """
+    Verify WeChat Official Account callback signature.
+    التحقق من توقيع استدعاء حساب ويتشات الرسمي.
+
+    Algorithm (https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Access_Overview.html):
+    1. Sort [token, timestamp, nonce] lexicographically.
+    2. Concatenate into a single string.
+    3. SHA1-hash the string.
+    4. Compare (case-insensitive) with the ``signature`` query parameter.
+
+    Returns True when:
+    - WECHAT_CALLBACK_TOKEN is not set (dev/test – skip enforcement).
+    - All parameters are present and the SHA1 matches.
+
+    Returns False when WECHAT_CALLBACK_TOKEN is set but verification fails.
+    """
+    if not _WECHAT_CALLBACK_TOKEN:
+        logger.warning(
+            "wechat_callback_token_not_set",
+            message="WeChat signature verification DISABLED – set WECHAT_CALLBACK_TOKEN in production",
+        )
+        return True
+
+    if not signature or not timestamp or not nonce:
+        logger.warning("wechat_callback_params_missing", signature=bool(signature))
+        return False
+
+    sort_str = "".join(sorted([_WECHAT_CALLBACK_TOKEN, timestamp, nonce]))
+    expected = hashlib.sha1(sort_str.encode("utf-8")).hexdigest()  # nosec B324 - WeChat mandates SHA1
+
+    if not hmac.compare_digest(expected.lower(), signature.lower()):
+        logger.warning("wechat_signature_mismatch")
+        return False
+
+    return True
 
 
 class MessageType(StrEnum):

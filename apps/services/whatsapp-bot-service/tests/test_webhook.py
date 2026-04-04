@@ -93,14 +93,100 @@ class TestWebhookMessageReceive:
         self.client = TestClient(app)
         self.app = app
 
+    def _make_signature(self, secret: str, body: bytes) -> str:
+        """Compute X-Hub-Signature-256 for a payload."""
+        import hashlib
+        import hmac as _hmac
+
+        digest = _hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+        return f"sha256={digest}"
+
     def test_receive_text_message(self, sample_text_message, mock_message_handler):
-        """Test receiving a text message."""
-        # Mock the message handler
+        """Test receiving a text message (no app secret configured → passes)."""
+        # WHATSAPP_APP_SECRET not set → HMAC check skipped (dev mode)
         self.app.state.message_handler = mock_message_handler
 
         response = self.client.post("/webhook", json=sample_text_message)
         assert response.status_code == 200
         assert response.json()["status"] == "received"
+
+    def test_receive_text_message_valid_signature(self, sample_text_message, mock_message_handler):
+        """Test receiving a text message with correct HMAC signature."""
+        import json as _json
+        import os
+
+        secret = "test-app-secret-12345"
+        os.environ["WHATSAPP_APP_SECRET"] = secret
+
+        # Reload settings to pick up new env var
+        from src.core import config as _cfg
+
+        _cfg.get_settings.cache_clear()
+        _cfg.settings = _cfg.get_settings()
+
+        try:
+            self.app.state.message_handler = mock_message_handler
+            body = _json.dumps(sample_text_message).encode()
+            sig = self._make_signature(secret, body)
+
+            response = self.client.post(
+                "/webhook",
+                content=body,
+                headers={"Content-Type": "application/json", "X-Hub-Signature-256": sig},
+            )
+            assert response.status_code == 200
+            assert response.json()["status"] == "received"
+        finally:
+            del os.environ["WHATSAPP_APP_SECRET"]
+            _cfg.get_settings.cache_clear()
+            _cfg.settings = _cfg.get_settings()
+
+    def test_receive_message_invalid_signature_rejected(self, sample_text_message, mock_message_handler):
+        """Test that a wrong HMAC signature is rejected with 403."""
+        import os
+
+        secret = "test-app-secret-12345"
+        os.environ["WHATSAPP_APP_SECRET"] = secret
+
+        from src.core import config as _cfg
+
+        _cfg.get_settings.cache_clear()
+        _cfg.settings = _cfg.get_settings()
+
+        try:
+            self.app.state.message_handler = mock_message_handler
+            response = self.client.post(
+                "/webhook",
+                json=sample_text_message,
+                headers={"X-Hub-Signature-256": "sha256=badhash"},
+            )
+            assert response.status_code == 403
+        finally:
+            del os.environ["WHATSAPP_APP_SECRET"]
+            _cfg.get_settings.cache_clear()
+            _cfg.settings = _cfg.get_settings()
+
+    def test_receive_message_missing_signature_rejected(self, sample_text_message, mock_message_handler):
+        """Test that a missing signature is rejected when app secret is configured."""
+        import os
+
+        secret = "test-app-secret-12345"
+        os.environ["WHATSAPP_APP_SECRET"] = secret
+
+        from src.core import config as _cfg
+
+        _cfg.get_settings.cache_clear()
+        _cfg.settings = _cfg.get_settings()
+
+        try:
+            self.app.state.message_handler = mock_message_handler
+            # No X-Hub-Signature-256 header
+            response = self.client.post("/webhook", json=sample_text_message)
+            assert response.status_code == 403
+        finally:
+            del os.environ["WHATSAPP_APP_SECRET"]
+            _cfg.get_settings.cache_clear()
+            _cfg.settings = _cfg.get_settings()
 
     def test_receive_image_message(self, sample_image_message, mock_message_handler):
         """Test receiving an image message."""

@@ -114,16 +114,27 @@ resource "aws_security_group" "cluster" {
   }
 }
 
-# TODO(security): In production, restrict egress to specific CIDR ranges
-# (e.g., VPC CIDR, ECR/S3 endpoints) instead of 0.0.0.0/0.
-resource "aws_security_group_rule" "cluster_egress" {
+# Cluster control-plane egress: allow only HTTPS to the VPC (to reach nodes/AWS services).
+# AWS service APIs (ECR, S3, CloudWatch) are reachable via VPC endpoints within the VPC CIDR.
+resource "aws_security_group_rule" "cluster_egress_vpc" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [var.vpc_cidr_block]
   security_group_id = aws_security_group.cluster.id
-  description       = "Allow all outbound traffic from cluster"
+  description       = "Allow HTTPS egress to VPC (nodes, AWS VPC endpoints)"
+}
+
+# Allow the control plane to reach the kubelet API on worker nodes (port 10250).
+resource "aws_security_group_rule" "cluster_egress_kubelet" {
+  type                     = "egress"
+  from_port                = 10250
+  to_port                  = 10250
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.nodes.id
+  security_group_id        = aws_security_group.cluster.id
+  description              = "Allow control plane to reach kubelet on worker nodes"
 }
 
 resource "aws_security_group_rule" "cluster_ingress_nodes" {
@@ -157,16 +168,42 @@ resource "aws_security_group" "nodes" {
   }
 }
 
-# TODO(security): In production, restrict egress to specific CIDR ranges
-# (e.g., VPC CIDR, ECR/S3 endpoints, NAT gateway) instead of 0.0.0.0/0.
-resource "aws_security_group_rule" "nodes_egress" {
+# Worker-node egress rules – scope to VPC and well-known AWS service ports.
+# Nodes must reach: VPC CIDR (internal traffic), AWS APIs via VPC endpoints,
+# NAT gateway (for external pulls like image registries without VPC endpoints).
+
+# All traffic within the VPC (RDS, Redis, NATS, other pods, VPC endpoints).
+resource "aws_security_group_rule" "nodes_egress_vpc" {
   type              = "egress"
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
+  cidr_blocks       = [var.vpc_cidr_block]
+  security_group_id = aws_security_group.nodes.id
+  description       = "Allow all outbound traffic within the VPC"
+}
+
+# HTTPS to the internet via NAT gateway – required for ECR image pulls,
+# OS package updates, and external API calls not covered by VPC endpoints.
+resource "aws_security_group_rule" "nodes_egress_https" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.nodes.id
-  description       = "Allow all outbound traffic from nodes"
+  description       = "Allow HTTPS egress to internet (ECR, AWS APIs, external services)"
+}
+
+# HTTP – needed for OS package mirrors and some container base image pulls.
+resource "aws_security_group_rule" "nodes_egress_http" {
+  type              = "egress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "Allow HTTP egress to internet (package mirrors)"
 }
 
 resource "aws_security_group_rule" "nodes_ingress_self" {

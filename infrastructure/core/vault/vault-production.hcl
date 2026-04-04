@@ -69,36 +69,45 @@ cluster_addr  = "https://VAULT_NODE_IP:8201"
 api_addr      = "https://vault.sahool.com:8200"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Auto-Unseal - AWS KMS (Production Recommended)
+# Auto-Unseal — AWS KMS (Default for AWS / me-south-1 deployments)
 # ─────────────────────────────────────────────────────────────────────────────
-# Uncomment and configure for AWS deployments
-# seal "awskms" {
-#   region     = "us-east-1"
-#   kms_key_id = "alias/sahool-vault-unseal"
-#   endpoint   = "https://kms.us-east-1.amazonaws.com"
-# }
+# All values are injected at deploy-time via environment variables.
+# Set VAULT_AWSKMS_SEAL_KEY_ID to the KMS key alias or ARN, e.g.:
+#   export VAULT_AWSKMS_SEAL_KEY_ID="alias/sahool-vault-unseal"
+# AWS credentials are provided automatically by the EC2/EKS IAM role —
+# do NOT hardcode access keys here.
+#
+# To use Azure Key Vault instead, comment out this stanza and uncomment
+# the "seal azurekeyvault" block below.
+seal "awskms" {
+  region     = "me-south-1"        # Override via VAULT_AWSKMS_SEAL_REGION env var
+  kms_key_id = "VAULT_AWSKMS_SEAL_KEY_ID"  # Replaced at runtime by Vault from env
+  # endpoint can be left empty; Vault resolves it from the region
+}
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Auto-Unseal - Azure Key Vault (Production Recommended)
+# Auto-Unseal — Azure Key Vault (alternative for Azure deployments)
 # ─────────────────────────────────────────────────────────────────────────────
-# Uncomment and configure for Azure deployments
+# Uncomment and configure for Azure deployments.
+# Inject secrets at deploy-time via environment variables; never hardcode.
+#
 # seal "azurekeyvault" {
-#   tenant_id      = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Tenant ID at deploy time
-#   client_id      = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Client ID at deploy time
-#   client_secret  = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Client Secret at deploy time
+#   tenant_id      = "VAULT_AZUREKEYVAULT_TENANT_ID"   # set via env VAULT_AZUREKEYVAULT_TENANT_ID
+#   client_id      = "VAULT_AZUREKEYVAULT_CLIENT_ID"   # set via env VAULT_AZUREKEYVAULT_CLIENT_ID
+#   client_secret  = "VAULT_AZUREKEYVAULT_CLIENT_SECRET" # set via env VAULT_AZUREKEYVAULT_CLIENT_SECRET
 #   vault_name     = "sahool-vault"
 #   key_name       = "vault-unseal-key"
 # }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Auto-Unseal - GCP Cloud KMS (Production Recommended)
+# Auto-Unseal — GCP Cloud KMS (alternative for GCP deployments)
 # ─────────────────────────────────────────────────────────────────────────────
-# Uncomment and configure for GCP deployments
+# Uncomment and configure for GCP deployments.
 # seal "gcpckms" {
 #   project     = "sahool-project"
-#   region      = "us-east1"
+#   region      = "me-central1"
 #   key_ring    = "vault-keyring"
-#   crypto_key  = "vault-key"
+#   crypto_key  = "vault-unseal-key"
 # }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -149,7 +158,9 @@ plugin_directory = "/vault/plugins"
 # ─────────────────────────────────────────────────────────────────────────────
 # Service Registration (Kubernetes)
 # ─────────────────────────────────────────────────────────────────────────────
-# service_registration "kubernetes" {
-#   namespace      = "vault"
-#   pod_name       = "vault-0"
-# }
+# Enable Kubernetes service registration so that Vault pods are discoverable
+# via standard k8s service annotations (used by Vault Helm chart).
+service_registration "kubernetes" {
+  namespace = "vault"
+  pod_name  = "vault-0"
+}

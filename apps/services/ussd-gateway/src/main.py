@@ -9,6 +9,8 @@ Features:
 - WhatsApp Business API integration
 """
 
+import hashlib
+import hmac
 import json
 import os
 from contextlib import asynccontextmanager
@@ -16,7 +18,7 @@ from datetime import UTC, datetime, timezone
 
 import asyncpg
 import nats
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
@@ -349,6 +351,88 @@ USSD_MENUS = {
 
 
 # ============================================================
+# Callback Security Helpers - أمان استدعاءات المزودين
+# ============================================================
+
+# Comma-separated list of allowed telecom-provider CIDRs / IPs.
+# Example: TELECOM_ALLOWED_IPS=196.201.214.0/24,41.204.14.0/24
+_TELECOM_ALLOWED_IPS_RAW: str = os.getenv("TELECOM_ALLOWED_IPS", "")
+
+# Build a set of allowed IPs for fast lookup (supports plain IPs only; for
+# production CIDR matching consider the `ipaddress` stdlib module).
+_TELECOM_ALLOWED_IPS: set[str] = {
+    ip.strip() for ip in _TELECOM_ALLOWED_IPS_RAW.split(",") if ip.strip()
+}
+
+# HMAC secret shared with the telecom provider (e.g. Africa's Talking callback secret).
+_TELECOM_HMAC_SECRET: str = os.getenv("TELECOM_CALLBACK_SECRET", "")
+
+
+def _get_client_ip(request: Request) -> str:
+    """Return the real client IP, honouring X-Forwarded-For from trusted proxies."""
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else ""
+
+
+def _verify_telecom_callback(
+    request: Request,
+    body: bytes,
+    x_at_signature: str | None = None,
+) -> None:
+    """
+    Enforce security on inbound telecom-provider callbacks.
+    فرض أمان الاستدعاءات الواردة من مزود الاتصالات.
+
+    Two complementary controls are applied (when configured):
+
+    1. **IP allow-list** – reject requests from IPs not in TELECOM_ALLOWED_IPS.
+       Only enforced when the env-var is set.
+
+    2. **HMAC-SHA256 signature** – Africa's Talking sends ``X-AT-Signature``;
+       verify it when TELECOM_CALLBACK_SECRET is configured.
+
+    Neither control blocks requests when its corresponding env-var is empty,
+    to avoid breaking existing dev/test environments that lack the config.
+    """
+    client_ip = _get_client_ip(request)
+
+    # ── IP allow-list ─────────────────────────────────────────────────────────
+    if _TELECOM_ALLOWED_IPS and client_ip not in _TELECOM_ALLOWED_IPS:
+        logger.warning(
+            "telecom_callback_ip_rejected",
+            client_ip=client_ip,
+            allowed=list(_TELECOM_ALLOWED_IPS)[:5],
+        )
+        raise HTTPException(
+            status_code=403,
+            detail="Callback source IP not permitted | عنوان IP غير مسموح به",
+        )
+
+    # ── HMAC signature (Africa's Talking style) ───────────────────────────────
+    if _TELECOM_HMAC_SECRET and x_at_signature:
+        expected = hmac.new(
+            _TELECOM_HMAC_SECRET.encode("utf-8"),
+            body,
+            hashlib.sha256,
+        ).hexdigest()
+        if not hmac.compare_digest(expected, x_at_signature):
+            logger.warning("telecom_callback_hmac_mismatch", client_ip=client_ip)
+            raise HTTPException(
+                status_code=403,
+                detail="Invalid callback signature | توقيع استدعاء غير صالح",
+            )
+    elif _TELECOM_HMAC_SECRET and not x_at_signature:
+        # Secret is configured but header is absent – reject.
+        logger.warning("telecom_callback_signature_missing", client_ip=client_ip)
+        raise HTTPException(
+            status_code=403,
+            detail="Missing callback signature header | رأس التوقيع مفقود",
+        )
+
+
+# ============================================================
 # Health Endpoints
 # ============================================================
 
@@ -377,18 +461,25 @@ async def readiness():
 
 
 @app.post("/ussd/callback")
-async def ussd_callback(request: Request):
+async def ussd_callback(
+    request: Request,
+    x_at_signature: str | None = Header(None, alias="X-AT-Signature"),
+):
     """
     Handle USSD callback from telecom provider
     معالجة استدعاء USSD من مزود الاتصالات
 
     Supports Africa's Talking, Infobip, and local telcos
     """
+    # Security: verify provider IP and/or HMAC signature
+    body = await request.body()
+    _verify_telecom_callback(request, body, x_at_signature)
+
     # Parse request based on provider format
     content_type = request.headers.get("content-type", "")
 
     if "application/json" in content_type:
-        data = await request.json()
+        data = json.loads(body)
     else:
         # Form data (Africa's Talking format)
         form = await request.form()
@@ -489,17 +580,24 @@ async def send_sms(body: SendSMSRequest, current_user: User = Depends(get_curren
 
 
 @app.post("/sms/receive")
-async def receive_sms(request: Request):
+async def receive_sms(
+    request: Request,
+    x_at_signature: str | None = Header(None, alias="X-AT-Signature"),
+):
     """
     Handle incoming SMS from farmer
     معالجة الرسائل الواردة من المزارع
 
     Supports keyword-based responses
     """
+    # Security: verify provider IP and/or HMAC signature
+    body = await request.body()
+    _verify_telecom_callback(request, body, x_at_signature)
+
     content_type = request.headers.get("content-type", "")
 
     if "application/json" in content_type:
-        data = await request.json()
+        data = json.loads(body)
     else:
         form = await request.form()
         data = dict(form)
@@ -558,12 +656,18 @@ async def send_bulk_sms(body: BulkSMSRequest, current_user: User = Depends(get_c
 
 
 @app.post("/whatsapp/webhook")
-async def whatsapp_webhook(request: Request):
+async def whatsapp_webhook(
+    request: Request,
+    x_at_signature: str | None = Header(None, alias="X-AT-Signature"),
+):
     """
     Handle WhatsApp Business API webhook
     معالجة webhook واتساب للأعمال
     """
     body = await request.body()
+    # Security: verify provider IP and/or HMAC signature
+    _verify_telecom_callback(request, body, x_at_signature)
+
     if len(body) > 1_048_576:  # 1 MB limit
         from fastapi.responses import JSONResponse
 

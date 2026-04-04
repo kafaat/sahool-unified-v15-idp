@@ -169,13 +169,14 @@ async def async_client():
         import httpx
         from src.main import app
 
-        # Override auth dependency to return None (bypasses auth checks in endpoints)
-        # Endpoints use: user: User | None = Depends(get_current_user)
-        # When user is None, auth ownership checks are skipped
+        # Override auth dependency to return a mock user.
+        # Auth is mandatory (User, not User | None) on farmer endpoints.
+        mock_user = _mock_user()
+        mock_user.id = "farmer-123"  # Match test farmer_id values
         try:
             from shared.auth.dependencies import get_current_user
 
-            app.dependency_overrides[get_current_user] = lambda: None
+            app.dependency_overrides[get_current_user] = lambda: mock_user
         except BaseException as e:
             if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
                 raise
@@ -203,11 +204,14 @@ def client():
         from fastapi.testclient import TestClient
         from src.main import app
 
-        # Override auth dependency to return None (bypasses auth checks in endpoints)
+        # Override auth dependency to return a mock user.
+        # Auth is mandatory (User, not User | None) on farmer endpoints.
+        mock_user = _mock_user()
+        mock_user.id = "farmer-123"  # Match test farmer_id values
         try:
             from shared.auth.dependencies import get_current_user
 
-            app.dependency_overrides[get_current_user] = lambda: None
+            app.dependency_overrides[get_current_user] = lambda: mock_user
         except BaseException as e:
             if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
                 raise

@@ -140,8 +140,8 @@ const INITIAL_STEPS: PrepStep[] = [
 // ---------------------------------------------------------------------------
 
 export default function FieldPrepClient() {
-  const [selectedField, setSelectedField] = useState(FIELDS[0].id);
-  const [selectedSeason, setSelectedSeason] = useState(SEASONS[0].id);
+  const [selectedField, setSelectedField] = useState(FIELDS[0]!.id);
+  const [selectedSeason, setSelectedSeason] = useState(SEASONS[0]!.id);
   const [steps, setSteps] = useState<PrepStep[]>(INITIAL_STEPS);
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set([4]));
 

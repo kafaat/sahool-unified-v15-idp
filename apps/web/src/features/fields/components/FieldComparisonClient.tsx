@@ -139,11 +139,11 @@ function computeDiff(key: MetricKey, a: number, b: number): string {
 // ---------------------------------------------------------------------------
 
 export default function FieldComparisonClient() {
-  const [fieldAId, setFieldAId] = useState(MOCK_FIELDS[0].id);
-  const [fieldBId, setFieldBId] = useState(MOCK_FIELDS[1].id);
+  const [fieldAId, setFieldAId] = useState(MOCK_FIELDS[0]!.id);
+  const [fieldBId, setFieldBId] = useState(MOCK_FIELDS[1]!.id);
 
-  const fieldA = useMemo(() => MOCK_FIELDS.find((f) => f.id === fieldAId) ?? MOCK_FIELDS[0], [fieldAId]);
-  const fieldB = useMemo(() => MOCK_FIELDS.find((f) => f.id === fieldBId) ?? MOCK_FIELDS[1], [fieldBId]);
+  const fieldA = useMemo(() => (MOCK_FIELDS.find((f) => f.id === fieldAId) ?? MOCK_FIELDS[0])!, [fieldAId]);
+  const fieldB = useMemo(() => (MOCK_FIELDS.find((f) => f.id === fieldBId) ?? MOCK_FIELDS[1])!, [fieldBId]);
 
   const results = useMemo(() => {
     return METRICS.map((metric) => {

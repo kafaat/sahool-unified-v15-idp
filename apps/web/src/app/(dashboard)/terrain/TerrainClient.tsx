@@ -102,7 +102,7 @@ export default function TerrainClient() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {STATS.map((s) => {
           const Icon = s.icon;
-          const colors = STAT_COLORS[s.color] ?? STAT_COLORS.blue;
+          const colors = (STAT_COLORS[s.color] ?? STAT_COLORS.blue)!;
           return (
             <div key={s.label} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3">

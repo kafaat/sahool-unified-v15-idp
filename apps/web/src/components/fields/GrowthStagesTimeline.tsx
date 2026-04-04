@@ -440,9 +440,9 @@ export default function GrowthStagesTimeline({
           <span className="w-2 h-0.5 bg-emerald-400 inline-block rounded" />
           المراحل المكتملة
         </span>
-        <span className="flex items-center gap-1">\u{1F4A7} منخفض</span>
-        <span className="flex items-center gap-1">\u{1F4A7}\u{1F4A7} متوسط</span>
-        <span className="flex items-center gap-1">\u{1F4A7}\u{1F4A7}\u{1F4A7} عالي</span>
+        <span className="flex items-center gap-1">{'💧'} منخفض</span>
+        <span className="flex items-center gap-1">{'💧💧'} متوسط</span>
+        <span className="flex items-center gap-1">{'💧💧💧'} عالي</span>
         <span className="flex items-center gap-1 cursor-help" title="مرر الماوس على المرحلة لعرض المهام">
           مرر للمهام
         </span>

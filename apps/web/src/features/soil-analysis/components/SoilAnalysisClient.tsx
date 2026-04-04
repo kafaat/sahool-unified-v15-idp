@@ -171,7 +171,7 @@ export default function SoilAnalysisClient() {
   const [showAllNutrients, setShowAllNutrients] = useState(false);
 
   const sample = useMemo(() => MOCK_SAMPLES[selectedFieldId] ?? null, [selectedFieldId]);
-  const field = useMemo(() => FIELDS.find((f) => f.id === selectedFieldId) ?? FIELDS[0], [selectedFieldId]);
+  const _field = useMemo(() => FIELDS.find((f) => f.id === selectedFieldId) ?? FIELDS[0], [selectedFieldId]);
 
   const nutrientSummary = useMemo(() => {
     if (!sample) return { optimal: 0, adequate: 0, low: 0, deficient: 0, total: 0 };

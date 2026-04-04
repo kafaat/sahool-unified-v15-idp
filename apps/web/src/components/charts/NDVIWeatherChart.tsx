@@ -10,7 +10,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { Calendar, TrendingUp, Droplets, Thermometer } from 'lucide-react';
+import { Calendar, TrendingUp, Droplets } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Dynamic Recharts imports (avoid SSR issues)

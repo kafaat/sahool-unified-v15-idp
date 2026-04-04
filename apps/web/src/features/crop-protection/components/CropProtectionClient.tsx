@@ -156,7 +156,7 @@ const SPRAY_STATUS_STYLES: Record<string, string> = {
 
 export default function CropProtectionClient() {
   const [activeTab, setActiveTab] = useState<TabId>('diseases');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [_searchQuery, _setSearchQuery] = useState('');
 
   const stats = useMemo(() => ({
     totalDiseases: DISEASES.length,

@@ -5,7 +5,7 @@
  * مكون مركز رصد الأوبئة — مراقبة انتشار الأمراض
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   Bug,
   AlertTriangle,
@@ -106,7 +106,7 @@ const ALERT_COLORS: Record<string, string> = {
   safe: 'bg-green-500',
 };
 
-const SEVERITY_STYLES: Record<string, string> = {
+const _SEVERITY_STYLES: Record<string, string> = {
   critical: 'bg-red-100 text-red-700',
   high: 'bg-orange-100 text-orange-700',
   medium: 'bg-yellow-100 text-yellow-700',

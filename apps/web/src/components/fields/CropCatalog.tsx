@@ -598,7 +598,7 @@ export default function CropCatalog({
       {/* Empty state */}
       {filtered.length === 0 && (
         <div className="rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 py-16 text-center text-gray-400 dark:text-gray-500">
-          <p className="text-4xl mb-2">\u{1F331}</p>
+          <p className="text-4xl mb-2">{'🌱'}</p>
           <p className="text-sm">لا توجد محاصيل مطابقة</p>
           <p className="text-xs mt-1">No matching crops found</p>
         </div>

@@ -772,7 +772,9 @@ class BaseAutonomousAgent(ABC):
         inputs: dict[str, Any],
     ) -> ToolResult:
         """Execute a tool with guard checks and error handling."""
-        start_time = datetime.now(UTC)
+        import time as _time
+
+        start_mono = _time.perf_counter()
 
         # SECURITY: Run tool call through ToolGuard before execution
         if _HAS_TOOL_GUARD and _tool_guard is not None:
@@ -790,7 +792,7 @@ class BaseAutonomousAgent(ABC):
                         reason=decision.reason,
                         layer=decision.layer,
                     )
-                    elapsed = (datetime.now(UTC) - start_time).total_seconds() * 1000
+                    elapsed = (_time.perf_counter() - start_mono) * 1000
                     return ToolResult(
                         tool_name=tool.name,
                         success=False,
@@ -799,7 +801,7 @@ class BaseAutonomousAgent(ABC):
                         execution_time_ms=elapsed,
                     )
             except Exception as guard_err:
-                elapsed = (datetime.now(UTC) - start_time).total_seconds() * 1000
+                elapsed = (_time.perf_counter() - start_mono) * 1000
                 logger.error("tool_guard_error", tool=tool.name, error=str(guard_err))
                 # Fail-closed: block tool execution when guard itself fails
                 return ToolResult(
@@ -817,7 +819,7 @@ class BaseAutonomousAgent(ABC):
             else:
                 result = await self.circuit_breaker.call(asyncio.to_thread, tool.handler, **inputs)
 
-            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
+            execution_time = (_time.perf_counter() - start_mono) * 1000
 
             return ToolResult(
                 tool_name=tool.name,
@@ -827,7 +829,7 @@ class BaseAutonomousAgent(ABC):
             )
 
         except Exception as e:
-            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
+            execution_time = (_time.perf_counter() - start_mono) * 1000
 
             return ToolResult(
                 tool_name=tool.name,

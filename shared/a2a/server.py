@@ -487,8 +487,12 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
             # Query params (e.g., ?token=...) are logged in access logs, browser
             # history, and Referer headers — never use for auth tokens.
             auth_header = websocket.headers.get("authorization", "")
-            if not auth_header.startswith("Bearer "):
-                await websocket.close(code=4001, reason="Authentication required — use Authorization header")
+            auth_parts = auth_header.strip().split(None, 1)
+            if len(auth_parts) != 2 or auth_parts[0].lower() != "bearer" or not auth_parts[1].strip():
+                await websocket.close(
+                    code=4001,
+                    reason="Authentication required — use Authorization: Bearer <token>",
+                )
                 return
 
         await server.handle_websocket_connection(websocket, client_id)

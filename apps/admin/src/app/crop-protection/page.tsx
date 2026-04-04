@@ -11,7 +11,6 @@ import { cn, formatDate } from '@/lib/utils';
 import {
   Bug,
   Shield,
-  Droplets as SprayIcon,
   Calendar,
   AlertTriangle,
   CheckCircle,

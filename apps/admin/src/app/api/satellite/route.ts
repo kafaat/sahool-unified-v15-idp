@@ -69,12 +69,17 @@ export async function GET(request: NextRequest) {
         }
         path = `/v1/sar-timeseries/${fieldId}?start_date=${searchParams.get('start_date') || ''}&end_date=${searchParams.get('end_date') || ''}${lat ? `&lat=${lat}` : ''}${lon ? `&lon=${lon}` : ''}`;
         break;
-      case 'cloud-cover':
+      case 'cloud-cover': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
         }
-        const ccParams = new URLSearchParams(); if (lat) ccParams.set('lat', lat); if (lon) ccParams.set('lon', lon); const ccQs = ccParams.toString(); path = `/v1/cloud-cover/${fieldId}${ccQs ? `?${ccQs}` : ''}`;
+        const ccParams = new URLSearchParams();
+        if (lat) ccParams.set('lat', lat);
+        if (lon) ccParams.set('lon', lon);
+        const ccQs = ccParams.toString();
+        path = `/v1/cloud-cover/${fieldId}${ccQs ? `?${ccQs}` : ''}`;
         break;
+      }
       case 'clear-observations':
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });

@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
 
     if (rateLimited) {
       return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
+        { success: false, error: 'Too many requests. Please try again later.', error_ar: 'طلبات كثيرة جداً. يرجى المحاولة لاحقاً.' },
         { status: 429 }
       );
     }
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
 
     if (!accessToken) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
+        { success: false, error: 'Authentication required', error_ar: 'المصادقة مطلوبة' },
         { status: 401 }
       );
     }
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
     const tenantId = extractTenantId(accessToken);
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid token: missing tenant_id' },
+        { success: false, error: 'Invalid token: missing tenant_id', error_ar: 'رمز غير صالح: معرف المستأجر مفقود' },
         { status: 401 }
       );
     }

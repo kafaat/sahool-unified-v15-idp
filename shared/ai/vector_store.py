@@ -1468,6 +1468,7 @@ class VectorStore:
         top_k: int = 10,
         filter: dict[str, Any] | None = None,
         include_content: bool = True,
+        tenant_id: str | None = None,
     ) -> list[SearchResult]:
         """Search for similar documents
 
@@ -1480,11 +1481,35 @@ class VectorStore:
             top_k: Number of results
             filter: Metadata filter
             include_content: Include document content
+            tenant_id: When provided, scopes the search to this tenant's data
+                by merging a ``tenant_id`` key into the metadata filter.  All
+                callers that operate on per-tenant data SHOULD supply this
+                parameter to prevent cross-tenant information leakage.
 
         Returns:
             List of SearchResult
         """
         collection = collection or self.config.default_collection
+
+        # Enforce tenant isolation: if tenant_id is given, inject it into the
+        # filter so results are always scoped to the calling tenant.
+        # Note: the Qdrant backend also uses per-tenant collection namespacing
+        # (create_collection prepends "{tenant_id}:") when collections are
+        # created with a tenant_id, but that protection requires the correct
+        # collection name to be passed.  Adding the filter here provides a
+        # second layer of defence for shared collections.
+        if tenant_id:
+            filter = {**(filter or {}), "tenant_id": tenant_id}
+        elif filter is None:
+            # Warn when tenant_id is absent so callers notice the gap during
+            # development / code review.  This does NOT raise an exception
+            # because some collections (e.g. global knowledge base) are
+            # legitimately shared across all tenants.
+            logger.debug(
+                "VectorStore.search called without tenant_id for collection '%s'. "
+                "Ensure this is intentional (e.g. a shared knowledge collection).",
+                collection,
+            )
 
         # Get query vector
         if vector is None:
@@ -1627,6 +1652,7 @@ async def search_documents(
     collection: str = "default",
     top_k: int = 10,
     filter: dict[str, Any] | None = None,
+    tenant_id: str | None = None,
 ) -> list[SearchResult]:
     """Convenience function to search documents
 
@@ -1638,6 +1664,7 @@ async def search_documents(
         collection=collection,
         top_k=top_k,
         filter=filter,
+        tenant_id=tenant_id,
     )
 
 

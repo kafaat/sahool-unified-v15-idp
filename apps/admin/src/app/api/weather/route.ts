@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
  * GET /api/weather?action=providers|locations|current|forecast&locationId=xxx&days=7
  *
  * Proxy for GET-based weather endpoints (providers list, location queries).
- * Forwards the request to the weather service without injecting tenant context.
+ * Extracts tenant_id from httpOnly JWT cookie and forwards as query param.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -155,6 +155,9 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get('action');
     const locationId = searchParams.get('locationId');
     const days = searchParams.get('days');
+
+    // Extract tenant context (same as POST handler)
+    const tenantId = await getTenantId();
 
     let path: string;
     switch (action) {
@@ -180,9 +183,15 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
+    // Build headers with tenant context if available
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (tenantId) {
+      headers['X-Tenant-Id'] = tenantId;
+    }
+
     const response = await fetch(`${WEATHER_SERVICE_URL}${path}`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       signal: AbortSignal.timeout(15000),
     });
 

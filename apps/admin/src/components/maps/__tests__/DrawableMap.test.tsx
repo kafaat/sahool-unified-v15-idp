@@ -16,7 +16,7 @@ import React from 'react';
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Track map click handlers for simulating drawing
-let __mapClickHandler: ((e: any) => void) | null = null;
+let _mapClickHandler: ((e: any) => void) | null = null;
 
 // Mock next/dynamic to inline-render the DrawableMap component
 // Since DrawableMap uses dynamic imports for react-leaflet components,

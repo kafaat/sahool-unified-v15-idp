@@ -174,7 +174,9 @@ ON CONFLICT (name) DO UPDATE SET
 -- Providers table is global (no RLS needed — read by all tenants)
 -- Usage table is tenant-scoped
 ALTER TABLE satellite_provider_usage ENABLE ROW LEVEL SECURITY;
+ALTER TABLE satellite_provider_usage FORCE ROW LEVEL SECURITY;
 
 CREATE POLICY satellite_provider_usage_tenant_policy ON satellite_provider_usage
-    USING (tenant_id = current_setting('app.current_tenant', true)::UUID)
-    WITH CHECK (tenant_id = current_setting('app.current_tenant', true)::UUID);
+    FOR ALL
+    USING (tenant_id = current_tenant_id() OR is_super_admin())
+    WITH CHECK (tenant_id = current_tenant_id() OR is_super_admin());

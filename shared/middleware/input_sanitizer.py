@@ -103,7 +103,17 @@ class InputSanitizationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # Sanitize query parameters (all methods) — prevents XSS/injection via URL params
         if request.query_params:
-            sanitized_params = {k: sanitize_value(v) for k, v in request.query_params.items()}
+            sanitized_params: dict[str, Any] = {}
+            for key, value in request.query_params.multi_items():
+                sanitized_value = sanitize_value(value)
+                if key in sanitized_params:
+                    existing = sanitized_params[key]
+                    if isinstance(existing, list):
+                        existing.append(sanitized_value)
+                    else:
+                        sanitized_params[key] = [existing, sanitized_value]
+                else:
+                    sanitized_params[key] = sanitized_value
             request.state.sanitized_query_params = sanitized_params
 
         # Sanitize JSON body for state-changing methods

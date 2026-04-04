@@ -1497,7 +1497,8 @@ class VectorStore:
             # Detect conflicting tenant_id — caller bug, not silent override
             if "tenant_id" in filter and filter["tenant_id"] != tenant_id:
                 raise ValueError(
-                    "Conflicting tenant_id values in filter and parameter"
+                    f"Conflicting tenant_id values: parameter tenant_id={tenant_id!r}, "
+                    f"filter['tenant_id']={filter['tenant_id']!r}"
                 )
             filter["tenant_id"] = tenant_id
 

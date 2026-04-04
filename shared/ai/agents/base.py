@@ -768,24 +768,35 @@ class BaseAutonomousAgent(ABC):
 
         # SECURITY: Run tool call through ToolGuard before execution
         if _HAS_TOOL_GUARD and _tool_guard is not None:
-            context = ToolCallContext(
-                tool=tool.name,
-                args=inputs,
-                agent_id=getattr(self, "agent_id", None),
-            )
-            decision = _tool_guard.check(context)
-            if not decision.allowed:
-                logger.warning(
-                    "tool_guard_blocked",
+            try:
+                context = ToolCallContext(
                     tool=tool.name,
-                    reason=decision.reason,
-                    layer=decision.layer,
+                    args=inputs,
+                    agent_id=getattr(self, "agent_id", None),
                 )
+                decision = _tool_guard.check(context)
+                if not decision.allowed:
+                    logger.warning(
+                        "tool_guard_blocked",
+                        tool=tool.name,
+                        reason=decision.reason,
+                        layer=decision.layer,
+                    )
+                    return ToolResult(
+                        tool_name=tool.name,
+                        success=False,
+                        result=None,
+                        error=f"Tool blocked by guard: {decision.reason}",
+                        execution_time_ms=0,
+                    )
+            except Exception as guard_err:
+                logger.error("tool_guard_error", tool=tool.name, error=str(guard_err))
+                # Fail-closed: block tool execution when guard itself fails
                 return ToolResult(
                     tool_name=tool.name,
                     success=False,
                     result=None,
-                    error=f"Tool blocked by guard: {decision.reason}",
+                    error=f"Tool guard check failed: {type(guard_err).__name__}",
                     execution_time_ms=0,
                 )
 

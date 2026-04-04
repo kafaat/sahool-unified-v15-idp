@@ -485,8 +485,8 @@ class AgriculturalMetrics:
 
     def record_ndvi_calculation(
         self,
-        field_id: str | None = None,
-        ndvi_value: float = 0.0,
+        field_id: str,
+        ndvi_value: float,
         crop_type: str = "unknown",
         satellite_source: str = "sentinel-2",
         tenant_id: str = "default",
@@ -495,9 +495,8 @@ class AgriculturalMetrics:
     ) -> None:
         """Record an NDVI calculation.
 
-        ``field_id`` is deprecated and ignored — kept in original position
-        for backward compatibility with positional callers. New ``region``
-        param is keyword-only.
+        ``field_id`` is kept in its original position for backward compatibility
+        but is no longer used in metric labels. ``region`` is keyword-only.
         """
         if not PROMETHEUS_AVAILABLE:
             return
@@ -591,17 +590,16 @@ class AgriculturalMetrics:
 
     def record_irrigation_event(
         self,
-        field_id: str | None = None,
-        water_volume_liters: float = 0.0,
+        field_id: str,
+        water_volume_liters: float,
         irrigation_type: str = "drip",
         crop_type: str = "unknown",
         tenant_id: str = "default",
     ) -> None:
         """Record an irrigation event.
 
-        ``field_id`` is deprecated and ignored — kept in original position
-        for backward compatibility with positional callers.
-        ``tenant_id`` is still used on ``irrigation_events_total`` counter.
+        ``field_id`` is kept in its original position for backward compatibility
+        but is no longer used in metric labels.
         """
         if not PROMETHEUS_AVAILABLE:
             return
@@ -683,17 +681,16 @@ class AgriculturalMetrics:
 
     def set_crop_health_score(
         self,
-        field_id: str | None = None,
-        crop_type: str = "unknown",
-        score: float = 0.0,
+        field_id: str,
+        crop_type: str,
+        score: float,
         *,
         region: str = "unknown",
     ) -> None:
         """Set the crop health score aggregated by region and crop type.
 
-        ``field_id`` is deprecated and ignored — kept in original position
-        for backward compatibility with positional callers. New ``region``
-        param is keyword-only.
+        ``field_id`` is kept in its original position for backward compatibility
+        but is no longer used in metric labels. ``region`` is keyword-only.
         """
         if not PROMETHEUS_AVAILABLE:
             return
@@ -705,17 +702,16 @@ class AgriculturalMetrics:
 
     def set_soil_moisture(
         self,
-        field_id: str | None = None,
-        moisture_percent: float = 0.0,
+        field_id: str,
+        moisture_percent: float,
         depth_cm: str = "30",
         *,
         region: str = "unknown",
     ) -> None:
         """Set aggregated soil moisture for a region/depth combination.
 
-        ``field_id`` is deprecated and ignored — kept in original position
-        for backward compatibility with positional callers. New ``region``
-        param is keyword-only.
+        ``field_id`` is kept in its original position for backward compatibility
+        but is no longer used in metric labels. ``region`` is keyword-only.
         """
         if not PROMETHEUS_AVAILABLE:
             return

@@ -279,11 +279,13 @@ class BlockchainTraceability:
 
         # SECURITY: Verify batch belongs to this tenant
         batch = self._batches[batch_id]
-        if self.tenant_id and getattr(batch, "tenant_id", None) and batch.tenant_id != self.tenant_id:
-            raise PermissionError(
-                f"Batch {batch_id} does not belong to tenant {self.tenant_id} | "
-                f"الدفعة {batch_id} لا تنتمي للمستأجر {self.tenant_id}"
-            )
+        if self.tenant_id:
+            batch_tenant_id = getattr(batch, "tenant_id", None)
+            if batch_tenant_id != self.tenant_id:
+                raise PermissionError(
+                    f"Batch {batch_id} does not belong to tenant {self.tenant_id} | "
+                    f"الدفعة {batch_id} لا تنتمي للمستأجر {self.tenant_id}"
+                )
 
         operation_id = f"OP-{uuid.uuid4().hex[:8].upper()}"
 

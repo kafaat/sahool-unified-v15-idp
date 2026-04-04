@@ -199,36 +199,34 @@ jobs:
         run: |
           echo "Deploying Starter package services..."
 
-          # SECURITY: Use --set-file for secrets — avoids YAML escaping issues
-          # with special chars (newlines, quotes, colons) in secret values.
-          # CLI --set is also avoided because args appear in process list and CI logs.
-          trap 'rm -f /tmp/helm-secret-*' EXIT
+          # SECURITY: Use --set-file for secrets in a run-scoped temp directory
+          # to avoid YAML escaping issues and /tmp collisions between runners.
+          SECRETS_DIR=$(mktemp -d "/tmp/helm-secrets-${{ github.run_id }}-XXXXXX")
+          trap "rm -rf '$SECRETS_DIR'" EXIT
 
-          printf '%s' "${{ secrets.JWT_SECRET_STAGING }}" > /tmp/helm-secret-jwt
-          printf '%s' "${{ secrets.DATABASE_URL_STAGING }}" > /tmp/helm-secret-dburl
+          printf '%s' "${{ secrets.JWT_SECRET_STAGING }}" > "$SECRETS_DIR/jwt"
+          printf '%s' "${{ secrets.DATABASE_URL_STAGING }}" > "$SECRETS_DIR/dburl"
 
           # Deploy field-management-service (replaces field-ops)
           helm upgrade --install field-management-service ./helm/services/field-management-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
-            --set-file secrets.jwtSecret=/tmp/helm-secret-jwt \
-            --set-file database.url=/tmp/helm-secret-dburl \
+            --set-file secrets.jwtSecret="$SECRETS_DIR/jwt" \
+            --set-file database.url="$SECRETS_DIR/dburl" \
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
-          printf '%s' "${{ secrets.OPENWEATHER_API_KEY }}" > /tmp/helm-secret-weather
+          printf '%s' "${{ secrets.OPENWEATHER_API_KEY }}" > "$SECRETS_DIR/weather"
 
           # Deploy weather-service (replaces deprecated weather-core)
           helm upgrade --install weather-service ./helm/services/weather-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
-            --set-file secrets.openWeatherApiKey=/tmp/helm-secret-weather \
+            --set-file secrets.openWeatherApiKey="$SECRETS_DIR/weather" \
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
-
-          rm -f /tmp/helm-secret-*
 
           # Deploy advisory-service (replaces deprecated agro-advisor)
           helm upgrade --install advisory-service ./helm/services/advisory-service \

@@ -153,8 +153,8 @@ export async function GET(request: NextRequest) {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
-    const contentType = response.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
+    const respContentType = response.headers.get('content-type') || '';
+    if (!respContentType.includes('application/json')) {
       return NextResponse.json(
         { success: false, error: 'Alert service returned non-JSON response', error_ar: 'خدمة التنبيهات أرجعت استجابة غير JSON' },
         { status: 502 }
@@ -244,8 +244,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate Content-Type before parsing
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
+    const requestContentType = request.headers.get('content-type') || '';
+    if (!requestContentType.includes('application/json')) {
       return NextResponse.json(
         { success: false, error: 'Content-Type must be application/json', error_ar: 'نوع المحتوى يجب أن يكون application/json' },
         { status: 415 }
@@ -311,8 +311,8 @@ export async function POST(request: NextRequest) {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
-    const contentType = response.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
+    const respContentType = response.headers.get('content-type') || '';
+    if (!respContentType.includes('application/json')) {
       return NextResponse.json(
         { success: false, error: 'Alert service returned non-JSON response', error_ar: 'خدمة التنبيهات أرجعت استجابة غير JSON' },
         { status: 502 }

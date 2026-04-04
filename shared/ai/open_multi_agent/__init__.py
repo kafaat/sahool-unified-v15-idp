@@ -52,7 +52,9 @@ Updated: April 2026
 
 __version__ = "1.0.0"
 
+from .message_bus import AgentEvent, MessageBus as NatsMessageBus
 from .orchestrator import AgentConfig, AgentRunner, OpenMultiAgent, TeamConfig
+from .shared_memory import SharedMemory as RedisSharedMemory, SharedMemoryNamespace
 from .team import AgentPool, MessageBus, SharedMemory, TaskQueue, Team, TeamStatus
 
 __all__ = [
@@ -63,11 +65,16 @@ __all__ = [
     "AgentConfig",
     "TeamConfig",
     "AgentRunner",
-    # Team
+    # Team (in-memory, used internally by Team)
     "Team",
     "TeamStatus",
     "AgentPool",
     "TaskQueue",
     "SharedMemory",
     "MessageBus",
+    # Enhanced modules (Redis/NATS-backed)
+    "RedisSharedMemory",
+    "SharedMemoryNamespace",
+    "NatsMessageBus",
+    "AgentEvent",
 ]

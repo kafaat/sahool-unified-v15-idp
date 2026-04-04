@@ -1,0 +1,1465 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>خطة التوصيات والتحسينات المستقبلية - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              خطة التوصيات والتحسينات المستقبلية
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">خطة التوصيات والتحسينات المستقبلية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-platform-post-session-technical-todo">SAHOOL Platform — Post-Session Technical TODO<a class="headerlink" href="#sahool-platform-post-session-technical-todo" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>تاريخ الجلسة</strong>: 2026-04-04
+<strong>PRs ذات الصلة</strong>: #1463 (مدمج), #1464, #1465
+<strong>الأولوية</strong>: مرتبة من الأعلى للأدنى</p>
+</blockquote>
+<hr />
+<h2 id="1-1">المرحلة 1: اختبارات (أسبوع 1) — أولوية حرجة 🔴<a class="headerlink" href="#1-1" title="Permanent link">&para;</a></h2>
+<h3 id="11-api-proxy-routes-web">1.1 اختبارات API Proxy Routes الجديدة (Web)<a class="headerlink" href="#11-api-proxy-routes-web" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>السبب</strong>: 10 مسارات proxy جديدة بدون اختبارات — Copilot نبّه على ذلك
+<strong>المرجع</strong>: تعليقات Copilot على PR #1463 (satellite-route.test.ts, weather-route.test.ts)</p>
+</blockquote>
+<ul>
+<li>[ ] <code>apps/web/src/app/api/satellite/__tests__/route.test.ts</code> — 8 actions + fieldId validation + error cases (~15 اختبار)</li>
+<li>[ ] <code>apps/web/src/app/api/weather/__tests__/route.test.ts</code> — GET+POST + auth + locationId validation (~12 اختبار)</li>
+<li>[ ] <code>apps/web/src/app/api/alerts/__tests__/route.test.ts</code> — CRUD + acknowledge/resolve/dismiss (~10 اختبارات)</li>
+<li>[ ] <code>apps/web/src/app/api/irrigation/__tests__/route.test.ts</code> — calculate + methods (~8 اختبارات)</li>
+<li>[ ] <code>apps/web/src/app/api/advisory/__tests__/route.test.ts</code> — disease-assess + fertilizer-plan (~8 اختبارات)</li>
+<li>[ ] <code>apps/web/src/app/api/tasks/__tests__/route.test.ts</code> — CRUD + assign/complete (~10 اختبارات)</li>
+<li>[ ] <code>apps/web/src/app/api/equipment/__tests__/route.test.ts</code> — tracking + maintenance (~8 اختبارات)</li>
+<li>[ ] <code>apps/web/src/app/api/soil-analysis/__tests__/route.test.ts</code> — interpret + amendment (~8 اختبارات)</li>
+<li>[ ] <code>apps/web/src/app/api/pest-detection/__tests__/route.test.ts</code> — identify + treatment (~8 اختبارات)</li>
+<li>[ ] <code>apps/web/src/app/api/terrain/__tests__/route.test.ts</code> — DEM + slope + aspect (~8 اختبارات)</li>
+</ul>
+<p><strong>الإجمالي المتوقع: ~95 اختبار</strong></p>
+<h3 id="12-admin-copilot">1.2 اختبارات Admin المفقودة (من تعليقات Copilot)<a class="headerlink" href="#12-admin-copilot" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>apps/admin/src/app/api/__tests__/satellite-route.test.ts</code> — إضافة اختبارات sar-timeseries, cloud-cover, clear-observations</li>
+<li>[ ] <code>apps/admin/src/app/api/__tests__/weather-route.test.ts</code> — إضافة اختبارات GET handler (providers, locations, current, forecast)</li>
+<li>[ ] <code>apps/admin/src/app/farms/__tests__/field-detail.test.tsx</code> — اختبار boundary parsing مع GeoJSON</li>
+<li>[ ] <code>apps/admin/src/hooks/api/__tests__/use-alerts.test.ts</code> — اختبار acknowledge عبر alertService</li>
+</ul>
+<h3 id="13-web">1.3 اختبارات المكونات الجديدة (Web)<a class="headerlink" href="#13-web" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>CommandPalette.test.tsx</code> — Ctrl+K, search, navigation, Arabic/English</li>
+<li>[ ] <code>DrawableMap.test.tsx</code> — polygon drawing, undo, GeoJSON export</li>
+<li>[ ] <code>MapLayersPanel.test.tsx</code> — toggle layers, opacity</li>
+<li>[ ] <code>SplitScreenNDVI.test.tsx</code> — date selection, comparison</li>
+<li>[ ] <code>NDVIWeatherChart.test.tsx</code> — dual axis render</li>
+<li>[ ] <code>CrossFarmDashboard.test.tsx</code> — sort, search, data display</li>
+<li>[ ] <code>RealTimeActivityFeed.test.tsx</code> — event display, auto-scroll</li>
+<li>[ ] <code>ExpertView.test.tsx</code> — field status rendering</li>
+<li>[ ] <code>CropCatalog.test.tsx</code> — 12 crops, search filter</li>
+<li>[ ] <code>ScoutingNotes.test.tsx</code> — GPS display, category filter</li>
+<li>[ ] <code>FieldCreateDialog.test.tsx</code> — form validation, boundary submission</li>
+</ul>
+<p><strong>الإجمالي المتوقع: ~44 اختبار</strong></p>
+<h3 id="14-e2e-playwright">1.4 اختبارات E2E (Playwright)<a class="headerlink" href="#14-e2e-playwright" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] سيناريو: إنشاء حقل → رسم حدود → عرض NDVI</li>
+<li>[ ] سيناريو: تسجيل دخول → لوحة تحكم → Ctrl+K بحث → تنقل</li>
+<li>[ ] سيناريو: كشف ميداني → إضافة ملاحظة → تقرير</li>
+<li>[ ] سيناريو: تخطيط موسم → 7 خطوات → توصيات AI</li>
+<li>[ ] سيناريو: مقارنة حقلين → NDVI + طقس + إنتاجية</li>
+</ul>
+<hr />
+<h2 id="2-typescript-1-2">المرحلة 2: TypeScript وجودة الكود (أسبوع 1-2) — أولوية عالية 🟠<a class="headerlink" href="#2-typescript-1-2" title="Permanent link">&para;</a></h2>
+<h3 id="21-ts-nocheck">2.1 إزالة @ts-nocheck<a class="headerlink" href="#21-ts-nocheck" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>السبب</strong>: يخفي أخطاء حقيقية — Copilot نبّه على ذلك مرتين</p>
+</blockquote>
+<ul>
+<li>[ ] <code>apps/web/src/...</code> — 3 ملفات (تحديد الملفات وإصلاح أخطاء TS الفعلية)</li>
+<li>[ ] <code>apps/admin/src/app/crop-planning/page.tsx</code> — إصلاح TS errors</li>
+<li>[ ] <code>apps/admin/src/app/field-prep/page.tsx</code> — إصلاح TS errors</li>
+<li>[ ] <code>apps/admin/src/app/field-zones/page.tsx</code> — إصلاح TS errors</li>
+<li>[ ] <code>apps/admin/src/app/reports/page.tsx</code> — إصلاح TS errors</li>
+</ul>
+<h3 id="22-consolelogconsoleerror-production-code">2.2 إزالة console.log/console.error من production code<a class="headerlink" href="#22-consolelogconsoleerror-production-code" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] مسح شامل واستبدال بـ <code>logger.error()</code> أو <code>logger.warn()</code></li>
+<li>[ ] التأكد من أن <code>next.config.js</code> يزيل console.log في production</li>
+</ul>
+<h3 id="23-typescript">2.3 تحسين أنواع TypeScript<a class="headerlink" href="#23-typescript" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] استخدام <code>@sahool/shared-types/contracts</code> بشكل أوسع في Web</li>
+<li>[ ] إضافة أنواع للمكونات الجديدة (Props interfaces)</li>
+<li>[ ] تفعيل <code>noUncheckedIndexedAccess</code> إذا لم يكن مفعّلاً</li>
+</ul>
+<hr />
+<h2 id="3-2">المرحلة 3: أمان وبنية تحتية (أسبوع 2) — أولوية عالية 🟠<a class="headerlink" href="#3-2" title="Permanent link">&para;</a></h2>
+<h3 id="31-sentinel-hub">3.1 Sentinel Hub كتبعية اختيارية<a class="headerlink" href="#31-sentinel-hub" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>السبب</strong>: Copilot نبّه أن sentinelhub في requirements.txt يجعلها إلزامية
+<strong>المرجع</strong>: تعليق Copilot على PR #1463</p>
+</blockquote>
+<ul>
+<li>[ ] نقل <code>sentinelhub</code> من <code>requirements.txt</code> إلى <code>requirements-eo.txt</code></li>
+<li>[ ] إضافة <code>EO_MODE</code> build arg في Dockerfile</li>
+<li>[ ] تحديث <code>pip install</code> في Dockerfile ليكون مشروطاً</li>
+<li>[ ] تحديث التعليق في requirements.txt</li>
+</ul>
+<h3 id="32-e2e-mock-servers">3.2 تحسين E2E Mock Servers<a class="headerlink" href="#32-e2e-mock-servers" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>السبب</strong>: تعليقات Copilot حول fixed ports وglobal state</p>
+</blockquote>
+<ul>
+<li>[ ] تحويل mock servers لاستخدام dynamic port allocation (port 0)</li>
+<li>[ ] إضافة <code>conftest.py</code> بدلاً من <code>sys.path</code> manipulation</li>
+<li>[ ] إضافة fixture لتنظيف global in-memory stores بين الاختبارات</li>
+<li>[ ] استبدال relative imports بـ absolute imports</li>
+</ul>
+<h3 id="33-docker-ci">3.3 Docker و CI<a class="headerlink" href="#33-docker-ci" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إصلاح Docker BuildX cache (Azure blob 404) — retry strategy</li>
+<li>[ ] إضافة <code>VEGETATION_SERVICE_URL</code> و <code>WEATHER_SERVICE_URL</code> لـ Web Dockerfile</li>
+<li>[ ] التحقق من أن Web healthcheck يعمل مع الخدمات الجديدة</li>
+</ul>
+<hr />
+<h2 id="4-2-3">المرحلة 4: تحسين الواجهات الحالية (أسبوع 2-3) — أولوية متوسطة 🟡<a class="headerlink" href="#4-2-3" title="Permanent link">&para;</a></h2>
+<h3 id="41-dashboard">4.1 Dashboard تحسينات<a class="headerlink" href="#41-dashboard" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] ربط <code>RealTimeActivityFeed</code> بـ WebSocket الحقيقي (بدلاً من mock timer)</li>
+<li>[ ] إضافة <code>ExpertView</code> للحقل المحدد في Dashboard</li>
+<li>[ ] إضافة Quick Actions: إنشاء حقل، كشف ميداني، تقرير جديد</li>
+<li>[ ] تحسين MapView بطبقات NDVI + weather overlay</li>
+</ul>
+<h3 id="42-weather">4.2 Weather تحسينات<a class="headerlink" href="#42-weather" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] توقعات 14 يوم بدلاً من 7</li>
+<li>[ ] تقرير زراعي: ET0, GDD, نافذة الرش</li>
+<li>[ ] مقارنة مزودين: OpenWeather vs Open-Meteo</li>
+<li>[ ] تنبيهات طقس مع ربط alert-service</li>
+</ul>
+<h3 id="43-irrigation">4.3 Irrigation تحسينات<a class="headerlink" href="#43-irrigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] حاسبة ري ذكية: كمية + توقيت + طريقة</li>
+<li>[ ] جدول ري أسبوعي (تقويم مرئي)</li>
+<li>[ ] إحصائيات توفير المياه</li>
+<li>[ ] تنبيهات ري عبر WebSocket</li>
+</ul>
+<h3 id="44-alerts">4.4 Alerts تحسينات<a class="headerlink" href="#44-alerts" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] ربط WebSocket لتحديث فوري</li>
+<li>[ ] صوت تنبيه للتنبيهات الحرجة</li>
+<li>[ ] تجميع التنبيهات حسب الحقل/النوع</li>
+<li>[ ] تصدير تقرير التنبيهات (PDF/CSV)</li>
+</ul>
+<hr />
+<h2 id="5-websocket-events-3">المرحلة 5: WebSocket Events الجديدة (أسبوع 3) — أولوية متوسطة 🟡<a class="headerlink" href="#5-websocket-events-3" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>السبب</strong>: المكونات الجديدة تحتاج أحداث WebSocket للتحديث المباشر</p>
+</blockquote>
+<ul>
+<li>[ ] إضافة <code>sahool.vision.pest_detected</code> → تنبيه فوري في Vision page</li>
+<li>[ ] إضافة <code>sahool.vision.disease_detected</code> → تنبيه فوري + صورة</li>
+<li>[ ] إضافة <code>sahool.terrain.analysis_completed</code> → تحديث Terrain page</li>
+<li>[ ] إضافة <code>sahool.hydrology.flow_calculated</code> → تحديث خريطة المياه</li>
+<li>[ ] إضافة <code>sahool.edge.device_online</code> → تحديث Edge Devices</li>
+<li>[ ] إضافة <code>sahool.drone.mission_completed</code> → تحديث Drone page</li>
+<li>[ ] إضافة <code>sahool.market.price_updated</code> → تحديث Market Prices</li>
+<li>[ ] إضافة <code>sahool.irrigation.schedule_updated</code> → تحديث Irrigation</li>
+<li>[ ] تحديث <code>useWebSocketQueryInvalidation</code> بالأحداث الجديدة</li>
+</ul>
+<hr />
+<h2 id="6-3-4">المرحلة 6: أداء (أسبوع 3-4) — أولوية متوسطة 🟡<a class="headerlink" href="#6-3-4" title="Permanent link">&para;</a></h2>
+<h3 id="61-bundle-optimization">6.1 Bundle Optimization<a class="headerlink" href="#61-bundle-optimization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] تشغيل <code>ANALYZE=true next build</code> وتحليل الحزمة</li>
+<li>[ ] التأكد من تحميل ديناميكي للخرائط والرسوم البيانية</li>
+<li>[ ] Code splitting للمكونات الثقيلة (DrawableMap, CropCatalog)</li>
+<li>[ ] Prefetching للصفحات المتوقعة (sidebar hover)</li>
+</ul>
+<h3 id="62-react-query-optimization">6.2 React Query Optimization<a class="headerlink" href="#62-react-query-optimization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] ضبط <code>staleTime</code> لكل نوع بيانات:</li>
+<li>Weather: 5 دقائق</li>
+<li>NDVI: 30 دقيقة</li>
+<li>Fields: 10 دقائق</li>
+<li>Alerts: 1 دقيقة (مع WebSocket invalidation)</li>
+<li>[ ] تفعيل <code>placeholderData</code> للانتقال السلس بين الصفحات</li>
+</ul>
+<h3 id="63-image-optimization">6.3 Image Optimization<a class="headerlink" href="#63-image-optimization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] استخدام <code>next/image</code> لجميع الصور</li>
+<li>[ ] Lazy loading لصور الأقمار الصناعية</li>
+<li>[ ] WebP/AVIF format لصور المحاصيل</li>
+</ul>
+<hr />
+<h2 id="7">المرحلة 7: إمكانية الوصول والتصميم (مستمر) — أولوية منخفضة 🟢<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h3 id="71-accessibility-wcag-aa">7.1 Accessibility (WCAG AA)<a class="headerlink" href="#71-accessibility-wcag-aa" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إضافة <code>aria-label</code> لجميع الأزرار بدون نص</li>
+<li>[ ] إضافة <code>alt</code> لجميع الصور</li>
+<li>[ ] تحسين تباين الألوان (خاصة severity badges)</li>
+<li>[ ] دعم التنقل بلوحة المفاتيح في جميع الجداول</li>
+<li>[ ] اختبار مع screen reader</li>
+<li>[ ] إضافة pa11y للفحص التلقائي</li>
+</ul>
+<h3 id="72-dark-mode">7.2 Dark Mode<a class="headerlink" href="#72-dark-mode" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] اختبار Dark Mode لجميع المكونات الجديدة</li>
+<li>[ ] التأكد من قابلية القراءة في الوضع المظلم</li>
+<li>[ ] خرائط: إضافة dark tile layer</li>
+</ul>
+<h3 id="73-responsive-design">7.3 Responsive Design<a class="headerlink" href="#73-responsive-design" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] اختبار جميع الصفحات على الهاتف (&lt; 640px)</li>
+<li>[ ] اختبار على الأجهزة اللوحية (768px-1024px)</li>
+<li>[ ] التأكد من أن CommandPalette يعمل على الهاتف</li>
+<li>[ ] تحسين DrawableMap للشاشات الصغيرة</li>
+</ul>
+<h3 id="74-storybook">7.4 Storybook<a class="headerlink" href="#74-storybook" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إعداد Storybook لمكونات <code>components/</code> المشتركة</li>
+<li>[ ] إضافة stories لكل مكون جديد</li>
+<li>[ ] التكامل مع CI لبناء Storybook تلقائياً</li>
+</ul>
+<hr />
+<h2 id="8">المرحلة 8: توثيق (مستمر) — أولوية منخفضة 🟢<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] تحديث <code>apps/services-docs/README.md</code> بالمسارات الجديدة</li>
+<li>[ ] إضافة JSDoc لجميع API proxy routes</li>
+<li>[ ] تحديث <code>docs/SERVICES_MAP.md</code> بالخدمات المتصلة حديثاً</li>
+<li>[ ] إنشاء دليل المكونات (Component Guide) للمطورين الجدد</li>
+<li>[ ] تحديث PR description لـ #1463 ليعكس النطاق الكامل</li>
+</ul>
+<hr />
+<h2 id="_2">ملخص الأرقام<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>المهام</th>
+<th>الأولوية</th>
+<th>المدة المتوقعة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. الاختبارات</td>
+<td>~227 اختبار</td>
+<td>🔴 حرج</td>
+<td>أسبوع 1</td>
+</tr>
+<tr>
+<td>2. TypeScript</td>
+<td>~10 ملفات</td>
+<td>🟠 عالي</td>
+<td>أسبوع 1-2</td>
+</tr>
+<tr>
+<td>3. أمان وبنية</td>
+<td>~8 مهام</td>
+<td>🟠 عالي</td>
+<td>أسبوع 2</td>
+</tr>
+<tr>
+<td>4. تحسين الواجهات</td>
+<td>~16 مهمة</td>
+<td>🟡 متوسط</td>
+<td>أسبوع 2-3</td>
+</tr>
+<tr>
+<td>5. WebSocket Events</td>
+<td>~9 أحداث</td>
+<td>🟡 متوسط</td>
+<td>أسبوع 3</td>
+</tr>
+<tr>
+<td>6. أداء</td>
+<td>~10 مهام</td>
+<td>🟡 متوسط</td>
+<td>أسبوع 3-4</td>
+</tr>
+<tr>
+<td>7. إمكانية الوصول</td>
+<td>~15 مهمة</td>
+<td>🟢 منخفض</td>
+<td>مستمر</td>
+</tr>
+<tr>
+<td>8. توثيق</td>
+<td>~5 مهام</td>
+<td>🟢 منخفض</td>
+<td>مستمر</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>~300 مهمة</strong></td>
+<td></td>
+<td><strong>4-6 أسابيع</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>تم إنشاؤه تلقائياً من جلسة Claude Code بتاريخ 2026-04-04</em>
+<em>PRs: #1463, #1464, #1465</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -144,16 +144,17 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * GET /api/weather?action=providers|locations|current&locationId=xxx
+ * GET /api/weather?action=providers|locations|current|forecast&locationId=xxx&days=7
  *
  * Proxy for GET-based weather endpoints (providers list, location queries).
- * Forwards weather requests to the backend service.
+ * Forwards the request to the weather service without injecting tenant context.
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
     const locationId = searchParams.get('locationId');
+    const days = searchParams.get('days');
 
     let path: string;
     switch (action) {
@@ -167,10 +168,14 @@ export async function GET(request: NextRequest) {
         if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
         path = `/weather/current/${locationId}`;
         break;
-      case 'forecast':
+      case 'forecast': {
         if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
-        path = `/weather/forecast/${locationId}`;
+        const forecastParams = new URLSearchParams();
+        if (days) forecastParams.set('days', days);
+        const forecastQs = forecastParams.toString();
+        path = `/weather/forecast/${locationId}${forecastQs ? `?${forecastQs}` : ''}`;
         break;
+      }
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }

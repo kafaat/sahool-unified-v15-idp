@@ -68,7 +68,7 @@ vi.mock('@/lib/api', () => ({
 
 // Mock global fetch for NDVI satellite proxy calls (/api/satellite?...)
 const mockFetchFn = vi.fn();
-globalThis.fetch = mockFetchFn as unknown as typeof fetch;
+vi.stubGlobal('fetch', mockFetchFn);
 
 // Helper: set both apiClient and fetch mocks for NDVI data
 function setNdviMockData(data: Record<string, unknown>) {

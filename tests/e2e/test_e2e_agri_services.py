@@ -38,11 +38,29 @@ VEGETATION = "http://127.0.0.1:8090"
 YEMEN_BOUNDARY = [[44.19, 15.35], [44.22, 15.35], [44.22, 15.37], [44.19, 15.37], [44.19, 15.35]]
 
 
+def _wait_for_service(base_url: str, timeout: float = 30.0, interval: float = 0.25) -> None:
+    deadline = time.time() + timeout
+    health_url = f"{base_url}/healthz"
+    while time.time() < deadline:
+        try:
+            response = httpx.get(health_url, timeout=2.0)
+            if response.status_code == 200:
+                return
+        except httpx.HTTPError:
+            pass
+        time.sleep(interval)
+    raise RuntimeError(f"Service did not become ready within {timeout}s: {health_url}")
+
+
 @pytest.fixture(scope="session", autouse=True)
 def all_servers():
     start_all_servers()
     start_all_agri_servers()
-    time.sleep(2)
+    # Verify all services are ready (start_all_agri_servers already polls, but belt-and-suspenders)
+    for service_url in (ADVISORY, IRRIGATION, CROP_INTEL, INDICATORS, EQUIPMENT,
+                        TASK, NOTIFICATION, ALERT, SOIL, PEST, AI_ADVISOR, INVENTORY,
+                        USER, FIELD, VEGETATION):
+        _wait_for_service(service_url)
     yield
 
 

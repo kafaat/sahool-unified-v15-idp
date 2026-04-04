@@ -4105,7 +4105,7 @@ services:
       - VEGETATION_SERVICE_URL=http://vegetation-analysis-service:8090
       - NEXT_PUBLIC_APP_VERSION=16.0.0
     ports:
-      - 127.0.0.1:3002:3002
+      - ${ADMIN_BIND_ADDRESS:-127.0.0.1}:3002:3002
     depends_on:
       kong:
         condition: service_healthy

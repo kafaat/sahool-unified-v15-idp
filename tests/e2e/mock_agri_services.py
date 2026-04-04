@@ -569,7 +569,7 @@ def pest_by_crop(crop: str):
 
 @pest_app.post("/v1/pests/identify")
 async def pest_identify(request: Request):
-    body = await request.json()
+    await request.json()  # consume body
     p = random.choice(PESTS)
     return {"pest_id": p["id"], "name": p["name"], "name_ar": p["name_ar"],
             "confidence": round(random.uniform(0.7, 0.95), 2), "quarantine": p["quarantine"]}
@@ -722,12 +722,22 @@ def start_all_agri_servers():
 
     # Wait for readiness
     for name, (_, port) in AGRI_SERVERS.items():
+        ready = False
+        last_error = None
         for _ in range(30):
             try:
                 r = httpx.get(f"http://127.0.0.1:{port}/healthz", timeout=2)
                 if r.status_code == 200:
+                    ready = True
                     break
-            except Exception:
+                last_error = f"unexpected status {r.status_code}"
+            except Exception as exc:
+                last_error = str(exc)
                 time.sleep(0.3)
                 continue
             time.sleep(0.3)
+        if not ready:
+            raise RuntimeError(
+                f"Mock agri service '{name}' on port {port} did not become ready "
+                f"after 30 attempts. Last error: {last_error or 'unknown error'}"
+            )

@@ -291,7 +291,7 @@ class HybridIndexEngine:
         results = []
         for d, obs_list in sorted(by_date.items()):
             # Score each observation
-            best = max(obs_list, key=lambda o: compute_observation_weight(o))
+            best = max(obs_list, key=compute_observation_weight)
             if best.ndvi is None:
                 continue
 

@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 const VEGETATION_SERVICE_URL =
   process.env.VEGETATION_SERVICE_URL || 'http://vegetation-analysis-service:8090';
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
         break;
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status' },
+          { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status, sar-timeseries, cloud-cover, clear-observations' },
           { status: 400 }
         );
     }
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
     if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json({ error: 'Satellite service timeout. Please retry.' }, { status: 504 });
     }
-    console.error('Satellite API proxy error:', error);
+    logger.error('Satellite API proxy error:', error);
     return NextResponse.json({ error: 'Failed to fetch satellite data' }, { status: 502 });
   }
 }
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json({ error: 'Satellite analysis timeout. Please retry.' }, { status: 504 });
     }
-    console.error('Satellite analyze proxy error:', error);
+    logger.error('Satellite analyze proxy error:', error);
     return NextResponse.json({ error: 'Failed to analyze satellite data' }, { status: 502 });
   }
 }

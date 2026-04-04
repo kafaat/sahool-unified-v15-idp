@@ -42,3 +42,6 @@ de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secr
 de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:474
 de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:483
 de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secret:568
+
+# E2E agri services test — test-only password "Pass123!" in mock registration call
+369a00d690988c2c49428022e7cb387438951f1a:tests/e2e/test_e2e_agri_services.py:generic-secret:60

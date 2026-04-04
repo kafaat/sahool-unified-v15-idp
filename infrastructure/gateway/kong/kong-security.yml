@@ -102,8 +102,11 @@ plugins:
 
   # --------------------------------------------------------------------------
   # Request Transformer - Strip headers that could be used to spoof identity.
-  # X-Tenant-Id is re-injected by the tenant-validation post-function below
-  # after verifying it against the JWT tid claim.
+  # NOTE: X-Tenant-Id / X-Tenant-ID are NOT removed here.  They are read by
+  # the tenant-validation post-function first (to detect spoofing), then
+  # cleared and replaced with the value from the JWT tid claim.  Removing them
+  # here (before the post-function runs) would make the mismatch check dead code
+  # because the post-function would always see an empty/missing header.
   # --------------------------------------------------------------------------
   - name: request-transformer
     enabled: true
@@ -113,10 +116,6 @@ plugins:
           - "X-Forwarded-Host"
           - "X-Original-URL"
           - "X-Rewrite-URL"
-          # SECURITY: strip client-supplied X-Tenant-Id to prevent tenant spoofing.
-          # The tenant-validation post-function re-injects it from the JWT tid claim.
-          - "X-Tenant-Id"
-          - "X-Tenant-ID"
       add:
         headers:
           - "X-Request-Start:$msec"
@@ -273,6 +272,11 @@ plugins:
   # MUST be post-function so it executes AFTER the jwt plugin has populated
   # kong.ctx.shared.jwt.  Using pre-function here was a silent bug — jwt.claims
   # is always nil before the jwt plugin runs (priority 1005 vs pre-function 1000000).
+  #
+  # The X-Tenant-Id header is intentionally NOT stripped by request-transformer.
+  # This function reads the client-supplied value, validates it against the JWT
+  # tid claim, then unconditionally overwrites the header with the JWT tid so
+  # downstream services receive only a verified, trusted value.
   # --------------------------------------------------------------------------
   - name: post-function
     enabled: true
@@ -281,9 +285,11 @@ plugins:
         - |
           -- ==============================================================
           -- Tenant ID Validation
-          -- Verifies that the X-Tenant-Id header (if present) matches the
-          -- tid claim in the authenticated JWT.  If no header was sent but
-          -- the JWT contains a tid, inject the header for downstream services.
+          -- 1. Read client-supplied X-Tenant-Id header (before clearing it).
+          -- 2. If a JWT tid exists AND the client sent a non-empty header,
+          --    reject requests where the two values differ.
+          -- 3. Unconditionally overwrite X-Tenant-Id with the JWT tid so
+          --    downstream services always receive a verified value.
           -- ==============================================================
           local jwt = kong.ctx.shared.jwt
           if not (jwt and jwt.claims) then return end
@@ -291,6 +297,7 @@ plugins:
           local jwt_tid    = jwt.claims.tid
           local header_tid = kong.request.get_header("X-Tenant-Id")
 
+          -- Validate: reject if client-supplied header contradicts the JWT.
           if jwt_tid and header_tid and header_tid ~= "" then
             if jwt_tid ~= header_tid then
               kong.log.warn(
@@ -304,9 +311,14 @@ plugins:
                 code     = "TENANT_ID_MISMATCH",
               })
             end
-          elseif jwt_tid and (not header_tid or header_tid == "") then
-            -- Inject tid from JWT so downstream services always have it.
+          end
+
+          -- Always set/overwrite with the JWT tid to give downstream a clean, trusted value.
+          if jwt_tid then
             kong.service.request.set_header("X-Tenant-Id", jwt_tid)
+          else
+            -- No tid in JWT — remove any client-supplied header to prevent spoofing.
+            kong.service.request.clear_header("X-Tenant-Id")
           end
 
   # --------------------------------------------------------------------------
@@ -376,9 +388,11 @@ services:
 
   # --------------------------------------------------------------------------
   # Metrics / Prometheus endpoint (proxied from Kong admin port — not proxy port).
+  # url uses the base admin host WITHOUT a path suffix to avoid URL duplication.
+  # With strip_path: false, a request to /metrics is forwarded as /metrics (not /metrics/metrics).
   # --------------------------------------------------------------------------
   - name: metrics-protected
-    url: http://kong:8001/metrics
+    url: http://kong:8001
     routes:
       - name: metrics-route
         paths:

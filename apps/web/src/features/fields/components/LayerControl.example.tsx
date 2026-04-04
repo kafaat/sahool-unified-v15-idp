@@ -334,7 +334,7 @@ export default function LayerControlDemo() {
     { name: 'Without Persistence', component: LayerControlWithoutPersistence },
   ];
 
-  const example = examples[activeExample] ?? examples[0];
+  const example = (examples[activeExample] ?? examples[0])!;
   const ActiveComponent = example.component;
 
   return (

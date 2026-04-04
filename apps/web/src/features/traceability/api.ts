@@ -7,9 +7,6 @@ import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
 import { TRACEABILITY_ENDPOINTS } from '@sahool/shared-types/contracts';
 
-// traceability-service:8123
-const BASE = '/api/v1/traceability';
-
 const api = createApiClient();
 
 // ═══════════════════════════════════════════════════════════════════════════

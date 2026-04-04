@@ -396,7 +396,7 @@ class A2AClient:
             if self._auth_token:
                 ws_headers["Authorization"] = f"Bearer {self._auth_token}"
 
-            async with websockets.connect(ws_url, additional_headers=ws_headers) as websocket:
+            async with websockets.connect(ws_url, extra_headers=ws_headers) as websocket:
                 # Send task
                 # إرسال المهمة
                 await websocket.send(task.model_dump_json())

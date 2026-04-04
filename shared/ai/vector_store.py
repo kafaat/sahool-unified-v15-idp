@@ -1494,6 +1494,11 @@ class VectorStore:
         # This ensures one tenant cannot read another tenant's embeddings.
         if tenant_id:
             filter = dict(filter) if filter else {}
+            # Detect conflicting tenant_id — caller bug, not silent override
+            if "tenant_id" in filter and filter["tenant_id"] != tenant_id:
+                raise ValueError(
+                    "Conflicting tenant_id values in filter and parameter"
+                )
             filter["tenant_id"] = tenant_id
 
         # Get query vector

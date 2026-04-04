@@ -267,7 +267,9 @@ class FileValidator:
 
         try:
             with zipfile.ZipFile(io.BytesIO(file_content)) as zf:
-                total_uncompressed = sum(info.file_size for info in zf.infolist())
+                # Cache infolist once — avoid double traversal on large central directories
+                infos = zf.infolist()
+                total_uncompressed = sum(info.file_size for info in infos)
                 compressed_size = len(file_content)
 
                 if total_uncompressed > max_uncompressed_bytes:
@@ -285,7 +287,7 @@ class FileValidator:
                     )
 
                 # Check for nested ZIP files (recursive bomb)
-                for info in zf.infolist():
+                for info in infos:
                     if info.filename.lower().endswith(".zip"):
                         raise FileValidationError(
                             "ملف ZIP متداخل غير مسموح / Nested ZIP files not allowed",

@@ -320,7 +320,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(
                     </label>
                     <select
                       value={filters.category || ''}
-                      onChange={(e) => handleFilterChange('category', e.target.value || undefined)}
+                      onChange={(e) => handleFilterChange('category', (e.target.value || undefined) as ObservationCategory | undefined)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent"
                     >
                       <option value="">{isArabic ? 'الكل' : 'All'}</option>

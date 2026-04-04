@@ -3108,11 +3108,11 @@ plugins:
         - "https://api.sahool.com"
         - "https://dashboard.sahool.com"
         - "https://mobile.sahool.com"
-        # Development — remove or gate with ENVIRONMENT check in production
-        - "http://localhost:3000"
-        - "http://localhost:3001"
-        - "http://localhost:5173"
-        - "http://localhost:8080"
+        # localhost origins are intentionally omitted from this file.
+        # Use a separate development-only Kong config or override KONG_CORS_ORIGINS
+        # in your local docker-compose to add localhost entries for local testing.
+        # Adding localhost here with credentials:true would allow any page running
+        # on a developer machine to make credentialed cross-origin requests to the API.
       methods:
         - GET
         - POST

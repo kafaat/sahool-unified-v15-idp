@@ -186,6 +186,11 @@ plugins:
 
           local function reject_malicious(source, key)
             kong.log.warn("Malicious input detected in ", source, ": ", key)
+            -- Populate shared context so the http-log audit plugin records the
+            -- correct event type instead of always logging security_event: normal.
+            kong.ctx.shared.security_event        = "malicious_input_blocked"
+            kong.ctx.shared.security_event_source = source
+            kong.ctx.shared.security_event_key    = key
             return kong.response.exit(400, {
               error     = "Bad request - potentially malicious input detected",
               error_ar  = "طلب غير صالح - تم اكتشاف مدخلات ضارة محتملة",
@@ -311,7 +316,13 @@ plugins:
           --    downstream services always receive a verified value.
           -- ==============================================================
           local jwt = kong.ctx.shared.jwt
-          if not (jwt and jwt.claims) then return end
+          if not (jwt and jwt.claims) then
+            -- No JWT present (e.g. unauthenticated route or jwt plugin not applied).
+            -- Clear any client-supplied X-Tenant-Id to prevent spoofing through
+            -- routes that don't enforce JWT authentication.
+            kong.service.request.clear_header("X-Tenant-Id")
+            return
+          end
 
           local jwt_tid    = jwt.claims.tid
           local header_tid = kong.request.get_header("X-Tenant-Id")
@@ -356,7 +367,9 @@ plugins:
       retry_count: 3
       content_type: application/json
       custom_fields_by_lua:
-        security_event: "return kong.ctx.shared.security_event or 'normal'"
+        security_event:        "return kong.ctx.shared.security_event or 'normal'"
+        security_event_source: "return kong.ctx.shared.security_event_source or nil"
+        security_event_key:    "return kong.ctx.shared.security_event_key or nil"
 
   # --------------------------------------------------------------------------
   # File Audit Log Backup (global)
@@ -368,7 +381,10 @@ plugins:
       reopen: true
 
 # ==============================================================================
-# Admin & Metrics Routes (real backends — not self-referential)
+# Admin & Metrics Routes
+# These services proxy requests to Kong's own admin port (127.0.0.1:8001 /
+# kong:8001), NOT the public proxy port (8000).  Operators: access via
+# /admin or /metrics goes to the Kong Admin API, not through the proxy layer.
 # ==============================================================================
 
 services:

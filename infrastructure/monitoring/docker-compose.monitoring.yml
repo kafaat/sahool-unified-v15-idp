@@ -20,7 +20,7 @@ services:
     image: prom/prometheus:v2.48.0
     container_name: sahool-monitoring-prometheus
     restart: unless-stopped
-    user: root
+    user: "65534"  # nobody — unprivileged user
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -68,7 +68,7 @@ services:
     image: grafana/grafana:10.2.0
     container_name: sahool-monitoring-grafana
     restart: unless-stopped
-    user: root
+    user: "472"  # grafana built-in unprivileged user
     ports:
       - "3002:3000"
     volumes:
@@ -142,7 +142,7 @@ services:
     image: prom/alertmanager:v0.26.0
     container_name: sahool-monitoring-alertmanager
     restart: unless-stopped
-    user: root
+    user: "65534"  # nobody — unprivileged user
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'

@@ -43,8 +43,20 @@ spec:
         app.kubernetes.io/name: {{ include "sahool.name" . }}
         app.kubernetes.io/component: nats
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: nats
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           image: "{{ .Values.infrastructure.nats.image.repository }}:{{ .Values.infrastructure.nats.image.tag }}"
           imagePullPolicy: IfNotPresent
           command:

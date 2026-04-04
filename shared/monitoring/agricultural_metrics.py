@@ -155,10 +155,13 @@ class AgriculturalMetrics:
             registry=self.registry,
         )
 
+        # NOTE: field_id removed from labels to prevent high-cardinality explosion.
+        # 10,000 fields × multiple metrics = 100,000+ time series → Prometheus OOM.
+        # Use region/crop_type for aggregation; field-level data goes to the database.
         self._metrics["ndvi_last_update"] = Gauge(
             "sahool_ndvi_last_update_timestamp_seconds",
             "Timestamp of last NDVI update | وقت آخر تحديث NDVI",
-            ["field_id"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -241,7 +244,7 @@ class AgriculturalMetrics:
         self._metrics["irrigation_water_volume_liters"] = Counter(
             "sahool_irrigation_water_volume_liters_total",
             "Total water volume used in liters | إجمالي حجم المياه المستخدمة باللتر",
-            ["tenant_id", "field_id"],
+            ["tenant_id", "irrigation_type"],
             registry=self.registry,
         )
 
@@ -255,14 +258,14 @@ class AgriculturalMetrics:
         self._metrics["soil_moisture_percent"] = Gauge(
             "sahool_soil_moisture_percent",
             "Current soil moisture percentage | نسبة رطوبة التربة الحالية",
-            ["field_id", "depth_cm"],
+            ["region", "depth_cm"],
             registry=self.registry,
         )
 
         self._metrics["water_stress_index"] = Gauge(
             "sahool_water_stress_index",
             "Water stress index (0-1) | مؤشر الإجهاد المائي",
-            ["field_id", "crop_type"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -271,7 +274,7 @@ class AgriculturalMetrics:
         self._metrics["crop_health_score"] = Gauge(
             "sahool_crop_health_score",
             "Crop health score (0-100) | درجة صحة المحصول",
-            ["field_id", "crop_type"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -504,7 +507,8 @@ class AgriculturalMetrics:
         ).observe(ndvi_value)
 
         self._metrics["ndvi_last_update"].labels(
-            field_id=field_id,
+            region=region,
+            crop_type=crop_type,
         ).set(time.time())
 
     def record_weather_update(
@@ -599,7 +603,7 @@ class AgriculturalMetrics:
 
         self._metrics["irrigation_water_volume_liters"].labels(
             tenant_id=tenant_id,
-            field_id=field_id,
+            irrigation_type=irrigation_type,
         ).inc(water_volume_liters)
 
     def record_yield_prediction(
@@ -672,13 +676,14 @@ class AgriculturalMetrics:
         field_id: str,
         crop_type: str,
         score: float,
+        region: str = "unknown",
     ) -> None:
         """Set the crop health score for a field."""
         if not PROMETHEUS_AVAILABLE:
             return
 
         self._metrics["crop_health_score"].labels(
-            field_id=field_id,
+            region=region,
             crop_type=crop_type,
         ).set(score)
 
@@ -687,13 +692,14 @@ class AgriculturalMetrics:
         field_id: str,
         moisture_percent: float,
         depth_cm: str = "30",
+        region: str = "unknown",
     ) -> None:
         """Set soil moisture reading."""
         if not PROMETHEUS_AVAILABLE:
             return
 
         self._metrics["soil_moisture_percent"].labels(
-            field_id=field_id,
+            region=region,
             depth_cm=depth_cm,
         ).set(moisture_percent)
 

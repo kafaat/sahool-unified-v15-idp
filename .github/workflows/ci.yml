@@ -359,10 +359,9 @@ jobs:
           # Minimum coverage threshold - enforced to maintain code quality
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
-          # Target: 60% (pyproject.toml) - incrementally raising from baseline
-          # Raised from 1% to 5% as baseline enforcement (March 2026)
-          # Previous: 1% after coverage scope expanded from shared/ai to shared+apps/services
-          MIN_COVERAGE=5
+          # Target: 60% (pyproject.toml) — raised from 5% as part of v16.1 hardening
+          # History: 1% → 5% (March 2026) → 30% (April 2026 v16.1)
+          MIN_COVERAGE=30
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "

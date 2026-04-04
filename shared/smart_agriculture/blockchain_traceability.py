@@ -142,7 +142,8 @@ class BlockchainTraceability:
                        are scoped to this tenant. | معرف المستأجر
         """
         self.chain_id = chain_id
-        self.tenant_id = tenant_id
+        # Normalize falsy tenant_id to None so the guard uses truthiness safely
+        self.tenant_id = tenant_id if tenant_id else None
         self._batches: dict[str, TraceabilityReport] = {}
         self._blockchain: dict[str, list[BlockchainRecord]] = {}
         self._genesis_hash = self._create_genesis_block()

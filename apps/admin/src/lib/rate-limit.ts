@@ -4,6 +4,11 @@
  *
  * In-memory sliding-window rate limiter for Next.js API routes.
  * Protects admin API routes from abuse.
+ *
+ * TODO: This in-memory store resets on process restart and is not shared across
+ * multiple server instances. For production deployments, migrate to a
+ * Redis-backed sliding window (e.g. using REDIS_URL) to ensure rate limits are
+ * enforced globally. See shared/cache/ for Redis Sentinel HA utilities.
  */
 
 import { NextResponse } from 'next/server';

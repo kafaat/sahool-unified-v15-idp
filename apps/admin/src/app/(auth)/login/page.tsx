@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth.store';
 import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from 'lucide-react';
+import { validators } from '@/lib/validation';
 
 function LoginForm() {
   const router = useRouter();
@@ -34,7 +35,7 @@ function LoginForm() {
 
   const validateEmail = (value: string): string => {
     if (!value.trim()) return 'البريد الإلكتروني مطلوب';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'صيغة البريد الإلكتروني غير صحيحة';
+    if (!validators.email(value)) return 'صيغة البريد الإلكتروني غير صحيحة';
     return '';
   };
 

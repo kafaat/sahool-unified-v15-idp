@@ -122,41 +122,9 @@ async function fetchWeatherForecast(
 
     return conditions;
   } catch (error) {
-    logger.warn('Failed to fetch weather forecast, using mock data:', error);
-    return generateMockWeatherConditions(days);
+    logger.error('Failed to fetch weather forecast:', error);
+    throw new Error(ERROR_MESSAGES.WEATHER_DATA_UNAVAILABLE.en);
   }
-}
-
-/**
- * Generate mock weather conditions for testing
- */
-function generateMockWeatherConditions(days: number): WeatherCondition[] {
-  const conditions: WeatherCondition[] = [];
-  const now = new Date();
-
-  for (let day = 0; day < days; day++) {
-    for (const hour of [6, 9, 12, 15, 18]) {
-      const timestamp = new Date(now);
-      timestamp.setDate(timestamp.getDate() + day);
-      timestamp.setHours(hour, 0, 0, 0);
-
-      conditions.push({
-        timestamp: timestamp.toISOString(),
-        temperature: 20 + Math.random() * 15,
-        humidity: 50 + Math.random() * 30,
-        windSpeed: 5 + Math.random() * 15,
-        windDirection:
-          (['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'] as const)[Math.floor(Math.random() * 8)] ??
-          'N',
-        rainProbability: Math.random() * 30,
-        precipitation: Math.random() < 0.2 ? Math.random() * 5 : 0,
-        cloudCover: Math.random() * 100,
-        uvIndex: hour >= 10 && hour <= 16 ? 5 + Math.random() * 5 : 2,
-      });
-    }
-  }
-
-  return conditions;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -300,14 +268,32 @@ export async function getIrrigationWindows(
     // Fetch weather forecast
     const conditions = await fetchWeatherForecast(fieldId, days);
 
-    // Mock soil moisture data (in production, fetch from sensors)
-    const soilMoisture = {
-      current: 45, // %
-      target: 70, // %
-      fieldCapacity: 85, // %
-      wiltingPoint: 15, // %
+    // Fetch soil moisture data from sensors API
+    let soilMoisture = {
+      current: 45,
+      target: 70,
+      fieldCapacity: 85,
+      wiltingPoint: 15,
       timestamp: new Date().toISOString(),
     };
+
+    try {
+      const soilResponse = await api.get(`${API_PREFIX}/iot/soil-moisture`, {
+        params: { fieldId },
+      });
+      const soilData = soilResponse.data.data || soilResponse.data;
+      if (soilData) {
+        soilMoisture = {
+          current: soilData.current ?? soilData.soil_moisture_pct ?? soilMoisture.current,
+          target: soilData.target ?? soilData.target_moisture_pct ?? soilMoisture.target,
+          fieldCapacity: soilData.fieldCapacity ?? soilData.field_capacity_pct ?? soilMoisture.fieldCapacity,
+          wiltingPoint: soilData.wiltingPoint ?? soilData.wilting_point_pct ?? soilMoisture.wiltingPoint,
+          timestamp: soilData.timestamp ?? new Date().toISOString(),
+        };
+      }
+    } catch {
+      logger.warn('Soil moisture API unavailable, using field defaults for irrigation calculation');
+    }
 
     // Calculate irrigation need
     const irrigationNeed = calculateIrrigationNeed(

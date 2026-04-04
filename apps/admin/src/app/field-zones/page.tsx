@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 /**
@@ -282,14 +281,9 @@ function computeHeterogeneity(zones: FieldZone[]): number {
 // ---------------------------------------------------------------------------
 
 export default function FieldZonesPage() {
-  const [selectedFieldId, setSelectedFieldId] = useState<string>(FIELDS[0].id);
+  const [selectedFieldId, setSelectedFieldId] = useState<string>(FIELDS[0]!.id);
   const [strategy, setStrategy] = useState<ZoneStrategy>('ndvi');
   const [expandedZoneId, setExpandedZoneId] = useState<string | null>(null);
-
-  const _selectedField = useMemo(
-    () => FIELDS.find((f) => f.id === selectedFieldId) ?? FIELDS[0],
-    [selectedFieldId],
-  );
 
   const zones = useMemo(() => MOCK_ZONES[selectedFieldId] ?? [], [selectedFieldId]);
 

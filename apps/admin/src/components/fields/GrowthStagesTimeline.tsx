@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 // Growth Stages Timeline — مراحل النمو
 // Visual horizontal timeline showing crop growth stages with dates and NDVI targets
@@ -465,9 +464,9 @@ function getNdviStatus(
 function getActiveStageIndex(stages: GrowthStage[], currentDay?: number): number {
   if (currentDay === undefined) return -1;
   for (let i = 0; i < stages.length; i++) {
-    if (currentDay >= stages[i]?.startDay && currentDay <= stages[i]?.endDay) return i;
+    if (currentDay >= stages[i]!.startDay && currentDay <= stages[i]!.endDay) return i;
   }
-  if (currentDay > stages[stages.length - 1].endDay) return stages.length - 1;
+  if (stages.length > 0 && currentDay > stages[stages.length - 1]!.endDay) return stages.length - 1;
   return -1;
 }
 
@@ -574,9 +573,9 @@ export default function GrowthStagesTimeline({
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
 
   const stages = useMemo(() => CROP_STAGES[cropType] ?? WHEAT_STAGES, [cropType]);
-  const cropLabel = CROP_LABELS[cropType] ?? CROP_LABELS.wheat;
+  const cropLabel = CROP_LABELS[cropType] ?? CROP_LABELS['wheat']!;
   const activeIndex = useMemo(() => getActiveStageIndex(stages, currentDay), [stages, currentDay]);
-  const totalDays = stages[stages.length - 1].endDay;
+  const totalDays = stages.length > 0 ? stages[stages.length - 1]!.endDay : 150;
 
   const activeStage = activeIndex >= 0 ? stages[activeIndex] : null;
   const ndviStatus = activeStage ? getNdviStatus(currentNdvi, activeStage.ndviTarget) : null;
@@ -684,7 +683,6 @@ export default function GrowthStagesTimeline({
               {stages.map((stage, i) => {
                 const isActive = i === activeIndex;
                 const isCompleted = activeIndex >= 0 && i < activeIndex;
-                const _midPct = ((stage.startDay + stage.endDay) / 2 / totalDays) * 100;
 
                 return (
                   <div

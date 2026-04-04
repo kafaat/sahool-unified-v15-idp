@@ -8,6 +8,7 @@ import { Header } from '@/components/layouts/header';
 import { useAuth } from '@/stores/auth.store';
 import { Loading } from '@/components/ui/loading';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import CommandPalette from '@/components/common/CommandPalette';
 
 /**
  * QueryClientProvider is scoped to the dashboard route group so that auth
@@ -17,6 +18,7 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, isLoading, checkAuth } = useAuth();
+  const [commandPaletteOpen, setCommandPaletteOpen] = React.useState(false);
 
   const [queryClient] = React.useState(
     () =>
@@ -32,6 +34,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         },
       })
   );
+
+  // Global Ctrl+K / Cmd+K shortcut to open command palette
+  React.useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        // Don't trigger inside editable fields
+        const tag = (e.target as HTMLElement)?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   React.useEffect(() => {
     checkAuth();
@@ -82,6 +99,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </main>
         </div>
       </div>
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+      />
     </QueryClientProvider>
   );
 }

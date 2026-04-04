@@ -3,6 +3,13 @@
  * Prevents brute-force attacks on authentication endpoints
  *
  * معالج الحد من المحاولات لمنع هجمات القوة الغاشمة
+ *
+ * TODO: This rate limiter uses an in-memory Map, which does NOT persist across
+ * server restarts and does NOT share state across multiple Node.js processes or
+ * serverless function instances. In production, replace with a Redis-backed
+ * implementation (e.g. using REDIS_URL from env) to ensure rate limits are
+ * enforced consistently across all instances. See shared/cache/ for Redis
+ * Sentinel HA utilities.
  */
 
 interface RateLimitEntry {

@@ -35,6 +35,16 @@ from ..audit import get_audit_logger
 from ..circuit_breaker import get_circuit_breaker
 from ..llm_provider import LLMProviderManager, get_llm_manager
 
+# Tool Guard integration — enforce allowlist/blocklist before tool execution
+try:
+    from ..guardrails.tool_guard import GuardDecision, ToolCallContext, ToolGuard
+
+    _tool_guard = ToolGuard()
+    _HAS_TOOL_GUARD = True
+except ImportError:
+    _HAS_TOOL_GUARD = False
+    _tool_guard = None
+
 logger = structlog.get_logger()
 
 
@@ -753,8 +763,31 @@ class BaseAutonomousAgent(ABC):
         tool: AgentTool,
         inputs: dict[str, Any],
     ) -> ToolResult:
-        """Execute a tool with error handling."""
+        """Execute a tool with guard checks and error handling."""
         start_time = datetime.now(UTC)
+
+        # SECURITY: Run tool call through ToolGuard before execution
+        if _HAS_TOOL_GUARD and _tool_guard is not None:
+            context = ToolCallContext(
+                tool=tool.name,
+                args=inputs,
+                agent_id=getattr(self, "agent_id", None),
+            )
+            decision = _tool_guard.check(context)
+            if not decision.allowed:
+                logger.warning(
+                    "tool_guard_blocked",
+                    tool=tool.name,
+                    reason=decision.reason,
+                    layer=decision.layer,
+                )
+                return ToolResult(
+                    tool_name=tool.name,
+                    success=False,
+                    result=None,
+                    error=f"Tool blocked by guard: {decision.reason}",
+                    execution_time_ms=0,
+                )
 
         try:
             # Use circuit breaker for resilience

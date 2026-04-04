@@ -14,7 +14,13 @@ import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from 'lucide-react';
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo') || '/dashboard';
+
+  // Validate returnTo to prevent open redirect attacks.
+  // Only allow relative paths starting with '/' and not protocol-relative URLs (//).
+  const rawReturnTo = searchParams.get('returnTo') || '/dashboard';
+  const returnTo =
+    rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//') ? rawReturnTo : '/dashboard';
+
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');

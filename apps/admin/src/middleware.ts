@@ -49,9 +49,22 @@ import {
 // @sentry/nextjs (~300KB). In the edge middleware we only need console output.
 // ---------------------------------------------------------------------------
 const edgeLogger = {
+  /** Security-critical errors — always logged (all environments). */
   error: (...args: unknown[]) => {
+    // Always log in production for security-relevant events (token forgery,
+    // CSRF attacks, etc.).  In development we use console.error so stack
+    // traces show up in the terminal unchanged.
     if (process.env.NODE_ENV === 'development') {
       console.error('[admin-middleware]', ...args);
+    } else {
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          service: 'sahool-admin-middleware',
+          timestamp: new Date().toISOString(),
+          message: args[0] instanceof Error ? args[0].message : String(args[0]),
+        })
+      );
     }
   },
   warn: (...args: unknown[]) => {

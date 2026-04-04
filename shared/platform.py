@@ -372,7 +372,7 @@ class ContextMiddleware(BaseHTTPMiddleware):
                             "verify_signature": False,  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
                             "verify_exp": True,
                         },
-                        algorithms=["HS256", "HS384", "HS512"],
+                        algorithms=["HS256"],  # SECURITY: restrict to HS256 only (matches service_auth.py)
                     )
                 else:
                     secret = os.getenv("JWT_SECRET_KEY")

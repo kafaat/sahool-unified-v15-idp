@@ -340,7 +340,7 @@ class AgentPool:
         # 2. Unwrap functools.partial to check if underlying is async
         # 3. Otherwise → sync callable, run in thread to avoid blocking event loop
         unwrapped = executor
-        while hasattr(unwrapped, 'func'):
+        while hasattr(unwrapped, "func"):
             unwrapped = unwrapped.func  # Unwrap functools.partial
 
         if asyncio.iscoroutinefunction(unwrapped):

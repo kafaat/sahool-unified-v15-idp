@@ -341,15 +341,12 @@ class AgentPool:
         if asyncio.iscoroutinefunction(executor):
             result: TaskResult = await asyncio.wait_for(executor(task), timeout=timeout)
         else:
-            invocation = executor(task)
-            if inspect.isawaitable(invocation):
-                result = await asyncio.wait_for(invocation, timeout=timeout)
+            invocation_result = executor(task)
+            if inspect.isawaitable(invocation_result):
+                result = await asyncio.wait_for(invocation_result, timeout=timeout)
             else:
-                loop = asyncio.get_running_loop()
-                result = await asyncio.wait_for(
-                    loop.run_in_executor(None, executor, task),
-                    timeout=timeout,
-                )
+                # Sync callable already returned a concrete value
+                result = invocation_result  # type: ignore[assignment]
 
         # ── Step 3: Check cancellation after execution ───────────────
         if runner.cancel_event.is_set():

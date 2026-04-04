@@ -190,7 +190,7 @@ export async function GET(request: NextRequest) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return NextResponse.json(
-        { error: 'Vegetation service returned non-JSON response' },
+        { error: 'Vegetation service returned non-JSON response', error_ar: 'خدمة الغطاء النباتي أرجعت استجابة غير JSON' },
         { status: 502 }
       );
     }
@@ -202,7 +202,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Satellite service timeout. Please retry.', error_ar: 'انتهت مهلة خدمة الأقمار الصناعية. يرجى المحاولة مرة أخرى.' }, { status: 504 });
     }
     logger.error('Satellite API proxy error:', error);
-    return NextResponse.json({ error: 'Failed to fetch satellite data' }, { status: 502 });
+    return NextResponse.json({ error: 'Failed to fetch satellite data', error_ar: 'فشل في جلب بيانات الأقمار الصناعية' }, { status: 502 });
   }
 }
 
@@ -222,7 +222,7 @@ export async function POST(request: NextRequest) {
     const { action, fieldId, analysisType } = body;
 
     if (action !== 'analyze') {
-      return NextResponse.json({ error: 'POST only supports analyze action' }, { status: 400 });
+      return NextResponse.json({ error: 'POST only supports analyze action', error_ar: 'POST يدعم فقط إجراء التحليل' }, { status: 400 });
     }
 
     if (!fieldId) {

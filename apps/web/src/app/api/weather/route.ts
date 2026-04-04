@@ -196,13 +196,13 @@ export async function POST(request: NextRequest) {
       data = await response.json();
     } catch {
       logger.error('Failed to parse weather service JSON response');
-      return NextResponse.json({ error: 'Weather service returned invalid JSON' }, { status: 502 });
+      return NextResponse.json({ error: 'Weather service returned invalid JSON', error_ar: 'خدمة الطقس أعادت JSON غير صالح' }, { status: 502 });
     }
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     logger.error('Weather API proxy error:', error);
-    return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 502 });
+    return NextResponse.json({ error: 'Failed to fetch weather data', error_ar: 'فشل في جلب بيانات الطقس' }, { status: 502 });
   }
 }
 

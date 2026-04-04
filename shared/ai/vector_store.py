@@ -1481,9 +1481,11 @@ class VectorStore:
             top_k: Number of results
             filter: Metadata filter
             include_content: Include document content
-            tenant_id: Tenant ID for multi-tenant isolation. When provided,
-                       automatically added to the filter to ensure results
-                       are scoped to the tenant's data only.
+            tenant_id: When provided, scopes the search to this tenant's data
+                by automatically adding it to the metadata filter to ensure
+                results are scoped to the tenant's data only.  All callers
+                that operate on per-tenant data SHOULD supply this parameter
+                to prevent cross-tenant information leakage.
 
         Returns:
             List of SearchResult
@@ -1501,6 +1503,16 @@ class VectorStore:
                     f"filter['tenant_id']={filter['tenant_id']!r}"
                 )
             filter["tenant_id"] = tenant_id
+        elif filter is None:
+            # Warn when tenant_id is absent so callers notice the gap during
+            # development / code review.  This does NOT raise an exception
+            # because some collections (e.g. global knowledge base) are
+            # legitimately shared across all tenants.
+            logger.debug(
+                "VectorStore.search called without tenant_id for collection '%s'. "
+                "Ensure this is intentional (e.g. a shared knowledge collection).",
+                collection,
+            )
 
         # Get query vector
         if vector is None:
@@ -1643,6 +1655,7 @@ async def search_documents(
     collection: str = "default",
     top_k: int = 10,
     filter: dict[str, Any] | None = None,
+    tenant_id: str | None = None,
 ) -> list[SearchResult]:
     """Convenience function to search documents
 
@@ -1654,6 +1667,7 @@ async def search_documents(
         collection=collection,
         top_k=top_k,
         filter=filter,
+        tenant_id=tenant_id,
     )
 
 

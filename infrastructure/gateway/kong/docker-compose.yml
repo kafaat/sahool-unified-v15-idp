@@ -64,13 +64,14 @@ services:
       sahool-net:
     environment:
       # DB-less Configuration - تكوين بدون قاعدة بيانات
-      # IMPORTANT: Use KONG_DECLARATIVE_CONFIG_DIR to load ALL mounted YAML files.
-      # Previously only kong.yml was loaded; upstreams, consumers, security, etc. were ignored.
+      # NOTE: Currently loads only kong.yml (single file mode). The additional
+      # mounted YAML files (upstreams, consumers, security, packages) must be
+      # merged into kong.yml or included via _format_version references.
+      # TODO(kong-upgrade): When upgrading to Kong >= 3.3, switch to:
+      #   KONG_DECLARATIVE_CONFIG_DIR: /etc/kong/conf.d/
+      # and mount each YAML into /etc/kong/conf.d/ for automatic loading.
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
-      # TODO: When upgrading to Kong >= 3.3, switch to loading all configs:
-      # KONG_DECLARATIVE_CONFIG_DIR: /etc/kong/conf.d/
-      # and mount all YAML files into /etc/kong/conf.d/
 
       # Proxy Configuration - تكوين البروكسي
       KONG_PROXY_ACCESS_LOG: /dev/stdout

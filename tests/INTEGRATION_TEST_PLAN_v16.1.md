@@ -127,7 +127,7 @@ VERIFY:
 ```
 TEST: Start billing-core without STRIPE_API_KEY in production
 VERIFY:
-  - ENVIRONMENT=production + no key → critical log warning
+  - ENVIRONMENT=production + no key → RuntimeError at startup (service refuses to start)
   - ENVIRONMENT=development + no key → starts normally
 ```
 

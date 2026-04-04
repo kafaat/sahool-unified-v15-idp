@@ -63,27 +63,29 @@ for file in "${CRITICAL_FILES[@]}"; do
     continue
   fi
 
-  file_clean=true
-  for pattern in "${PLACEHOLDER_PATTERNS[@]}"; do
-    # Search uncommented lines only (ignore lines starting with # or //)
-    # Also ignore shell/Helm variable defaults like ${VAR:-CHANGE_ME_BEFORE_DEPLOY}
-    # — these are safe fallback patterns that only activate when the env var is unset.
-    matches=$(grep -n "${pattern}" "$filepath" 2>/dev/null \
-      | grep -v '^\s*#' \
-      | grep -v '^\s*//' \
-      | grep -v ':-CHANGE_ME' \
-      | grep -v '\${.*CHANGE_ME' \
-      | grep -v '\.template\.' \
-      || true)
-    if [[ -n "$matches" ]]; then
-      echo -e "  ${RED}FAIL${NC} ${file}"
-      echo "$matches" | while IFS= read -r line; do
-        echo -e "        ${RED}→${NC} $line"
-      done
-      file_clean=false
-      EXIT_CODE=1
-    fi
+  # Build combined regex from all patterns to scan each file once (avoids duplicates)
+  file_pattern=""
+  for pat in "${PLACEHOLDER_PATTERNS[@]}"; do
+    file_pattern="${file_pattern:+${file_pattern}|}${pat}"
   done
+
+  file_clean=true
+  # Search uncommented lines only; ignore shell variable defaults like ${VAR:-CHANGE_ME}
+  matches=$(grep -n -E "${file_pattern}" "$filepath" 2>/dev/null \
+    | grep -v '^\s*#' \
+    | grep -v '^\s*//' \
+    | grep -v ':-CHANGE_ME' \
+    | grep -v '\${.*CHANGE_ME' \
+    | grep -v '\.template\.' \
+    || true)
+  if [[ -n "$matches" ]]; then
+    echo -e "  ${RED}FAIL${NC} ${file}"
+    echo "$matches" | while IFS= read -r line; do
+      echo -e "        ${RED}→${NC} $line"
+    done
+    file_clean=false
+    EXIT_CODE=1
+  fi
 
   if [[ "$file_clean" == true ]]; then
     echo -e "  ${GREEN}PASS${NC} ${file}"

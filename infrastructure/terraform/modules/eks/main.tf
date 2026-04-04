@@ -125,6 +125,9 @@ resource "aws_security_group_rule" "cluster_egress_https" {
   description       = "HTTPS outbound (AWS APIs, ECR, S3, external registries)"
 }
 
+# DNS egress — scoped to node SG (in-cluster CoreDNS) + VPC resolver.
+# TODO(security): When var.vpc_cidr is available, restrict cidr_blocks to
+# [var.vpc_cidr] instead of 0.0.0.0/0 to prevent DNS exfiltration.
 resource "aws_security_group_rule" "cluster_egress_dns_tcp" {
   type              = "egress"
   from_port         = 53
@@ -132,7 +135,7 @@ resource "aws_security_group_rule" "cluster_egress_dns_tcp" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.cluster.id
-  description       = "DNS TCP outbound"
+  description       = "DNS TCP outbound (restrict to VPC CIDR when available)"
 }
 
 resource "aws_security_group_rule" "cluster_egress_dns_udp" {
@@ -142,17 +145,27 @@ resource "aws_security_group_rule" "cluster_egress_dns_udp" {
   protocol          = "udp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.cluster.id
-  description       = "DNS UDP outbound"
+  description       = "DNS UDP outbound (restrict to VPC CIDR when available)"
 }
 
-resource "aws_security_group_rule" "cluster_egress_to_nodes" {
+resource "aws_security_group_rule" "cluster_egress_to_nodes_kubelet" {
   type                     = "egress"
-  from_port                = 1025
-  to_port                  = 65535
+  from_port                = 10250
+  to_port                  = 10250
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.nodes.id
   security_group_id        = aws_security_group.cluster.id
-  description              = "Allow control plane to reach worker node kubelets and services"
+  description              = "Allow control plane to reach worker node kubelets"
+}
+
+resource "aws_security_group_rule" "cluster_egress_to_nodes_https" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.nodes.id
+  security_group_id        = aws_security_group.cluster.id
+  description              = "Allow control plane to reach worker node HTTPS services"
 }
 
 resource "aws_security_group_rule" "cluster_ingress_nodes" {

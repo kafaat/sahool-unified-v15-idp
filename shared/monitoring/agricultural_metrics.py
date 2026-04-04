@@ -155,10 +155,13 @@ class AgriculturalMetrics:
             registry=self.registry,
         )
 
+        # NOTE: field_id removed from labels to prevent high-cardinality explosion.
+        # 10,000 fields × multiple metrics = 100,000+ time series → Prometheus OOM.
+        # Use region/crop_type for aggregation; field-level data goes to the database.
         self._metrics["ndvi_last_update"] = Gauge(
             "sahool_ndvi_last_update_timestamp_seconds",
             "Timestamp of last NDVI update | وقت آخر تحديث NDVI",
-            ["field_id"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -241,7 +244,7 @@ class AgriculturalMetrics:
         self._metrics["irrigation_water_volume_liters"] = Counter(
             "sahool_irrigation_water_volume_liters_total",
             "Total water volume used in liters | إجمالي حجم المياه المستخدمة باللتر",
-            ["tenant_id", "field_id"],
+            ["irrigation_type"],
             registry=self.registry,
         )
 
@@ -255,14 +258,14 @@ class AgriculturalMetrics:
         self._metrics["soil_moisture_percent"] = Gauge(
             "sahool_soil_moisture_percent",
             "Current soil moisture percentage | نسبة رطوبة التربة الحالية",
-            ["field_id", "depth_cm"],
+            ["region", "depth_cm"],
             registry=self.registry,
         )
 
         self._metrics["water_stress_index"] = Gauge(
             "sahool_water_stress_index",
             "Water stress index (0-1) | مؤشر الإجهاد المائي",
-            ["field_id", "crop_type"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -271,7 +274,7 @@ class AgriculturalMetrics:
         self._metrics["crop_health_score"] = Gauge(
             "sahool_crop_health_score",
             "Crop health score (0-100) | درجة صحة المحصول",
-            ["field_id", "crop_type"],
+            ["region", "crop_type"],
             registry=self.registry,
         )
 
@@ -482,14 +485,18 @@ class AgriculturalMetrics:
 
     def record_ndvi_calculation(
         self,
-        field_id: str,
         ndvi_value: float,
         crop_type: str = "unknown",
         satellite_source: str = "sentinel-2",
         tenant_id: str = "default",
         region: str = "unknown",
+        field_id: str | None = None,
     ) -> None:
-        """Record an NDVI calculation."""
+        """Record an NDVI calculation.
+
+        The ``field_id`` parameter is deprecated and ignored — metrics
+        are now aggregated by region/crop_type to prevent cardinality explosion.
+        """
         if not PROMETHEUS_AVAILABLE:
             return
 
@@ -504,7 +511,8 @@ class AgriculturalMetrics:
         ).observe(ndvi_value)
 
         self._metrics["ndvi_last_update"].labels(
-            field_id=field_id,
+            region=region,
+            crop_type=crop_type,
         ).set(time.time())
 
     def record_weather_update(
@@ -581,13 +589,18 @@ class AgriculturalMetrics:
 
     def record_irrigation_event(
         self,
-        field_id: str,
         water_volume_liters: float,
         irrigation_type: str = "drip",
         crop_type: str = "unknown",
         tenant_id: str = "default",
+        field_id: str | None = None,
     ) -> None:
-        """Record an irrigation event."""
+        """Record an irrigation event.
+
+        The ``field_id`` parameter is deprecated and ignored.
+        ``tenant_id`` is still used as a label on ``irrigation_events_total``
+        for event counting; water volume is aggregated by ``irrigation_type`` only.
+        """
         if not PROMETHEUS_AVAILABLE:
             return
 
@@ -598,8 +611,7 @@ class AgriculturalMetrics:
         ).inc()
 
         self._metrics["irrigation_water_volume_liters"].labels(
-            tenant_id=tenant_id,
-            field_id=field_id,
+            irrigation_type=irrigation_type,
         ).inc(water_volume_liters)
 
     def record_yield_prediction(
@@ -669,31 +681,41 @@ class AgriculturalMetrics:
 
     def set_crop_health_score(
         self,
-        field_id: str,
-        crop_type: str,
         score: float,
+        crop_type: str = "unknown",
+        region: str = "unknown",
+        field_id: str | None = None,
     ) -> None:
-        """Set the crop health score for a field."""
+        """Set the crop health score aggregated by region and crop type.
+
+        The ``field_id`` parameter is deprecated and ignored — metric
+        labels are now ``region`` and ``crop_type``.
+        """
         if not PROMETHEUS_AVAILABLE:
             return
 
         self._metrics["crop_health_score"].labels(
-            field_id=field_id,
+            region=region,
             crop_type=crop_type,
         ).set(score)
 
     def set_soil_moisture(
         self,
-        field_id: str,
         moisture_percent: float,
         depth_cm: str = "30",
+        region: str = "unknown",
+        field_id: str | None = None,
     ) -> None:
-        """Set soil moisture reading."""
+        """Set aggregated soil moisture for a region/depth combination.
+
+        The ``field_id`` parameter is deprecated and ignored — metric
+        labels are now ``region`` and ``depth_cm``.
+        """
         if not PROMETHEUS_AVAILABLE:
             return
 
         self._metrics["soil_moisture_percent"].labels(
-            field_id=field_id,
+            region=region,
             depth_cm=depth_cm,
         ).set(moisture_percent)
 

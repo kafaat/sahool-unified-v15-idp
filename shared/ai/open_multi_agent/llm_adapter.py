@@ -86,10 +86,7 @@ class LLMAdapter(ABC):
         التحقق مما إذا كان المزود الأساسي مفعلاً ويمكن الوصول إليه.
         """
         provider = self._get_provider()
-        for cfg in self._manager.configs:
-            if cfg.provider == provider and cfg.enabled:
-                return True
-        return False
+        return any(cfg.provider == provider and cfg.enabled for cfg in self._manager.configs)
 
     async def prompt(self, text: str, **kwargs: Any) -> str:
         """

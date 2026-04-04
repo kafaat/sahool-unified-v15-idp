@@ -256,7 +256,7 @@ export default function FieldPrepPage() {
   );
 
   const totalCost = useMemo(
-    () => (field ? totalCostPerHa * (field?.area ?? 0) : totalCostPerHa),
+    () => (field ? totalCostPerHa * field.areaHa : totalCostPerHa),
     [totalCostPerHa, field]
   );
 

@@ -99,8 +99,13 @@ if [[ "${1:-}" == "--strict" ]]; then
   echo "Strict mode: scanning entire repository for CHANGE_ME_BEFORE_DEPLOY..."
   echo ""
 
-  # Exclude example/template files, docs, and test fixtures via grep options below
-  hits=$(grep -rn "CHANGE_ME_BEFORE_DEPLOY" "${REPO_ROOT}" \
+  # Build a combined pattern from all PLACEHOLDER_PATTERNS
+  combined_pattern=$(IFS="|"; echo "${PLACEHOLDER_PATTERNS[*]}")
+
+  # Exclude example/template files, docs, and test fixtures.
+  # Helm templates/ are excluded (placeholders replaced at helm install time)
+  # but helm values files ARE scanned.
+  hits=$(grep -rn -E "${combined_pattern}" "${REPO_ROOT}" \
     --exclude="*.example" \
     --exclude=".env.example" \
     --exclude="env.example" \
@@ -115,7 +120,10 @@ if [[ "${1:-}" == "--strict" ]]; then
     --exclude-dir=".git" \
     --exclude-dir="archive" \
     --exclude-dir="tests" \
-    --exclude-dir="helm" \
+    --exclude-dir="test" \
+    --exclude-dir="templates" \
+    --exclude=".gitleaks.toml" \
+    --exclude="*.tfvars" \
     2>/dev/null \
     | grep -v '^\s*#' \
     | grep -v '^\s*//' \

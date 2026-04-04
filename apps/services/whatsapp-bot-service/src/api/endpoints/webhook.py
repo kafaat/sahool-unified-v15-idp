@@ -40,8 +40,11 @@ def _verify_whatsapp_signature(payload: bytes, signature: str | None) -> bool:
     if not settings.whatsapp_app_secret:
         # Fail-closed: reject all webhooks if app secret is not configured
         logger.error(
-            "whatsapp_app_secret not configured — rejecting webhook. "
-            "Set WHATSAPP_HMAC_REQUIRED=false to bypass during rollback."
+            "whatsapp_app_secret_missing",
+            hmac_required=True,
+            webhook_rejected=True,
+            rollback_bypass_env="WHATSAPP_HMAC_REQUIRED",
+            rollback_bypass_value="false",
         )
         return False
 

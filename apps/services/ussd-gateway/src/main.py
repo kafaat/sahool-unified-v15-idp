@@ -72,9 +72,11 @@ def _verify_telecom_callback(request: Request, body: bytes) -> bool:
     # Layer 1: IP whitelist
     ip_ok = True
     if USSD_PROVIDER_NETWORKS:
-        client_ip_str = request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or (
-            request.client.host if request.client else ""
-        )
+        # Use the immediate peer address as the source of truth. If the service
+        # is deployed behind a trusted proxy, proxy header handling must be
+        # configured at the ASGI/server layer so request.client.host is safely
+        # normalized before reaching this code.
+        client_ip_str = request.client.host if request.client else ""
         try:
             client_ip = ipaddress.ip_address(client_ip_str)
             ip_ok = any(client_ip in network for network in USSD_PROVIDER_NETWORKS)

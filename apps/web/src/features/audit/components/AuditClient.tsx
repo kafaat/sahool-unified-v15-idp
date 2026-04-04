@@ -281,7 +281,7 @@ export default function AuditClient() {
             <div>
               <div className="text-sm text-gray-500">آخر نشاط</div>
               <div className="text-sm font-bold text-purple-600">
-                {new Date(mockAuditLog[0].timestamp).toLocaleTimeString('ar-SA')}
+                {new Date(mockAuditLog[0]!.timestamp).toLocaleTimeString('ar-SA')}
               </div>
             </div>
           </div>

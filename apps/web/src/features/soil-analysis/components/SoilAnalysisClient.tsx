@@ -166,7 +166,7 @@ function getNutrientBarColor(nutrient: Nutrient): string {
 // ---------------------------------------------------------------------------
 
 export default function SoilAnalysisClient() {
-  const [selectedFieldId, setSelectedFieldId] = useState(FIELDS[0].id);
+  const [selectedFieldId, setSelectedFieldId] = useState(FIELDS[0]!.id);
   const [showAllNutrients, setShowAllNutrients] = useState(false);
 
   const sample = useMemo(() => MOCK_SAMPLES[selectedFieldId] ?? null, [selectedFieldId]);

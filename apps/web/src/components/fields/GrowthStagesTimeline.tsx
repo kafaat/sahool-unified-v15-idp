@@ -143,9 +143,9 @@ function getNdviStatus(actual: number | undefined, target: number) {
 function getActiveStageIndex(stages: GrowthStage[], currentDay?: number): number {
   if (currentDay === undefined) return -1;
   for (let i = 0; i < stages.length; i++) {
-    if (currentDay >= stages[i].startDay && currentDay <= stages[i].endDay) return i;
+    if (currentDay >= stages[i]!.startDay && currentDay <= stages[i]!.endDay) return i;
   }
-  if (stages.length > 0 && currentDay > stages[stages.length - 1].endDay) return stages.length - 1;
+  if (stages.length > 0 && currentDay > stages[stages.length - 1]!.endDay) return stages.length - 1;
   return -1;
 }
 

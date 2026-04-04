@@ -159,7 +159,7 @@ function computeCV(zones: FieldZone[]): number {
 // ---------------------------------------------------------------------------
 
 export default function FieldZonesClient() {
-  const [selectedFieldId, setSelectedFieldId] = useState(FIELDS[0].id);
+  const [selectedFieldId, setSelectedFieldId] = useState(FIELDS[0]!.id);
   const [strategy, setStrategy] = useState<ZoneStrategy>('ndvi');
   const [expandedZoneId, setExpandedZoneId] = useState<string | null>(null);
 

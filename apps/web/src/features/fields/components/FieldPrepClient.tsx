@@ -145,7 +145,7 @@ export default function FieldPrepClient() {
   const [steps, setSteps] = useState<PrepStep[]>(INITIAL_STEPS);
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set([4]));
 
-  const field = useMemo(() => FIELDS.find((f) => f.id === selectedField) ?? FIELDS[0], [selectedField]);
+  const field = useMemo(() => (FIELDS.find((f) => f.id === selectedField) ?? FIELDS[0])!, [selectedField]);
   const completedCount = useMemo(() => steps.filter((s) => s.status === 'completed').length, [steps]);
   const progressPercent = useMemo(() => Math.round((completedCount / steps.length) * 100), [completedCount, steps.length]);
   const totalCostPerHa = useMemo(() => steps.reduce((sum, s) => sum + (s.costSar ?? 0), 0), [steps]);

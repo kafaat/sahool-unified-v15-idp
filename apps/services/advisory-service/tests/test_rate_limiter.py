@@ -4,7 +4,7 @@ Tests for Rate Limiter - advisory-service
 
 import asyncio
 import time
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -125,7 +125,12 @@ class TestAdvisoryRateLimiter:
         key = limiter._get_client_key(request, "default")
         assert "jwt_tenant" in key
 
-    def test_client_key_fallback_to_header(self):
+    def test_client_key_fallback_to_anonymous_without_jwt(self):
+        """When no verified JWT tenant is available, use 'anonymous' bucket.
+
+        SECURITY: X-Tenant-ID header is intentionally ignored to prevent
+        attackers from distributing rate-limit counters across fake tenant IDs.
+        """
         limiter = AdvisoryRateLimiter()
         request = MagicMock()
         request.state = MagicMock(spec=[])  # No tenant_id or user attributes
@@ -133,7 +138,9 @@ class TestAdvisoryRateLimiter:
         request.client = MagicMock()
         request.client.host = "127.0.0.1"
         key = limiter._get_client_key(request, "default")
-        assert "header_tenant" in key
+        assert "anonymous" in key
+        assert "header_tenant" not in key
+        assert "127.0.0.1" in key
 
     def test_clean_window(self):
         limiter = AdvisoryRateLimiter()
@@ -147,6 +154,41 @@ class TestAdvisoryRateLimiter:
         tier = RateLimitTier(requests_per_minute=60, requests_per_hour=1000, burst_limit=5)
         # First request should pass
         assert limiter._check_burst("test_key", tier) is True
+
+
+class TestAsyncRateLimiter:
+    """Tests for async rate limiting with Redis fallback."""
+
+    def test_async_check_falls_back_to_memory_without_redis(self):
+        """When no REDIS_URL is set, check_async uses in-memory."""
+        limiter = AdvisoryRateLimiter(redis_url=None)
+        assert limiter._redis_backend is None
+        request = _make_mock_request(tenant_id="t1")
+        allowed, headers = asyncio.run(limiter.check_async(request, "default"))
+        assert allowed is True
+        assert "X-RateLimit-Limit" in headers
+
+    def test_async_check_internal_bypass(self):
+        limiter = AdvisoryRateLimiter()
+        request = _make_mock_request(is_service=True)
+        allowed, headers = asyncio.run(limiter.check_async(request, "default"))
+        assert allowed is True
+        assert headers.get("X-RateLimit-Bypass") == "internal"
+
+    def test_async_check_redis_failure_falls_back(self):
+        """When Redis connection fails, falls back to in-memory."""
+        limiter = AdvisoryRateLimiter(redis_url="redis://nonexistent:6379")
+        # Force the redis backend to fail
+        limiter._redis_backend._initialized = True
+        limiter._redis_backend._redis = None
+        request = _make_mock_request(tenant_id="t1")
+        allowed, headers = asyncio.run(limiter.check_async(request, "default"))
+        assert allowed is True  # Falls back to in-memory which allows first request
+
+    def test_redis_backend_init_without_url(self):
+        """RedisBackend requires a URL."""
+        limiter = AdvisoryRateLimiter()
+        assert limiter._redis_backend is None  # No REDIS_URL env var
 
 
 class TestRateLimitDecorator:

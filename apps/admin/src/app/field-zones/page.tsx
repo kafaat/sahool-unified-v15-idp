@@ -9,6 +9,7 @@
  */
 
 import { useState, useMemo } from 'react';
+import { PageErrorBoundary } from '@/components/common/PageErrorBoundary';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import DataTable from '@/components/ui/DataTable';
@@ -414,6 +415,7 @@ export default function FieldZonesPage() {
   };
 
   return (
+    <PageErrorBoundary pageName="Field Zones" pageNameAr="تقسيم الحقول">
     <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header
         title="تقسيم الحقول — Field Zone Management"
@@ -637,5 +639,6 @@ export default function FieldZonesPage() {
         </div>
       </main>
     </div>
+    </PageErrorBoundary>
   );
 }

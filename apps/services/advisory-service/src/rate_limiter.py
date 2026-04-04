@@ -8,12 +8,15 @@ Features:
 - Different limits for different endpoint types
 - Tenant-based rate limiting
 - Bypass for internal service calls
+- Redis-backed distributed rate limiting with in-memory fallback
 """
 
 from __future__ import annotations
 
 import logging
+import os
 import time
+import uuid
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -75,19 +78,160 @@ TIERS = {
 }
 
 
+class _RedisBackend:
+    """Redis-backed sliding window rate limiter.
+
+    Uses Redis sorted sets for accurate distributed rate limiting
+    across multiple service instances.
+    """
+
+    def __init__(self, redis_url: str):
+        self._redis_url = redis_url
+        self._redis = None
+        self._initialized = False
+
+    async def _ensure_connection(self) -> bool:
+        if self._initialized:
+            return self._redis is not None
+        self._initialized = True
+        try:
+            import redis.asyncio as aioredis
+
+            self._redis = aioredis.from_url(
+                self._redis_url,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5,
+            )
+            await self._redis.ping()
+            logger.info("advisory_rate_limiter_redis_connected")
+            return True
+        except ImportError:
+            logger.warning("redis package not installed, falling back to in-memory")
+            return False
+        except Exception as e:
+            logger.warning("redis_connection_failed: %s", e)
+            self._redis = None
+            return False
+
+    # Lua script for atomic sliding window check.
+    # Avoids race conditions by performing trim + count + conditional add
+    # in a single atomic operation.
+    _SLIDING_WINDOW_LUA = """
+    local key = KEYS[1]
+    local now = tonumber(ARGV[1])
+    local window = tonumber(ARGV[2])
+    local limit = tonumber(ARGV[3])
+    local member = ARGV[4]
+
+    redis.call('ZREMRANGEBYSCORE', key, 0, now - window)
+    local count = redis.call('ZCARD', key)
+
+    if count < limit then
+        redis.call('ZADD', key, now, member)
+        redis.call('EXPIRE', key, window * 2)
+        return count + 1
+    end
+
+    redis.call('EXPIRE', key, window * 2)
+    return -1
+    """
+
+    async def check_window(self, key: str, window_seconds: int, limit: int) -> tuple[bool, int]:
+        """Check sliding window atomically via Lua script. Returns (allowed, current_count)."""
+        if not self._redis:
+            raise RuntimeError("Redis not available")
+        now = time.time()
+        window_key = f"advisory:ratelimit:{key}:{window_seconds}"
+        # Unique member per request to avoid collisions
+        member = f"{now}:{uuid.uuid4().hex[:8]}"
+        try:
+            result = await self._redis.eval(
+                self._SLIDING_WINDOW_LUA,
+                1,
+                window_key,
+                str(now),
+                str(window_seconds),
+                str(limit),
+                member,
+            )
+            if result == -1:
+                return False, limit
+            return True, int(result)
+        except Exception:
+            raise
+
+    _BURST_TOKEN_BUCKET_LUA = """
+    local bucket_key = KEYS[1]
+    local now = tonumber(ARGV[1])
+    local burst_limit = tonumber(ARGV[2])
+    local window = tonumber(ARGV[3])
+    local ttl = tonumber(ARGV[4])
+
+    local tokens = burst_limit
+    local last_update = now
+    local data = redis.call('HGETALL', bucket_key)
+
+    if next(data) ~= nil then
+      for i = 1, #data, 2 do
+        if data[i] == 'tokens' then
+          tokens = tonumber(data[i + 1]) or 0
+        elseif data[i] == 'last_update' then
+          last_update = tonumber(data[i + 1]) or now
+        end
+      end
+
+      local elapsed = now - last_update
+      local refill = math.floor((elapsed / window) * burst_limit)
+      tokens = math.min(burst_limit, tokens + refill)
+    end
+
+    if tokens > 0 then
+      redis.call('HSET', bucket_key, 'tokens', tostring(tokens - 1), 'last_update', tostring(now))
+      redis.call('EXPIRE', bucket_key, ttl)
+      return 1
+    end
+
+    return 0
+    """
+
+    async def check_burst(self, key: str, burst_limit: int, window: float = 5.0) -> bool:
+        """Check burst atomically via Lua token bucket stored in Redis hash."""
+        if not self._redis:
+            raise RuntimeError("Redis not available")
+        bucket_key = f"advisory:ratelimit:burst:{key}"
+        now = time.time()
+        try:
+            result = await self._redis.eval(
+                self._BURST_TOKEN_BUCKET_LUA,
+                1,
+                bucket_key,
+                str(now),
+                str(burst_limit),
+                str(window),
+                str(int(window * 4)),
+            )
+            return bool(int(result))
+        except Exception:
+            raise
+
+
 class AdvisoryRateLimiter:
     """
     Rate limiter with token bucket and sliding window algorithms.
     Tracks requests per client (tenant + IP).
+    Supports Redis backend for distributed deployments with in-memory fallback.
     """
 
-    def __init__(self):
-        # Sliding window for per-minute tracking
+    def __init__(self, redis_url: str | None = None):
+        # In-memory fallback storage
         self._minute_windows: dict[str, list[float]] = defaultdict(list)
-        # Sliding window for per-hour tracking
         self._hour_windows: dict[str, list[float]] = defaultdict(list)
-        # Token bucket for burst protection (5-second window)
         self._burst_tokens: dict[str, tuple[int, float]] = {}
+
+        # Redis backend (optional)
+        url = redis_url or os.getenv("REDIS_URL")
+        self._redis_backend: _RedisBackend | None = _RedisBackend(url) if url else None
 
     def _get_client_key(self, request: Request, tier: str) -> str:
         """Get client identifier from request.
@@ -125,7 +269,7 @@ class AdvisoryRateLimiter:
         return [t for t in window if t > cutoff]
 
     def _check_burst(self, key: str, tier: RateLimitTier) -> bool:
-        """Check token bucket for burst protection."""
+        """Check token bucket for burst protection (in-memory)."""
         now = time.time()
         bucket_window = 5.0  # 5 second window for burst
 
@@ -146,9 +290,91 @@ class AdvisoryRateLimiter:
 
         return False
 
+    async def check_async(self, request: Request, tier: str = "default") -> tuple[bool, dict[str, str]]:
+        """Async check supporting Redis backend with in-memory fallback."""
+        # Bypass for internal service calls
+        if self._is_internal_request(request):
+            return True, {"X-RateLimit-Bypass": "internal"}
+
+        tier_config = TIERS.get(tier, TIERS["default"])
+        key = self._get_client_key(request, tier)
+
+        # Try Redis backend first
+        if self._redis_backend:
+            try:
+                connected = await self._redis_backend._ensure_connection()
+                if connected:
+                    return await self._check_redis(key, tier_config)
+            except Exception as e:
+                logger.warning("redis_rate_limit_fallback: %s", e)
+
+        # Fall back to in-memory
+        return self._check_in_memory(key, tier_config)
+
+    async def _check_redis(self, key: str, tier_config: RateLimitTier) -> tuple[bool, dict[str, str]]:
+        """Check rate limits using Redis backend."""
+        if self._redis_backend is None:
+            raise RuntimeError("Redis backend is not configured for rate limiting")
+
+        # Check burst
+        if not await self._redis_backend.check_burst(key, tier_config.burst_limit):
+            logger.warning("burst_limit_exceeded_redis: %s", key)
+            return False, self._build_headers(key, tier_config, exceeded=True)
+
+        # Check per-minute
+        allowed, count = await self._redis_backend.check_window(key, 60, tier_config.requests_per_minute)
+        if not allowed:
+            logger.warning("per_minute_limit_exceeded_redis: %s", key)
+            return False, self._build_headers(key, tier_config, exceeded=True)
+
+        # Check per-hour
+        allowed, _ = await self._redis_backend.check_window(key, 3600, tier_config.requests_per_hour)
+        if not allowed:
+            logger.warning("per_hour_limit_exceeded_redis: %s", key)
+            return False, self._build_headers(key, tier_config, exceeded=True)
+
+        remaining = max(0, tier_config.requests_per_minute - count)
+        return True, self._build_headers_remaining(tier_config, remaining)
+
+    def _check_in_memory(self, key: str, tier_config: RateLimitTier) -> tuple[bool, dict[str, str]]:
+        """Check rate limits using in-memory storage."""
+        now = time.time()
+
+        # Check burst limit
+        if not self._check_burst(key, tier_config):
+            logger.warning(
+                f"Burst limit exceeded for {key}",
+                extra={"limit": tier_config.burst_limit},
+            )
+            return False, self._build_headers(key, tier_config, exceeded=True)
+
+        # Check per-minute limit
+        self._minute_windows[key] = self._clean_window(self._minute_windows[key], 60)
+        if len(self._minute_windows[key]) >= tier_config.requests_per_minute:
+            logger.warning(
+                f"Per-minute limit exceeded for {key}",
+                extra={"limit": tier_config.requests_per_minute},
+            )
+            return False, self._build_headers(key, tier_config, exceeded=True)
+
+        # Check per-hour limit
+        self._hour_windows[key] = self._clean_window(self._hour_windows[key], 3600)
+        if len(self._hour_windows[key]) >= tier_config.requests_per_hour:
+            logger.warning(
+                f"Per-hour limit exceeded for {key}",
+                extra={"limit": tier_config.requests_per_hour},
+            )
+            return False, self._build_headers(key, tier_config, exceeded=True)
+
+        # Record this request
+        self._minute_windows[key].append(now)
+        self._hour_windows[key].append(now)
+
+        return True, self._build_headers(key, tier_config, exceeded=False)
+
     def check(self, request: Request, tier: str = "default") -> tuple[bool, dict[str, str]]:
         """
-        Check if request is within rate limits.
+        Synchronous check (in-memory only). Used by sync endpoints and tests.
 
         Returns:
             (allowed, headers) - allowed is True if within limits, headers for response
@@ -159,39 +385,7 @@ class AdvisoryRateLimiter:
 
         tier_config = TIERS.get(tier, TIERS["default"])
         key = self._get_client_key(request, tier)
-        now = time.time()
-
-        # Check burst limit
-        if not self._check_burst(key, tier_config):
-            logger.warning(
-                f"Burst limit exceeded for {key}",
-                extra={"tier": tier, "limit": tier_config.burst_limit},
-            )
-            return False, self._build_headers(key, tier_config, exceeded=True)
-
-        # Check per-minute limit
-        self._minute_windows[key] = self._clean_window(self._minute_windows[key], 60)
-        if len(self._minute_windows[key]) >= tier_config.requests_per_minute:
-            logger.warning(
-                f"Per-minute limit exceeded for {key}",
-                extra={"tier": tier, "limit": tier_config.requests_per_minute},
-            )
-            return False, self._build_headers(key, tier_config, exceeded=True)
-
-        # Check per-hour limit
-        self._hour_windows[key] = self._clean_window(self._hour_windows[key], 3600)
-        if len(self._hour_windows[key]) >= tier_config.requests_per_hour:
-            logger.warning(
-                f"Per-hour limit exceeded for {key}",
-                extra={"tier": tier, "limit": tier_config.requests_per_hour},
-            )
-            return False, self._build_headers(key, tier_config, exceeded=True)
-
-        # Record this request
-        self._minute_windows[key].append(now)
-        self._hour_windows[key].append(now)
-
-        return True, self._build_headers(key, tier_config, exceeded=False)
+        return self._check_in_memory(key, tier_config)
 
     def _build_headers(
         self,
@@ -215,6 +409,18 @@ class AdvisoryRateLimiter:
             headers["Retry-After"] = "60"
 
         return headers
+
+    def _build_headers_remaining(
+        self,
+        tier: RateLimitTier,
+        remaining: int,
+    ) -> dict[str, str]:
+        """Build rate limit headers with known remaining count."""
+        return {
+            "X-RateLimit-Limit": str(tier.requests_per_minute),
+            "X-RateLimit-Remaining": str(remaining),
+            "X-RateLimit-Reset": str(int(time.time()) + 60),
+        }
 
 
 # Global rate limiter instance
@@ -258,7 +464,7 @@ def rate_limit(tier: str = "default"):
                 return await func(*args, **kwargs)
 
             limiter = get_rate_limiter()
-            allowed, headers = limiter.check(request, tier)
+            allowed, headers = await limiter.check_async(request, tier)
 
             if not allowed:
                 raise HTTPException(

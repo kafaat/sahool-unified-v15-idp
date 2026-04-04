@@ -21,7 +21,6 @@ Updated: April 2026
 from __future__ import annotations
 
 import asyncio
-import inspect
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -278,11 +277,11 @@ class AgentPool:
                     agent_id=agent.agent_id,
                     task_id=task.task_id,
                 )
-                self._stats["tasks_failed"] += 1
+                self._stats["tasks_cancelled"] = self._stats.get("tasks_cancelled", 0) + 1
                 return TaskResult(
                     task_id=task.task_id,
                     agent_id=agent.agent_id,
-                    status=TaskStatus.FAILED,
+                    status=TaskStatus.CANCELLED,
                     success=False,
                     error="Task was cancelled",
                     error_ar="تم إلغاء المهمة",
@@ -336,17 +335,23 @@ class AgentPool:
 
         timeout = agent.timeout_seconds or task.timeout_seconds
 
-        # Use iscoroutinefunction first; fall back to inspect.isawaitable
-        # to handle functools.partial wrapping an async function.
-        if asyncio.iscoroutinefunction(executor):
+        # Determine execution strategy:
+        # 1. iscoroutinefunction → direct await (most common)
+        # 2. Unwrap functools.partial to check if underlying is async
+        # 3. Otherwise → sync callable, run in thread to avoid blocking event loop
+        unwrapped = executor
+        while hasattr(unwrapped, 'func'):
+            unwrapped = unwrapped.func  # Unwrap functools.partial
+
+        if asyncio.iscoroutinefunction(unwrapped):
+            # Async callable (or partial wrapping async) → await directly
             result: TaskResult = await asyncio.wait_for(executor(task), timeout=timeout)
         else:
-            invocation_result = executor(task)
-            if inspect.isawaitable(invocation_result):
-                result = await asyncio.wait_for(invocation_result, timeout=timeout)
-            else:
-                # Sync callable already returned a concrete value
-                result = invocation_result  # type: ignore[assignment]
+            # Sync callable → run in thread to avoid blocking event loop
+            result = await asyncio.wait_for(
+                asyncio.to_thread(executor, task),
+                timeout=timeout,
+            )
 
         # ── Step 3: Check cancellation after execution ───────────────
         if runner.cancel_event.is_set():

@@ -6,6 +6,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import type * as L from 'leaflet';
+import { MapContainer, TileLayer, LayersControl, Marker, Polyline, Polygon } from 'react-leaflet';
 import { Undo2, Pentagon, Square, Trash2, X, Check } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -39,13 +40,6 @@ const MapLoadingFallback = ({ height }: { height: string }) => (
     <p className="text-gray-500 text-sm">جاري تحميل الخريطة...</p>
   </div>
 );
-
-// ---------------------------------------------------------------------------
-// Leaflet imports (component is 'use client' so these run only in browser)
-// The parent should dynamically import this entire component with { ssr: false }
-// ---------------------------------------------------------------------------
-
-import { MapContainer, TileLayer, LayersControl, Marker, Polyline, Polygon } from 'react-leaflet';
 
 // ---------------------------------------------------------------------------
 // Helper: build a small circular icon for vertices

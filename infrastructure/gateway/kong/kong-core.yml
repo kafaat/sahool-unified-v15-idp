@@ -22,11 +22,11 @@ plugins:
   - name: cors
     config:
       origins:
-        - "https://app.sahool.com"
-        - "https://admin.sahool.com"
-        - "https://api.sahool.com"
-        - "https://dashboard.sahool.com"
-        - "https://mobile.sahool.com"
+        - "https://app.sahool.app"
+        - "https://admin.sahool.app"
+        - "https://api.sahool.app"
+        - "https://dashboard.sahool.app"
+        - "https://mobile.sahool.app"
         # Development
         - "http://localhost:3000"
         - "http://localhost:3001"

@@ -275,7 +275,11 @@ plugins:
             if ct then
               local allowed = {
                 "multipart/form-data", "application/octet-stream",
-                "image/", "application/pdf", "application/json",
+                -- Explicit safe image types only; "image/" wildcard is intentionally
+                -- avoided because it would also permit image/svg+xml, which is an
+                -- XSS vector when downstream serves uploaded files back to browsers.
+                "image/jpeg", "image/png", "image/webp", "image/gif",
+                "application/pdf", "application/json",
               }
               local ok = false
               for _, t in ipairs(allowed) do
@@ -325,7 +329,19 @@ plugins:
           end
 
           local jwt_tid    = jwt.claims.tid
-          local header_tid = kong.request.get_header("X-Tenant-Id")
+          local header_tid_raw = kong.request.get_header("X-Tenant-Id")
+
+          -- kong.request.get_header() returns a table when the client sends the
+          -- header more than once.  Multiple X-Tenant-Id values are ambiguous and
+          -- could be used to confuse the comparison below, so reject them outright.
+          if type(header_tid_raw) == "table" then
+            return kong.response.exit(400, {
+              error    = "Ambiguous X-Tenant-Id: multiple values are not permitted",
+              error_ar = "معرف مستأجر غامض: لا يُسمح بقيم متعددة",
+              code     = "AMBIGUOUS_TENANT_ID",
+            })
+          end
+          local header_tid = header_tid_raw
 
           -- Validate: reject if client-supplied header contradicts the JWT.
           if jwt_tid and header_tid and header_tid ~= "" then

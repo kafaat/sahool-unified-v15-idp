@@ -3103,14 +3103,14 @@ plugins:
   - name: cors
     config:
       origins:
-        - "https://app.sahool.com"
-        - "https://admin.sahool.com"
-        - "https://api.sahool.com"
-        - "https://dashboard.sahool.com"
-        - "https://mobile.sahool.com"
+        - "https://app.sahool.app"
+        - "https://admin.sahool.app"
+        - "https://api.sahool.app"
+        - "https://dashboard.sahool.app"
+        - "https://mobile.sahool.app"
         # localhost origins are intentionally omitted from this file.
-        # Use a separate development-only Kong config or override KONG_CORS_ORIGINS
-        # in your local docker-compose to add localhost entries for local testing.
+        # Use a separate development-only Kong declarative config to add
+        # localhost entries for local testing.
         # Adding localhost here with credentials:true would allow any page running
         # on a developer machine to make credentialed cross-origin requests to the API.
       methods:

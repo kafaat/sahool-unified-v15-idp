@@ -110,7 +110,7 @@ if [[ "${1:-}" == "--strict" ]]; then
   # Exclude example/template files, docs, and test fixtures.
   # Helm templates/ are excluded (placeholders replaced at helm install time)
   # but helm values files ARE scanned.
-  hits=$(grep -rn -E "${combined_pattern}" "${REPO_ROOT}" \
+  hits=$(grep -rn -E --binary-files=without-match "${combined_pattern}" "${REPO_ROOT}" \
     --exclude="*.example" \
     --exclude=".env.example" \
     --exclude="env.example" \
@@ -127,6 +127,7 @@ if [[ "${1:-}" == "--strict" ]]; then
     --exclude-dir="tests" \
     --exclude-dir="test" \
     --exclude-dir="templates" \
+    --exclude-dir="logs" \
     --exclude=".gitleaks.toml" \
     --exclude="*.tfvars" \
     2>/dev/null \

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import {
   DollarSign,
   TrendingUp,
-  TrendingDown,
   PieChart,
   BarChart3,
   Download,

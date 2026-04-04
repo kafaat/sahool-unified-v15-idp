@@ -12,7 +12,6 @@ import {
   Minus,
   Filter,
   BarChart3,
-  DollarSign,
   Wheat,
   RefreshCw,
 } from 'lucide-react';

@@ -10,7 +10,6 @@ import {
   Download,
   ArrowUpRight,
   ArrowDownRight,
-  Filter,
   FlaskConical,
 } from 'lucide-react';
 

@@ -9,46 +9,19 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import { Calendar, TrendingUp, Droplets } from 'lucide-react';
-
-// ---------------------------------------------------------------------------
-// Dynamic Recharts imports (avoid SSR issues)
-// ---------------------------------------------------------------------------
-
-const ResponsiveContainer = dynamic(
-  () => import('recharts').then((m) => m.ResponsiveContainer),
-  { ssr: false }
-);
-const ComposedChart = dynamic(
-  () => import('recharts').then((m) => m.ComposedChart),
-  { ssr: false }
-);
-const Area = dynamic(() => import('recharts').then((m) => m.Area), {
-  ssr: false,
-});
-const Bar = dynamic(() => import('recharts').then((m) => m.Bar), {
-  ssr: false,
-});
-const Line = dynamic(() => import('recharts').then((m) => m.Line), {
-  ssr: false,
-});
-const XAxis = dynamic(() => import('recharts').then((m) => m.XAxis), {
-  ssr: false,
-});
-const YAxis = dynamic(() => import('recharts').then((m) => m.YAxis), {
-  ssr: false,
-});
-const CartesianGrid = dynamic(
-  () => import('recharts').then((m) => m.CartesianGrid),
-  { ssr: false }
-);
-const Tooltip = dynamic(() => import('recharts').then((m) => m.Tooltip), {
-  ssr: false,
-});
-const Legend = dynamic(() => import('recharts').then((m) => m.Legend), {
-  ssr: false,
-});
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Area,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
 
 // ---------------------------------------------------------------------------
 // Types

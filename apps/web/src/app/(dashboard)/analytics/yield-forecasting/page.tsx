@@ -10,7 +10,6 @@ import {
   Download,
   ArrowUpRight,
   ArrowDownRight,
-  Calendar,
   Sparkles,
   Clock,
   Percent,

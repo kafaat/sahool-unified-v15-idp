@@ -6,13 +6,11 @@ import {
   Leaf,
   Sun,
   Thermometer,
-  BarChart3,
   Download,
   ArrowUpRight,
   ArrowDownRight,
   RefreshCw,
   Eye,
-  Calendar,
 } from 'lucide-react';
 
 const statsCards = [

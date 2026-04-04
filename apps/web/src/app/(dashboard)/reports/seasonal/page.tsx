@@ -12,7 +12,6 @@ import {
   ArrowDownRight,
   Printer,
   Share2,
-  ChevronDown,
   Leaf,
 } from 'lucide-react';
 

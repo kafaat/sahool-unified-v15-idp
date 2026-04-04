@@ -13,11 +13,8 @@ import {
   Upload,
   MapPin,
   TrendingUp,
-  Layers,
   Droplets,
   ArrowUpDown,
-  BarChart3,
-  Search,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------

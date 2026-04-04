@@ -13,7 +13,6 @@ import {
   HandCoins,
   Plus,
   UserPlus,
-  BarChart3,
   MapPin,
   Phone,
   ChevronDown,

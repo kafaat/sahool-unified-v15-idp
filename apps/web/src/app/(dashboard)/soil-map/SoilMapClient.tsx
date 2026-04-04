@@ -13,12 +13,8 @@ import {
   Droplets,
   Mountain,
   Thermometer,
-  TreePine,
   ChevronDown,
   ChevronUp,
-  Info,
-  CheckCircle,
-  AlertTriangle,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------

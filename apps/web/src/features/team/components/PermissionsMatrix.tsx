@@ -8,7 +8,7 @@ import { Check, X, FileText, ListTodo, BarChart3, Users, Settings } from 'lucide
 import { Badge } from '@/components/ui/badge';
 import { Role, ROLE_CONFIGS, PermissionCategory, PermissionAction } from '../types/team';
 
-const CATEGORY_LABELS: Record<PermissionCategory, { ar: string; en: string; icon: any }> = {
+const CATEGORY_LABELS: Record<PermissionCategory, { ar: string; en: string; icon: React.ElementType }> = {
   [PermissionCategory.FIELDS]: { ar: 'الحقول', en: 'Fields', icon: FileText },
   [PermissionCategory.TASKS]: { ar: 'المهام', en: 'Tasks', icon: ListTodo },
   [PermissionCategory.REPORTS]: {

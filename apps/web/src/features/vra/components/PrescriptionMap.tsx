@@ -9,6 +9,7 @@
 
 import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import type L from 'leaflet';
 import { Map as MapIcon, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { PrescriptionResponse } from '../types/vra';
@@ -146,20 +147,20 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
       </div>
     `;
 
-    layer.bindPopup(popupContent);
+    (layer as L.Path).bindPopup(popupContent);
 
     // Highlight on hover
     layer.on({
-      mouseover: (e: any) => {
-        const layer = e.target;
-        layer.setStyle({
+      mouseover: (e: L.LeafletEvent) => {
+        const target = e.target as L.Path;
+        target.setStyle({
           weight: 5,
           fillOpacity: 0.8,
         });
       },
-      mouseout: (e: any) => {
-        const layer = e.target;
-        layer.setStyle(getGeoJsonStyle(feature));
+      mouseout: (e: L.LeafletEvent) => {
+        const target = e.target as L.Path;
+        target.setStyle(getGeoJsonStyle(feature));
       },
     });
   };

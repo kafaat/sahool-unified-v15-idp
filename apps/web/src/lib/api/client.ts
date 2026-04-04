@@ -761,19 +761,20 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Provider Config API (خدمة مسترجعة من kernel)
+  // Provider Config API (provider-config service, port 8104)
+  // Kong route: /api/v1/provider-config  (was incorrectly /api/v1/providers)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getProviders() {
-    return this.request<any[]>('/api/v1/providers');
+    return this.request<any[]>('/api/v1/provider-config');
   }
 
   async getProviderConfig(providerId: string) {
-    return this.request<any>(`/api/v1/providers/${providerId}/config`);
+    return this.request<any>(`/api/v1/provider-config/${providerId}`);
   }
 
   async updateProviderConfig(providerId: string, config: any) {
-    return this.request<any>(`/api/v1/providers/${providerId}/config`, {
+    return this.request<any>(`/api/v1/provider-config/${providerId}`, {
       method: 'PUT',
       body: JSON.stringify(config),
     });
@@ -891,18 +892,19 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Disaster Assessment API
+  // Disaster Assessment API (disaster-assessment service, port 3020)
+  // Kong route: /api/v1/disaster  (was incorrectly /api/v1/disasters — note: singular)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async assessDisaster(fieldId: string, disasterType: string) {
-    return this.request<any>('/api/v1/disasters/assess', {
+    return this.request<any>('/api/v1/disaster/assess', {
       method: 'POST',
       body: JSON.stringify({ fieldId, disasterType }),
     });
   }
 
   async getDisasterAlerts(region: string) {
-    return this.request<any[]>('/api/v1/disasters/alerts', {
+    return this.request<any[]>('/api/v1/disaster/alerts', {
       params: { region },
     });
   }

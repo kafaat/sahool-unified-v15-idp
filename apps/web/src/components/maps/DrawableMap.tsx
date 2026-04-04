@@ -537,7 +537,7 @@ export default function DrawableMap({
           <Marker
             key={`vertex-${i}`}
             position={[v.lat, v.lng]}
-            icon={i === 0 ? firstVertexIcon : vertexIcon}
+            icon={(i === 0 ? firstVertexIcon : vertexIcon) as unknown as L.Icon}
             interactive={false}
           />
         ))}

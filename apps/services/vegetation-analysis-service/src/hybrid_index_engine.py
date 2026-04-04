@@ -21,7 +21,7 @@ import logging
 import math
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class FusionMethod(str, Enum):
+class FusionMethod(StrEnum):
     """Available fusion methods — طرق الدمج المتاحة"""
 
     WEIGHTED_AVERAGE = "weighted_average"  # Simple weighted by quality + resolution

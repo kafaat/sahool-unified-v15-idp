@@ -12,7 +12,7 @@ import math
 import random
 import uuid
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import TypeAlias
 
 import structlog
@@ -29,7 +29,7 @@ Polygon: TypeAlias = list[Coordinate]  # closed ring of coordinates
 # ---------------------------------------------------------------------------
 # Enums
 # ---------------------------------------------------------------------------
-class ZoneType(str, Enum):
+class ZoneType(StrEnum):
     """Productivity zone classification — تصنيف مناطق الإنتاجية"""
 
     HIGH = "high"
@@ -53,7 +53,7 @@ class ZoneType(str, Enum):
         }[self]
 
 
-class SamplingStrategy(str, Enum):
+class SamplingStrategy(StrEnum):
     """Sampling strategy — استراتيجية أخذ العينات"""
 
     ZONE_CENTROID = "zone_centroid"

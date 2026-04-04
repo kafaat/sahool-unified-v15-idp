@@ -11,6 +11,12 @@ Updated: March 2026
 from __future__ import annotations
 
 import json
+
+# Import guardrails for input/output validation (C-09)
+# SECURITY: Guardrails are MANDATORY in production. If the import fails in
+# production (partial deploy, broken dependency), the service must refuse to
+# start — otherwise prompt injection filtering is silently disabled.
+import os as _os
 import time
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -39,12 +45,6 @@ from ...rag import get_rag_service
 from ...security import MAX_PROMPT_CHARS
 from ...security.prompt_guard import detect_prompt_injection, sanitize_input
 from ..deps import get_current_user
-
-# Import guardrails for input/output validation (C-09)
-# SECURITY: Guardrails are MANDATORY in production. If the import fails in
-# production (partial deploy, broken dependency), the service must refuse to
-# start — otherwise prompt injection filtering is silently disabled.
-import os as _os
 
 try:
     from shared.guardrails import TrustLevel, input_filter

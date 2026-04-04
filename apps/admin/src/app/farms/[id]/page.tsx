@@ -333,8 +333,19 @@ export default function FieldDetailPage() {
   } = useField(fieldId);
 
   // ── Coordinates (must be computed before NDVI/Weather hooks) ─────────────
-  // Backend may include boundary (GeoJSON) not in the base Farm type
-  const fieldBoundary = (field as Record<string, unknown> | undefined)?.boundary as number[][][] | undefined;
+  // Backend may return boundary as GeoJSON object { type: 'Polygon', coordinates: [...] }
+  // or as raw number[][][] array. Handle both formats.
+  const rawBoundary = (field as Record<string, unknown> | undefined)?.boundary;
+  const fieldBoundary: number[][][] | undefined = (() => {
+    if (!rawBoundary) return undefined;
+    // GeoJSON object: { type: 'Polygon', coordinates: number[][][] }
+    if (typeof rawBoundary === 'object' && 'coordinates' in (rawBoundary as Record<string, unknown>)) {
+      return (rawBoundary as { coordinates: number[][][] }).coordinates;
+    }
+    // Raw coordinate array: number[][][]
+    if (Array.isArray(rawBoundary)) return rawBoundary as number[][][];
+    return undefined;
+  })();
   const lat = field?.coordinates?.lat
     ?? (fieldBoundary?.[0]
       ? fieldBoundary[0].reduce((s: number, c: number[]) => s + (c[1] ?? 0), 0) / fieldBoundary[0].length

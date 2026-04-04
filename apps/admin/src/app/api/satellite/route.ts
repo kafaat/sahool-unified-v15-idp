@@ -27,6 +27,11 @@ export async function GET(request: NextRequest) {
     const lat = searchParams.get('lat');
     const lon = searchParams.get('lon');
 
+    // Validate fieldId against path traversal (must be UUID or alphanumeric slug)
+    if (fieldId && !/^[a-zA-Z0-9_-]+$/.test(fieldId)) {
+      return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
+    }
+
     // Validate coordinates if provided
     if (lat && (isNaN(Number(lat)) || Number(lat) < -90 || Number(lat) > 90)) {
       return NextResponse.json({ error: 'lat must be between -90 and 90' }, { status: 400 });

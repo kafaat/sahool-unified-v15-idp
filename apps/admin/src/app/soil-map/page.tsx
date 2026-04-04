@@ -416,7 +416,7 @@ export default function SoilMapPage() {
 
   // Try to connect to soil-analysis-service for live data
   React.useEffect(() => {
-    fetch('/api/satellite?action=eo-status')
+    fetch('/api/proxy/soil-analysis/healthz')
       .then((r) => r.ok ? setApiStatus('connected') : setApiStatus('offline'))
       .catch(() => setApiStatus('offline'));
   }, []);

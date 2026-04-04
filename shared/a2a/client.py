@@ -9,6 +9,7 @@ Client for discovering agents and sending tasks.
 from __future__ import annotations
 
 import asyncio
+import os
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -220,13 +221,13 @@ class A2AClient:
             sender_agent_id: ID of the sending agent
             timeout: Request timeout in seconds
             max_retries: Maximum number of retries for failed requests
-            auth_token: Bearer token for authenticating inter-agent requests.
-                        Required when the receiving A2A server enforces authentication.
+            auth_token: JWT Bearer token for authenticating with target agents.
+                        If not provided, reads from A2A_AUTH_TOKEN env var.
         """
         self.sender_agent_id = sender_agent_id
         self.timeout = timeout
         self.max_retries = max_retries
-        self.auth_token = auth_token
+        self._auth_token = auth_token or os.getenv("A2A_AUTH_TOKEN", "")
         self.discovery = AgentDiscovery(timeout=timeout)
 
         logger.info("a2a_client_initialized", sender_agent_id=sender_agent_id)
@@ -281,10 +282,10 @@ class A2AClient:
                 "X-A2A-Protocol-Version": "1.0",
                 "X-Sender-Agent-ID": self.sender_agent_id,
             }
-            # Include authentication token when available to satisfy A2A server auth requirement
-            # تضمين رمز المصادقة عند توفره لتلبية متطلبات مصادقة خادم A2A
-            if self.auth_token:
-                request_headers["Authorization"] = f"Bearer {self.auth_token}"
+            # SECURITY: Include Bearer token for authentication with target agent.
+            # The A2A server requires Authorization header (see shared/a2a/server.py).
+            if self._auth_token:
+                request_headers["Authorization"] = f"Bearer {self._auth_token}"
             else:
                 logger.warning(
                     "a2a_request_unauthenticated",
@@ -397,7 +398,13 @@ class A2AClient:
 
             ws_url = str(agent_card.websocket_endpoint)
 
-            async with websockets.connect(ws_url) as websocket:
+            # SECURITY: Pass auth token to WebSocket connection.
+            # The A2A server enforces Bearer auth on /ws/{client_id}.
+            ws_headers: dict[str, str] = {"X-Sender-Agent-ID": self.sender_agent_id}
+            if self._auth_token:
+                ws_headers["Authorization"] = f"Bearer {self._auth_token}"
+
+            async with websockets.connect(ws_url, extra_headers=ws_headers) as websocket:
                 # Send task
                 # إرسال المهمة
                 await websocket.send(task.model_dump_json())

@@ -11,6 +11,11 @@ Updated: March 2026
 from __future__ import annotations
 
 import json
+
+# Import guardrails for input/output validation (C-09)
+# SECURITY: Guardrails are MANDATORY in production/staging. If the import fails,
+# the service must refuse to start — otherwise prompt injection filtering is silently disabled.
+import os as _os
 import time
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -45,14 +50,12 @@ try:
     from shared.guardrails import TrustLevel, input_filter
 
     HAS_GUARDRAILS = True
-except ImportError:
+except ImportError as _guardrails_err:
     HAS_GUARDRAILS = False
 
 logger = structlog.get_logger(__name__)
 
 if not HAS_GUARDRAILS:
-    import os as _os
-
     _guardrails_env = _os.getenv("ENVIRONMENT", "production").lower()
     _guardrails_msg = (
         "shared.guardrails not available — AI input safety filtering (PII masking, policy enforcement) "
@@ -61,13 +64,16 @@ if not HAS_GUARDRAILS:
     if _guardrails_env in ("production", "staging"):
         # Fail hard in production/staging: running without safety guardrails is not acceptable.
         # الفشل الصريح في الإنتاج: تشغيل copilot-api بدون حواجز الأمان غير مقبول.
-        raise ImportError(
+        raise RuntimeError(
             f"[FATAL] {_guardrails_msg} "
             f"Environment '{_guardrails_env}' requires guardrails to be installed."
-        )
+        ) from _guardrails_err
     else:
-        logger.warning("guardrails_unavailable", message=_guardrails_msg)
-
+        logger.warning(
+            "guardrails_unavailable",
+            environment=_guardrails_env,
+            message=_guardrails_msg,
+        )
 router = APIRouter(tags=["Chat"])
 
 # Intent classification and routing (module-level singletons)

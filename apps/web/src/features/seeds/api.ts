@@ -64,8 +64,9 @@ export const seedsApi = {
    * جلب بذرة بواسطة المعرف
    */
   getSeedById: async (id: string): Promise<Seed> => {
-    return safeFetch(`${BASE}/${id}`, async () => {
-      const response = await api.get(`${BASE}/${id}`);
+    const endpoint = `${BASE}/${encodeURIComponent(id)}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

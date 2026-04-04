@@ -61,8 +61,9 @@ export const epidemicApi = {
    * جلب وباء بواسطة المعرف
    */
   getEpidemicById: async (id: string): Promise<Epidemic> => {
-    return safeFetch(`${BASE}/${id}`, async () => {
-      const response = await api.get(`${BASE}/${id}`);
+    const endpoint = `${BASE}/${encodeURIComponent(id)}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

@@ -69,8 +69,9 @@ export const precisionAgricultureApi = {
    * جلب خريطة التطبيق متغير المعدل لحقل معين
    */
   getVraMap: async (fieldId: string): Promise<VraMap> => {
-    return safeFetch(`${BASE}/vra/${fieldId}`, async () => {
-      const response = await api.get(`${BASE}/vra/${fieldId}`);
+    const endpoint = `${BASE}/vra/${encodeURIComponent(fieldId)}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },

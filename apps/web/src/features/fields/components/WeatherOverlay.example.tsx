@@ -94,7 +94,7 @@ interface FieldWithWeatherProps {
 export function FieldWithWeather({ field }: FieldWithWeatherProps) {
   // Convert polygon coordinates for Leaflet (expects [lat, lng])
   const polygonPositions =
-    field.polygon?.coordinates[0]?.map((coord) => [coord[1], coord[0]] as [number, number]) || [];
+    field.polygon?.coordinates[0]?.map((coord: [number, number]) => [coord[1], coord[0]] as [number, number]) || [];
 
   const center = field.centroid?.coordinates
     ? ([field.centroid.coordinates[1], field.centroid.coordinates[0]] as [number, number])
@@ -134,7 +134,7 @@ export function FieldWithWeather({ field }: FieldWithWeatherProps) {
 export function FieldMapWithWeatherAndDetails({ field }: FieldWithWeatherProps) {
   const polygonPositions =
     field.polygon?.coordinates?.[0]?.map(
-      (coord) => [coord[1], coord[0]] as [number, number]
+      (coord: [number, number]) => [coord[1], coord[0]] as [number, number]
     ) ?? [];
 
   const center = field.centroid?.coordinates

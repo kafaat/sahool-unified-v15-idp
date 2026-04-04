@@ -334,7 +334,12 @@ export default function LayerControlDemo() {
     { name: 'Without Persistence', component: LayerControlWithoutPersistence },
   ];
 
-  const example = (examples[activeExample] ?? examples[0])!;
+  const example = examples[activeExample] ?? examples[0];
+
+  if (!example) {
+    return <div className="min-h-screen bg-gray-50 p-8 text-center text-gray-400">No examples available.</div>;
+  }
+
   const ActiveComponent = example.component;
 
   return (

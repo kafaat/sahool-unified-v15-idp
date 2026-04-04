@@ -302,7 +302,7 @@ function CodeReviewContent() {
   const availableModels = models.filter((m) => m.available);
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="مراجعات الكود" subtitle="Code Review Operator" />
 
       {/* Service Error */}

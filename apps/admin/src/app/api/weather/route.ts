@@ -142,3 +142,76 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 502 });
   }
 }
+
+/**
+ * GET /api/weather?action=providers|locations|current|forecast&locationId=xxx&days=7
+ *
+ * Proxy for GET-based weather endpoints (providers list, location queries).
+ * Extracts tenant_id from httpOnly JWT cookie and forwards as query param.
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+    const locationId = searchParams.get('locationId');
+    const days = searchParams.get('days');
+
+    // Extract tenant context (same as POST handler)
+    const tenantId = await getTenantId();
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    // Validate locationId against path traversal (must be UUID or slug)
+    if (locationId && !/^[a-zA-Z0-9_-]+$/.test(locationId)) {
+      return NextResponse.json({ error: 'Invalid locationId format' }, { status: 400 });
+    }
+
+    let path: string;
+    switch (action) {
+      case 'providers':
+        path = '/weather/providers';
+        break;
+      case 'locations':
+        path = '/weather/locations';
+        break;
+      case 'current':
+        if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
+        path = `/weather/current/${encodeURIComponent(locationId)}`;
+        break;
+      case 'forecast': {
+        if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
+        const forecastParams = new URLSearchParams();
+        if (days) forecastParams.set('days', days);
+        const forecastQs = forecastParams.toString();
+        path = `/weather/forecast/${encodeURIComponent(locationId)}${forecastQs ? `?${forecastQs}` : ''}`;
+        break;
+      }
+      default:
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    }
+
+    // Build headers with tenant context if available
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (tenantId) {
+      headers['X-Tenant-Id'] = tenantId;
+    }
+
+    const response = await fetch(`${WEATHER_SERVICE_URL}${path}`, {
+      method: 'GET',
+      headers,
+      signal: AbortSignal.timeout(15000),
+    });
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json({ error: 'Weather service returned non-JSON' }, { status: 502 });
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    logger.error('Weather GET proxy error:', error);
+    return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 502 });
+  }
+}

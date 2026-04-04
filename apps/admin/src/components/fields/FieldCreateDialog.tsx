@@ -188,12 +188,21 @@ export default function FieldCreateDialog({
       setIsSubmitting(true);
 
       try {
+        // Extract flat 2D coordinates from GeoJSON 3D boundary
+        // Backend expects: coordinates as [[lng,lat], ...] (2D) AND/OR boundary as GeoJSON
+        const flatCoords = boundary.coordinates[0]; // First ring of GeoJSON polygon
+
         const response = await apiClient.post('/api/v1/fields', {
           name: fieldName.trim(),
           nameAr: fieldNameAr.trim() || undefined,
           cropType,
           irrigationType,
-          coordinates: boundary.coordinates,
+          // tenantId: extracted from JWT by backend controller, but DTO requires a value
+          coordinates: flatCoords,
+          boundary: {
+            type: 'Polygon',
+            coordinates: boundary.coordinates,
+          },
         });
 
         toast.success(

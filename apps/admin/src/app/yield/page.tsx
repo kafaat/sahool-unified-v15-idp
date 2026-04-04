@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { apiClient, API_URLS } from '@/lib/api';
+import { API_PATHS } from '@/config/api';
 import { TrendingUp, Loader2, DollarSign, Scale, Droplets, Thermometer } from 'lucide-react';
 import { logger } from '../../lib/logger';
 
@@ -22,6 +23,7 @@ interface YieldPrediction {
   confidence_percent: number;
   factors_applied: string[];
   recommendations: string[];
+  data_source?: string;
 }
 
 const CROP_OPTIONS = [
@@ -71,13 +73,14 @@ export default function YieldPage() {
     setError(null);
 
     try {
-      const response = await apiClient.post(`${API_URLS.yieldPrediction}/v1/predict`, formData);
-      setPrediction(response.data);
+      const response = await apiClient.post(`${API_URLS.yieldPrediction}${API_PATHS.yield.predict}`, formData);
+      setPrediction({ ...response.data, data_source: 'real' });
     } catch (err) {
       logger.error('Prediction failed:', err);
-      // Mock prediction for development
+      // Fallback to estimated prediction when service unavailable
       setPrediction({
-        prediction_id: 'mock-1',
+        prediction_id: 'estimated-1',
+        data_source: 'estimated',
         crop_type: formData.crop_type,
         crop_name_ar: CROP_OPTIONS.find((c) => c.value === formData.crop_type)?.label || '',
         area_hectares: formData.area_hectares,
@@ -88,8 +91,8 @@ export default function YieldPage() {
         yield_range_max: formData.area_hectares * 2.9,
         estimated_revenue_usd: formData.area_hectares * 2.5 * 350,
         estimated_revenue_yer: formData.area_hectares * 2.5 * 350 * 535,
-        confidence_percent: 85,
-        factors_applied: ['تربة متوسطة', 'أمطار مثالية (+10%)'],
+        confidence_percent: 65,
+        factors_applied: ['⚠️ تقدير محلي — الخدمة غير متاحة', 'تربة متوسطة'],
         recommendations: ['فكر في تركيب نظام ري بالتنقيط لزيادة الإنتاج 15-20%'],
       });
     } finally {
@@ -102,7 +105,7 @@ export default function YieldPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">

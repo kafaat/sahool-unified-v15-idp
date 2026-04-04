@@ -658,7 +658,7 @@ export default function InsurancePage() {
   ];
 
   return (
-    <div className="p-6 min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div dir="rtl" className="p-6 min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header
         title="التأمين الزراعي"
         subtitle="إدارة وثائق التأمين على المحاصيل وتقييم المخاطر ومعالجة المطالبات"

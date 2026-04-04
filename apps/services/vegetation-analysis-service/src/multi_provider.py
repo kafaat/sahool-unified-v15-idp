@@ -29,8 +29,10 @@ logger = logging.getLogger(__name__)
 
 class SatelliteType(Enum):
     SENTINEL2 = "sentinel-2"
+    SENTINEL1 = "sentinel-1"
     LANDSAT8 = "landsat-8"
     LANDSAT9 = "landsat-9"
+    PLANET = "planet"
     MODIS = "modis"
     VIIRS = "viirs"
 
@@ -171,9 +173,12 @@ class SentinelHubProvider(SatelliteProvider):
     Free tier: 30,000 processing units/month
     """
 
-    OAUTH_URL = "https://services.sentinel-hub.com/oauth/token"
-    CATALOG_URL = "https://services.sentinel-hub.com/api/v1/catalog/search"
-    PROCESS_URL = "https://services.sentinel-hub.com/api/v1/process"
+    # Configurable via env vars — supports both legacy Sentinel Hub and Copernicus CDSE
+    # CDSE: set SENTINEL_HUB_AUTH_URL=https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token
+    #        SENTINEL_HUB_PROCESS_URL=https://sh.dataspace.copernicus.eu/api/v1/process
+    OAUTH_URL = os.getenv("SENTINEL_HUB_AUTH_URL", "https://services.sentinel-hub.com/oauth/token")
+    CATALOG_URL = os.getenv("SENTINEL_HUB_CATALOG_URL", "https://services.sentinel-hub.com/api/v1/catalog/search")
+    PROCESS_URL = os.getenv("SENTINEL_HUB_PROCESS_URL", "https://services.sentinel-hub.com/api/v1/process")
 
     def __init__(self):
         super().__init__("Sentinel Hub", "سنتينل هب")
@@ -547,6 +552,425 @@ class CopernicusSTACProvider(SatelliteProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+class USGSLandsatArchiveProvider(SatelliteProvider):
+    """
+    USGS EarthExplorer — FREE Landsat historical archive (1972-present)
+    أرشيف لاندسات التاريخي المجاني (من 1972)
+
+    Provides access to 50+ years of global satellite imagery:
+    - Landsat 1-5 MSS (1972-2013): 60-80m resolution
+    - Landsat 4-5 TM (1982-2012): 30m resolution
+    - Landsat 7 ETM+ (1999-present): 30m resolution
+    - Landsat 8-9 (2013-present): 30m resolution (also via Sentinel Hub)
+
+    Uses USGS M2M (Machine-to-Machine) API.
+    Free registration: https://ers.cr.usgs.gov/register
+    API docs: https://m2m.cr.usgs.gov/
+    """
+
+    M2M_URL = "https://m2m.cr.usgs.gov/api/api/json/stable"
+
+    # Landsat dataset IDs for different eras
+    DATASETS = {
+        "landsat_tm_c2_l2": {"name": "Landsat 4-5 TM C2 L2", "start": 1982, "end": 2012, "resolution": 30},
+        "landsat_etm_c2_l2": {"name": "Landsat 7 ETM+ C2 L2", "start": 1999, "end": 2026, "resolution": 30},
+        "landsat_ot_c2_l2": {"name": "Landsat 8-9 OLI/TIRS C2 L2", "start": 2013, "end": 2026, "resolution": 30},
+    }
+
+    def __init__(self):
+        super().__init__("USGS Landsat Archive", "أرشيف لاندسات")
+        self.username = os.getenv("USGS_USERNAME") or os.getenv("NASA_EARTHDATA_USERNAME")
+        self.password = os.getenv("USGS_PASSWORD") or os.getenv("NASA_EARTHDATA_PASSWORD")
+        self._api_key: str | None = None
+
+    @property
+    def is_configured(self) -> bool:
+        return bool(self.username and self.password)
+
+    @property
+    def supported_satellites(self) -> list[SatelliteType]:
+        return [SatelliteType.LANDSAT8, SatelliteType.LANDSAT9]
+
+    async def _login(self) -> str | None:
+        """Authenticate with USGS M2M API"""
+        if self._api_key:
+            return self._api_key
+        if not self.is_configured:
+            return None
+
+        client = await self._get_client()
+        try:
+            resp = await client.post(
+                f"{self.M2M_URL}/login",
+                json={"username": self.username, "password": self.password},
+            )
+            resp.raise_for_status()
+            self._api_key = resp.json().get("data")
+            return self._api_key
+        except Exception as e:
+            logger.error(f"USGS login failed: {e}")
+            return None
+
+    async def search_scenes(
+        self,
+        lat: float,
+        lon: float,
+        start_date: date,
+        end_date: date,
+        max_cloud_cover: float = 30.0,
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
+        api_key = await self._login()
+        if not api_key:
+            return []
+
+        client = await self._get_client()
+        scenes = []
+
+        # Select dataset based on date range
+        for ds_id, ds_info in self.DATASETS.items():
+            if start_date.year > ds_info["end"] or end_date.year < ds_info["start"]:
+                continue
+
+            try:
+                resp = await client.post(
+                    f"{self.M2M_URL}/scene-search",
+                    json={
+                        "datasetName": ds_id,
+                        "sceneFilter": {
+                            "spatialFilter": {
+                                "filterType": "mbr",
+                                "lowerLeft": {"latitude": lat - 0.01, "longitude": lon - 0.01},
+                                "upperRight": {"latitude": lat + 0.01, "longitude": lon + 0.01},
+                            },
+                            "acquisitionFilter": {
+                                "start": start_date.isoformat(),
+                                "end": end_date.isoformat(),
+                            },
+                            "cloudCoverFilter": {"max": max_cloud_cover},
+                        },
+                        "maxResults": 10,
+                    },
+                    headers={"X-Auth-Token": api_key},
+                )
+                resp.raise_for_status()
+                results = resp.json().get("data", {}).get("results", [])
+
+                for r in results:
+                    acq = r.get("temporalCoverage", {}).get("startDate", "")
+                    if acq:
+                        acq = acq.split("T")[0]
+                    scenes.append(
+                        SatelliteScene(
+                            scene_id=r.get("entityId", ""),
+                            satellite=SatelliteType.LANDSAT8,
+                            acquisition_date=datetime.fromisoformat(acq) if acq else datetime.now(UTC),
+                            cloud_cover_pct=r.get("cloudCover", 0),
+                            sun_elevation=r.get("sunElevation", 45),
+                            bbox=(lon - 0.01, lat - 0.01, lon + 0.01, lat + 0.01),
+                            thumbnail_url=r.get("browse", [{}])[0].get("browsePath") if r.get("browse") else None,
+                            provider=f"{self.name} ({ds_info['name']})",
+                        )
+                    )
+            except Exception as e:
+                logger.error(f"USGS search failed for {ds_id}: {e}")
+
+        return scenes
+
+    async def get_ndvi(self, *args, **kwargs) -> dict | None:
+        # USGS provides raw imagery — NDVI calculation done post-download
+        return None
+
+
+class AgromonitoringProvider(SatelliteProvider):
+    """
+    OpenWeather Agromonitoring API — FREE NDVI/EVI satellite images
+    Uses same API key as OpenWeatherMap (OPENWEATHERMAP_API_KEY)
+    Free tier: 25,000 API calls/month
+    Data sources: Sentinel-2 + Landsat 8
+    https://agromonitoring.com/api/images
+    """
+
+    BASE_URL = "https://api.agromonitoring.com/agro/1.0"
+
+    def __init__(self):
+        super().__init__("Agromonitoring", "أجرو مونيتورينج")
+        self.api_key = os.getenv("OPENWEATHERMAP_API_KEY") or os.getenv("OPENWEATHER_API_KEY")
+
+    @property
+    def is_configured(self) -> bool:
+        return bool(self.api_key)
+
+    @property
+    def supported_satellites(self) -> list[SatelliteType]:
+        return [SatelliteType.SENTINEL2, SatelliteType.LANDSAT8]
+
+    async def search_scenes(
+        self,
+        lat: float,
+        lon: float,
+        start_date: date,
+        end_date: date,
+        max_cloud_cover: float = 30.0,
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
+        if not self.api_key:
+            return []
+
+        client = await self._get_client()
+        buffer = 0.01
+
+        try:
+            # Step 1: Create/find polygon
+            polygon_body = {
+                "name": f"field_{lat:.4f}_{lon:.4f}",
+                "geo_json": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [lon - buffer, lat - buffer],
+                            [lon + buffer, lat - buffer],
+                            [lon + buffer, lat + buffer],
+                            [lon - buffer, lat + buffer],
+                            [lon - buffer, lat - buffer],
+                        ]
+                    ],
+                },
+            }
+            poly_resp = await client.post(
+                f"{self.BASE_URL}/polygons?appid={self.api_key}",
+                json=polygon_body,
+            )
+
+            if poly_resp.status_code == 409:
+                # Polygon already exists — list and find
+                list_resp = await client.get(f"{self.BASE_URL}/polygons?appid={self.api_key}")
+                polygons = list_resp.json() if list_resp.status_code == 200 else []
+                poly_id = polygons[0]["id"] if polygons else None
+            elif poly_resp.status_code in (200, 201):
+                poly_id = poly_resp.json().get("id")
+            else:
+                return []
+
+            if not poly_id:
+                return []
+
+            # Step 2: Get satellite images for polygon
+            start_unix = int(datetime.combine(start_date, datetime.min.time()).replace(tzinfo=UTC).timestamp())
+            end_unix = int(datetime.combine(end_date, datetime.min.time()).replace(tzinfo=UTC).timestamp())
+
+            img_resp = await client.get(
+                f"{self.BASE_URL}/image/search?polyid={poly_id}&start={start_unix}&end={end_unix}&appid={self.api_key}"
+            )
+
+            if img_resp.status_code != 200:
+                return []
+
+            scenes = []
+            for img in img_resp.json()[:10]:
+                dt = datetime.fromtimestamp(img.get("dt", 0), tz=UTC)
+                scenes.append(
+                    SatelliteScene(
+                        scene_id=f"agro_{img.get('dt', '')}",
+                        satellite=SatelliteType.SENTINEL2 if img.get("type") == 2 else SatelliteType.LANDSAT8,
+                        acquisition_date=dt,
+                        cloud_cover_pct=img.get("cl", 0),
+                        sun_elevation=img.get("sun", {}).get("elevation", 45),
+                        bbox=(lon - buffer, lat - buffer, lon + buffer, lat + buffer),
+                        thumbnail_url=img.get("image", {}).get("ndvi"),
+                        provider=self.name,
+                    )
+                )
+            return scenes
+
+        except Exception as e:
+            logger.error(f"Agromonitoring search failed: {e}")
+            return []
+
+    async def get_ndvi(
+        self,
+        lat: float,
+        lon: float,
+        field_id: str = "",
+        acquisition_date: date | None = None,
+    ) -> dict | None:
+        """Get NDVI stats from Agromonitoring API"""
+        if not self.api_key:
+            return None
+
+        client = await self._get_client()
+        buffer = 0.01
+
+        try:
+            # Create polygon
+            poly_resp = await client.post(
+                f"{self.BASE_URL}/polygons?appid={self.api_key}",
+                json={
+                    "name": f"ndvi_{field_id or 'default'}",
+                    "geo_json": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [lon - buffer, lat - buffer],
+                                [lon + buffer, lat - buffer],
+                                [lon + buffer, lat + buffer],
+                                [lon - buffer, lat + buffer],
+                                [lon - buffer, lat - buffer],
+                            ]
+                        ],
+                    },
+                },
+            )
+
+            if poly_resp.status_code in (200, 201):
+                poly_id = poly_resp.json().get("id")
+            elif poly_resp.status_code == 409:
+                list_resp = await client.get(f"{self.BASE_URL}/polygons?appid={self.api_key}")
+                polygons = list_resp.json() if list_resp.status_code == 200 else []
+                poly_id = polygons[0]["id"] if polygons else None
+            else:
+                return None
+
+            if not poly_id:
+                return None
+
+            # Get NDVI stats
+            stats_resp = await client.get(f"{self.BASE_URL}/ndvi?polyid={poly_id}&appid={self.api_key}")
+
+            if stats_resp.status_code == 200:
+                data = stats_resp.json()
+                if data:
+                    latest = data[-1] if isinstance(data, list) else data
+                    return {
+                        "ndvi": latest.get("data", {}).get("mean", 0),
+                        "ndvi_min": latest.get("data", {}).get("min", 0),
+                        "ndvi_max": latest.get("data", {}).get("max", 0),
+                        "ndvi_std": latest.get("data", {}).get("std", 0),
+                        "data_source": "agromonitoring",
+                        "provider": self.name,
+                    }
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Agromonitoring NDVI failed: {e}")
+            return None
+
+
+class PlanetLabsProvider(SatelliteProvider):
+    """
+    Planet Labs API - High-frequency 3-5m resolution imagery
+    تسجيل في: https://www.planet.com/
+    Free trial: 30,000 processing units for 30 days
+
+    Requires PLANET_API_KEY environment variable.
+    """
+
+    BASE_URL = "https://api.planet.com/data/v1"
+    ORDERS_URL = "https://api.planet.com/compute/ops/orders/v2"
+
+    def __init__(self):
+        super().__init__("Planet Labs", "بلانيت لابز")
+        self.api_key = os.getenv("PLANET_API_KEY")
+
+    @property
+    def is_configured(self) -> bool:
+        return bool(self.api_key)
+
+    @property
+    def supported_satellites(self) -> list[SatelliteType]:
+        return [SatelliteType.PLANET]
+
+    async def search_scenes(
+        self,
+        lat: float,
+        lon: float,
+        start_date: date,
+        end_date: date,
+        max_cloud_cover: float = 30.0,
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
+        if not self.api_key:
+            return []
+
+        client = await self._get_client()
+        buffer = 0.005  # ~500m for higher resolution
+
+        try:
+            response = await client.post(
+                f"{self.BASE_URL}/quick-search",
+                auth=(self.api_key, ""),
+                json={
+                    "item_types": ["PSScene"],
+                    "filter": {
+                        "type": "AndFilter",
+                        "config": [
+                            {
+                                "type": "GeometryFilter",
+                                "field_name": "geometry",
+                                "config": {
+                                    "type": "Polygon",
+                                    "coordinates": [
+                                        [
+                                            [lon - buffer, lat - buffer],
+                                            [lon + buffer, lat - buffer],
+                                            [lon + buffer, lat + buffer],
+                                            [lon - buffer, lat + buffer],
+                                            [lon - buffer, lat - buffer],
+                                        ]
+                                    ],
+                                },
+                            },
+                            {
+                                "type": "DateRangeFilter",
+                                "field_name": "acquired",
+                                "config": {
+                                    "gte": f"{start_date.isoformat()}T00:00:00Z",
+                                    "lte": f"{end_date.isoformat()}T23:59:59Z",
+                                },
+                            },
+                            {
+                                "type": "RangeFilter",
+                                "field_name": "cloud_cover",
+                                "config": {"lte": max_cloud_cover / 100},
+                            },
+                        ],
+                    },
+                },
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            scenes = []
+            for feature in data.get("features", [])[:10]:
+                props = feature.get("properties", {})
+                acquired = props.get("acquired", "")
+                if acquired:
+                    acquired = acquired.replace("Z", "").split(".")[0]
+                scenes.append(
+                    SatelliteScene(
+                        scene_id=feature.get("id", ""),
+                        satellite=SatelliteType.PLANET,
+                        acquisition_date=datetime.fromisoformat(acquired) if acquired else datetime.now(UTC),
+                        cloud_cover_pct=props.get("cloud_cover", 0) * 100,
+                        sun_elevation=props.get("sun_elevation", 45),
+                        bbox=tuple(feature.get("bbox", [0, 0, 0, 0])) if feature.get("bbox") else (0, 0, 0, 0),
+                        thumbnail_url=feature.get("_links", {}).get("thumbnail"),
+                        provider=self.name,
+                    )
+                )
+            return scenes
+
+        except Exception as e:
+            logger.error(f"Planet Labs search failed: {e}")
+            return []
+
+    async def get_ndvi(self, *args, **kwargs) -> dict | None:
+        # Planet NDVI requires ordering + download workflow (async)
+        # For real-time, use search_scenes + external NDVI calculation
+        return None
+
+
 class SimulatedProvider(SatelliteProvider):
     """
     Simulated satellite data for testing/fallback
@@ -632,10 +1056,13 @@ class MultiSatelliteService:
     خدمة الأقمار الصناعية متعددة المزودين مع التبديل التلقائي
 
     Priority:
-    1. Sentinel Hub (if configured)
-    2. Copernicus STAC (free, no auth)
-    3. NASA Earthdata (if configured)
-    4. Simulated (always available)
+    1. Sentinel Hub / CDSE (if configured) — Sentinel-2 10m + Landsat 30m
+    2. Agromonitoring (if OWM key set) — FREE NDVI from Sentinel-2/Landsat
+    3. Planet Labs (if configured) — 3-5m daily imagery
+    4. Copernicus STAC (free, no auth) — Sentinel-2 search
+    5. NASA Earthdata (if configured) — MODIS/VIIRS (2000-present)
+    6. USGS Landsat Archive (if configured) — Historical 1972-present
+    7. Simulated (always available) — fallback
     """
 
     def __init__(self):
@@ -645,7 +1072,19 @@ class MultiSatelliteService:
         sentinel_hub = SentinelHubProvider()
         if sentinel_hub.is_configured:
             self.providers.append(sentinel_hub)
-            logger.info("Sentinel Hub provider configured")
+            logger.info("Sentinel Hub provider configured (Sentinel-2 + Landsat 8/9)")
+
+        # Agromonitoring — FREE NDVI (uses same OpenWeather API key)
+        agro = AgromonitoringProvider()
+        if agro.is_configured:
+            self.providers.append(agro)
+            logger.info("Agromonitoring provider configured (FREE NDVI — Sentinel-2 + Landsat)")
+
+        # Planet Labs — high-frequency 3-5m imagery
+        planet = PlanetLabsProvider()
+        if planet.is_configured:
+            self.providers.append(planet)
+            logger.info("Planet Labs provider configured (3-5m daily)")
 
         # Copernicus STAC is always available (no auth for search)
         self.providers.append(CopernicusSTACProvider())
@@ -655,6 +1094,12 @@ class MultiSatelliteService:
         if nasa.is_configured:
             self.providers.append(nasa)
             logger.info("NASA Earthdata provider configured")
+
+        # USGS Landsat Archive — historical data from 1972
+        usgs = USGSLandsatArchiveProvider()
+        if usgs.is_configured:
+            self.providers.append(usgs)
+            logger.info("USGS Landsat Archive configured (historical 1972-present)")
 
         # Simulated is always last (fallback)
         self.providers.append(SimulatedProvider())

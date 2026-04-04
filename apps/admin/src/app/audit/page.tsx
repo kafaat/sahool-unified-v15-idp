@@ -10,7 +10,7 @@ import { Shield, FileText, AlertTriangle, Users, ClipboardList } from 'lucide-re
 
 export default function AuditPage() {
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="سجل التدقيق" subtitle="Audit Trail" />
 
       {/* Stats Cards */}

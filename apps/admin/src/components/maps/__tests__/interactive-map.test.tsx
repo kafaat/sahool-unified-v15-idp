@@ -276,9 +276,9 @@ describe('FarmsMap Source Verification', () => {
   it('shows health score color-coded legend', () => {
     const content = fs.readFileSync(farmsMapPath, 'utf-8');
     expect(content).toContain('ممتاز');
-    expect(content).toContain('جيد');
-    expect(content).toContain('متوسط');
-    expect(content).toContain('ضعيف');
+    expect(content).toContain('صحي جداً');
+    expect(content).toContain('معتدل');
+    expect(content).toContain('مجهد');
   });
 
   it('supports scrollWheelZoom for interactivity', () => {

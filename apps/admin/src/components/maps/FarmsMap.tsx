@@ -71,11 +71,14 @@ const DEFAULT_ZOOM = 6;
  * Get Arabic health status label
  */
 const getHealthLabel = (score: number): string => {
-  if (score >= 80) return 'ممتاز';
-  if (score >= 60) return 'جيد';
-  if (score >= 40) return 'متوسط';
-  if (score >= 20) return 'ضعيف';
-  return 'حرج';
+  if (score >= 90) return 'ممتاز';
+  if (score >= 80) return 'صحي جداً';
+  if (score >= 65) return 'صحي';
+  if (score >= 50) return 'معتدل';
+  if (score >= 40) return 'مجهد';
+  if (score >= 25) return 'مجهد جداً';
+  if (score >= 15) return 'حرج';
+  return 'تربة عارية';
 };
 
 export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
@@ -121,11 +124,14 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   }, []);
 
   const getMarkerColor = (healthScore: number): string => {
-    if (healthScore >= 80) return '#1B5E20'; // dark green - excellent
-    if (healthScore >= 60) return '#4CAF50'; // green - good
-    if (healthScore >= 40) return '#FDD835'; // yellow - moderate
-    if (healthScore >= 20) return '#FF9800'; // orange - poor
-    return '#F44336'; // red - critical
+    if (healthScore >= 90) return '#004d00'; // very dark green - excellent
+    if (healthScore >= 80) return '#1B5E20'; // dark green - very healthy
+    if (healthScore >= 65) return '#4CAF50'; // green - healthy
+    if (healthScore >= 50) return '#8BC34A'; // light green - moderate
+    if (healthScore >= 40) return '#FDD835'; // yellow - stressed
+    if (healthScore >= 25) return '#FF9800'; // orange - very stressed
+    if (healthScore >= 15) return '#F44336'; // red - critical
+    return '#8B0000'; // dark red - bare soil/dead
   };
 
   if (!isMounted) {
@@ -145,20 +151,36 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
         <h4 className="text-sm font-semibold mb-2 text-gray-700">مستوى الصحة</h4>
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-green-500"></span>
-            <span>ممتاز (80%+)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#004d00' }}></span>
+            <span>ممتاز (90%+)</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
-            <span>جيد (60-79%)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#1B5E20' }}></span>
+            <span>صحي جداً (80-89%)</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-orange-500"></span>
-            <span>متوسط (40-59%)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></span>
+            <span>صحي (65-79%)</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-red-500"></span>
-            <span>ضعيف (&lt;40%)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#8BC34A' }}></span>
+            <span>معتدل (50-64%)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FDD835' }}></span>
+            <span>مجهد (40-49%)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF9800' }}></span>
+            <span>مجهد جداً (25-39%)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F44336' }}></span>
+            <span>حرج (15-24%)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#8B0000' }}></span>
+            <span>تربة عارية (&lt;15%)</span>
           </div>
         </div>
       </div>
@@ -187,18 +209,21 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="صور الأقمار الصناعية">
             <TileLayer
               attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="التضاريس">
             <TileLayer
               attribution='&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
               url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
           </LayersControl.BaseLayer>
         </LayersControl>

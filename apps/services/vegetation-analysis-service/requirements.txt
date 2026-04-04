@@ -32,3 +32,10 @@ prometheus-client==0.24.1
 
 # ML/Scientific Computing
 numpy>=1.26.0,<2.5.0
+
+# Sentinel Hub / Earth Observation (optional — service falls back to simulated data if not installed)
+# Install with: pip install sentinelhub>=3.10.0
+sentinelhub>=3.10.0,<4.0.0
+# Local EO package for SAHOOL satellite workflows
+# Installed from packages/sahool-eo/ via pip install -e ../../packages/sahool-eo
+# sahool-eo>=1.0.0  # uncomment in Dockerfile or install via: pip install -e ../../packages/sahool-eo

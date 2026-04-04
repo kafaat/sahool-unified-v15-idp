@@ -28,6 +28,9 @@ import {
   Pencil,
   Trash2,
   Calendar,
+  LayoutGrid,
+  List,
+  Satellite,
 } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -150,9 +153,44 @@ function getPriorityIcon(priority: string) {
 // المكون الرئيسي
 // ═══════════════════════════════════════════════════════════════════════════
 
+// NDVI-related task types that indicate auto-generated tasks
+const NDVI_TASK_TYPES = ['analysis', 'ndvi', 'vegetation', 'satellite'];
+
+function isNdviTask(task: Task): boolean {
+  if (task.type && NDVI_TASK_TYPES.includes(task.type)) return true;
+  const text = `${task.title} ${task.title_ar || ''} ${task.description || ''}`.toLowerCase();
+  return text.includes('ndvi') || text.includes('vegetation') || text.includes('مؤشر الغطاء النباتي');
+}
+
+type ViewMode = 'table' | 'kanban';
+
+interface InlineFormData {
+  title_ar: string;
+  priority: Priority;
+  assigned_to: string;
+  field_id: string;
+  due_date: string;
+}
+
+const INITIAL_INLINE_FORM: InlineFormData = {
+  title_ar: '',
+  priority: 'medium',
+  assigned_to: '',
+  field_id: '',
+  due_date: '',
+};
+
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // View mode
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
+
+  // Inline quick-add form
+  const [showInlineForm, setShowInlineForm] = useState(false);
+  const [inlineForm, setInlineForm] = useState<InlineFormData>(INITIAL_INLINE_FORM);
+  const [isInlineSaving, setIsInlineSaving] = useState(false);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -290,6 +328,52 @@ export default function TasksPage() {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Inline Quick-Add
+  // إضافة سريعة مضمّنة
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async function handleInlineCreate() {
+    if (!inlineForm.title_ar.trim()) return;
+    setIsInlineSaving(true);
+    try {
+      const payload = {
+        tenant_id: 'default',
+        field_id: inlineForm.field_id || 'field-1',
+        title: inlineForm.title_ar,
+        title_ar: inlineForm.title_ar,
+        description: '',
+        assigned_to: inlineForm.assigned_to,
+        priority: inlineForm.priority,
+        status: 'pending' as TaskStatus,
+        due_date: inlineForm.due_date ? new Date(inlineForm.due_date).toISOString() : undefined,
+      };
+      const response = await apiClient.post(API_URLS.taskEndpoints.create, payload);
+      setTasks((prev) => [response.data, ...prev]);
+    } catch {
+      logger.log('API unavailable, creating task locally (inline)');
+      const newTask: Task = {
+        id: `task-local-${Date.now()}`,
+        tenant_id: 'default',
+        field_id: inlineForm.field_id || 'field-1',
+        title: inlineForm.title_ar,
+        title_ar: inlineForm.title_ar,
+        description: '',
+        assigned_to: inlineForm.assigned_to,
+        priority: inlineForm.priority,
+        status: 'pending',
+        due_date: inlineForm.due_date ? new Date(inlineForm.due_date).toISOString() : undefined,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      setTasks((prev) => [newTask, ...prev]);
+    } finally {
+      setIsInlineSaving(false);
+      setInlineForm(INITIAL_INLINE_FORM);
+      setShowInlineForm(false);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Open edit modal
   // فتح نافذة التعديل
   // ─────────────────────────────────────────────────────────────────────────
@@ -340,8 +424,20 @@ export default function TasksPage() {
     const pending = tasks.filter((t) => t.status === 'pending' || t.status === 'open').length;
     const inProgress = tasks.filter((t) => t.status === 'in_progress').length;
     const completed = tasks.filter((t) => t.status === 'completed').length;
-    return { total, pending, inProgress, completed };
+    const ndviCount = tasks.filter(isNdviTask).length;
+    const pendingPct = total > 0 ? Math.round((pending / total) * 100) : 0;
+    const inProgressPct = total > 0 ? Math.round((inProgress / total) * 100) : 0;
+    const completedPct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { total, pending, inProgress, completed, ndviCount, pendingPct, inProgressPct, completedPct };
   }, [tasks]);
+
+  // Kanban columns
+  const kanbanColumns = useMemo(() => {
+    const pending = filteredTasks.filter((t) => t.status === 'pending' || t.status === 'open');
+    const inProgress = filteredTasks.filter((t) => t.status === 'in_progress');
+    const completed = filteredTasks.filter((t) => t.status === 'completed');
+    return { pending, inProgress, completed };
+  }, [filteredTasks]);
 
   // Unique assignees for filter
   const assignees = useMemo(() => {
@@ -459,7 +555,7 @@ export default function TasksPage() {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة المهام" subtitle={`${tasks.length} مهمة مسجلة`} />
 
       {/* Stats Cards - بطاقات الإحصائيات */}
@@ -495,7 +591,10 @@ export default function TasksPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.pending}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">قيد الانتظار</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                قيد الانتظار
+                <span className="mr-1 text-xs text-yellow-500">({stats.pendingPct}%)</span>
+              </p>
             </div>
           </div>
         </div>
@@ -515,7 +614,10 @@ export default function TasksPage() {
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {stats.inProgress}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">قيد التنفيذ</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                قيد التنفيذ
+                <span className="mr-1 text-xs text-blue-500">({stats.inProgressPct}%)</span>
+              </p>
             </div>
           </div>
         </div>
@@ -535,11 +637,26 @@ export default function TasksPage() {
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {stats.completed}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">مكتملة</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                مكتملة
+                <span className="mr-1 text-xs text-green-500">({stats.completedPct}%)</span>
+              </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* NDVI Tasks Banner - شريط مهام NDVI */}
+      {stats.ndviCount > 0 && (
+        <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-xl px-4 py-3 flex items-center gap-3">
+          <Satellite className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <p className="text-sm text-indigo-700 dark:text-indigo-300">
+            <span className="font-bold">{stats.ndviCount}</span> مهام من تحليل NDVI
+            <span className="mx-1 text-indigo-400">|</span>
+            مهام تم إنشاؤها تلقائيًا بناءً على تنبيهات الأقمار الصناعية
+          </p>
+        </div>
+      )}
 
       {/* Filters and Actions - شريط البحث والفلاتر */}
       <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
@@ -616,6 +733,41 @@ export default function TasksPage() {
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
+          {/* View Mode Toggle - تبديل العرض */}
+          <div className="flex items-center border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setViewMode('table')}
+              className={cn(
+                'p-2 transition-colors',
+                viewMode === 'table'
+                  ? 'bg-sahool-100 text-sahool-700'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-500'
+              )}
+              title="عرض جدول"
+            >
+              <List className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setViewMode('kanban')}
+              className={cn(
+                'p-2 transition-colors',
+                viewMode === 'kanban'
+                  ? 'bg-sahool-100 text-sahool-700'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-500'
+              )}
+              title="عرض كانبان"
+            >
+              <LayoutGrid className="w-5 h-5" />
+            </button>
+          </div>
+
+          <button
+            onClick={() => setShowInlineForm(!showInlineForm)}
+            className="flex items-center gap-2 px-4 py-2 border border-sahool-300 text-sahool-700 rounded-lg hover:bg-sahool-50 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            إضافة سريعة
+          </button>
           <button
             onClick={() => {
               setFormData(INITIAL_FORM_DATA);
@@ -630,15 +782,267 @@ export default function TasksPage() {
         </div>
       </div>
 
-      {/* Data Table - جدول البيانات */}
+      {/* Inline Quick-Add Form - نموذج الإضافة السريعة */}
+      {showInlineForm && (
+        <div className="mt-4 bg-white dark:bg-gray-800 rounded-xl p-4 border border-sahool-200 dark:border-sahool-700 border-dashed">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                العنوان (عربي) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={inlineForm.title_ar}
+                onChange={(e) => setInlineForm({ ...inlineForm, title_ar: e.target.value })}
+                placeholder="عنوان المهمة..."
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              />
+            </div>
+            <div className="w-32">
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                الأولوية
+              </label>
+              <select
+                value={inlineForm.priority}
+                onChange={(e) =>
+                  setInlineForm({ ...inlineForm, priority: e.target.value as Priority })
+                }
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              >
+                <option value="high">مرتفع</option>
+                <option value="medium">متوسط</option>
+                <option value="low">منخفض</option>
+              </select>
+            </div>
+            <div className="w-40">
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                المسؤول
+              </label>
+              <input
+                type="text"
+                value={inlineForm.assigned_to}
+                onChange={(e) => setInlineForm({ ...inlineForm, assigned_to: e.target.value })}
+                placeholder="اسم المسؤول"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              />
+            </div>
+            <div className="w-32">
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                الحقل
+              </label>
+              <input
+                type="text"
+                value={inlineForm.field_id}
+                onChange={(e) => setInlineForm({ ...inlineForm, field_id: e.target.value })}
+                placeholder="field-1"
+                dir="ltr"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              />
+            </div>
+            <div className="w-40">
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                تاريخ الاستحقاق
+              </label>
+              <input
+                type="date"
+                value={inlineForm.due_date}
+                onChange={(e) => setInlineForm({ ...inlineForm, due_date: e.target.value })}
+                dir="ltr"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleInlineCreate}
+                disabled={isInlineSaving || !inlineForm.title_ar.trim()}
+                className={cn(
+                  'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors',
+                  isInlineSaving || !inlineForm.title_ar.trim()
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-sahool-600 hover:bg-sahool-700'
+                )}
+              >
+                {isInlineSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                إضافة
+              </button>
+              <button
+                onClick={() => {
+                  setShowInlineForm(false);
+                  setInlineForm(INITIAL_INLINE_FORM);
+                }}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4 text-gray-500" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Data View - عرض البيانات */}
       <div className="mt-6">
-        <DataTable
-          columns={columns}
-          data={filteredTasks}
-          keyExtractor={(task) => task.id}
-          emptyMessage="لا توجد مهام مطابقة للبحث"
-          isLoading={isLoading}
-        />
+        {viewMode === 'table' ? (
+          <DataTable
+            columns={columns}
+            data={filteredTasks}
+            keyExtractor={(task) => task.id}
+            emptyMessage="لا توجد مهام مطابقة للبحث"
+            isLoading={isLoading}
+          />
+        ) : (
+          /* Kanban Board - لوحة كانبان */
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Pending Column - قيد الانتظار */}
+            <div className="bg-yellow-50 dark:bg-yellow-900/10 rounded-xl border border-yellow-200 dark:border-yellow-800 min-h-[300px]">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-yellow-200 dark:border-yellow-800">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-yellow-600" />
+                  <h3 className="font-bold text-yellow-800 dark:text-yellow-300">قيد الانتظار</h3>
+                </div>
+                <span className="text-xs font-medium bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 px-2 py-0.5 rounded-full">
+                  {kanbanColumns.pending.length}
+                </span>
+              </div>
+              <div className="p-3 space-y-3">
+                {kanbanColumns.pending.length === 0 && (
+                  <p className="text-center text-sm text-gray-400 py-6">لا توجد مهام</p>
+                )}
+                {kanbanColumns.pending.map((task) => (
+                  <div
+                    key={task.id}
+                    className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => openEditModal(task)}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="font-medium text-sm text-gray-900 dark:text-gray-100 leading-snug">
+                        {task.title_ar || task.title}
+                      </p>
+                      {isNdviTask(task) && (
+                        <span className="shrink-0 mr-2 inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded text-[10px] font-medium">
+                          <Satellite className="w-3 h-3" />
+                          NDVI
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-1">
+                        {getPriorityIcon(task.priority)}
+                        <span>{getPriorityLabel(task.priority)}</span>
+                      </div>
+                      <span>{task.assigned_to || 'غير معيّن'}</span>
+                    </div>
+                    {task.due_date && (
+                      <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
+                        <Calendar className="w-3 h-3" />
+                        <span>{formatDate(task.due_date)}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* In Progress Column - قيد التنفيذ */}
+            <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-800 min-h-[300px]">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 text-blue-600" />
+                  <h3 className="font-bold text-blue-800 dark:text-blue-300">قيد التنفيذ</h3>
+                </div>
+                <span className="text-xs font-medium bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
+                  {kanbanColumns.inProgress.length}
+                </span>
+              </div>
+              <div className="p-3 space-y-3">
+                {kanbanColumns.inProgress.length === 0 && (
+                  <p className="text-center text-sm text-gray-400 py-6">لا توجد مهام</p>
+                )}
+                {kanbanColumns.inProgress.map((task) => (
+                  <div
+                    key={task.id}
+                    className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => openEditModal(task)}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="font-medium text-sm text-gray-900 dark:text-gray-100 leading-snug">
+                        {task.title_ar || task.title}
+                      </p>
+                      {isNdviTask(task) && (
+                        <span className="shrink-0 mr-2 inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded text-[10px] font-medium">
+                          <Satellite className="w-3 h-3" />
+                          NDVI
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-1">
+                        {getPriorityIcon(task.priority)}
+                        <span>{getPriorityLabel(task.priority)}</span>
+                      </div>
+                      <span>{task.assigned_to || 'غير معيّن'}</span>
+                    </div>
+                    {task.due_date && (
+                      <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
+                        <Calendar className="w-3 h-3" />
+                        <span>{formatDate(task.due_date)}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Completed Column - مكتمل */}
+            <div className="bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-200 dark:border-green-800 min-h-[300px]">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  <h3 className="font-bold text-green-800 dark:text-green-300">مكتمل</h3>
+                </div>
+                <span className="text-xs font-medium bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full">
+                  {kanbanColumns.completed.length}
+                </span>
+              </div>
+              <div className="p-3 space-y-3">
+                {kanbanColumns.completed.length === 0 && (
+                  <p className="text-center text-sm text-gray-400 py-6">لا توجد مهام</p>
+                )}
+                {kanbanColumns.completed.map((task) => (
+                  <div
+                    key={task.id}
+                    className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => openEditModal(task)}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="font-medium text-sm text-gray-900 dark:text-gray-100 leading-snug">
+                        {task.title_ar || task.title}
+                      </p>
+                      {isNdviTask(task) && (
+                        <span className="shrink-0 mr-2 inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded text-[10px] font-medium">
+                          <Satellite className="w-3 h-3" />
+                          NDVI
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-1">
+                        {getPriorityIcon(task.priority)}
+                        <span>{getPriorityLabel(task.priority)}</span>
+                      </div>
+                      <span>{task.assigned_to || 'غير معيّن'}</span>
+                    </div>
+                    {task.due_date && (
+                      <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
+                        <Calendar className="w-3 h-3" />
+                        <span>{formatDate(task.due_date)}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create / Edit Modal - نافذة الإنشاء / التعديل */}

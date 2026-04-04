@@ -128,7 +128,6 @@ async def _post_or_skip(client: httpx.AsyncClient, url: str, **kwargs) -> httpx.
         return await client.post(url, **kwargs)
     except (httpx.ConnectError, httpx.ConnectTimeout):
         pytest.skip(f"Service unreachable: {url}")
-    return resp
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

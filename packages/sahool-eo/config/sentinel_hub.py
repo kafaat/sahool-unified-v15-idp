@@ -71,11 +71,17 @@ class SentinelHubConfig:
     client_secret: str
     instance_id: Optional[str] = None
 
-    # API endpoints
-    auth_url: str = "https://services.sentinel-hub.com/oauth/token"
-    api_url: str = "https://services.sentinel-hub.com/api/v1"
-    catalog_url: str = "https://services.sentinel-hub.com/api/v1/catalog"
-    process_url: str = "https://services.sentinel-hub.com/api/v1/process"
+    # API endpoints — configurable via env vars for Copernicus Data Space migration
+    # Legacy: services.sentinel-hub.com (Sinergise)
+    # CDSE:   sh.dataspace.copernicus.eu (ESA Copernicus Data Space Ecosystem)
+    auth_url: str = field(default_factory=lambda: os.getenv(
+        "SENTINEL_HUB_AUTH_URL", "https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token"))
+    api_url: str = field(default_factory=lambda: os.getenv(
+        "SENTINEL_HUB_API_URL", "https://services.sentinel-hub.com/api/v1"))
+    catalog_url: str = field(default_factory=lambda: os.getenv(
+        "SENTINEL_HUB_CATALOG_URL", "https://services.sentinel-hub.com/api/v1/catalog"))
+    process_url: str = field(default_factory=lambda: os.getenv(
+        "SENTINEL_HUB_PROCESS_URL", "https://services.sentinel-hub.com/api/v1/process"))
 
     # Default settings
     max_cloud_coverage: float = 30.0
@@ -109,8 +115,8 @@ class SentinelHubConfig:
             SENTINEL_HUB_INSTANCE_ID
             SENTINEL_HUB_MAX_CLOUD_COVERAGE
         """
-        client_id = os.environ.get("SENTINEL_HUB_CLIENT_ID")
-        client_secret = os.environ.get("SENTINEL_HUB_CLIENT_SECRET")
+        client_id = os.getenv("SENTINEL_HUB_CLIENT_ID")
+        client_secret = os.getenv("SENTINEL_HUB_CLIENT_SECRET")
 
         if not client_id or not client_secret:
             raise ValueError(
@@ -121,9 +127,9 @@ class SentinelHubConfig:
         return cls(
             client_id=client_id,
             client_secret=client_secret,
-            instance_id=os.environ.get("SENTINEL_HUB_INSTANCE_ID"),
+            instance_id=os.getenv("SENTINEL_HUB_INSTANCE_ID"),
             max_cloud_coverage=float(
-                os.environ.get("SENTINEL_HUB_MAX_CLOUD_COVERAGE", 30.0)
+                os.getenv("SENTINEL_HUB_MAX_CLOUD_COVERAGE", 30.0)
             ),
         )
 

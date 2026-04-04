@@ -16,14 +16,14 @@ import React from 'react';
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Track map click handlers for simulating drawing
-let mapClickHandler: ((e: any) => void) | null = null;
+let _mapClickHandler: ((e: any) => void) | null = null;
 
 // Mock next/dynamic to inline-render the DrawableMap component
 // Since DrawableMap uses dynamic imports for react-leaflet components,
 // we mock next/dynamic to return simple div stubs.
 vi.mock('next/dynamic', () => ({
   __esModule: true,
-  default: (loader: () => Promise<any>, opts?: any) => {
+  default: (_loader: () => Promise<any>, _opts?: any) => {
     const _React = require('react');
     // Return a stub component that captures props
     const DynamicComponent = (props: any) => {
@@ -82,7 +82,7 @@ vi.mock('leaflet', () => ({
 // Mock react-leaflet useMapEvents
 vi.mock('react-leaflet', () => ({
   useMapEvents: vi.fn((handlers: any) => {
-    mapClickHandler = handlers.click;
+    _mapClickHandler = handlers.click;
     return {};
   }),
   MapContainer: (props: any) => {
@@ -143,7 +143,7 @@ async function renderDrawableMap(props: Record<string, any> = {}) {
 describe('DrawableMap', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mapClickHandler = null;
+    _mapClickHandler = null;
   });
 
   // ─── Rendering ──────────────────────────────────────────────────────────

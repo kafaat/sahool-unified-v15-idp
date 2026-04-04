@@ -10,7 +10,7 @@ import { Mountain, CheckCircle, Clock, Upload, MapPin } from 'lucide-react';
 
 export default function TerrainPage() {
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="تحليل التضاريس" subtitle="Terrain Analysis" />
 
       {/* Stats Cards */}

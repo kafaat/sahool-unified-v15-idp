@@ -133,10 +133,14 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
 }
 
 // Farms / Fields
-export async function fetchFarms(): Promise<Farm[]> {
+export async function fetchFarms(page = 1, limit = 100): Promise<Farm[]> {
   try {
-    const response = await apiClient.get(API_URLS.fields.list);
-    return response.data;
+    const response = await apiClient.get(API_URLS.fields.list, {
+      params: { page, limit },
+    });
+    // Backend returns { data: [...], meta: { total, page, limit } }
+    const result = response.data;
+    return Array.isArray(result) ? result : (result?.data ?? []);
   } catch (error) {
     logger.error('Failed to fetch farms:', error);
     return [];
@@ -360,8 +364,10 @@ export async function getAgriculturalReport(lat: number, lng: number, fieldId: s
 // Note: weather-advanced has been consolidated into weather-service
 export async function getWeatherByLocation(locationId: string) {
   try {
-    const response = await apiClient.get(API_URLS.weatherEndpoints.byLocation(locationId));
-    return response.data;
+    // Route through internal proxy to preserve tenant context
+    const response = await fetch(`/api/weather?action=current&locationId=${encodeURIComponent(locationId)}`);
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
     logger.error('Failed to fetch weather by location:', error);
     return null;
@@ -370,10 +376,9 @@ export async function getWeatherByLocation(locationId: string) {
 
 export async function getWeatherForecastByLocation(locationId: string, days: number = 7) {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.weather}/v1/forecast/${locationId}?days=${days}`
-    );
-    return response.data;
+    const response = await fetch(`/api/weather?action=forecast&locationId=${encodeURIComponent(locationId)}&days=${days}`);
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
     logger.error('Failed to fetch weather forecast by location:', error);
     return null;
@@ -382,8 +387,9 @@ export async function getWeatherForecastByLocation(locationId: string, days: num
 
 export async function getWeatherLocations() {
   try {
-    const response = await apiClient.get(API_URLS.weatherEndpoints.locations);
-    return response.data;
+    const response = await fetch('/api/weather?action=locations');
+    if (!response.ok) return { locations: [] };
+    return await response.json();
   } catch (error) {
     logger.error('Failed to fetch weather locations:', error);
     return { locations: [] };
@@ -805,6 +811,8 @@ export {
   type CreateIrrigationData,
   type Alert,
   type CreateAlertData,
+  type AlertRule,
+  type AlertRulesResponse,
   type Equipment,
   type CreateEquipmentData,
   type PaginationParams,

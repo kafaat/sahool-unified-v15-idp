@@ -16,6 +16,7 @@ import {
   Thermometer,
   AlertTriangle,
   Info,
+  Leaf,
   Plus,
   RefreshCw,
   Eye,
@@ -136,72 +137,85 @@ export default function AlertsPage() {
   );
 
   const getAlertIcon = (type: Alert['type']) => {
-    const icons = {
+    const icons: Record<Alert['type'], typeof AlertTriangle> = {
       weather: CloudRain,
       disease: Bug,
       pest: Bug,
       irrigation: Droplets,
       sensor: Thermometer,
       system: AlertTriangle,
+      ndvi_low: Leaf,
     };
     return icons[type] || AlertTriangle;
   };
 
   const getAlertTypeLabel = (type: Alert['type']) => {
-    const labels = {
+    const labels: Record<Alert['type'], string> = {
       weather: 'طقس',
       disease: 'مرض',
       pest: 'آفات',
       irrigation: 'ري',
       sensor: 'مستشعر',
       system: 'نظام',
+      ndvi_low: 'انخفاض NDVI',
     };
     return labels[type] || type;
   };
 
   const getSeverityColor = (severity: Alert['severity']) => {
-    const colors = {
+    const colors: Record<Alert['severity'], string> = {
       info: 'bg-blue-100 text-blue-800 border-blue-200',
       warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
       critical: 'bg-red-100 text-red-800 border-red-200',
+      high: 'bg-red-100 text-red-800 border-red-200',
+      medium: 'bg-orange-100 text-orange-800 border-orange-200',
+      low: 'bg-green-100 text-green-800 border-green-200',
     };
     return colors[severity];
   };
 
   const getSeverityLabel = (severity: Alert['severity']) => {
-    const labels = {
+    const labels: Record<Alert['severity'], string> = {
       info: 'معلومات',
       warning: 'تحذير',
       critical: 'حرج',
+      high: 'مرتفع',
+      medium: 'متوسط',
+      low: 'منخفض',
     };
     return labels[severity];
   };
 
   const getSeverityIcon = (severity: Alert['severity']) => {
-    const icons = {
+    const icons: Record<Alert['severity'], typeof AlertTriangle> = {
       info: Info,
       warning: AlertTriangle,
       critical: AlertTriangle,
+      high: AlertTriangle,
+      medium: AlertTriangle,
+      low: Info,
     };
     return icons[severity];
   };
 
   const getStatusLabel = (status: Alert['status']) => {
-    const labels = {
+    const labels: Record<Alert['status'], string> = {
       unread: 'غير مقروء',
       read: 'مقروء',
       acknowledged: 'تم الإقرار',
       resolved: 'تم الحل',
+      dismissed: 'تم التجاهل',
     };
     return labels[status];
   };
 
   const getStatusColor = (status: Alert['status']) => {
-    const colors = {
+    const colors: Record<Alert['status'], string> = {
       unread: 'bg-red-100 text-red-800',
       read: 'bg-blue-100 text-blue-800',
       acknowledged: 'bg-yellow-100 text-yellow-800',
       resolved: 'bg-green-100 text-green-800',
+      dismissed: 'bg-gray-100 text-gray-800',
     };
     return colors[status];
   };
@@ -331,7 +345,7 @@ export default function AlertsPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة التنبيهات والإشعارات" subtitle={`${alerts.length} تنبيه`} />
 
       {/* Stats */}

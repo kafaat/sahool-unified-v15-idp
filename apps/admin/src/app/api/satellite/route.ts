@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 const VEGETATION_SERVICE_URL =
   process.env.VEGETATION_SERVICE_URL || 'http://vegetation-analysis-service:8090';
@@ -25,6 +26,14 @@ export async function GET(request: NextRequest) {
     const days = searchParams.get('days') || '90';
     const lat = searchParams.get('lat');
     const lon = searchParams.get('lon');
+
+    // Validate coordinates if provided
+    if (lat && (isNaN(Number(lat)) || Number(lat) < -90 || Number(lat) > 90)) {
+      return NextResponse.json({ error: 'lat must be between -90 and 90' }, { status: 400 });
+    }
+    if (lon && (isNaN(Number(lon)) || Number(lon) < -180 || Number(lon) > 180)) {
+      return NextResponse.json({ error: 'lon must be between -180 and 180' }, { status: 400 });
+    }
 
     let path: string;
     switch (action) {
@@ -54,9 +63,41 @@ export async function GET(request: NextRequest) {
       case 'eo-status':
         path = '/v1/eo-status';
         break;
+      case 'sar-timeseries': {
+        if (!fieldId) {
+          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+        }
+        const sarParams = new URLSearchParams();
+        const startDate = searchParams.get('start_date');
+        const endDate = searchParams.get('end_date');
+        if (startDate) sarParams.set('start_date', startDate);
+        if (endDate) sarParams.set('end_date', endDate);
+        if (lat) sarParams.set('lat', lat);
+        if (lon) sarParams.set('lon', lon);
+        const sarQs = sarParams.toString();
+        path = `/v1/sar-timeseries/${fieldId}${sarQs ? `?${sarQs}` : ''}`;
+        break;
+      }
+      case 'cloud-cover': {
+        if (!fieldId) {
+          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+        }
+        const ccParams = new URLSearchParams();
+        if (lat) ccParams.set('lat', lat);
+        if (lon) ccParams.set('lon', lon);
+        const ccQs = ccParams.toString();
+        path = `/v1/cloud-cover/${fieldId}${ccQs ? `?${ccQs}` : ''}`;
+        break;
+      }
+      case 'clear-observations':
+        if (!fieldId) {
+          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+        }
+        path = `/v1/clear-observations/${fieldId}`;
+        break;
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status' },
+          { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status, sar-timeseries, cloud-cover, clear-observations' },
           { status: 400 }
         );
     }
@@ -77,8 +118,11 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error('Satellite API proxy error:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json({ error: 'Satellite service timeout. Please retry.' }, { status: 504 });
+    }
+    logger.error('Satellite API proxy error:', error);
     return NextResponse.json({ error: 'Failed to fetch satellite data' }, { status: 502 });
   }
 }
@@ -120,8 +164,11 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error('Satellite analyze proxy error:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json({ error: 'Satellite analysis timeout. Please retry.' }, { status: 504 });
+    }
+    logger.error('Satellite analyze proxy error:', error);
     return NextResponse.json({ error: 'Failed to analyze satellite data' }, { status: 502 });
   }
 }

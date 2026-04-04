@@ -58,13 +58,27 @@ vi.mock('@/hooks/api/use-weather', () => ({
   useAgriculturalReport: (...args: unknown[]) => mockUseAgriculturalReport(...args),
 }));
 
-// Mock apiClient for NDVI inline fetch
+// Mock apiClient (still needed for other imports)
 const mockApiGet = vi.fn();
 vi.mock('@/lib/api', () => ({
   apiClient: {
     get: (...args: unknown[]) => mockApiGet(...args),
   },
 }));
+
+// Mock global fetch for NDVI satellite proxy calls (/api/satellite?...)
+const mockFetchFn = vi.fn();
+vi.stubGlobal('fetch', mockFetchFn);
+
+// Helper: set both apiClient and fetch mocks for NDVI data
+function setNdviMockData(data: Record<string, unknown>) {
+  mockApiGet.mockResolvedValue({ data });
+  mockFetchFn.mockResolvedValue({ ok: true, json: async () => data });
+}
+function setNdviMockError() {
+  mockApiGet.mockRejectedValue(new Error('Failed'));
+  mockFetchFn.mockRejectedValue(new Error('Failed'));
+}
 
 // Mock @/components/maps/FarmsMap type import
 vi.mock('@/components/maps/FarmsMap', () => ({
@@ -163,8 +177,13 @@ describe('FieldDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Default: NDVI fetch resolves
-    mockApiGet.mockResolvedValue({ data: { ndvi: 0.72, lai: 3.1, health_status: 'healthy', trend: 'up' } });
+    // Default: NDVI fetch via global fetch (satellite proxy)
+    mockFetchFn.mockResolvedValue({
+      ok: true,
+      json: async () => ({ ndvi: 0.72, lai: 3.1, health_status: 'healthy', trend: 'up' }),
+    });
+    // Keep apiClient mock for any other uses
+    setNdviMockData({ ndvi: 0.72, lai: 3.1, health_status: 'healthy', trend: 'up' });
 
     // Default hook states
     mockUseWeatherCurrent.mockReturnValue({ ...defaultHookReturn });
@@ -425,9 +444,8 @@ describe('FieldDetailPage', () => {
     });
 
     it('displays health status label "صحي" for healthy status', async () => {
-      mockApiGet.mockResolvedValue({
-        data: { ndvi: 0.72, lai: 3.1, health_status: 'healthy', trend: 'up' },
-      });
+      setNdviMockData({
+        ndvi: 0.72, lai: 3.1, health_status: 'healthy', trend: 'up' });
 
       render(<FieldDetailPage />);
 
@@ -437,9 +455,8 @@ describe('FieldDetailPage', () => {
     });
 
     it('displays NDVI value', async () => {
-      mockApiGet.mockResolvedValue({
-        data: { ndvi: 0.72, lai: 3.1, health_status: 'healthy' },
-      });
+      setNdviMockData({
+        ndvi: 0.72, lai: 3.1, health_status: 'healthy' });
 
       render(<FieldDetailPage />);
 
@@ -449,9 +466,8 @@ describe('FieldDetailPage', () => {
     });
 
     it('displays LAI value', async () => {
-      mockApiGet.mockResolvedValue({
-        data: { ndvi: 0.72, lai: 3.1, health_status: 'healthy' },
-      });
+      setNdviMockData({
+        ndvi: 0.72, lai: 3.1, health_status: 'healthy' });
 
       render(<FieldDetailPage />);
 
@@ -461,9 +477,8 @@ describe('FieldDetailPage', () => {
     });
 
     it('shows LAI label in Arabic', async () => {
-      mockApiGet.mockResolvedValue({
-        data: { ndvi: 0.72, lai: 3.1, health_status: 'healthy' },
-      });
+      setNdviMockData({
+        ndvi: 0.72, lai: 3.1, health_status: 'healthy' });
 
       render(<FieldDetailPage />);
 
@@ -473,9 +488,8 @@ describe('FieldDetailPage', () => {
     });
 
     it('shows NDVI value label in Arabic', async () => {
-      mockApiGet.mockResolvedValue({
-        data: { ndvi: 0.72, lai: 3.1, health_status: 'healthy' },
-      });
+      setNdviMockData({
+        ndvi: 0.72, lai: 3.1, health_status: 'healthy' });
 
       render(<FieldDetailPage />);
 
@@ -485,7 +499,7 @@ describe('FieldDetailPage', () => {
     });
 
     it('shows error card when NDVI fetch fails', async () => {
-      mockApiGet.mockRejectedValue(new Error('Failed'));
+      setNdviMockError();
 
       render(<FieldDetailPage />);
 
@@ -495,9 +509,8 @@ describe('FieldDetailPage', () => {
     });
 
     it('displays "معتدل" for moderate health status', async () => {
-      mockApiGet.mockResolvedValue({
-        data: { ndvi: 0.45, lai: 2.0, health_status: 'moderate' },
-      });
+      setNdviMockData({
+        ndvi: 0.45, lai: 2.0, health_status: 'moderate' });
 
       render(<FieldDetailPage />);
 
@@ -507,9 +520,8 @@ describe('FieldDetailPage', () => {
     });
 
     it('displays "مجهد" for stressed health status', async () => {
-      mockApiGet.mockResolvedValue({
-        data: { ndvi: 0.25, lai: 1.0, health_status: 'stressed' },
-      });
+      setNdviMockData({
+        ndvi: 0.25, lai: 1.0, health_status: 'stressed' });
 
       render(<FieldDetailPage />);
 
@@ -519,9 +531,8 @@ describe('FieldDetailPage', () => {
     });
 
     it('displays "حرج" for critical health status', async () => {
-      mockApiGet.mockResolvedValue({
-        data: { ndvi: 0.12, lai: 0.5, health_status: 'critical' },
-      });
+      setNdviMockData({
+        ndvi: 0.12, lai: 0.5, health_status: 'critical' });
 
       render(<FieldDetailPage />);
 

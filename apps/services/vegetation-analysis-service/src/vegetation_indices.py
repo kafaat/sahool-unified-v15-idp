@@ -83,6 +83,11 @@ class VegetationIndex(Enum):
     GDVI = "gdvi"  # Green Difference Vegetation Index
     TSAVI = "tsavi"  # Transformed SAVI (Baret & Guyot 1991)
 
+    # Phase 4 - Soil & Thermal (reverse-engineered from Farmonaut best practices)
+    # المرحلة الرابعة - التربة والحرارة (هندسة عكسية من أفضل الممارسات)
+    SOC = "soc"  # Soil Organic Carbon estimation from SWIR (Bartholomeus 2008)
+    VCI = "vci"  # Vegetation Condition Index (Kogan 1990) — drought monitoring
+
 
 class CropType(Enum):
     """Crop types for Yemen agriculture"""
@@ -236,6 +241,11 @@ class AllIndices:
     gdvi: float | None = None  # Green Difference Vegetation Index
     tsavi: float | None = None  # Transformed SAVI
 
+    # Phase 4 - Soil & Thermal (Farmonaut-inspired reverse engineering)
+    # المرحلة الرابعة - التربة والحرارة (هندسة عكسية)
+    soc: float | None = None  # Soil Organic Carbon (% estimation from SWIR)
+    vci: float | None = None  # Vegetation Condition Index (drought)
+
     # Valid ranges for normalized difference indices (all follow [-1, 1] range)
     _NORMALIZED_INDICES = frozenset(
         {
@@ -375,6 +385,10 @@ class VegetationIndicesCalculator:
             dvi=self.dvi(bands),
             gdvi=self.gdvi(bands),
             tsavi=self.tsavi(bands),
+            # Phase 4 - Soil & Thermal (Farmonaut-inspired)
+            # المرحلة الرابعة - التربة والحرارة
+            soc=self.soc(bands),
+            vci=self.vci(ndvi),
         )
 
     # =========================================================================
@@ -1204,6 +1218,62 @@ class VegetationIndicesCalculator:
             return 0.0
         tsavi_val = numerator / denominator
         return round(max(0, min(tsavi_val, 1.5)), 4)
+
+    # ─── Phase 4: Soil & Thermal (Farmonaut-inspired) ────────────────────
+
+    def soc(self, b: BandData) -> float:
+        """
+        SOC - Soil Organic Carbon estimation from SWIR bands
+        تقدير الكربون العضوي في التربة من نطاقات SWIR
+
+        Range: 0.1 to 8.0 (% organic carbon)
+        Best for: Bare soil assessment, soil quality mapping
+
+        Empirical model calibrated for arid/semi-arid soils:
+        SOC ≈ 21.7 × (1/SWIR1 - 1/SWIR2) + 0.5
+        Alternative: SOC ≈ -16.4 × SWIR2 + 7.2 (Bartholomeus et al., 2008)
+
+        Use case: Farmonaut provides SOC estimation — we replicate using
+        Sentinel-2 B11 (SWIR1) and B12 (SWIR2) bands.
+        """
+        if b.B11_swir1 <= 0 or b.B12_swir2 <= 0:
+            return 0.0
+
+        # Model 1: Spectral ratio approach (works better for sandy-loam)
+        ratio = (1 / b.B11_swir1) - (1 / b.B12_swir2)
+        soc_est = 21.7 * ratio + 0.5
+
+        # Clamp to realistic range for agricultural soils (0.1-8.0%)
+        return round(max(0.1, min(soc_est, 8.0)), 2)
+
+    def vci(self, ndvi: float, ndvi_min: float = 0.05, ndvi_max: float = 0.85) -> float:
+        """
+        VCI - Vegetation Condition Index (Kogan 1990)
+        مؤشر حالة الغطاء النباتي — لمراقبة الجفاف
+
+        Range: 0 to 100 (%)
+        Best for: Drought monitoring, crop stress assessment
+
+        Formula: VCI = (NDVI - NDVI_min) / (NDVI_max - NDVI_min) × 100
+
+        Interpretation:
+        - VCI < 20%: Extreme drought → جفاف شديد
+        - VCI 20-40%: Severe drought → جفاف حاد
+        - VCI 40-60%: Moderate → معتدل
+        - VCI 60-80%: Good → جيد
+        - VCI > 80%: Excellent → ممتاز
+
+        Parameters:
+        - ndvi_min/max: Historical NDVI range for the region
+          (Yemen defaults: min=0.05 bare soil, max=0.85 peak vegetation)
+
+        Use case: Farmonaut uses VCI for drought alerts — critical for
+        Yemen's water-scarce agriculture.
+        """
+        if ndvi_max <= ndvi_min:
+            return 50.0
+        vci_val = ((ndvi - ndvi_min) / (ndvi_max - ndvi_min)) * 100
+        return round(max(0, min(vci_val, 100)), 1)
 
 
 # =============================================================================

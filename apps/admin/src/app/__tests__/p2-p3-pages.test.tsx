@@ -11,6 +11,12 @@ import React from 'react';
 // Global Mocks
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Mock global fetch for pages that call APIs (e.g., soil-map)
+globalThis.fetch = vi.fn().mockResolvedValue({
+  ok: true,
+  json: async () => ({ status: 'ok' }),
+}) as unknown as typeof fetch;
+
 vi.mock('next/navigation', () => ({
   usePathname: () => '/analytics/yield-forecasting',
   useRouter: () => ({

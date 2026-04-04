@@ -523,6 +523,8 @@ describe('POST /api/auth/activity', () => {
 
   it('updates last activity timestamp', async () => {
     mockCookieStore.get.mockReturnValue({ value: 'valid-token' });
+    // Mock fetch for fire-and-forget backend activity forwarding
+    vi.mocked(globalThis.fetch).mockResolvedValue(new Response('{}', { status: 200 }));
 
     const { POST } = await import('@/app/api/auth/activity/route');
     const response = await POST();

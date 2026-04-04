@@ -324,6 +324,7 @@ services:
     host: weather-service
     port: 8092
     protocol: http
+    # Service path prepended after strip: /api/v1/weather/current → strip → /current → /weather/current
     path: /weather
     routes:
       - name: weather-service-route

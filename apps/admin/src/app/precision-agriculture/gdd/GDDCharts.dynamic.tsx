@@ -13,8 +13,16 @@ function ChartSkeleton() {
   );
 }
 
+function ChartErrorFallback() {
+  return (
+    <div className="h-full w-full bg-red-50 rounded-lg flex items-center justify-center text-sm text-red-600">
+      تعذر تحميل الرسم البياني
+    </div>
+  );
+}
+
 export const DynamicGDDStageDistributionChart = dynamic(
-  () => import('./GDDCharts').then((mod) => mod.GDDStageDistributionChart),
+  () => import('./GDDCharts').then((mod) => mod.GDDStageDistributionChart).catch(() => () => <ChartErrorFallback />),
   {
     ssr: false,
     loading: () => <ChartSkeleton />,
@@ -22,7 +30,7 @@ export const DynamicGDDStageDistributionChart = dynamic(
 );
 
 export const DynamicGDDHistoryChart = dynamic(
-  () => import('./GDDCharts').then((mod) => mod.GDDHistoryChart),
+  () => import('./GDDCharts').then((mod) => mod.GDDHistoryChart).catch(() => () => <ChartErrorFallback />),
   {
     ssr: false,
     loading: () => <ChartSkeleton />,

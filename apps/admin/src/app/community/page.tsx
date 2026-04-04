@@ -200,7 +200,7 @@ export default function CommunityPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة المجتمع" subtitle={`${posts.length} منشور`} />
 
       {/* Stats */}

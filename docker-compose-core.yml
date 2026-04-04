@@ -1523,8 +1523,15 @@ services:
       - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
       - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID}
       - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET}
+      # Copernicus CDSE migration — uncomment to switch from legacy Sentinel Hub
+      - SENTINEL_HUB_AUTH_URL=${SENTINEL_HUB_AUTH_URL:-}
+      - SENTINEL_HUB_PROCESS_URL=${SENTINEL_HUB_PROCESS_URL:-}
+      - SENTINEL_HUB_CATALOG_URL=${SENTINEL_HUB_CATALOG_URL:-}
+      - PLANET_API_KEY=${PLANET_API_KEY:-}
       - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
       - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
+      - USGS_USERNAME=${USGS_USERNAME:-}
+      - USGS_PASSWORD=${USGS_PASSWORD:-}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD
         is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -1580,12 +1587,16 @@ services:
         is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD
         is required}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - 127.0.0.1:8091:8091
     depends_on:
       pgbouncer:
         condition: service_healthy
       nats:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test:
@@ -4030,14 +4041,22 @@ services:
     container_name: sahool-digital-twin-engine
     environment:
       - PORT=8253
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD
+        is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD
         is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - WEATHER_SERVICE_URL=http://weather-service:8092
+      - VEGETATION_SERVICE_URL=http://vegetation-analysis-service:8090
+      - ASSIMILATION_ENABLED=true
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
       - 127.0.0.1:8253:8253
     depends_on:
+      pgbouncer:
+        condition: service_healthy
       nats:
         condition: service_healthy
       redis:
@@ -4083,11 +4102,16 @@ services:
       - API_GATEWAY_URL=http://kong:8000
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - WEATHER_SERVICE_URL=http://weather-service:8092
+      - VEGETATION_SERVICE_URL=http://vegetation-analysis-service:8090
       - NEXT_PUBLIC_APP_VERSION=16.0.0
     ports:
-      - 0.0.0.0:3002:3002
+      - ${ADMIN_BIND_ADDRESS:-127.0.0.1}:3002:3002
     depends_on:
       kong:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      field-management-service:
         condition: service_healthy
     healthcheck:
       test:

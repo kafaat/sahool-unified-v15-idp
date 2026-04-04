@@ -177,7 +177,7 @@ export default function FarmsPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة المزارع" subtitle={`${farms.length} مزرعة مسجلة`} />
 
       {/* Stats by Governorate */}

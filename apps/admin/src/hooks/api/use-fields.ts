@@ -89,8 +89,10 @@ export function useCreateField() {
  */
 export function useUpdateField() {
   return useApiMutation(
-    async ({ id, data }: { id: string; data: Partial<Farm> }) => {
-      const response = await apiClient.put(API_URLS.fields.update(id), data);
+    async ({ id, data, etag }: { id: string; data: Partial<Farm>; etag?: string }) => {
+      const response = await apiClient.put(API_URLS.fields.update(id), data, {
+        headers: etag ? { 'If-Match': etag } : undefined,
+      });
       return response.data;
     },
     { invalidateKeys: ['fields'] }

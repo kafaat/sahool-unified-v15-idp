@@ -212,6 +212,8 @@ export const ALERT_ENDPOINTS = {
   DELETE: `${API_PREFIX}/alerts/{alertId}`,
   ACKNOWLEDGE: `${API_PREFIX}/alerts/{alertId}/acknowledge`,
   RESOLVE: `${API_PREFIX}/alerts/{alertId}/resolve`,
+  DISMISS: `${API_PREFIX}/alerts/{alertId}/dismiss`,
+  RULES: `${API_PREFIX}/alerts/rules`,
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -24,6 +24,12 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
+// ── Runtime Startup Validation ────────────────────────────────────────────────
+// Validate JWT_SECRET_KEY only at server RUNTIME, not during `next build`.
+// Build step (CI) doesn't have access to runtime secrets — they're injected
+// when the container starts. Checking here would break production builds.
+// Validation happens in: src/lib/auth/jwt-verify.ts at first token verification.
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,

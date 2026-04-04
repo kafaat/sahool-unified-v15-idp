@@ -52,7 +52,14 @@ export { useNotifications, useMarkNotificationRead } from './use-notifications';
 export { useTasks, useUpdateTaskStatus, useCreateTask } from './use-tasks';
 
 // Alerts
-export { useAlerts, useAcknowledgeAlert } from './use-alerts';
+export {
+  useAlerts,
+  useAlertCount,
+  useAcknowledgeAlert,
+  useResolveAlert,
+  useDismissAlert,
+  useAlertRules,
+} from './use-alerts';
 
 // Realtime
 export { useRealtimeSync } from './use-realtime';

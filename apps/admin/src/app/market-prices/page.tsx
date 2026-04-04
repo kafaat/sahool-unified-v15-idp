@@ -637,7 +637,7 @@ export default function MarketPricesPage() {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div dir="rtl" className="p-6 min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* ── Header ── */}
       <Header
         title="أسعار السوق"

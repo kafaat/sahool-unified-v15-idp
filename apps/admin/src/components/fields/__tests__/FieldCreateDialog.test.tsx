@@ -19,7 +19,7 @@ vi.mock('next/dynamic', () => ({
   __esModule: true,
   default: () => {
     const _React = require('react');
-    return function MockDrawableMap(props: any) {
+    return function MockDrawableMap(_props: any) {
       return _React.createElement('div', { 'data-testid': 'mock-drawable-map' });
     };
   },

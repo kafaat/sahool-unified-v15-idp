@@ -11,8 +11,23 @@ interface RateLimitEntry {
   lockedUntil?: number;
 }
 
-// In-memory store (for production, use Redis)
+// WARNING: In-memory store — each serverless/edge instance has its own counter.
+// In production with multiple replicas, brute-force attacks are distributed across
+// instances and effectively bypass the limit. For production, rate limiting should
+// be handled at the API Gateway (Kong) or via Redis-backed middleware.
 const rateLimitStore = new Map<string, RateLimitEntry>();
+
+if (
+  typeof process !== 'undefined' &&
+  process.env.NODE_ENV === 'production' &&
+  !process.env.RATE_LIMIT_IN_MEMORY_ACKNOWLEDGED
+) {
+  console.warn(
+    '[rate-limiter] Running with in-memory rate limiting in production. ' +
+      'This is ineffective in multi-instance deployments. ' +
+      'Rely on Kong rate-limiting plugin or set RATE_LIMIT_IN_MEMORY_ACKNOWLEDGED=1 to suppress.'
+  );
+}
 
 export interface RateLimitConfig {
   maxAttempts: number; // Maximum attempts allowed

@@ -38,6 +38,7 @@ type ViewMode = 'map' | 'table';
 export default function FarmsPage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
 
@@ -53,11 +54,13 @@ export default function FarmsPage() {
 
   async function loadFarms() {
     setIsLoading(true);
+    setLoadError(null);
     try {
       const data = await fetchFarms();
       setFarms(data);
     } catch (error) {
       logger.error('Failed to load farms:', error);
+      setLoadError('فشل تحميل المزارع. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsLoading(false);
     }
@@ -299,7 +302,17 @@ export default function FarmsPage() {
 
       {/* Content */}
       <div className="mt-6">
-        {isLoading ? (
+        {loadError ? (
+          <div className="h-[200px] bg-red-50 dark:bg-red-900/20 rounded-xl flex flex-col items-center justify-center gap-3 border border-red-200 dark:border-red-800">
+            <p className="text-red-600 dark:text-red-400 text-sm">{loadError}</p>
+            <button
+              onClick={loadFarms}
+              className="text-sm px-4 py-2 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 transition"
+            >
+              إعادة المحاولة
+            </button>
+          </div>
+        ) : isLoading ? (
           <div className="h-[600px] bg-gray-200 dark:bg-gray-700 animate-pulse rounded-xl"></div>
         ) : viewMode === 'map' ? (
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">

@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let data: any;
+    let data: { user?: unknown; message?: string; detail?: string };
     try {
       data = await response.json();
     } catch {

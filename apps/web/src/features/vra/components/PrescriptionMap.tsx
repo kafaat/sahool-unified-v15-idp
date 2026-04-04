@@ -9,6 +9,7 @@
 
 import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import type * as L from 'leaflet';
 import { Map as MapIcon, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { PrescriptionResponse } from '../types/vra';
@@ -119,47 +120,47 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
   }, [prescription.zones]);
 
   // GeoJSON style function
-  const getGeoJsonStyle = (feature: any) => {
+  const getGeoJsonStyle = (feature?: GeoJSON.Feature) => {
     return {
-      fillColor: feature.properties.color,
+      fillColor: (feature?.properties?.color as string) ?? '#3388ff',
       fillOpacity: 0.6,
-      color: feature.properties.color,
+      color: (feature?.properties?.color as string) ?? '#3388ff',
       weight: 3,
       opacity: 1,
     };
   };
 
   // GeoJSON hover/interaction handlers
-  const onEachFeature = (feature: any, layer: any) => {
-    const props = feature.properties;
+  const onEachFeature = (feature: GeoJSON.Feature, layer: L.Layer) => {
+    const props = feature.properties ?? {};
 
-    // Create popup content
-    const popupContent = `
-      <div class="p-2 min-w-[200px]">
-        <h3 class="font-bold text-sm mb-2">${props.zoneName} | ${props.zoneNameAr}</h3>
-        <div class="space-y-1 text-xs">
-          <p><strong>NDVI Range:</strong> ${props.ndviMin.toFixed(2)} - ${props.ndviMax.toFixed(2)}</p>
-          <p><strong>Area | المساحة:</strong> ${props.areaHa.toFixed(2)} ha (${props.percentage.toFixed(1)}%)</p>
-          <p><strong>Rate | المعدل:</strong> <span class="text-green-700 font-semibold">${props.recommendedRate.toFixed(2)} ${props.unit}</span></p>
-          <p><strong>Total Product | إجمالي المنتج:</strong> ${props.totalProduct.toFixed(2)} ${props.unit}</p>
+    if (typeof (layer as L.Path).bindPopup === 'function') {
+      // Sanitize values to prevent XSS from external GeoJSON properties
+      const esc = (v: unknown) => String(v ?? '').replace(/[<>&"']/g, (c) => `&#${c.charCodeAt(0)};`);
+      const safeContent = `
+        <div style="direction:rtl;font-family:Tajawal,sans-serif;min-width:180px">
+          <h4 style="margin:0 0 6px;font-size:14px">${esc(props.zone)} — ${esc(props.crop)}</h4>
+          <p><strong>NDVI:</strong> ${esc(props.ndvi.toFixed(3))}</p>
+          <p><strong>Rate | المعدل:</strong> ${esc(props.rate.toFixed(1))} ${esc(props.unit)}/ha</p>
+          <p><strong>Total Product | إجمالي المنتج:</strong> ${esc(props.totalProduct.toFixed(2))} ${esc(props.unit)}</p>
         </div>
-      </div>
-    `;
-
-    layer.bindPopup(popupContent);
+      `;
+      (layer as L.Path).bindPopup(safeContent);
+    }
 
     // Highlight on hover
     layer.on({
-      mouseover: (e: any) => {
-        const layer = e.target;
-        layer.setStyle({
-          weight: 5,
-          fillOpacity: 0.8,
-        });
+      mouseover: (e: L.LeafletEvent) => {
+        const target = e.target as L.Layer;
+        if (typeof (target as L.Path).setStyle === 'function') {
+          (target as L.Path).setStyle({ weight: 5, fillOpacity: 0.8 });
+        }
       },
-      mouseout: (e: any) => {
-        const layer = e.target;
-        layer.setStyle(getGeoJsonStyle(feature));
+      mouseout: (e: L.LeafletEvent) => {
+        const target = e.target as L.Layer;
+        if (typeof (target as L.Path).setStyle === 'function') {
+          (target as L.Path).setStyle(getGeoJsonStyle(feature));
+        }
       },
     });
   };

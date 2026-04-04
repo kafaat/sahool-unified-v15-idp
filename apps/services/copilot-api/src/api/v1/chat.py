@@ -11,6 +11,12 @@ Updated: March 2026
 from __future__ import annotations
 
 import json
+
+# Import guardrails for input/output validation (C-09)
+# SECURITY: Guardrails are MANDATORY in production. If the import fails in
+# production (partial deploy, broken dependency), the service must refuse to
+# start — otherwise prompt injection filtering is silently disabled.
+import os as _os
 import time
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -40,21 +46,25 @@ from ...security import MAX_PROMPT_CHARS
 from ...security.prompt_guard import detect_prompt_injection, sanitize_input
 from ..deps import get_current_user
 
-# Import guardrails for input/output validation (C-09: log warning on failure)
 try:
     from shared.guardrails import TrustLevel, input_filter
 
     HAS_GUARDRAILS = True
-except ImportError:
+except ImportError as _guardrails_err:
     HAS_GUARDRAILS = False
+    if _os.getenv("ENVIRONMENT", "").lower() == "production":
+        raise RuntimeError(
+            "shared.guardrails is required in production but could not be imported. "
+            "Refusing to start — prompt injection filtering would be disabled."
+        ) from _guardrails_err
 
 logger = structlog.get_logger(__name__)
 
 if not HAS_GUARDRAILS:
     logger.warning(
         "guardrails_unavailable",
-        message="shared.guardrails not available — prompt injection filtering is DISABLED. "
-        "Install shared.guardrails to enable input validation.",
+        environment=_os.getenv("ENVIRONMENT", "development"),
+        message="shared.guardrails not available — prompt injection filtering is DISABLED.",
     )
 router = APIRouter(tags=["Chat"])
 

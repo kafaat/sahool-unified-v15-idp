@@ -10,17 +10,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth.store';
 import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from 'lucide-react';
+import { validators } from '@/lib/validation';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // Validate returnTo to prevent open redirect attacks.
-  // Only allow relative paths starting with '/' and not protocol-relative URLs (//).
+  // Prevent open redirect — only allow relative paths starting with /
   const rawReturnTo = searchParams.get('returnTo') || '/dashboard';
   const returnTo =
     rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//') ? rawReturnTo : '/dashboard';
-
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -40,7 +38,7 @@ function LoginForm() {
 
   const validateEmail = (value: string): string => {
     if (!value.trim()) return 'البريد الإلكتروني مطلوب';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'صيغة البريد الإلكتروني غير صحيحة';
+    if (!validators.email(value)) return 'صيغة البريد الإلكتروني غير صحيحة';
     return '';
   };
 

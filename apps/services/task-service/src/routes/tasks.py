@@ -396,15 +396,15 @@ async def create_task(
     if data.metadata:
         try:
             validate_metadata_size(data.metadata)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        except (ValidationError, ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="Invalid metadata | بيانات وصفية غير صالحة")
 
     # Validate field_id format
     if data.field_id:
         try:
             validate_field_id(data.field_id)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        except (ValidationError, ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="Invalid field ID format | صيغة معرف الحقل غير صالحة")
 
     task_id = generate_task_id()
     created_by = getattr(current_user, "id", "system")
@@ -466,8 +466,8 @@ async def update_task(
     if data.metadata:
         try:
             validate_metadata_size(data.metadata)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        except (ValidationError, ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="Invalid metadata | بيانات وصفية غير صالحة")
 
     repo = TaskRepository(db)
     performed_by = current_user.id if current_user and current_user.id else "system"

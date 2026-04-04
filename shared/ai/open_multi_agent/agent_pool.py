@@ -176,7 +176,7 @@ class AgentPool:
         self._stats["tasks_submitted"] += len(pairs)
 
         coros = [self._run_guarded(agent, task) for agent, task in pairs]
-        tasks_objs = [asyncio.ensure_future(c) for c in coros]
+        tasks_objs = [asyncio.create_task(c) for c in coros]
         self._running_tasks.update(tasks_objs)
         try:
             results = await asyncio.gather(*tasks_objs)
@@ -271,6 +271,21 @@ class AgentPool:
             self.active_agents[runner_key] = runner
             try:
                 return await self._execute(agent, task, runner)
+            except asyncio.CancelledError:
+                logger.warning(
+                    "agent_execution_cancelled",
+                    agent_id=agent.agent_id,
+                    task_id=task.task_id,
+                )
+                self._stats["tasks_cancelled"] = self._stats.get("tasks_cancelled", 0) + 1
+                return TaskResult(
+                    task_id=task.task_id,
+                    agent_id=agent.agent_id,
+                    status=TaskStatus.CANCELLED,
+                    success=False,
+                    error="Task was cancelled",
+                    error_ar="تم إلغاء المهمة",
+                )
             except Exception as exc:
                 logger.error(
                     "agent_execution_error",
@@ -298,7 +313,13 @@ class AgentPool:
     ) -> TaskResult:
         """
         Resolve the executor and invoke it for the given task.
+        Periodically checks ``runner.cancel_event`` between major steps
+        so that graceful shutdown is honoured promptly.
         """
+        # ── Step 1: Check cancellation before starting ───────────────
+        if runner.cancel_event.is_set():
+            raise asyncio.CancelledError()
+
         started_at = datetime.now(UTC)
 
         # Resolve executor: agent-level, then pool-level registry
@@ -308,16 +329,33 @@ class AgentPool:
                 f"No executor registered for agent '{agent.agent_id}' | لا يوجد منفذ مسجل للوكيل '{agent.agent_id}'"
             )
 
+        # ── Step 2: Check cancellation before invoking executor ──────
+        if runner.cancel_event.is_set():
+            raise asyncio.CancelledError()
+
         timeout = agent.timeout_seconds or task.timeout_seconds
 
-        if asyncio.iscoroutinefunction(executor):
+        # Determine execution strategy:
+        # 1. iscoroutinefunction → direct await (most common)
+        # 2. Unwrap functools.partial to check if underlying is async
+        # 3. Otherwise → sync callable, run in thread to avoid blocking event loop
+        unwrapped = executor
+        while hasattr(unwrapped, "func"):
+            unwrapped = unwrapped.func  # Unwrap functools.partial
+
+        if asyncio.iscoroutinefunction(unwrapped):
+            # Async callable (or partial wrapping async) → await directly
             result: TaskResult = await asyncio.wait_for(executor(task), timeout=timeout)
         else:
-            loop = asyncio.get_running_loop()
+            # Sync callable → run in thread to avoid blocking event loop
             result = await asyncio.wait_for(
-                loop.run_in_executor(None, executor, task),
+                asyncio.to_thread(executor, task),
                 timeout=timeout,
             )
+
+        # ── Step 3: Check cancellation after execution ───────────────
+        if runner.cancel_event.is_set():
+            raise asyncio.CancelledError()
 
         completed_at = datetime.now(UTC)
         result.started_at = started_at

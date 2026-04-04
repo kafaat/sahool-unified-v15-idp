@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
 
     if (!action || !['current', 'forecast', 'agricultural'].includes(action)) {
       return NextResponse.json(
-        { error: 'Invalid action. Must be: current, forecast, or agricultural' },
+        { error: 'Invalid action. Must be: current, forecast, or agricultural', error_ar: 'إجراء غير صالح. يجب أن يكون: current أو forecast أو agricultural' },
         { status: 400 }
       );
     }
@@ -135,14 +135,14 @@ export async function POST(request: NextRequest) {
       lon > 180
     ) {
       return NextResponse.json(
-        { error: 'lat must be between -90 and 90, lon between -180 and 180' },
+        { error: 'lat must be between -90 and 90, lon between -180 and 180', error_ar: 'يجب أن يكون خط العرض بين -90 و 90 وخط الطول بين -180 و 180' },
         { status: 400 }
       );
     }
 
     const tenantId = await getTenantId();
     if (!tenantId) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      return NextResponse.json({ error: 'Authentication required', error_ar: 'المصادقة مطلوبة' }, { status: 401 });
     }
 
     // Build path based on action
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
     // Validate field_id if provided -- must be UUID to prevent injection
     if (field_id !== undefined && field_id !== null && field_id !== 'default') {
       if (typeof field_id !== 'string' || !isValidUUID(field_id)) {
-        return NextResponse.json({ error: 'field_id must be a valid UUID' }, { status: 400 });
+        return NextResponse.json({ error: 'field_id must be a valid UUID', error_ar: 'يجب أن يكون معرف الحقل UUID صالح' }, { status: 400 });
       }
     }
 
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
         body: text.slice(0, 200),
       });
       return NextResponse.json(
-        { error: 'Weather service returned an unexpected response' },
+        { error: 'Weather service returned an unexpected response', error_ar: 'خدمة الطقس أعادت استجابة غير متوقعة' },
         { status: 502 }
       );
     }
@@ -196,13 +196,13 @@ export async function POST(request: NextRequest) {
       data = await response.json();
     } catch {
       logger.error('Failed to parse weather service JSON response');
-      return NextResponse.json({ error: 'Weather service returned invalid JSON' }, { status: 502 });
+      return NextResponse.json({ error: 'Weather service returned invalid JSON', error_ar: 'خدمة الطقس أعادت JSON غير صالح' }, { status: 502 });
     }
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     logger.error('Weather API proxy error:', error);
-    return NextResponse.json({ error: 'Failed to fetch weather data' }, { status: 502 });
+    return NextResponse.json({ error: 'Failed to fetch weather data', error_ar: 'فشل في جلب بيانات الطقس' }, { status: 502 });
   }
 }
 

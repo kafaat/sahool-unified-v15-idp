@@ -4,7 +4,7 @@
  * شريط التنقل الجانبي للعميل (المزارع)
  *
  * This sidebar is for the farmer-facing web app only.
- * Admin-only features (Users, Research, Compliance, Code Review)
+ * Admin-exclusive features (Code Review, Fleet Tracking)
  * are in the admin portal (apps/admin/).
  *
  * Modeled after John Deere Operations Center, Trimble Ag, and similar
@@ -87,11 +87,9 @@ interface NavGroup {
  * Only includes features relevant to farm operations.
  *
  * The following features are NOT included here because they belong
- * in the admin portal (apps/admin/), not the farmer-facing web app:
- * - Users (إدارة المستخدمين)
- * - Research (الأبحاث)
- * - Compliance (الامتثال)
+ * exclusively in the admin portal (apps/admin/), not the farmer-facing web app:
  * - Code Review (مراجعات الكود)
+ * - Fleet Tracking (تتبع الأسطول)
  */
 const navGroups: NavGroup[] = [
   {

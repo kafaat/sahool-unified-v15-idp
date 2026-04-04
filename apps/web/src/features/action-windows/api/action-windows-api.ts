@@ -122,8 +122,8 @@ async function fetchWeatherForecast(
 
     return conditions;
   } catch (error) {
-    logger.error('Failed to fetch weather forecast:', error);
-    throw new Error(ERROR_MESSAGES.WEATHER_DATA_UNAVAILABLE.en);
+    logger.warn('Failed to fetch weather forecast, returning empty forecast:', error);
+    return [];
   }
 }
 

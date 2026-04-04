@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
 
     if (rateLimited) {
       return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
+        { success: false, error: 'Too many requests. Please try again later.', error_ar: 'طلبات كثيرة جداً. يرجى المحاولة لاحقاً.' },
         { status: 429 }
       );
     }
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
 
     if (!accessToken) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
+        { success: false, error: 'Authentication required', error_ar: 'المصادقة مطلوبة' },
         { status: 401 }
       );
     }
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
     const tenantId = extractTenantId(accessToken);
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid token: missing tenant_id' },
+        { success: false, error: 'Invalid token: missing tenant_id', error_ar: 'رمز غير صالح: معرف المستأجر مفقود' },
         { status: 401 }
       );
     }
@@ -153,6 +153,14 @@ export async function GET(request: NextRequest) {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
+    const respContentType = response.headers.get('content-type') || '';
+    if (!respContentType.includes('application/json')) {
+      return NextResponse.json(
+        { success: false, error: 'Alert service returned non-JSON response', error_ar: 'خدمة التنبيهات أرجعت استجابة غير JSON' },
+        { status: 502 }
+      );
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -160,6 +168,7 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           error: data.detail || data.message || 'Failed to fetch alerts',
+          error_ar: 'فشل في جلب التنبيهات',
         },
         { status: response.status }
       );
@@ -167,17 +176,17 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') {
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
       logger.error('[Alerts API] Request to alert-service timed out');
       return NextResponse.json(
-        { success: false, error: 'Request timed out' },
+        { success: false, error: 'Request timed out', error_ar: 'انتهت مهلة الطلب' },
         { status: 504 }
       );
     }
 
     logger.error('[Alerts API] Error fetching alerts:', error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: 'Internal server error', error_ar: 'خطأ داخلي في الخادم' },
       { status: 500 }
     );
   }
@@ -209,7 +218,7 @@ export async function POST(request: NextRequest) {
 
     if (rateLimited) {
       return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
+        { success: false, error: 'Too many requests. Please try again later.', error_ar: 'طلبات كثيرة جداً. يرجى المحاولة لاحقاً.' },
         { status: 429 }
       );
     }
@@ -220,7 +229,7 @@ export async function POST(request: NextRequest) {
 
     if (!accessToken) {
       return NextResponse.json(
-        { success: false, error: 'Authentication required' },
+        { success: false, error: 'Authentication required', error_ar: 'المصادقة مطلوبة' },
         { status: 401 }
       );
     }
@@ -229,13 +238,30 @@ export async function POST(request: NextRequest) {
     const tenantId = extractTenantId(accessToken);
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid token: missing tenant_id' },
+        { success: false, error: 'Invalid token: missing tenant_id', error_ar: 'رمز غير صالح: معرف المستأجر مفقود' },
         { status: 401 }
       );
     }
 
+    // Validate Content-Type before parsing
+    const requestContentType = request.headers.get('content-type') || '';
+    if (!requestContentType.includes('application/json')) {
+      return NextResponse.json(
+        { success: false, error: 'Content-Type must be application/json', error_ar: 'نوع المحتوى يجب أن يكون application/json' },
+        { status: 415 }
+      );
+    }
+
     // Parse and validate request body
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON body', error_ar: 'نص الطلب غير صالح' },
+        { status: 400 }
+      );
+    }
 
     const { alert_id, action, comment } = body as {
       alert_id?: string;
@@ -246,14 +272,14 @@ export async function POST(request: NextRequest) {
     // Validate alert_id
     if (!alert_id || typeof alert_id !== 'string') {
       return NextResponse.json(
-        { success: false, error: 'Missing required field: alert_id' },
+        { success: false, error: 'Missing required field: alert_id', error_ar: 'حقل مطلوب مفقود: معرف التنبيه' },
         { status: 400 }
       );
     }
 
     if (!VALID_ID_PATTERN.test(alert_id)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid alert_id format' },
+        { success: false, error: 'Invalid alert_id format', error_ar: 'تنسيق معرف التنبيه غير صالح' },
         { status: 400 }
       );
     }
@@ -264,12 +290,13 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: `Invalid action. Must be one of: ${VALID_ACTIONS.join(', ')}`,
+          error_ar: 'إجراء غير صالح',
         },
         { status: 400 }
       );
     }
 
-    const backendUrl = `${ALERT_SERVICE_URL}/api/v1/alerts/${alert_id}/${action}`;
+    const backendUrl = `${ALERT_SERVICE_URL}/api/v1/alerts/${encodeURIComponent(alert_id)}/${encodeURIComponent(action)}`;
 
     const response = await fetch(backendUrl, {
       method: 'POST',
@@ -284,6 +311,14 @@ export async function POST(request: NextRequest) {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
+    const respContentType = response.headers.get('content-type') || '';
+    if (!respContentType.includes('application/json')) {
+      return NextResponse.json(
+        { success: false, error: 'Alert service returned non-JSON response', error_ar: 'خدمة التنبيهات أرجعت استجابة غير JSON' },
+        { status: 502 }
+      );
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -291,28 +326,33 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: data.detail || data.message || `Failed to ${action} alert`,
+          error_ar: 'فشل في تنفيذ إجراء التنبيه',
         },
         { status: response.status }
       );
     }
 
+    const messageMap: Record<string, string> = { acknowledge: 'Alert acknowledged successfully', resolve: 'Alert resolved successfully', dismiss: 'Alert dismissed successfully' };
+    const messageMapAr: Record<string, string> = { acknowledge: 'تم الإقرار بالتنبيه بنجاح', resolve: 'تم حل التنبيه بنجاح', dismiss: 'تم تجاهل التنبيه بنجاح' };
+
     return NextResponse.json({
       success: true,
-      message: { acknowledge: 'Alert acknowledged successfully', resolve: 'Alert resolved successfully', dismiss: 'Alert dismissed successfully' }[action] ?? `Alert ${action} completed`,
+      message: messageMap[action] ?? `Alert ${action} completed`,
+      message_ar: messageMapAr[action] ?? 'تم تنفيذ إجراء التنبيه',
       data,
     });
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') {
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
       logger.error('[Alerts API] Request to alert-service timed out');
       return NextResponse.json(
-        { success: false, error: 'Request timed out' },
+        { success: false, error: 'Request timed out', error_ar: 'انتهت مهلة الطلب' },
         { status: 504 }
       );
     }
 
     logger.error('[Alerts API] Error performing alert action:', error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: 'Internal server error', error_ar: 'خطأ داخلي في الخادم' },
       { status: 500 }
     );
   }

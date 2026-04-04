@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     const token = await getAccessToken();
     if (!token) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'Authentication required', error_ar: 'المصادقة مطلوبة' },
         { status: 401 }
       );
     }
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
     const fieldId = searchParams.get('fieldId');
 
     if (fieldId && !SAFE_ID_PATTERN.test(fieldId)) {
-      return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid fieldId format', error_ar: 'تنسيق معرف الحقل غير صالح' }, { status: 400 });
     }
 
     let path: string;
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
     switch (action) {
       case 'dem': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const params = new URLSearchParams();
         const resolution = searchParams.get('resolution');
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
       }
       case 'slope': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const params = new URLSearchParams();
         const units = searchParams.get('units');
@@ -127,14 +127,14 @@ export async function GET(request: NextRequest) {
       }
       case 'aspect': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         path = `/api/v1/terrain/aspect/${encodeURIComponent(fieldId)}`;
         break;
       }
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: dem, slope, aspect' },
+          { error: 'Invalid action. Use: dem, slope, aspect', error_ar: 'إجراء غير صالح. استخدم: dem, slope, aspect' },
           { status: 400 }
         );
     }
@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return NextResponse.json(
-        { error: 'Terrain service returned non-JSON response' },
+        { error: 'Terrain service returned non-JSON response', error_ar: 'خدمة التضاريس أرجعت استجابة غير JSON' },
         { status: 502 }
       );
     }
@@ -156,15 +156,15 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error: unknown) {
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
       return NextResponse.json(
-        { error: 'Terrain service timeout. Please retry.' },
+        { error: 'Terrain service timeout. Please retry.', error_ar: 'انتهت مهلة خدمة التضاريس. يرجى المحاولة مرة أخرى.' },
         { status: 504 }
       );
     }
     logger.error('Terrain GET proxy error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch terrain data' },
+      { error: 'Failed to fetch terrain data', error_ar: 'فشل في جلب بيانات التضاريس' },
       { status: 502 }
     );
   }
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
     const token = await getAccessToken();
     if (!token) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'Authentication required', error_ar: 'المصادقة مطلوبة' },
         { status: 401 }
       );
     }
@@ -197,11 +197,11 @@ export async function POST(request: NextRequest) {
     const { action, fieldId } = body;
 
     if (!action || typeof action !== 'string') {
-      return NextResponse.json({ error: 'action is required' }, { status: 400 });
+      return NextResponse.json({ error: 'action is required', error_ar: 'الإجراء مطلوب' }, { status: 400 });
     }
 
     if (!fieldId || typeof fieldId !== 'string' || !SAFE_ID_PATTERN.test(fieldId)) {
-      return NextResponse.json({ error: 'Valid fieldId is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Valid fieldId is required', error_ar: 'معرف حقل صالح مطلوب' }, { status: 400 });
     }
 
     let path: string;
@@ -222,7 +222,7 @@ export async function POST(request: NextRequest) {
       }
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: analyze' },
+          { error: 'Invalid action. Use: analyze', error_ar: 'إجراء غير صالح. استخدم: analyze' },
           { status: 400 }
         );
     }
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return NextResponse.json(
-        { error: 'Terrain service returned non-JSON response' },
+        { error: 'Terrain service returned non-JSON response', error_ar: 'خدمة التضاريس أرجعت استجابة غير JSON' },
         { status: 502 }
       );
     }
@@ -245,15 +245,15 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error: unknown) {
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) {
       return NextResponse.json(
-        { error: 'Terrain analysis timeout. Please retry.' },
+        { error: 'Terrain analysis timeout. Please retry.', error_ar: 'انتهت مهلة تحليل التضاريس. يرجى المحاولة مرة أخرى.' },
         { status: 504 }
       );
     }
     logger.error('Terrain POST proxy error:', error);
     return NextResponse.json(
-      { error: 'Failed to process terrain analysis request' },
+      { error: 'Failed to process terrain analysis request', error_ar: 'فشل في معالجة طلب تحليل التضاريس' },
       { status: 502 }
     );
   }

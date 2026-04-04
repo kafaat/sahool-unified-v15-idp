@@ -462,11 +462,13 @@ function getNdviStatus(
 }
 
 function getActiveStageIndex(stages: GrowthStage[], currentDay?: number): number {
-  if (currentDay === undefined) return -1;
+  if (currentDay === undefined || stages.length === 0) return -1;
   for (let i = 0; i < stages.length; i++) {
-    if (currentDay >= stages[i]!.startDay && currentDay <= stages[i]!.endDay) return i;
+    const stage = stages[i];
+    if (stage && currentDay >= stage.startDay && currentDay <= stage.endDay) return i;
   }
-  if (stages.length > 0 && currentDay > stages[stages.length - 1]!.endDay) return stages.length - 1;
+  const lastStage = stages[stages.length - 1];
+  if (lastStage && currentDay > lastStage.endDay) return stages.length - 1;
   return -1;
 }
 

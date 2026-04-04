@@ -130,6 +130,22 @@ vi.mock('lucide-react', () => {
     HelpCircle: IconMock,
     Bug: IconMock,
     Radar: IconMock,
+    Search: IconMock,
+    Shield: IconMock,
+    CalendarDays: IconMock,
+    Eye: IconMock,
+    Map: IconMock,
+    Mountain: IconMock,
+    TestTube: IconMock,
+    Plane: IconMock,
+    Radio: IconMock,
+    Grid3x3: IconMock,
+    Leaf: IconMock,
+    ShieldCheck: IconMock,
+    QrCode: IconMock,
+    Award: IconMock,
+    GitCompare: IconMock,
+    CalendarRange: IconMock,
   };
 });
 

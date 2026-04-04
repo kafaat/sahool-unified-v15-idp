@@ -105,8 +105,12 @@ async function uploadPhoto(file: File, sessionId: string): Promise<string> {
     }
     return url;
   } catch (error) {
+    // Re-throw validation errors as-is instead of masking with generic message
+    if (error instanceof Error && (error.message.includes('No photo URL') || error.message.includes('Unexpected response'))) {
+      throw error;
+    }
     logger.error('Failed to upload photo:', error);
-    throw new Error(ERROR_MESSAGES.PHOTO_UPLOAD_FAILED.en);
+    throw new Error(`${ERROR_MESSAGES.PHOTO_UPLOAD_FAILED.en} | ${ERROR_MESSAGES.PHOTO_UPLOAD_FAILED.ar}`);
   }
 }
 
@@ -221,8 +225,12 @@ export const scoutingApi = {
       });
 
       const session = response.data?.data;
-      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session)) {
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
         throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
       }
       return session as ScoutingSession;
     });
@@ -243,8 +251,12 @@ export const scoutingApi = {
       );
 
       const session = response.data?.data;
-      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session)) {
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
         throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
       }
       return session as ScoutingSession;
     });
@@ -260,8 +272,12 @@ export const scoutingApi = {
         `${API_PREFIX}/scouting/sessions/${sessionId}`
       );
       const session = response.data?.data;
-      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session)) {
+      if (!session || typeof session !== 'object' || !('id' in session) || !('fieldId' in session || 'field_id' in session)) {
         throw new Error('Invalid session response from server | استجابة جلسة غير صالحة من الخادم');
+      }
+      // Normalize snake_case → camelCase for consistent downstream access
+      if ('field_id' in session && !('fieldId' in session)) {
+        (session as Record<string, unknown>).fieldId = (session as Record<string, unknown>).field_id;
       }
       return session as ScoutingSession;
     });

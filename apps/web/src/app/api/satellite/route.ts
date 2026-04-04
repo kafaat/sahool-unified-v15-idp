@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
 
     // Validate fieldId format if provided
     if (fieldId && !FIELD_ID_PATTERN.test(fieldId)) {
-      return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid fieldId format', error_ar: 'تنسيق معرف الحقل غير صالح' }, { status: 400 });
     }
 
     // Validate days as integer 1-365
@@ -102,32 +102,32 @@ export async function GET(request: NextRequest) {
 
     // Validate coordinates if provided
     if (lat && (isNaN(Number(lat)) || Number(lat) < -90 || Number(lat) > 90)) {
-      return NextResponse.json({ error: 'lat must be between -90 and 90' }, { status: 400 });
+      return NextResponse.json({ error: 'lat must be between -90 and 90', error_ar: 'يجب أن يكون خط العرض بين -90 و 90' }, { status: 400 });
     }
     if (lon && (isNaN(Number(lon)) || Number(lon) < -180 || Number(lon) > 180)) {
-      return NextResponse.json({ error: 'lon must be between -180 and 180' }, { status: 400 });
+      return NextResponse.json({ error: 'lon must be between -180 and 180', error_ar: 'يجب أن يكون خط الطول بين -180 و 180' }, { status: 400 });
     }
 
     let path: string;
     switch (action) {
       case 'indices': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const params = new URLSearchParams();
         if (lat) params.set('lat', lat);
         if (lon) params.set('lon', lon);
         const qs = params.toString();
-        path = `/v1/indices/${fieldId}${qs ? `?${qs}` : ''}`;
+        path = `/v1/indices/${encodeURIComponent(fieldId)}${qs ? `?${qs}` : ''}`;
         break;
       }
       case 'timeseries': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const tsParams = new URLSearchParams();
         tsParams.set('days', String(parsedDays));
-        path = `/v1/timeseries/${fieldId}?${tsParams.toString()}`;
+        path = `/v1/timeseries/${encodeURIComponent(fieldId)}?${tsParams.toString()}`;
         break;
       }
       case 'satellites':
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
         break;
       case 'sar-timeseries': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const sarParams = new URLSearchParams();
         const startDate = searchParams.get('start_date');
@@ -151,29 +151,29 @@ export async function GET(request: NextRequest) {
         if (lat) sarParams.set('lat', lat);
         if (lon) sarParams.set('lon', lon);
         const sarQs = sarParams.toString();
-        path = `/v1/sar-timeseries/${fieldId}${sarQs ? `?${sarQs}` : ''}`;
+        path = `/v1/sar-timeseries/${encodeURIComponent(fieldId)}${sarQs ? `?${sarQs}` : ''}`;
         break;
       }
       case 'cloud-cover': {
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const ccParams = new URLSearchParams();
         if (lat) ccParams.set('lat', lat);
         if (lon) ccParams.set('lon', lon);
         const ccQs = ccParams.toString();
-        path = `/v1/cloud-cover/${fieldId}${ccQs ? `?${ccQs}` : ''}`;
+        path = `/v1/cloud-cover/${encodeURIComponent(fieldId)}${ccQs ? `?${ccQs}` : ''}`;
         break;
       }
       case 'clear-observations':
         if (!fieldId) {
-          return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
-        path = `/v1/clear-observations/${fieldId}`;
+        path = `/v1/clear-observations/${encodeURIComponent(fieldId)}`;
         break;
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status, sar-timeseries, cloud-cover, clear-observations' },
+          { error: 'Invalid action. Use: indices, timeseries, satellites, providers, eo-status, sar-timeseries, cloud-cover, clear-observations', error_ar: 'إجراء غير صالح' },
           { status: 400 }
         );
     }
@@ -190,7 +190,7 @@ export async function GET(request: NextRequest) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return NextResponse.json(
-        { error: 'Vegetation service returned non-JSON response' },
+        { error: 'Vegetation service returned non-JSON response', error_ar: 'خدمة الغطاء النباتي أرجعت استجابة غير JSON' },
         { status: 502 }
       );
     }
@@ -202,7 +202,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Satellite service timeout. Please retry.', error_ar: 'انتهت مهلة خدمة الأقمار الصناعية. يرجى المحاولة مرة أخرى.' }, { status: 504 });
     }
     logger.error('Satellite API proxy error:', error);
-    return NextResponse.json({ error: 'Failed to fetch satellite data' }, { status: 502 });
+    return NextResponse.json({ error: 'Failed to fetch satellite data', error_ar: 'فشل في جلب بيانات الأقمار الصناعية' }, { status: 502 });
   }
 }
 
@@ -222,16 +222,16 @@ export async function POST(request: NextRequest) {
     const { action, fieldId, analysisType } = body;
 
     if (action !== 'analyze') {
-      return NextResponse.json({ error: 'POST only supports analyze action' }, { status: 400 });
+      return NextResponse.json({ error: 'POST only supports analyze action', error_ar: 'POST يدعم فقط إجراء التحليل' }, { status: 400 });
     }
 
     if (!fieldId) {
-      return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
+      return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
     }
 
     // Validate fieldId format
     if (typeof fieldId !== 'string' || !FIELD_ID_PATTERN.test(fieldId)) {
-      return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid fieldId format', error_ar: 'تنسيق معرف الحقل غير صالح' }, { status: 400 });
     }
 
     const { latitude, longitude, coordinates } = body;
@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       return NextResponse.json(
-        { error: 'Vegetation service returned non-JSON response' },
+        { error: 'Vegetation service returned non-JSON response', error_ar: 'خدمة الغطاء النباتي أرجعت استجابة غير JSON' },
         { status: 502 }
       );
     }
@@ -263,6 +263,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Satellite analysis timeout. Please retry.', error_ar: 'انتهت مهلة تحليل الأقمار الصناعية. يرجى المحاولة مرة أخرى.' }, { status: 504 });
     }
     logger.error('Satellite analyze proxy error:', error);
-    return NextResponse.json({ error: 'Failed to analyze satellite data' }, { status: 502 });
+    return NextResponse.json({ error: 'Failed to analyze satellite data', error_ar: 'فشل في تحليل بيانات الأقمار الصناعية' }, { status: 502 });
   }
 }

@@ -92,12 +92,8 @@ describe('use-alerts source analysis', () => {
     expect(source).toContain('fetchAlerts');
   });
 
-  it('imports apiClient from @/lib/api', () => {
-    expect(source).toContain('apiClient');
-  });
-
-  it('imports API_URLS from @/config/api', () => {
-    expect(source).toContain("import { API_URLS } from '@/config/api'");
+  it('imports alertService from @/lib/api', () => {
+    expect(source).toContain('alertService');
   });
 
   it('has use client directive', () => {
@@ -128,9 +124,8 @@ describe('use-alerts source analysis', () => {
     expect(source).toContain('staleTime: 15000');
   });
 
-  it('useAcknowledgeAlert uses post method on alerts endpoint', () => {
-    expect(source).toContain('apiClient.post');
-    expect(source).toContain('/acknowledge');
+  it('useAcknowledgeAlert uses alertService.acknowledge', () => {
+    expect(source).toContain('alertService.acknowledge');
   });
 
   it('useAcknowledgeAlert invalidates alerts cache key', () => {

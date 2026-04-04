@@ -176,7 +176,12 @@ class AgentPool:
         self._stats["tasks_submitted"] += len(pairs)
 
         coros = [self._run_guarded(agent, task) for agent, task in pairs]
-        results = await asyncio.gather(*coros)
+        tasks_objs = [asyncio.ensure_future(c) for c in coros]
+        self._running_tasks.update(tasks_objs)
+        try:
+            results = await asyncio.gather(*tasks_objs)
+        finally:
+            self._running_tasks.difference_update(tasks_objs)
         return list(results)
 
     # ── Single Execution ─────────────────────────────────────────────────

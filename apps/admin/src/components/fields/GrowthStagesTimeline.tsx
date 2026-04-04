@@ -575,7 +575,7 @@ export default function GrowthStagesTimeline({
   const stages = useMemo(() => CROP_STAGES[cropType] ?? WHEAT_STAGES, [cropType]);
   const cropLabel = CROP_LABELS[cropType] ?? CROP_LABELS['wheat']!;
   const activeIndex = useMemo(() => getActiveStageIndex(stages, currentDay), [stages, currentDay]);
-  const totalDays = stages[stages.length - 1]!.endDay;
+  const totalDays = stages.length > 0 ? stages[stages.length - 1]!.endDay : 150;
 
   const activeStage = activeIndex >= 0 ? stages[activeIndex] : null;
   const ndviStatus = activeStage ? getNdviStatus(currentNdvi, activeStage.ndviTarget) : null;

@@ -163,7 +163,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = React.useCallback(async (email: string, password: string, totp_code?: string) => {
     // Prevent concurrent login requests (race condition guard)
-    if (isLoggingInRef.current) return;
+    if (isLoggingInRef.current) {
+      throw new Error('Login already in progress | تسجيل الدخول قيد التنفيذ بالفعل');
+    }
     isLoggingInRef.current = true;
 
     try {

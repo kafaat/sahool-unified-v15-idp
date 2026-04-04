@@ -38,7 +38,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Global Ctrl+K / Cmd+K shortcut to open command palette
   React.useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        // Don't trigger inside editable fields
+        const tag = (e.target as HTMLElement)?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
         e.preventDefault();
         setCommandPaletteOpen((prev) => !prev);
       }

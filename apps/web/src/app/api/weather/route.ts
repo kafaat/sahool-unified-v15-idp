@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     const rateLimited = await isRateLimited(clientIP, RATE_LIMIT_CONFIG);
     if (rateLimited) {
       return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
+        { error: 'Too many requests. Please try again later.', error_ar: 'طلبات كثيرة جداً. يرجى المحاولة لاحقاً.' },
         { status: 429 }
       );
     }
@@ -219,7 +219,7 @@ export async function GET(request: NextRequest) {
     const rateLimited = await isRateLimited(clientIP, RATE_LIMIT_CONFIG);
     if (rateLimited) {
       return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
+        { error: 'Too many requests. Please try again later.', error_ar: 'طلبات كثيرة جداً. يرجى المحاولة لاحقاً.' },
         { status: 429 }
       );
     }
@@ -232,12 +232,12 @@ export async function GET(request: NextRequest) {
     // Extract tenant context
     const tenantId = await getTenantId();
     if (!tenantId) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      return NextResponse.json({ error: 'Authentication required', error_ar: 'المصادقة مطلوبة' }, { status: 401 });
     }
 
     // Validate locationId against path traversal (must be UUID or slug)
     if (locationId && !/^[a-zA-Z0-9_-]+$/.test(locationId)) {
-      return NextResponse.json({ error: 'Invalid locationId format' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid locationId format', error_ar: 'صيغة معرف الموقع غير صالحة' }, { status: 400 });
     }
 
     let path: string;
@@ -249,7 +249,7 @@ export async function GET(request: NextRequest) {
         path = '/weather/locations';
         break;
       case 'current':
-        if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
+        if (!locationId) return NextResponse.json({ error: 'locationId required', error_ar: 'معرف الموقع مطلوب' }, { status: 400 });
         path = `/weather/current/${encodeURIComponent(locationId)}`;
         break;
       case 'forecast': {
@@ -267,7 +267,7 @@ export async function GET(request: NextRequest) {
         break;
       }
       default:
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid action', error_ar: 'إجراء غير صالح' }, { status: 400 });
     }
 
     // Build headers with tenant context
@@ -284,7 +284,7 @@ export async function GET(request: NextRequest) {
 
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
-      return NextResponse.json({ error: 'Weather service returned non-JSON' }, { status: 502 });
+      return NextResponse.json({ error: 'Weather service returned non-JSON', error_ar: 'خدمة الطقس أعادت استجابة غير صالحة' }, { status: 502 });
     }
 
     const data = await response.json();

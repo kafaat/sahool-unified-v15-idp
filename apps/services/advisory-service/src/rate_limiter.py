@@ -161,30 +161,57 @@ class _RedisBackend:
         except Exception:
             raise
 
+    _BURST_TOKEN_BUCKET_LUA = """
+    local bucket_key = KEYS[1]
+    local now = tonumber(ARGV[1])
+    local burst_limit = tonumber(ARGV[2])
+    local window = tonumber(ARGV[3])
+    local ttl = tonumber(ARGV[4])
+
+    local tokens = burst_limit
+    local last_update = now
+    local data = redis.call('HGETALL', bucket_key)
+
+    if next(data) ~= nil then
+      for i = 1, #data, 2 do
+        if data[i] == 'tokens' then
+          tokens = tonumber(data[i + 1]) or 0
+        elseif data[i] == 'last_update' then
+          last_update = tonumber(data[i + 1]) or now
+        end
+      end
+
+      local elapsed = now - last_update
+      local refill = math.floor((elapsed / window) * burst_limit)
+      tokens = math.min(burst_limit, tokens + refill)
+    end
+
+    if tokens > 0 then
+      redis.call('HSET', bucket_key, 'tokens', tostring(tokens - 1), 'last_update', tostring(now))
+      redis.call('EXPIRE', bucket_key, ttl)
+      return 1
+    end
+
+    return 0
+    """
+
     async def check_burst(self, key: str, burst_limit: int, window: float = 5.0) -> bool:
-        """Check burst via token bucket stored in Redis hash."""
+        """Check burst atomically via Lua token bucket stored in Redis hash."""
         if not self._redis:
             raise RuntimeError("Redis not available")
         bucket_key = f"advisory:ratelimit:burst:{key}"
         now = time.time()
         try:
-            data = await self._redis.hgetall(bucket_key)
-            if not data:
-                await self._redis.hset(bucket_key, mapping={"tokens": str(burst_limit - 1), "last_update": str(now)})
-                await self._redis.expire(bucket_key, int(window * 4))
-                return True
-
-            tokens = float(data.get("tokens", "0"))
-            last_update = float(data.get("last_update", str(now)))
-            elapsed = now - last_update
-            refill = int(elapsed / window * burst_limit)
-            tokens = min(burst_limit, tokens + refill)
-
-            if tokens > 0:
-                await self._redis.hset(bucket_key, mapping={"tokens": str(tokens - 1), "last_update": str(now)})
-                await self._redis.expire(bucket_key, int(window * 4))
-                return True
-            return False
+            result = await self._redis.eval(
+                self._BURST_TOKEN_BUCKET_LUA,
+                1,
+                bucket_key,
+                str(now),
+                str(burst_limit),
+                str(window),
+                str(int(window * 4)),
+            )
+            return bool(int(result))
         except Exception:
             raise
 
@@ -286,7 +313,8 @@ class AdvisoryRateLimiter:
 
     async def _check_redis(self, key: str, tier_config: RateLimitTier) -> tuple[bool, dict[str, str]]:
         """Check rate limits using Redis backend."""
-        assert self._redis_backend is not None
+        if self._redis_backend is None:
+            raise RuntimeError("Redis backend is not configured for rate limiting")
 
         # Check burst
         if not await self._redis_backend.check_burst(key, tier_config.burst_limit):

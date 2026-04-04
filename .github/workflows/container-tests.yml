@@ -27,7 +27,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}
+  IMAGE_PREFIX: sahool
 
 jobs:
   # Job 1: Lint all Dockerfiles with hadolint

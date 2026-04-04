@@ -31,7 +31,7 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}
+  IMAGE_PREFIX: sahool
   SERVICE_NAME: edge-orchestrator-service
   SERVICE_PATH: apps/services/edge-orchestrator-service
   SERVICE_PORT: 8180

@@ -63,12 +63,16 @@ function sendMetric(metric: Metric): void {
  * Call this once from a client component (e.g., in providers or layout).
  */
 export function reportWebVitals(): void {
-  import('web-vitals').then(({ onCLS, onFID, onLCP, onFCP, onTTFB, onINP }) => {
-    onCLS(sendMetric);
-    onFID(sendMetric);
-    onLCP(sendMetric);
-    onFCP(sendMetric);
-    onTTFB(sendMetric);
-    onINP(sendMetric);
-  });
+  import('web-vitals')
+    .then(({ onCLS, onFID, onLCP, onFCP, onTTFB, onINP }) => {
+      onCLS(sendMetric);
+      onFID(sendMetric);
+      onLCP(sendMetric);
+      onFCP(sendMetric);
+      onTTFB(sendMetric);
+      onINP(sendMetric);
+    })
+    .catch(() => {
+      // Silently fail - vitals reporting is best-effort
+    });
 }

@@ -12,7 +12,6 @@ from src.rate_limiter import (
     TIERS,
     AdvisoryRateLimiter,
     RateLimitTier,
-    _RedisBackend,
     get_rate_limiter,
     rate_limit,
 )

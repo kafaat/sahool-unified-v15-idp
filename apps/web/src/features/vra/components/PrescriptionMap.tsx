@@ -134,35 +134,33 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
   const onEachFeature = (feature: GeoJSON.Feature, layer: L.Layer) => {
     const props = feature.properties ?? {};
 
-    // Create popup content
-    const popupContent = `
-      <div class="p-2 min-w-[200px]">
-        <h3 class="font-bold text-sm mb-2">${props.zoneName} | ${props.zoneNameAr}</h3>
-        <div class="space-y-1 text-xs">
-          <p><strong>NDVI Range:</strong> ${props.ndviMin.toFixed(2)} - ${props.ndviMax.toFixed(2)}</p>
-          <p><strong>Area | المساحة:</strong> ${props.areaHa.toFixed(2)} ha (${props.percentage.toFixed(1)}%)</p>
-          <p><strong>Rate | المعدل:</strong> <span class="text-green-700 font-semibold">${props.recommendedRate.toFixed(2)} ${props.unit}</span></p>
-          <p><strong>Total Product | إجمالي المنتج:</strong> ${props.totalProduct.toFixed(2)} ${props.unit}</p>
+    if (typeof (layer as L.Path).bindPopup === 'function') {
+      // Sanitize values to prevent XSS from external GeoJSON properties
+      const esc = (v: unknown) => String(v ?? '').replace(/[<>&"']/g, (c) => `&#${c.charCodeAt(0)};`);
+      const safeContent = `
+        <div style="direction:rtl;font-family:Tajawal,sans-serif;min-width:180px">
+          <h4 style="margin:0 0 6px;font-size:14px">${esc(props.zone)} — ${esc(props.crop)}</h4>
+          <p><strong>NDVI:</strong> ${esc(props.ndvi.toFixed(3))}</p>
+          <p><strong>Rate | المعدل:</strong> ${esc(props.rate.toFixed(1))} ${esc(props.unit)}/ha</p>
+          <p><strong>Total Product | إجمالي المنتج:</strong> ${esc(props.totalProduct.toFixed(2))} ${esc(props.unit)}</p>
         </div>
-      </div>
-    `;
-
-    if ('bindPopup' in layer) {
-      (layer as L.Layer & { bindPopup: (content: string) => L.Layer }).bindPopup(popupContent);
+      `;
+      (layer as L.Path).bindPopup(safeContent);
     }
 
     // Highlight on hover
     layer.on({
       mouseover: (e: L.LeafletEvent) => {
         const target = e.target as L.Layer;
-        if ('setStyle' in target) (target as L.Path).setStyle({
-          weight: 5,
-          fillOpacity: 0.8,
-        });
+        if (typeof (target as L.Path).setStyle === 'function') {
+          (target as L.Path).setStyle({ weight: 5, fillOpacity: 0.8 });
+        }
       },
       mouseout: (e: L.LeafletEvent) => {
         const target = e.target as L.Layer;
-        if ('setStyle' in target) (target as L.Path).setStyle(getGeoJsonStyle(feature));
+        if (typeof (target as L.Path).setStyle === 'function') {
+          (target as L.Path).setStyle(getGeoJsonStyle(feature));
+        }
       },
     });
   };

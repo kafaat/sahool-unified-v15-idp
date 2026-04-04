@@ -15,9 +15,9 @@ Author: SAHOOL Platform Team
 from __future__ import annotations
 
 import logging
-from datetime import UTC, date, datetime
 import math
 from dataclasses import dataclass, field
+from datetime import UTC, date, datetime
 from enum import StrEnum
 
 logger = logging.getLogger(__name__)

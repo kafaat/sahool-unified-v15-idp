@@ -112,6 +112,15 @@ class FileValidator:
         if not self.config.allow_executable:
             self._check_executable(file_content, filename)
 
+        # 5b. ZIP bomb protection — check compression ratio for archive types
+        archive_mimes = {
+            "application/zip", "application/x-zip-compressed",
+            "application/gzip", "application/x-gzip",
+            "application/x-tar", "application/x-7z-compressed",
+        }
+        if declared_mime_type in archive_mimes or (detected_mime and detected_mime in archive_mimes):
+            self._check_zip_bomb(file_content, filename)
+
         # 6. Scan for viruses
         if self.config.scan_for_viruses:
             await self._scan_virus(file_content, safe_filename)
@@ -231,6 +240,58 @@ class FileValidator:
                     "ملف قابل للتنفيذ غير مسموح / Executable file not allowed",
                     error_code="EXECUTABLE_NOT_ALLOWED",
                 )
+
+    def _check_zip_bomb(self, file_content: bytes, filename: str) -> None:
+        """
+        Check for ZIP bomb (decompression bomb) attacks.
+        فحص هجمات قنبلة الضغط
+
+        A ZIP bomb is a small compressed file that decompresses to a very large size,
+        potentially exhausting server memory/disk.
+
+        Defense: check compression ratio and total uncompressed size without
+        actually extracting the contents.
+        """
+        import zipfile
+        import io
+
+        # Only check ZIP files (not gzip/tar/7z — those need separate handling)
+        if not zipfile.is_zipfile(io.BytesIO(file_content)):
+            return
+
+        max_ratio = 100  # Reject if uncompressed > 100x compressed
+        max_uncompressed_bytes = 1024 * 1024 * 500  # 500 MB hard limit
+
+        try:
+            with zipfile.ZipFile(io.BytesIO(file_content)) as zf:
+                total_uncompressed = sum(info.file_size for info in zf.infolist())
+                compressed_size = len(file_content)
+
+                if total_uncompressed > max_uncompressed_bytes:
+                    raise FileValidationError(
+                        f"حجم الملف المفكوك كبير جداً ({total_uncompressed // (1024*1024)}MB) / "
+                        f"Uncompressed size too large ({total_uncompressed // (1024*1024)}MB)",
+                        error_code="ZIP_BOMB_DETECTED",
+                    )
+
+                if compressed_size > 0 and total_uncompressed / compressed_size > max_ratio:
+                    raise FileValidationError(
+                        f"نسبة ضغط مشبوهة ({total_uncompressed / compressed_size:.0f}x) / "
+                        f"Suspicious compression ratio ({total_uncompressed / compressed_size:.0f}x)",
+                        error_code="ZIP_BOMB_DETECTED",
+                    )
+
+                # Check for nested ZIP files (recursive bomb)
+                for info in zf.infolist():
+                    if info.filename.lower().endswith(".zip"):
+                        raise FileValidationError(
+                            "ملف ZIP متداخل غير مسموح / Nested ZIP files not allowed",
+                            error_code="ZIP_BOMB_DETECTED",
+                        )
+
+        except zipfile.BadZipFile:
+            # Not a valid ZIP despite MIME type — let other validators handle
+            pass
 
     async def _scan_virus(self, file_content: bytes, filename: str) -> None:
         """

@@ -199,24 +199,40 @@ jobs:
         run: |
           echo "Deploying Starter package services..."
 
+          # SECURITY: Write secrets to temp values file instead of --set CLI args.
+          # CLI args appear in process list and CI logs; files do not.
+          cat > /tmp/helm-secrets-staging.yaml <<SECRETS_EOF
+          secrets:
+            jwtSecret: "${{ secrets.JWT_SECRET_STAGING }}"
+          database:
+            url: "${{ secrets.DATABASE_URL_STAGING }}"
+          SECRETS_EOF
+
           # Deploy field-management-service (replaces field-ops)
           helm upgrade --install field-management-service ./helm/services/field-management-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
-            --set secrets.jwtSecret=${{ secrets.JWT_SECRET_STAGING }} \
-            --set database.url=${{ secrets.DATABASE_URL_STAGING }} \
+            --values /tmp/helm-secrets-staging.yaml \
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
           # Deploy weather-service (replaces deprecated weather-core)
+          cat > /tmp/helm-secrets-weather.yaml <<SECRETS_EOF
+          secrets:
+            openWeatherApiKey: "${{ secrets.OPENWEATHER_API_KEY }}"
+          SECRETS_EOF
+
           helm upgrade --install weather-service ./helm/services/weather-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
-            --set secrets.openWeatherApiKey=${{ secrets.OPENWEATHER_API_KEY }} \
+            --values /tmp/helm-secrets-weather.yaml \
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
+
+          # Cleanup temp secrets files
+          rm -f /tmp/helm-secrets-*.yaml
 
           # Deploy advisory-service (replaces deprecated agro-advisor)
           helm upgrade --install advisory-service ./helm/services/advisory-service \

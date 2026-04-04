@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required' }, { status: 400 });
         }
-        path = `/v1/cloud-cover/${fieldId}${lat ? `?lat=${lat}` : ''}${lon ? `&lon=${lon}` : ''}`;
+        const ccParams = new URLSearchParams(); if (lat) ccParams.set('lat', lat); if (lon) ccParams.set('lon', lon); const ccQs = ccParams.toString(); path = `/v1/cloud-cover/${fieldId}${ccQs ? `?${ccQs}` : ''}`;
         break;
       case 'clear-observations':
         if (!fieldId) {

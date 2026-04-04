@@ -198,7 +198,6 @@ export default function FieldCreateDialog({
           cropType,
           irrigationType,
           // tenantId: extracted from JWT by backend controller, but DTO requires a value
-          tenantId: 'from-token',
           coordinates: flatCoords,
           boundary: {
             type: 'Polygon',

@@ -6,7 +6,6 @@
 import { useState, useCallback } from 'react';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
-import StatusBadge from '@/components/ui/StatusBadge';
 import { cn } from '@/lib/utils';
 import {
   FileText,

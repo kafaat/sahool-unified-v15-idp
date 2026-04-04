@@ -75,7 +75,7 @@ def adv_health():
 
 @advisory_app.post("/api/v1/disease/assess")
 async def adv_disease_assess(request: Request):
-    body = await request.json()
+    await request.json()  # consume body
     d = random.choice(DISEASES)
     return {"disease_id": d["id"], "disease_name": d["name"], "disease_name_ar": d["name_ar"],
             "confidence": round(random.uniform(0.7, 0.98), 2), "severity": d["severity"],
@@ -113,8 +113,8 @@ def adv_crop_detail(crop_code: str):
 @advisory_app.get("/api/v1/crops/{crop_code}/varieties")
 def adv_crop_varieties(crop_code: str):
     return {"crop": crop_code, "varieties": [
-        {"name": f"{crop_code.title()} Var-1", "name_ar": f"صنف 1", "yield_potential": "high"},
-        {"name": f"{crop_code.title()} Var-2", "name_ar": f"صنف 2", "yield_potential": "medium"},
+        {"name": f"{crop_code.title()} Var-1", "name_ar": "صنف 1", "yield_potential": "high"},
+        {"name": f"{crop_code.title()} Var-2", "name_ar": "صنف 2", "yield_potential": "medium"},
     ]}
 
 
@@ -185,10 +185,10 @@ def ci_health():
 
 @crop_intel_app.post("/api/v1/diagnose")
 async def ci_diagnose(request: Request):
-    body = await request.json()
+    await request.json()  # consume body
     d = random.choice(DISEASES)
     return {"diagnosis": d["name"], "diagnosis_ar": d["name_ar"], "confidence": round(random.uniform(0.75, 0.95), 2),
-            "severity": d["severity"], "recommendations": [f"Apply treatment for {d['name']}", f"Monitor for 7 days"]}
+            "severity": d["severity"], "recommendations": [f"Apply treatment for {d['name']}", "Monitor for 7 days"]}
 
 
 @crop_intel_app.post("/api/v1/disease/detect")
@@ -204,7 +204,7 @@ def ci_disease_types():
 
 @crop_intel_app.post("/api/v1/yield/predict")
 async def ci_yield_predict(request: Request):
-    body = await request.json()
+    await request.json()  # consume body
     return {"predicted_yield_tons": round(random.uniform(2.5, 6.0), 2), "confidence": round(random.uniform(0.7, 0.9), 2),
             "factors": {"soil_quality": "good", "irrigation": "adequate", "weather": "favorable"}}
 
@@ -402,7 +402,7 @@ async def notif_weather(request: Request):
 
 @notification_app.post("/pest")
 async def notif_pest(request: Request):
-    body = await request.json()
+    await request.json()  # consume body
     return {"id": str(uuid.uuid4()), "type": "pest", "status": "delivered", "message_ar": "تنبيه آفات"}
 
 
@@ -612,7 +612,7 @@ async def ai_ask(request: Request):
     body = await request.json()
     q = body.get("question", "")
     return {"answer": f"Based on analysis, the recommendation for '{q[:50]}' is to optimize irrigation.",
-            "answer_ar": f"بناءً على التحليل، التوصية هي تحسين الري.",
+            "answer_ar": "بناءً على التحليل، التوصية هي تحسين الري.",
             "confidence": round(random.uniform(0.7, 0.95), 2), "sources": ["agricultural_knowledge_base"]}
 
 

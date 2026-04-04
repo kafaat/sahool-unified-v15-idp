@@ -8,7 +8,7 @@ Inspired by OneSoil's heterogeneity scoring algorithm.
 
 import logging
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Literal
 
 logger = logging.getLogger(__name__)
@@ -287,7 +287,7 @@ class HeterogeneityScorer:
         rows = len(grid)
         if rows == 0:
             return 0.0
-        cols = len(grid[0])
+        _cols = len(grid[0])
 
         # Build index of valid cells
         cells: list[tuple[int, int, float]] = []

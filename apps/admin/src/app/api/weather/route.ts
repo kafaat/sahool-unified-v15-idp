@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
  * GET /api/weather?action=providers|locations|current&locationId=xxx
  *
  * Proxy for GET-based weather endpoints (providers list, location queries).
- * Injects tenant_id from httpOnly cookie for authenticated requests.
+ * Forwards weather requests to the backend service.
  */
 export async function GET(request: NextRequest) {
   try {

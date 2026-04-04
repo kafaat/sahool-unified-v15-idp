@@ -18,11 +18,9 @@ Author: SAHOOL Platform Team
 from __future__ import annotations
 
 import logging
-import math
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime, timedelta
+from datetime import date
 from enum import StrEnum
-from typing import Any
 
 logger = logging.getLogger(__name__)
 

@@ -630,7 +630,7 @@ export default function FieldDetailPage() {
                         ?? (ndvi as Record<string, unknown>)?.[key];
                       if (val == null) return null;
                       return (
-                        <div key={key} className={`bg-${color}-50 rounded-lg p-2 text-center`}>
+                        <div key={key} style={{ backgroundColor: color === "emerald" ? "#ecfdf5" : color === "amber" ? "#fffbeb" : color === "blue" ? "#eff6ff" : color === "violet" ? "#f5f3ff" : "#f9fafb" }} className={` rounded-lg p-2 text-center`}>
                           <p className="text-[10px] text-gray-500">{labelAr}</p>
                           <p className="text-sm font-bold text-gray-800">{Number(val).toFixed(2)}</p>
                           <p className="text-[9px] text-gray-400">{label}</p>

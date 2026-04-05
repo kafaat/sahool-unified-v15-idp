@@ -417,8 +417,20 @@ class _AuthInterceptor extends Interceptor {
       options.headers['Authorization'] = 'Bearer ${_client.authToken}';
     }
 
-    // Add tenant ID
-    options.headers['X-Tenant-Id'] = _client.tenantId;
+    // Add tenant ID only when non-empty to prevent sending blank header
+    // Background sync and other callers must set tenantId explicitly via
+    // setTenantId() before making network requests.
+    final tid = _client.tenantId;
+    if (tid.isNotEmpty) {
+      options.headers['X-Tenant-Id'] = tid;
+    } else if (!kDebugMode) {
+      // In non-debug builds, a missing tenant ID is a programming error;
+      // log a warning so monitoring can catch it.
+      AppLogger.w(
+        'Request sent without tenant ID: ${options.method} ${options.path}',
+        tag: 'AuthInterceptor',
+      );
+    }
 
     handler.next(options);
   }

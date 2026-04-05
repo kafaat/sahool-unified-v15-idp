@@ -575,7 +575,7 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static String get defaultTenantId =>
-      _getString('DEFAULT_TENANT_ID', 'sahool-demo');
+      _getString('DEFAULT_TENANT_ID', '');
 
   // ═══════════════════════════════════════════════════════════════════════════
   // AI/ML Configuration

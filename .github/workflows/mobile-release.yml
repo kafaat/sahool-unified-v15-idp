@@ -71,7 +71,7 @@ jobs:
       version_code: ${{ steps.version.outputs.version_code }}
     defaults:
       run:
-        working-directory: apps/mobile
+        working-directory: apps/mobile/sahool_field_app
 
     steps:
       - name: Checkout repository
@@ -82,7 +82,7 @@ jobs:
       - name: Extract current version
         id: version
         run: |
-          # Extract version from pubspec.yaml
+          # Extract version from pubspec.yaml (sahool_field_app)
           CURRENT_VERSION=$(grep "^version:" pubspec.yaml | sed 's/version: //' | tr -d ' ')
           VERSION_NAME=$(echo $CURRENT_VERSION | cut -d'+' -f1)
           BUILD_NUMBER=$(echo $CURRENT_VERSION | cut -d'+' -f2)
@@ -139,7 +139,7 @@ jobs:
     if: ${{ github.event.inputs.build_type == 'apk' || github.event.inputs.build_type == 'both' || github.event.inputs.build_type == '' }}
     defaults:
       run:
-        working-directory: apps/mobile
+        working-directory: apps/mobile/sahool_field_app
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -182,8 +182,8 @@ jobs:
         with:
           path: |
             ~/.pub-cache
-            apps/mobile/.dart_tool
-          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+            apps/mobile/sahool_field_app/.dart_tool
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
           restore-keys: |
             pub-cache-${{ runner.os }}-
 
@@ -193,7 +193,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('apps/mobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('apps/mobile/sahool_field_app/android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
@@ -404,7 +404,7 @@ jobs:
     if: ${{ github.event.inputs.build_type == 'aab' || github.event.inputs.build_type == 'both' || github.event.inputs.build_type == '' }}
     defaults:
       run:
-        working-directory: apps/mobile
+        working-directory: apps/mobile/sahool_field_app
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -447,8 +447,8 @@ jobs:
         with:
           path: |
             ~/.pub-cache
-            apps/mobile/.dart_tool
-          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+            apps/mobile/sahool_field_app/.dart_tool
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
           restore-keys: |
             pub-cache-${{ runner.os }}-
 
@@ -458,7 +458,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('apps/mobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('apps/mobile/sahool_field_app/android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 

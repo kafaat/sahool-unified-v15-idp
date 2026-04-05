@@ -848,12 +848,13 @@ quickstart: ## بدء سريع للمطورين الجدد - Quick start for new
 # Mobile Development - تطوير تطبيق الجوال
 # ═══════════════════════════════════════════════════════════════════════════════
 
-MOBILE_DIR = apps/mobile
+MOBILE_DIR = apps/mobile/sahool_field_app
 
 mobile-test: ## تشغيل اختبارات Flutter - Run Flutter mobile app tests
 	@echo "$(BLUE)📱 تشغيل اختبارات تطبيق الجوال - Running Flutter tests...$(RESET)"
 	@if [ -d "$(MOBILE_DIR)" ]; then \
-		cd $(MOBILE_DIR) && flutter test --coverage --reporter=expanded; \
+		cd $(MOBILE_DIR) && \
+		flutter test --coverage --reporter=expanded && \
 		if [ -f coverage/lcov.info ]; then \
 			echo "$(GREEN)✅ التغطية: $$(lcov --summary coverage/lcov.info 2>&1 | grep 'lines' | sed 's/.*: //')$(RESET)"; \
 		fi; \

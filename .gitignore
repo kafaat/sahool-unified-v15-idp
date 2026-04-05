@@ -31,6 +31,7 @@ sahool.txt
 !.env.example
 !.env.test
 !.env.development.template
+!.env.production.template
 # NOTE: .env.development, .env.staging, .env.production are NOT tracked.
 # Use .env.development.template as starting point: cp .env.development.template .env.development
 *.pem

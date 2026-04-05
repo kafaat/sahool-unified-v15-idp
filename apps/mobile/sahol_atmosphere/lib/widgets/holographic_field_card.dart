@@ -179,11 +179,23 @@ class _HolographicFieldCardState extends State<HolographicFieldCard>
         child: GestureDetector(
           onTap: () {
             HapticFeedback.mediumImpact();
-            // Navigate to field details
+            // TODO(P1): Navigate to field details screen with this field's data
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('تفاصيل ${widget.field.name} قيد التطوير'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
           },
           onLongPress: () {
             HapticFeedback.heavyImpact();
-            // Show quick actions
+            // TODO(P2): Show quick actions bottom sheet (irrigate, inspect, navigate)
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('إجراءات سريعة لـ ${widget.field.name} قيد التطوير'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
           },
           child: Transform(
             alignment: FractionalOffset.center,

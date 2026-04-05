@@ -43,7 +43,7 @@ async def init_pool() -> asyncpg.Pool | None:
         _pool = await asyncpg.create_pool(
             DATABASE_URL,
             min_size=2,
-        statement_cache_size=0,  # PgBouncer transaction mode compatibility,
+            statement_cache_size=0,  # PgBouncer transaction mode compatibility,
             max_size=10,
             command_timeout=60,
         )

@@ -46,7 +46,7 @@ logger = logging.getLogger("field-intelligence")
 # import ssl
 # ssl_context = ssl.create_default_context(cafile="/path/to/ca-cert.pem")
 # pool = await asyncpg.create_pool(DATABASE_URL, ssl=ssl_context)
-statement_cache_size=0,  # PgBouncer transaction mode
+statement_cache_size = (0,)  # PgBouncer transaction mode
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 # Connection pool settings

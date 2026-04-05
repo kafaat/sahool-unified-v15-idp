@@ -460,7 +460,7 @@ consumers:
         algorithm: HS256
         secret: ${SERVICE_JWT_SECRET}
     acls:
-      - name: service-accounts
+      - group: service-accounts
     plugins:
       - name: rate-limiting
         config:
@@ -486,7 +486,7 @@ consumers:
         algorithm: HS256
         secret: ${SERVICE_JWT_SECRET}
     acls:
-      - name: service-accounts
+      - group: service-accounts
     plugins:
       - name: rate-limiting
         config:
@@ -506,7 +506,7 @@ consumers:
         algorithm: HS256
         secret: ${SERVICE_JWT_SECRET}
     acls:
-      - name: service-accounts
+      - group: service-accounts
     plugins:
       - name: rate-limiting
         config:

@@ -120,6 +120,11 @@ export interface SprayHistory {
   effectiveness: number;
 }
 
+// Whether to use mock data fallback when a service is unavailable.
+// In production, errors are re-thrown so the UI shows a real error state.
+// In development, mock data is returned to allow offline-first development.
+const USE_MOCK_FALLBACK = process.env.NODE_ENV === 'development';
+
 // VRA API Functions
 export async function fetchVRAPrescriptions(params?: {
   status?: string;
@@ -132,8 +137,10 @@ export async function fetchVRAPrescriptions(params?: {
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch VRA prescriptions:', error);
-    // Return mock data for development
-    return generateMockVRAPrescriptions();
+    if (USE_MOCK_FALLBACK) {
+      return generateMockVRAPrescriptions();
+    }
+    throw error;
   }
 }
 
@@ -165,7 +172,10 @@ export async function fetchGDDData(): Promise<GDDField[]> {
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch GDD data:', error);
-    return generateMockGDDData();
+    if (USE_MOCK_FALLBACK) {
+      return generateMockGDDData();
+    }
+    throw error;
   }
 }
 
@@ -177,7 +187,10 @@ export async function fetchSprayWindows(): Promise<SprayWindow[]> {
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch spray windows:', error);
-    return generateMockSprayWindows();
+    if (USE_MOCK_FALLBACK) {
+      return generateMockSprayWindows();
+    }
+    throw error;
   }
 }
 
@@ -187,7 +200,10 @@ export async function fetchSprayHistory(params?: { limit?: number }): Promise<Sp
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch spray history:', error);
-    return generateMockSprayHistory();
+    if (USE_MOCK_FALLBACK) {
+      return generateMockSprayHistory();
+    }
+    throw error;
   }
 }
 

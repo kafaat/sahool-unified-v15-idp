@@ -563,14 +563,16 @@ export const DASHBOARD_ENDPOINTS = {
 
 // ---------------------------------------------------------------------------
 // Astronomical Calendar Endpoints - نقاط التقويم الفلكي
+// Kong route: /api/v1/astronomy  (service: astronomical-calendar, port: 8111)
+// Note: Kong path is /astronomy not /astronomical — all endpoints use this prefix.
 // ---------------------------------------------------------------------------
 
 export const ASTRONOMICAL_ENDPOINTS = {
-  CALENDAR: `${API_PREFIX}/astronomical/calendar`,
-  PRAYER_TIMES: `${API_PREFIX}/astronomical/prayer-times`,
-  MOON_PHASES: `${API_PREFIX}/astronomical/moon-phases`,
-  SEASONS: `${API_PREFIX}/astronomical/seasons`,
-  EVENTS: `${API_PREFIX}/astronomical/events`,
+  CALENDAR: `${API_PREFIX}/astronomy/calendar`,
+  PRAYER_TIMES: `${API_PREFIX}/astronomy/prayer-times`,
+  MOON_PHASES: `${API_PREFIX}/astronomy/moon-phases`,
+  SEASONS: `${API_PREFIX}/astronomy/seasons`,
+  EVENTS: `${API_PREFIX}/astronomy/events`,
 } as const;
 
 // ---------------------------------------------------------------------------

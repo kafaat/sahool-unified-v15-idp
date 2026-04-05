@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Phone, Smartphone } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -28,8 +28,25 @@ function getErrorMessage(error: unknown): string {
   return 'Invalid credentials';
 }
 
+/** Validates that a returnTo path is same-origin (starts with /) and not an auth page */
+function isSafeReturnTo(value: string | null): value is string {
+  if (!value) return false;
+  try {
+    // Must be a relative path, not an absolute URL pointing elsewhere
+    if (!value.startsWith('/')) return false;
+    // Prevent open redirect via //evil.com or /\\ tricks
+    if (value.startsWith('//') || value.startsWith('/\\')) return false;
+    // Don't redirect back to auth pages — that would create a loop
+    const authPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-otp'];
+    return !authPages.some((page) => value.startsWith(page));
+  } catch {
+    return false;
+  }
+}
+
 export default function LoginClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const { showToast } = useToast();
   const [loginMethod, setLoginMethod] = useState<LoginMethod>('phone');
@@ -51,7 +68,9 @@ export default function LoginClient() {
         messageAr: 'تم تسجيل الدخول بنجاح',
         message: 'Login successful',
       });
-      router.push('/dashboard');
+      // Gap #16: respect ?returnTo= set by middleware on 401 redirect
+      const returnTo = searchParams.get('returnTo');
+      router.push(isSafeReturnTo(returnTo) ? returnTo : '/dashboard');
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 

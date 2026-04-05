@@ -82,6 +82,11 @@ export interface SatelliteData {
   }>;
 }
 
+// Whether to use mock data fallback when a service is unavailable.
+// In production, errors are re-thrown so the UI shows a real error state.
+// In development, mock data is returned to allow offline-first development.
+const USE_MOCK_FALLBACK = process.env.NODE_ENV === 'development';
+
 // Profitability API Functions
 export async function fetchProfitabilityData(params?: {
   period?: 'month' | 'quarter' | 'year';
@@ -94,7 +99,10 @@ export async function fetchProfitabilityData(params?: {
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch profitability data:', error);
-    return generateMockProfitabilityData();
+    if (USE_MOCK_FALLBACK) {
+      return generateMockProfitabilityData();
+    }
+    throw error;
   }
 }
 
@@ -110,7 +118,10 @@ export async function fetchSatelliteData(params?: {
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch satellite data:', error);
-    return generateMockSatelliteData();
+    if (USE_MOCK_FALLBACK) {
+      return generateMockSatelliteData();
+    }
+    throw error;
   }
 }
 

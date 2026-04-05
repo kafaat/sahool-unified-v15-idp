@@ -18,6 +18,7 @@ import { LocaleSwitcher } from '@/components/common/LocaleSwitcher';
 import { clsx } from 'clsx';
 import dynamic from 'next/dynamic';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useUnreadCount } from '@/features/notifications/hooks/useNotifications';
 
 // Lazy-load the user menu dropdown -- only shown on click interaction
 const UserMenuDropdown = dynamic(() => import('@/components/layouts/UserMenuDropdown'), {
@@ -29,6 +30,9 @@ export const Header = React.memo(function Header() {
   const { user, logout } = useAuth();
   const t = useTranslations('common');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  // Gap #26: wire notification bell to real unread count
+  const { data: unreadCount = 0 } = useUnreadCount();
+  const hasUnread = unreadCount > 0;
 
   // Close menu on outside click
   useEffect(() => {
@@ -73,18 +77,26 @@ export const Header = React.memo(function Header() {
         {/* Theme Toggle */}
         <ThemeToggle variant="dropdown" />
 
-        {/* Notifications */}
+        {/* Notifications — Gap #26: shows real unread count badge */}
         <button
           type="button"
           onClick={() => router.push('/notifications')}
           className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-          aria-label={t('notifications') || 'Notifications'}
+          aria-label={
+            hasUnread
+              ? `${t('notifications') || 'Notifications'} (${unreadCount})`
+              : (t('notifications') || 'Notifications')
+          }
         >
           <Bell className="w-5 h-5" />
-          <span
-            className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full"
-            aria-label={t('newNotifications') || 'New notifications'}
-          />
+          {hasUnread && (
+            <span
+              className="absolute top-1 end-1 min-w-[1.1rem] h-[1.1rem] bg-red-500 rounded-full flex items-center justify-center text-white text-[0.6rem] font-bold leading-none px-0.5"
+              aria-label={t('newNotifications') || 'New notifications'}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
 
         {/* User Menu */}

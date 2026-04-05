@@ -135,11 +135,18 @@ class SahoolApiClient {
     return this.request<User>('/api/v1/auth/me');
   }
 
-  async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
+  /**
+   * Gap #4/#13: Token refresh must go through the Next.js server-side proxy
+   * (/api/auth/refresh) which reads the httpOnly refresh_token cookie.
+   * Calling /api/v1/auth/refresh directly from client-side JS would fail
+   * because the httpOnly cookie is not accessible to JavaScript.
+   */
+  async refreshToken() {
+    const response = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+    if (!response.ok) {
+      throw new Error('Token refresh failed');
+    }
+    return response.json() as Promise<{ success: boolean; access_token: string }>;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -186,6 +193,15 @@ class SahoolApiClient {
   }
 
   async getNearbyFields(lat: number, lng: number, radius: number = 5000) {
+    if (lat < -90 || lat > 90) {
+      return { success: false as const, error: 'Latitude must be between -90 and 90' };
+    }
+    if (lng < -180 || lng > 180) {
+      return { success: false as const, error: 'Longitude must be between -180 and 180' };
+    }
+    if (radius <= 0 || !isFinite(radius)) {
+      return { success: false as const, error: 'Radius must be a positive finite number' };
+    }
     return this.request<Field[]>('/api/v1/fields/nearby', {
       params: {
         lat: String(lat),
@@ -272,12 +288,21 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async analyzeCropHealth(imageFile: File): Promise<ApiResponse<CropHealthAnalysis>> {
-    // Validate file type
+    // Validate file type by MIME type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(imageFile.type)) {
       return {
         success: false,
         error: 'Invalid file type. Please upload a JPEG, PNG, or WebP image.',
+      };
+    }
+
+    // Validate file extension as a secondary check against extension spoofing
+    const allowedExtensions = /\.(jpg|jpeg|png|webp)$/i;
+    if (!allowedExtensions.test(imageFile.name)) {
+      return {
+        success: false,
+        error: 'Invalid file extension. Please upload a JPEG, PNG, or WebP image.',
       };
     }
 
@@ -416,6 +441,31 @@ class SahoolApiClient {
     return this.request<FertilizerRecommendation>('/api/v1/fertilizer/recommend', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Growing Degree Days (GDD) API
+  // Kong route: /api/v1/weather → weather-service:8092
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getGDDData() {
+    return this.request<any[]>('/api/v1/weather/gdd');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Spray Management API
+  // Kong route: /api/v1/weather → weather-service:8092
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getSprayWindows() {
+    return this.request<any[]>('/api/v1/weather/spray-windows');
+  }
+
+  async getSprayHistory(params?: { limit?: number }) {
+    const queryParams = params?.limit ? { limit: String(params.limit) } : undefined;
+    return this.request<any[]>('/api/v1/advisory/spray-history', {
+      params: queryParams,
     });
   }
 
@@ -718,19 +768,20 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Provider Config API (خدمة مسترجعة من kernel)
+  // Provider Config API (provider-config service, port 8104)
+  // Kong route: /api/v1/provider-config  (was incorrectly /api/v1/providers)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getProviders() {
-    return this.request<any[]>('/api/v1/providers');
+    return this.request<any[]>('/api/v1/provider-config');
   }
 
   async getProviderConfig(providerId: string) {
-    return this.request<any>(`/api/v1/providers/${providerId}/config`);
+    return this.request<any>(`/api/v1/provider-config/${providerId}`);
   }
 
   async updateProviderConfig(providerId: string, config: any) {
-    return this.request<any>(`/api/v1/providers/${providerId}/config`, {
+    return this.request<any>(`/api/v1/provider-config/${providerId}`, {
       method: 'PUT',
       body: JSON.stringify(config),
     });
@@ -848,18 +899,19 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Disaster Assessment API
+  // Disaster Assessment API (disaster-assessment service, port 3020)
+  // Kong route: /api/v1/disaster  (was incorrectly /api/v1/disasters — note: singular)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async assessDisaster(fieldId: string, disasterType: string) {
-    return this.request<any>('/api/v1/disasters/assess', {
+    return this.request<any>('/api/v1/disaster/assess', {
       method: 'POST',
       body: JSON.stringify({ fieldId, disasterType }),
     });
   }
 
   async getDisasterAlerts(region: string) {
-    return this.request<any[]>('/api/v1/disasters/alerts', {
+    return this.request<any[]>('/api/v1/disaster/alerts', {
       params: { region },
     });
   }

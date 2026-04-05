@@ -26,10 +26,6 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 COPY constraints.txt .
 COPY apps/services/shared/requirements.txt .
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun mirror first with long timeout, then fallback to PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     -c constraints.txt -r requirements.txt || \
@@ -42,6 +38,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 
 # Copy shared modules
 COPY apps/services/shared/ ./shared/
+
+# Resolve errors_py file/package ambiguity (must run AFTER COPY)
+RUN rm -f ./shared/errors_py.py
 
 # Set ownership and switch to non-root user
 RUN chown -R sahool:sahool /app

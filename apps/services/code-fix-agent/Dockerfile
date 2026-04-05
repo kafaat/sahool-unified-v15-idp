@@ -65,6 +65,10 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Copy shared modules (required for shared.ai imports)
 COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
+
+# Resolve errors_py file/package ambiguity
+RUN rm -f ./shared/errors_py.py
 
 # Copy application code
 COPY apps/services/code-fix-agent/src/ ./src/

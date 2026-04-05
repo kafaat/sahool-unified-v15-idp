@@ -46,8 +46,12 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
 
-# Copy shared modules
+# Copy shared modules (main shared/ first, then service-specific overlay)
 COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
+
+# Resolve errors_py file/package ambiguity
+RUN rm -f ./shared/errors_py.py
 
 # Copy source code
 COPY apps/services/lowcode-engine/src/ ./src/

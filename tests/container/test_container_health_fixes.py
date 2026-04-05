@@ -431,7 +431,7 @@ class TestSharedModuleImportChain:
     def test_weather_service_imports_resolve(self):
         """All top-level imports in weather-service main.py must resolve."""
         main_py = WEATHER_SERVICE_DIR / "src" / "main.py"
-        content = _read_file(main_py)
+        assert main_py.exists(), f"weather-service main.py not found at {main_py}"
 
         # Check mandatory imports (not wrapped in try/except)
         mandatory_imports = [
@@ -470,7 +470,7 @@ class TestSharedModuleImportChain:
     def test_audit_service_imports_resolve(self):
         """All top-level imports in audit-service main.py must resolve."""
         main_py = AUDIT_SERVICE_DIR / "src" / "main.py"
-        content = _read_file(main_py)
+        assert main_py.exists(), f"audit-service main.py not found at {main_py}"
 
         # Extract non-try/except shared imports
         mandatory_imports = [

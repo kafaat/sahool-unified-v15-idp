@@ -9,6 +9,24 @@ vi.mock('@/components/ui/toast', () => ({
   }),
 }));
 
+// Mock auth store - component reads user.tenant_id
+vi.mock('@/stores/auth.store', () => ({
+  useAuth: () => ({
+    user: { id: 'user-1', tenant_id: 'tenant-1', role: 'farmer' },
+  }),
+}));
+
+// Mock apiClient - component calls getFields, getIrrigationSchedules, etc.
+vi.mock('@/lib/api', () => ({
+  apiClient: {
+    getFields: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    getIrrigationSchedules: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    createIrrigationSchedule: vi.fn().mockResolvedValue({ success: false }),
+    updateIrrigationSchedule: vi.fn().mockResolvedValue({ success: false }),
+    deleteIrrigationSchedule: vi.fn().mockResolvedValue({ success: true }),
+  },
+}));
+
 describe('IrrigationClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -23,7 +41,7 @@ describe('IrrigationClient', () => {
     render(<IrrigationClient />);
     expect(screen.getByText('استهلاك اليوم')).toBeInTheDocument();
     expect(screen.getByText('نشط الآن')).toBeInTheDocument();
-    expect(screen.getAllByText('متأخر').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('متوقف')).toBeInTheDocument();
     expect(screen.getByText('كفاءة الري')).toBeInTheDocument();
   });
 

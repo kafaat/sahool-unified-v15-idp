@@ -296,10 +296,19 @@ export default function IrrigationClient() {
       return;
     }
 
+    if (!formData.fieldId) {
+      showToast({
+        type: 'warning',
+        message: 'Please select a field',
+        messageAr: 'يرجى اختيار الحقل',
+      });
+      return;
+    }
+
     if (editingId) {
       try {
         const response = await apiClient.updateIrrigationSchedule(editingId, {
-          fieldId: formData.fieldId || editingId,
+          fieldId: formData.fieldId,
           name: formData.name,
           type: toApiIrrigationType(formData.type),
           startDate: formData.startDate || formData.scheduledAt,
@@ -356,7 +365,7 @@ export default function IrrigationClient() {
     } else {
       try {
         const response = await apiClient.createIrrigationSchedule({
-          fieldId: formData.fieldId || 'unknown',
+          fieldId: formData.fieldId,
           name: formData.name,
           type: toApiIrrigationType(formData.type),
           startDate: formData.startDate || formData.scheduledAt || new Date().toISOString(),
@@ -370,7 +379,7 @@ export default function IrrigationClient() {
           // Optimistic insert for offline-first UX
           const newSchedule: IrrigationSchedule = {
             id: crypto.randomUUID(),
-            fieldId: formData.fieldId || `field-${Date.now()}`,
+            fieldId: formData.fieldId,
             fieldName: formData.fieldName,
             type: formData.type,
             status: 'scheduled',
@@ -384,7 +393,7 @@ export default function IrrigationClient() {
         // Optimistic insert for offline-first UX
         const newSchedule: IrrigationSchedule = {
           id: crypto.randomUUID(),
-          fieldId: formData.fieldId || `field-${Date.now()}`,
+          fieldId: formData.fieldId,
           fieldName: formData.fieldName,
           type: formData.type,
           status: 'scheduled',

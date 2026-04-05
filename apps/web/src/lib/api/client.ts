@@ -455,7 +455,8 @@ class SahoolApiClient {
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Spray Management API
-  // Kong route: /api/v1/weather → weather-service:8092
+  // getSprayWindows → Kong route: /api/v1/weather → weather-service:8092
+  // getSprayHistory → Kong route: /api/v1/advisory → advisory-service:8093
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSprayWindows() {

@@ -12,7 +12,7 @@
  *
  * Flow (reset):  Browser → POST /api/auth/verify-otp { purpose: "reset" }
  *                       → backend → returns reset_token
- *                       → redirects to /reset-password?token=...
+ *                       → returns JSON with reset_token
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -49,12 +49,12 @@ function getClientIP(request: NextRequest): string {
 export async function POST(request: NextRequest) {
   const ip = getClientIP(request);
 
-  const rateLimitResult = await isRateLimited(ip, RATE_LIMIT_CONFIG);
-  if (rateLimitResult.limited) {
+  const isLimited = await isRateLimited(ip, RATE_LIMIT_CONFIG);
+  if (isLimited) {
     logger.warn('[Auth VerifyOTP] Rate limited', { ip });
     return NextResponse.json(
       { success: false, error: 'Too many verification attempts. Please try again later.' },
-      { status: 429, headers: { 'Retry-After': String(rateLimitResult.retryAfter ?? 60) } }
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(RATE_LIMIT_CONFIG.windowMs / 1000)) } }
     );
   }
 
@@ -100,9 +100,17 @@ export async function POST(request: NextRequest) {
 
     // Password-reset OTP: return the reset_token to the client (no session cookies set)
     if (purpose === 'reset') {
+      const resetToken = data?.reset_token ?? data?.token;
+      if (!resetToken) {
+        logger.error('[Auth VerifyOTP] Backend did not return a reset_token for reset purpose');
+        return NextResponse.json(
+          { success: false, error: 'Backend did not return a reset token' },
+          { status: 502 }
+        );
+      }
       return NextResponse.json({
         success: true,
-        reset_token: data?.reset_token ?? data?.token,
+        reset_token: resetToken,
         message: data?.message || 'OTP verified',
       });
     }

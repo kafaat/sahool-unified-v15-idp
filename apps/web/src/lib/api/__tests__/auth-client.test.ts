@@ -4,15 +4,6 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock js-cookie before importing the module
-vi.mock('js-cookie', () => ({
-  default: {
-    get: vi.fn(),
-    set: vi.fn(),
-    remove: vi.fn(),
-  },
-}));
-
 // Mock logger
 vi.mock('../../logger', () => ({
   logger: {
@@ -22,8 +13,6 @@ vi.mock('../../logger', () => ({
     debug: vi.fn(),
   },
 }));
-
-import Cookies from 'js-cookie';
 
 // We need to test the class directly, so we'll import and re-create
 // Since authApiClient is a singleton, we test via the exported instance
@@ -325,30 +314,37 @@ describe('AuthApiClient', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe('refreshToken', () => {
-    it('should send refresh token to /api/v1/auth/refresh', async () => {
+    it('should POST to /api/auth/refresh with credentials (httpOnly cookie proxy)', async () => {
       const { authApiClient } = await import('../auth-client');
 
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
-        headers: new Headers({ 'content-type': 'application/json' }),
         json: () =>
           Promise.resolve({
             success: true,
-            data: { access_token: 'new-token' },
+            access_token: 'new-token',
           }),
       });
 
-      const result = await authApiClient.refreshToken('my-refresh-token');
+      const result = await authApiClient.refreshToken();
 
       expect(result.success).toBe(true);
-      expect(result.data?.access_token).toBe('new-token');
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/auth/refresh'),
-        expect.objectContaining({
-          method: 'POST',
-          body: JSON.stringify({ refresh_token: 'my-refresh-token' }),
-        })
-      );
+      expect(result.access_token).toBe('new-token');
+      expect(global.fetch).toHaveBeenCalledWith('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    });
+
+    it('should throw when the proxy returns a non-ok response', async () => {
+      const { authApiClient } = await import('../auth-client');
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+      });
+
+      await expect(authApiClient.refreshToken()).rejects.toThrow('Token refresh failed');
     });
   });
 
@@ -357,74 +353,46 @@ describe('AuthApiClient', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe('attemptTokenRefresh', () => {
-    it('should return false when no refresh token in cookies', async () => {
+    it('should return true and set token when proxy returns access_token', async () => {
       const { authApiClient } = await import('../auth-client');
 
-      vi.mocked(Cookies.get).mockReturnValue(undefined);
-
-      const result = await authApiClient.attemptTokenRefresh();
-
-      expect(result).toBe(false);
-    });
-
-    it('should refresh and set new token when refresh token exists', async () => {
-      const { authApiClient } = await import('../auth-client');
-
-      vi.mocked(Cookies.get).mockReturnValue('existing-refresh-token');
-
-      // Mock both API calls: refresh token + set session cookie
-      global.fetch = vi.fn()
-        .mockResolvedValueOnce({
-          ok: true,
-          headers: new Headers({ 'content-type': 'application/json' }),
-          json: () =>
-            Promise.resolve({
-              success: true,
-              data: { access_token: 'new-access-token' },
-            }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-        });
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            access_token: 'new-access-token',
+          }),
+      });
 
       const result = await authApiClient.attemptTokenRefresh();
 
       expect(result).toBe(true);
-      // Token refresh uses server-side httpOnly cookie route
-      expect(global.fetch).toHaveBeenCalledTimes(2);
-      expect(global.fetch).toHaveBeenNthCalledWith(2, '/api/auth/session', expect.objectContaining({
+      // Verify the proxy route was called
+      expect(global.fetch).toHaveBeenCalledWith('/api/auth/refresh', {
         method: 'POST',
-        body: JSON.stringify({ access_token: 'new-access-token' }),
-      }));
+        credentials: 'include',
+      });
     });
 
-    it('should clear tokens when refresh fails', async () => {
+    it('should return false and clear token when proxy returns failure', async () => {
       const { authApiClient } = await import('../auth-client');
 
-      vi.mocked(Cookies.get).mockReturnValue('expired-refresh-token');
-
       global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 401,
-        headers: new Headers({ 'content-type': 'application/json' }),
-        json: () => Promise.resolve({ success: false, error: 'Token expired' }),
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: false,
+          }),
       });
 
       const result = await authApiClient.attemptTokenRefresh();
 
       expect(result).toBe(false);
-      // Root-scoped removal
-      expect(Cookies.remove).toHaveBeenCalledWith('access_token', { path: '/' });
-      expect(Cookies.remove).toHaveBeenCalledWith('refresh_token', { path: '/' });
-      // Legacy path-scoped removal
-      expect(Cookies.remove).toHaveBeenCalledWith('access_token');
-      expect(Cookies.remove).toHaveBeenCalledWith('refresh_token');
     });
 
-    it('should handle errors during refresh gracefully', async () => {
+    it('should return false when proxy throws (network error)', async () => {
       const { authApiClient } = await import('../auth-client');
-
-      vi.mocked(Cookies.get).mockReturnValue('token');
 
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 

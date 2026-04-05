@@ -29,7 +29,8 @@ interface IrrigationSchedule {
   fieldName: string;
   type: IrrigationType;
   status: IrrigationStatus;
-  scheduledAt: string;
+  /** Legacy alias for startDate — optional, prefer startDate */
+  scheduledAt?: string;
   duration: number;
   waterAmount: number;
   completedAt?: string;
@@ -538,7 +539,7 @@ export default function IrrigationClient() {
                     {schedule.frequency ? frequencies[schedule.frequency]?.labelAr ?? schedule.frequency : '-'}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {schedule.startDate ? formatDate(schedule.startDate) : formatDate(schedule.scheduledAt)}
+                    {schedule.startDate ? formatDate(schedule.startDate) : schedule.scheduledAt ? formatDate(schedule.scheduledAt) : '—'}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{schedule.duration} دقيقة</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{schedule.waterAmount} م³</td>

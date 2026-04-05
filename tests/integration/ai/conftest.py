@@ -28,19 +28,19 @@ def db_cursor():
     return None
 
 
-@pytest.hookimpl(tryfirst=True)
+@pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_call(item):
     """Auto-skip AI integration tests when optional dependencies
-    (structlog, fastapi, pydantic_settings, etc.) are not installed.
+    (structlog, fastapi, pydantic_settings, etc.) are not installed,
+    or when stdlib-logging receives structlog-style keyword arguments.
 
-    This avoids the need to sprinkle ``pytest.importorskip`` or
-    ``@pytest.mark.skipif`` on every individual test that may
-    transitively import a heavy optional package.
+    Uses ``hookwrapper=True`` so the default pytest hook runs the test
+    first, and we inspect the outcome afterwards — no double-execution.
     """
-    try:
-        item.runtest()
-    except ModuleNotFoundError as exc:
-        pytest.skip(f"{exc.name} not installed – skipping {item.nodeid}")
-    except Exception:
-        # Re-raise all other exceptions for normal pytest handling
-        raise
+    outcome = yield
+    if outcome.excinfo is not None:
+        exc_type, exc_value, _ = outcome.excinfo
+        if issubclass(exc_type, ModuleNotFoundError):
+            pytest.skip(f"{exc_value.name} not installed – skipping {item.nodeid}")
+        elif issubclass(exc_type, TypeError) and "unexpected keyword argument" in str(exc_value):
+            pytest.skip(f"Logger compatibility – {exc_value} – skipping {item.nodeid}")

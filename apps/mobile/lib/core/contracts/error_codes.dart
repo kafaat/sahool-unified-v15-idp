@@ -117,19 +117,26 @@ abstract final class ErrorCodes {
   // Vision Service (E-codes)
   static const String visionInvalidFormat = 'E1001';
   static const String visionFileTooLarge = 'E1002';
+  static const String visionInvalidDimensions = 'E1003';
   static const String visionInvalidConfidence = 'E1003';
+  static const String visionUnsupportedType = 'E1004';
   static const String visionInvalidModelVariant = 'E1004';
+  static const String visionEmptyImage = 'E1005';
   static const String visionMissingRequiredField = 'E1005';
+  static const String visionCorruptFile = 'E1006';
   static const String visionInvalidBoundingBox = 'E1006';
   static const String visionModelNotFound = 'E2001';
   static const String visionModelLoadFailed = 'E2002';
   static const String visionInferenceFailed = 'E2003';
+  static const String visionModelIncompatible = 'E2004';
   static const String visionModelVersionNotFound = 'E2004';
+  static const String visionWarmupFailed = 'E2005';
   static const String visionTensorrtError = 'E2005';
   static const String visionImageDecode = 'E3001';
   static const String visionPreprocessingFailed = 'E3002';
   static const String visionPostprocessingFailed = 'E3003';
-  static const String visionBatchFailed = 'E3004';
+  static const String visionBatchFailed = 'E3003';
+  static const String visionBatchProcessingFailed = 'E3004';
   static const String visionGpuOom = 'E4001';
   static const String visionCpuOom = 'E4002';
   static const String visionDiskSpaceLow = 'E4003';

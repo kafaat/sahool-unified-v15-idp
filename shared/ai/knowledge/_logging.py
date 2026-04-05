@@ -41,7 +41,7 @@ except ModuleNotFoundError:  # pragma: no cover
         def exception(self, event: object = "", **kw: object) -> None:
             self._logger.exception(str(event), extra=kw if kw else None)
 
-        def bind(self, **kw: object) -> "_StdlibLoggerAdapter":
+        def bind(self, **kw: object) -> _StdlibLoggerAdapter:
             """No-op bind — structlog bind() returns a new logger with bound
             context; here we simply return *self* to keep the call-chain
             working without structlog."""

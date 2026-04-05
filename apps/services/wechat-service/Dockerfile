@@ -46,6 +46,10 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 
 # Copy shared modules
 COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
+
+# Resolve errors_py file/package ambiguity
+RUN rm -f ./shared/errors_py.py
 
 # Copy source code
 COPY apps/services/wechat-service/src/ ./src/

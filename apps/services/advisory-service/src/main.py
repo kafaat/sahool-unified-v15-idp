@@ -135,8 +135,9 @@ def _sanitize_text(value: str) -> str:
     becomes 'yellowing &amp; wilting' which matches nothing).
     FastAPI returns JSON, so XSS via response body is not a concern."""
     import re
+
     # Remove control characters but preserve & < > for agricultural terms
-    value = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', value)
+    value = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", value)
     return value[:500]  # Limit length to prevent abuse
 
 
@@ -582,17 +583,17 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
     if getattr(app.state, "publisher", None):
         try:
             event_id = await app.state.publisher.publish_recommendation(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            category=assessment.category,
-            severity=assessment.severity,
-            title_ar=assessment.title_ar,
-            title_en=assessment.title_en,
-            actions=assessment.actions,
-            confidence=assessment.confidence,
-            correlation_id=req.correlation_id,
-            details=assessment.details,
-        )
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                category=assessment.category,
+                severity=assessment.severity,
+                title_ar=assessment.title_ar,
+                title_en=assessment.title_en,
+                actions=assessment.actions,
+                confidence=assessment.confidence,
+                correlation_id=req.correlation_id,
+                details=assessment.details,
+            )
         except Exception as _pub_err:
             logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
@@ -629,16 +630,16 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
         if top.confidence >= 0.5:
             try:
                 event_id = await app.state.publisher.publish_recommendation(
-                tenant_id=req.tenant_id,
-                field_id=req.field_id,
-                category=top.category,
-                severity=top.severity,
-                title_ar=top.title_ar,
-                title_en=top.title_en,
-                actions=top.actions,
-                confidence=top.confidence,
-                correlation_id=req.correlation_id,
-            )
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    category=top.category,
+                    severity=top.severity,
+                    title_ar=top.title_ar,
+                    title_en=top.title_en,
+                    actions=top.actions,
+                    confidence=top.confidence,
+                    correlation_id=req.correlation_id,
+                )
             except Exception as _pub_err:
                 logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
@@ -709,17 +710,17 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends
         top = assessments[0]
         try:
             event_id = await app.state.publisher.publish_nutrient_assessment(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            deficiency_id=top.deficiency_id,
-            nutrient=top.nutrient,
-            severity=top.severity,
-            title_ar=top.title_ar,
-            title_en=top.title_en,
-            corrections=top.corrections,
-            confidence=top.confidence,
-            correlation_id=req.correlation_id,
-        )
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                deficiency_id=top.deficiency_id,
+                nutrient=top.nutrient,
+                severity=top.severity,
+                title_ar=top.title_ar,
+                title_en=top.title_en,
+                corrections=top.corrections,
+                confidence=top.confidence,
+                correlation_id=req.correlation_id,
+            )
         except Exception as _pub_err:
             logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
@@ -750,17 +751,17 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
         top = assessments[0]
         try:
             event_id = await app.state.publisher.publish_nutrient_assessment(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            deficiency_id=top.deficiency_id,
-            nutrient=top.nutrient,
-            severity=top.severity,
-            title_ar=top.title_ar,
-            title_en=top.title_en,
-            corrections=top.corrections,
-            confidence=top.confidence,
-            correlation_id=req.correlation_id,
-        )
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                deficiency_id=top.deficiency_id,
+                nutrient=top.nutrient,
+                severity=top.severity,
+                title_ar=top.title_ar,
+                title_en=top.title_en,
+                corrections=top.corrections,
+                confidence=top.confidence,
+                correlation_id=req.correlation_id,
+            )
         except Exception as _pub_err:
             logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
@@ -805,14 +806,14 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
     if getattr(app.state, "publisher", None):
         try:
             event_id = await app.state.publisher.publish_fertilizer_plan(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            crop=req.crop,
-            stage=req.stage,
-            plan=plan.applications,
-            correlation_id=req.correlation_id,
-            notes=plan.notes,
-        )
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                crop=req.crop,
+                stage=req.stage,
+                plan=plan.applications,
+                correlation_id=req.correlation_id,
+                notes=plan.notes,
+            )
         except Exception as _pub_err:
             logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 

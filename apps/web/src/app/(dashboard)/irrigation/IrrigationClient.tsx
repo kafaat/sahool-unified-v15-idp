@@ -412,7 +412,8 @@ export default function IrrigationClient() {
           waterAmount: formData.waterAmount,
         });
         if (response.success && response.data) {
-          setSchedules((prev) => [...prev, fromApiSchedule(response.data)]);
+          const mapped = fromApiSchedule(response.data);
+          setSchedules((prev) => [...prev, mapped]);
         } else {
           // Optimistic insert for offline-first UX
           const newSchedule: IrrigationSchedule = {

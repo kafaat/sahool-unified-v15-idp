@@ -36,11 +36,26 @@ def pytest_runtest_call(item):
 
     Uses ``hookwrapper=True`` so the default pytest hook runs the test
     first, and we inspect the outcome afterwards — no double-execution.
+
+    Only known optional packages are auto-skipped; unknown import
+    failures still surface as real errors.
     """
+    # Packages that are optional for AI integration tests
+    _OPTIONAL_PACKAGES = frozenset({
+        "structlog", "fastapi", "pydantic_settings",
+        "langchain", "langchain_anthropic", "crewai",
+        "torch", "ultralytics", "onnxruntime",
+        "tortoise", "asyncpg",
+    })
+
     outcome = yield
     if outcome.excinfo is not None:
         exc_type, exc_value, _ = outcome.excinfo
         if issubclass(exc_type, ModuleNotFoundError):
-            pytest.skip(f"{exc_value.name} not installed – skipping {item.nodeid}")
+            missing = getattr(exc_value, "name", "") or ""
+            # Auto-skip only known optional packages
+            top_pkg = missing.split(".")[0] if missing else ""
+            if top_pkg in _OPTIONAL_PACKAGES:
+                pytest.skip(f"{missing} not installed – skipping {item.nodeid}")
         elif issubclass(exc_type, TypeError) and "unexpected keyword argument" in str(exc_value):
             pytest.skip(f"Logger compatibility – {exc_value} – skipping {item.nodeid}")

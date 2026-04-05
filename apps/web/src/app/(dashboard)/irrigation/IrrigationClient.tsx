@@ -45,16 +45,26 @@ interface IrrigationSchedule {
 
 /** Map API IrrigationSchedule to the local UI interface */
 function fromApiSchedule(s: ApiIrrigationSchedule): IrrigationSchedule {
+  // Safely map API schedule type (manual/automatic/scheduled) to UI type (drip/sprinkler/pivot/flood/manual)
+  const validUiTypes: readonly IrrigationType[] = ['drip', 'sprinkler', 'pivot', 'flood', 'manual'] as const;
+  const mappedType: IrrigationType = validUiTypes.includes(s.type as IrrigationType)
+    ? (s.type as IrrigationType)
+    : 'manual';
+
+  // Safely map API status (active/paused/completed) to UI status (scheduled/in_progress/completed/cancelled/overdue)
+  const statusMap: Record<string, IrrigationStatus> = {
+    active: 'in_progress',
+    paused: 'scheduled',
+    completed: 'completed',
+  };
+  const mappedStatus: IrrigationStatus = statusMap[s.status] ?? 'scheduled';
+
   return {
     id: s.id,
     fieldId: s.fieldId,
     fieldName: s.fieldName ?? '',
-    type: (['drip', 'sprinkler', 'pivot', 'flood', 'manual'] as const).includes(
-      s.type as IrrigationType
-    )
-      ? (s.type as IrrigationType)
-      : 'manual',
-    status: s.status as IrrigationStatus,
+    type: mappedType,
+    status: mappedStatus,
     scheduledAt: s.startDate,
     duration: s.duration,
     waterAmount: s.waterAmount,
@@ -321,10 +331,21 @@ export default function IrrigationClient() {
       return;
     }
 
+    if (!formData.fieldId) {
+      showToast({
+        type: 'warning',
+        message: 'Please select a field',
+        messageAr: 'يرجى اختيار الحقل',
+      });
+      return;
+    }
+
     if (editingId) {
+      // Preserve the existing schedule's fieldId as fallback
+      const existingSchedule = schedules.find((s) => s.id === editingId);
       try {
         const response = await apiClient.updateIrrigationSchedule(editingId, {
-          fieldId: formData.fieldId || editingId,
+          fieldId: formData.fieldId || existingSchedule?.fieldId || '',
           name: formData.name,
           type: toApiIrrigationType(formData.type),
           startDate: formData.startDate || formData.scheduledAt,
@@ -333,9 +354,10 @@ export default function IrrigationClient() {
           waterAmount: formData.waterAmount,
         });
         if (response.success && response.data) {
-          // Use server-returned data when available
+          // Map server-returned API data into the UI schedule shape
+          const mapped = fromApiSchedule(response.data);
           setSchedules((prev) =>
-            prev.map((s) => (s.id === editingId ? { ...s, ...(response.data as Partial<IrrigationSchedule>) } : s))
+            prev.map((s) => (s.id === editingId ? mapped : s))
           );
         } else {
           // Optimistic update on non-critical error
@@ -381,8 +403,8 @@ export default function IrrigationClient() {
     } else {
       try {
         const response = await apiClient.createIrrigationSchedule({
-          fieldId: formData.fieldId || 'unknown',
-          name: formData.name,
+          fieldId: formData.fieldId,
+          name: formData.name || formData.fieldName,
           type: toApiIrrigationType(formData.type),
           startDate: formData.startDate || formData.scheduledAt || new Date().toISOString(),
           frequency: toApiFrequency(formData.frequency),
@@ -390,12 +412,12 @@ export default function IrrigationClient() {
           waterAmount: formData.waterAmount,
         });
         if (response.success && response.data) {
-          setSchedules((prev) => [...prev, response.data as IrrigationSchedule]);
+          setSchedules((prev) => [...prev, fromApiSchedule(response.data)]);
         } else {
           // Optimistic insert for offline-first UX
           const newSchedule: IrrigationSchedule = {
             id: crypto.randomUUID(),
-            fieldId: formData.fieldId || `field-${Date.now()}`,
+            fieldId: formData.fieldId,
             fieldName: formData.fieldName,
             type: formData.type,
             status: 'scheduled',
@@ -409,7 +431,7 @@ export default function IrrigationClient() {
         // Optimistic insert for offline-first UX
         const newSchedule: IrrigationSchedule = {
           id: crypto.randomUUID(),
-          fieldId: formData.fieldId || `field-${Date.now()}`,
+          fieldId: formData.fieldId,
           fieldName: formData.fieldName,
           type: formData.type,
           status: 'scheduled',

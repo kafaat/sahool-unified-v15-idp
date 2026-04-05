@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   // LoginClient uses useSearchParams() which requires a Suspense boundary in Next.js 15
   return (
-    <Suspense>
+    <Suspense fallback={null}>
       <LoginClient />
     </Suspense>
   );

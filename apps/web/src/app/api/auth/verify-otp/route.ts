@@ -11,8 +11,8 @@
  *                       → sets httpOnly access_token + refresh_token cookies
  *
  * Flow (reset):  Browser → POST /api/auth/verify-otp { purpose: "reset" }
- *                       → backend → returns reset_token
- *                       → redirects to /reset-password?token=...
+ *                       → backend → returns JSON with reset_token
+ *                       → client uses reset_token for the reset-password step
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -100,9 +100,19 @@ export async function POST(request: NextRequest) {
 
     // Password-reset OTP: return the reset_token to the client (no session cookies set)
     if (purpose === 'reset') {
+      const resetToken = data?.reset_token ?? data?.token;
+
+      if (!resetToken) {
+        logger.warn('[Auth VerifyOTP] Backend response missing reset token');
+        return NextResponse.json(
+          { success: false, error: 'No reset token received from backend' },
+          { status: 502 }
+        );
+      }
+
       return NextResponse.json({
         success: true,
-        reset_token: data?.reset_token ?? data?.token,
+        reset_token: resetToken,
         message: data?.message || 'OTP verified',
       });
     }

@@ -28,6 +28,9 @@ import type {
   ET0Calculation,
   FertilizerRecommendation,
   CropHealthAnalysis,
+  GDDRecord,
+  SprayWindow,
+  SprayHistoryRecord,
   Task,
   TaskCreateRequest,
   Equipment,
@@ -450,21 +453,22 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getGDDData() {
-    return this.request<any[]>('/api/v1/weather/gdd');
+    return this.request<GDDRecord[]>('/api/v1/weather/gdd');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Spray Management API
-  // Kong route: /api/v1/weather → weather-service:8092
+  // Kong route: /api/v1/weather → weather-service:8092 (spray windows)
+  //             /api/v1/advisory → advisory-service:8093 (spray history)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSprayWindows() {
-    return this.request<any[]>('/api/v1/weather/spray-windows');
+    return this.request<SprayWindow[]>('/api/v1/weather/spray-windows');
   }
 
   async getSprayHistory(params?: { limit?: number }) {
     const queryParams = params?.limit ? { limit: String(params.limit) } : undefined;
-    return this.request<any[]>('/api/v1/advisory/spray-history', {
+    return this.request<SprayHistoryRecord[]>('/api/v1/advisory/spray-history', {
       params: queryParams,
     });
   }

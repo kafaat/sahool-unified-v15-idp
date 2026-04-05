@@ -379,6 +379,52 @@ export interface ET0Calculation {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// GDD & Spray Types (بيانات درجات النمو الحراري والرش)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface GDDRecord {
+  id: string;
+  fieldId: string;
+  fieldName: string;
+  cropType: string;
+  cropTypeAr: string;
+  plantingDate: string;
+  currentGDD: number;
+  targetGDD: number;
+  currentStage: string;
+  currentStageAr: string;
+  nextStage: string;
+  nextStageAr: string;
+  gddToNextStage: number;
+  estimatedDaysToNextStage: number;
+}
+
+export interface SprayWindow {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  windSpeed: number;
+  temperature: number;
+  humidity: number;
+  suitable: boolean;
+  reason?: string;
+  reasonAr?: string;
+}
+
+export interface SprayHistoryRecord {
+  id: string;
+  fieldId: string;
+  fieldName?: string;
+  sprayDate: string;
+  product: string;
+  dosage: number;
+  unit: string;
+  applicator?: string;
+  notes?: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Fertilizer Types
 // ═══════════════════════════════════════════════════════════════════════════
 

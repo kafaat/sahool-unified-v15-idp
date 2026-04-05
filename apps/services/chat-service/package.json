@@ -55,7 +55,7 @@
   },
   "overrides": {
     "test-exclude": "^7.0.1",
-    "lodash": "^4.18.0",
+    "lodash": ">=4.18.1",
     "picomatch": "^4.0.4"
   }
 }

@@ -173,7 +173,7 @@ class TestNATSSubscriber:
         assert subscriber.config.name == "test-sub"
 
     def test_init_with_callback(self):
-        callback = MagicMock()
+        callback = AsyncMock()
         subscriber = NATSSubscriber(notification_callback=callback)
         assert subscriber._notification_callback is callback
 
@@ -466,7 +466,7 @@ class TestEventToNotificationData:
 class TestIrrigationRecommendationHandler:
     def test_basic_irrigation_recommendation(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -500,7 +500,7 @@ class TestIrrigationRecommendationHandler:
 
     def test_irrigation_without_amount_mm(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -543,7 +543,7 @@ class TestIrrigationRecommendationHandler:
 
     def test_irrigation_field_id_from_data(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -565,7 +565,7 @@ class TestIrrigationRecommendationHandler:
 
     def test_irrigation_with_custom_channels(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -592,7 +592,7 @@ class TestIrrigationRecommendationHandler:
 class TestDecisionRecommendationHandler:
     def test_irrigation_type_maps_correctly(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -620,7 +620,7 @@ class TestDecisionRecommendationHandler:
 
     def test_pest_control_type(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -645,7 +645,7 @@ class TestDecisionRecommendationHandler:
 
     def test_fertilizer_type(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -668,7 +668,7 @@ class TestDecisionRecommendationHandler:
 
     def test_harvest_type(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -691,7 +691,7 @@ class TestDecisionRecommendationHandler:
 
     def test_unknown_type_maps_to_system(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -714,7 +714,7 @@ class TestDecisionRecommendationHandler:
 
     def test_priority_from_recommendation(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -755,7 +755,7 @@ class TestDecisionRecommendationHandler:
 
     def test_expires_in_48_hours(self):
         async def _run():
-            callback = MagicMock()
+            callback = AsyncMock()
             subscriber = NATSSubscriber(notification_callback=callback)
 
             event = ReceivedEvent(
@@ -780,7 +780,7 @@ class TestDecisionRecommendationHandler:
 
 class TestMessageHandler:
     def test_message_handler_parses_json(self):
-        callback = MagicMock()
+        callback = AsyncMock()
         subscriber = NATSSubscriber(notification_callback=callback)
 
         msg_data = {
@@ -810,7 +810,7 @@ class TestMessageHandler:
         asyncio.run(subscriber._message_handler(mock_msg))
 
     def test_message_handler_derives_irrigation_event_type(self):
-        callback = MagicMock()
+        callback = AsyncMock()
         subscriber = NATSSubscriber(notification_callback=callback)
         subscriber._handlers["irrigation.recommendation.ready"] = AsyncMock()
 
@@ -829,7 +829,7 @@ class TestMessageHandler:
         subscriber._handlers["irrigation.recommendation.ready"].assert_called_once()
 
     def test_message_handler_derives_recommendation_event_type(self):
-        callback = MagicMock()
+        callback = AsyncMock()
         subscriber = NATSSubscriber(notification_callback=callback)
         subscriber._handlers["recommendation.created"] = AsyncMock()
 
@@ -848,7 +848,7 @@ class TestMessageHandler:
         subscriber._handlers["recommendation.created"].assert_called_once()
 
     def test_message_handler_uses_event_type_from_payload(self):
-        callback = MagicMock()
+        callback = AsyncMock()
         subscriber = NATSSubscriber(notification_callback=callback)
 
         msg_data = {
@@ -874,7 +874,7 @@ class TestMessageHandler:
 
 class TestProcessEventToNotification:
     def test_process_event_calls_callback(self):
-        callback = MagicMock()
+        callback = AsyncMock()
         subscriber = NATSSubscriber(notification_callback=callback)
 
         event = ReceivedEvent(

@@ -848,7 +848,7 @@ quickstart: ## بدء سريع للمطورين الجدد - Quick start for new
 # Mobile Development - تطوير تطبيق الجوال
 # ═══════════════════════════════════════════════════════════════════════════════
 
-MOBILE_DIR = apps/mobile
+MOBILE_DIR = apps/mobile/sahool_field_app
 
 mobile-test: ## تشغيل اختبارات Flutter - Run Flutter mobile app tests
 	@echo "$(BLUE)📱 تشغيل اختبارات تطبيق الجوال - Running Flutter tests...$(RESET)"

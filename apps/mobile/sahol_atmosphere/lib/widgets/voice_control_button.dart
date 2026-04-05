@@ -75,22 +75,30 @@ class _VoiceControlButtonState extends State<VoiceControlButton>
   }
 
   void _startListening() {
-    // In real implementation, use speech_to_text package
+    // TODO(P1): Integrate speech_to_text package for real voice recognition.
+    // The speech_to_text dependency is already in pubspec.yaml (^7.0.0).
+    // Required steps:
+    //   1. Initialize SpeechToText instance
+    //   2. Request microphone permission (Android RECORD_AUDIO / iOS NSMicrophoneUsageDescription)
+    //   3. Listen with Arabic locale ('ar_SA') as primary
+    //   4. Parse recognized text into commands
+    //
     // Example voice commands:
     // "كيف حالة الحقل رقم 4؟" -> Show Field 4 status
     // "شغل الري في الحقل 7" -> Start irrigation
     // "أظهر التنبيهات" -> Show alerts
 
-    // Simulate listening for demo
+    // Simulate listening for demo (remove after real integration)
     Future.delayed(const Duration(seconds: 3), () {
-      if (_isListening) {
+      if (mounted && _isListening) {
         _showVoiceResponse();
       }
     });
   }
 
   void _stopListening() {
-    // Stop speech recognition
+    // TODO(P1): Stop SpeechToText.stop() and cancel any pending recognition.
+    // Currently a no-op because speech_to_text is not yet integrated.
   }
 
   void _showVoiceResponse() {

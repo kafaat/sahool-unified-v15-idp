@@ -61,6 +61,10 @@ class DeviceSecurityService {
           }
         } catch (e) {
           debugPrint('Root detection failed: $e');
+          // Treat detection failure as potential threat in production
+          if (!kDebugMode) {
+            threats.add('Root detection unavailable');
+          }
         }
       } else if (Platform.isIOS) {
         final iosInfo = await _deviceInfo.iosInfo;
@@ -83,6 +87,10 @@ class DeviceSecurityService {
           }
         } catch (e) {
           debugPrint('Jailbreak detection failed: $e');
+          // Treat detection failure as potential threat in production
+          if (!kDebugMode) {
+            threats.add('Jailbreak detection unavailable');
+          }
         }
       }
 

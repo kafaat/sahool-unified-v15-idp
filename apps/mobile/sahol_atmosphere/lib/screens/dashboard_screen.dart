@@ -235,6 +235,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             : AtmosphereLightColors.textSecondary,
                         onPressed: () {
                           HapticFeedback.lightImpact();
+                          // TODO(P1): Navigate to notifications screen
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('الإشعارات قيد التطوير | Notifications coming soon'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
                         },
                       ),
                       IconButton(
@@ -244,6 +251,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             : AtmosphereLightColors.textSecondary,
                         onPressed: () {
                           HapticFeedback.lightImpact();
+                          // TODO(P1): Navigate to profile/settings screen
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('الملف الشخصي قيد التطوير | Profile coming soon'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
                         },
                       ),
                     ],

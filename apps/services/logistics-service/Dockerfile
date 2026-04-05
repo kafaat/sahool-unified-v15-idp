@@ -41,6 +41,12 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies
 COPY constraints.txt .
+# Install build dependencies for cryptography/bcrypt
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    build-essential gcc libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY apps/services/logistics-service/requirements.txt .
 
 # Copy root shared modules (shared.ai, shared.events, etc.)

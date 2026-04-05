@@ -17,7 +17,7 @@ RUN groupadd --system --gid 1000 sahool && \
 
 # Install system dependencies
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+RUN apt-update.sh && apt-get install -y --no-install-recommends \ build-essential gcc libffi-dev
     curl \
     && rm -rf /var/lib/apt/lists/*
 

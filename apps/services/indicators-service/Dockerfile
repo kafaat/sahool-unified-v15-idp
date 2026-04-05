@@ -23,6 +23,12 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies
+# Install build dependencies for cryptography/bcrypt
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    build-essential gcc libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY apps/services/indicators-service/requirements.txt .
 COPY constraints.txt .
 # Install dependencies with resilient multi-mirror fallback strategy

@@ -30,6 +30,12 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
 
 # Install dependencies
 COPY constraints.txt .
+# Install build dependencies for cryptography/bcrypt
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    build-essential gcc libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY apps/services/skills-service/requirements.txt .
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try Aliyun mirror first with long timeout, then fallback to PyPI, finally Tencent

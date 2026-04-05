@@ -24,8 +24,11 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Install tini for proper PID 1 signal handling
-RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
+# Install tini for proper PID 1 signal handling + build deps for cryptography/bcrypt
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    tini build-essential gcc libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Configure pip for network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \

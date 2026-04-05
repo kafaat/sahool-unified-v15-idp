@@ -28,7 +28,7 @@ RUN groupadd --system sahool && \
 
 # Install curl for health checks
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends curl && \
+RUN apt-update.sh && apt-get install -y --no-install-recommends curl && \ build-essential gcc libffi-dev
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools with multi-mirror fallback

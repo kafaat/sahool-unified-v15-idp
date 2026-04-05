@@ -523,9 +523,7 @@ class NotificationChannelRepository:
         # If verification code is provided, check it
         import hmac
 
-        if verification_code and not hmac.compare_digest(
-            str(channel.verification_code or ""), str(verification_code)
-        ):
+        if verification_code and not hmac.compare_digest(str(channel.verification_code or ""), str(verification_code)):
             return False
 
         channel.verified = True

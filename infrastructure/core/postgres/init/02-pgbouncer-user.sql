@@ -18,7 +18,8 @@ BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'pgbouncer') THEN
         -- Create user with a temporary password
         -- Note: This user is not actively used in the current PgBouncer configuration
-        CREATE USER pgbouncer WITH PASSWORD 'temp_password_not_used';
+        -- Password will be set by 03-set-pgbouncer-password.sh from env var
+        CREATE USER pgbouncer WITH PASSWORD 'init_' || md5(random()::text || clock_timestamp()::text);
         -- Grant necessary permissions (for potential future use)
         GRANT pg_monitor TO pgbouncer;
         RAISE NOTICE 'Created pgbouncer user (not actively used - auth_user is sahool)';

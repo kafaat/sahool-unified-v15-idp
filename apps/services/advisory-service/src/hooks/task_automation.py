@@ -4,6 +4,7 @@ Automatically creates FieldOps tasks from recommendations and plans
 """
 
 import structlog
+
 logger = structlog.get_logger()
 import json
 import os

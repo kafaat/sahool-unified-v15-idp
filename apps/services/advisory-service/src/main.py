@@ -190,9 +190,12 @@ class DiseaseAssessRequest(BaseModel):
             return v
         clamped = {}
         ranges = {
-            "temperature": (-60, 60), "humidity": (0, 100),
-            "wind_speed": (0, 200), "precipitation": (0, 500),
-            "soil_moisture": (0, 100), "uv_index": (0, 15),
+            "temperature": (-60, 60),
+            "humidity": (0, 100),
+            "wind_speed": (0, 200),
+            "precipitation": (0, 500),
+            "soil_moisture": (0, 100),
+            "uv_index": (0, 15),
         }
         for key, val in v.items():
             if key in ranges and isinstance(val, (int, float)):

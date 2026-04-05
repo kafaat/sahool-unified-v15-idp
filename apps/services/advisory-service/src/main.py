@@ -182,6 +182,26 @@ class DiseaseAssessRequest(BaseModel):
             return _validate_crop_type(v)
         return v
 
+    @field_validator("weather")
+    @classmethod
+    def validate_weather(cls, v: dict | None) -> dict | None:
+        """Clamp weather values to physically reasonable ranges to prevent alert manipulation."""
+        if v is None:
+            return v
+        clamped = {}
+        ranges = {
+            "temperature": (-60, 60), "humidity": (0, 100),
+            "wind_speed": (0, 200), "precipitation": (0, 500),
+            "soil_moisture": (0, 100), "uv_index": (0, 15),
+        }
+        for key, val in v.items():
+            if key in ranges and isinstance(val, (int, float)):
+                lo, hi = ranges[key]
+                clamped[key] = max(lo, min(hi, val))
+            else:
+                clamped[key] = val
+        return clamped
+
     @field_validator("correlation_id")
     @classmethod
     def sanitize_correlation_id(cls, v: str | None) -> str | None:

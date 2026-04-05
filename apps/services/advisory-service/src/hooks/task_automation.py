@@ -3,6 +3,8 @@ Task Automation Hook - SAHOOL Agro Advisor
 Automatically creates FieldOps tasks from recommendations and plans
 """
 
+import structlog
+logger = structlog.get_logger()
 import json
 import os
 from datetime import UTC, datetime, timedelta
@@ -143,27 +145,26 @@ class TaskAutomationHook:
         await self.nc.connect(NATS_URL)
         self._running = True
 
-        print("🔗 Task Automation Hook started")
+        logger.info("🔗 Task Automation Hook started")
 
-        # Subscribe to recommendation events
+        # Subscribe to tenant-scoped recommendation events (wildcard for all tenants)
+        # Publisher sends to: sahool.tenant.{tid}.advisory.recommendation_issued
         await self.nc.subscribe(
-            "sahool.advisory.recommendation_issued",
+            "sahool.tenant.*.advisory.recommendation_issued",
             cb=self._handle_recommendation,
         )
 
-        # Subscribe to fertilizer plan events
         await self.nc.subscribe(
-            "sahool.advisory.fertilizer_plan_issued",
+            "sahool.tenant.*.advisory.fertilizer_plan_issued",
             cb=self._handle_fertilizer_plan,
         )
 
-        # Subscribe to nutrient assessment events
         await self.nc.subscribe(
-            "sahool.advisory.nutrient_assessment_issued",
+            "sahool.tenant.*.advisory.nutrient_assessment_issued",
             cb=self._handle_nutrient_assessment,
         )
 
-        print("📡 Subscribed to advisor events")
+        logger.info("Subscribed to tenant-scoped advisory events")
 
     async def stop(self):
         """Stop the hook"""
@@ -171,7 +172,7 @@ class TaskAutomationHook:
         if self.nc:
             await self.nc.close()
         await self.fieldops.close()
-        print("🛑 Task Automation Hook stopped")
+        logger.info("🛑 Task Automation Hook stopped")
 
     async def _handle_recommendation(self, msg):
         """Handle recommendation_issued events"""

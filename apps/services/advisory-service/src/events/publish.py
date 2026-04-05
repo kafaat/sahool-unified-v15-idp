@@ -104,7 +104,9 @@ class AdvisorPublisher:
             self._nats_unavailable = True
             return
 
-        self.nc = NATS()
+        # Reuse existing client if it exists (avoid leaking connections)
+        if self.nc is None:
+            self.nc = NATS()
         try:
             await self.nc.connect(
                 self.nats_url,

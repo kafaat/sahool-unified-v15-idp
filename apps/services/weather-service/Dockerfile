@@ -115,8 +115,15 @@ RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
     if python -c "import jaraco.context" 2>/dev/null; then echo "ERROR: jaraco.context still present after stripping" >&2; exit 1; fi
 
 # Copy shared modules
+# Order matters: apps/services/shared/ overlays on top of shared/
+# to provide service-specific implementations (auth, errors_py, middleware).
 COPY --chown=sahool:sahool shared/ /app/shared/
 COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
+
+# Resolve module ambiguity: when both errors_py.py (file) and errors_py/ (package)
+# exist, Python prefers the package but this can cause import confusion.
+# Remove the standalone file since the package version is authoritative.
+RUN rm -f /app/shared/errors_py.py
 
 # Copy application code
 COPY --chown=sahool:sahool apps/services/weather-service/src /app/src
@@ -133,8 +140,9 @@ USER sahool
 # Expose port
 EXPOSE 8092
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+# Health check - start_period gives the service enough time to initialize
+# connections (DB, NATS) before health checks count toward failure threshold
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')" || exit 1
 
 # Run the application

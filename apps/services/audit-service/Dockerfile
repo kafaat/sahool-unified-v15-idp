@@ -68,7 +68,12 @@ COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
 
 # Copy shared libraries
+# First copy main shared/ modules, then overlay with service-specific versions
+COPY --chown=sahool:sahool shared/ ./shared/
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
+
+# Resolve module ambiguity: remove standalone errors_py.py when the package exists
+RUN rm -f /app/shared/errors_py.py
 
 # Copy source
 COPY --chown=sahool:sahool apps/services/audit-service/src/ ./src/
@@ -77,7 +82,8 @@ USER sahool
 
 EXPOSE 8114
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+# Health check - start_period gives the service enough time to initialize
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8114/healthz')" || exit 1
 
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8114"]

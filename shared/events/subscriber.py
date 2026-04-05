@@ -867,7 +867,7 @@ class EventSubscriber:
 # ─────────────────────────────────────────────────────────────────────────────
 
 _subscriber_instance: EventSubscriber | None = None
-_subscriber_lock = asyncio.Lock()
+_subscriber_lock: asyncio.Lock | None = None
 
 
 async def get_subscriber(
@@ -886,11 +886,13 @@ async def get_subscriber(
     Returns:
         EventSubscriber instance
     """
-    global _subscriber_instance
+    global _subscriber_instance, _subscriber_lock
 
     if _subscriber_instance is not None:
         return _subscriber_instance
 
+    if _subscriber_lock is None:
+        _subscriber_lock = asyncio.Lock()
     async with _subscriber_lock:
         # Double-check after acquiring lock
         if _subscriber_instance is None:

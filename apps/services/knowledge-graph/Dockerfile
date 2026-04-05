@@ -90,6 +90,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY shared/ ./shared/
 COPY apps/services/shared/ ./shared/
 
+# Resolve errors_py file/package ambiguity
+RUN rm -f s/shared/errors_py.py
+
 # Copy application code
 COPY apps/services/knowledge-graph/src/ ./src/
 

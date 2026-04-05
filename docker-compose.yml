@@ -341,7 +341,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 45s
     security_opt:
       - no-new-privileges:true
     deploy:
@@ -447,7 +447,7 @@ services:
       interval: 60s
       timeout: 10s
       retries: 5
-      start_period: 20s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1361,7 +1361,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1413,7 +1413,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1464,7 +1464,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1517,7 +1517,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1569,7 +1569,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1622,7 +1622,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1671,7 +1671,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1731,7 +1731,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1762,6 +1762,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - SAM_CHECKPOINT_PATH=/models/sam_vit_h.pth
       - YOLO_MODEL_PATH=/models/yolo_agri_ops.pt
       - MLLM_PROVIDER=${MLLM_PROVIDER:-ollama}
@@ -1787,7 +1788,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1897,7 +1898,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1928,6 +1929,7 @@ services:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable&prepared_statement_cache_size=0
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
       - THARWATT_BASE_URL=${THARWATT_BASE_URL:-https://developers-test.tharwatt.com:5253}
@@ -1948,7 +1950,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1985,6 +1987,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
     ports:
       - "127.0.0.1:8090:8090"
     depends_on:
@@ -2000,7 +2003,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2029,6 +2032,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
     ports:
       - "127.0.0.1:8091:8091"
     depends_on:
@@ -2042,7 +2046,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2089,6 +2093,7 @@ services:
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
     ports:
       - "127.0.0.1:8092:8092"
     depends_on:
@@ -2152,7 +2157,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2181,6 +2186,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - IOT_GATEWAY_URL=http://iot-gateway:8106
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
@@ -2199,7 +2205,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2276,6 +2282,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
     ports:
       - "127.0.0.1:8119:8119"
     depends_on:
@@ -2289,7 +2296,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2336,7 +2343,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2366,6 +2373,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
       - "127.0.0.1:8101:8101"
@@ -2380,7 +2388,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2408,6 +2416,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       # FIX: Add REDIS_URL — without it the service falls back to in-memory cache, losing sync between instances
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -2427,7 +2436,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2457,6 +2466,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
     ports:
       - "127.0.0.1:8104:8104"
     depends_on:
@@ -2471,7 +2481,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2573,6 +2583,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       # SMTP Configuration (Email fallback)
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
@@ -2621,7 +2632,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2658,7 +2669,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2687,6 +2698,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - TASK_SERVICE_URL=http://task-service:8103
       - ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
@@ -2708,7 +2720,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2760,6 +2772,7 @@ services:
       - QDRANT_PORT=6333
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
     ports:
       - "127.0.0.1:8112:8112"
     depends_on:
@@ -2809,6 +2822,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
     ports:
       - "127.0.0.1:8113:8113"
@@ -2824,7 +2838,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2854,6 +2868,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
     ports:
       - "127.0.0.1:8116:8116"
     depends_on:
@@ -2867,7 +2882,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2900,6 +2915,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
       - "127.0.0.1:8118:8118"
@@ -2916,7 +2932,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2940,6 +2956,7 @@ services:
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       # MIGRATION: Updated to use field-management-service instead of field-ops
       - FIELDOPS_URL=http://field-management-service:3000
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -2957,7 +2974,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3001,7 +3018,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3040,7 +3057,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3137,7 +3154,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3170,6 +3187,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
@@ -3187,7 +3205,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3220,6 +3238,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
@@ -3237,7 +3256,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3267,6 +3286,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - ROCKETCHAT_URL=${ROCKETCHAT_INTERNAL_URL:-http://rocketchat:3000}
       - ROCKETCHAT_ADMIN_USER=${ROCKETCHAT_ADMIN_USER:-rc_admin}
       - ROCKETCHAT_ADMIN_PASSWORD=${ROCKETCHAT_ADMIN_PASSWORD:-}
@@ -3284,7 +3304,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3318,6 +3338,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - WECHAT_APP_ID=${WECHAT_APP_ID:-}
       - WECHAT_APP_SECRET=${WECHAT_APP_SECRET:-}
       - WECHAT_TOKEN=${WECHAT_TOKEN:-}
@@ -3334,7 +3355,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3383,7 +3404,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3413,6 +3434,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
@@ -3431,7 +3453,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3461,6 +3483,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
@@ -3479,7 +3502,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3510,6 +3533,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
@@ -3537,7 +3561,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3566,6 +3590,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       # LLM Provider Configuration
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
@@ -3590,7 +3615,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3621,6 +3646,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
@@ -3642,7 +3668,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3676,6 +3702,7 @@ services:
       # NOTE: sslmode=disable for dev only. Production uses sslmode=require via docker-compose.tls.yml
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=${POSTGRES_SSL_MODE:-disable}
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8114:8114"
@@ -3721,6 +3748,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8123:8123"
@@ -3736,7 +3764,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3767,6 +3795,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AUDIT_SERVICE_URL=http://audit-service:8114
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
@@ -3788,7 +3817,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3822,6 +3851,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8134:8134"
@@ -3837,7 +3867,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3867,6 +3897,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - VISION_SERVICE_URL=http://yolo26-vision-service:8150
     ports:
@@ -3883,7 +3914,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3913,6 +3944,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8126:8126"
@@ -3928,7 +3960,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3962,6 +3994,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8127:8127"
@@ -3977,7 +4010,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4007,6 +4040,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
@@ -4025,7 +4059,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4055,6 +4089,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - SUPPLY_CHAIN_SERVICE_URL=http://supply-chain-service:8230
     ports:
@@ -4073,7 +4108,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4206,6 +4241,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
     ports:
       - "127.0.0.1:8165:8165"
@@ -4222,7 +4258,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4252,6 +4288,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
@@ -4269,7 +4306,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4299,6 +4336,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8180:8180"
@@ -4315,7 +4353,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4346,6 +4384,7 @@ services:
     environment:
       - PORT=8250
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4361,7 +4400,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4387,6 +4426,7 @@ services:
     environment:
       - PORT=8251
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4402,7 +4442,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4428,6 +4468,7 @@ services:
     environment:
       - PORT=8252
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4443,7 +4484,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4476,6 +4517,7 @@ services:
     environment:
       - PORT=8260
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
@@ -4498,7 +4540,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4554,6 +4596,7 @@ services:
     environment:
       - PORT=8183
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -4572,7 +4615,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4599,6 +4642,7 @@ services:
     environment:
       - PORT=8240
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
@@ -4621,7 +4665,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4647,6 +4691,7 @@ services:
     environment:
       - PORT=8253
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:-default-dev-secret-change-in-production}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4662,7 +4707,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

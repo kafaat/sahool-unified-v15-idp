@@ -55,6 +55,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/
 
+# Resolve errors_py file/package ambiguity
+RUN rm -f s/shared/errors_py.py
+
 # Copy source
 COPY apps/services/community-service/src/ ./src/
 

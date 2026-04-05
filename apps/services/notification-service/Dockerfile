@@ -65,6 +65,9 @@ COPY --chown=sahool:sahool shared/ ./shared/
 # Copy services shared modules (merge into shared/ without overwriting root modules)
 COPY --chown=sahool:sahool apps/services/shared/ ./services_shared/
 
+# Resolve errors_py file/package ambiguity
+RUN rm -f s/shared/errors_py.py
+
 # Copy application code
 COPY --chown=sahool:sahool apps/services/notification-service/src/ ./src/
 

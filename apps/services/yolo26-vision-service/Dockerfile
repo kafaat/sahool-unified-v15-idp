@@ -132,6 +132,9 @@ RUN mkdir -p /app/src /app/models /app/logs /app/data \
 # Copy shared modules (required for shared.middleware, shared.auth, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
 
+# Resolve errors_py file/package ambiguity
+RUN rm -f s/shared/errors_py.py
+
 # Copy application code
 # Note: Build context is repo root, so use full path
 COPY --chown=sahool:sahool apps/services/yolo26-vision-service/src/ /app/src/

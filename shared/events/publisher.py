@@ -752,7 +752,7 @@ class EventPublisher:
 # ─────────────────────────────────────────────────────────────────────────────
 
 _publisher_instance: EventPublisher | None = None
-_publisher_lock = asyncio.Lock()
+_publisher_lock: asyncio.Lock | None = None
 
 
 async def get_publisher(
@@ -771,11 +771,13 @@ async def get_publisher(
     Returns:
         EventPublisher instance
     """
-    global _publisher_instance
+    global _publisher_instance, _publisher_lock
 
     if _publisher_instance is not None:
         return _publisher_instance
 
+    if _publisher_lock is None:
+        _publisher_lock = asyncio.Lock()
     async with _publisher_lock:
         # Double-check after acquiring lock
         if _publisher_instance is None:

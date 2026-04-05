@@ -43,6 +43,9 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # Copy shared modules
 COPY apps/services/shared/ ./shared/
 
+# Resolve errors_py file/package ambiguity
+RUN rm -f s/shared/errors_py.py
+
 # Create logs directory and set ownership first
 RUN mkdir -p /app/logs && \
     chown -R sahool:sahool /app

@@ -89,9 +89,12 @@ class AdvisorPublisher:
         self._nats_unavailable = False
 
     async def connect(self):
-        """Connect to NATS server"""
-        if self._connected:
+        """Connect to NATS server with auto-reconnect support"""
+        if self._connected and self.nc and self.nc.is_connected:
             return
+
+        # Reset state for reconnection
+        self._connected = False
 
         if self._nats_unavailable:
             return
@@ -103,12 +106,30 @@ class AdvisorPublisher:
 
         self.nc = NATS()
         try:
-            await self.nc.connect(self.nats_url)
+            await self.nc.connect(
+                self.nats_url,
+                reconnect_time_wait=2,
+                max_reconnect_attempts=60,
+                error_cb=self._on_error,
+                disconnected_cb=self._on_disconnect,
+                reconnected_cb=self._on_reconnect,
+            )
             self._connected = True
             logger.info("nats_connected", url=self.nats_url)
         except Exception as e:
             logger.error("nats_connection_failed", url=self.nats_url, error=str(e))
             raise
+
+    async def _on_error(self, e):
+        logger.error("nats_error", error=str(e))
+
+    async def _on_disconnect(self):
+        self._connected = False
+        logger.warning("nats_disconnected — will auto-reconnect")
+
+    async def _on_reconnect(self):
+        self._connected = True
+        logger.info("nats_reconnected")
 
     async def close(self):
         """Close NATS connection"""

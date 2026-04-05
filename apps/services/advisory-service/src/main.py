@@ -129,8 +129,15 @@ VALID_IRRIGATION_TYPES: set[str] = {"drip", "flood", "sprinkler", "furrow", "piv
 
 
 def _sanitize_text(value: str) -> str:
-    """Sanitize user-provided text by escaping HTML entities."""
-    return html.escape(value, quote=True)
+    """Sanitize user-provided text — strip control chars, limit length.
+    NOTE: Do NOT html.escape() here — it breaks symptom/stage matching
+    against the agricultural knowledge base (e.g., 'yellowing & wilting'
+    becomes 'yellowing &amp; wilting' which matches nothing).
+    FastAPI returns JSON, so XSS via response body is not a concern."""
+    import re
+    # Remove control characters but preserve & < > for agricultural terms
+    value = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', value)
+    return value[:500]  # Limit length to prevent abuse
 
 
 def _validate_identifier(value: str, field_name: str) -> str:
@@ -526,10 +533,18 @@ def readiness():
 
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
-    """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
-        from fastapi import HTTPException
-
+    """Validate JWT tenant matches the requested tenant.
+    SECURITY: Reject tokens without tenant_id to prevent cross-tenant access."""
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+                "message_en": "Token does not contain tenant identifier",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -565,7 +580,8 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
     # Publish event
     event_id = None
     if getattr(app.state, "publisher", None):
-        event_id = await app.state.publisher.publish_recommendation(
+        try:
+            event_id = await app.state.publisher.publish_recommendation(
             tenant_id=req.tenant_id,
             field_id=req.field_id,
             category=assessment.category,
@@ -577,6 +593,8 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
             correlation_id=req.correlation_id,
             details=assessment.details,
         )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -609,7 +627,8 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
         if top.confidence >= 0.5:
-            event_id = await app.state.publisher.publish_recommendation(
+            try:
+                event_id = await app.state.publisher.publish_recommendation(
                 tenant_id=req.tenant_id,
                 field_id=req.field_id,
                 category=top.category,
@@ -620,6 +639,8 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
                 confidence=top.confidence,
                 correlation_id=req.correlation_id,
             )
+            except Exception as _pub_err:
+                logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -686,7 +707,8 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
-        event_id = await app.state.publisher.publish_nutrient_assessment(
+        try:
+            event_id = await app.state.publisher.publish_nutrient_assessment(
             tenant_id=req.tenant_id,
             field_id=req.field_id,
             deficiency_id=top.deficiency_id,
@@ -698,6 +720,8 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends
             confidence=top.confidence,
             correlation_id=req.correlation_id,
         )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -724,7 +748,8 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
-        event_id = await app.state.publisher.publish_nutrient_assessment(
+        try:
+            event_id = await app.state.publisher.publish_nutrient_assessment(
             tenant_id=req.tenant_id,
             field_id=req.field_id,
             deficiency_id=top.deficiency_id,
@@ -736,6 +761,8 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
             confidence=top.confidence,
             correlation_id=req.correlation_id,
         )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -776,7 +803,8 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
     # Publish event
     event_id = None
     if getattr(app.state, "publisher", None):
-        event_id = await app.state.publisher.publish_fertilizer_plan(
+        try:
+            event_id = await app.state.publisher.publish_fertilizer_plan(
             tenant_id=req.tenant_id,
             field_id=req.field_id,
             crop=req.crop,
@@ -785,6 +813,8 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
             correlation_id=req.correlation_id,
             notes=plan.notes,
         )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -839,15 +869,12 @@ def list_categories():
 
 
 @app.get("/api/v1/crops/search")
-def search_crops_endpoint(q: str):
+def search_crops_endpoint(q: str = Query(min_length=2, max_length=100)):
     """Search crops by Arabic or English name"""
-    if not q or len(q) < 2:
-        raise HTTPException(status_code=422, detail="Query must be at least 2 characters")
-
     results = search_crops_catalog(q)
 
     return {
-        "query": q,
+        "query": q[:100],
         "results": [
             {
                 "code": crop.code,

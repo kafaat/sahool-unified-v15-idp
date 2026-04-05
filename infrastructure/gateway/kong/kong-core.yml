@@ -1,10 +1,37 @@
+# ==============================================================================
+# WARNING — STANDALONE ALTERNATIVE TO kong.yml
+# ==============================================================================
+# This file is a STANDALONE configuration.  It defines the same routes as
+# kong.yml but WITHOUT JWT authentication on most services (by design, for
+# internal/dev environments where authentication is handled at the service layer).
+#
+# DO NOT load this file TOGETHER WITH kong.yml or kong-security.yml:
+#   - It duplicates every route name defined in kong.yml → Kong will refuse to
+#     start and report "duplicate entity" errors.
+#   - It omits JWT on 57 of 59 services; merging it with kong.yml (which has
+#     JWT) would silently strip JWT from those routes.
+#
+# Correct usage:
+#   DB-less:  KONG_DECLARATIVE_CONFIG=/etc/kong/kong-core.yml  (instead of kong.yml)
+#   deck:     deck sync --state kong-core.yml                   (clean environment)
+# ==============================================================================
+
 _format_version: '3.0'
 _transform: true
 plugins:
   - name: cors
     config:
       origins:
-        - '*'
+        - "https://app.sahool.app"
+        - "https://admin.sahool.app"
+        - "https://api.sahool.app"
+        - "https://dashboard.sahool.app"
+        - "https://mobile.sahool.app"
+        # Development
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+        - "http://localhost:5173"
+        - "http://localhost:8080"
       methods:
         - GET
         - POST
@@ -21,6 +48,7 @@ plugins:
         - Date
         - X-Request-Id
         - X-Correlation-Id
+        - X-Tenant-Id
       exposed_headers:
         - X-Request-Id
         - X-Correlation-Id
@@ -47,8 +75,9 @@ plugins:
         headers:
           - 'X-Content-Type-Options: nosniff'
           - 'X-Frame-Options: DENY'
-          - 'X-XSS-Protection: 1; mode=block'
-          - 'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
+          # X-XSS-Protection is deprecated — removed; use Content-Security-Policy instead.
+          # HSTS preload flag omitted until domain is submitted to https://hstspreload.org.
+          - 'Strict-Transport-Security: max-age=31536000; includeSubDomains'
           - 'Referrer-Policy: strict-origin-when-cross-origin'
           - 'Permissions-Policy: geolocation=(), microphone=(), camera=()'
       remove:

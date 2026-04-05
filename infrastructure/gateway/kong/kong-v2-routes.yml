@@ -2,8 +2,18 @@
 # Kong API Gateway V2 Routes Configuration
 # SAHOOL Platform API v2 Versioning
 # ============================================================================
-# This configuration adds v2 routes alongside existing v1 routes
-# All v1 routes are marked as deprecated with appropriate headers
+# This configuration adds v2 routes alongside existing v1 routes.
+# All v1 routes carry deprecation warning headers.
+#
+# IMPORTANT — LOADING CONSTRAINTS
+# 1. This file MUST NOT be loaded alongside kong.yml in DB-less mode because
+#    the v1 service names / route paths in this file duplicate those already
+#    defined in kong.yml, which will cause Kong to reject the configuration.
+#    Use `deck sync` (DB mode) or load this file INSTEAD OF the v1 sections
+#    of kong.yml.
+# 2. All service `url` entries use direct host:port addresses.  The upstream
+#    objects defined in infra/kong/kong.yml are intentionally NOT referenced
+#    here to keep this file self-contained and compatible with kong.yml.
 # ============================================================================
 
 _format_version: "3.0"
@@ -12,8 +22,7 @@ _transform: true
 # ============================================================================
 # API v2 Services Configuration
 # ============================================================================
-# Each service now has both v1 (deprecated) and v2 (current) routes
-# The v2 routes point to the same upstreams but with updated paths
+# Each service has both v1 (deprecated) and v2 (current) routes.
 # ============================================================================
 
 services:
@@ -130,7 +139,7 @@ services:
   # Field Management - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: field-core-v1
-    host: field-management-service-upstream
+    url: http://field-management-service:3000
     tags:
       - v1
       - deprecated
@@ -177,7 +186,7 @@ services:
               - "Link: </api/v2/fields>; rel=\"successor-version\""
 
   - name: field-core-v2
-    host: field-management-service-upstream
+    url: http://field-management-service:3000
     tags:
       - v2
       - current
@@ -223,7 +232,7 @@ services:
   # Weather Service - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: weather-service-v1
-    host: weather-service-upstream
+    url: http://weather-service:8092
     tags:
       - v1
       - deprecated
@@ -265,7 +274,7 @@ services:
               - "Link: </api/v2/weather>; rel=\"successor-version\""
 
   - name: weather-service-v2
-    host: weather-service-upstream
+    url: http://weather-service:8092
     tags:
       - v2
       - current
@@ -306,7 +315,7 @@ services:
   # Satellite Service - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: satellite-service-v1
-    host: vegetation-analysis-service-upstream
+    url: http://vegetation-analysis-service:8090
     tags:
       - v1
       - deprecated
@@ -343,7 +352,7 @@ services:
               - "Link: </api/v2/satellite>; rel=\"successor-version\""
 
   - name: satellite-service-v2
-    host: vegetation-analysis-service-upstream
+    url: http://vegetation-analysis-service:8090
     tags:
       - v2
       - current
@@ -381,7 +390,7 @@ services:
   # Indicators Service - v1 & v2 (Current)
   # ============================================================================
   - name: indicators-service-v1
-    host: indicators-service-upstream
+    url: http://indicators-service:8091
     tags:
       - v1
       - deprecated
@@ -421,7 +430,7 @@ services:
               - "Link: </api/v2/indicators>; rel=\"successor-version\""
 
   - name: indicators-service-v2
-    host: indicators-service-upstream
+    url: http://indicators-service:8091
     tags:
       - v2
       - current
@@ -460,7 +469,7 @@ services:
   # AI Advisor - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: ai-advisor-v1
-    host: ai-advisor-service-upstream
+    url: http://ai-advisor:8112
     tags:
       - v1
       - deprecated
@@ -497,7 +506,7 @@ services:
               - "Link: </api/v2/ai-advisor>; rel=\"successor-version\""
 
   - name: ai-advisor-v2
-    host: ai-advisor-service-upstream
+    url: http://ai-advisor:8112
     tags:
       - v2
       - current
@@ -535,7 +544,7 @@ services:
   # IoT Gateway - v1 (Deprecated) & v2 (Current)
   # ============================================================================
   - name: iot-gateway-v1
-    host: iot-gateway-upstream
+    url: http://iot-gateway:8106
     tags:
       - v1
       - deprecated
@@ -570,7 +579,7 @@ services:
               - "Link: </api/v2/iot>; rel=\"successor-version\""
 
   - name: iot-gateway-v2
-    host: iot-gateway-upstream
+    url: http://iot-gateway:8106
     tags:
       - v2
       - current

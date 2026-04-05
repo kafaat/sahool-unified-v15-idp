@@ -351,7 +351,7 @@ class NotificationQueueProcessor:
             queue_key = self.PRIORITY_QUEUES[priority]
 
             # Move from queue to processing set atomically
-            notification_json = await self._redis.rpoplpush(queue_key, self.PROCESSING_SET)
+            notification_json = await self._redis.lmove(queue_key, self.PROCESSING_SET, "RIGHT", "LEFT")
 
             if notification_json:
                 try:

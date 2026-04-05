@@ -44,7 +44,8 @@ TORTOISE_ORM = {
             "engine": "tortoise.backends.asyncpg",
             "credentials": {
                 "dsn": DATABASE_URL,
-                "ssl": "prefer",  # Enforce TLS/SSL encryption
+                "statement_cache_size": 0,  # PgBouncer transaction mode
+                # ssl handled by sslmode in DATABASE_URL
             },
         },
     },
@@ -68,7 +69,8 @@ TORTOISE_ORM_LOCAL = {
             "engine": "tortoise.backends.asyncpg",
             "credentials": {
                 "dsn": DATABASE_URL,
-                "ssl": "prefer",  # Enforce TLS/SSL encryption
+                "statement_cache_size": 0,  # PgBouncer transaction mode
+                # ssl handled by sslmode in DATABASE_URL
             },
         },
     },

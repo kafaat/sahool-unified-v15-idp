@@ -43,9 +43,9 @@ async def init_pool() -> asyncpg.Pool | None:
         _pool = await asyncpg.create_pool(
             DATABASE_URL,
             min_size=2,
+            statement_cache_size=0,  # PgBouncer transaction mode compatibility,
             max_size=10,
             command_timeout=60,
-            ssl=ssl.create_default_context(),  # TLS/SSL encryption
         )
         print("✅ Database connection pool initialized")
         return _pool

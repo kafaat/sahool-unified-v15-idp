@@ -62,8 +62,8 @@ ENV PATH=/home/sahool/.local/bin:$PATH
 # Copy root shared modules first (shared.cache, shared.middleware.security_headers, etc.)
 COPY --chown=sahool:sahool shared/ ./shared/
 
-# Copy services shared modules (merge into shared/ without overwriting root modules)
-COPY --chown=sahool:sahool apps/services/shared/ ./services_shared/
+# Copy services shared modules (overlay onto shared/)
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity
 RUN rm -f ./shared/errors_py.py

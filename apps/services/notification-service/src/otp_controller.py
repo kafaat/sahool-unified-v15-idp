@@ -343,7 +343,9 @@ class OTPStorage:
             return False, "Maximum attempts exceeded", "تم تجاوز الحد الأقصى للمحاولات"
 
         # Verify code
-        if otp_data.get("otp") != otp_code:
+        import hmac
+
+        if not hmac.compare_digest(str(otp_data.get("otp", "")), str(otp_code)):
             # Increment attempts
             otp_data["attempts"] = attempts + 1
             self._save_otp_data(key, otp_data)

@@ -1490,7 +1490,7 @@ async def readiness():
     # Use Tortoise ORM health check (service uses Tortoise, not a raw asyncpg pool)
     try:
         db_ok = await check_db_health()
-        checks["database"] = "connected" if db_ok else "disconnected"
+        checks["database"] = "connected" if db_ok.get("connected") else "disconnected"
     except Exception:
         checks["database"] = "disconnected"
 
@@ -1552,9 +1552,9 @@ async def create_custom_notification(
     return {
         "id": str(notification.id),
         "type": notification.type,
-        "type_ar": notification.data.get("type_ar", ""),
+        "type_ar": (notification.data or {}).get("type_ar", ""),
         "priority": notification.priority,
-        "priority_ar": notification.data.get("priority_ar", ""),
+        "priority_ar": (notification.data or {}).get("priority_ar", ""),
         "title": notification.title,
         "title_ar": notification.title_ar,
         "body": notification.body,
@@ -1739,9 +1739,9 @@ async def get_farmer_notifications(
         {
             "id": str(n.id),
             "type": n.type,
-            "type_ar": n.data.get("type_ar", ""),
+            "type_ar": (n.data or {}).get("type_ar", ""),
             "priority": n.priority,
-            "priority_ar": n.data.get("priority_ar", ""),
+            "priority_ar": (n.data or {}).get("priority_ar", ""),
             "title": n.title,
             "title_ar": n.title_ar,
             "body": n.body,
@@ -1829,9 +1829,9 @@ async def get_broadcast_notifications(
         {
             "id": str(n.id),
             "type": n.type,
-            "type_ar": n.data.get("type_ar", ""),
+            "type_ar": (n.data or {}).get("type_ar", ""),
             "priority": n.priority,
-            "priority_ar": n.data.get("priority_ar", ""),
+            "priority_ar": (n.data or {}).get("priority_ar", ""),
             "title": n.title,
             "title_ar": n.title_ar,
             "body": n.body,

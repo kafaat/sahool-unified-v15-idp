@@ -1,7 +1,7 @@
 {
   "name": "@sahool/yield-prediction",
   "version": "16.0.0",
-  "description": "SAHOOL Yield Prediction Service - \u062e\u062f\u0645\u0629 \u0627\u0644\u062a\u0646\u0628\u0624 \u0628\u0627\u0644\u0625\u0646\u062a\u0627\u062c\u064a\u0629 \u0627\u0644\u0632\u0631\u0627\u0639\u064a\u0629",
+  "description": "SAHOOL Yield Prediction Service - خدمة التنبؤ بالإنتاجية الزراعية",
   "author": "SAHOOL Team",
   "private": true,
   "license": "MIT",
@@ -44,5 +44,9 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "overrides": {
+    "lodash": ">=4.18.1",
+    "picomatch": "^4.0.4"
   }
 }

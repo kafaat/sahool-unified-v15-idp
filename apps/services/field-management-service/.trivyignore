@@ -45,3 +45,9 @@ CVE-2024-28863
 
 # tar <6.2.1 — denial of service via crafted tar archive headers
 CVE-2024-28176
+
+# @isaacs/brace-expansion@5.0.0 — DoS via unbounded brace range expansion
+# Bundled inside npm@11.7.0 at /usr/local/lib/node_modules/npm/node_modules/
+# Not part of application runtime dependencies. Fixed in 5.0.1.
+# Revisit: remove once npm ships a release bundling @isaacs/brace-expansion>=5.0.1.
+CVE-2026-25547

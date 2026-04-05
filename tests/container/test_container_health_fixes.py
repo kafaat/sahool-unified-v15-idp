@@ -192,9 +192,12 @@ class TestErrorsPyModuleConflict:
         dockerfile = WEATHER_SERVICE_DIR / "Dockerfile"
         content = _read_file(dockerfile)
 
-        assert "rm -f" in content and "errors_py.py" in content, (
+        # Verify rm targets the correct shared path (not a typo like s/shared)
+        assert re.search(
+            r"rm\s+-f\s+(?:\./shared|/app/shared)/errors_py\.py", content
+        ), (
             "Weather-service Dockerfile must remove shared/errors_py.py "
-            "to resolve file/package ambiguity"
+            "using correct path (./shared/ or /app/shared/)"
         )
 
     def test_audit_dockerfile_removes_errors_py_file(self):
@@ -202,9 +205,11 @@ class TestErrorsPyModuleConflict:
         dockerfile = AUDIT_SERVICE_DIR / "Dockerfile"
         content = _read_file(dockerfile)
 
-        assert "rm -f" in content and "errors_py.py" in content, (
+        assert re.search(
+            r"rm\s+-f\s+(?:\./shared|/app/shared)/errors_py\.py", content
+        ), (
             "Audit-service Dockerfile must remove shared/errors_py.py "
-            "to resolve file/package ambiguity"
+            "using correct path (./shared/ or /app/shared/)"
         )
 
     def test_errors_py_package_exports_required_symbols(self):

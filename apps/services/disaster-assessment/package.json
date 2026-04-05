@@ -1,7 +1,7 @@
 {
   "name": "@sahool/disaster-assessment",
   "version": "16.0.0",
-  "description": "SAHOOL Disaster Assessment Service - \u062e\u062f\u0645\u0629 \u062a\u0642\u064a\u064a\u0645 \u0627\u0644\u0643\u0648\u0627\u0631\u062b \u0627\u0644\u0632\u0631\u0627\u0639\u064a\u0629",
+  "description": "SAHOOL Disaster Assessment Service - خدمة تقييم الكوارث الزراعية",
   "author": "SAHOOL Team",
   "private": true,
   "license": "MIT",
@@ -57,5 +57,9 @@
   },
   "prisma": {
     "schema": "prisma/schema.prisma"
+  },
+  "overrides": {
+    "lodash": ">=4.18.1",
+    "picomatch": "^4.0.4"
   }
 }

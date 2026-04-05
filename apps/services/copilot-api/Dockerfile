@@ -61,7 +61,7 @@ COPY shared/ ./
 COPY apps/services/shared/ ./
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Production Stage
@@ -78,6 +78,15 @@ COPY apps/services/copilot-api/src/ ./src/
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 RUN chown -R sahool:sahool /app
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Expose port

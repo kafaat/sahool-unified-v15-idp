@@ -366,11 +366,9 @@ class TestOTPStorage:
     def test_delete_otp(self):
         storage = OTPStorage()
         key = storage._get_key("del-test", "login")
-        storage._storage[key] = {"otp": "111111"}
-        storage._last_sent[key] = 123.0
+        storage._storage[key] = {"otp_hash": "abc123"}
         storage._delete_otp(key)
         assert key not in storage._storage
-        assert key not in storage._last_sent
 
 
 from src.otp_controller import _get_otp_message

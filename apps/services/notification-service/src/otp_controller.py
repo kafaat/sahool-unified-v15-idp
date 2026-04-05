@@ -475,7 +475,6 @@ class OTPStorage:
                 logger.warning(f"Redis delete error: {e}")
 
         self._storage.pop(key, None)
-        self._last_sent.pop(key, None)
 
     def cleanup_expired(self):
         """Clean up expired OTPs from in-memory storage"""

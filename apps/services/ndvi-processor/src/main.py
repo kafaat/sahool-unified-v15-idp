@@ -97,7 +97,9 @@ async def lifespan(app: FastAPI):
             import asyncpg
 
             await asyncpg.create_pool(
-                db_url, min_size=1, max_size=5,
+                db_url,
+                min_size=1,
+                max_size=5,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility
             )
             await ndvi_store.ensure_tables(db_pool)

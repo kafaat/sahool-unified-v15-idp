@@ -230,7 +230,9 @@ async def lifespan(app: FastAPI):
             if not is_ci_or_test and "sslmode" not in db_url:
                 db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode=require"
             await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10,
+                db_url,
+                min_size=2,
+                max_size=10,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility
             )
             app.state.db_available = True

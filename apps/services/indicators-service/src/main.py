@@ -161,7 +161,9 @@ async def lifespan(app: FastAPI):
                 db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode={ssl_mode}"
 
             await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10,
+                db_url,
+                min_size=2,
+                max_size=10,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility
             )
             logger.info("database_connected", pool_size=10, ssl_mode=ssl_mode)

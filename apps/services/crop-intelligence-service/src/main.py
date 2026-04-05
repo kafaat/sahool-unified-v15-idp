@@ -739,7 +739,9 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10,
+                db_url,
+                min_size=2,
+                max_size=10,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility
             )
             app.state.db_connected = True

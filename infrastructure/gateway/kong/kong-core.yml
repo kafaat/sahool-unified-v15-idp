@@ -1,10 +1,37 @@
+# ==============================================================================
+# WARNING — STANDALONE ALTERNATIVE TO kong.yml
+# ==============================================================================
+# This file is a STANDALONE configuration.  It defines the same routes as
+# kong.yml but WITHOUT JWT authentication on most services (by design, for
+# internal/dev environments where authentication is handled at the service layer).
+#
+# DO NOT load this file TOGETHER WITH kong.yml or kong-security.yml:
+#   - It duplicates every route name defined in kong.yml → Kong will refuse to
+#     start and report "duplicate entity" errors.
+#   - It omits JWT on 57 of 59 services; merging it with kong.yml (which has
+#     JWT) would silently strip JWT from those routes.
+#
+# Correct usage:
+#   DB-less:  KONG_DECLARATIVE_CONFIG=/etc/kong/kong-core.yml  (instead of kong.yml)
+#   deck:     deck sync --state kong-core.yml                   (clean environment)
+# ==============================================================================
+
 _format_version: '3.0'
 _transform: true
 plugins:
   - name: cors
     config:
       origins:
-        - '*'
+        - "https://app.sahool.com"
+        - "https://admin.sahool.com"
+        - "https://api.sahool.com"
+        - "https://dashboard.sahool.com"
+        - "https://mobile.sahool.com"
+        # Development
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+        - "http://localhost:5173"
+        - "http://localhost:8080"
       methods:
         - GET
         - POST

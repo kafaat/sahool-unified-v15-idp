@@ -3098,12 +3098,21 @@ services:
 
 plugins:
   # CORS للسماح بالطلبات من المتصفحات
-  # SECURITY: In production, replace origins with specific allowed domains
-  # أمان: في الإنتاج، استبدل الأصول بالنطاقات المسموح بها فقط
+  # Origins are explicitly listed. Wildcard ('*') is NOT used because it
+  # cannot be combined with credentials:true and exposes the API to any origin.
   - name: cors
     config:
       origins:
-        - '*'
+        - "https://app.sahool.com"
+        - "https://admin.sahool.com"
+        - "https://api.sahool.com"
+        - "https://dashboard.sahool.com"
+        - "https://mobile.sahool.com"
+        # Development — remove or gate with ENVIRONMENT check in production
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+        - "http://localhost:5173"
+        - "http://localhost:8080"
       methods:
         - GET
         - POST
@@ -3126,9 +3135,8 @@ plugins:
         - X-Correlation-Id
         - X-RateLimit-Limit-Minute
         - X-RateLimit-Remaining-Minute
-      # SECURITY FIX: credentials cannot be true with wildcard origin
-      # Set to false for development, true only with specific origins in production
-      credentials: false
+      # credentials:true is safe now because origins are explicit (no wildcard).
+      credentials: true
       max_age: 3600
 
   # تحديد حجم الطلب لمنع هجمات الحمولة الكبيرة

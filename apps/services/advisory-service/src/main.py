@@ -18,8 +18,10 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 
-# Shared middleware imports - add apps/services/ to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+# Shared middleware imports - add project root to path (for local dev)
+_project_root = os.path.join(os.path.dirname(__file__), "..", "..")
+if _project_root != "/" and _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -369,7 +371,7 @@ class FertilizerPlanRequest(BaseModel):
     @field_validator("stage")
     @classmethod
     def sanitize_stage(cls, v: str) -> str:
-        return _sanitize_text(v.strip())
+        return _sanitize_text(v.strip().lower())
 
     @field_validator("soil_fertility")
     @classmethod

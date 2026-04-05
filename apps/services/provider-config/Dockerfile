@@ -80,6 +80,20 @@ RUN cp -r ./apps/services/shared/errors_py ./shared/errors_py || true && \
 # Copy source
 COPY --chown=sahool:sahool apps/services/provider-config/src/ ./src/
 
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /home/sahool/.local/lib/python*/site-packages/setuptools* \
+           /home/sahool/.local/lib/python*/site-packages/pip* \
+           /home/sahool/.local/lib/python*/site-packages/wheel* \
+           /home/sahool/.local/lib/python*/site-packages/pkg_resources* \
+           /home/sahool/.local/lib/python*/site-packages/jaraco* \
+           /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 EXPOSE 8104

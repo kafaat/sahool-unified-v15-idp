@@ -1,0 +1,5 @@
+# Per-service Trivy ignore — vendored npm dependencies
+# Last reviewed: 2026-04-05
+
+# @isaacs/brace-expansion DoS — vendored in system npm, not app dependency
+CVE-2026-25547

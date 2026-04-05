@@ -102,6 +102,15 @@ RUN mkdir -p /app/data
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash --uid 1000 sahool && \
     chown -R sahool:sahool /app
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Expose port

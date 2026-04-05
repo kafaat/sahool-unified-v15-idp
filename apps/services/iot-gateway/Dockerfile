@@ -61,6 +61,10 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
 
+# Remove build tools from runtime image (reduce attack surface)
+RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null; \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
 

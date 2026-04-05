@@ -227,11 +227,24 @@ class OTPStorage:
         self._storage: dict[str, dict[str, Any]] = {}
         self._redis_client = None
         self._use_redis = False
-        # Salt for OTP hashing (per-instance for in-memory, consistent via env for Redis)
-        self._hash_salt = os.getenv("JWT_SECRET_KEY", secrets.token_hex(16))
+        # Salt for OTP hashing — MUST be stable across restarts when using Redis
+        self._hash_salt = os.getenv("JWT_SECRET_KEY") or os.getenv("OTP_HASH_SALT", "")
+        if not self._hash_salt:
+            self._hash_salt = secrets.token_hex(16)
+            logger.warning(
+                "OTP hash salt using random value — OTPs won't survive restart. "
+                "Set JWT_SECRET_KEY or OTP_HASH_SALT for persistence."
+            )
 
         # Try to initialize Redis (sync ping only for startup check)
         self._init_redis()
+
+        # Warn if Redis + random salt (OTPs will break on restart)
+        if self._use_redis and not os.getenv("JWT_SECRET_KEY") and not os.getenv("OTP_HASH_SALT"):
+            logger.error(
+                "CRITICAL: Redis OTP storage enabled but no stable hash salt configured. "
+                "OTP verification WILL FAIL after pod restart. Set JWT_SECRET_KEY."
+            )
 
     def _init_redis(self):
         """Initialize Redis if available"""

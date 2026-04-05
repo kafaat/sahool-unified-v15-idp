@@ -49,12 +49,12 @@ function getClientIP(request: NextRequest): string {
 export async function POST(request: NextRequest) {
   const ip = getClientIP(request);
 
-  const rateLimitResult = await isRateLimited(ip, RATE_LIMIT_CONFIG);
-  if (rateLimitResult.limited) {
+  const limited = await isRateLimited(ip, RATE_LIMIT_CONFIG);
+  if (limited) {
     logger.warn('[Auth VerifyOTP] Rate limited', { ip });
     return NextResponse.json(
       { success: false, error: 'Too many verification attempts. Please try again later.' },
-      { status: 429, headers: { 'Retry-After': String(rateLimitResult.retryAfter ?? 60) } }
+      { status: 429, headers: { 'Retry-After': String(60) } }
     );
   }
 

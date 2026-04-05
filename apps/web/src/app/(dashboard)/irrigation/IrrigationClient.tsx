@@ -18,7 +18,7 @@ import {
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/stores/auth.store';
 import { apiClient } from '@/lib/api';
-import type { IrrigationScheduleType, IrrigationFrequency as ApiIrrigationFrequency } from '@/lib/api/types';
+import type { IrrigationScheduleType, IrrigationFrequency as ApiIrrigationFrequency, IrrigationSchedule as ApiIrrigationSchedule } from '@/lib/api/types';
 
 type IrrigationStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
 type IrrigationType = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
@@ -41,6 +41,31 @@ interface IrrigationSchedule {
   name?: string;
   startDate?: string;
   frequency?: string;
+}
+
+/** Map API IrrigationSchedule to the local UI interface */
+function fromApiSchedule(s: ApiIrrigationSchedule): IrrigationSchedule {
+  return {
+    id: s.id,
+    fieldId: s.fieldId,
+    fieldName: s.fieldName ?? '',
+    type: (['drip', 'sprinkler', 'pivot', 'flood', 'manual'] as const).includes(
+      s.type as IrrigationType
+    )
+      ? (s.type as IrrigationType)
+      : 'manual',
+    status: s.status as IrrigationStatus,
+    scheduledAt: s.startDate,
+    duration: s.duration,
+    waterAmount: s.waterAmount,
+    schedule: s.schedule as Record<string, unknown> | undefined,
+    nextRun: s.nextRun,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
+    name: s.name,
+    startDate: s.startDate,
+    frequency: s.frequency,
+  };
 }
 
 type Field = { id: string; name: string; name_ar?: string };
@@ -204,7 +229,7 @@ export default function IrrigationClient() {
       try {
         const response = await apiClient.getIrrigationSchedules();
         if (!cancelled && response.success && response.data) {
-          setSchedules(response.data);
+          setSchedules(response.data.map(fromApiSchedule));
         }
       } catch {
         // API unavailable - keep mock data for offline-first UX

@@ -160,7 +160,7 @@ async def lifespan(app: FastAPI):
             if ssl_mode != "disable" and "sslmode=" not in db_url:
                 db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode={ssl_mode}"
 
-            await asyncpg.create_pool(
+            app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=2,
                 max_size=10,

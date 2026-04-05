@@ -18,8 +18,10 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 
-# Shared middleware imports - add apps/services/ to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+# Shared middleware imports - add project root to path (for local dev)
+_project_root = os.path.join(os.path.dirname(__file__), "..", "..")
+if _project_root != "/" and _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -129,8 +131,16 @@ VALID_IRRIGATION_TYPES: set[str] = {"drip", "flood", "sprinkler", "furrow", "piv
 
 
 def _sanitize_text(value: str) -> str:
-    """Sanitize user-provided text by escaping HTML entities."""
-    return html.escape(value, quote=True)
+    """Sanitize user-provided text — strip control chars, limit length.
+    NOTE: Do NOT html.escape() here — it breaks symptom/stage matching
+    against the agricultural knowledge base (e.g., 'yellowing & wilting'
+    becomes 'yellowing &amp; wilting' which matches nothing).
+    FastAPI returns JSON, so XSS via response body is not a concern."""
+    import re
+
+    # Remove control characters but preserve & < > for agricultural terms
+    value = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", value)
+    return value[:500]  # Limit length to prevent abuse
 
 
 def _validate_identifier(value: str, field_name: str) -> str:
@@ -173,6 +183,29 @@ class DiseaseAssessRequest(BaseModel):
         if v is not None:
             return _validate_crop_type(v)
         return v
+
+    @field_validator("weather")
+    @classmethod
+    def validate_weather(cls, v: dict | None) -> dict | None:
+        """Clamp weather values to physically reasonable ranges to prevent alert manipulation."""
+        if v is None:
+            return v
+        clamped = {}
+        ranges = {
+            "temperature": (-60, 60),
+            "humidity": (0, 100),
+            "wind_speed": (0, 200),
+            "precipitation": (0, 500),
+            "soil_moisture": (0, 100),
+            "uv_index": (0, 15),
+        }
+        for key, val in v.items():
+            if key in ranges and isinstance(val, (int, float)):
+                lo, hi = ranges[key]
+                clamped[key] = max(lo, min(hi, val))
+            else:
+                clamped[key] = val
+        return clamped
 
     @field_validator("correlation_id")
     @classmethod
@@ -338,7 +371,7 @@ class FertilizerPlanRequest(BaseModel):
     @field_validator("stage")
     @classmethod
     def sanitize_stage(cls, v: str) -> str:
-        return _sanitize_text(v.strip())
+        return _sanitize_text(v.strip().lower())
 
     @field_validator("soil_fertility")
     @classmethod
@@ -526,10 +559,18 @@ def readiness():
 
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
-    """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
-        from fastapi import HTTPException
-
+    """Validate JWT tenant matches the requested tenant.
+    SECURITY: Reject tokens without tenant_id to prevent cross-tenant access."""
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+                "message_en": "Token does not contain tenant identifier",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -565,18 +606,21 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
     # Publish event
     event_id = None
     if getattr(app.state, "publisher", None):
-        event_id = await app.state.publisher.publish_recommendation(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            category=assessment.category,
-            severity=assessment.severity,
-            title_ar=assessment.title_ar,
-            title_en=assessment.title_en,
-            actions=assessment.actions,
-            confidence=assessment.confidence,
-            correlation_id=req.correlation_id,
-            details=assessment.details,
-        )
+        try:
+            event_id = await app.state.publisher.publish_recommendation(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                category=assessment.category,
+                severity=assessment.severity,
+                title_ar=assessment.title_ar,
+                title_en=assessment.title_en,
+                actions=assessment.actions,
+                confidence=assessment.confidence,
+                correlation_id=req.correlation_id,
+                details=assessment.details,
+            )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -609,17 +653,20 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
         if top.confidence >= 0.5:
-            event_id = await app.state.publisher.publish_recommendation(
-                tenant_id=req.tenant_id,
-                field_id=req.field_id,
-                category=top.category,
-                severity=top.severity,
-                title_ar=top.title_ar,
-                title_en=top.title_en,
-                actions=top.actions,
-                confidence=top.confidence,
-                correlation_id=req.correlation_id,
-            )
+            try:
+                event_id = await app.state.publisher.publish_recommendation(
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    category=top.category,
+                    severity=top.severity,
+                    title_ar=top.title_ar,
+                    title_en=top.title_en,
+                    actions=top.actions,
+                    confidence=top.confidence,
+                    correlation_id=req.correlation_id,
+                )
+            except Exception as _pub_err:
+                logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -686,18 +733,21 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
-        event_id = await app.state.publisher.publish_nutrient_assessment(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            deficiency_id=top.deficiency_id,
-            nutrient=top.nutrient,
-            severity=top.severity,
-            title_ar=top.title_ar,
-            title_en=top.title_en,
-            corrections=top.corrections,
-            confidence=top.confidence,
-            correlation_id=req.correlation_id,
-        )
+        try:
+            event_id = await app.state.publisher.publish_nutrient_assessment(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                deficiency_id=top.deficiency_id,
+                nutrient=top.nutrient,
+                severity=top.severity,
+                title_ar=top.title_ar,
+                title_en=top.title_en,
+                corrections=top.corrections,
+                confidence=top.confidence,
+                correlation_id=req.correlation_id,
+            )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -724,18 +774,21 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
-        event_id = await app.state.publisher.publish_nutrient_assessment(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            deficiency_id=top.deficiency_id,
-            nutrient=top.nutrient,
-            severity=top.severity,
-            title_ar=top.title_ar,
-            title_en=top.title_en,
-            corrections=top.corrections,
-            confidence=top.confidence,
-            correlation_id=req.correlation_id,
-        )
+        try:
+            event_id = await app.state.publisher.publish_nutrient_assessment(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                deficiency_id=top.deficiency_id,
+                nutrient=top.nutrient,
+                severity=top.severity,
+                title_ar=top.title_ar,
+                title_en=top.title_en,
+                corrections=top.corrections,
+                confidence=top.confidence,
+                correlation_id=req.correlation_id,
+            )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -776,15 +829,18 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
     # Publish event
     event_id = None
     if getattr(app.state, "publisher", None):
-        event_id = await app.state.publisher.publish_fertilizer_plan(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            crop=req.crop,
-            stage=req.stage,
-            plan=plan.applications,
-            correlation_id=req.correlation_id,
-            notes=plan.notes,
-        )
+        try:
+            event_id = await app.state.publisher.publish_fertilizer_plan(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                crop=req.crop,
+                stage=req.stage,
+                plan=plan.applications,
+                correlation_id=req.correlation_id,
+                notes=plan.notes,
+            )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -839,15 +895,12 @@ def list_categories():
 
 
 @app.get("/api/v1/crops/search")
-def search_crops_endpoint(q: str):
+def search_crops_endpoint(q: str = Query(min_length=2, max_length=100)):
     """Search crops by Arabic or English name"""
-    if not q or len(q) < 2:
-        raise HTTPException(status_code=422, detail="Query must be at least 2 characters")
-
     results = search_crops_catalog(q)
 
     return {
-        "query": q,
+        "query": q[:100],
         "results": [
             {
                 "code": crop.code,

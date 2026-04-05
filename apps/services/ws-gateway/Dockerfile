@@ -41,6 +41,12 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies (using shared requirements)
 COPY constraints.txt .
+# Install build dependencies for cryptography/bcrypt
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    build-essential gcc libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY apps/services/ws-gateway/requirements.txt .
 
 # Install dependencies with resilient multi-mirror fallback strategy
@@ -54,6 +60,10 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
+
+# Remove build tools from runtime image (reduce attack surface)
+RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy shared libraries
 COPY shared/ ./shared/

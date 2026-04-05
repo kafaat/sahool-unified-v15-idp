@@ -512,7 +512,16 @@ def validate_tenant_access(user: User, tenant_id: str) -> None:
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
     """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={

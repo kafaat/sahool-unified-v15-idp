@@ -46,7 +46,6 @@ logger = logging.getLogger("field-intelligence")
 # import ssl
 # ssl_context = ssl.create_default_context(cafile="/path/to/ca-cert.pem")
 # pool = await asyncpg.create_pool(DATABASE_URL, ssl=ssl_context)
-statement_cache_size = (0,)  # PgBouncer transaction mode
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 # Connection pool settings
@@ -81,6 +80,7 @@ async def get_pool() -> Pool | None:
             min_size=MIN_POOL_SIZE,
             max_size=MAX_POOL_SIZE,
             command_timeout=POOL_COMMAND_TIMEOUT,
+            statement_cache_size=0,  # PgBouncer transaction mode compatibility
             server_settings={
                 "application_name": "sahool-field-intelligence",
             },

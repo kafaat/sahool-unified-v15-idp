@@ -229,7 +229,7 @@ async def lifespan(app: FastAPI):
             # Enforce SSL for non-test environments
             if not is_ci_or_test and "sslmode" not in db_url:
                 db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode=require"
-            await asyncpg.create_pool(
+            app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=2,
                 max_size=10,

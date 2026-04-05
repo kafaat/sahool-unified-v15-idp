@@ -1,8 +1,5 @@
 'use client';
 
-// TODO: All CRUD operations (handleSave, handleDelete, handleStart, handleStop) only
-// modify local state with mock data. Wire up to irrigation API when backend is ready.
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Droplets,
@@ -19,6 +16,9 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
+import { useAuth } from '@/stores/auth.store';
+import { apiClient } from '@/lib/api';
+import type { IrrigationScheduleType, IrrigationFrequency as ApiIrrigationFrequency, IrrigationSchedule as ApiIrrigationSchedule } from '@/lib/api/types';
 
 type IrrigationStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
 type IrrigationType = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
@@ -44,15 +44,63 @@ interface IrrigationSchedule {
   frequency?: string;
 }
 
-// Stub types until API integration is wired up
+/** Map API IrrigationSchedule to the local UI interface */
+function fromApiSchedule(s: ApiIrrigationSchedule): IrrigationSchedule {
+  // Safely map API schedule type (manual/automatic/scheduled) to UI type (drip/sprinkler/pivot/flood/manual)
+  const validUiTypes: readonly IrrigationType[] = ['drip', 'sprinkler', 'pivot', 'flood', 'manual'] as const;
+  const mappedType: IrrigationType = validUiTypes.includes(s.type as IrrigationType)
+    ? (s.type as IrrigationType)
+    : 'manual';
+
+  // Safely map API status (active/paused/completed) to UI status (scheduled/in_progress/completed/cancelled/overdue)
+  const statusMap: Record<string, IrrigationStatus> = {
+    active: 'in_progress',
+    paused: 'scheduled',
+    completed: 'completed',
+  };
+  const mappedStatus: IrrigationStatus = statusMap[s.status] ?? 'scheduled';
+
+  return {
+    id: s.id,
+    fieldId: s.fieldId,
+    fieldName: s.fieldName ?? '',
+    type: mappedType,
+    status: mappedStatus,
+    scheduledAt: s.startDate,
+    duration: s.duration,
+    waterAmount: s.waterAmount,
+    schedule: s.schedule as Record<string, unknown> | undefined,
+    nextRun: s.nextRun,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
+    name: s.name,
+    startDate: s.startDate,
+    frequency: s.frequency,
+  };
+}
+
 type Field = { id: string; name: string; name_ar?: string };
-const useAuth = () => ({ user: null as { tenant_id?: string } | null });
-const apiClient = {
-  getFields: async (..._a: unknown[]) => ({ success: false as const, data: [] as Field[] }),
-  getIrrigationSchedules: async () => ({ success: false as const, data: [] as IrrigationSchedule[] }),
-  createIrrigationSchedule: async (..._a: unknown[]) => ({ success: false as const }),
-  deleteIrrigationSchedule: async (..._a: unknown[]) => ({ success: false as const }),
-};
+
+/**
+ * Map the UI irrigation type (drip/sprinkler/pivot/flood/manual) to the API
+ * contract type (manual/automatic/scheduled). Drip, sprinkler, pivot, and
+ * flood are all scheduled types; manual stays as manual.
+ */
+function toApiIrrigationType(type: IrrigationType): IrrigationScheduleType {
+  if (type === 'manual') return 'manual';
+  return 'scheduled';
+}
+
+/**
+ * Map the UI frequency (daily/weekly/biweekly/custom) to the API contract
+ * frequency (daily/weekly/custom). biweekly falls back to 'custom'.
+ */
+function toApiFrequency(frequency: string): ApiIrrigationFrequency {
+  if (frequency === 'daily' || frequency === 'weekly' || frequency === 'custom') {
+    return frequency as ApiIrrigationFrequency;
+  }
+  return 'custom';
+}
 
 const initialMockSchedules: IrrigationSchedule[] = [
   {
@@ -192,7 +240,7 @@ export default function IrrigationClient() {
       try {
         const response = await apiClient.getIrrigationSchedules();
         if (!cancelled && response.success && response.data) {
-          setSchedules(response.data);
+          setSchedules(response.data.map(fromApiSchedule));
         }
       } catch {
         // API unavailable - keep mock data for offline-first UX
@@ -278,7 +326,7 @@ export default function IrrigationClient() {
     setModalOpen(true);
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!formData.fieldName.trim()) {
       showToast({
         type: 'warning',
@@ -288,37 +336,117 @@ export default function IrrigationClient() {
       return;
     }
 
+    if (!formData.fieldId) {
+      showToast({
+        type: 'warning',
+        message: 'Please select a field',
+        messageAr: 'يرجى اختيار الحقل',
+      });
+      return;
+    }
+
     if (editingId) {
-      setSchedules((prev) =>
-        prev.map((s) =>
-          s.id === editingId
-            ? {
-                ...s,
-                fieldName: formData.fieldName,
-                name: formData.name,
-                type: formData.type,
-                scheduledAt: formData.startDate || formData.scheduledAt || s.scheduledAt,
-                startDate: formData.startDate || formData.scheduledAt,
-                frequency: formData.frequency,
-                duration: formData.duration,
-                waterAmount: formData.waterAmount,
-              }
-            : s
-        )
-      );
+      // Preserve the existing schedule's fieldId as fallback
+      const existingSchedule = schedules.find((s) => s.id === editingId);
+      try {
+        const response = await apiClient.updateIrrigationSchedule(editingId, {
+          fieldId: formData.fieldId || existingSchedule?.fieldId || '',
+          name: formData.name,
+          type: toApiIrrigationType(formData.type),
+          startDate: formData.startDate || formData.scheduledAt,
+          frequency: toApiFrequency(formData.frequency),
+          duration: formData.duration,
+          waterAmount: formData.waterAmount,
+        });
+        if (response.success && response.data) {
+          // Map server-returned API data into the UI schedule shape
+          const mapped = fromApiSchedule(response.data);
+          setSchedules((prev) =>
+            prev.map((s) => (s.id === editingId ? mapped : s))
+          );
+        } else {
+          // Optimistic update on non-critical error
+          setSchedules((prev) =>
+            prev.map((s) =>
+              s.id === editingId
+                ? {
+                    ...s,
+                    fieldName: formData.fieldName,
+                    name: formData.name,
+                    type: formData.type,
+                    scheduledAt: formData.startDate || formData.scheduledAt || s.scheduledAt,
+                    startDate: formData.startDate || formData.scheduledAt,
+                    frequency: formData.frequency,
+                    duration: formData.duration,
+                    waterAmount: formData.waterAmount,
+                  }
+                : s
+            )
+          );
+        }
+      } catch {
+        // Optimistic update for offline-first UX
+        setSchedules((prev) =>
+          prev.map((s) =>
+            s.id === editingId
+              ? {
+                  ...s,
+                  fieldName: formData.fieldName,
+                  name: formData.name,
+                  type: formData.type,
+                  scheduledAt: formData.startDate || formData.scheduledAt || s.scheduledAt,
+                  startDate: formData.startDate || formData.scheduledAt,
+                  frequency: formData.frequency,
+                  duration: formData.duration,
+                  waterAmount: formData.waterAmount,
+                }
+              : s
+          )
+        );
+      }
       showToast({ type: 'success', message: 'Schedule updated', messageAr: 'تم تحديث الجدول' });
     } else {
-      const newSchedule: IrrigationSchedule = {
-        id: crypto.randomUUID(),
-        fieldId: `field-${Date.now()}`,
-        fieldName: formData.fieldName,
-        type: formData.type,
-        status: 'scheduled',
-        scheduledAt: formData.scheduledAt || new Date().toISOString(),
-        duration: formData.duration,
-        waterAmount: formData.waterAmount,
-      };
-      setSchedules((prev) => [...prev, newSchedule]);
+      try {
+        const response = await apiClient.createIrrigationSchedule({
+          fieldId: formData.fieldId,
+          name: formData.name || formData.fieldName,
+          type: toApiIrrigationType(formData.type),
+          startDate: formData.startDate || formData.scheduledAt || new Date().toISOString(),
+          frequency: toApiFrequency(formData.frequency),
+          duration: formData.duration,
+          waterAmount: formData.waterAmount,
+        });
+        if (response.success && response.data) {
+          const mapped = fromApiSchedule(response.data);
+          setSchedules((prev) => [...prev, mapped]);
+        } else {
+          // Optimistic insert for offline-first UX
+          const newSchedule: IrrigationSchedule = {
+            id: crypto.randomUUID(),
+            fieldId: formData.fieldId,
+            fieldName: formData.fieldName,
+            type: formData.type,
+            status: 'scheduled',
+            scheduledAt: formData.scheduledAt || new Date().toISOString(),
+            duration: formData.duration,
+            waterAmount: formData.waterAmount,
+          };
+          setSchedules((prev) => [...prev, newSchedule]);
+        }
+      } catch {
+        // Optimistic insert for offline-first UX
+        const newSchedule: IrrigationSchedule = {
+          id: crypto.randomUUID(),
+          fieldId: formData.fieldId,
+          fieldName: formData.fieldName,
+          type: formData.type,
+          status: 'scheduled',
+          scheduledAt: formData.scheduledAt || new Date().toISOString(),
+          duration: formData.duration,
+          waterAmount: formData.waterAmount,
+        };
+        setSchedules((prev) => [...prev, newSchedule]);
+      }
       showToast({ type: 'success', message: 'Schedule created', messageAr: 'تم إنشاء الجدول' });
     }
     setModalOpen(false);

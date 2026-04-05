@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import LoginClient from './LoginClient';
 
 // Force dynamic rendering since this page uses next-intl which requires headers
@@ -16,5 +17,10 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
-  return <LoginClient />;
+  // LoginClient uses useSearchParams() which requires a Suspense boundary in Next.js 15
+  return (
+    <Suspense fallback={null}>
+      <LoginClient />
+    </Suspense>
+  );
 }

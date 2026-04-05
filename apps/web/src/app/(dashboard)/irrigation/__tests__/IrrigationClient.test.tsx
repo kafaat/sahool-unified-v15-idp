@@ -2,11 +2,34 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
 import IrrigationClient from '../IrrigationClient';
 
+// Mock the auth store
+vi.mock('@/stores/auth.store', () => ({
+  useAuth: () => ({
+    user: { id: 'user-1', tenant_id: 'tenant-1', name: 'Test User' },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    checkAuth: vi.fn(),
+  }),
+}));
+
 // Mock the toast
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({
     showToast: vi.fn(),
   }),
+}));
+
+// Mock the API client
+vi.mock('@/lib/api', () => ({
+  apiClient: {
+    getFields: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    getIrrigationSchedules: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    createIrrigationSchedule: vi.fn().mockResolvedValue({ success: true, data: null }),
+    updateIrrigationSchedule: vi.fn().mockResolvedValue({ success: true, data: null }),
+    deleteIrrigationSchedule: vi.fn().mockResolvedValue({ success: true }),
+  },
 }));
 
 describe('IrrigationClient', () => {

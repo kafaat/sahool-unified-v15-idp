@@ -25,8 +25,9 @@ except ModuleNotFoundError:  # pragma: no cover
 
             stdlib logging reserves many ``LogRecord`` attribute names
             (e.g. ``message``, ``name``, ``args``).  Passing structlog kwargs
-            directly via ``extra=kw`` can raise ``KeyError`` when a key
-            collides.  Nesting them keeps the data accessible without
+            directly via ``extra=kw`` can raise ``KeyError`` (overwriting a
+            reserved attribute) or ``TypeError`` (unexpected keyword argument
+            to ``_log()``).  Nesting them keeps the data accessible without
             conflicting with reserved attributes.
             """
             return {"context": kw} if kw else None

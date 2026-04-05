@@ -118,25 +118,25 @@ abstract final class ErrorCodes {
   static const String visionInvalidFormat = 'E1001';
   static const String visionFileTooLarge = 'E1002';
   static const String visionInvalidDimensions = 'E1003';
-  static const String visionInvalidConfidence = 'E1003';
-  static const String visionUnsupportedType = 'E1004';
-  static const String visionInvalidModelVariant = 'E1004';
-  static const String visionEmptyImage = 'E1005';
-  static const String visionMissingRequiredField = 'E1005';
-  static const String visionCorruptFile = 'E1006';
-  static const String visionInvalidBoundingBox = 'E1006';
+  static const String visionInvalidConfidence = 'E1004';
+  static const String visionUnsupportedType = 'E1005';
+  static const String visionInvalidModelVariant = 'E1006';
+  static const String visionEmptyImage = 'E1007';
+  static const String visionMissingRequiredField = 'E1008';
+  static const String visionCorruptFile = 'E1009';
+  static const String visionInvalidBoundingBox = 'E1010';
   static const String visionModelNotFound = 'E2001';
   static const String visionModelLoadFailed = 'E2002';
   static const String visionInferenceFailed = 'E2003';
   static const String visionModelIncompatible = 'E2004';
-  static const String visionModelVersionNotFound = 'E2004';
-  static const String visionWarmupFailed = 'E2005';
-  static const String visionTensorrtError = 'E2005';
+  static const String visionModelVersionNotFound = 'E2005';
+  static const String visionWarmupFailed = 'E2006';
+  static const String visionTensorrtError = 'E2007';
   static const String visionImageDecode = 'E3001';
   static const String visionPreprocessingFailed = 'E3002';
   static const String visionPostprocessingFailed = 'E3003';
-  static const String visionBatchFailed = 'E3003';
-  static const String visionBatchProcessingFailed = 'E3004';
+  static const String visionBatchFailed = 'E3004';
+  static const String visionBatchProcessingFailed = 'E3005';
   static const String visionGpuOom = 'E4001';
   static const String visionCpuOom = 'E4002';
   static const String visionDiskSpaceLow = 'E4003';
@@ -921,29 +921,29 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'حجم ملف الصورة كبير جداً. الحد الأقصى: 50 ميجابايت',
     retryable: false,
   ),
-  'E1003': ErrorMessage(
-    code: 'E1003',
+  'E1004': ErrorMessage(
+    code: 'E1004',
     httpStatus: 400,
     en: 'Confidence threshold must be between 0 and 1',
     ar: 'عتبة الثقة يجب أن تكون بين 0 و1',
     retryable: false,
   ),
-  'E1004': ErrorMessage(
-    code: 'E1004',
+  'E1006': ErrorMessage(
+    code: 'E1006',
     httpStatus: 400,
     en: 'Invalid model variant. Valid options: n, s, m, l, x',
     ar: 'نوع النموذج غير صالح. الخيارات الصالحة: n، s، m، l، x',
     retryable: false,
   ),
-  'E1005': ErrorMessage(
-    code: 'E1005',
+  'E1008': ErrorMessage(
+    code: 'E1008',
     httpStatus: 400,
     en: 'A required field is missing in the vision request',
     ar: 'حقل مطلوب مفقود في طلب الرؤية',
     retryable: false,
   ),
-  'E1006': ErrorMessage(
-    code: 'E1006',
+  'E1010': ErrorMessage(
+    code: 'E1010',
     httpStatus: 400,
     en: 'Invalid bounding box coordinates',
     ar: 'إحداثيات المربع المحيط غير صالحة',
@@ -970,15 +970,15 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'فشل استدلال الرؤية - يرجى المحاولة مرة أخرى',
     retryable: true,
   ),
-  'E2004': ErrorMessage(
-    code: 'E2004',
+  'E2005': ErrorMessage(
+    code: 'E2005',
     httpStatus: 503,
     en: 'Vision model version not found',
     ar: 'إصدار نموذج الرؤية غير موجود',
     retryable: false,
   ),
-  'E2005': ErrorMessage(
-    code: 'E2005',
+  'E2007': ErrorMessage(
+    code: 'E2007',
     httpStatus: 503,
     en: 'TensorRT optimization error in vision service',
     ar: 'خطأ في تحسين TensorRT في خدمة الرؤية',
@@ -1005,8 +1005,8 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'فشلت معالجة النتائج اللاحقة - يرجى المحاولة مرة أخرى',
     retryable: true,
   ),
-  'E3004': ErrorMessage(
-    code: 'E3004',
+  'E3005': ErrorMessage(
+    code: 'E3005',
     httpStatus: 400,
     en: 'Batch image processing failed',
     ar: 'فشلت معالجة دفعة الصور',

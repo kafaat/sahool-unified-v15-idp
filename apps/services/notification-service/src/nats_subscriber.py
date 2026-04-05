@@ -233,7 +233,7 @@ class NATSSubscriber:
         }
 
         if self._notification_callback:
-            self._notification_callback(notification_data)
+            await self._notification_callback(notification_data)
             logger.info(
                 "Irrigation recommendation notification created for field=%s",
                 sanitize_for_log(field_id),
@@ -287,7 +287,7 @@ class NATSSubscriber:
         }
 
         if self._notification_callback:
-            self._notification_callback(notification_data)
+            await self._notification_callback(notification_data)
             logger.info(
                 "Decision recommendation notification: type=%s field=%s",
                 sanitize_for_log(rec_type),
@@ -374,8 +374,8 @@ class NATSSubscriber:
             if event.event_type in self._handlers:
                 await self._handlers[event.event_type](event)
 
-            # Default: use notification callback if available
-            if self._notification_callback:
+            # Default: use notification callback only if no specific handler ran
+            elif self._notification_callback:
                 await self._process_event_to_notification(event)
 
         except Exception as e:
@@ -392,7 +392,7 @@ class NATSSubscriber:
             notification_data = self._event_to_notification_data(event)
 
             if self._notification_callback:
-                self._notification_callback(notification_data)
+                await self._notification_callback(notification_data)
                 logger.info(
                     "Notification created from event: %s field=%s",
                     sanitize_for_log(event.event_type),

@@ -1490,7 +1490,7 @@ async def readiness():
     # Use Tortoise ORM health check (service uses Tortoise, not a raw asyncpg pool)
     try:
         db_ok = await check_db_health()
-        checks["database"] = "connected" if db_ok else "disconnected"
+        checks["database"] = "connected" if db_ok.get("connected") else "disconnected"
     except Exception:
         checks["database"] = "disconnected"
 

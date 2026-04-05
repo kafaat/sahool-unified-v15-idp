@@ -19,27 +19,39 @@ except ModuleNotFoundError:  # pragma: no cover
         def __init__(self, logger: logging.Logger) -> None:
             self._logger = logger
 
+        @staticmethod
+        def _safe_extra(kw: dict[str, object]) -> dict[str, object] | None:
+            """Wrap structlog-style kwargs under a single ``context`` key.
+
+            stdlib logging reserves many ``LogRecord`` attribute names
+            (e.g. ``message``, ``name``, ``args``).  Passing structlog kwargs
+            directly via ``extra=kw`` can raise ``KeyError`` when a key
+            collides.  Nesting them keeps the data accessible without
+            conflicting with reserved attributes.
+            """
+            return {"context": kw} if kw else None
+
         # --- public API matching structlog usage in the knowledge module ---
 
         def debug(self, event: object = "", **kw: object) -> None:
-            self._logger.debug(str(event), extra=kw if kw else None)
+            self._logger.debug(str(event), extra=self._safe_extra(kw))
 
         def info(self, event: object = "", **kw: object) -> None:
-            self._logger.info(str(event), extra=kw if kw else None)
+            self._logger.info(str(event), extra=self._safe_extra(kw))
 
         def warning(self, event: object = "", **kw: object) -> None:
-            self._logger.warning(str(event), extra=kw if kw else None)
+            self._logger.warning(str(event), extra=self._safe_extra(kw))
 
         warn = warning
 
         def error(self, event: object = "", **kw: object) -> None:
-            self._logger.error(str(event), extra=kw if kw else None)
+            self._logger.error(str(event), extra=self._safe_extra(kw))
 
         def critical(self, event: object = "", **kw: object) -> None:
-            self._logger.critical(str(event), extra=kw if kw else None)
+            self._logger.critical(str(event), extra=self._safe_extra(kw))
 
         def exception(self, event: object = "", **kw: object) -> None:
-            self._logger.exception(str(event), extra=kw if kw else None)
+            self._logger.exception(str(event), extra=self._safe_extra(kw))
 
         def bind(self, **kw: object) -> _StdlibLoggerAdapter:
             """No-op bind — structlog bind() returns a new logger with bound

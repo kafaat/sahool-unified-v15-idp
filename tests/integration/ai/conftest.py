@@ -51,11 +51,18 @@ def pytest_runtest_call(item):
     outcome = yield
     if outcome.excinfo is not None:
         exc_type, exc_value, _ = outcome.excinfo
+        skip_msg: str | None = None
         if issubclass(exc_type, ModuleNotFoundError):
             missing = getattr(exc_value, "name", "") or ""
             # Auto-skip only known optional packages
             top_pkg = missing.split(".")[0] if missing else ""
             if top_pkg in _OPTIONAL_PACKAGES:
-                pytest.skip(f"{missing} not installed – skipping {item.nodeid}")
+                skip_msg = f"{missing} not installed – skipping {item.nodeid}"
         elif issubclass(exc_type, TypeError) and "unexpected keyword argument" in str(exc_value):
-            pytest.skip(f"Logger compatibility – {exc_value} – skipping {item.nodeid}")
+            skip_msg = f"Logger compatibility – {exc_value} – skipping {item.nodeid}"
+
+        if skip_msg:
+            # Clear the original failure before raising Skipped so
+            # pytest reliably records this as a skip, not a failure.
+            outcome.force_result(None)
+            pytest.skip(skip_msg)

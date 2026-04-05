@@ -18,7 +18,7 @@ import {
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/stores/auth.store';
 import { apiClient } from '@/lib/api';
-import type { IrrigationScheduleType, IrrigationFrequency as ApiIrrigationFrequency } from '@/lib/api/types';
+import type { IrrigationScheduleType, IrrigationFrequency as ApiIrrigationFrequency, IrrigationSchedule as ApiIrrigationSchedule } from '@/lib/api/types';
 
 type IrrigationStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
 type IrrigationType = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
@@ -29,7 +29,8 @@ interface IrrigationSchedule {
   fieldName: string;
   type: IrrigationType;
   status: IrrigationStatus;
-  scheduledAt: string;
+  /** Legacy alias for startDate — optional, prefer startDate */
+  scheduledAt?: string;
   duration: number;
   waterAmount: number;
   completedAt?: string;
@@ -41,6 +42,41 @@ interface IrrigationSchedule {
   name?: string;
   startDate?: string;
   frequency?: string;
+}
+
+/** Map API IrrigationSchedule to the local UI interface */
+function fromApiSchedule(s: ApiIrrigationSchedule): IrrigationSchedule {
+  // Safely map API schedule type (manual/automatic/scheduled) to UI type (drip/sprinkler/pivot/flood/manual)
+  const validUiTypes: readonly IrrigationType[] = ['drip', 'sprinkler', 'pivot', 'flood', 'manual'] as const;
+  const mappedType: IrrigationType = validUiTypes.includes(s.type as IrrigationType)
+    ? (s.type as IrrigationType)
+    : 'manual';
+
+  // Safely map API status (active/paused/completed) to UI status (scheduled/in_progress/completed/cancelled/overdue)
+  const statusMap: Record<string, IrrigationStatus> = {
+    active: 'in_progress',
+    paused: 'scheduled',
+    completed: 'completed',
+  };
+  const mappedStatus: IrrigationStatus = statusMap[s.status] ?? 'scheduled';
+
+  return {
+    id: s.id,
+    fieldId: s.fieldId,
+    fieldName: s.fieldName ?? '',
+    type: mappedType,
+    status: mappedStatus,
+    scheduledAt: s.startDate,
+    duration: s.duration,
+    waterAmount: s.waterAmount,
+    schedule: s.schedule as Record<string, unknown> | undefined,
+    nextRun: s.nextRun,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
+    name: s.name,
+    startDate: s.startDate,
+    frequency: s.frequency,
+  };
 }
 
 type Field = { id: string; name: string; name_ar?: string };
@@ -204,7 +240,7 @@ export default function IrrigationClient() {
       try {
         const response = await apiClient.getIrrigationSchedules();
         if (!cancelled && response.success && response.data) {
-          setSchedules(response.data);
+          setSchedules(response.data.map(fromApiSchedule));
         }
       } catch {
         // API unavailable - keep mock data for offline-first UX
@@ -254,6 +290,10 @@ export default function IrrigationClient() {
       minute: '2-digit',
     });
   };
+
+  /** Prefer startDate, fall back to legacy scheduledAt */
+  const getScheduleDate = (schedule: IrrigationSchedule): string | undefined =>
+    schedule.startDate || schedule.scheduledAt;
 
   const totalWaterToday = schedules
     .filter((s) => s.status !== 'cancelled')
@@ -306,9 +346,11 @@ export default function IrrigationClient() {
     }
 
     if (editingId) {
+      // Preserve the existing schedule's fieldId as fallback
+      const existingSchedule = schedules.find((s) => s.id === editingId);
       try {
         const response = await apiClient.updateIrrigationSchedule(editingId, {
-          fieldId: formData.fieldId,
+          fieldId: formData.fieldId || existingSchedule?.fieldId || '',
           name: formData.name,
           type: toApiIrrigationType(formData.type),
           startDate: formData.startDate || formData.scheduledAt,
@@ -317,9 +359,10 @@ export default function IrrigationClient() {
           waterAmount: formData.waterAmount,
         });
         if (response.success && response.data) {
-          // Use server-returned data when available
+          // Map server-returned API data into the UI schedule shape
+          const mapped = fromApiSchedule(response.data);
           setSchedules((prev) =>
-            prev.map((s) => (s.id === editingId ? { ...s, ...(response.data as Partial<IrrigationSchedule>) } : s))
+            prev.map((s) => (s.id === editingId ? mapped : s))
           );
         } else {
           // Optimistic update on non-critical error
@@ -366,7 +409,7 @@ export default function IrrigationClient() {
       try {
         const response = await apiClient.createIrrigationSchedule({
           fieldId: formData.fieldId,
-          name: formData.name,
+          name: formData.name || formData.fieldName,
           type: toApiIrrigationType(formData.type),
           startDate: formData.startDate || formData.scheduledAt || new Date().toISOString(),
           frequency: toApiFrequency(formData.frequency),
@@ -374,7 +417,8 @@ export default function IrrigationClient() {
           waterAmount: formData.waterAmount,
         });
         if (response.success && response.data) {
-          setSchedules((prev) => [...prev, response.data as IrrigationSchedule]);
+          const mapped = fromApiSchedule(response.data);
+          setSchedules((prev) => [...prev, mapped]);
         } else {
           // Optimistic insert for offline-first UX
           const newSchedule: IrrigationSchedule = {
@@ -627,7 +671,7 @@ export default function IrrigationClient() {
                     {schedule.frequency ? frequencies[schedule.frequency]?.labelAr ?? schedule.frequency : '-'}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {schedule.startDate ? formatDate(schedule.startDate) : formatDate(schedule.scheduledAt)}
+                    {getScheduleDate(schedule) ? formatDate(getScheduleDate(schedule)!) : '—'}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{schedule.duration} دقيقة</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{schedule.waterAmount} م³</td>

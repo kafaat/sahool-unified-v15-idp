@@ -43,12 +43,12 @@ function getClientIP(request: NextRequest): string {
 export async function POST(request: NextRequest) {
   const ip = getClientIP(request);
 
-  const isLimited = await isRateLimited(ip, RATE_LIMIT_CONFIG);
-  if (isLimited) {
+  const limited = await isRateLimited(ip, RATE_LIMIT_CONFIG);
+  if (limited) {
     logger.warn('[Auth ResetPassword] Rate limited', { ip });
     return NextResponse.json(
       { success: false, error: 'Too many requests. Please try again later.' },
-      { status: 429, headers: { 'Retry-After': String(Math.ceil(RATE_LIMIT_CONFIG.windowMs / 1000)) } }
+      { status: 429, headers: { 'Retry-After': String(60) } }
     );
   }
 
@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
 
     // Clear any stale auth cookies — user must log in with new password
     const cookieStore = await cookies();
-    cookieStore.delete('access_token');
-    cookieStore.delete('refresh_token');
+    cookieStore.delete({ name: 'access_token', path: '/' });
+    cookieStore.delete({ name: 'refresh_token', path: '/' });
 
     return NextResponse.json({
       success: true,

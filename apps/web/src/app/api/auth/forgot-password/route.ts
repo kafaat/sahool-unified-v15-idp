@@ -37,12 +37,12 @@ export async function POST(request: NextRequest) {
   const ip = getClientIP(request);
 
   // Rate limiting: max 5 forgot-password requests per minute per IP
-  const isLimited = await isRateLimited(ip, RATE_LIMIT_CONFIG);
-  if (isLimited) {
+  const limited = await isRateLimited(ip, RATE_LIMIT_CONFIG);
+  if (limited) {
     logger.warn('[Auth ForgotPassword] Rate limited', { ip });
     return NextResponse.json(
       { success: false, error: 'Too many requests. Please try again later.' },
-      { status: 429, headers: { 'Retry-After': String(Math.ceil(RATE_LIMIT_CONFIG.windowMs / 1000)) } }
+      { status: 429, headers: { 'Retry-After': String(60) } }
     );
   }
 

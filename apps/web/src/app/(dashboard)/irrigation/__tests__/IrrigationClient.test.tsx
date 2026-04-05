@@ -2,6 +2,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '../../../../__tests__/test-utils';
 import IrrigationClient from '../IrrigationClient';
 
+// Mock the auth store
+vi.mock('@/stores/auth.store', () => ({
+  useAuth: () => ({
+    user: { id: 'user-1', tenant_id: 'tenant-1', name: 'Test User' },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    checkAuth: vi.fn(),
+  }),
+}));
+
 // Mock the toast
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({
@@ -9,20 +21,13 @@ vi.mock('@/components/ui/toast', () => ({
   }),
 }));
 
-// Mock auth store - component reads user.tenant_id
-vi.mock('@/stores/auth.store', () => ({
-  useAuth: () => ({
-    user: { id: 'user-1', tenant_id: 'tenant-1', role: 'farmer' },
-  }),
-}));
-
-// Mock apiClient - component calls getFields, getIrrigationSchedules, etc.
+// Mock the API client
 vi.mock('@/lib/api', () => ({
   apiClient: {
     getFields: vi.fn().mockResolvedValue({ success: true, data: [] }),
     getIrrigationSchedules: vi.fn().mockResolvedValue({ success: true, data: [] }),
-    createIrrigationSchedule: vi.fn().mockResolvedValue({ success: false }),
-    updateIrrigationSchedule: vi.fn().mockResolvedValue({ success: false }),
+    createIrrigationSchedule: vi.fn().mockResolvedValue({ success: true, data: null }),
+    updateIrrigationSchedule: vi.fn().mockResolvedValue({ success: true, data: null }),
     deleteIrrigationSchedule: vi.fn().mockResolvedValue({ success: true }),
   },
 }));
@@ -41,8 +46,7 @@ describe('IrrigationClient', () => {
     render(<IrrigationClient />);
     expect(screen.getByText('استهلاك اليوم')).toBeInTheDocument();
     expect(screen.getByText('نشط الآن')).toBeInTheDocument();
-    // 'متوقف' appears both in the stat card and the status filter dropdown
-    expect(screen.getAllByText('متوقف').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('متأخر').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('كفاءة الري')).toBeInTheDocument();
   });
 

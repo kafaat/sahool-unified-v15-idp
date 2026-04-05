@@ -92,12 +92,17 @@ export const Header = React.memo(function Header() {
           {hasUnread && (
             <span
               className="absolute top-1 end-1 min-w-[1.1rem] h-[1.1rem] bg-red-500 rounded-full flex items-center justify-center text-white text-[0.6rem] font-bold leading-none px-0.5"
-              aria-label={t('newNotifications') || 'New notifications'}
+              aria-hidden="true"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </button>
+        <span className="sr-only" aria-live="polite">
+          {hasUnread
+            ? `${unreadCount} ${t('unreadNotifications') || 'unread notifications'}`
+            : ''}
+        </span>
 
         {/* User Menu */}
         <div className="relative" data-user-menu>

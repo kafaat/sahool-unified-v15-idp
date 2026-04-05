@@ -42,9 +42,20 @@ Future<bool> _executeBackgroundSync() async {
   final apiClient = ApiClient();
 
   try {
-    // Get tenant ID from shared preferences
+    // Get tenant ID from shared preferences; abort if unavailable.
     final prefs = await SharedPreferences.getInstance();
     final tenantId = prefs.getString('tenant_id') ?? EnvConfig.defaultTenantId;
+
+    if (tenantId.isEmpty) {
+      await _logBackgroundError(
+        'Background sync aborted: no tenant ID configured. '
+        'User must log in at least once before background sync can run.',
+      );
+      return false;
+    }
+
+    // Ensure ApiClient sends the correct tenant header
+    apiClient.setTenantId(tenantId);
 
     // Check if we have pending items
     final pendingItems = await database.getPendingOutbox(

@@ -472,7 +472,13 @@ class _FieldMapScreenState extends State<FieldMapScreen> {
             child: ElevatedButton(
               onPressed: () {
                 HapticFeedback.mediumImpact();
-                // Navigate to field details
+                // TODO(P1): Navigate to field details screen with field data
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تفاصيل الحقل قيد التطوير | Field details coming soon'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: color.withOpacity(0.2),

@@ -42,7 +42,7 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: sahool
+  IMAGE_PREFIX: ${{ github.repository_owner }}
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────

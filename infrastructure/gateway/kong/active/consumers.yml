@@ -35,8 +35,8 @@ consumers:
         algorithm: HS256
         secret: ${STARTER_JWT_SECRET}
     # ACL Groups
-    groups:
-      - name: starter-users
+    acls:
+      - group: starter-users
     # Plugins
     plugins:
       - name: rate-limiting
@@ -68,8 +68,8 @@ consumers:
       - key: starter-jwt-001
         algorithm: HS256
         secret: ${STARTER_JWT_SECRET}
-    groups:
-      - name: starter-users
+    acls:
+      - group: starter-users
     plugins:
       - name: rate-limiting
         config:
@@ -90,8 +90,8 @@ consumers:
       - key: starter-jwt-002
         algorithm: HS256
         secret: ${STARTER_JWT_SECRET}
-    groups:
-      - name: starter-users
+    acls:
+      - group: starter-users
     plugins:
       - name: rate-limiting
         config:
@@ -118,9 +118,9 @@ consumers:
       - key: professional-jwt-demo-key
         algorithm: HS256
         secret: ${PROFESSIONAL_JWT_SECRET}
-    groups:
-      - name: professional-users
-      - name: starter-users  # يمكنهم الوصول لخدمات الباقة الأساسية أيضاً
+    acls:
+      - group: professional-users
+      - group: starter-users  # يمكنهم الوصول لخدمات الباقة الأساسية أيضاً
     plugins:
       - name: rate-limiting
         config:
@@ -151,9 +151,9 @@ consumers:
       - key: professional-jwt-001
         algorithm: HS256
         secret: ${PROFESSIONAL_JWT_SECRET}
-    groups:
-      - name: professional-users
-      - name: starter-users
+    acls:
+      - group: professional-users
+      - group: starter-users
     plugins:
       - name: rate-limiting
         config:
@@ -174,9 +174,9 @@ consumers:
       - key: professional-jwt-002
         algorithm: HS256
         secret: ${PROFESSIONAL_JWT_SECRET}
-    groups:
-      - name: professional-users
-      - name: starter-users
+    acls:
+      - group: professional-users
+      - group: starter-users
     plugins:
       - name: rate-limiting
         config:
@@ -203,10 +203,10 @@ consumers:
       - key: enterprise-jwt-demo-key
         algorithm: HS256
         secret: ${ENTERPRISE_JWT_SECRET}
-    groups:
-      - name: enterprise-users
-      - name: professional-users  # يمكنهم الوصول لخدمات المتوسطة
-      - name: starter-users  # ويمكنهم الوصول لخدمات الأساسية
+    acls:
+      - group: enterprise-users
+      - group: professional-users  # يمكنهم الوصول لخدمات المتوسطة
+      - group: starter-users  # ويمكنهم الوصول لخدمات الأساسية
     plugins:
       - name: rate-limiting
         config:
@@ -237,10 +237,10 @@ consumers:
       - key: enterprise-jwt-001
         algorithm: HS256
         secret: ${ENTERPRISE_JWT_SECRET}
-    groups:
-      - name: enterprise-users
-      - name: professional-users
-      - name: starter-users
+    acls:
+      - group: enterprise-users
+      - group: professional-users
+      - group: starter-users
     plugins:
       - name: rate-limiting
         config:
@@ -261,10 +261,10 @@ consumers:
       - key: enterprise-jwt-002
         algorithm: HS256
         secret: ${ENTERPRISE_JWT_SECRET}
-    groups:
-      - name: enterprise-users
-      - name: professional-users
-      - name: starter-users
+    acls:
+      - group: enterprise-users
+      - group: professional-users
+      - group: starter-users
     plugins:
       - name: rate-limiting
         config:
@@ -291,9 +291,9 @@ consumers:
       - key: research-jwt-demo-key
         algorithm: HS256
         secret: ${RESEARCH_JWT_SECRET}
-    groups:
-      - name: research-users
-      - name: enterprise-users  # لديهم نفس صلاحيات المؤسسات
+    acls:
+      - group: research-users
+      - group: enterprise-users  # لديهم نفس صلاحيات المؤسسات
     plugins:
       - name: rate-limiting
         config:
@@ -324,9 +324,9 @@ consumers:
       - key: research-jwt-001
         algorithm: HS256
         secret: ${RESEARCH_JWT_SECRET}
-    groups:
-      - name: research-users
-      - name: enterprise-users
+    acls:
+      - group: research-users
+      - group: enterprise-users
     plugins:
       - name: rate-limiting
         config:
@@ -347,9 +347,9 @@ consumers:
       - key: research-jwt-002
         algorithm: HS256
         secret: ${RESEARCH_JWT_SECRET}
-    groups:
-      - name: research-users
-      - name: enterprise-users
+    acls:
+      - group: research-users
+      - group: enterprise-users
     plugins:
       - name: rate-limiting
         config:
@@ -375,8 +375,8 @@ consumers:
       - key: admin-jwt-system-key
         algorithm: HS256
         secret: ${ADMIN_JWT_SECRET}
-    groups:
-      - name: admin-users
+    acls:
+      - group: admin-users
     plugins:
       - name: rate-limiting
         config:
@@ -402,8 +402,8 @@ consumers:
       - key: admin-jwt-monitoring-key
         algorithm: HS256
         secret: ${ADMIN_JWT_SECRET}
-    groups:
-      - name: admin-users
+    acls:
+      - group: admin-users
     plugins:
       - name: rate-limiting
         config:
@@ -428,8 +428,8 @@ consumers:
       - key: admin-jwt-support-key
         algorithm: HS256
         secret: ${ADMIN_JWT_SECRET}
-    groups:
-      - name: admin-users
+    acls:
+      - group: admin-users
     plugins:
       - name: rate-limiting
         config:
@@ -459,8 +459,8 @@ consumers:
       - key: service-jwt-monitoring
         algorithm: HS256
         secret: ${SERVICE_JWT_SECRET}
-    groups:
-      - name: service-accounts
+    acls:
+      - group: service-accounts
     plugins:
       - name: rate-limiting
         config:
@@ -485,8 +485,8 @@ consumers:
       - key: service-jwt-cicd
         algorithm: HS256
         secret: ${SERVICE_JWT_SECRET}
-    groups:
-      - name: service-accounts
+    acls:
+      - group: service-accounts
     plugins:
       - name: rate-limiting
         config:
@@ -505,8 +505,8 @@ consumers:
       - key: service-jwt-integration
         algorithm: HS256
         secret: ${SERVICE_JWT_SECRET}
-    groups:
-      - name: service-accounts
+    acls:
+      - group: service-accounts
     plugins:
       - name: rate-limiting
         config:
@@ -531,8 +531,8 @@ consumers:
       - key: trial-jwt-001
         algorithm: HS256
         secret: ${TRIAL_JWT_SECRET}
-    groups:
-      - name: trial-users
+    acls:
+      - group: trial-users
     plugins:
       - name: rate-limiting
         config:

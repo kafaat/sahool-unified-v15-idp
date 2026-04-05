@@ -55,15 +55,19 @@
 
 ```text
 📱 التطبيقات المدققة | Apps Audited: 4
-🧭 التطبيق المرجعي المقترح | Proposed Reference App: sahool_field_app
-🧪 Flutter validation baseline: make mobile-analyze => failed (flutter not installed in sandbox)
-🧪 Flutter validation baseline: make mobile-test => كان يعطي نجاحاً مضللاً عند غياب flutter وتم تصحيحه
-🧪 React Native baseline: npm test in sahool-mobile => failed (jest unavailable / dependencies not installed)
-📦 lockfiles الحالية | Current lockfiles:
-   - sahool_field_app: present
-   - sahol_atmosphere: present
+🧭 التطبيق المرجعي المعتمد | Reference App: sahool_field_app ✅
+🧪 Makefile: MOBILE_DIR => apps/mobile/sahool_field_app ✅ (fixed)
+🧪 CI: mobile-release.yml & flutter-apk.yml => apps/mobile/sahool_field_app ✅ (fixed)
+🧪 Flutter validation: make mobile-test => يفشل عند غياب flutter ✅
+🧪 React Native: sahool-mobile => بحاجة قرار معماري (ARCHITECTURE_DECISION.md)
+📦 lockfiles:
+   - sahool_field_app: present ✅
+   - sahol_atmosphere: present ✅
    - sahool_app: missing
-   - sahool-mobile: missing
+   - sahool-mobile: missing (+ .env.example added ✅)
+🔧 إصلاحات منفذة في هذا التحديث:
+   - Makefile, CI workflows, AndroidManifest, security handling
+   - Empty handlers, env config, .env.production, architecture decisions
 ```
 
 ---

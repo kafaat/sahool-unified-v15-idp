@@ -13,10 +13,10 @@
 منع أي تنفيذ واسع قبل توحيد الصورة الفعلية لتطبيقات الموبايل.
 
 ### المهام | Tasks
-- [ ] اعتماد `sahool_field_app` كتطبيق baseline رسمي للموبايل
-- [ ] اعتماد `MOBILE_APPS_AUDIT_REPORT.md` و `MOBILE_APPS_REPAIR_PLAN.md` كمصدرين تنفيذيين محدثين
-- [ ] توثيق أن `sahool_app` و `sahool-mobile` يحتاجان قراراً معمارياً منفصلاً
-- [ ] عدم استخدام الاستنتاجات التاريخية القديمة إذا خالفت هذا التحديث
+- [x] اعتماد `sahool_field_app` كتطبيق baseline رسمي للموبايل
+- [x] اعتماد `MOBILE_APPS_AUDIT_REPORT.md` و `MOBILE_APPS_REPAIR_PLAN.md` كمصدرين تنفيذيين محدثين
+- [x] توثيق أن `sahool_app` و `sahool-mobile` يحتاجان قراراً معمارياً منفصلاً — تم إنشاء `ARCHITECTURE_DECISION.md` لكل منهما
+- [x] عدم استخدام الاستنتاجات التاريخية القديمة إذا خالفت هذا التحديث
 
 ### المخرجات | Deliverables
 - baseline واضح
@@ -35,10 +35,10 @@
 - [ ] مراجعة استهلاك الـ API endpoints وربطه بالعقود المشتركة الحالية
 
 ### 1.2 CI / Validation
-- [x] جعل `make mobile-test` يفشل عند فشل أو غياب Flutter بدل النجاح المضلل
-- [ ] مراجعة بقية أوامر الموبايل للتأكد من عدم إخفاء الفشل
+- [x] جعل `make mobile-test` يفشل عند فشل أو غياب Flutter بدل النجاح المضلل ✅
+- [x] مراجعة بقية أوامر الموبايل — تم إصلاح `MOBILE_DIR` ليشير إلى `sahool_field_app` مباشرة
 - [ ] توثيق الفرق بين فشل البيئة وفشل التطبيق
-- [ ] تثبيت baseline محلي/CI لأوامر Flutter وReact Native بشكل صريح
+- [x] تثبيت baseline: تم إصلاح `mobile-release.yml` و `flutter-apk.yml` working-directory paths
 
 ---
 

@@ -83,10 +83,13 @@
    - الحماية على مستوى Dart موجودة، لكن native ATS pinning غير مفعّل بعد.
 3. **اتساع معماري كبير في المسارات والميزات**
    - هناك حاجة لحصر الشاشات المتداخلة والميزات القديمة/المكررة.
-4. **التقرير القديم أصبح فيه drift عن الواقع**
-   - يجب عدم الاعتماد على بعض نتائجه القديمة مثل “lockfile missing” أو “ProGuard ناقص” بدون إعادة تحقق.
-5. **جاهزية CI للموبايل تحتاج tightening**
-   - خصوصاً أوامر Makefile التي يجب أن تعكس الفشل الحقيقي دائماً.
+4. ~~**التقرير القديم أصبح فيه drift عن الواقع**~~ ✅ تم تحديث التقارير المرجعية.
+5. ~~**جاهزية CI للموبايل تحتاج tightening**~~ ✅ تم إصلاح:
+   - `Makefile MOBILE_DIR` يشير الآن إلى `sahool_field_app` مباشرة
+   - `mobile-release.yml` و `flutter-apk.yml` working-directory paths مصلحة
+   - cache key paths تشير إلى `sahool_field_app/pubspec.lock`
+6. ~~**hardcoded demo tenant ID**~~ ✅ تم حذف القيمة `sahool-demo` من `env_config.dart`
+7. ~~**missing .env.production**~~ ✅ تم إنشاء `.env.production` بإعدادات أمان مشددة
 
 #### الحكم التنفيذي | Executive Verdict
 `/home/runner/work/sahool-unified-v15-idp/sahool-unified-v15-idp/apps/mobile/sahool_field_app` هو **التطبيق المرجعي المعتمد للتطوير والتحسين**.
@@ -111,6 +114,13 @@
 3. لا يوجد app shell أو route map حقيقي.
 4. coverage الوظيفي للشاشات منخفض جداً بالنسبة لنطاق المنتج المتوقع.
 
+#### الإصلاحات المنفذة | Fixes Applied
+- ✅ أُضيفت صلاحيات Android المفقودة (INTERNET, LOCATION) وإعدادات الأمان (`allowBackup=false`, `usesCleartextTraffic=false`)
+- ✅ تحسين معالجة أمان الجهاز في `main.dart` مع تسجيل حالة emulator
+- ✅ تحسين `device_security.dart`: حالات فشل root/jailbreak detection تُسجل كتهديد محتمل في الإنتاج
+- ✅ استبدال الأزرار الفارغة في dashboard و fields list و field map و field card بتعليقات TODO ورسائل مستخدم
+- ✅ توثيق `voice_control_button.dart` مع خطوات تكامل speech_to_text الفعلية
+
 #### الحكم التنفيذي | Executive Verdict
 هذا المسار يحتاج قراراً سريعاً: **إما تحويله إلى تطبيق مستقل فعلياً أو تثبيته كـ concept/secondary experience** وربطه بخارطة طريق واقعية.
 
@@ -131,6 +141,10 @@
 #### الحكم التنفيذي | Executive Verdict
 يجب توثيق قرار معماري صريح: **هل `sahool_app` هو successor موحد، أم مجرد bootstrap layer فوق core package؟** بدون هذا القرار ستستمر الازدواجية.
 
+#### الإصلاحات المنفذة | Fixes Applied
+- ✅ تم إنشاء `ARCHITECTURE_DECISION.md` يوثق القرار المطلوب ويحدد ثلاثة خيارات
+- ✅ تم توثيق علاقته مع `sahool_field_app` ومتطلبات الحسم المعماري
+
 ---
 
 ### 4.4 `sahool-mobile`
@@ -150,6 +164,10 @@
 3. المخاطر عالية إذا استمر كمسار غامض بالتوازي مع Flutter apps.
 
 #### الحكم التنفيذي | Executive Verdict
+
+#### الإصلاحات المنفذة | Fixes Applied
+- ✅ تم إنشاء `.env.example` لضبط بيئة التطوير
+- ✅ تم إنشاء `ARCHITECTURE_DECISION.md` يوثق القرار المطلوب ويحدد أربعة خيارات مع توصية
 `/home/runner/work/sahool-unified-v15-idp/sahool-unified-v15-idp/apps/mobile/sahool-mobile` يحتاج **قراراً إدارياً وتقنياً مباشراً** قبل أي استثمار إضافي.
 
 ---

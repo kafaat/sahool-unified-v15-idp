@@ -89,13 +89,30 @@ class _VoiceControlButtonState extends State<VoiceControlButton>
     // "شغل الري في الحقل 7" -> Start irrigation
     // "أظهر التنبيهات" -> Show alerts
 
-    // Simulate listening for demo (only in debug builds; remove after real integration)
     if (kDebugMode) {
+      // Simulate listening for demo (debug builds only; remove after real integration)
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted && _isListening) {
           _showVoiceResponse();
         }
       });
+    } else {
+      // In release/profile builds the speech_to_text integration is not yet
+      // available.  Reset state immediately so the pulse animation stops,
+      // and inform the user that the feature is coming soon.
+      setState(() {
+        _isListening = false;
+      });
+      _pulseController.stop();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('التحكم الصوتي قيد التطوير | Voice control coming soon'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 

@@ -89,7 +89,7 @@
    - `mobile-release.yml` و `flutter-apk.yml` working-directory paths مصلحة
    - cache key paths تشير إلى `sahool_field_app/pubspec.lock`
 6. ~~**hardcoded demo tenant ID**~~ ✅ تم حذف القيمة `sahool-demo` من `env_config.dart`
-7. ~~**missing .env.production**~~ ✅ تم إنشاء `.env.production` بإعدادات أمان مشددة
+7. ~~**missing .env.production**~~ ✅ تم إنشاء `.env.production.template` كقالب آمن؛ يتم إنشاء `.env.production` محلياً/تشغيلياً منه عند الحاجة
 
 #### الحكم التنفيذي | Executive Verdict
 `/home/runner/work/sahool-unified-v15-idp/sahool-unified-v15-idp/apps/mobile/sahool_field_app` هو **التطبيق المرجعي المعتمد للتطوير والتحسين**.

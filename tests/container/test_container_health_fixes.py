@@ -3,20 +3,21 @@ SAHOOL Container Health Fix Validation Tests
 =============================================
 Validates the fixes for weather-service unhealthy and audit-service startup failures.
 
-Diagnoses tested:
+Diagnoses and validations tested:
 1. asyncio.Lock() lazy initialization (no module-level Lock creation)
 2. errors_py file/package conflict resolution in Dockerfiles
 3. Health check start_period sufficiency (>= 30s)
 4. audit-service Dockerfile copies main shared/ modules
 5. Shared module import chain integrity
 6. Docker-compose dependency graph correctness
+7. Health endpoint validation (/healthz format and sync)
+8. Dockerfile security & build validation (non-root, PYTHONPATH, HEALTHCHECK)
 
 Run: pytest tests/container/test_container_health_fixes.py -v --tb=short
 """
 
 import ast
 import re
-import textwrap
 from pathlib import Path
 
 import pytest
@@ -69,18 +70,25 @@ class TestAsyncioLockInitialization:
 
         module_level_lock_calls = []
         for node in ast.iter_child_nodes(tree):
-            # Look for top-level assignments like: _publisher_lock = asyncio.Lock()
+            # Look for top-level assignments like:
+            #   _publisher_lock = asyncio.Lock()
+            #   _publisher_lock: asyncio.Lock = asyncio.Lock()
+            value = None
             if isinstance(node, ast.Assign):
-                if isinstance(node.value, ast.Call):
-                    call = node.value
-                    # Check if it's asyncio.Lock()
-                    if isinstance(call.func, ast.Attribute):
-                        if (
-                            call.func.attr == "Lock"
-                            and isinstance(call.func.value, ast.Name)
-                            and call.func.value.id == "asyncio"
-                        ):
-                            module_level_lock_calls.append(node.lineno)
+                value = node.value
+            elif isinstance(node, ast.AnnAssign):
+                value = node.value
+
+            if isinstance(value, ast.Call):
+                call = value
+                # Check if it's asyncio.Lock()
+                if isinstance(call.func, ast.Attribute):
+                    if (
+                        call.func.attr == "Lock"
+                        and isinstance(call.func.value, ast.Name)
+                        and call.func.value.id == "asyncio"
+                    ):
+                        module_level_lock_calls.append(node.lineno)
 
         assert len(module_level_lock_calls) == 0, (
             f"Found asyncio.Lock() at module level on line(s) {module_level_lock_calls}. "
@@ -133,8 +141,14 @@ class TestAsyncioLockInitialization:
                     continue
 
                 for node in ast.iter_child_nodes(tree):
-                    if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
-                        call = node.value
+                    value = None
+                    if isinstance(node, ast.Assign):
+                        value = node.value
+                    elif isinstance(node, ast.AnnAssign):
+                        value = node.value
+
+                    if isinstance(value, ast.Call):
+                        call = value
                         if isinstance(call.func, ast.Attribute):
                             if (
                                 call.func.attr == "Lock"
@@ -573,13 +587,20 @@ class TestDependencyGraph:
                         # Built service - check Dockerfile has HEALTHCHECK
                         missing_healthcheck.append(dep_name)
 
-        # Note: some services define HEALTHCHECK in Dockerfile only,
-        # which won't be visible in compose. We only flag built services
-        # that lack BOTH compose healthcheck and Dockerfile healthcheck.
-        # For now, just check compose-level healthcheck exists.
-        assert len(missing_healthcheck) == 0 or True, (
-            f"Services depended on as service_healthy but missing healthcheck: "
-            f"{missing_healthcheck}"
+        # Filter out services that define HEALTHCHECK in their Dockerfile
+        # (not visible in compose, but still valid for Docker health checks).
+        truly_missing = []
+        for svc_name in missing_healthcheck:
+            dockerfile = SERVICES_DIR / svc_name / "Dockerfile"
+            if dockerfile.exists():
+                content = _read_file(dockerfile)
+                if "HEALTHCHECK" in content:
+                    continue  # Has Dockerfile-level healthcheck
+            truly_missing.append(svc_name)
+
+        assert len(truly_missing) == 0, (
+            f"Services depended on as service_healthy but missing healthcheck "
+            f"(neither in compose nor Dockerfile): {truly_missing}"
         )
 
 

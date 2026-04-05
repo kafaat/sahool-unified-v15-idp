@@ -64,6 +64,8 @@ class DeviceSecurityService {
           // Treat detection failure as potential threat in production
           if (!kDebugMode) {
             threats.add('Root detection unavailable');
+            // TODO(P2): Send this event to analytics/monitoring service
+            // for investigation of devices where detection fails
           }
         }
       } else if (Platform.isIOS) {
@@ -90,6 +92,8 @@ class DeviceSecurityService {
           // Treat detection failure as potential threat in production
           if (!kDebugMode) {
             threats.add('Jailbreak detection unavailable');
+            // TODO(P2): Send this event to analytics/monitoring service
+            // for investigation of devices where detection fails
           }
         }
       }

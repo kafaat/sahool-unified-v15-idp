@@ -13,6 +13,7 @@
 //
 // ═══════════════════════════════════════════════════════════════════════════════════════
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/atmosphere_theme.dart';
@@ -88,12 +89,14 @@ class _VoiceControlButtonState extends State<VoiceControlButton>
     // "شغل الري في الحقل 7" -> Start irrigation
     // "أظهر التنبيهات" -> Show alerts
 
-    // Simulate listening for demo (remove after real integration)
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted && _isListening) {
-        _showVoiceResponse();
-      }
-    });
+    // Simulate listening for demo (only in debug builds; remove after real integration)
+    if (kDebugMode) {
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted && _isListening) {
+          _showVoiceResponse();
+        }
+      });
+    }
   }
 
   void _stopListening() {

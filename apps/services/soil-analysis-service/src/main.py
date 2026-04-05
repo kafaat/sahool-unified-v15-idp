@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            await asyncpg.create_pool(
+            app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=2,
                 max_size=10,

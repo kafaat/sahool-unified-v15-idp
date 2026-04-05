@@ -96,7 +96,8 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+            db_pool = await asyncpg.create_pool(db_url, min_size=1,
+        statement_cache_size=0,  # PgBouncer transaction mode compatibility, max_size=5)
             await ndvi_store.ensure_tables(db_pool)
             logger.info("NDVI Processor: DB pool connected")
         except Exception:

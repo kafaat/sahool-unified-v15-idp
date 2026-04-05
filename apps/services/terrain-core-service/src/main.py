@@ -137,6 +137,7 @@ async def lifespan(app: FastAPI):
                 db_url,
                 min_size=settings.DB_POOL_MIN_SIZE,
                 max_size=settings.DB_POOL_MAX_SIZE,
+            statement_cache_size=0,  # PgBouncer transaction mode
             )
             logger.info("Connected to database")
         except Exception as e:

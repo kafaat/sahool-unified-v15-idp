@@ -347,6 +347,7 @@ async def create_pool(database_url: str, config: PoolConfig | None = None):
             min_size=config.min_connections,
             max_size=config.max_connections,
             command_timeout=config.command_timeout,
+        statement_cache_size=0,  # PgBouncer transaction mode
         )
 
         logger.info(f"Database pool created (min={config.min_connections}, max={config.max_connections})")

@@ -85,7 +85,8 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2,
+        statement_cache_size=0,  # PgBouncer transaction mode compatibility, max_size=10)
             app.state.db_connected = True
             logger.info("database_connected", url=db_url[:20] + "...")
         except Exception as e:

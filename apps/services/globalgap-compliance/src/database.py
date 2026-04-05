@@ -87,7 +87,7 @@ async def get_pool() -> Pool:
             command_timeout=POOL_COMMAND_TIMEOUT,
             max_queries=POOL_MAX_QUERIES,
             max_inactive_connection_lifetime=POOL_MAX_INACTIVE_CONNECTION_LIFETIME,
-            ssl=ssl.create_default_context(),  # TLS/SSL encryption
+            statement_cache_size=0,  # PgBouncer transaction mode
             # Server settings for performance
             server_settings={
                 "application_name": "sahool-globalgap-compliance",

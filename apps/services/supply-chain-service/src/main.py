@@ -81,6 +81,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 db_url,
                 min_size=settings.DB_MIN_CONNECTIONS,
                 max_size=settings.DB_MAX_CONNECTIONS,
+            statement_cache_size=0,  # PgBouncer transaction mode
             )
             app.state.db_connected = True
             logger.info("database_connected")

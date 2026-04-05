@@ -41,7 +41,8 @@ describe('IrrigationClient', () => {
     render(<IrrigationClient />);
     expect(screen.getByText('استهلاك اليوم')).toBeInTheDocument();
     expect(screen.getByText('نشط الآن')).toBeInTheDocument();
-    expect(screen.getByText('متوقف')).toBeInTheDocument();
+    // 'متوقف' appears both in the stat card and the status filter dropdown
+    expect(screen.getAllByText('متوقف').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('كفاءة الري')).toBeInTheDocument();
   });
 

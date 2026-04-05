@@ -127,7 +127,6 @@ class TestCopilotTokenRevocation:
         """
         import jwt
         import time
-        import os
         os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-32chars-for-tests!")
         os.environ.setdefault("JWT_ALGORITHM", "HS256")
 
@@ -271,7 +270,7 @@ class TestCopilotGuardrailsSilentFailure:
         """ai-advisor has InputValidationMiddleware as MANDATORY (not optional)."""
         main_path = SERVICE_ROOT / "ai-advisor" / "src" / "main.py"
         content = main_path.read_text()
-        # It's added unconditionally  
+        # It's added unconditionally
         assert "app.add_middleware(InputValidationMiddleware)" in content
 
     def test_guardrails_inline_check_uses_try_except(self):

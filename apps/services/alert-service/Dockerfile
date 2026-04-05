@@ -73,6 +73,9 @@ COPY --chown=sahool:sahool shared/ ./shared/
 # Copy services shared modules overlay (shared.errors_py, shared.logging_config, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
+# Resolve errors_py file/package ambiguity
+RUN rm -f s/shared/errors_py.py
+
 # Copy source
 COPY --chown=sahool:sahool apps/services/alert-service/src/ ./src/
 

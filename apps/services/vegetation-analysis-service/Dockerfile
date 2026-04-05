@@ -92,6 +92,9 @@ COPY shared/ ./shared/
 # Copy services shared modules (merge into separate dir to avoid overwriting root shared/)
 COPY apps/services/shared/ ./services_shared/
 
+# Resolve errors_py file/package ambiguity
+RUN rm -f s/shared/errors_py.py
+
 # Copy source code
 COPY apps/services/vegetation-analysis-service/src/ ./src/
 

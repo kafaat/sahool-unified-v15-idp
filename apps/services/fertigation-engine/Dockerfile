@@ -40,6 +40,9 @@ COPY shared/ ./shared/
 # Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
 COPY apps/services/shared/ ./shared/
 
+# Resolve errors_py file/package ambiguity
+RUN rm -f s/shared/errors_py.py
+
 COPY apps/services/fertigation-engine/src ./src/
 
 USER sahool

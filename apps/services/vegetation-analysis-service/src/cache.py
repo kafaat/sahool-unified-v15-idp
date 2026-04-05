@@ -23,16 +23,20 @@ logger = logging.getLogger(__name__)
 # Async Redis client - lazy initialization
 _redis_client = None
 _redis_available = False
-_redis_lock = asyncio.Lock()
+# Lock created lazily inside the event loop (asyncio.Lock() at module level
+# is deprecated since Python 3.10 and raises RuntimeError in 3.12+).
+_redis_lock: asyncio.Lock | None = None
 
 
 async def _get_redis_client():
     """Get or initialize async Redis client."""
-    global _redis_client, _redis_available
+    global _redis_client, _redis_available, _redis_lock
 
     if _redis_client is not None:
         return _redis_client
 
+    if _redis_lock is None:
+        _redis_lock = asyncio.Lock()
     async with _redis_lock:
         # Double-check after acquiring lock
         if _redis_client is not None:

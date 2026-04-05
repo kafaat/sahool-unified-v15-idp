@@ -750,6 +750,16 @@ jobs:
             -n auto \
             2>&1 | tee smoke-test-output.txt
 
+      - name: Run container health fix validation tests
+        id: health_fix_tests
+        if: always()
+        run: |
+          python -m pytest tests/container/test_container_health_fixes.py \
+            -v \
+            --tb=short \
+            --junitxml=test-results-health-fixes.xml \
+            2>&1 | tee health-fix-test-output.txt
+
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: always()
@@ -758,8 +768,10 @@ jobs:
           path: |
             test-results-build.xml
             test-results-smoke.xml
+            test-results-health-fixes.xml
             build-test-output.txt
             smoke-test-output.txt
+            health-fix-test-output.txt
           retention-days: 30
 
       - name: Generate test summary

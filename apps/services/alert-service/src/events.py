@@ -255,13 +255,17 @@ class AlertEventSubscriber:
 
 _publisher: AlertEventPublisher | None = None
 _subscriber: AlertEventSubscriber | None = None
-_publisher_lock = asyncio.Lock()
-_subscriber_lock = asyncio.Lock()
+# Locks created lazily inside the event loop (asyncio.Lock() at module level
+# is deprecated since Python 3.10 and raises RuntimeError in 3.12+).
+_publisher_lock: asyncio.Lock | None = None
+_subscriber_lock: asyncio.Lock | None = None
 
 
 async def get_publisher() -> AlertEventPublisher:
     """الحصول على ناشر الأحداث"""
-    global _publisher
+    global _publisher, _publisher_lock
+    if _publisher_lock is None:
+        _publisher_lock = asyncio.Lock()
     async with _publisher_lock:
         if _publisher is None:
             _publisher = AlertEventPublisher()
@@ -271,7 +275,9 @@ async def get_publisher() -> AlertEventPublisher:
 
 async def get_subscriber() -> AlertEventSubscriber:
     """الحصول على مستقبل الأحداث"""
-    global _subscriber
+    global _subscriber, _subscriber_lock
+    if _subscriber_lock is None:
+        _subscriber_lock = asyncio.Lock()
     async with _subscriber_lock:
         if _subscriber is None:
             _subscriber = AlertEventSubscriber()

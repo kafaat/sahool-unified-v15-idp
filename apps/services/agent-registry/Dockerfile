@@ -66,7 +66,7 @@ COPY --from=builder /install /usr/local
 COPY apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # Make registry module available at root level for imports
 RUN cp -r ./shared/registry ./registry

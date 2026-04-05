@@ -44,7 +44,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 COPY apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # Create logs directory and set ownership first
 RUN mkdir -p /app/logs && \

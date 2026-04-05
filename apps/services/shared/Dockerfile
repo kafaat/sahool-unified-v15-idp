@@ -27,7 +27,7 @@ COPY constraints.txt .
 COPY apps/services/shared/requirements.txt .
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try Aliyun mirror first with long timeout, then fallback to PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \

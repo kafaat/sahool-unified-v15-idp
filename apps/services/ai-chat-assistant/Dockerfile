@@ -67,7 +67,7 @@ ENV PATH=/home/sahool/.local/bin:$PATH
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # Copy source code
 COPY --chown=sahool:sahool apps/services/ai-chat-assistant/src/ ./src/

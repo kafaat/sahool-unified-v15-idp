@@ -73,7 +73,7 @@ COPY shared/ /app/shared/
 COPY apps/services/shared/ /app/shared/
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # Copy service code
 COPY apps/services/whatsapp-bot-service/src/ /app/src/

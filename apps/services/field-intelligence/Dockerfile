@@ -100,7 +100,7 @@ WORKDIR /app
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # Copy source
 COPY --chown=sahool:sahool apps/services/field-intelligence/src/ ./src/

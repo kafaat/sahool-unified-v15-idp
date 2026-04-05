@@ -56,7 +56,7 @@ COPY shared/ ./shared/
 COPY apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # Copy source code | نسخ الكود المصدري
 COPY apps/services/globalgap-compliance/src/ ./src/

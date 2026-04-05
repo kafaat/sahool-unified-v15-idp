@@ -42,7 +42,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 COPY apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # Copy application
 COPY apps/services/drone-service/src/ ./src/

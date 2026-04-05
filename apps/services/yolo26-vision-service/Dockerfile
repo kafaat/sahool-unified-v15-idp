@@ -133,7 +133,7 @@ RUN mkdir -p /app/src /app/models /app/logs /app/data \
 COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
 
 # Resolve errors_py file/package ambiguity
-RUN rm -f s/shared/errors_py.py
+RUN rm -f ./shared/errors_py.py
 
 # Copy application code
 # Note: Build context is repo root, so use full path

@@ -360,14 +360,12 @@ describe('AuthApiClient', () => {
       const { authApiClient } = await import('../auth-client');
 
       // Simulate server-side (no window)
-      const origWindow = globalThis.window;
-      // @ts-expect-error -- test override
-      delete globalThis.window;
+      vi.stubGlobal('window', undefined);
 
       const result = await authApiClient.attemptTokenRefresh();
       expect(result).toBe(false);
 
-      globalThis.window = origWindow;
+      vi.unstubAllGlobals();
     });
 
     it('should refresh and set new token via proxy route', async () => {

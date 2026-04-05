@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
 
     // Clear any stale auth cookies — user must log in with new password
     const cookieStore = await cookies();
-    cookieStore.delete('access_token');
-    cookieStore.delete('refresh_token');
+    cookieStore.delete({ name: 'access_token', path: '/' });
+    cookieStore.delete({ name: 'refresh_token', path: '/' });
 
     return NextResponse.json({
       success: true,

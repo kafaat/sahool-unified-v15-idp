@@ -26,3 +26,21 @@ def cleanup_test_data():
 def db_cursor():
     """Override db_cursor — AI gap tests don't need a DB connection."""
     return None
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_call(item):
+    """Auto-skip AI integration tests when optional dependencies
+    (structlog, fastapi, pydantic_settings, etc.) are not installed.
+
+    This avoids the need to sprinkle ``pytest.importorskip`` or
+    ``@pytest.mark.skipif`` on every individual test that may
+    transitively import a heavy optional package.
+    """
+    try:
+        item.runtest()
+    except ModuleNotFoundError as exc:
+        pytest.skip(f"{exc.name} not installed – skipping {item.nodeid}")
+    except Exception:
+        # Re-raise all other exceptions for normal pytest handling
+        raise

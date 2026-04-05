@@ -1,0 +1,560 @@
+# ==============================================================================
+# Kong Rate Limiting Tiers Configuration - تكوين مستويات تحديد المعدل
+# SAHOOL Platform - منصة سهول
+# ==============================================================================
+# This file defines rate limiting configurations for different subscription tiers.
+# يحدد هذا الملف تكوينات تحديد المعدل لمستويات الاشتراك المختلفة.
+#
+# Tier Overview | نظرة عامة على المستويات:
+# - Starter:      30 req/min,   500 req/hour   (Free tier | الباقة المجانية)
+# - Professional: 60 req/min,  2000 req/hour   (Standard tier | الباقة القياسية)
+# - Enterprise:  120 req/min,  5000 req/hour   (Premium tier | الباقة المتميزة)
+# - Internal:   1000 req/min, 50000 req/hour   (Internal services | الخدمات الداخلية)
+# ==============================================================================
+
+_format_version: "3.0"
+_transform: true
+
+# ==============================================================================
+# Consumer Groups for Rate Limiting Tiers
+# مجموعات المستهلكين لمستويات تحديد المعدل
+# ==============================================================================
+
+consumer_groups:
+  # --------------------------------------------------------------------------
+  # Starter Tier - الباقة الأساسية
+  # For small farmers and individual users
+  # للمزارعين الصغار والمستخدمين الأفراد
+  # --------------------------------------------------------------------------
+  - name: starter-tier
+    plugins:
+      - name: rate-limiting-advanced
+        config:
+          # Request limits - حدود الطلبات
+          limit:
+            - 30   # per minute - في الدقيقة
+            - 500  # per hour - في الساعة
+          window_size:
+            - 60    # 1 minute - دقيقة واحدة
+            - 3600  # 1 hour - ساعة واحدة
+          window_type: sliding
+          # Storage configuration - تكوين التخزين
+          strategy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          redis_database: 0
+          # Response headers - رؤوس الاستجابة
+          header_name: X-RateLimit-Starter
+          hide_client_headers: false
+          # Error handling - معالجة الأخطاء
+          fault_tolerant: true
+          # Identifier - المعرف
+          identifier: consumer
+          sync_rate: 10
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Rate-Limit-Tier: starter"
+              - "X-Rate-Limit-Minute: 30"
+              - "X-Rate-Limit-Hour: 500"
+
+  # --------------------------------------------------------------------------
+  # Professional Tier - الباقة المتوسطة
+  # For professional farmers and small businesses
+  # للمزارعين المحترفين والشركات الصغيرة
+  # --------------------------------------------------------------------------
+  - name: professional-tier
+    plugins:
+      - name: rate-limiting-advanced
+        config:
+          limit:
+            - 60    # per minute
+            - 2000  # per hour
+          window_size:
+            - 60
+            - 3600
+          window_type: sliding
+          strategy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          redis_database: 0
+          header_name: X-RateLimit-Professional
+          hide_client_headers: false
+          fault_tolerant: true
+          identifier: consumer
+          sync_rate: 10
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Rate-Limit-Tier: professional"
+              - "X-Rate-Limit-Minute: 60"
+              - "X-Rate-Limit-Hour: 2000"
+
+  # --------------------------------------------------------------------------
+  # Enterprise Tier - الباقة المتقدمة
+  # For large agricultural businesses and enterprises
+  # للشركات الزراعية الكبيرة والمؤسسات
+  # --------------------------------------------------------------------------
+  - name: enterprise-tier
+    plugins:
+      - name: rate-limiting-advanced
+        config:
+          limit:
+            - 120   # per minute
+            - 5000  # per hour
+          window_size:
+            - 60
+            - 3600
+          window_type: sliding
+          strategy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          redis_database: 0
+          header_name: X-RateLimit-Enterprise
+          hide_client_headers: false
+          fault_tolerant: true
+          identifier: consumer
+          sync_rate: 10
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Rate-Limit-Tier: enterprise"
+              - "X-Rate-Limit-Minute: 120"
+              - "X-Rate-Limit-Hour: 5000"
+
+  # --------------------------------------------------------------------------
+  # Internal Tier - الباقة الداخلية
+  # For internal service-to-service communication
+  # للاتصال بين الخدمات الداخلية
+  # --------------------------------------------------------------------------
+  - name: internal-tier
+    plugins:
+      - name: rate-limiting-advanced
+        config:
+          limit:
+            - 1000   # per minute
+            - 50000  # per hour
+          window_size:
+            - 60
+            - 3600
+          window_type: sliding
+          strategy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          redis_database: 0
+          header_name: X-RateLimit-Internal
+          hide_client_headers: false
+          fault_tolerant: true
+          identifier: consumer
+          sync_rate: 10
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Rate-Limit-Tier: internal"
+              - "X-Rate-Limit-Minute: 1000"
+              - "X-Rate-Limit-Hour: 50000"
+
+  # --------------------------------------------------------------------------
+  # Research Tier - باقة البحث العلمي
+  # For universities and research institutions
+  # للجامعات ومراكز البحث العلمي
+  # --------------------------------------------------------------------------
+  - name: research-tier
+    plugins:
+      - name: rate-limiting-advanced
+        config:
+          limit:
+            - 120   # per minute (same as enterprise)
+            - 10000 # per hour (higher for batch processing)
+          window_size:
+            - 60
+            - 3600
+          window_type: sliding
+          strategy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          redis_database: 0
+          header_name: X-RateLimit-Research
+          hide_client_headers: false
+          fault_tolerant: true
+          identifier: consumer
+          sync_rate: 10
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Rate-Limit-Tier: research"
+              - "X-Rate-Limit-Minute: 120"
+              - "X-Rate-Limit-Hour: 10000"
+
+# ==============================================================================
+# Service-Specific Rate Limiting Plugins
+# إضافات تحديد المعدل الخاصة بالخدمات
+# ==============================================================================
+
+plugins:
+  # --------------------------------------------------------------------------
+  # Global Rate Limiting Fallback - حد المعدل العام الاحتياطي
+  # Applied when no tier is matched
+  # يُطبق عندما لا يتطابق أي مستوى
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    enabled: true
+    config:
+      minute: 30        # Starter tier default - الحد الافتراضي للباقة الأساسية
+      hour: 500
+      day: 10000
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      redis_database: 0
+      fault_tolerant: true
+      hide_client_headers: false
+      error_code: 429
+      error_message: "Rate limit exceeded. Please upgrade your subscription tier. تم تجاوز حد المعدل. يرجى ترقية مستوى اشتراكك."
+
+  # --------------------------------------------------------------------------
+  # Vision Service Rate Limiting - تحديد معدل خدمة الرؤية
+  # Higher limits for AI processing with size restrictions
+  # حدود أعلى للمعالجة بالذكاء الاصطناعي مع قيود على الحجم
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    service: yolo26-vision-service
+    config:
+      minute: 60
+      hour: 3000
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "Vision API rate limit exceeded. الحد الأقصى لطلبات خدمة الرؤية. Upgrade to Enterprise for higher limits."
+
+  # --------------------------------------------------------------------------
+  # Terrain Service Rate Limiting - تحديد معدل خدمة التضاريس
+  # Processing-intensive, lower limits
+  # كثيفة المعالجة، حدود أقل
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    service: terrain-core-service
+    config:
+      minute: 30
+      hour: 1500
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "Terrain API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة التضاريس."
+
+  # --------------------------------------------------------------------------
+  # Hydrology Service Rate Limiting - تحديد معدل خدمة الهيدرولوجيا
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    service: hydrology-service
+    config:
+      minute: 30
+      hour: 1500
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "Hydrology API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة الهيدرولوجيا."
+
+  # --------------------------------------------------------------------------
+  # Leveling Service Rate Limiting - تحديد معدل خدمة التسوية
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    service: leveling-optimizer-service
+    config:
+      minute: 30
+      hour: 1500
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "Leveling API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة التسوية."
+
+  # --------------------------------------------------------------------------
+  # Edge Orchestrator Rate Limiting - تحديد معدل خدمة تنسيق الحافة
+  # Higher limits for IoT device management
+  # حدود أعلى لإدارة أجهزة إنترنت الأشياء
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    service: edge-orchestrator-service
+    config:
+      minute: 60
+      hour: 3000
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "Edge API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة الحافة."
+
+  # --------------------------------------------------------------------------
+  # LLM Orchestrator Rate Limiting - تحديد معدل خدمة تنسيق الذكاء الاصطناعي
+  # Cost-sensitive, strict limits
+  # حساسة للتكلفة، حدود صارمة
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    service: llm-orchestrator-service
+    config:
+      minute: 60
+      hour: 2000
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "LLM API rate limit exceeded. Consider upgrading for higher AI usage limits. تم تجاوز حد طلبات الذكاء الاصطناعي."
+
+  # --------------------------------------------------------------------------
+  # Authentication Endpoints Rate Limiting - تحديد معدل نقاط المصادقة
+  # Stricter limits to prevent brute force attacks
+  # حدود أكثر صرامة لمنع هجمات القوة الغاشمة
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    route: user-service-auth-public
+    config:
+      minute: 10       # Very strict for auth - صارم جداً للمصادقة
+      hour: 100
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "Too many authentication attempts. Please wait before trying again. محاولات مصادقة كثيرة جداً."
+
+  # --------------------------------------------------------------------------
+  # WhatsApp Bot Rate Limiting - تحديد معدل بوت واتساب
+  # Higher limits for messaging integration
+  # حدود أعلى لتكامل المراسلة
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    service: whatsapp-bot-service
+    config:
+      minute: 120      # High for messaging - عالي للمراسلة
+      hour: 5000
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "WhatsApp API rate limit exceeded. تم تجاوز حد طلبات واتساب."
+
+  # --------------------------------------------------------------------------
+  # Billing Service Rate Limiting - تحديد معدل خدمة الفوترة
+  # Moderate limits with fraud protection
+  # حدود معتدلة مع حماية من الاحتيال
+  # --------------------------------------------------------------------------
+  - name: rate-limiting
+    service: billing-core
+    config:
+      minute: 30
+      hour: 500
+      policy: redis
+      redis_host: kong-redis
+      redis_port: 6379
+      fault_tolerant: true
+      error_message: "Billing API rate limit exceeded. تم تجاوز حد طلبات الفوترة."
+
+# ==============================================================================
+# Route-Specific Rate Limiting Configurations
+# تكوينات تحديد المعدل الخاصة بالمسارات
+# ==============================================================================
+
+services:
+  # --------------------------------------------------------------------------
+  # Public Health Endpoints - No rate limiting
+  # نقاط فحص الصحة العامة - بدون تحديد معدل
+  # --------------------------------------------------------------------------
+  - name: health-endpoints-bypass
+    url: http://kong:8000
+    routes:
+      - name: health-no-ratelimit
+        paths:
+          - /health
+          - /healthz
+          - /readyz
+          - /ping
+          - /metrics
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        enabled: false
+
+  # --------------------------------------------------------------------------
+  # Package-Specific Rate Limiting Routes
+  # مسارات تحديد المعدل الخاصة بالباقات
+  # --------------------------------------------------------------------------
+
+  # Starter Package Routes - مسارات الباقة الأساسية
+  - name: starter-package-ratelimit
+    url: http://kong:8000
+    routes:
+      - name: starter-api-routes
+        paths:
+          - /api/v1/starter
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 500
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          fault_tolerant: true
+          error_message: "Starter tier rate limit exceeded. Upgrade to Professional for higher limits. تم تجاوز حد الباقة الأساسية."
+
+  # Professional Package Routes - مسارات الباقة المتوسطة
+  - name: professional-package-ratelimit
+    url: http://kong:8000
+    routes:
+      - name: professional-api-routes
+        paths:
+          - /api/v1/professional
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          fault_tolerant: true
+          error_message: "Professional tier rate limit exceeded. Upgrade to Enterprise for higher limits. تم تجاوز حد الباقة المتوسطة."
+
+  # Enterprise Package Routes - مسارات الباقة المتقدمة
+  - name: enterprise-package-ratelimit
+    url: http://kong:8000
+    routes:
+      - name: enterprise-api-routes
+        paths:
+          - /api/v1/enterprise
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 5000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          fault_tolerant: true
+          error_message: "Enterprise tier rate limit reached. Contact support for custom limits. تم الوصول لحد الباقة المتقدمة."
+
+  # Research Package Routes - مسارات باقة البحث العلمي
+  - name: research-package-ratelimit
+    url: http://kong:8000
+    routes:
+      - name: research-api-routes
+        paths:
+          - /api/v1/research
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 10000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          fault_tolerant: true
+          error_message: "Research tier rate limit exceeded. تم تجاوز حد باقة البحث العلمي."
+
+  # Internal Service Routes - مسارات الخدمات الداخلية
+  - name: internal-service-ratelimit
+    url: http://kong:8000
+    routes:
+      - name: internal-api-routes
+        paths:
+          - /api/internal
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          fault_tolerant: true
+          error_message: "Internal rate limit exceeded. Check service health. تم تجاوز الحد الداخلي."
+
+# ==============================================================================
+# ACL Groups for Tier Access Control
+# مجموعات التحكم في الوصول للمستويات
+# ==============================================================================
+
+consumers:
+  # Sample consumers for each tier (real consumers managed by user-service)
+  # مستهلكين نموذجيين لكل مستوى (المستهلكون الحقيقيون يديرهم خدمة المستخدمين)
+
+  - username: starter-demo-user
+    custom_id: starter-demo-001
+    tags:
+      - demo
+      - starter
+    acls:
+      - group: starter-users
+
+  - username: professional-demo-user
+    custom_id: professional-demo-001
+    tags:
+      - demo
+      - professional
+    acls:
+      - group: professional-users
+
+  - username: enterprise-demo-user
+    custom_id: enterprise-demo-001
+    tags:
+      - demo
+      - enterprise
+    acls:
+      - group: enterprise-users
+
+  - username: internal-service
+    custom_id: internal-service-001
+    tags:
+      - internal
+      - service
+    acls:
+      - group: internal-services
+
+  - username: research-institution
+    custom_id: research-demo-001
+    tags:
+      - demo
+      - research
+    acls:
+      - group: research-users
+
+# ==============================================================================
+# Rate Limit Response Headers
+# رؤوس استجابة حدود المعدل
+# ==============================================================================
+
+# Headers returned to clients | الرؤوس المُرجعة للعملاء:
+# - X-RateLimit-Limit-Minute: Maximum requests per minute
+#   الحد الأقصى للطلبات في الدقيقة
+# - X-RateLimit-Remaining-Minute: Remaining requests this minute
+#   الطلبات المتبقية هذه الدقيقة
+# - X-RateLimit-Limit-Hour: Maximum requests per hour
+#   الحد الأقصى للطلبات في الساعة
+# - X-RateLimit-Remaining-Hour: Remaining requests this hour
+#   الطلبات المتبقية هذه الساعة
+# - Retry-After: Seconds until limit resets (when rate limited)
+#   الثواني حتى إعادة تعيين الحد (عند تجاوز الحد)
+
+# ==============================================================================
+# End of Rate Limiting Tiers Configuration
+# نهاية تكوين مستويات تحديد المعدل
+# ==============================================================================

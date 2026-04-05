@@ -1,0 +1,897 @@
+_format_version: "3.0"
+_transform: true
+
+# ============================================================================
+# تكوين المسارات حسب الباقات - Package-Based Routes Configuration
+# SAHOOL Platform Package-Specific Routes
+# ============================================================================
+# يوفر هذا التكوين مسارات منظمة حسب مستوى الباقة:
+# - /api/v1/starter/* → خدمات الباقة الأساسية
+# - /api/v1/professional/* → خدمات الباقة المتوسطة
+# - /api/v1/enterprise/* → خدمات الباقة المتقدمة
+# - /api/v1/research/* → خدمات البحث العلمي
+# ============================================================================
+
+# ============================================================================
+# الباقة الأساسية - Starter Package Routes
+# للمزارعين الصغار | For small farmers
+# حد الطلبات: 100 طلب/دقيقة | Rate limit: 100 req/min
+# ============================================================================
+
+services:
+  # مجموعة خدمات الباقة الأساسية
+  - name: starter-package-gateway
+    url: http://kong:8000
+    tags:
+      - package
+      - starter
+    routes:
+      # ============================================================================
+      # إدارة الحقول - Field Management
+      # ============================================================================
+      - name: starter-fields
+        paths:
+          - /api/v1/starter/fields
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/fields
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - starter-users
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 5000
+              policy: local
+              fault_tolerant: true
+          - name: response-transformer
+            config:
+              add:
+                headers:
+                  - "X-Package-Tier: starter"
+                  - "X-Rate-Limit: 100/min"
+
+      # ============================================================================
+      # الطقس - Weather
+      # ============================================================================
+      - name: starter-weather
+        paths:
+          - /api/v1/starter/weather
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/weather
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - starter-users
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 100
+          - name: response-transformer
+            config:
+              add:
+                headers:
+                  - "X-Package-Tier: starter"
+
+      # ============================================================================
+      # التقويم الفلكي - Astronomical Calendar
+      # ============================================================================
+      - name: starter-calendar
+        paths:
+          - /api/v1/starter/calendar
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/calendar
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - starter-users
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 100
+
+      # ============================================================================
+      # النصائح الزراعية - Agro Advice
+      # ============================================================================
+      - name: starter-advice
+        paths:
+          - /api/v1/starter/advice
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/advice
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - starter-users
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 100
+
+      # ============================================================================
+      # الإشعارات - Notifications
+      # ============================================================================
+      - name: starter-notifications
+        paths:
+          - /api/v1/starter/notifications
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/notifications
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - starter-users
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 100
+
+# ============================================================================
+# الباقة المتوسطة - Professional Package Routes
+# للمزارعين المحترفين | For professional farmers
+# حد الطلبات: 1000 طلب/دقيقة | Rate limit: 1000 req/min
+# ============================================================================
+
+  - name: professional-package-gateway
+    url: http://kong:8000
+    tags:
+      - package
+      - professional
+    routes:
+      # ============================================================================
+      # الأقمار الصناعية - Satellite Imagery
+      # ============================================================================
+      - name: professional-satellite
+        paths:
+          - /api/v1/professional/satellite
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/satellite
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+              hour: 50000
+          - name: response-transformer
+            config:
+              add:
+                headers:
+                  - "X-Package-Tier: professional"
+                  - "X-Rate-Limit: 1000/min"
+          - name: request-size-limiting
+            config:
+              allowed_payload_size: 50
+
+      # ============================================================================
+      # NDVI والتحليلات - NDVI Analytics
+      # ============================================================================
+      - name: professional-ndvi
+        paths:
+          - /api/v1/professional/ndvi
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/ndvi
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # صحة المحاصيل - Crop Health AI
+      # ============================================================================
+      - name: professional-crop-health
+        paths:
+          - /api/v1/professional/crop-health
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/crop-health
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+          - name: request-size-limiting
+            config:
+              allowed_payload_size: 25
+
+      # ============================================================================
+      # الري الذكي - Smart Irrigation
+      # ============================================================================
+      - name: professional-irrigation
+        paths:
+          - /api/v1/professional/irrigation
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/irrigation
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # المستشعرات الافتراضية - Virtual Sensors
+      # ============================================================================
+      - name: professional-virtual-sensors
+        paths:
+          - /api/v1/professional/sensors/virtual
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/sensors/virtual
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # توقع الإنتاجية - Yield Prediction
+      # ============================================================================
+      - name: professional-yield
+        paths:
+          - /api/v1/professional/yield
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/yield
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # التسميد - Fertilizer Recommendations
+      # ============================================================================
+      - name: professional-fertilizer
+        paths:
+          - /api/v1/professional/fertilizer
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/fertilizer
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # المخزون - Inventory Management
+      # ============================================================================
+      - name: professional-inventory
+        paths:
+          - /api/v1/professional/inventory
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/inventory
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # المعدات - Equipment Management
+      # ============================================================================
+      - name: professional-equipment
+        paths:
+          - /api/v1/professional/equipment
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/equipment
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # الطقس المتقدم - Advanced Weather
+      # ============================================================================
+      - name: professional-weather-advanced
+        paths:
+          - /api/v1/professional/weather/advanced
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/weather/advanced
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - professional-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+# ============================================================================
+# الباقة المتقدمة - Enterprise Package Routes
+# للشركات الزراعية الكبرى | For large agribusinesses
+# حد الطلبات: 10000 طلب/دقيقة | Rate limit: 10000 req/min
+# ============================================================================
+
+  - name: enterprise-package-gateway
+    url: http://kong:8000
+    tags:
+      - package
+      - enterprise
+    routes:
+      # ============================================================================
+      # المستشار الذكي - AI Advisor
+      # ============================================================================
+      - name: enterprise-ai-advisor
+        paths:
+          - /api/v1/enterprise/ai-advisor
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/ai-advisor
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+                - research-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+              hour: 500000
+          - name: response-transformer
+            config:
+              add:
+                headers:
+                  - "X-Package-Tier: enterprise"
+                  - "X-Rate-Limit: 10000/min"
+          - name: request-size-limiting
+            config:
+              allowed_payload_size: 50
+
+      # ============================================================================
+      # إنترنت الأشياء - IoT Gateway
+      # ============================================================================
+      - name: enterprise-iot
+        paths:
+          - /api/v1/enterprise/iot
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/iot
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # الأبحاث - Research Management
+      # ============================================================================
+      - name: enterprise-research
+        paths:
+          - /api/v1/enterprise/research
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/research
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+                - research-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # السوق - Marketplace
+      # ============================================================================
+      - name: enterprise-marketplace
+        paths:
+          - /api/v1/enterprise/marketplace
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/marketplace
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # الفوترة - Billing & Payments
+      # ============================================================================
+      - name: enterprise-billing
+        paths:
+          - /api/v1/enterprise/billing
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/billing
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # الكوارث - Disaster Assessment
+      # ============================================================================
+      - name: enterprise-disaster
+        paths:
+          - /api/v1/enterprise/disaster
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/disaster
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+                - research-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # نماذج المحاصيل - Crop Growth Models
+      # ============================================================================
+      - name: enterprise-crop-model
+        paths:
+          - /api/v1/enterprise/crop-model
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/crop-model
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+                - research-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # LAI - Leaf Area Index
+      # ============================================================================
+      - name: enterprise-lai
+        paths:
+          - /api/v1/enterprise/lai
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/lai
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+                - research-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # توقع الإنتاجية المتقدم - Advanced Yield Prediction
+      # ============================================================================
+      - name: enterprise-yield-prediction
+        paths:
+          - /api/v1/enterprise/yield-prediction
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/yield-prediction
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - enterprise-users
+                - research-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+# ============================================================================
+# باقة البحث العلمي - Research Package Routes
+# للجامعات ومراكز البحث | For universities and research centers
+# حد الطلبات: 10000 طلب/دقيقة | Rate limit: 10000 req/min
+# ============================================================================
+
+  - name: research-package-gateway
+    url: http://kong:8000
+    tags:
+      - package
+      - research
+    routes:
+      # ============================================================================
+      # إدارة الأبحاث - Research Core
+      # ============================================================================
+      - name: research-core
+        paths:
+          - /api/v1/research/core
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/research
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - research-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+          - name: response-transformer
+            config:
+              add:
+                headers:
+                  - "X-Package-Tier: research"
+                  - "X-Rate-Limit: 10000/min"
+
+      # ============================================================================
+      # توقع الإنتاجية - Yield Prediction
+      # ============================================================================
+      - name: research-yield-prediction
+        paths:
+          - /api/v1/research/yield-prediction
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/yield-prediction
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - research-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # LAI - Leaf Area Index
+      # ============================================================================
+      - name: research-lai
+        paths:
+          - /api/v1/research/lai
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/lai
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - research-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # نماذج نمو المحاصيل - Crop Growth Models
+      # ============================================================================
+      - name: research-crop-model
+        paths:
+          - /api/v1/research/crop-model
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/crop-model
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - research-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # تقييم الكوارث - Disaster Assessment
+      # ============================================================================
+      - name: research-disaster
+        paths:
+          - /api/v1/research/disaster
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/disaster
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - research-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # المؤشرات - Indicators
+      # ============================================================================
+      - name: research-indicators
+        paths:
+          - /api/v1/research/indicators
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/indicators
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - research-users
+                - enterprise-users
+                - professional-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+      # ============================================================================
+      # المستشار الذكي - AI Advisor (للأبحاث)
+      # ============================================================================
+      - name: research-ai-advisor
+        paths:
+          - /api/v1/research/ai-advisor
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/ai-advisor
+          - name: jwt
+          - name: acl
+            config:
+              allow:
+                - research-users
+                - enterprise-users
+          - name: rate-limiting
+            config:
+              minute: 10000
+
+# ============================================================================
+# مسارات مشتركة - Shared Routes
+# متاحة لجميع الباقات | Available to all packages
+# ============================================================================
+
+  - name: shared-services-gateway
+    url: http://kong:8000
+    tags:
+      - shared
+      - common
+    routes:
+      # ============================================================================
+      # عمليات الحقول - Field Operations
+      # ============================================================================
+      - name: shared-field-ops
+        paths:
+          - /api/v1/shared/field-ops
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/field-ops
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # WebSocket Gateway
+      # ============================================================================
+      - name: shared-websocket
+        paths:
+          - /api/v1/shared/ws
+        strip_path: true
+        protocols:
+          - http
+          - https
+          - ws
+          - wss
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/ws
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 5000
+
+      # ============================================================================
+      # المحادثة - Chat Services
+      # ============================================================================
+      - name: shared-chat
+        paths:
+          - /api/v1/shared/chat
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/chat
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 2000
+
+      # ============================================================================
+      # المهام - Task Management
+      # ============================================================================
+      - name: shared-tasks
+        paths:
+          - /api/v1/shared/tasks
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/tasks
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+      # ============================================================================
+      # التنبيهات - Alerts
+      # ============================================================================
+      - name: shared-alerts
+        paths:
+          - /api/v1/shared/alerts
+        strip_path: true
+        plugins:
+          - name: request-transformer
+            config:
+              replace:
+                uri: /api/v1/alerts
+          - name: jwt
+          - name: rate-limiting
+            config:
+              minute: 1000
+
+# ============================================================================
+# نهاية التكوين
+# End of Package-Based Routes Configuration
+# ============================================================================

@@ -1168,7 +1168,9 @@ services:
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      # Load ALL YAML files from the active/ directory (kong.yml + kong-security.yml + ...)
+      # See infrastructure/gateway/kong/active/ for the list of loaded files
+      KONG_DECLARATIVE_CONFIG_DIR: /kong/declarative
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
@@ -1183,7 +1185,7 @@ services:
       # KONG_SSL_CERT: /etc/kong/ssl/server.crt
       # KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
       # Plugins - Optimized execution order for performance
-      KONG_PLUGINS: "bundled,cors,rate-limiting,jwt,acl,prometheus"
+      KONG_PLUGINS: "bundled,cors,rate-limiting,jwt,acl,prometheus,bot-detection,ip-restriction,request-size-limiting,response-transformer,request-transformer,pre-function,post-function,http-log,file-log"
       REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
 
       # DNS Configuration for Docker internal DNS resolution
@@ -1238,7 +1240,7 @@ services:
       # - "8443:8443"
       - "127.0.0.1:8001:8001" # Admin API - localhost only for security
     volumes:
-      - ./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro
+      - ./infrastructure/gateway/kong/active:/kong/declarative:ro
       - ./infrastructure/gateway/kong/ssl:/etc/kong/ssl:ro
       - kong_logs:/var/log/kong
     depends_on:

@@ -1,0 +1,533 @@
+# ==============================================================================
+# Kong Security Configuration - تكوين الأمان
+# SAHOOL Platform - منصة سهول
+# ==============================================================================
+# This file defines supplementary security configurations:
+# - IP whitelist for admin/metrics routes
+# - Bot protection (scanners/scrapers only; legitimate clients are NOT blocked)
+# - Global SQLi / XSS detection on query-string and request headers
+# - Tenant-isolation enforcement via post-function (runs AFTER jwt plugin)
+# - Upload content-type validation for designated upload paths
+# - Security headers (CSP, HSTS, etc.)
+# - HTTP + file audit logging
+#
+# IMPORTANT — LOADING ORDER
+# When merging with kong.yml via `deck sync`, load kong.yml first, then this
+# file.  DO NOT load this file alongside kong-core.yml (separate alternative).
+# ==============================================================================
+
+_format_version: "3.0"
+_transform: true
+
+# ==============================================================================
+# Global Security Plugins
+# إضافات الأمان العالمية
+# ==============================================================================
+
+plugins:
+  # --------------------------------------------------------------------------
+  # Bot Detection Plugin - إضافة كشف الروبوتات
+  # Blocks known malicious scanners and scrapers ONLY.
+  # curl, wget, python-requests, axios, node-fetch, go-http-client are
+  # intentionally NOT blocked — they are used by legitimate API clients,
+  # microservices, and CI/CD pipelines.
+  # --------------------------------------------------------------------------
+  - name: bot-detection
+    # Stable ID so deck deduplicates this entry when merged with kong.yml.
+    id: dbcd7983-9db0-4a07-b307-bc8de1dfdf21
+    enabled: true
+    config:
+      deny:
+        - "Baiduspider"
+        - "SemrushBot"
+        - "AhrefsBot"
+        - "MJ12bot"
+        - "DotBot"
+        - "BLEXBot"
+        - "Sogou"
+        - "YandexBot"
+        - "MegaIndex"
+        - "PetalBot"
+        - "Scrapy"
+        - "HTTrack"
+        - "sqlmap"
+        - "Nikto"
+        - "Nessus"
+        - "masscan"
+        - "ZmEu"
+        - "dirbuster"
+        - "gobuster"
+        - "wfuzz"
+        - "nuclei"
+      allow:
+        - "Googlebot"
+        - "Googlebot-Image"
+        - "bingbot"
+        - "facebookexternalhit"
+        - "Twitterbot"
+        - "Slackbot"
+        - "WhatsApp"
+        - "TelegramBot"
+
+  # --------------------------------------------------------------------------
+  # Request Size Limiting - تحديد حجم الطلب (default 10 MB for regular API)
+  # --------------------------------------------------------------------------
+  - name: request-size-limiting
+    # Stable ID so deck deduplicates this entry when merged with kong.yml.
+    # This definition (from kong-security.yml, loaded second) takes precedence.
+    id: 5ef0e989-a370-4c6d-9cea-9b38326c26c2
+    enabled: true
+    config:
+      allowed_payload_size: 10
+      size_unit: megabytes
+      require_content_length: false
+
+  # --------------------------------------------------------------------------
+  # Response Transformer - Security Headers
+  # NOTE: X-XSS-Protection is deprecated in modern browsers and removed here.
+  # Content-Security-Policy is the correct mitigation for XSS.
+  # HSTS preload flag is omitted until the domain is submitted to the preload list.
+  # --------------------------------------------------------------------------
+  - name: response-transformer
+    # Stable ID so deck deduplicates this entry when merged with kong.yml.
+    # This definition (from kong-security.yml, loaded second) takes precedence.
+    id: 885fbc5f-c77c-4f85-b0d8-78cced9105f2
+    enabled: true
+    config:
+      add:
+        headers:
+          - "X-Content-Type-Options: nosniff"
+          - "X-Frame-Options: DENY"
+          - "Strict-Transport-Security: max-age=31536000; includeSubDomains"
+          - "Content-Security-Policy: default-src 'self'"
+          - "Referrer-Policy: strict-origin-when-cross-origin"
+          - "Permissions-Policy: geolocation=(), microphone=(), camera=()"
+          - "Cache-Control: no-store, no-cache, must-revalidate"
+      remove:
+        headers:
+          - "Server"
+          - "X-Powered-By"
+
+  # --------------------------------------------------------------------------
+  # Request Transformer - Strip headers that could be used to spoof identity.
+  # NOTE: X-Tenant-Id / X-Tenant-ID are NOT removed here.  They are read by
+  # the tenant-validation post-function first (to detect spoofing), then
+  # cleared and replaced with the value from the JWT tid claim.  Removing them
+  # here (before the post-function runs) would make the mismatch check dead code
+  # because the post-function would always see an empty/missing header.
+  # --------------------------------------------------------------------------
+  - name: request-transformer
+    enabled: true
+    config:
+      remove:
+        headers:
+          - "X-Forwarded-Host"
+          - "X-Original-URL"
+          - "X-Rewrite-URL"
+      add:
+        headers:
+          - "X-Request-Start:$msec"
+
+  # --------------------------------------------------------------------------
+  # SQLi / XSS Detection (global pre-function)
+  # Scans query-string parameters, non-sensitive request headers, and the
+  # raw request body for common injection patterns.
+  # NOTE: pre-function executes BEFORE the jwt plugin (higher priority).
+  # --------------------------------------------------------------------------
+  - name: pre-function
+    enabled: true
+    config:
+      access:
+        - |
+          -- ============================================================
+          -- Shared detection helpers
+          -- ============================================================
+          local function check_sql_injection(value)
+            if not value then return false end
+            local patterns = {
+              "(%s*['\";]%s*[Oo][Rr]%s+)",
+              "(%s*['\";]%s*[Aa][Nn][Dd]%s+)",
+              "(['\";]%s*--%s*)",
+              "(['\";]%s*#%s*)",
+              "(%s*[Uu][Nn][Ii][Oo][Nn]%s+[Ss][Ee][Ll][Ee][Cc][Tt])",
+              "(%s*[Dd][Rr][Oo][Pp]%s+[Tt][Aa][Bb][Ll][Ee])",
+              "(%s*[Dd][Ee][Ll][Ee][Tt][Ee]%s+[Ff][Rr][Oo][Mm])",
+              "(%s*[Ii][Nn][Ss][Ee][Rr][Tt]%s+[Ii][Nn][Tt][Oo])",
+              "(%s*[Uu][Pp][Dd][Aa][Tt][Ee]%s+[Ss][Ee][Tt])",
+              "(%s*[Ee][Xx][Ee][Cc]%s*%()",
+              "(%s*[Ss][Ll][Ee][Ee][Pp]%s*%()",
+              "(%s*[Bb][Ee][Nn][Cc][Hh][Mm][Aa][Rr][Kk]%s*%()",
+              "(0x[0-9a-fA-F]+)",
+              "(%s*[Cc][Hh][Aa][Rr]%s*%()",
+              "(%s*[Cc][Oo][Nn][Cc][Aa][Tt]%s*%()",
+            }
+            for _, p in ipairs(patterns) do
+              if string.match(value, p) then return true end
+            end
+            return false
+          end
+
+          local function check_xss(value)
+            if not value then return false end
+            local patterns = {
+              "<[Ss][Cc][Rr][Ii][Pp][Tt]",
+              "[Oo][Nn][Ee][Rr][Rr][Oo][Rr]%s*=",
+              "[Oo][Nn][Ll][Oo][Aa][Dd]%s*=",
+              "[Oo][Nn][Mm][Oo][Uu][Ss][Ee]",
+              "[Oo][Nn][Cc][Ll][Ii][Cc][Kk]%s*=",
+              "[Jj][Aa][Vv][Aa][Ss][Cc][Rr][Ii][Pp][Tt]:",
+              "[Vv][Bb][Ss][Cc][Rr][Ii][Pp][Tt]:",
+              "<[Ii][Ff][Rr][Aa][Mm][Ee]",
+              "<[Oo][Bb][Jj][Ee][Cc][Tt]",
+              "<[Ee][Mm][Bb][Ee][Dd]",
+              "<[Ff][Oo][Rr][Mm]",
+              "<[Ii][Mm][Gg][^>]+[Ss][Rr][Cc]%s*=%s*['\"]%s*[Jj][Aa][Vv][Aa]",
+              "[Dd][Aa][Tt][Aa]:",
+              "<[Ss][Vv][Gg]",
+              "[Ee][Xx][Pp][Rr][Ee][Ss][Ss][Ii][Oo][Nn]%s*%(",
+            }
+            for _, p in ipairs(patterns) do
+              if string.match(value, p) then return true end
+            end
+            return false
+          end
+
+          local function reject_malicious(source, key)
+            kong.log.warn("Malicious input detected in ", source, ": ", key)
+            -- Populate shared context so the http-log audit plugin records the
+            -- correct event type instead of always logging security_event: normal.
+            kong.ctx.shared.security_event        = "malicious_input_blocked"
+            kong.ctx.shared.security_event_source = source
+            kong.ctx.shared.security_event_key    = key
+            return kong.response.exit(400, {
+              error     = "Bad request - potentially malicious input detected",
+              error_ar  = "طلب غير صالح - تم اكتشاف مدخلات ضارة محتملة",
+            })
+          end
+
+          -- ============================================================
+          -- 1. Scan query-string parameters
+          -- ============================================================
+          local query = kong.request.get_query()
+          for key, value in pairs(query) do
+            if type(value) == "string" then
+              if check_sql_injection(value) then return reject_malicious("query", key) end
+              if check_xss(value)           then return reject_malicious("query", key) end
+            elseif type(value) == "table" then
+              -- Multi-value parameter (e.g. ?tag=a&tag=b) — check every element.
+              for _, v in ipairs(value) do
+                if type(v) == "string" then
+                  if check_sql_injection(v) then return reject_malicious("query", key) end
+                  if check_xss(v)           then return reject_malicious("query", key) end
+                end
+              end
+            end
+          end
+
+          -- ============================================================
+          -- 2. Scan non-sensitive request headers
+          -- ============================================================
+          local skip_headers = { authorization = true, ["x-api-key"] = true, cookie = true }
+          local headers = kong.request.get_headers()
+          for key, value in pairs(headers) do
+            if not skip_headers[string.lower(key)] then
+              if type(value) == "string" then
+                if check_sql_injection(value) or check_xss(value) then
+                  return reject_malicious("header", key)
+                end
+              elseif type(value) == "table" then
+                -- Repeated header (e.g. X-Custom: a, X-Custom: b) — check every element.
+                for _, v in ipairs(value) do
+                  if type(v) == "string" then
+                    if check_sql_injection(v) or check_xss(v) then
+                      return reject_malicious("header", key)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          -- ============================================================
+          -- 3. Scan request body (text/JSON only, up to 64 KB)
+          -- Requires nginx_proxy_request_buffering = on (Kong default).
+          -- ============================================================
+          local method = kong.request.get_method()
+          if method == "POST" or method == "PUT" or method == "PATCH" then
+            -- get_header() returns a table when the client repeats the header.
+            -- Passing a table to string.find() raises a Lua runtime error (500),
+            -- so we must guard for that case and treat it as a non-text body.
+            local ct_raw = kong.request.get_header("content-type")
+            local ct = type(ct_raw) == "string" and ct_raw or ""
+            if string.find(ct, "application/json", 1, true)
+               or string.find(ct, "application/x-www-form-urlencoded", 1, true)
+               or string.find(ct, "text/plain", 1, true) then
+              -- get_header("content-length") can also return a table when the header
+              -- is repeated; passing a table to tonumber() raises a Lua runtime error.
+              -- Reject malformed requests with 400 rather than crashing with 500.
+              local cl_raw = kong.request.get_header("content-length")
+              if type(cl_raw) == "table" then
+                return kong.response.exit(400, { message = "Malformed Content-Length header" })
+              end
+              local content_length = tonumber(cl_raw)
+              -- Only scan bodies with a declared, in-range Content-Length.
+              -- Chunked / unknown-size bodies (content_length == nil) are skipped to
+              -- prevent get_raw_body() from buffering an arbitrarily large payload in
+              -- memory, which can be abused for memory/latency DoS.
+              if content_length and content_length <= 65536 then
+                local body, err = kong.request.get_raw_body()
+                if body and #body <= 65536 then
+                  if check_sql_injection(body) then return reject_malicious("body", "payload") end
+                  if check_xss(body)           then return reject_malicious("body", "payload") end
+                end
+              end
+            end
+          end
+
+          -- ============================================================
+          -- 4. Content-type validation for upload endpoints
+          -- ============================================================
+          local path = kong.request.get_path()
+          local upload_paths = {
+            "/api/v1/upload", "/api/v1/images",
+            "/api/v1/documents", "/api/v1/vision/detect",
+          }
+          local is_upload = false
+          for _, up in ipairs(upload_paths) do
+            -- Use exact path or prefix-boundary match to prevent substring false-positives
+            -- (e.g. "/api/v1/uploads" must not match the "/api/v1/upload" entry).
+            if path == up or path:sub(1, #up + 1) == up .. "/" then is_upload = true; break end
+          end
+          if is_upload then
+            local ct = kong.request.get_header("content-type")
+            -- get_header() returns a table when the client repeats the header.
+            -- Passing a table to ct:match() / :gsub() raises a Lua runtime error (500).
+            -- Reject ambiguous / repeated Content-Type values before any string ops.
+            if type(ct) ~= "string" then
+              kong.log.warn("Invalid content type for upload endpoint: repeated or non-string header")
+              return kong.response.exit(415, {
+                error    = "Unsupported media type",
+                error_ar = "نوع الوسائط غير مدعوم",
+              })
+            end
+            -- Reject requests that omit Content-Type entirely on upload endpoints.
+            if ct == "" then
+              kong.log.warn("Missing content type for upload endpoint")
+              return kong.response.exit(415, {
+                error    = "Unsupported media type",
+                error_ar = "نوع الوسائط غير مدعوم",
+              })
+            end
+            -- Normalize: strip MIME parameters (e.g. "multipart/form-data; boundary=…"
+            -- → "multipart/form-data") before comparing to prevent substring bypasses
+            -- such as "application/jsonp" matching "application/json".
+            local mime = ct:match("^([^;]+)"):gsub("%s+", ""):lower()
+            local allowed = {
+              "multipart/form-data", "application/octet-stream",
+              -- Explicit safe image types only; "image/" wildcard is intentionally
+              -- avoided because it would also permit image/svg+xml, which is an
+              -- XSS vector when downstream serves uploaded files back to browsers.
+              "image/jpeg", "image/png", "image/webp", "image/gif",
+              "application/pdf", "application/json",
+            }
+            local ok = false
+            for _, t in ipairs(allowed) do
+              if mime == t then ok = true; break end
+            end
+            if not ok then
+              kong.log.warn("Invalid content type for upload endpoint: ", ct)
+              return kong.response.exit(415, {
+                error    = "Unsupported media type",
+                error_ar = "نوع الوسائط غير مدعوم",
+              })
+            end
+          end
+
+  # --------------------------------------------------------------------------
+  # Tenant-Isolation Enforcement (global post-function)
+  # MUST be post-function so it executes AFTER the jwt plugin has populated
+  # kong.ctx.shared.jwt.  Using pre-function here was a silent bug — jwt.claims
+  # is always nil before the jwt plugin runs (priority 1005 vs pre-function 1000000).
+  #
+  # The X-Tenant-Id header is intentionally NOT stripped by request-transformer.
+  # This function reads the client-supplied value, validates it against the JWT
+  # tid claim, then unconditionally overwrites the header with the JWT tid so
+  # downstream services receive only a verified, trusted value.
+  # --------------------------------------------------------------------------
+  - name: post-function
+    enabled: true
+    config:
+      access:
+        - |
+          -- ==============================================================
+          -- Tenant ID Validation
+          -- 1. Read client-supplied X-Tenant-Id header (before clearing it).
+          -- 2. If a JWT tid exists AND the client sent a non-empty header,
+          --    reject requests where the two values differ.
+          -- 3. Unconditionally overwrite X-Tenant-Id with the JWT tid so
+          --    downstream services always receive a verified value.
+          -- ==============================================================
+          local jwt = kong.ctx.shared.jwt
+          if not (jwt and jwt.claims) then
+            -- No JWT present (e.g. unauthenticated route or jwt plugin not applied).
+            -- Clear BOTH casing variants to prevent spoofing through routes that
+            -- don't enforce JWT authentication.  Other repo artifacts (OpenAPI,
+            -- tests) use "X-Tenant-ID"; clearing only one would leave the other
+            -- exploitable for header-injection.
+            kong.service.request.clear_header("X-Tenant-Id")
+            kong.service.request.clear_header("X-Tenant-ID")
+            return
+          end
+
+          local jwt_tid    = jwt.claims.tid
+          local header_tid_raw = kong.request.get_header("X-Tenant-Id")
+
+          -- kong.request.get_header() returns a table when the client sends the
+          -- header more than once.  Multiple X-Tenant-Id values are ambiguous and
+          -- could be used to confuse the comparison below, so reject them outright.
+          if type(header_tid_raw) == "table" then
+            return kong.response.exit(400, {
+              error    = "Ambiguous X-Tenant-Id: multiple values are not permitted",
+              error_ar = "معرف مستأجر غامض: لا يُسمح بقيم متعددة",
+              code     = "AMBIGUOUS_TENANT_ID",
+            })
+          end
+          local header_tid = header_tid_raw
+
+          -- Validate: reject if client-supplied header contradicts the JWT.
+          if jwt_tid and header_tid and header_tid ~= "" then
+            if jwt_tid ~= header_tid then
+              kong.log.warn(
+                "Tenant ID mismatch: JWT tid=", tostring(jwt_tid),
+                " header X-Tenant-Id=", tostring(header_tid),
+                " sub=", tostring(jwt.claims.sub)
+              )
+              return kong.response.exit(403, {
+                error    = "Tenant ID mismatch: X-Tenant-Id header does not match authenticated tenant",
+                error_ar = "عدم تطابق معرف المستأجر: رأس X-Tenant-Id لا يتطابق مع المستأجر المصادق عليه",
+                code     = "TENANT_ID_MISMATCH",
+              })
+            end
+          end
+
+          -- Always set/overwrite with the JWT tid to give downstream a clean, trusted value.
+          -- Clear both casing variants first to avoid duplicates, then set the
+          -- canonical "X-Tenant-Id" form so downstream sees exactly one header.
+          kong.service.request.clear_header("X-Tenant-ID")
+          if jwt_tid then
+            kong.service.request.set_header("X-Tenant-Id", jwt_tid)
+          else
+            -- No tid in JWT — remove any client-supplied header to prevent spoofing.
+            kong.service.request.clear_header("X-Tenant-Id")
+          end
+
+  # --------------------------------------------------------------------------
+  # HTTP Audit Logging (global)
+  # Forwards every request event to the audit-service.
+  # Port 8114 matches the audit-service container port defined in governance/services.yaml.
+  # --------------------------------------------------------------------------
+  - name: http-log
+    enabled: true
+    config:
+      http_endpoint: http://audit-service:8114/api/v1/audit/kong-events
+      method: POST
+      timeout: 1000
+      keepalive: 1000
+      flush_timeout: 2
+      retry_count: 3
+      content_type: application/json
+      custom_fields_by_lua:
+        security_event:        "return kong.ctx.shared.security_event or 'normal'"
+        security_event_source: "return kong.ctx.shared.security_event_source or nil"
+        security_event_key:    "return kong.ctx.shared.security_event_key or nil"
+
+  # --------------------------------------------------------------------------
+  # File Audit Log Backup (global)
+  # --------------------------------------------------------------------------
+  - name: file-log
+    enabled: true
+    config:
+      path: /var/log/kong/security.log
+      reopen: true
+
+# ==============================================================================
+# Admin & Metrics Routes
+# These services proxy requests to Kong's own admin port (127.0.0.1:8001 /
+# kong:8001), NOT the public proxy port (8000).  Operators: access via
+# /admin or /metrics goes to the Kong Admin API, not through the proxy layer.
+# ==============================================================================
+
+services:
+  # --------------------------------------------------------------------------
+  # Kong Admin API — IP-restricted, no credential leak risk.
+  # url points to Kong's local admin port, NOT the proxy port (8000).
+  # --------------------------------------------------------------------------
+  - name: kong-admin-protected
+    url: http://127.0.0.1:8001
+    routes:
+      - name: admin-api-route
+        paths:
+          - /admin
+          - /kong-admin
+        strip_path: true
+        protocols: ["http", "https"]
+    plugins:
+      - name: ip-restriction
+        config:
+          allow:
+            - "10.42.0.0/16"    # K8s pod CIDR
+            - "172.20.0.0/16"   # Docker bridge network
+            - "192.168.0.0/16"  # Private/office network
+            - "127.0.0.1/32"    # Localhost
+            # Uncomment and add production office IPs:
+            # - "203.0.113.0/24"
+          status: 403
+          message: "Access denied. Your IP is not authorized. الوصول مرفوض. عنوان IP الخاص بك غير مصرح به."
+      # NOTE: basic-auth is enabled here but requires a consumer with credentials
+      # to be created in Kong (via Admin API or declarative config).
+      # Without a matching consumer the route remains inaccessible.
+      # To configure: add a consumers entry with username/basic_auth_credentials.
+      - name: basic-auth
+        config:
+          hide_credentials: true
+
+  # --------------------------------------------------------------------------
+  # Metrics / Prometheus endpoint (proxied from Kong admin port — not proxy port).
+  # url uses the base admin host WITHOUT a path suffix to avoid URL duplication.
+  # With strip_path: false, a request to /metrics is forwarded as /metrics (not /metrics/metrics).
+  # --------------------------------------------------------------------------
+  - name: metrics-protected
+    url: http://127.0.0.1:8001
+    routes:
+      - name: metrics-route
+        paths:
+          - /metrics
+          - /prometheus
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: ip-restriction
+        config:
+          allow:
+            - "10.0.0.0/8"
+            - "172.16.0.0/12"
+            - "192.168.0.0/16"
+            - "127.0.0.1/32"
+          status: 403
+          message: "Metrics access denied. الوصول للمقاييس مرفوض."
+
+# ==============================================================================
+# DDoS Protection Recommendations
+# توصيات الحماية من هجمات DDoS
+# ==============================================================================
+
+# 1. Place a CDN (Cloudflare, AWS CloudFront) in front of Kong.
+# 2. Enable connection limiting at the nginx level.
+# 3. Use the response-ratelimiting plugin for graduated slowdowns.
+# 4. Implement IP-reputation blocking with an external service.
+# 5. Configure fail2ban or similar for repeated offenders.
+
+# ==============================================================================
+# End of Security Configuration
+# نهاية تكوين الأمان
+# ==============================================================================

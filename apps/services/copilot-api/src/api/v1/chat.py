@@ -13,9 +13,8 @@ from __future__ import annotations
 import json
 
 # Import guardrails for input/output validation (C-09)
-# SECURITY: Guardrails are MANDATORY in production. If the import fails in
-# production (partial deploy, broken dependency), the service must refuse to
-# start — otherwise prompt injection filtering is silently disabled.
+# SECURITY: Guardrails are MANDATORY in production/staging. If the import fails,
+# the service must refuse to start — otherwise prompt injection filtering is silently disabled.
 import os as _os
 import time
 from collections import defaultdict
@@ -46,26 +45,37 @@ from ...security import MAX_PROMPT_CHARS
 from ...security.prompt_guard import detect_prompt_injection, sanitize_input
 from ..deps import get_current_user
 
+_guardrails_import_err: Exception | None = None
 try:
     from shared.guardrails import TrustLevel, input_filter
 
     HAS_GUARDRAILS = True
-except ImportError as _guardrails_err:
+except ImportError as _err:
     HAS_GUARDRAILS = False
-    if _os.getenv("ENVIRONMENT", "").lower() == "production":
-        raise RuntimeError(
-            "shared.guardrails is required in production but could not be imported. "
-            "Refusing to start — prompt injection filtering would be disabled."
-        ) from _guardrails_err
+    _guardrails_import_err = _err
 
 logger = structlog.get_logger(__name__)
 
 if not HAS_GUARDRAILS:
-    logger.warning(
-        "guardrails_unavailable",
-        environment=_os.getenv("ENVIRONMENT", "development"),
-        message="shared.guardrails not available — prompt injection filtering is DISABLED.",
+    _guardrails_env_raw = _os.getenv("ENVIRONMENT")
+    _guardrails_env = (_guardrails_env_raw or "development").lower()
+    _guardrails_msg = (
+        "shared.guardrails not available — AI input safety filtering (PII masking, policy enforcement) "
+        "is DISABLED. Install shared.guardrails to enable full input validation."
     )
+    if _guardrails_env_raw is not None and _guardrails_env in ("production", "staging"):
+        # Fail hard only when ENVIRONMENT is explicitly set to production/staging.
+        # If unset (local dev / unit tests), warn instead of crashing.
+        # الفشل فقط عند تحديد ENVIRONMENT صراحةً كإنتاج/تجريب
+        raise RuntimeError(
+            f"[FATAL] {_guardrails_msg} Environment '{_guardrails_env}' requires guardrails to be installed."
+        ) from _guardrails_import_err
+    else:
+        logger.warning(
+            "guardrails_unavailable",
+            environment=_guardrails_env,
+            message=_guardrails_msg,
+        )
 router = APIRouter(tags=["Chat"])
 
 # Intent classification and routing (module-level singletons)

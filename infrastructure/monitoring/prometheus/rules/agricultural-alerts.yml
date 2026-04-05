@@ -21,8 +21,8 @@ groups:
           category: vegetation
           platform: sahool
         annotations:
-          summary: "NDVI data is stale for field {{ $labels.field_id }}"
-          summary_ar: "بيانات NDVI قديمة للحقل {{ $labels.field_id }}"
+          summary: "NDVI data is stale for region {{ $labels.region }}"
+          summary_ar: "بيانات NDVI قديمة للمنطقة {{ $labels.region }}"
           description: "NDVI data has not been updated for {{ $value | humanizeDuration }}. Satellite imagery may be unavailable."
           description_ar: "لم يتم تحديث بيانات NDVI منذ {{ $value | humanizeDuration }}. قد تكون صور الأقمار الصناعية غير متاحة."
           impact: "Field health monitoring is degraded"
@@ -32,7 +32,7 @@ groups:
 
       - alert: NDVICriticallyLow
         expr: |
-          avg by (field_id, crop_type) (
+          avg by (region, crop_type) (
             rate(sahool_ndvi_value_sum[24h]) / rate(sahool_ndvi_value_count[24h])
           ) < 0.2
         for: 6h
@@ -41,8 +41,8 @@ groups:
           category: vegetation
           platform: sahool
         annotations:
-          summary: "Critical NDVI level for {{ $labels.crop_type }} field {{ $labels.field_id }}"
-          summary_ar: "مستوى NDVI حرج لمحصول {{ $labels.crop_type }} في الحقل {{ $labels.field_id }}"
+          summary: "Critical NDVI level for {{ $labels.crop_type }} region {{ $labels.region }}"
+          summary_ar: "مستوى NDVI حرج لمحصول {{ $labels.crop_type }} في المنطقة {{ $labels.region }}"
           description: "Average NDVI is {{ $value | humanize }} (critical threshold: 0.2). Crop may be severely stressed or dying."
           description_ar: "متوسط NDVI هو {{ $value | humanize }} (الحد الحرج: 0.2). قد يكون المحصول متوتراً بشدة أو يموت."
           impact: "Potential crop loss if not addressed immediately"
@@ -145,8 +145,8 @@ groups:
           category: irrigation
           platform: sahool
         annotations:
-          summary: "Critical soil moisture in field {{ $labels.field_id }}: {{ $value }}%"
-          summary_ar: "رطوبة تربة حرجة في الحقل {{ $labels.field_id }}: {{ $value }}%"
+          summary: "Critical soil moisture in region {{ $labels.region }}: {{ $value }}%"
+          summary_ar: "رطوبة تربة حرجة في المنطقة {{ $labels.region }}: {{ $value }}%"
           description: "Soil moisture below 20%. Crops experiencing severe water stress."
           description_ar: "رطوبة التربة أقل من 20%. المحاصيل تعاني من إجهاد مائي شديد."
           impact: "Immediate crop damage risk without irrigation"
@@ -162,8 +162,8 @@ groups:
           category: irrigation
           platform: sahool
         annotations:
-          summary: "High soil moisture in field {{ $labels.field_id }}: {{ $value }}%"
-          summary_ar: "رطوبة تربة عالية في الحقل {{ $labels.field_id }}: {{ $value }}%"
+          summary: "High soil moisture in region {{ $labels.region }}: {{ $value }}%"
+          summary_ar: "رطوبة تربة عالية في المنطقة {{ $labels.region }}: {{ $value }}%"
           description: "Soil moisture exceeds 85%. Risk of waterlogging and root diseases."
           description_ar: "رطوبة التربة تتجاوز 85%. خطر التشبع بالماء وأمراض الجذور."
           action: "Stop irrigation. Improve drainage if issue persists."
@@ -177,8 +177,8 @@ groups:
           category: irrigation
           platform: sahool
         annotations:
-          summary: "High water stress in {{ $labels.crop_type }} field {{ $labels.field_id }}"
-          summary_ar: "إجهاد مائي عالي في حقل {{ $labels.crop_type }} {{ $labels.field_id }}"
+          summary: "High water stress in {{ $labels.crop_type }} region {{ $labels.region }}"
+          summary_ar: "إجهاد مائي عالي في منطقة {{ $labels.crop_type }} {{ $labels.region }}"
           description: "Water stress index is {{ $value }}. Crop showing water deficit symptoms."
           description_ar: "مؤشر الإجهاد المائي {{ $value }}. المحصول يظهر أعراض نقص المياه."
 
@@ -197,8 +197,8 @@ groups:
           category: crop_health
           platform: sahool
         annotations:
-          summary: "Critical crop health in field {{ $labels.field_id }}: score {{ $value }}"
-          summary_ar: "صحة محصول حرجة في الحقل {{ $labels.field_id }}: الدرجة {{ $value }}"
+          summary: "Critical crop health in region {{ $labels.region }}: score {{ $value }}"
+          summary_ar: "صحة محصول حرجة في المنطقة {{ $labels.region }}: الدرجة {{ $value }}"
           description: "Crop health score below 40. Multiple stress factors likely present."
           description_ar: "درجة صحة المحصول أقل من 40. من المحتمل وجود عوامل إجهاد متعددة."
           impact: "Significant yield reduction expected"
@@ -259,8 +259,8 @@ groups:
           category: iot
           platform: sahool
         annotations:
-          summary: "IoT device {{ $labels.device_id }} offline"
-          summary_ar: "جهاز إنترنت الأشياء {{ $labels.device_id }} غير متصل"
+          summary: "IoT device {{ $labels.device_type }} offline"
+          summary_ar: "جهاز إنترنت الأشياء {{ $labels.device_type }} غير متصل"
           description: "Device has not reported for {{ $value | humanizeDuration }}"
           description_ar: "لم يبلغ الجهاز منذ {{ $value | humanizeDuration }}"
           action: "Check device power and network connectivity"
@@ -274,8 +274,8 @@ groups:
           category: iot
           platform: sahool
         annotations:
-          summary: "Low battery on IoT device {{ $labels.device_id }}: {{ $value }}%"
-          summary_ar: "بطارية منخفضة في جهاز {{ $labels.device_id }}: {{ $value }}%"
+          summary: "Low battery on IoT device {{ $labels.device_type }}: {{ $value }}%"
+          summary_ar: "بطارية منخفضة في نوع الجهاز {{ $labels.device_type }}: {{ $value }}%"
           description: "Device battery below 20%. May go offline soon."
           description_ar: "بطارية الجهاز أقل من 20%. قد ينقطع الاتصال قريباً."
           action: "Replace or recharge device battery"

@@ -3098,12 +3098,21 @@ services:
 
 plugins:
   # CORS للسماح بالطلبات من المتصفحات
-  # SECURITY: In production, replace origins with specific allowed domains
-  # أمان: في الإنتاج، استبدل الأصول بالنطاقات المسموح بها فقط
+  # Origins are explicitly listed. Wildcard ('*') is NOT used because it
+  # cannot be combined with credentials:true and exposes the API to any origin.
   - name: cors
     config:
       origins:
-        - '*'
+        - "https://app.sahool.app"
+        - "https://admin.sahool.app"
+        - "https://api.sahool.app"
+        - "https://dashboard.sahool.app"
+        - "https://mobile.sahool.app"
+        # localhost origins are intentionally omitted from this file.
+        # Use a separate development-only Kong declarative config to add
+        # localhost entries for local testing.
+        # Adding localhost here with credentials:true would allow any page running
+        # on a developer machine to make credentialed cross-origin requests to the API.
       methods:
         - GET
         - POST
@@ -3121,19 +3130,21 @@ plugins:
         - Authorization
         - X-Auth-Token
         - X-Correlation-Id
+        - X-Tenant-Id
       exposed_headers:
         - X-Request-ID
         - X-Correlation-Id
         - X-RateLimit-Limit-Minute
         - X-RateLimit-Remaining-Minute
-      # SECURITY FIX: credentials cannot be true with wildcard origin
-      # Set to false for development, true only with specific origins in production
-      credentials: false
+      # credentials:true is safe now because origins are explicit (no wildcard).
+      credentials: true
       max_age: 3600
 
   # تحديد حجم الطلب لمنع هجمات الحمولة الكبيرة
   # Request size limiting to prevent large payload attacks
+  # ID matches kong-security.yml so deck deduplicates when both files are merged.
   - name: request-size-limiting
+    id: 5ef0e989-a370-4c6d-9cea-9b38326c26c2
     config:
       allowed_payload_size: 10
       size_unit: megabytes
@@ -3149,17 +3160,21 @@ plugins:
   - name: prometheus
 
   # Security Headers
+  # NOTE: X-XSS-Protection is deprecated in modern browsers — Content-Security-Policy
+  # is the correct mitigation for XSS.  HSTS preload flag is omitted until the domain
+  # is submitted to the HSTS preload list (https://hstspreload.org).
+  # ID matches kong-security.yml so deck deduplicates when both files are merged.
   - name: response-transformer
+    id: 885fbc5f-c77c-4f85-b0d8-78cced9105f2
     config:
       add:
         headers:
           - "X-Content-Type-Options: nosniff"
           - "X-Frame-Options: DENY"
-          - "X-XSS-Protection: 1; mode=block"
           - "Referrer-Policy: strict-origin-when-cross-origin"
           - "Permissions-Policy: geolocation=(), microphone=(), camera=()"
           - "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.sahool.app wss://api.sahool.app"
-          - "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"
+          - "Strict-Transport-Security: max-age=31536000; includeSubDomains"
 
   # معرف الطلب
   - name: correlation-id

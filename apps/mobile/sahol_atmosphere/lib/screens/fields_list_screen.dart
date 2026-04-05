@@ -212,7 +212,13 @@ class _FieldsListScreenState extends State<FieldsListScreen> {
           color: AtmosphereColors.success,
           onPressed: () {
             HapticFeedback.lightImpact();
-            // Add new field
+            // TODO(P1): Navigate to add-field form screen
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('إضافة حقل قيد التطوير | Add field coming soon'),
+                duration: Duration(seconds: 2),
+              ),
+            );
           },
         ),
       ],

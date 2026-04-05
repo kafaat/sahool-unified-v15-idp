@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
+from .cache import cache_invalidate_field
 from .field_boundary_detector import BoundaryChange
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,13 @@ logger = logging.getLogger(__name__)
 class RefineBoundaryRequest(BaseModel):
     """Request model for boundary refinement"""
 
+    field_id: str | None = Field(
+        None,
+        description="Field ID to invalidate NDVI cache after refinement",
+        min_length=1,
+        max_length=128,
+        pattern=r"^[a-zA-Z0-9_\-]+$",
+    )
     coords: list[list[float]] = Field(..., description="Initial boundary coordinates [[lon, lat], ...]")
     buffer_m: float = Field(50, description="Refinement buffer in meters")
 
@@ -154,6 +162,17 @@ def register_boundary_endpoints(app, boundary_detector):
             refined = await boundary_detector.refine_boundary(
                 initial_coords=coord_tuples, buffer_meters=request.buffer_m
             )
+
+            # Invalidate cached NDVI data for the field because the boundary has
+            # changed; stale cache would produce incorrect analysis results.
+            if request.field_id:
+                invalidated = await cache_invalidate_field(request.field_id)
+                if invalidated:
+                    logger.info(
+                        "Invalidated %d NDVI cache entries for field %s after boundary refinement",
+                        invalidated,
+                        request.field_id,
+                    )
 
             return {
                 "refined_boundary": refined.to_geojson(),

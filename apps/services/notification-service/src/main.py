@@ -1714,6 +1714,7 @@ async def get_farmer_notifications(
 ):
     """الحصول على إشعارات مزارع معين"""
     # Security: Auth is mandatory — user can only access their own notifications
+    # التحقق من أن المستخدم المصادق يصل فقط إلى إشعاراته الخاصة
     if str(user.id) != farmer_id:
         raise HTTPException(
             status_code=403,

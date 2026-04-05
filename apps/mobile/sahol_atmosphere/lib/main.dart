@@ -55,10 +55,16 @@ void main() async {
       debugPrint('🔒 Security Check: $securityResult');
     }
 
-    // In production, you might want to handle compromised devices
+    // In production, handle compromised devices appropriately
     if (securityResult.isCompromised && !kDebugMode) {
       debugPrint('⚠️ Warning: Running on compromised device');
-      // Optionally show warning or restrict features
+      // Log security event for monitoring
+      // TODO: Integrate with analytics/logging service when available
+      // Restrict sensitive features (e.g., offline data access, financial transactions)
+    }
+
+    if (securityResult.isEmulator && !kDebugMode) {
+      debugPrint('⚠️ Warning: Running on emulator in non-debug mode');
     }
   } catch (e) {
     debugPrint('Security check failed: $e');

@@ -329,6 +329,8 @@ export interface IrrigationSchedule {
   status: IrrigationStatus;
   startDate: string;
   endDate?: string;
+  /** Legacy alias for startDate used by some UI components */
+  scheduledAt?: string;
   frequency: IrrigationFrequency;
   duration: number; // minutes
   waterAmount: number; // liters or cubic meters

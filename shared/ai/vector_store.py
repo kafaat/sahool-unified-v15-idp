@@ -1481,9 +1481,11 @@ class VectorStore:
             top_k: Number of results
             filter: Metadata filter
             include_content: Include document content
-            tenant_id: Tenant ID for multi-tenant isolation. When provided,
-                       automatically added to the filter to ensure results
-                       are scoped to the tenant's data only.
+            tenant_id: When provided, scopes the search to this tenant's data
+                by automatically adding it to the metadata filter to ensure
+                results are scoped to the tenant's data only.  All callers
+                that operate on per-tenant data SHOULD supply this parameter
+                to prevent cross-tenant information leakage.
 
         Returns:
             List of SearchResult
@@ -1501,6 +1503,21 @@ class VectorStore:
                     f"filter['tenant_id']={filter['tenant_id']!r}"
                 )
             filter["tenant_id"] = tenant_id
+        else:
+            # Check if the caller already scoped by tenant_id in the filter dict.
+            # If so, the search IS tenant-scoped and no warning is needed.
+            filter_has_tenant = filter.get("tenant_id") if filter else None
+            if filter_has_tenant is None:
+                # Warn when neither parameter nor filter provides tenant scope.
+                # This does NOT raise because some collections (e.g. global
+                # knowledge base) are legitimately shared across all tenants.
+                # تحذير عند عدم تمرير tenant_id — قد يعني تسرب بيانات بين المستأجرين
+                logger.warning(
+                    "VectorStore.search called without tenant_id for collection '%s'. "
+                    "Results are UNSCOPED and may include data from all tenants. "
+                    "Ensure this is intentional (e.g. a shared knowledge collection).",
+                    collection,
+                )
 
         # Get query vector
         if vector is None:
@@ -1643,6 +1660,7 @@ async def search_documents(
     collection: str = "default",
     top_k: int = 10,
     filter: dict[str, Any] | None = None,
+    tenant_id: str | None = None,
 ) -> list[SearchResult]:
     """Convenience function to search documents
 
@@ -1654,6 +1672,7 @@ async def search_documents(
         collection=collection,
         top_k=top_k,
         filter=filter,
+        tenant_id=tenant_id,
     )
 
 

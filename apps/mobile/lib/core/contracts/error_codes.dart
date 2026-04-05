@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 3.0.0
+/// Contract version: 3.1.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
@@ -118,24 +118,39 @@ abstract final class ErrorCodes {
   static const String visionInvalidFormat = 'E1001';
   static const String visionFileTooLarge = 'E1002';
   static const String visionInvalidDimensions = 'E1003';
+  static const String visionInvalidConfidence = 'E1003';
   static const String visionUnsupportedType = 'E1004';
+  static const String visionInvalidModelVariant = 'E1004';
   static const String visionEmptyImage = 'E1005';
+  static const String visionMissingRequiredField = 'E1005';
   static const String visionCorruptFile = 'E1006';
+  static const String visionInvalidBoundingBox = 'E1006';
   static const String visionModelNotFound = 'E2001';
   static const String visionModelLoadFailed = 'E2002';
   static const String visionInferenceFailed = 'E2003';
   static const String visionModelIncompatible = 'E2004';
+  static const String visionModelVersionNotFound = 'E2004';
   static const String visionWarmupFailed = 'E2005';
+  static const String visionTensorrtError = 'E2005';
   static const String visionImageDecode = 'E3001';
+  static const String visionPreprocessingFailed = 'E3002';
+  static const String visionPostprocessingFailed = 'E3003';
   static const String visionBatchFailed = 'E3003';
+  static const String visionBatchProcessingFailed = 'E3004';
   static const String visionGpuOom = 'E4001';
+  static const String visionCpuOom = 'E4002';
+  static const String visionDiskSpaceLow = 'E4003';
   static const String visionMaxConcurrent = 'E4004';
   static const String visionDbError = 'E5001';
   static const String visionCacheError = 'E5002';
+  static const String visionNatsError = 'E5003';
   static const String visionRateExceeded = 'E6001';
   static const String visionQuotaExceeded = 'E6002';
   static const String visionInferenceTimeout = 'E7001';
   static const String visionRequestTimeout = 'E7002';
+  static const String visionAuthInvalidToken = 'E8001';
+  static const String visionAuthTokenExpired = 'E8002';
+  static const String visionPermissionDenied = 'E8003';
 }
 
 /// Bilingual error message.
@@ -890,6 +905,209 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 400,
     en: 'Vegetation indicator value is out of valid range',
     ar: 'قيمة مؤشر الغطاء النباتي خارج النطاق الصالح',
+    retryable: false,
+  ),
+  'E1001': ErrorMessage(
+    code: 'E1001',
+    httpStatus: 400,
+    en: 'Invalid image format. Supported: JPEG, PNG, WebP, BMP, TIFF',
+    ar: 'تنسيق الصورة غير صالح. المدعوم: JPEG، PNG، WebP، BMP، TIFF',
+    retryable: false,
+  ),
+  'E1002': ErrorMessage(
+    code: 'E1002',
+    httpStatus: 400,
+    en: 'Image file too large. Maximum size: 50MB',
+    ar: 'حجم ملف الصورة كبير جداً. الحد الأقصى: 50 ميجابايت',
+    retryable: false,
+  ),
+  'E1003': ErrorMessage(
+    code: 'E1003',
+    httpStatus: 400,
+    en: 'Confidence threshold must be between 0 and 1',
+    ar: 'عتبة الثقة يجب أن تكون بين 0 و1',
+    retryable: false,
+  ),
+  'E1004': ErrorMessage(
+    code: 'E1004',
+    httpStatus: 400,
+    en: 'Invalid model variant. Valid options: n, s, m, l, x',
+    ar: 'نوع النموذج غير صالح. الخيارات الصالحة: n، s، m، l، x',
+    retryable: false,
+  ),
+  'E1005': ErrorMessage(
+    code: 'E1005',
+    httpStatus: 400,
+    en: 'A required field is missing in the vision request',
+    ar: 'حقل مطلوب مفقود في طلب الرؤية',
+    retryable: false,
+  ),
+  'E1006': ErrorMessage(
+    code: 'E1006',
+    httpStatus: 400,
+    en: 'Invalid bounding box coordinates',
+    ar: 'إحداثيات المربع المحيط غير صالحة',
+    retryable: false,
+  ),
+  'E2001': ErrorMessage(
+    code: 'E2001',
+    httpStatus: 503,
+    en: 'Vision model not found or not loaded',
+    ar: 'نموذج الرؤية غير موجود أو غير محمل',
+    retryable: false,
+  ),
+  'E2002': ErrorMessage(
+    code: 'E2002',
+    httpStatus: 503,
+    en: 'Failed to load vision model',
+    ar: 'فشل تحميل نموذج الرؤية',
+    retryable: true,
+  ),
+  'E2003': ErrorMessage(
+    code: 'E2003',
+    httpStatus: 503,
+    en: 'Vision inference failed - please try again',
+    ar: 'فشل استدلال الرؤية - يرجى المحاولة مرة أخرى',
+    retryable: true,
+  ),
+  'E2004': ErrorMessage(
+    code: 'E2004',
+    httpStatus: 503,
+    en: 'Vision model version not found',
+    ar: 'إصدار نموذج الرؤية غير موجود',
+    retryable: false,
+  ),
+  'E2005': ErrorMessage(
+    code: 'E2005',
+    httpStatus: 503,
+    en: 'TensorRT optimization error in vision service',
+    ar: 'خطأ في تحسين TensorRT في خدمة الرؤية',
+    retryable: true,
+  ),
+  'E3001': ErrorMessage(
+    code: 'E3001',
+    httpStatus: 400,
+    en: 'Failed to decode image. The image may be corrupted.',
+    ar: 'فشل فك ترميز الصورة. قد تكون الصورة تالفة.',
+    retryable: false,
+  ),
+  'E3002': ErrorMessage(
+    code: 'E3002',
+    httpStatus: 400,
+    en: 'Image preprocessing failed',
+    ar: 'فشلت المعالجة المسبقة للصورة',
+    retryable: false,
+  ),
+  'E3003': ErrorMessage(
+    code: 'E3003',
+    httpStatus: 500,
+    en: 'Result postprocessing failed - please try again',
+    ar: 'فشلت معالجة النتائج اللاحقة - يرجى المحاولة مرة أخرى',
+    retryable: true,
+  ),
+  'E3004': ErrorMessage(
+    code: 'E3004',
+    httpStatus: 400,
+    en: 'Batch image processing failed',
+    ar: 'فشلت معالجة دفعة الصور',
+    retryable: true,
+  ),
+  'E4001': ErrorMessage(
+    code: 'E4001',
+    httpStatus: 503,
+    en: 'GPU out of memory. Try a smaller image or retry later.',
+    ar: 'نفدت ذاكرة وحدة معالجة الرسومات. جرب صورة أصغر أو أعد المحاولة لاحقاً.',
+    retryable: true,
+  ),
+  'E4002': ErrorMessage(
+    code: 'E4002',
+    httpStatus: 503,
+    en: 'System out of memory. Please retry later.',
+    ar: 'نفدت ذاكرة النظام. يرجى المحاولة لاحقاً.',
+    retryable: true,
+  ),
+  'E4003': ErrorMessage(
+    code: 'E4003',
+    httpStatus: 503,
+    en: 'Low disk space - vision service temporarily unavailable',
+    ar: 'مساحة القرص منخفضة - خدمة الرؤية غير متاحة مؤقتاً',
+    retryable: true,
+  ),
+  'E4004': ErrorMessage(
+    code: 'E4004',
+    httpStatus: 503,
+    en: 'Maximum concurrent requests exceeded. Please retry later.',
+    ar: 'تم تجاوز الحد الأقصى للطلبات المتزامنة. يرجى المحاولة لاحقاً.',
+    retryable: true,
+  ),
+  'E5001': ErrorMessage(
+    code: 'E5001',
+    httpStatus: 502,
+    en: 'Vision service database error',
+    ar: 'خطأ في قاعدة بيانات خدمة الرؤية',
+    retryable: true,
+  ),
+  'E5002': ErrorMessage(
+    code: 'E5002',
+    httpStatus: 502,
+    en: 'Vision service cache error',
+    ar: 'خطأ في ذاكرة التخزين المؤقت لخدمة الرؤية',
+    retryable: true,
+  ),
+  'E5003': ErrorMessage(
+    code: 'E5003',
+    httpStatus: 502,
+    en: 'Vision service message queue error',
+    ar: 'خطأ في قائمة رسائل خدمة الرؤية',
+    retryable: true,
+  ),
+  'E6001': ErrorMessage(
+    code: 'E6001',
+    httpStatus: 429,
+    en: 'Vision API rate limit exceeded. Please wait before retrying.',
+    ar: 'تم تجاوز حد معدل واجهة برمجة الرؤية. يرجى الانتظار قبل إعادة المحاولة.',
+    retryable: true,
+  ),
+  'E6002': ErrorMessage(
+    code: 'E6002',
+    httpStatus: 429,
+    en: 'Vision API quota exceeded for this billing period',
+    ar: 'تم تجاوز حصة واجهة برمجة الرؤية لفترة الفوترة هذه',
+    retryable: false,
+  ),
+  'E7001': ErrorMessage(
+    code: 'E7001',
+    httpStatus: 504,
+    en: 'Vision inference timed out. Please try again.',
+    ar: 'انتهت مهلة استدلال الرؤية. يرجى المحاولة مرة أخرى.',
+    retryable: true,
+  ),
+  'E7002': ErrorMessage(
+    code: 'E7002',
+    httpStatus: 504,
+    en: 'Vision request timed out',
+    ar: 'انتهت مهلة طلب الرؤية',
+    retryable: true,
+  ),
+  'E8001': ErrorMessage(
+    code: 'E8001',
+    httpStatus: 401,
+    en: 'Invalid authentication token for vision service',
+    ar: 'رمز مصادقة غير صالح لخدمة الرؤية',
+    retryable: false,
+  ),
+  'E8002': ErrorMessage(
+    code: 'E8002',
+    httpStatus: 401,
+    en: 'Authentication token has expired. Please login again.',
+    ar: 'انتهت صلاحية رمز المصادقة. يرجى تسجيل الدخول مرة أخرى.',
+    retryable: false,
+  ),
+  'E8003': ErrorMessage(
+    code: 'E8003',
+    httpStatus: 401,
+    en: 'Permission denied for this vision operation',
+    ar: 'تم رفض الإذن لهذه العملية في خدمة الرؤية',
     retryable: false,
   ),
   'UNKNOWN': ErrorMessage(

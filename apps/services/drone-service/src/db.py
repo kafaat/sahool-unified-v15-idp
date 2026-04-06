@@ -50,7 +50,9 @@ class DroneRepository:
         query += f" ORDER BY created_at DESC LIMIT ${idx} OFFSET ${idx + 1}"
         params.extend([limit, offset])
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(query, *params)  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
+            rows = await conn.fetch(
+                query, *params
+            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return [dict(r) for r in rows]
 
     async def get_drone(self, drone_id: str, tenant_id: str) -> dict | None:
@@ -155,7 +157,9 @@ class DroneRepository:
         query += f" ORDER BY created_at DESC LIMIT ${idx} OFFSET ${idx + 1}"
         params.extend([limit, offset])
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(query, *params)  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
+            rows = await conn.fetch(
+                query, *params
+            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return [dict(r) for r in rows]
 
     async def get_flight_plan(self, plan_id: str, tenant_id: str) -> dict | None:
@@ -224,7 +228,9 @@ class DroneRepository:
         query += f" ORDER BY created_at DESC LIMIT ${idx} OFFSET ${idx + 1}"
         params.extend([limit, offset])
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(query, *params)  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
+            rows = await conn.fetch(
+                query, *params
+            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return [dict(r) for r in rows]
 
     async def get_mission(self, mission_id: str, tenant_id: str) -> dict | None:

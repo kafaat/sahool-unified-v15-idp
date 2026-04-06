@@ -399,7 +399,9 @@ class GeospatialMetadataRepository:
         )
 
         async with self.pool.acquire() as conn:
-            row = await conn.fetchrow(sql, *params)  # nosemgrep: asyncpg-sqli -- sql uses $N parameterized placeholders; columns from allowlist
+            row = await conn.fetchrow(
+                sql, *params
+            )  # nosemgrep: asyncpg-sqli -- sql uses $N parameterized placeholders; columns from allowlist
             if row:
                 logger.info(
                     "geospatial_metadata_updated",

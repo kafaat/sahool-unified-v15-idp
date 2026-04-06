@@ -143,7 +143,9 @@ class SimpleMigrationRunner:
         async with self._pool.acquire() as conn:
             # Ensure tracking table exists (always real, even in dry-run)
             if not dry_run:
-                await conn.execute(_CREATE_TRACKING_TABLE)  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- static DDL constant
+                await conn.execute(
+                    _CREATE_TRACKING_TABLE
+                )  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- static DDL constant
 
             applied_versions = await self._get_applied_versions(conn, dry_run=dry_run)
 

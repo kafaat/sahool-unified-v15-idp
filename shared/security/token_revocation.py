@@ -92,7 +92,9 @@ class RedisRevocationBackend:
             self._redis.setex(f"{_REDIS_PREFIX}jti:{jti}", ttl, reason)  # type: ignore[union-attr]
             return True
         except Exception as exc:
-            logger.warning("Redis revoke_token failed: %s", exc)  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
+            logger.warning(
+                "Redis revoke_token failed: %s", exc
+            )  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
             return False
 
     def is_token_revoked(self, jti: str) -> bool:
@@ -101,7 +103,9 @@ class RedisRevocationBackend:
         except Exception as exc:
             # Fail-closed: if Redis was available but now errors, treat token
             # as revoked to prevent accepting tokens revoked by other instances.
-            logger.warning("Redis is_token_revoked read error (fail-closed): %s", exc)  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
+            logger.warning(
+                "Redis is_token_revoked read error (fail-closed): %s", exc
+            )  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
             return True
 
     # -- User ---------------------------------------------------------------
@@ -117,7 +121,9 @@ class RedisRevocationBackend:
             )
             return True
         except Exception as exc:
-            logger.warning("Redis revoke_user_tokens failed: %s", exc)  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
+            logger.warning(
+                "Redis revoke_user_tokens failed: %s", exc
+            )  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
             return False
 
     def is_user_token_revoked(self, user_id: str, token_issued_at: float) -> bool:
@@ -129,7 +135,9 @@ class RedisRevocationBackend:
         except Exception as exc:
             # Fail-closed: treat as revoked when Redis read fails to prevent
             # accepting tokens that were revoked on another instance.
-            logger.warning("Redis is_user_token_revoked read error (fail-closed): %s", exc)  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
+            logger.warning(
+                "Redis is_user_token_revoked read error (fail-closed): %s", exc
+            )  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
             return True
 
     def clear_user_revocation(self, user_id: str) -> bool:
@@ -137,7 +145,9 @@ class RedisRevocationBackend:
             self._redis.delete(f"{_REDIS_PREFIX}user:{user_id}")  # type: ignore[union-attr]
             return True
         except Exception as exc:
-            logger.warning("Redis clear_user_revocation failed: %s", exc)  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
+            logger.warning(
+                "Redis clear_user_revocation failed: %s", exc
+            )  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
             return False
 
     # -- Tenant -------------------------------------------------------------
@@ -153,7 +163,9 @@ class RedisRevocationBackend:
             )
             return True
         except Exception as exc:
-            logger.warning("Redis revoke_tenant_tokens failed: %s", exc)  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
+            logger.warning(
+                "Redis revoke_tenant_tokens failed: %s", exc
+            )  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
             return False
 
     def is_tenant_token_revoked(self, tenant_id: str, token_issued_at: float) -> bool:
@@ -165,7 +177,9 @@ class RedisRevocationBackend:
         except Exception as exc:
             # Fail-closed: treat as revoked when Redis read fails to prevent
             # accepting tokens that were revoked on another instance.
-            logger.warning("Redis is_tenant_token_revoked read error (fail-closed): %s", exc)  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
+            logger.warning(
+                "Redis is_tenant_token_revoked read error (fail-closed): %s", exc
+            )  # nosemgrep: python-logger-credential-disclosure -- logs operational Redis error, no credentials
             return True
 
 

@@ -25,6 +25,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     redis_database: 0
     fault_tolerant: true
     hide_client_headers: false
@@ -38,6 +39,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: Vision API rate limit exceeded. الحد الأقصى لطلبات خدمة الرؤية. Upgrade to Enterprise for higher limits.
 - name: rate-limiting
@@ -48,6 +50,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: Terrain API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة التضاريس.
 - name: rate-limiting
@@ -58,6 +61,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: Hydrology API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة الهيدرولوجيا.
 - name: rate-limiting
@@ -68,6 +72,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: Leveling API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة التسوية.
 - name: rate-limiting
@@ -78,6 +83,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: Edge API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة الحافة.
 - name: rate-limiting
@@ -88,6 +94,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: LLM API rate limit exceeded. Consider upgrading for higher AI usage limits. تم تجاوز حد طلبات الذكاء الاصطناعي.
 - name: rate-limiting
@@ -98,6 +105,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: Too many authentication attempts. Please wait before trying again. محاولات مصادقة كثيرة جداً.
 - name: rate-limiting
@@ -108,6 +116,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: WhatsApp API rate limit exceeded. تم تجاوز حد طلبات واتساب.
 - name: rate-limiting
@@ -118,6 +127,7 @@ plugins:
     policy: redis
     redis_host: redis
     redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
     fault_tolerant: true
     error_message: Billing API rate limit exceeded. تم تجاوز حد طلبات الفوترة.
 services:
@@ -155,6 +165,7 @@ services:
       policy: redis
       redis_host: redis
       redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
       fault_tolerant: true
       error_message: Starter tier rate limit exceeded. Upgrade to Professional for higher limits. تم تجاوز حد الباقة الأساسية.
 - name: professional-package-ratelimit
@@ -175,6 +186,7 @@ services:
       policy: redis
       redis_host: redis
       redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
       fault_tolerant: true
       error_message: Professional tier rate limit exceeded. Upgrade to Enterprise for higher limits. تم تجاوز حد الباقة المتوسطة.
 - name: enterprise-package-ratelimit
@@ -195,6 +207,7 @@ services:
       policy: redis
       redis_host: redis
       redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
       fault_tolerant: true
       error_message: Enterprise tier rate limit reached. Contact support for custom limits. تم الوصول لحد الباقة المتقدمة.
 - name: research-package-ratelimit
@@ -215,6 +228,7 @@ services:
       policy: redis
       redis_host: redis
       redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
       fault_tolerant: true
       error_message: Research tier rate limit exceeded. تم تجاوز حد باقة البحث العلمي.
 - name: internal-service-ratelimit
@@ -235,5 +249,6 @@ services:
       policy: redis
       redis_host: redis
       redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
       fault_tolerant: true
       error_message: Internal rate limit exceeded. Check service health. تم تجاوز الحد الداخلي.

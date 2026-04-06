@@ -175,7 +175,7 @@ services:
         cp /usr/local/etc/redis/redis.conf /tmp/redis.conf
         echo "" >> /tmp/redis.conf
         echo "requirepass $$REDIS_PASSWORD" >> /tmp/redis.conf
-        echo "maxmemory 512mb" >> /tmp/redis.conf
+        echo "maxmemory ${REDIS_MAXMEMORY:-512mb}" >> /tmp/redis.conf
         exec redis-server /tmp/redis.conf
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}

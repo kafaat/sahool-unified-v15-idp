@@ -55,31 +55,53 @@ def setup_rate_limiting(
     app: FastAPI,
     *,
     use_redis: bool = False,
+    redis_url: str = "redis://redis:6379",
     tier_func: Callable[[Request], RateLimitTier] | None = None,
     exclude_paths: list[str] | None = None,
+    limiter: RateLimiter | None = None,
 ) -> RateLimiter:
     """
     Configure rate limiting middleware on a FastAPI application.
 
     Args:
         app: FastAPI application instance
-        use_redis: Whether to use Redis for distributed rate limiting (future)
+        use_redis: Whether to use Redis for distributed rate limiting
+        redis_url: Redis URL (only used when use_redis=True)
         tier_func: Optional callable to determine tier from request
         exclude_paths: Paths to exclude from rate limiting
+        limiter: Optional pre-configured RateLimiter instance
 
     Returns:
         The configured RateLimiter instance
     """
     excluded = set(exclude_paths or ["/healthz", "/readyz", "/metrics", "/health"])
 
-    limiter = RateLimiter(
-        tier_config=TierConfig(
-            free=_TIER_CONFIGS[RateLimitTier.FREE],
-            standard=_TIER_CONFIGS[RateLimitTier.STANDARD],
-            premium=_TIER_CONFIGS[RateLimitTier.PREMIUM],
-            internal=_TIER_CONFIGS[RateLimitTier.INTERNAL],
-        )
+    tier_config = TierConfig(
+        free=_TIER_CONFIGS[RateLimitTier.FREE],
+        standard=_TIER_CONFIGS[RateLimitTier.STANDARD],
+        premium=_TIER_CONFIGS[RateLimitTier.PREMIUM],
+        internal=_TIER_CONFIGS[RateLimitTier.INTERNAL],
     )
+
+    if limiter is not None:
+        pass  # Use the provided limiter (e.g., RedisRateLimiter)
+    elif use_redis:
+        try:
+            from .redis_rate_limit import RedisRateLimiter
+
+            limiter = RedisRateLimiter(
+                redis_url=redis_url,
+                tier_config=tier_config,
+            )
+            logger.info("Rate limiting configured with Redis backend")
+        except (ImportError, RuntimeError) as e:
+            logger.warning(
+                "Redis rate limiting unavailable, falling back to in-memory",
+                extra={"error": str(e)},
+            )
+            limiter = RateLimiter(tier_config=tier_config)
+    else:
+        limiter = RateLimiter(tier_config=tier_config)
 
     @app.middleware("http")
     async def rate_limit_middleware(request: Request, call_next: Callable) -> Response:

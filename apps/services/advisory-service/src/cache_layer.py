@@ -17,6 +17,7 @@ import hashlib
 import json
 import logging
 import os
+import threading
 import time
 from collections import OrderedDict
 from collections.abc import Callable
@@ -39,6 +40,7 @@ class AdvisoryCache:
         self.default_ttl = default_ttl
         self._cache: OrderedDict[str, tuple[Any, float]] = OrderedDict()
         self._lock = asyncio.Lock()
+        self._sync_lock = threading.Lock()  # For sync decorator access
 
         # Cache statistics
         self._hits = 0
@@ -160,26 +162,27 @@ def cache_disease_lookup(ttl: int = 3600):
             tenant_id = kwargs.pop("tenant_id", "")
             cache_key = f"disease:{_generate_cache_key(func.__name__, *args, tenant_id=tenant_id, **kwargs)}"
 
-            # Check cache synchronously (sync function)
-            if cache_key in cache._cache:
-                value, expires_at = cache._cache[cache_key]
-                if time.time() <= expires_at:
-                    cache._hits += 1
-                    logger.debug(f"Cache hit for disease lookup: {cache_key[:16]}...")
-                    return value
-                else:
-                    del cache._cache[cache_key]
+            # Check cache with thread-safe lock (sync function)
+            with cache._sync_lock:
+                if cache_key in cache._cache:
+                    value, expires_at = cache._cache[cache_key]
+                    if time.time() <= expires_at:
+                        cache._hits += 1
+                        logger.debug(f"Cache hit for disease lookup: {cache_key[:16]}...")
+                        return value
+                    else:
+                        del cache._cache[cache_key]
+                cache._misses += 1
 
-            cache._misses += 1
-
-            # Execute function
+            # Execute function (outside lock)
             result = func(*args, **kwargs)
 
             # Cache result
             if result is not None:
-                while len(cache._cache) >= cache.max_size:
-                    cache._cache.popitem(last=False)
-                cache._cache[cache_key] = (result, time.time() + ttl)
+                with cache._sync_lock:
+                    while len(cache._cache) >= cache.max_size:
+                        cache._cache.popitem(last=False)
+                    cache._cache[cache_key] = (result, time.time() + ttl)
 
             return result
 
@@ -335,9 +338,10 @@ async def invalidate_all_caches(tenant_id: str = "") -> dict[str, int]:
     cache = get_advisory_cache()
     count = await cache.clear()
 
-    # Reset statistics
-    cache._hits = 0
-    cache._misses = 0
+    # Reset statistics (thread-safe)
+    with cache._sync_lock:
+        cache._hits = 0
+        cache._misses = 0
 
     logger.info("invalidated_all_caches", count=count, tenant_id=tenant_id or "all")
 

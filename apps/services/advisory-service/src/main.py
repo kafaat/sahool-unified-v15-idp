@@ -137,7 +137,8 @@ def _sanitize_text(value: str) -> str:
     against the knowledge base.
     """
     # Remove null bytes and ASCII control characters (0x00-0x1F except tab/newline)
-    return re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", value)
+    # Limit to 500 chars to prevent abuse
+    return re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", value)[:500]
 
 
 def _validate_identifier(value: str, field_name: str) -> str:
@@ -180,6 +181,29 @@ class DiseaseAssessRequest(BaseModel):
         if v is not None:
             return _validate_crop_type(v)
         return v
+
+    @field_validator("weather")
+    @classmethod
+    def validate_weather(cls, v: dict | None) -> dict | None:
+        """Clamp weather values to physically reasonable ranges to prevent alert manipulation."""
+        if v is None:
+            return v
+        clamped = {}
+        ranges = {
+            "temperature": (-60, 60),
+            "humidity": (0, 100),
+            "wind_speed": (0, 200),
+            "precipitation": (0, 500),
+            "soil_moisture": (0, 100),
+            "uv_index": (0, 15),
+        }
+        for key, val in v.items():
+            if key in ranges and isinstance(val, (int, float)):
+                lo, hi = ranges[key]
+                clamped[key] = max(lo, min(hi, val))
+            else:
+                clamped[key] = val
+        return clamped
 
     @field_validator("correlation_id")
     @classmethod
@@ -533,10 +557,18 @@ def readiness():
 
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
-    """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
-        from fastapi import HTTPException
-
+    """Validate JWT tenant matches the requested tenant.
+    SECURITY: Reject tokens without tenant_id to prevent cross-tenant access."""
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+                "message_en": "Token does not contain tenant identifier",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -572,18 +604,21 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
     # Publish event
     event_id = None
     if getattr(app.state, "publisher", None):
-        event_id = await app.state.publisher.publish_recommendation(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            category=assessment.category,
-            severity=assessment.severity,
-            title_ar=assessment.title_ar,
-            title_en=assessment.title_en,
-            actions=assessment.actions,
-            confidence=assessment.confidence,
-            correlation_id=req.correlation_id,
-            details=assessment.details,
-        )
+        try:
+            event_id = await app.state.publisher.publish_recommendation(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                category=assessment.category,
+                severity=assessment.severity,
+                title_ar=assessment.title_ar,
+                title_en=assessment.title_en,
+                actions=assessment.actions,
+                confidence=assessment.confidence,
+                correlation_id=req.correlation_id,
+                details=assessment.details,
+            )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -616,17 +651,20 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
         if top.confidence >= 0.5:
-            event_id = await app.state.publisher.publish_recommendation(
-                tenant_id=req.tenant_id,
-                field_id=req.field_id,
-                category=top.category,
-                severity=top.severity,
-                title_ar=top.title_ar,
-                title_en=top.title_en,
-                actions=top.actions,
-                confidence=top.confidence,
-                correlation_id=req.correlation_id,
-            )
+            try:
+                event_id = await app.state.publisher.publish_recommendation(
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    category=top.category,
+                    severity=top.severity,
+                    title_ar=top.title_ar,
+                    title_en=top.title_en,
+                    actions=top.actions,
+                    confidence=top.confidence,
+                    correlation_id=req.correlation_id,
+                )
+            except Exception as _pub_err:
+                logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -693,18 +731,21 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
-        event_id = await app.state.publisher.publish_nutrient_assessment(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            deficiency_id=top.deficiency_id,
-            nutrient=top.nutrient,
-            severity=top.severity,
-            title_ar=top.title_ar,
-            title_en=top.title_en,
-            corrections=top.corrections,
-            confidence=top.confidence,
-            correlation_id=req.correlation_id,
-        )
+        try:
+            event_id = await app.state.publisher.publish_nutrient_assessment(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                deficiency_id=top.deficiency_id,
+                nutrient=top.nutrient,
+                severity=top.severity,
+                title_ar=top.title_ar,
+                title_en=top.title_en,
+                corrections=top.corrections,
+                confidence=top.confidence,
+                correlation_id=req.correlation_id,
+            )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,
@@ -731,18 +772,21 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
-        event_id = await app.state.publisher.publish_nutrient_assessment(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            deficiency_id=top.deficiency_id,
-            nutrient=top.nutrient,
-            severity=top.severity,
-            title_ar=top.title_ar,
-            title_en=top.title_en,
-            corrections=top.corrections,
-            confidence=top.confidence,
-            correlation_id=req.correlation_id,
-        )
+        try:
+            event_id = await app.state.publisher.publish_nutrient_assessment(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                deficiency_id=top.deficiency_id,
+                nutrient=top.nutrient,
+                severity=top.severity,
+                title_ar=top.title_ar,
+                title_en=top.title_en,
+                corrections=top.corrections,
+                confidence=top.confidence,
+                correlation_id=req.correlation_id,
+            )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,

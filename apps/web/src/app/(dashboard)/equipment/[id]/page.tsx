@@ -18,10 +18,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function EquipmentDetailPage({
+export default async function EquipmentDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  return <EquipmentDetailClient equipmentId={params.id} />;
+  const { id } = await params;
+  return <EquipmentDetailClient equipmentId={id} />;
 }

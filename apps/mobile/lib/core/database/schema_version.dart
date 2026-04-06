@@ -11,12 +11,13 @@
 /// - v4: Unified Outbox schema with ETag support
 /// - v5: Added migration tracking + metadata columns
 /// - v6: Added CachedUsers and CachedUserProfiles tables
+/// - v7: Added irrigationType, plantingDate, notes to Fields table
 library;
 
 import 'package:drift/drift.dart';
 
 /// Current schema version of the database
-const int currentSchemaVersion = 6;
+const int currentSchemaVersion = 7;
 
 /// Minimum supported schema version for migration
 const int minimumSupportedVersion = 1;

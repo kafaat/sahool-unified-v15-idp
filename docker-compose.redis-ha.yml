@@ -55,12 +55,13 @@ services:
       resources:
         limits:
           cpus: '2'
-          memory: 1536M
+          memory: 2048M
         reservations:
           cpus: '0.5'
           memory: 512M
     networks:
       - redis-ha-network
+      - sahool-network
     labels:
       - "com.sahool.service=redis-master"
       - "com.sahool.role=master"
@@ -114,7 +115,7 @@ services:
       resources:
         limits:
           cpus: '2'
-          memory: 1536M
+          memory: 2048M
         reservations:
           cpus: '0.5'
           memory: 512M
@@ -173,7 +174,7 @@ services:
       resources:
         limits:
           cpus: '2'
-          memory: 1536M
+          memory: 2048M
         reservations:
           cpus: '0.5'
           memory: 512M
@@ -190,16 +191,21 @@ services:
   redis-sentinel-1:
     image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-1
-    command: >
-      sh -c "echo '
-      port 26379
-      sentinel monitor sahool-master redis-master 6379 2
-      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
-      sentinel down-after-milliseconds sahool-master 5000
-      sentinel parallel-syncs sahool-master 1
-      sentinel failover-timeout sahool-master 10000
-      sentinel deny-scripts-reconfig yes
-      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+    command:
+      - sh
+      - -c
+      - |
+        cat > /tmp/sentinel.conf << EOF
+        port 26379
+        requirepass $${REDIS_PASSWORD}
+        sentinel monitor sahool-master redis-master 6379 $${SENTINEL_QUORUM:-2}
+        sentinel auth-pass sahool-master $${REDIS_PASSWORD}
+        sentinel down-after-milliseconds sahool-master $${SENTINEL_DOWN_AFTER:-5000}
+        sentinel parallel-syncs sahool-master 1
+        sentinel failover-timeout sahool-master $${SENTINEL_FAILOVER_TIMEOUT:-10000}
+        sentinel deny-scripts-reconfig yes
+        EOF
+        redis-sentinel /tmp/sentinel.conf
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       - SENTINEL_QUORUM=2
@@ -242,16 +248,21 @@ services:
   redis-sentinel-2:
     image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-2
-    command: >
-      sh -c "echo '
-      port 26379
-      sentinel monitor sahool-master redis-master 6379 2
-      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
-      sentinel down-after-milliseconds sahool-master 5000
-      sentinel parallel-syncs sahool-master 1
-      sentinel failover-timeout sahool-master 10000
-      sentinel deny-scripts-reconfig yes
-      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+    command:
+      - sh
+      - -c
+      - |
+        cat > /tmp/sentinel.conf << EOF
+        port 26379
+        requirepass $${REDIS_PASSWORD}
+        sentinel monitor sahool-master redis-master 6379 $${SENTINEL_QUORUM:-2}
+        sentinel auth-pass sahool-master $${REDIS_PASSWORD}
+        sentinel down-after-milliseconds sahool-master $${SENTINEL_DOWN_AFTER:-5000}
+        sentinel parallel-syncs sahool-master 1
+        sentinel failover-timeout sahool-master $${SENTINEL_FAILOVER_TIMEOUT:-10000}
+        sentinel deny-scripts-reconfig yes
+        EOF
+        redis-sentinel /tmp/sentinel.conf
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       - SENTINEL_QUORUM=2
@@ -295,15 +306,21 @@ services:
     image: redis:7.4-alpine
     container_name: sahool-redis-sentinel-3
     command: >
-      sh -c "echo '
-      port 26379
-      sentinel monitor sahool-master redis-master 6379 2
-      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
-      sentinel down-after-milliseconds sahool-master 5000
-      sentinel parallel-syncs sahool-master 1
-      sentinel failover-timeout sahool-master 10000
-      sentinel deny-scripts-reconfig yes
-      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+    command:
+      - sh
+      - -c
+      - |
+        cat > /tmp/sentinel.conf << EOF
+        port 26379
+        requirepass $${REDIS_PASSWORD}
+        sentinel monitor sahool-master redis-master 6379 $${SENTINEL_QUORUM:-2}
+        sentinel auth-pass sahool-master $${REDIS_PASSWORD}
+        sentinel down-after-milliseconds sahool-master $${SENTINEL_DOWN_AFTER:-5000}
+        sentinel parallel-syncs sahool-master 1
+        sentinel failover-timeout sahool-master $${SENTINEL_FAILOVER_TIMEOUT:-10000}
+        sentinel deny-scripts-reconfig yes
+        EOF
+        redis-sentinel /tmp/sentinel.conf
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       - SENTINEL_QUORUM=2
@@ -385,6 +402,10 @@ networks:
       driver: default
       config:
         - subnet: 172.30.0.0/16
+  # Bridge to main application network so services can reach HA Redis
+  sahool-network:
+    external: true
+    name: sahool-network
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Volumes

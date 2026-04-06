@@ -378,7 +378,7 @@ services:
     ports:
       - "6380:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a ${KONG_REDIS_PASSWORD:-redis_secure} ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 5

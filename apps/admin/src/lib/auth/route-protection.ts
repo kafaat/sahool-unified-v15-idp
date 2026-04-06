@@ -17,6 +17,15 @@ export const PROTECTED_ROUTES: Record<string, UserRole[]> = {
   '/api/users': ['admin'],
   '/api/admin': ['admin'],
 
+  // Developer & Platform tools (admin-only)
+  '/audit': ['admin'],
+  '/code-review': ['admin'],
+  '/code-fix': ['admin'],
+  '/copilot': ['admin'],
+  '/api/audit': ['admin'],
+  '/api/code-review': ['admin'],
+  '/api/code-fix': ['admin'],
+
   // Admin and Supervisor routes
   '/farms': ['admin', 'supervisor'],
   '/diseases': ['admin', 'supervisor'],

@@ -127,6 +127,7 @@ const getManagementNav = () => [
 const aiTechNav = [
   { name: 'المساعد الذكي', href: '/copilot', icon: Bot },
   { name: 'مراجعات الكود', href: '/code-review', icon: FileCode2 },
+  { name: 'إصلاح الكود', href: '/code-fix', icon: Wrench },
   { name: 'الرؤية الحاسوبية', href: '/vision', icon: Eye },
   { name: 'الطائرات المسيّرة', href: '/drone', icon: Plane },
   { name: 'أجهزة الحافة', href: '/edge-devices', icon: Radio },
@@ -137,6 +138,9 @@ const aiTechNav = [
 
 // Audit & Compliance section
 const auditNav = [{ name: 'سجل التدقيق', href: '/audit', icon: ClipboardList }];
+
+// Admin-only sections that require role check
+const ADMIN_ONLY_SECTIONS = ['aiTech', 'audit'];
 
 const getSystemNav = () => [
   { name: t('nav.support'), href: '/support', icon: MessageCircle, badge: 5 },
@@ -386,6 +390,7 @@ export default React.memo(function Sidebar() {
           </div>
 
           {/* AI & Technology Section (Admin-Only) */}
+          {user?.role === 'admin' && (
           <div>
             <div className="px-4 mb-2">
               <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
@@ -420,8 +425,10 @@ export default React.memo(function Sidebar() {
               );
             })}
           </div>
+          )}
 
-          {/* Audit Section */}
+          {/* Audit Section (Admin-Only) */}
+          {user?.role === 'admin' && (
           <div>
             <div className="px-4 mb-2">
               <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
@@ -456,6 +463,7 @@ export default React.memo(function Sidebar() {
               );
             })}
           </div>
+          )}
 
           {/* System Section */}
           <div>

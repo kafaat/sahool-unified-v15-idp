@@ -233,7 +233,7 @@ export default function YieldForecastingPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {forecastData.map((row) => (
+              {displayData.map((row) => (
                 <tr key={row.field} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 font-medium text-gray-900">{row.field}</td>
                   <td className="px-4 py-3 text-gray-600">{row.crop}</td>

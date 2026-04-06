@@ -9,7 +9,6 @@ import React, { useState, useMemo } from 'react';
 import {
   TrendingUp,
   TrendingDown,
-  Minus,
   Filter,
   BarChart3,
   Wheat,
@@ -19,27 +18,6 @@ import {
 } from 'lucide-react';
 import { useMarketPrices, useMarketPriceStats } from '../hooks/useMarketPrices';
 import type { CropPriceRecord } from '../types';
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function deriveTrend(record: CropPriceRecord): 'up' | 'down' | 'stable' {
-  // If the API doesn't provide trend info, we mark it stable
-  return 'stable';
-}
-
-const trendIcons: Record<string, React.ReactNode> = {
-  up: <TrendingUp className="w-4 h-4 text-green-600" />,
-  down: <TrendingDown className="w-4 h-4 text-red-600" />,
-  stable: <Minus className="w-4 h-4 text-gray-500" />,
-};
-
-const trendTextColors: Record<string, string> = {
-  up: 'text-green-600',
-  down: 'text-red-600',
-  stable: 'text-gray-500',
-};
 
 // ---------------------------------------------------------------------------
 // Component

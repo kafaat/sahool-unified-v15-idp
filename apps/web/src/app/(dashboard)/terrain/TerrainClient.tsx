@@ -10,8 +10,6 @@ import {
   Mountain,
   CheckCircle,
   Clock,
-  Upload,
-  MapPin,
   TrendingUp,
   Droplets,
   ArrowUpDown,
@@ -24,7 +22,6 @@ import {
   useAnalyzeSlope,
   useOptimizeLeveling,
   useAnalyzeDrainage,
-  useAnalyzeWatershed,
 } from '@/features/terrain/hooks/useTerrain';
 import type { DEMAnalysis, SlopeAnalysis, LevelingPlan, DrainageAnalysis } from '@/features/terrain/types';
 
@@ -61,7 +58,7 @@ export default function TerrainClient() {
   const analyzeSlope = useAnalyzeSlope();
   const optimizeLeveling = useOptimizeLeveling();
   const analyzeDrainage = useAnalyzeDrainage();
-  const analyzeWatershed = useAnalyzeWatershed();
+  // analyzeWatershed available via useAnalyzeWatershed() when needed
 
   // Results from mutations
   const demResult: DEMAnalysis | undefined = analyzeDEM.data;

@@ -14,6 +14,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
+import type { AnalyticsPeriod } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 const defaultStatsCards = [
@@ -67,7 +68,7 @@ const severityColor: Record<string, string> = {
 };
 
 export default function GapAnalysisPage() {
-  const [dateRange, setDateRange] = useState('month');
+  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('month');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);

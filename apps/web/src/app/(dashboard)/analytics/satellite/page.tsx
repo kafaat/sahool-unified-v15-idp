@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
+import type { AnalyticsPeriod } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
@@ -69,7 +70,7 @@ const healthColor: Record<string, string> = {
 };
 
 export default function SatelliteAnalyticsPage() {
-  const [dateRange, setDateRange] = useState('month');
+  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('month');
   const [indexType, setIndexType] = useState('ndvi');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

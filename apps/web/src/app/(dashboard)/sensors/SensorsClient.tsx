@@ -14,7 +14,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useSensors } from '@/features/iot';
-import type { Sensor, SensorType, SensorStatus, SensorFilters } from '@/features/iot';
+import type { SensorType, SensorStatus, SensorFilters } from '@/features/iot';
 
 const sensorTypes: Record<string, { icon: React.ReactNode; label: string; labelAr: string }> = {
   soil_moisture: {

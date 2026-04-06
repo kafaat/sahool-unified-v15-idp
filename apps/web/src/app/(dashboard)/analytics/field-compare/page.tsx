@@ -14,6 +14,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
+import type { AnalyticsPeriod } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 interface ComparisonRow {
@@ -33,7 +34,7 @@ const statusColor: Record<string, string> = {
 };
 
 export default function FieldComparePage() {
-  const [dateRange, setDateRange] = useState('month');
+  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('month');
   const [cropFilter, setCropFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export default function FieldComparePage() {
     setError(null);
     try {
       const [comparison, summary] = await Promise.all([
-        analyticsApi.getComparison('field', 'yield', {
+        analyticsApi.getComparison('fields', 'yield', {
           period: dateRange,
           cropTypes: cropFilter !== 'all' ? [cropFilter] : undefined,
         }),

@@ -14,7 +14,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useReports, useGenerateReport } from '@/features/reports/hooks/useReports';
-import type { Report, ReportFilters } from '@/features/reports/api';
+import type { Report } from '@/features/reports/api';
 
 type ReportType = 'yield' | 'irrigation' | 'financial' | 'crop-health' | 'inventory' | 'weather';
 type ReportPeriod = 'weekly' | 'monthly' | 'quarterly' | 'annual';

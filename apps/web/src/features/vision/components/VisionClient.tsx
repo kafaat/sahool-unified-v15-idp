@@ -14,7 +14,6 @@ import {
   AlertTriangle,
   Clock,
   Zap,
-  RefreshCw,
 } from 'lucide-react';
 import {
   useDetectPest,
@@ -38,8 +37,8 @@ interface DetectionResult {
   labelAr: string;
   confidence: number;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  severityAr: string;
-  date: string;
+  severityAr?: string;
+  date?: string;
   status: 'new' | 'reviewed' | 'treated';
   statusAr: string;
   recommendation: string;

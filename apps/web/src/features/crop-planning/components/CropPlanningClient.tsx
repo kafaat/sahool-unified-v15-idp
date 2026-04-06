@@ -23,7 +23,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useCropPlans, useCropRecommendations, useCreateCropPlan } from '../hooks/useCropPlanning';
-import type { CropPlan, CropRecommendation } from '../api';
+import type { CropRecommendation } from '../api';
 
 // ---------------------------------------------------------------------------
 // Types

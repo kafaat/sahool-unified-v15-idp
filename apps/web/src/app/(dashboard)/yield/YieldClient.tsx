@@ -157,15 +157,16 @@ export default function YieldClient() {
               <div className="text-sm text-gray-500">متوسط الأداء</div>
               <div className="text-xl font-bold text-yellow-600">
                 {yields.length > 0
-                  ? `${yields.filter((y) => y.actualYield).reduce((sum, y) => {
-                      const diff = ((y.actualYield! - y.expectedYield) / y.expectedYield) * 100;
-                      return sum + diff;
-                    }, 0) / (yields.filter((y) => y.actualYield).length || 1) > 0 ? '+' : ''}${(
-                      yields.filter((y) => y.actualYield).reduce((sum, y) => {
-                        const diff = ((y.actualYield! - y.expectedYield) / y.expectedYield) * 100;
-                        return sum + diff;
-                      }, 0) / (yields.filter((y) => y.actualYield).length || 1)
-                    ).toFixed(0)}%`
+                  ? (() => {
+                      const performanceYields = yields.filter(
+                        (y) => y.actualYield != null && y.expectedYield !== 0
+                      );
+                      if (performanceYields.length === 0) return '-';
+                      const avg = performanceYields.reduce((sum, y) => {
+                        return sum + ((y.actualYield! - y.expectedYield) / y.expectedYield) * 100;
+                      }, 0) / performanceYields.length;
+                      return `${avg > 0 ? '+' : ''}${avg.toFixed(0)}%`;
+                    })()
                   : '-'}
               </div>
             </div>

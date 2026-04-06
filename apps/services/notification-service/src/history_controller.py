@@ -230,7 +230,7 @@ async def get_user_notification_history(
 
     except Exception as e:
         logger.error(f"Error getting user history: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Notification history service error")
 
 
 @router.get("/notification/{notification_id}")
@@ -307,7 +307,7 @@ async def get_notification_details(
         raise
     except Exception as e:
         logger.error(f"Error getting notification details: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Notification history service error")
 
 
 @router.get("/delivery-logs/{notification_id}")
@@ -361,7 +361,7 @@ async def get_delivery_logs(
         raise HTTPException(status_code=400, detail="Invalid notification ID format")
     except Exception as e:
         logger.error(f"Error getting delivery logs: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Notification history service error")
 
 
 @router.get("/failed")
@@ -419,7 +419,7 @@ async def get_failed_notifications(
 
     except Exception as e:
         logger.error(f"Error getting failed notifications: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Notification history service error")
 
 
 @router.get("/stats", response_model=HistoryStatsResponse)
@@ -475,7 +475,7 @@ async def get_notification_stats(
 
     except Exception as e:
         logger.error(f"Error getting notification stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Notification history service error")
 
 
 @router.delete("/old")
@@ -506,7 +506,7 @@ async def cleanup_old_notifications(
 
     except Exception as e:
         logger.error(f"Error cleaning up old notifications: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Notification history service error")
 
 
 @router.get("/export")
@@ -592,7 +592,7 @@ async def export_notification_history(
 
     except Exception as e:
         logger.error(f"Error exporting notification history: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Notification history service error")
 
 
 @router.post("/retry/{notification_id}")
@@ -645,4 +645,4 @@ async def retry_failed_notification(
         raise
     except Exception as e:
         logger.error(f"Error retrying notification: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Notification history service error")

@@ -479,6 +479,12 @@ export class FieldResponseDto {
   @ApiProperty()
   cropType: string;
 
+  @ApiPropertyOptional()
+  ownerId?: string;
+
+  @ApiPropertyOptional()
+  farmId?: string;
+
   @ApiProperty({ enum: FieldStatus })
   status: FieldStatus;
 

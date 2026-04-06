@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle } from 'lucide-react';
-import { useFarms, useFarmStats } from '@/features/farms';
-import type { FarmStatus } from '@/features/farms';
+import { useRouter } from 'next/navigation';
+import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X } from 'lucide-react';
+import { useFarms, useFarmStats, useUpdateFarm } from '@/features/farms';
+import type { Farm, FarmStatus } from '@/features/farms';
 
 const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
   active: { color: 'bg-green-100 text-green-800', labelAr: 'نشطة' },
@@ -12,9 +13,14 @@ const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
 };
 
 export default function FarmsClient() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingFarm, setEditingFarm] = useState<Farm | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editNameAr, setEditNameAr] = useState('');
   const { data: farms = [], isLoading, error } = useFarms();
   const { data: stats } = useFarmStats();
+  const updateFarm = useUpdateFarm();
 
   const filteredFarms = useMemo(() => {
     if (!searchTerm) return farms;
@@ -47,8 +53,50 @@ export default function FarmsClient() {
     );
   }
 
+  const handleOpenEdit = (farm: Farm) => {
+    setEditingFarm(farm);
+    setEditName(farm.name);
+    setEditNameAr(farm.nameAr);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingFarm) return;
+    updateFarm.mutate(
+      { id: editingFarm.id, data: { name: editName, nameAr: editNameAr } },
+      { onSuccess: () => setEditingFarm(null) }
+    );
+  };
+
   return (
     <div className="space-y-6">
+      {/* Edit Dialog */}
+      {editingFarm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setEditingFarm(null)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">تعديل المزرعة</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (EN)</label>
+                <input value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (AR)</label>
+                <input value={editNameAr} onChange={(e) => setEditNameAr(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setEditingFarm(null)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleSaveEdit} disabled={updateFarm.isPending} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {updateFarm.isPending ? 'جاري الحفظ...' : 'حفظ'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -166,10 +214,18 @@ export default function FarmsClient() {
                   </div>
                 </div>
                 <div className="px-6 py-3 bg-gray-50 border-t flex justify-between">
-                  <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
+                  <button
+                    onClick={() => router.push(`/farms/${farm.id}`)}
+                    className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
+                  >
                     عرض التفاصيل
                   </button>
-                  <button className="text-gray-500 hover:text-gray-700 text-sm">تعديل</button>
+                  <button
+                    onClick={() => handleOpenEdit(farm)}
+                    className="text-gray-500 hover:text-gray-700 text-sm"
+                  >
+                    تعديل
+                  </button>
                 </div>
               </div>
             );

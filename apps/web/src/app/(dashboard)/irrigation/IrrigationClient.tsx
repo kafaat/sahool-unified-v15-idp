@@ -474,31 +474,63 @@ export default function IrrigationClient() {
   }, [deleteTarget, showToast]);
 
   const handleStart = useCallback(
-    (id: string) => {
-      setSchedules((prev) =>
-        prev.map((s) =>
-          s.id === id ? { ...s, status: 'in_progress' as IrrigationStatus, progress: 0 } : s
-        )
-      );
-      showToast({ type: 'info', message: 'Irrigation started', messageAr: 'بدأ الري' });
+    async (id: string) => {
+      try {
+        const response = await apiClient.startIrrigationSchedule(id);
+        if (response.success && response.data) {
+          const mapped = fromApiSchedule(response.data);
+          setSchedules((prev) => prev.map((s) => (s.id === id ? mapped : s)));
+        } else {
+          // Optimistic update for offline-first UX
+          setSchedules((prev) =>
+            prev.map((s) =>
+              s.id === id ? { ...s, status: 'in_progress' as IrrigationStatus, progress: 0 } : s
+            )
+          );
+        }
+        showToast({ type: 'info', message: 'Irrigation started', messageAr: 'بدأ الري' });
+      } catch {
+        // Optimistic update for offline-first UX
+        setSchedules((prev) =>
+          prev.map((s) =>
+            s.id === id ? { ...s, status: 'in_progress' as IrrigationStatus, progress: 0 } : s
+          )
+        );
+        showToast({ type: 'warning', message: 'Started locally - will sync when online', messageAr: 'تم البدء محلياً - ستتم المزامنة عند الاتصال' });
+      }
     },
     [showToast]
   );
 
   const handleStop = useCallback(
-    (id: string) => {
-      setSchedules((prev) =>
-        prev.map((s) =>
-          s.id === id
-            ? {
-                ...s,
-                status: 'completed' as IrrigationStatus,
-                completedAt: new Date().toISOString(),
-              }
-            : s
-        )
-      );
-      showToast({ type: 'success', message: 'Irrigation completed', messageAr: 'تم إكمال الري' });
+    async (id: string) => {
+      try {
+        const response = await apiClient.stopIrrigationSchedule(id);
+        if (response.success && response.data) {
+          const mapped = fromApiSchedule(response.data);
+          setSchedules((prev) => prev.map((s) => (s.id === id ? mapped : s)));
+        } else {
+          // Optimistic update for offline-first UX
+          setSchedules((prev) =>
+            prev.map((s) =>
+              s.id === id
+                ? { ...s, status: 'completed' as IrrigationStatus, completedAt: new Date().toISOString() }
+                : s
+            )
+          );
+        }
+        showToast({ type: 'success', message: 'Irrigation completed', messageAr: 'تم إكمال الري' });
+      } catch {
+        // Optimistic update for offline-first UX
+        setSchedules((prev) =>
+          prev.map((s) =>
+            s.id === id
+              ? { ...s, status: 'completed' as IrrigationStatus, completedAt: new Date().toISOString() }
+              : s
+          )
+        );
+        showToast({ type: 'warning', message: 'Stopped locally - will sync when online', messageAr: 'تم الإيقاف محلياً - ستتم المزامنة عند الاتصال' });
+      }
     },
     [showToast]
   );

@@ -8,6 +8,7 @@
 import React, { useState, useCallback } from 'react';
 import { CheckCircle2, Clock, Calendar, ArrowLeft } from 'lucide-react';
 import { useUpcomingTasks } from '../hooks/useUpcomingTasks';
+import { useCompleteTask, useUpdateTaskStatus } from '@/features/tasks/hooks/useTasks';
 import Link from 'next/link';
 
 interface TaskItemProps {
@@ -82,8 +83,16 @@ const TaskItem: React.FC<
 export const TasksSummary: React.FC = () => {
   const { data: tasksData, isLoading } = useUpcomingTasks({ limit: 8 });
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const completeTask = useCompleteTask();
+  const updateTaskStatus = useUpdateTaskStatus();
 
   const handleToggleComplete = useCallback((id: string) => {
+    if (pendingIds.has(id)) return; // Prevent double-clicks while API call in-flight
+
+    const isCurrentlyCompleted = completedIds.has(id);
+
+    // Optimistic local update
     setCompletedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -93,7 +102,56 @@ export const TasksSummary: React.FC = () => {
       }
       return next;
     });
-  }, []);
+
+    // Call the real API
+    setPendingIds((prev) => new Set(prev).add(id));
+
+    if (isCurrentlyCompleted) {
+      // Revert to pending status
+      updateTaskStatus.mutate(
+        { id, status: 'pending' },
+        {
+          onError: () => {
+            // Revert optimistic update on failure
+            setCompletedIds((prev) => {
+              const next = new Set(prev);
+              next.add(id);
+              return next;
+            });
+          },
+          onSettled: () => {
+            setPendingIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          },
+        }
+      );
+    } else {
+      // Mark as completed
+      completeTask.mutate(
+        { id },
+        {
+          onError: () => {
+            // Revert optimistic update on failure
+            setCompletedIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          },
+          onSettled: () => {
+            setPendingIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          },
+        }
+      );
+    }
+  }, [completedIds, pendingIds, completeTask, updateTaskStatus]);
 
   if (isLoading) {
     return (

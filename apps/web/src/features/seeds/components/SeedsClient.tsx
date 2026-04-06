@@ -185,23 +185,34 @@ export default function SeedsClient() {
       </div>
 
       {/* Seeds Grid */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+          <span className="mr-2 text-gray-500">جاري التحميل...</span>
+        </div>
+      )}
+      {!isLoading && filteredSeeds.length === 0 && (
+        <div className="bg-white rounded-lg border p-10 text-center text-gray-500">
+          لا توجد بذور مطابقة للبحث
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSeeds.map((seed) => (
+        {filteredSeeds.map((seed: Seed) => (
           <div key={seed.id} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow relative">
-            {seed.recommended && (
+            {seed.available && (
               <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-0.5 bg-yellow-50 text-yellow-700 rounded text-xs font-medium">
                 <Star className="w-3 h-3" />
-                موصى به
+                متوفر
               </div>
             )}
             <div className="mb-3">
               <div className="flex items-center gap-2 mb-1">
                 <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
-                  {categoryLabels[seed.category]}
+                  {seed.cropType}
                 </span>
               </div>
               <h3 className="font-bold text-gray-900 text-lg">{seed.nameAr}</h3>
-              <p className="text-sm text-gray-500">{seed.cropAr} - {seed.name}</p>
+              <p className="text-sm text-gray-500">{seed.variety} - {seed.name}</p>
             </div>
 
             <div className="space-y-2 text-sm mb-4">
@@ -215,23 +226,9 @@ export default function SeedsClient() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-gray-500">
                   <Sprout className="w-4 h-4" />
-                  <span>الإنتاجية</span>
+                  <span>معدل الإنبات</span>
                 </div>
-                <span className="font-medium">{seed.yieldPotentialAr}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Droplets className="w-4 h-4" />
-                  <span>احتياج مائي</span>
-                </div>
-                <span className="font-medium">{seed.waterRequirementAr}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Thermometer className="w-4 h-4" />
-                  <span>الحرارة المثلى</span>
-                </div>
-                <span className="font-medium">{seed.optimalTempMin}-{seed.optimalTempMax}°C</span>
+                <span className="font-medium">{seed.germinationRate}%</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-500">تحمل الجفاف</span>
@@ -240,17 +237,23 @@ export default function SeedsClient() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-gray-500">
                   <MapPin className="w-4 h-4" />
-                  <span>المنطقة</span>
+                  <span>المنشأ</span>
                 </div>
-                <span className="font-medium">{seed.regionAr}</span>
+                <span className="font-medium">{seed.origin}</span>
               </div>
+              {seed.recommendedRegions.length > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">المناطق</span>
+                  <span className="font-medium text-xs">{seed.recommendedRegions.join(', ')}</span>
+                </div>
+              )}
             </div>
 
             <div className="pt-3 border-t flex justify-between items-center">
               <div className="text-sm">
-                <span className="text-gray-500">المخزون: </span>
-                <span className={`font-medium ${seed.stockKg < 200 ? 'text-red-600' : 'text-gray-900'}`}>
-                  {seed.stockKg} كجم
+                <span className="text-gray-500">الحالة: </span>
+                <span className={`font-medium ${seed.available ? 'text-green-600' : 'text-red-600'}`}>
+                  {seed.available ? 'متوفر' : 'غير متوفر'}
                 </span>
               </div>
               <span className="font-bold text-green-700">{seed.pricePerKg} ريال/كجم</span>

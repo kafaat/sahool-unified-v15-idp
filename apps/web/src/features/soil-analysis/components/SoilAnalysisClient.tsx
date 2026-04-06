@@ -24,7 +24,10 @@ import {
   Zap,
   ChevronDown,
   ChevronUp,
+  Loader2,
 } from 'lucide-react';
+import { useSoilTests, useSoilRecommendations } from '@/features/soil-analysis';
+import type { SoilTest, SoilRecommendation } from '@/features/soil-analysis';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -43,86 +46,6 @@ interface Nutrient {
   statusAr: string;
   trend: 'up' | 'down' | 'stable';
 }
-
-interface SoilSample {
-  id: string;
-  fieldId: string;
-  fieldNameAr: string;
-  date: string;
-  depth: string;
-  pH: number;
-  ec: number;
-  organicMatter: number;
-  texture: string;
-  textureAr: string;
-  nutrients: Nutrient[];
-  recommendationsAr: string[];
-}
-
-interface FieldOption {
-  id: string;
-  nameAr: string;
-  cropAr: string;
-  areaHa: number;
-}
-
-// ---------------------------------------------------------------------------
-// Mock Data
-// ---------------------------------------------------------------------------
-
-const FIELDS: FieldOption[] = [
-  { id: 'FIELD-003', nameAr: 'حقل القمح', cropAr: 'قمح', areaHa: 8.5 },
-  { id: 'FIELD-001', nameAr: 'حقل الشعير', cropAr: 'شعير', areaHa: 5.2 },
-  { id: 'FIELD-007', nameAr: 'حقل الطماطم', cropAr: 'طماطم', areaHa: 3.0 },
-  { id: 'FIELD-012', nameAr: 'حقل النخيل', cropAr: 'نخيل', areaHa: 12.0 },
-];
-
-const MOCK_SAMPLES: Record<string, SoilSample> = {
-  'FIELD-003': {
-    id: 'SA-2026-001', fieldId: 'FIELD-003', fieldNameAr: 'حقل القمح',
-    date: '2026-03-15', depth: '0-30 سم', pH: 7.2, ec: 1.8, organicMatter: 1.4,
-    texture: 'Sandy Loam', textureAr: 'طميية رملية',
-    nutrients: [
-      { nameAr: 'النيتروجين (N)', nameEn: 'Nitrogen', value: 22, unit: 'ppm', optimalMin: 25, optimalMax: 50, status: 'low', statusAr: 'منخفض', trend: 'down' },
-      { nameAr: 'الفوسفور (P)', nameEn: 'Phosphorus', value: 18, unit: 'ppm', optimalMin: 15, optimalMax: 30, status: 'adequate', statusAr: 'كافٍ', trend: 'stable' },
-      { nameAr: 'البوتاسيوم (K)', nameEn: 'Potassium', value: 180, unit: 'ppm', optimalMin: 150, optimalMax: 250, status: 'optimal', statusAr: 'مثالي', trend: 'up' },
-      { nameAr: 'الكالسيوم (Ca)', nameEn: 'Calcium', value: 2800, unit: 'ppm', optimalMin: 2000, optimalMax: 4000, status: 'optimal', statusAr: 'مثالي', trend: 'stable' },
-      { nameAr: 'المغنيسيوم (Mg)', nameEn: 'Magnesium', value: 120, unit: 'ppm', optimalMin: 100, optimalMax: 300, status: 'adequate', statusAr: 'كافٍ', trend: 'stable' },
-      { nameAr: 'الحديد (Fe)', nameEn: 'Iron', value: 3.2, unit: 'ppm', optimalMin: 4, optimalMax: 12, status: 'deficient', statusAr: 'ناقص', trend: 'down' },
-      { nameAr: 'الزنك (Zn)', nameEn: 'Zinc', value: 1.8, unit: 'ppm', optimalMin: 1.5, optimalMax: 5, status: 'adequate', statusAr: 'كافٍ', trend: 'up' },
-      { nameAr: 'الكبريت (S)', nameEn: 'Sulfur', value: 8, unit: 'ppm', optimalMin: 10, optimalMax: 30, status: 'low', statusAr: 'منخفض', trend: 'down' },
-    ],
-    recommendationsAr: [
-      'إضافة يوريا 46 كجم/هكتار لتعويض نقص النيتروجين',
-      'تطبيق كبريتات الحديد 5 كجم/هكتار لمعالجة نقص الحديد',
-      'إضافة الكبريت الزراعي 15 كجم/هكتار',
-      'الحفاظ على مستوى البوتاسيوم الحالي — المستوى مثالي',
-      'إعادة التحليل بعد 3 أشهر لتقييم التحسن',
-    ],
-  },
-  'FIELD-001': {
-    id: 'SA-2026-002', fieldId: 'FIELD-001', fieldNameAr: 'حقل الشعير',
-    date: '2026-03-10', depth: '0-30 سم', pH: 7.8, ec: 2.5, organicMatter: 0.9,
-    texture: 'Sandy', textureAr: 'رملية',
-    nutrients: [
-      { nameAr: 'النيتروجين (N)', nameEn: 'Nitrogen', value: 15, unit: 'ppm', optimalMin: 25, optimalMax: 50, status: 'deficient', statusAr: 'ناقص', trend: 'down' },
-      { nameAr: 'الفوسفور (P)', nameEn: 'Phosphorus', value: 12, unit: 'ppm', optimalMin: 15, optimalMax: 30, status: 'low', statusAr: 'منخفض', trend: 'down' },
-      { nameAr: 'البوتاسيوم (K)', nameEn: 'Potassium', value: 140, unit: 'ppm', optimalMin: 150, optimalMax: 250, status: 'low', statusAr: 'منخفض', trend: 'stable' },
-      { nameAr: 'الكالسيوم (Ca)', nameEn: 'Calcium', value: 3200, unit: 'ppm', optimalMin: 2000, optimalMax: 4000, status: 'optimal', statusAr: 'مثالي', trend: 'stable' },
-      { nameAr: 'المغنيسيوم (Mg)', nameEn: 'Magnesium', value: 85, unit: 'ppm', optimalMin: 100, optimalMax: 300, status: 'low', statusAr: 'منخفض', trend: 'down' },
-      { nameAr: 'الحديد (Fe)', nameEn: 'Iron', value: 5.5, unit: 'ppm', optimalMin: 4, optimalMax: 12, status: 'adequate', statusAr: 'كافٍ', trend: 'stable' },
-      { nameAr: 'الزنك (Zn)', nameEn: 'Zinc', value: 0.8, unit: 'ppm', optimalMin: 1.5, optimalMax: 5, status: 'deficient', statusAr: 'ناقص', trend: 'down' },
-      { nameAr: 'الكبريت (S)', nameEn: 'Sulfur', value: 14, unit: 'ppm', optimalMin: 10, optimalMax: 30, status: 'adequate', statusAr: 'كافٍ', trend: 'stable' },
-    ],
-    recommendationsAr: [
-      'إضافة سماد عضوي 5 طن/هكتار لرفع المادة العضوية',
-      'تطبيق يوريا 60 كجم/هكتار — نقص حاد في النيتروجين',
-      'إضافة DAP 40 كجم/هكتار لتعويض نقص الفوسفور',
-      'تطبيق كبريتات الزنك 3 كجم/هكتار',
-      'مراقبة الملوحة — EC مرتفعة (2.5 dS/m)',
-    ],
-  },
-};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -165,27 +88,95 @@ function getNutrientBarColor(nutrient: Nutrient): string {
 // Component
 // ---------------------------------------------------------------------------
 
+/** Build nutrient list from a SoilTest record */
+function buildNutrients(test: SoilTest): Nutrient[] {
+  const nutrients: Nutrient[] = [];
+  const add = (nameAr: string, nameEn: string, value: number | undefined, optMin: number, optMax: number) => {
+    if (value == null) return;
+    let status: NutrientStatus = 'adequate';
+    let statusAr = 'كافٍ';
+    if (value >= optMin && value <= optMax) { status = 'optimal'; statusAr = 'مثالي'; }
+    else if (value < optMin * 0.6) { status = 'deficient'; statusAr = 'ناقص'; }
+    else if (value < optMin) { status = 'low'; statusAr = 'منخفض'; }
+    else if (value > optMax) { status = 'excess'; statusAr = 'زائد'; }
+    nutrients.push({ nameAr, nameEn, value, unit: 'ppm', optimalMin: optMin, optimalMax: optMax, status, statusAr, trend: 'stable' });
+  };
+  add('النيتروجين (N)', 'Nitrogen', test.nitrogen, 25, 50);
+  add('الفوسفور (P)', 'Phosphorus', test.phosphorus, 15, 30);
+  add('البوتاسيوم (K)', 'Potassium', test.potassium, 150, 250);
+  add('الكالسيوم (Ca)', 'Calcium', test.calcium, 2000, 4000);
+  add('المغنيسيوم (Mg)', 'Magnesium', test.magnesium, 100, 300);
+  add('الحديد (Fe)', 'Iron', test.iron, 4, 12);
+  add('الزنك (Zn)', 'Zinc', test.zinc, 1.5, 5);
+  add('الكبريت (S)', 'Sulfur', test.sulfur, 10, 30);
+  return nutrients;
+}
+
 export default function SoilAnalysisClient() {
-  const [selectedFieldId, setSelectedFieldId] = useState(FIELDS[0]!.id);
+  const [selectedFieldId, setSelectedFieldId] = useState<string>('');
   const [showAllNutrients, setShowAllNutrients] = useState(false);
 
-  const sample = useMemo(() => MOCK_SAMPLES[selectedFieldId] ?? null, [selectedFieldId]);
+  const { data: soilTests, isLoading: testsLoading, error: testsError } = useSoilTests();
+  const { data: recommendations, isLoading: recsLoading } = useSoilRecommendations(selectedFieldId || undefined);
+
+  // Derive unique fields from soil tests
+  const fields = useMemo(() => {
+    if (!soilTests) return [];
+    const fieldMap = new Map<string, { id: string; nameAr: string }>();
+    soilTests.forEach((t: SoilTest) => {
+      if (!fieldMap.has(t.fieldId)) {
+        fieldMap.set(t.fieldId, { id: t.fieldId, nameAr: t.fieldNameAr || t.fieldName });
+      }
+    });
+    return Array.from(fieldMap.values());
+  }, [soilTests]);
+
+  // Auto-select first field when data loads
+  const effectiveFieldId = selectedFieldId || (fields.length > 0 ? fields[0]!.id : '');
+
+  // Find the latest test for selected field
+  const sample = useMemo(() => {
+    if (!soilTests || !effectiveFieldId) return null;
+    return soilTests.find((t: SoilTest) => t.fieldId === effectiveFieldId) ?? null;
+  }, [soilTests, effectiveFieldId]);
+
+  const nutrients = useMemo(() => sample ? buildNutrients(sample) : [], [sample]);
 
   const nutrientSummary = useMemo(() => {
-    if (!sample) return { optimal: 0, adequate: 0, low: 0, deficient: 0, total: 0 };
+    if (nutrients.length === 0) return { optimal: 0, adequate: 0, low: 0, deficient: 0, total: 0 };
     const counts = { optimal: 0, adequate: 0, low: 0, deficient: 0, excess: 0 };
-    sample.nutrients.forEach((n) => { counts[n.status]++; });
-    return { ...counts, total: sample.nutrients.length };
-  }, [sample]);
+    nutrients.forEach((n) => { counts[n.status]++; });
+    return { ...counts, total: nutrients.length };
+  }, [nutrients]);
 
   const displayedNutrients = useMemo(() => {
-    if (!sample) return [];
-    if (showAllNutrients) return sample.nutrients;
-    return sample.nutrients.slice(0, 5);
-  }, [sample, showAllNutrients]);
+    if (showAllNutrients) return nutrients;
+    return nutrients.slice(0, 5);
+  }, [nutrients, showAllNutrients]);
 
   const phInfo = sample ? getPhLabel(sample.pH) : null;
-  const ecInfo = sample ? getEcLabel(sample.ec) : null;
+  const ecInfo = sample ? getEcLabel(sample.electricalConductivity) : null;
+
+  if (testsError) {
+    return (
+      <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-700 font-medium">فشل في تحميل بيانات تحليل التربة</p>
+          <p className="text-red-500 text-sm mt-1">Failed to load soil analysis data</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (testsLoading) {
+    return (
+      <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+        <span className="mr-3 text-gray-500">جاري تحميل تحاليل التربة...</span>
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -206,12 +197,12 @@ export default function SoilAnalysisClient() {
           </label>
           <select
             id="field-select"
-            value={selectedFieldId}
+            value={effectiveFieldId}
             onChange={(e) => { setSelectedFieldId(e.target.value); setShowAllNutrients(false); }}
             className="w-full sm:w-80 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           >
-            {FIELDS.map((f) => (
-              <option key={f.id} value={f.id}>{f.nameAr} — {f.cropAr} ({f.areaHa} هـ)</option>
+            {fields.map((f) => (
+              <option key={f.id} value={f.id}>{f.nameAr} ({f.id})</option>
             ))}
           </select>
         </div>
@@ -227,7 +218,7 @@ export default function SoilAnalysisClient() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'pH التربة', value: sample.pH.toFixed(1), sub: phInfo?.labelAr, color: phInfo?.color ?? '', icon: FlaskConical },
-                { label: 'الملوحة (EC)', value: `${sample.ec} dS/m`, sub: ecInfo?.labelAr, color: ecInfo?.color ?? '', icon: Zap },
+                { label: 'الملوحة (EC)', value: `${sample.electricalConductivity} dS/m`, sub: ecInfo?.labelAr, color: ecInfo?.color ?? '', icon: Zap },
                 { label: 'المادة العضوية', value: `${sample.organicMatter}%`, sub: sample.organicMatter < 1.5 ? 'منخفضة' : 'مقبولة', color: sample.organicMatter < 1.5 ? 'text-yellow-600' : 'text-green-600', icon: Leaf },
                 { label: 'نسيج التربة', value: sample.textureAr, sub: sample.texture, color: 'text-gray-600 dark:text-gray-400', icon: Layers },
               ].map((stat) => (

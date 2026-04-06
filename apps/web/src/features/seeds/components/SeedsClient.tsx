@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Search,
   Sprout,
@@ -12,182 +13,13 @@ import {
   MapPin,
   Package,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
+import { seedsApi } from '@/features/seeds/api';
+import type { Seed } from '@/features/seeds/api';
 
 type CropCategory = 'cereals' | 'vegetables' | 'fruits' | 'legumes' | 'fodder';
 type DroughtTolerance = 'high' | 'medium' | 'low';
-
-interface SeedVariety {
-  id: string;
-  name: string;
-  nameAr: string;
-  crop: string;
-  cropAr: string;
-  category: CropCategory;
-  maturityDays: number;
-  yieldPotential: string;
-  yieldPotentialAr: string;
-  droughtTolerance: DroughtTolerance;
-  optimalTempMin: number;
-  optimalTempMax: number;
-  waterRequirement: string;
-  waterRequirementAr: string;
-  plantingSeason: string;
-  plantingSeasonAr: string;
-  region: string;
-  regionAr: string;
-  rating: number;
-  stockKg: number;
-  pricePerKg: number;
-  recommended: boolean;
-}
-
-const mockSeeds: SeedVariety[] = [
-  {
-    id: 'seed-001',
-    name: 'Sakha 95',
-    nameAr: 'سخا 95',
-    crop: 'Wheat',
-    cropAr: 'القمح',
-    category: 'cereals',
-    maturityDays: 145,
-    yieldPotential: '6.5 t/ha',
-    yieldPotentialAr: '6.5 طن/هـ',
-    droughtTolerance: 'medium',
-    optimalTempMin: 15,
-    optimalTempMax: 25,
-    waterRequirement: '450-650 mm',
-    waterRequirementAr: '450-650 مم',
-    plantingSeason: 'Nov - Dec',
-    plantingSeasonAr: 'نوفمبر - ديسمبر',
-    region: 'Arabian Peninsula',
-    regionAr: 'شبه الجزيرة العربية',
-    rating: 4.5,
-    stockKg: 2500,
-    pricePerKg: 12,
-    recommended: true,
-  },
-  {
-    id: 'seed-002',
-    name: 'Barhi',
-    nameAr: 'برحي',
-    crop: 'Date Palm',
-    cropAr: 'نخيل التمر',
-    category: 'fruits',
-    maturityDays: 180,
-    yieldPotential: '120 kg/tree',
-    yieldPotentialAr: '120 كجم/شجرة',
-    droughtTolerance: 'high',
-    optimalTempMin: 25,
-    optimalTempMax: 45,
-    waterRequirement: '200-300 L/day',
-    waterRequirementAr: '200-300 لتر/يوم',
-    plantingSeason: 'Feb - Mar',
-    plantingSeasonAr: 'فبراير - مارس',
-    region: 'Gulf Region',
-    regionAr: 'منطقة الخليج',
-    rating: 4.8,
-    stockKg: 500,
-    pricePerKg: 85,
-    recommended: true,
-  },
-  {
-    id: 'seed-003',
-    name: 'GS-12',
-    nameAr: 'جي إس-12',
-    crop: 'Tomato',
-    cropAr: 'الطماطم',
-    category: 'vegetables',
-    maturityDays: 75,
-    yieldPotential: '80 t/ha',
-    yieldPotentialAr: '80 طن/هـ',
-    droughtTolerance: 'low',
-    optimalTempMin: 20,
-    optimalTempMax: 30,
-    waterRequirement: '600-800 mm',
-    waterRequirementAr: '600-800 مم',
-    plantingSeason: 'Sep - Oct',
-    plantingSeasonAr: 'سبتمبر - أكتوبر',
-    region: 'Greenhouse',
-    regionAr: 'الصوب الزراعية',
-    rating: 4.2,
-    stockKg: 120,
-    pricePerKg: 350,
-    recommended: false,
-  },
-  {
-    id: 'seed-004',
-    name: 'Giza 843',
-    nameAr: 'جيزة 843',
-    crop: 'Faba Bean',
-    cropAr: 'الفول',
-    category: 'legumes',
-    maturityDays: 130,
-    yieldPotential: '3.5 t/ha',
-    yieldPotentialAr: '3.5 طن/هـ',
-    droughtTolerance: 'medium',
-    optimalTempMin: 12,
-    optimalTempMax: 22,
-    waterRequirement: '300-500 mm',
-    waterRequirementAr: '300-500 مم',
-    plantingSeason: 'Oct - Nov',
-    plantingSeasonAr: 'أكتوبر - نوفمبر',
-    region: 'Nile Valley',
-    regionAr: 'وادي النيل',
-    rating: 3.9,
-    stockKg: 800,
-    pricePerKg: 18,
-    recommended: false,
-  },
-  {
-    id: 'seed-005',
-    name: 'Hail Barley',
-    nameAr: 'شعير حائل',
-    crop: 'Barley',
-    cropAr: 'الشعير',
-    category: 'cereals',
-    maturityDays: 110,
-    yieldPotential: '4.5 t/ha',
-    yieldPotentialAr: '4.5 طن/هـ',
-    droughtTolerance: 'high',
-    optimalTempMin: 10,
-    optimalTempMax: 25,
-    waterRequirement: '350-500 mm',
-    waterRequirementAr: '350-500 مم',
-    plantingSeason: 'Nov - Dec',
-    plantingSeasonAr: 'نوفمبر - ديسمبر',
-    region: 'Northern Arabia',
-    regionAr: 'شمال الجزيرة',
-    rating: 4.3,
-    stockKg: 1800,
-    pricePerKg: 9,
-    recommended: true,
-  },
-  {
-    id: 'seed-006',
-    name: 'Rhodes Grass',
-    nameAr: 'حشيشة رودس',
-    crop: 'Fodder',
-    cropAr: 'علف',
-    category: 'fodder',
-    maturityDays: 60,
-    yieldPotential: '15 t/ha/cut',
-    yieldPotentialAr: '15 طن/هـ/حشة',
-    droughtTolerance: 'high',
-    optimalTempMin: 20,
-    optimalTempMax: 40,
-    waterRequirement: '500-700 mm',
-    waterRequirementAr: '500-700 مم',
-    plantingSeason: 'Mar - Apr',
-    plantingSeasonAr: 'مارس - أبريل',
-    region: 'Arabian Peninsula',
-    regionAr: 'شبه الجزيرة العربية',
-    rating: 4.0,
-    stockKg: 3000,
-    pricePerKg: 6,
-    recommended: false,
-  },
-];
 
 const categoryLabels: Record<CropCategory, string> = {
   cereals: 'حبوب',
@@ -202,18 +34,24 @@ export default function SeedsClient() {
   const [categoryFilter, setCategoryFilter] = useState<CropCategory | 'all'>('all');
   const [recommendedOnly, setRecommendedOnly] = useState(false);
 
+  const { data: seeds, isLoading, error } = useQuery({
+    queryKey: ['seeds', categoryFilter !== 'all' ? categoryFilter : undefined],
+    queryFn: () => seedsApi.getSeeds(categoryFilter !== 'all' ? categoryFilter : undefined),
+    staleTime: 1000 * 60 * 5,
+  });
+
   const filteredSeeds = useMemo(() => {
-    return mockSeeds.filter((seed) => {
+    if (!seeds) return [];
+    return seeds.filter((seed: Seed) => {
       const matchesSearch =
         !searchTerm ||
-        seed.nameAr.includes(searchTerm) ||
-        seed.cropAr.includes(searchTerm) ||
+        (seed.nameAr ?? '').includes(searchTerm) ||
+        (seed.cropType ?? '').includes(searchTerm) ||
         seed.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = categoryFilter === 'all' || seed.category === categoryFilter;
-      const matchesRecommended = !recommendedOnly || seed.recommended;
-      return matchesSearch && matchesCategory && matchesRecommended;
+      const matchesRecommended = !recommendedOnly || seed.available;
+      return matchesSearch && matchesRecommended;
     });
-  }, [searchTerm, categoryFilter, recommendedOnly]);
+  }, [seeds, searchTerm, recommendedOnly]);
 
   const getToleranceBadge = (tolerance: DroughtTolerance) => {
     const styles: Record<DroughtTolerance, string> = {

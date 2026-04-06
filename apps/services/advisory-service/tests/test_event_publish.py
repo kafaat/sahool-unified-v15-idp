@@ -66,7 +66,13 @@ class TestAdvisorPublisher:
         mock_nc = AsyncMock()
         with patch("src.events.publish.NATS", return_value=mock_nc):
             asyncio.run(publisher.connect())
-            mock_nc.connect.assert_called_once_with("nats://test:4222")
+            mock_nc.connect.assert_called_once()
+            # Verify the URL was passed as first positional arg
+            call_args = mock_nc.connect.call_args
+            assert call_args[0][0] == "nats://test:4222"
+            # Verify reconnect kwargs are set
+            assert call_args[1]["reconnect_time_wait"] == 2
+            assert call_args[1]["max_reconnect_attempts"] == 60
             assert publisher._connected is True
 
     def test_connect_already_connected(self):

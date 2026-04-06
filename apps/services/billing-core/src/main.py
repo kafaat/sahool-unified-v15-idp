@@ -206,8 +206,10 @@ async def init_nats():
                 retention=RetentionPolicy.LIMITS,
                 max_age=86400 * 30,  # 30 days
             )
-        except Exception:
-            pass  # Stream already exists
+        except Exception as e:
+            # Stream may already exist (expected), but log to catch
+            # unexpected errors (auth failures, invalid config, etc.)
+            logger.debug("billing_jetstream_stream_setup", error=str(e), stream="BILLING")
 
         logger.info("NATS connected and JetStream initialized")
     except Exception as e:

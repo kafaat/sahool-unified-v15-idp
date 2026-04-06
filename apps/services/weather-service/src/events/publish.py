@@ -109,12 +109,12 @@ class WeatherPublisher:
         logger.error("NATS error: %s", e)
 
     async def _on_disconnect(self):
-        logger.warning("NATS disconnected")
         self._connected = False
+        logger.warning("NATS disconnected — will auto-reconnect")
 
     async def _on_reconnect(self):
-        logger.info("NATS reconnected")
         self._connected = True
+        logger.info("NATS reconnected")
 
     @property
     def _is_available(self) -> bool:

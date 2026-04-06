@@ -484,8 +484,13 @@ async def get_audit_logs(
             conditions = ["tenant_id = $1"]
             params: list = [tenant_id]
             idx = 2
-            for col, val in [("user_id", user_id), ("action", action), ("category", category),
-                             ("resource_type", resource_type), ("resource_id", resource_id)]:
+            for col, val in [
+                ("user_id", user_id),
+                ("action", action),
+                ("category", category),
+                ("resource_type", resource_type),
+                ("resource_id", resource_id),
+            ]:
                 if val:
                     conditions.append(f"{col} = ${idx}")
                     params.append(val)
@@ -504,13 +509,16 @@ async def get_audit_logs(
                 idx += 1
             where = " AND ".join(conditions)
             count_row = await app.state.db_pool.fetchrow(
-                f"SELECT COUNT(*) as cnt FROM audit_logs WHERE {where}", *params  # noqa: S608
+                f"SELECT COUNT(*) as cnt FROM audit_logs WHERE {where}",
+                *params,  # noqa: S608
             )
             total_count = count_row["cnt"] if count_row else 0
             rows = await app.state.db_pool.fetch(
                 f"SELECT * FROM audit_logs WHERE {where} ORDER BY created_at DESC"  # noqa: S608
                 f" OFFSET ${idx} LIMIT ${idx + 1}",
-                *params, skip, limit,
+                *params,
+                skip,
+                limit,
             )
             db_items = []
             for r in rows:
@@ -519,8 +527,13 @@ async def get_audit_logs(
                     if isinstance(v, (uuid.UUID, datetime)):
                         item[k] = str(v)
                 db_items.append(item)
-            return {"items": db_items, "total": total_count, "skip": skip,
-                    "limit": limit, "has_more": skip + limit < total_count}
+            return {
+                "items": db_items,
+                "total": total_count,
+                "skip": skip,
+                "limit": limit,
+                "has_more": skip + limit < total_count,
+            }
         except Exception as e:
             logger.warning(f"DB read failed, falling back to in-memory: {e}")
 

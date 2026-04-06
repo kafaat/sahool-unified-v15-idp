@@ -13,9 +13,6 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsFilters } from '@/features/analytics/types';
-import { ApiError } from '@/lib/api/safe-fetch';
 
 interface ComparisonRow {
   field: string;
@@ -37,40 +34,15 @@ export default function FieldComparePage() {
   const [dateRange, setDateRange] = useState('month');
   const [cropFilter, setCropFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [comparisonData, setComparisonData] = useState<ComparisonRow[]>([]);
-  const [stats, setStats] = useState({ fields: 0, avgYield: '0', efficiency: '0%', ndvi: '0' });
+  const [error] = useState<string | null>(null);
+  const [comparisonData] = useState<ComparisonRow[]>([]);
+  const [stats] = useState({ fields: 0, avgYield: '0', efficiency: '0%', ndvi: '0' });
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [comparison, summary] = await Promise.all([
-        analyticsApi.getComparison('fields', 'yield', {
-          period: dateRange as AnalyticsFilters['period'],
-          cropTypes: cropFilter !== 'all' ? [cropFilter] : undefined,
-        }),
-        analyticsApi.getSummary({ period: dateRange as AnalyticsFilters['period'] }),
-      ]);
-      // Map comparison data if available
-      if (comparison && Array.isArray((comparison as any).items)) {
-        setComparisonData((comparison as any).items);
-      }
-      if (summary) {
-        setStats({
-          fields: (summary as any).totalFields ?? 0,
-          avgYield: (summary as any).avgYield ?? '0',
-          efficiency: (summary as any).irrigationEfficiency ?? '0%',
-          ndvi: (summary as any).avgNdvi ?? '0',
-        });
-      }
-    } catch (err) {
-      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات المقارنة';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [dateRange, cropFilter]);
+    // NOTE: No dedicated analytics API for field comparison yet.
+    // Using local sample data until backend endpoint is available.
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchData();

@@ -14,9 +14,6 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsFilters } from '@/features/analytics/types';
-import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
   {
@@ -73,26 +70,14 @@ export default function SatelliteAnalyticsPage() {
   const [dateRange, setDateRange] = useState('month');
   const [indexType, setIndexType] = useState('ndvi');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [apiSatelliteData, setApiSatelliteData] = useState<typeof satelliteData | null>(null);
+  const [error] = useState<string | null>(null);
+  const [apiSatelliteData] = useState<typeof satelliteData | null>(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const summary = await analyticsApi.getSummary({ period: dateRange as AnalyticsFilters['period'] });
-      if (summary && Array.isArray((summary as any).satelliteFields)) {
-        setApiSatelliteData((summary as any).satelliteFields);
-      } else {
-        setApiSatelliteData(null);
-      }
-    } catch (err) {
-      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات الأقمار الصناعية';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [dateRange]);
+    // NOTE: No dedicated analytics API for satellite data yet.
+    // Using local sample data until backend endpoint is available.
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchData();

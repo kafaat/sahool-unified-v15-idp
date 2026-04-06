@@ -14,9 +14,6 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsFilters } from '@/features/analytics/types';
-import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
   {
@@ -74,27 +71,14 @@ export default function ProfitabilityPage() {
   const [dateRange, setDateRange] = useState('season');
   const [viewMode, setViewMode] = useState<'fields' | 'costs'>('fields');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [apiProfitData, setApiProfitData] = useState<typeof profitData | null>(null);
+  const [error] = useState<string | null>(null);
+  const [apiProfitData] = useState<typeof profitData | null>(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const costData = await analyticsApi.getCostAnalytics({ period: dateRange as AnalyticsFilters['period'] });
-      // Use API data if structured as expected
-      if (costData && Array.isArray(costData) && costData.length > 0) {
-        setApiProfitData(costData as any);
-      } else {
-        setApiProfitData(null);
-      }
-    } catch (err) {
-      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات الربحية';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [dateRange]);
+    // NOTE: No dedicated analytics API for profitability data yet.
+    // Using local sample data until backend endpoint is available.
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchData();

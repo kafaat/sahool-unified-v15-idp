@@ -14,9 +14,6 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsFilters } from '@/features/analytics/types';
-import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
   {
@@ -73,29 +70,14 @@ export default function YieldAnalyticsPage() {
   const [dateRange, setDateRange] = useState('season');
   const [cropFilter, setCropFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [apiYieldData, setApiYieldData] = useState<typeof yieldData | null>(null);
+  const [error] = useState<string | null>(null);
+  const [apiYieldData] = useState<typeof yieldData | null>(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await analyticsApi.getYieldAnalytics({
-        period: dateRange as AnalyticsFilters['period'],
-        cropTypes: cropFilter !== 'all' ? [cropFilter] : undefined,
-      });
-      if (data && Array.isArray(data) && data.length > 0) {
-        setApiYieldData(data as any);
-      } else {
-        setApiYieldData(null);
-      }
-    } catch (err) {
-      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات الإنتاجية';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [dateRange, cropFilter]);
+    // NOTE: No dedicated analytics API for yield data yet.
+    // Using local sample data until backend endpoint is available.
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchData();

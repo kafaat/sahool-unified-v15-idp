@@ -13,9 +13,6 @@ import {
   Search,
   Loader2,
 } from 'lucide-react';
-import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsFilters } from '@/features/analytics/types';
-import { ApiError } from '@/lib/api/safe-fetch';
 
 const defaultStatsCards = [
   {
@@ -72,27 +69,14 @@ export default function GapAnalysisPage() {
   const [severityFilter, setSeverityFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [apiGapData, setApiGapData] = useState<typeof gapData | null>(null);
+  const [error] = useState<string | null>(null);
+  const [apiGapData] = useState<typeof gapData | null>(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const summary = await analyticsApi.getSummary({ period: dateRange as AnalyticsFilters['period'] });
-      // Use API data if available, otherwise display will show empty state
-      if (summary && Array.isArray((summary as any).gaps)) {
-        setApiGapData((summary as any).gaps);
-      } else {
-        setApiGapData(null);
-      }
-    } catch (err) {
-      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات الفجوات';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [dateRange]);
+    // NOTE: No dedicated analytics API for gap analysis yet.
+    // Using local sample data until backend endpoint is available.
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchData();

@@ -16,9 +16,6 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsFilters } from '@/features/analytics/types';
-import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
   {
@@ -80,26 +77,14 @@ export default function YieldForecastingPage() {
   const [dateRange, setDateRange] = useState('season');
   const [modelFilter, setModelFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [apiForecastData, setApiForecastData] = useState<typeof forecastData | null>(null);
+  const [error] = useState<string | null>(null);
+  const [apiForecastData] = useState<typeof forecastData | null>(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await analyticsApi.getYieldAnalytics({ period: dateRange as AnalyticsFilters['period'] });
-      if (data && Array.isArray(data) && data.length > 0) {
-        setApiForecastData(data as any);
-      } else {
-        setApiForecastData(null);
-      }
-    } catch (err) {
-      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات التنبؤات';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [dateRange]);
+    // NOTE: No dedicated analytics API for yield forecasting yet.
+    // Using local sample data until backend endpoint is available.
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchData();

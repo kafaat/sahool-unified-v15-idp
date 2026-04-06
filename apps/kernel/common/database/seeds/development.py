@@ -6,6 +6,7 @@ Seeds the database with sample data for development and testing.
 تعبئة قاعدة البيانات ببيانات نموذجية للتطوير والاختبار.
 """
 
+import os
 import random
 import uuid
 from datetime import UTC, date, datetime, timedelta
@@ -15,6 +16,18 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from . import BaseSeeder
+
+
+def _dev_seed_password_hash() -> str:
+    """Generate bcrypt hash for dev seed users. Uses DEV_SEED_PASSWORD env var or defaults."""
+    try:
+        import bcrypt
+
+        password = os.getenv("DEV_SEED_PASSWORD", "password123")  # nosemgrep: generic.secrets -- dev-only seed password
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    except ImportError:
+        # Fallback: pre-computed hash for "password123" - development only
+        return "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyJ3DUX.Sq2."  # nosemgrep: generic.secrets.security.detected-bcrypt-hash -- dev seed fallback when bcrypt unavailable
 
 
 class DevelopmentSeeder(BaseSeeder):
@@ -170,7 +183,7 @@ class DevelopmentSeeder(BaseSeeder):
                     "tenant_id": tenant["id"],
                     "username": f"admin_{tenant['code']}",
                     "email": f"admin@{tenant['code']}.ye",
-                    "password_hash": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyJ3DUX.Sq2.",  # "password123"
+                    "password_hash": _dev_seed_password_hash(),  # dev-only seed password
                     "first_name": "Administrator",
                     "last_name": "User",
                     "first_name_ar": "مدير",
@@ -187,7 +200,7 @@ class DevelopmentSeeder(BaseSeeder):
                     "tenant_id": tenant["id"],
                     "username": f"farmer_{tenant['code']}",
                     "email": f"farmer@{tenant['code']}.ye",
-                    "password_hash": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyJ3DUX.Sq2.",
+                    "password_hash": _dev_seed_password_hash(),  # dev-only seed password
                     "first_name": "Ahmed",
                     "last_name": "Al-Yamani",
                     "first_name_ar": "أحمد",

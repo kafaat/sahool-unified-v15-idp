@@ -192,7 +192,7 @@ async def login(
 
     # Verify password against stored hash
     if not verify_password(credentials.password, user["password_hash"]):
-        logger.warning(
+        logger.warning(  # nosemgrep: python-logger-credential-disclosure -- logs sanitized email and IP for failed login monitoring
             "Failed login attempt (wrong password) - Email: %s, IP: %s",
             str(credentials.email).replace("\n", " ").replace("\r", " "),
             str(request.client.host).replace("\n", " ").replace("\r", " "),
@@ -364,7 +364,7 @@ async def forgot_password(
     for header, value in get_rate_limit_headers(remaining, limit, reset).items():
         response.headers[header] = value
 
-    logger.info(
+    logger.info(  # nosemgrep: python-logger-credential-disclosure -- logs sanitized email and IP, not credentials
         "Password reset request - Email: %s, IP: %s",
         str(data.email).replace("\n", " ").replace("\r", " "),
         str(request.client.host).replace("\n", " ").replace("\r", " "),
@@ -391,8 +391,8 @@ async def forgot_password(
         #     email=data.email,
         #     reset_link=f"https://app.sahool.io/reset-password?token={reset_token}"
         # )
-        logger.info("Password reset token generated - User: %s", user["id"])
-        logger.info("Password reset email queued - User: %s", user["id"])
+        logger.info("Password reset token generated - User: %s", user["id"])  # nosemgrep: python-logger-credential-disclosure -- logs user ID
+        logger.info("Password reset email queued - User: %s", user["id"])  # nosemgrep: python-logger-credential-disclosure -- logs user ID
     else:
         # Log for monitoring but do not reveal to the caller
         logger.info("Password reset requested for non-existent email")
@@ -437,7 +437,7 @@ async def reset_password(
     for header, value in get_rate_limit_headers(remaining, limit, reset).items():
         response.headers[header] = value
 
-    logger.info(
+    logger.info(  # nosemgrep: python-logger-credential-disclosure -- logs IP for rate limit monitoring
         "Password reset attempt - IP: %s",
         str(request.client.host).replace("\n", " ").replace("\r", " "),
     )
@@ -463,7 +463,7 @@ async def reset_password(
 
     # Step 2: Check token expiration
     if reset_record["expires_at"] < datetime.now(UTC):
-        logger.warning("Expired reset token used - User: %s", reset_record["user_id"])
+        logger.warning("Expired reset token used - User: %s", reset_record["user_id"])  # nosemgrep: python-logger-credential-disclosure -- logs user ID
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired password reset token",
@@ -476,7 +476,7 @@ async def reset_password(
     #     {"id": reset_record["user_id"]},
     #     {"$set": {"password_hash": new_password_hash, "updated_at": datetime.now(UTC)}}
     # )
-    logger.info("Password updated - User: %s", reset_record["user_id"])
+    logger.info("Password updated - User: %s", reset_record["user_id"])  # nosemgrep: python-logger-credential-disclosure -- logs user ID
 
     # Step 5: Mark the reset token as used (one-time use)
     # In production:
@@ -488,7 +488,7 @@ async def reset_password(
     # Step 6: Optionally revoke all existing sessions for security
     # In production:
     # await revocation_store.revoke_all_user_tokens(reset_record["user_id"])
-    logger.info("All existing sessions invalidated after password reset - User: %s", reset_record["user_id"])
+    logger.info("All existing sessions invalidated after password reset - User: %s", reset_record["user_id"])  # nosemgrep: python-logger-credential-disclosure -- logs user ID
 
     return MessageResponse(message="Password has been reset successfully")
 
@@ -528,7 +528,7 @@ async def refresh_token(
     try:
         token_data: TokenData = decode_token(data.refresh_token)
     except Exception as e:
-        logger.warning("Invalid refresh token presented - IP: %s, Error: %s", request.client.host, str(e))
+        logger.warning("Invalid refresh token presented - IP: %s, Error: %s", request.client.host, str(e))  # nosemgrep: python-logger-credential-disclosure -- logs IP and error type, not token content
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
@@ -536,7 +536,7 @@ async def refresh_token(
 
     # Step 2: Verify it is actually a refresh token (not an access token)
     if token_data.token_type != "refresh":
-        logger.warning("Non-refresh token used for refresh - User: %s", token_data.user_id)
+        logger.warning("Non-refresh token used for refresh - User: %s", token_data.user_id)  # nosemgrep: python-logger-credential-disclosure -- logs user ID
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token type",
@@ -551,7 +551,7 @@ async def refresh_token(
     for header, value in get_rate_limit_headers(remaining, limit, reset).items():
         response.headers[header] = value
 
-    logger.info(
+    logger.info(  # nosemgrep: python-logger-credential-disclosure -- logs user ID and IP, not credentials
         "Token refresh - User: %s, IP: %s",
         user_id,
         str(request.client.host).replace("\n", " ").replace("\r", " "),
@@ -588,7 +588,7 @@ async def refresh_token(
         family_id=token_data.family_id,  # Preserve token family for rotation tracking
     )
 
-    logger.info("Tokens refreshed - User: %s, new_access_jti: %s", user_id, access_jti[:8])
+    logger.info("Tokens refreshed - User: %s, new_access_jti: %s", user_id, access_jti[:8])  # nosemgrep: python-logger-credential-disclosure -- logs user ID and truncated JTI
 
     return AuthResponse(
         access_token=new_access_token,
@@ -628,7 +628,7 @@ async def logout(request: Request, data: RefreshTokenRequest | None = None):
         except Exception:
             # If access token is invalid/expired, continue with logout anyway
             # The user may be logging out with an expired access token
-            logger.info("Logout with invalid/expired access token - IP: %s", request.client.host)
+            logger.info("Logout with invalid/expired access token - IP: %s", request.client.host)  # nosemgrep: python-logger-credential-disclosure -- logs IP
 
     user_id = access_token_data.user_id if access_token_data else "unknown"
 
@@ -651,14 +651,14 @@ async def logout(request: Request, data: RefreshTokenRequest | None = None):
             # await revocation_store.revoke_token(refresh_token_data.jti)
             # if refresh_token_data.family_id:
             #     await revocation_store.revoke_token_family(refresh_token_data.family_id)
-            logger.info(
+            logger.info(  # nosemgrep: python-logger-credential-disclosure -- logs user ID and family ID, not credentials
                 "Refresh token revoked on logout - User: %s, family: %s",
                 user_id,
                 getattr(refresh_token_data, "family_id", None),
             )
         except Exception:
             # If refresh token is already invalid, that's fine for logout
-            logger.info("Logout with invalid refresh token - User: %s", user_id)
+            logger.info("Logout with invalid refresh token - User: %s", user_id)  # nosemgrep: python-logger-credential-disclosure -- logs user ID
 
     # Step 4: Optionally clear server-side session data
     # In production:

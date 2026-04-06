@@ -108,7 +108,7 @@ export class WebSocketClient {
     // Determine WebSocket protocol based on current page protocol (for security)
     // Use wss:// in production (HTTPS) and ws:// only in local development
     const getDefaultWsUrl = (): string => {
-      if (typeof window === 'undefined') return 'ws://localhost:8081';
+      if (typeof window === 'undefined') return 'ws://localhost:8081'; // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket -- SSR fallback; production uses wss:// via protocol detection
 
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const host = window.location.hostname;
@@ -117,7 +117,7 @@ export class WebSocketClient {
       // In production, use secure WebSocket; in development, allow insecure for localhost
       return process.env.NODE_ENV === 'production'
         ? `${protocol}//${host}${port}`
-        : 'ws://localhost:8081';
+        : 'ws://localhost:8081'; // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket -- development-only fallback; production uses wss:// (line 118-119)
     };
 
     const baseUrl = config.url || process.env.NEXT_PUBLIC_WS_URL || getDefaultWsUrl();

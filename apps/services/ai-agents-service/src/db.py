@@ -259,7 +259,7 @@ async def update_execution(
         """  # noqa: S608  # nosec B608 - all values use $N parameterized placeholders
 
         async with _pool.acquire() as conn:
-            row = await conn.fetchrow(query, *params)
+            row = await conn.fetchrow(query, *params)  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return _row_to_dict(row) if row else None
     except Exception as e:
         print(f"⚠️ Failed to update execution: {e}")
@@ -305,7 +305,7 @@ async def list_executions(
         """  # noqa: S608  # nosec B608 - all values use $N parameterized placeholders
 
         async with _pool.acquire() as conn:
-            rows = await conn.fetch(query, *params)
+            rows = await conn.fetch(query, *params)  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return [_row_to_dict(row) for row in rows]
     except Exception as e:
         print(f"⚠️ Failed to list executions: {e}")

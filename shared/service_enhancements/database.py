@@ -375,8 +375,7 @@ class DatabaseOptimizer:
             raise ValueError("Only SELECT queries can be analyzed")
         async with self.pool.acquire() as conn:
             start_time = time.perf_counter()
-            # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli (input validated: only SELECT allowed above)
-            result = await conn.fetch(f"EXPLAIN ANALYZE {stripped}", *params)
+            result = await conn.fetch(f"EXPLAIN ANALYZE {stripped}", *params)  # nosemgrep: asyncpg-sqli -- input validated: only SELECT allowed above
             duration_ms = (time.perf_counter() - start_time) * 1000
 
             return {
@@ -535,7 +534,7 @@ async def batch_insert(
             sql += f" ON CONFLICT {_safe_conflict}"
 
         async with pool.acquire() as conn:
-            result = await conn.execute(sql, *params)
+            result = await conn.execute(sql, *params)  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- sql built from validated whitelist columns + parameterized values
             # Parse result like "INSERT 0 5" to get count
             if result.startswith("INSERT"):
                 parts = result.split()

@@ -457,7 +457,7 @@ def rate_limit_by_api_key(
 
     def api_key_func(request: Request) -> str:
         api_key = request.headers.get(header_name, "anonymous")
-        # nosemgrep
+        # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
         return f"api_key:{api_key}"
 
     return rate_limit(

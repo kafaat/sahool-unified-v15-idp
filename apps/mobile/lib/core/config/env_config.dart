@@ -472,7 +472,7 @@ class EnvConfig {
       case AppEnvironment.staging:
         return 'wss://ws-staging.sahool.app';
       case AppEnvironment.development:
-        return 'ws://10.0.2.2:8081';
+        return 'ws://10.0.2.2:8081'; // nosemgrep: detect-insecure-websocket -- development-only; production/staging use wss://
     }
   }
 

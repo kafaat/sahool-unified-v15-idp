@@ -170,6 +170,14 @@ class SagaOrchestrator:
                     )
                 if existing.state in (SagaState.RUNNING, SagaState.COMPENSATING):
                     raise ValueError(f"Saga {idem_key} is already in progress (state={existing.state})")
+                # Terminal states (FAILED, COMPENSATED) — return existing result
+                # to avoid unique constraint violation on idempotency_key
+                return SagaResult(
+                    saga_id=existing.id,
+                    state=SagaState(existing.state),
+                    context=json.loads(existing.context_json),
+                    error=existing.error_message,
+                )
 
             # Create saga execution record
             saga_id = str(uuid4())

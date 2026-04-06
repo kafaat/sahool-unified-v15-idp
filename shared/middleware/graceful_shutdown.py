@@ -115,17 +115,22 @@ class GracefulShutdownMiddleware:
                 },
             )
 
-        # Track request
-        async with self._lock:
-            self._in_flight += 1
+        # Don't count excluded paths (health/metrics) as in-flight during drain,
+        # otherwise frequent health scraping prevents drain from completing.
+        track_in_flight = path not in self._exclude_paths
+
+        if track_in_flight:
+            async with self._lock:
+                self._in_flight += 1
 
         try:
             return await call_next(request)
         finally:
-            async with self._lock:
-                self._in_flight -= 1
-                if self._draining and self._in_flight <= 0:
-                    self._drain_event.set()
+            if track_in_flight:
+                async with self._lock:
+                    self._in_flight -= 1
+                    if self._draining and self._in_flight <= 0:
+                        self._drain_event.set()
 
     async def drain(self) -> None:
         """

@@ -140,6 +140,8 @@ class OutboxWorker:
             return
         exc = task.exception()
         if exc:
+            self._running = False
+            self._task = None
             logger.error(
                 "outbox_worker_crashed",
                 extra={"error": str(exc), "error_type": type(exc).__name__},
@@ -192,6 +194,7 @@ class OutboxWorker:
                 .where(OutboxEvent.retry_count < self._config.max_retries)
                 .order_by(OutboxEvent.created_at.asc())
                 .limit(self._config.batch_size)
+                .with_for_update(skip_locked=True)
             )
             events = list(db.execute(stmt).scalars())
 

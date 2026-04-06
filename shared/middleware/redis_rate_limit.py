@@ -175,6 +175,10 @@ class RedisRateLimiter(RateLimiter):
                     extra={"error": str(e), "fallback": "in_memory"},
                 )
                 self._fallback_active = True
+            # Reset Redis state so we can reconnect when Redis recovers
+            self._redis = None
+            self._sliding_window_sha = None
+            self._token_bucket_sha = None
             # Fall back to parent in-memory implementation
             return await super().check_rate_limit(request)
 
@@ -189,7 +193,7 @@ class RedisRateLimiter(RateLimiter):
 
         # Honor per-request config override (set by tier_func in setup_rate_limiting)
         config_override = getattr(getattr(request, "state", None), "rate_limit_config_override", None)
-        if config_override and getattr(getattr(request, "state", None), "_internal_service_call", False):
+        if config_override and getattr(getattr(request, "state", None), "is_service_request", False):
             tier = "override"
             config = config_override
         else:

@@ -169,9 +169,7 @@ class SagaOrchestrator:
                         context=json.loads(existing.context_json),
                     )
                 if existing.state in (SagaState.RUNNING.value, SagaState.COMPENSATING.value):
-                    raise ValueError(
-                        f"Saga {idem_key} is already in progress (state={existing.state})"
-                    )
+                    raise ValueError(f"Saga {idem_key} is already in progress (state={existing.state})")
 
             # Create saga execution record
             saga_id = str(uuid4())
@@ -272,7 +270,7 @@ class SagaOrchestrator:
                     },
                 )
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 failure_error = f"Step '{step.name}' timed out after {step.timeout}s"
                 failed_step_index = i
                 break
@@ -308,16 +306,10 @@ class SagaOrchestrator:
                 db.close()
 
             # Compensate completed steps in reverse
-            compensation_errors = await self._compensate(
-                execution, completed_steps, ctx
-            )
+            compensation_errors = await self._compensate(execution, completed_steps, ctx)
 
             # Final state
-            final_state = (
-                SagaState.COMPENSATED
-                if not compensation_errors
-                else SagaState.FAILED
-            )
+            final_state = SagaState.COMPENSATED if not compensation_errors else SagaState.FAILED
 
             db = self._db_factory()
             try:
@@ -439,9 +431,7 @@ class SagaOrchestrator:
 
     def _find_existing(self, db: Session, idempotency_key: str) -> SagaExecution | None:
         """Find existing saga by idempotency key."""
-        stmt = select(SagaExecution).where(
-            SagaExecution.idempotency_key == idempotency_key
-        )
+        stmt = select(SagaExecution).where(SagaExecution.idempotency_key == idempotency_key)
         return db.execute(stmt).scalar_one_or_none()
 
     def get_saga_status(self, saga_id: str) -> SagaExecution | None:
@@ -453,9 +443,7 @@ class SagaOrchestrator:
         finally:
             db.close()
 
-    def get_failed_sagas(
-        self, limit: int = 50, tenant_id: str | None = None
-    ) -> list[SagaExecution]:
+    def get_failed_sagas(self, limit: int = 50, tenant_id: str | None = None) -> list[SagaExecution]:
         """Get failed sagas for manual inspection."""
         db = self._db_factory()
         try:

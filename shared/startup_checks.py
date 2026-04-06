@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import logging
 import os
-import sys
 from enum import Flag, auto
 
 logger = logging.getLogger(__name__)
@@ -87,9 +86,7 @@ class StartupValidationError(SystemExit):
             f"\n{'=' * 60}\n"
             f" STARTUP VALIDATION FAILED: {service_name}\n"
             f" فشل التحقق من الإعدادات عند بدء التشغيل\n"
-            f"{'=' * 60}\n\n"
-            + "\n".join(f"  - {e}" for e in errors)
-            + f"\n\n{'=' * 60}\n"
+            f"{'=' * 60}\n\n" + "\n".join(f"  - {e}" for e in errors) + f"\n\n{'=' * 60}\n"
         )
         logger.critical(message)
         super().__init__(1)
@@ -168,17 +165,13 @@ def validate_startup(
     # Validate ENVIRONMENT value
     env = validated.get("ENVIRONMENT", "")
     if env and env.lower() not in _VALID_ENVIRONMENTS:
-        errors.append(
-            f"Invalid ENVIRONMENT='{env}'. "
-            f"Must be one of: {', '.join(sorted(_VALID_ENVIRONMENTS))}"
-        )
+        errors.append(f"Invalid ENVIRONMENT='{env}'. Must be one of: {', '.join(sorted(_VALID_ENVIRONMENTS))}")
 
     # Validate JWT_SECRET_KEY length
     jwt_key = validated.get("JWT_SECRET_KEY", "")
     if jwt_key and len(jwt_key) < 32:
         errors.append(
-            f"JWT_SECRET_KEY is too short ({len(jwt_key)} chars). "
-            f"Minimum 32 characters required for security."
+            f"JWT_SECRET_KEY is too short ({len(jwt_key)} chars). Minimum 32 characters required for security."
         )
 
     if errors:

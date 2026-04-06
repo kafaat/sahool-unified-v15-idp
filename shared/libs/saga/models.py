@@ -66,11 +66,11 @@ class SagaExecution(Base):
         primary_key=True,
         default=lambda: str(uuid4()),
     )
-    saga_name: Mapped[str] = mapped_column(
-        String(200), nullable=False, comment="Saga definition name"
-    )
+    saga_name: Mapped[str] = mapped_column(String(200), nullable=False, comment="Saga definition name")
     idempotency_key: Mapped[str] = mapped_column(
-        String(200), nullable=False, unique=True,
+        String(200),
+        nullable=False,
+        unique=True,
         comment="Idempotency key to prevent duplicate execution",
     )
     state: Mapped[str] = mapped_column(
@@ -79,31 +79,42 @@ class SagaExecution(Base):
         default=SagaState.PENDING,
     )
     context_json: Mapped[str] = mapped_column(
-        Text, nullable=False, default="{}",
+        Text,
+        nullable=False,
+        default="{}",
         comment="Saga context as JSON (input data + step results)",
     )
     current_step: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=0,
+        Integer,
+        nullable=False,
+        default=0,
         comment="Current step index (0-based)",
     )
     total_steps: Mapped[int] = mapped_column(
-        Integer, nullable=False,
+        Integer,
+        nullable=False,
     )
     tenant_id: Mapped[str | None] = mapped_column(
-        String(100), nullable=True,
+        String(100),
+        nullable=True,
     )
     correlation_id: Mapped[str] = mapped_column(
-        String(100), nullable=False, default=lambda: str(uuid4()),
+        String(100),
+        nullable=False,
+        default=lambda: str(uuid4()),
     )
     error_message: Mapped[str | None] = mapped_column(
-        Text, nullable=True,
+        Text,
+        nullable=True,
     )
     started_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False,
+        DateTime(timezone=True),
+        nullable=False,
         default=lambda: datetime.now(UTC),
     )
     completed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True,
+        DateTime(timezone=True),
+        nullable=True,
     )
 
     __table_args__ = (
@@ -126,14 +137,17 @@ class SagaStepRecord(Base):
         default=lambda: str(uuid4()),
     )
     saga_id: Mapped[str] = mapped_column(
-        PGUUID(as_uuid=False), nullable=False,
+        PGUUID(as_uuid=False),
+        nullable=False,
         comment="FK to saga_executions.id",
     )
     step_index: Mapped[int] = mapped_column(
-        Integer, nullable=False,
+        Integer,
+        nullable=False,
     )
     step_name: Mapped[str] = mapped_column(
-        String(200), nullable=False,
+        String(200),
+        nullable=False,
     )
     state: Mapped[str] = mapped_column(
         Enum(StepState, native_enum=False, length=20),
@@ -141,24 +155,31 @@ class SagaStepRecord(Base):
         default=StepState.PENDING,
     )
     result_json: Mapped[str | None] = mapped_column(
-        Text, nullable=True,
+        Text,
+        nullable=True,
         comment="Step result as JSON",
     )
     error_message: Mapped[str | None] = mapped_column(
-        Text, nullable=True,
+        Text,
+        nullable=True,
     )
     compensation_error: Mapped[str | None] = mapped_column(
-        Text, nullable=True,
+        Text,
+        nullable=True,
         comment="Error during compensation (if any)",
     )
     retry_count: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=0,
+        Integer,
+        nullable=False,
+        default=0,
     )
     started_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True,
+        DateTime(timezone=True),
+        nullable=True,
     )
     completed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True,
+        DateTime(timezone=True),
+        nullable=True,
     )
 
     __table_args__ = (

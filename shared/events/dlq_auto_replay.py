@@ -35,10 +35,10 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from dataclasses import dataclass
+from datetime import UTC, datetime
 
-from .dlq_config import DLQConfig, DLQMessageMetadata, is_retriable_error
+from .dlq_config import DLQConfig, DLQMessageMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -203,9 +203,7 @@ class DLQAutoReplayWorker:
             return
 
         try:
-            messages = await sub.fetch(
-                batch=self._config.batch_size, timeout=5
-            )
+            messages = await sub.fetch(batch=self._config.batch_size, timeout=5)
         except Exception:
             # No messages or timeout — normal
             return
@@ -280,7 +278,11 @@ class DLQAutoReplayWorker:
         except (ValueError, TypeError):
             failure_time = datetime.now(UTC)
 
-        age = datetime.now(UTC) - failure_time.replace(tzinfo=UTC) if failure_time.tzinfo is None else datetime.now(UTC) - failure_time
+        age = (
+            datetime.now(UTC) - failure_time.replace(tzinfo=UTC)
+            if failure_time.tzinfo is None
+            else datetime.now(UTC) - failure_time
+        )
 
         if age.total_seconds() < self._config.min_age_seconds:
             # Too young — wait for service recovery

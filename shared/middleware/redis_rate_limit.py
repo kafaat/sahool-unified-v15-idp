@@ -27,14 +27,12 @@ Usage:
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import time
-from typing import Any
 
 from fastapi import Request
 
-from .rate_limit import RateLimitConfig, RateLimiter, TierConfig
+from .rate_limit import RateLimiter, TierConfig
 
 logger = logging.getLogger(__name__)
 
@@ -130,8 +128,7 @@ class RedisRateLimiter(RateLimiter):
     ):
         if not _redis_available:
             raise RuntimeError(
-                "redis[async] package is required for RedisRateLimiter. "
-                "Install with: pip install redis[hiredis]"
+                "redis[async] package is required for RedisRateLimiter. Install with: pip install redis[hiredis]"
             )
 
         super().__init__(tier_config=tier_config)
@@ -153,12 +150,8 @@ class RedisRateLimiter(RateLimiter):
                 decode_responses=False,
             )
             # Pre-load Lua scripts for performance
-            self._sliding_window_sha = await self._redis.script_load(
-                _SLIDING_WINDOW_LUA
-            )
-            self._token_bucket_sha = await self._redis.script_load(
-                _TOKEN_BUCKET_LUA
-            )
+            self._sliding_window_sha = await self._redis.script_load(_SLIDING_WINDOW_LUA)
+            self._token_bucket_sha = await self._redis.script_load(_TOKEN_BUCKET_LUA)
         return self._redis
 
     async def check_rate_limit(self, request: Request) -> tuple[bool, dict]:
@@ -185,17 +178,13 @@ class RedisRateLimiter(RateLimiter):
             # Fall back to parent in-memory implementation
             return await super().check_rate_limit(request)
 
-    async def _check_redis(
-        self, request: Request, r: aioredis.Redis
-    ) -> tuple[bool, dict]:
+    async def _check_redis(self, request: Request, r: aioredis.Redis) -> tuple[bool, dict]:
         """Execute rate limit checks against Redis."""
         # Get client identifier (same logic as parent)
         client_ip = request.client.host if request.client else "unknown"
         tenant_id = "default"
         if hasattr(request.state, "user") and request.state.user:
-            tenant_id = (
-                getattr(request.state.user, "tenant_id", None) or "default"
-            )
+            tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
         key = f"{tenant_id}:{client_ip}"
 
         # Determine tier (reuse parent logic)
@@ -216,9 +205,7 @@ class RedisRateLimiter(RateLimiter):
         )
         if not int(allowed_min):
             remaining = 0
-            return False, self._build_headers(
-                key, config, tier, exceeded=True, remaining=remaining
-            )
+            return False, self._build_headers(key, config, tier, exceeded=True, remaining=remaining)
 
         # 2. Check hourly sliding window
         hour_key = f"{self._key_prefix}:hr:{key}"
@@ -232,9 +219,7 @@ class RedisRateLimiter(RateLimiter):
         )
         if not int(allowed_hr):
             remaining = 0
-            return False, self._build_headers(
-                key, config, tier, exceeded=True, remaining=remaining
-            )
+            return False, self._build_headers(key, config, tier, exceeded=True, remaining=remaining)
 
         # 3. Check token bucket (burst)
         bucket_key = f"{self._key_prefix}:tb:{key}"
@@ -248,14 +233,10 @@ class RedisRateLimiter(RateLimiter):
         )
         if not int(allowed_burst):
             remaining = 0
-            return False, self._build_headers(
-                key, config, tier, exceeded=True, remaining=remaining
-            )
+            return False, self._build_headers(key, config, tier, exceeded=True, remaining=remaining)
 
         remaining = max(0, config.requests_per_minute - int(count_min))
-        return True, self._build_headers(
-            key, config, tier, exceeded=False, remaining=remaining
-        )
+        return True, self._build_headers(key, config, tier, exceeded=False, remaining=remaining)
 
     async def close(self) -> None:
         """Close Redis connection."""

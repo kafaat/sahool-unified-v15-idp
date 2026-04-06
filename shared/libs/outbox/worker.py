@@ -203,9 +203,7 @@ class OutboxWorker:
             published_count = 0
             for event in events:
                 try:
-                    await self._nats_client.publish(
-                        event.event_type, event.payload_json
-                    )
+                    await self._nats_client.publish(event.event_type, event.payload_json)
                     event.published = True
                     event.published_at = datetime.now(UTC)
                     event.last_error = None
@@ -227,7 +225,7 @@ class OutboxWorker:
             db.commit()
             return published_count
 
-        except Exception as e:
+        except Exception:
             db.rollback()
             raise
         finally:

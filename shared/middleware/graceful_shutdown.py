@@ -85,9 +85,7 @@ class GracefulShutdownMiddleware:
     def is_draining(self) -> bool:
         return self._draining
 
-    async def _middleware(
-        self, request: Request, call_next: Callable
-    ) -> Response:
+    async def _middleware(self, request: Request, call_next: Callable) -> Response:
         """Track in-flight requests and reject during drain."""
         path = request.url.path
 
@@ -155,7 +153,7 @@ class GracefulShutdownMiddleware:
                 timeout=self._drain_timeout,
             )
             logger.info("graceful_shutdown_drained")
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(
                 "graceful_shutdown_timeout",
                 extra={
@@ -188,9 +186,7 @@ def create_graceful_lifespan(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-        shutdown_handler = GracefulShutdownMiddleware(
-            app, drain_timeout=drain_timeout
-        )
+        shutdown_handler = GracefulShutdownMiddleware(app, drain_timeout=drain_timeout)
         app.state.shutdown_handler = shutdown_handler
 
         if inner_lifespan:

@@ -960,6 +960,7 @@ async def readiness():
     if _nats_available:
         try:
             from shared.libs.events.nats_publisher import _publisher_instance
+
             if _publisher_instance and _publisher_instance.is_connected:
                 checks["nats"] = "connected"
             elif _publisher_instance:

@@ -3,8 +3,8 @@
  * واجهة برمجية لميزة المحفظة
  */
 
-import { createApiClient, logger } from '@/lib/api/factory';
-import { safeFetch } from '@/lib/api/safe-fetch';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch, ApiError } from '@/lib/api/safe-fetch';
 import { BILLING_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type {
   Wallet,
@@ -18,86 +18,6 @@ import type {
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
-
-// Mock data for development fallback
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    userId: 'current-user',
-    type: 'deposit',
-    status: 'completed',
-    amount: 1000,
-    currency: 'SAR',
-    description: 'Initial deposit',
-    descriptionAr: 'إيداع أولي',
-    paymentMethod: 'bank_transfer',
-    createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-    completedAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-  },
-  {
-    id: '2',
-    userId: 'current-user',
-    type: 'payment',
-    status: 'completed',
-    amount: 350,
-    currency: 'SAR',
-    fee: 5,
-    description: 'Product purchase - Wheat Seeds',
-    descriptionAr: 'شراء منتج - بذور قمح',
-    paymentMethod: 'wallet',
-    metadata: {
-      orderId: 'ORD-123',
-      productName: 'Wheat Seeds',
-    },
-    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    completedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-  },
-  {
-    id: '3',
-    userId: 'current-user',
-    type: 'transfer_out',
-    status: 'completed',
-    amount: 200,
-    currency: 'SAR',
-    fee: 2,
-    description: 'Transfer to Ahmad',
-    descriptionAr: 'تحويل إلى أحمد',
-    metadata: {
-      recipientId: 'user-123',
-      recipientName: 'Ahmad Ali',
-    },
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-    completedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: '4',
-    userId: 'current-user',
-    type: 'deposit',
-    status: 'completed',
-    amount: 500,
-    currency: 'SAR',
-    description: 'Bank transfer',
-    descriptionAr: 'تحويل بنكي',
-    paymentMethod: 'bank_transfer',
-    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-    completedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-];
-
-const mockWallet: Wallet = {
-  id: 'wallet-1',
-  userId: 'current-user',
-  balance: 943,
-  currency: 'SAR',
-  availableBalance: 943,
-  pendingBalance: 0,
-  totalDeposits: 1500,
-  totalWithdrawals: 557,
-  totalTransactions: 4,
-  lastTransactionAt: new Date().toISOString(),
-  createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
-  updatedAt: new Date().toISOString(),
-};
 
 /**
  * Error messages in Arabic and English
@@ -133,51 +53,10 @@ export const ERROR_MESSAGES = {
     ar: 'غير مصرح لك بهذه العملية.',
   },
   FETCH_FAILED: {
-    en: 'Failed to fetch wallet data. Using cached data.',
-    ar: 'فشل في جلب بيانات المحفظة. استخدام البيانات المخزنة.',
+    en: 'Wallet data is unavailable. Please try again later.',
+    ar: 'بيانات المحفظة غير متاحة. يرجى المحاولة لاحقاً.',
   },
 };
-
-/**
- * Filter transactions locally (for mock data)
- */
-function filterTransactions(
-  transactions: Transaction[],
-  filters?: TransactionFilters
-): Transaction[] {
-  let filtered = [...transactions];
-
-  if (filters?.type) {
-    filtered = filtered.filter((t) => t.type === filters.type);
-  }
-
-  if (filters?.status) {
-    filtered = filtered.filter((t) => t.status === filters.status);
-  }
-
-  if (filters?.dateFrom) {
-    const fromDate = new Date(filters.dateFrom);
-    filtered = filtered.filter((t) => new Date(t.createdAt) >= fromDate);
-  }
-
-  if (filters?.dateTo) {
-    const toDate = new Date(filters.dateTo);
-    filtered = filtered.filter((t) => new Date(t.createdAt) <= toDate);
-  }
-
-  if (filters?.minAmount !== undefined) {
-    filtered = filtered.filter((t) => t.amount >= filters.minAmount!);
-  }
-
-  if (filters?.maxAmount !== undefined) {
-    filtered = filtered.filter((t) => t.amount <= filters.maxAmount!);
-  }
-
-  // Sort by date (newest first)
-  filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  return filtered;
-}
 
 export const walletApi = {
   /**
@@ -193,8 +72,12 @@ export const walletApi = {
         return data as Wallet;
       }
 
-      logger.warn('API returned unexpected format, using mock data');
-      return mockWallet;
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint: BILLING_ENDPOINTS.WALLET,
+      });
     });
   },
 
@@ -212,17 +95,12 @@ export const walletApi = {
         return data as WalletStats;
       }
 
-      logger.warn('API returned unexpected format for stats, using mock data');
-      return {
-        currentBalance: mockWallet.balance,
-        pendingBalance: mockWallet.pendingBalance,
-        totalIncome: mockWallet.totalDeposits,
-        totalExpenses: mockWallet.totalWithdrawals,
-        monthlyIncome: 1500,
-        monthlyExpenses: 557,
-        transactionCount: mockWallet.totalTransactions,
-        currency: mockWallet.currency,
-      };
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint,
+      });
     });
   },
 
@@ -252,8 +130,12 @@ export const walletApi = {
         return data;
       }
 
-      logger.warn('API returned unexpected format for transactions, using mock data');
-      return filterTransactions(mockTransactions, filters);
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint: BILLING_ENDPOINTS.TRANSACTIONS,
+      });
     });
   },
 
@@ -271,12 +153,12 @@ export const walletApi = {
         return data as Transaction;
       }
 
-      logger.warn('API returned unexpected format for transaction, using mock data');
-      const transaction = mockTransactions.find((t) => t.id === id);
-      if (!transaction) {
-        throw new Error(`${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.en} | ${ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar}`);
-      }
-      return transaction;
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint,
+      });
     });
   },
 
@@ -294,11 +176,12 @@ export const walletApi = {
           return result as Transaction;
         }
 
-        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
       } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
         const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
         throw err;
       }
     });
@@ -318,12 +201,13 @@ export const walletApi = {
           return result as Transaction;
         }
 
-        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
       } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
         const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
-        if (status === 402) throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
+        if (status === 402) throw new ApiError({ message: ERROR_MESSAGES.INSUFFICIENT_BALANCE.en, messageAr: ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar, statusCode: 402, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
         throw err;
       }
     });
@@ -343,12 +227,13 @@ export const walletApi = {
           return result as Transaction;
         }
 
-        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
       } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
         const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
-        if (status === 402) throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
+        if (status === 402) throw new ApiError({ message: ERROR_MESSAGES.INSUFFICIENT_BALANCE.en, messageAr: ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar, statusCode: 402, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
         throw err;
       }
     });

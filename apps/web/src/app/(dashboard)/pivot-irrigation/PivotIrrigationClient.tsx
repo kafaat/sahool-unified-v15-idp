@@ -5,7 +5,7 @@
  * صفحة الري المحوري - Valley Style
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Droplets,
@@ -18,44 +18,14 @@ import {
   Grid3X3,
   Gauge,
   Clock,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
-
-// Mock data for demonstration
-const mockPivots = [
-  {
-    id: 'pivot_001',
-    name: 'المحوري الرئيسي',
-    nameEn: 'Main Pivot',
-    fieldId: 'field_001',
-    status: 'running',
-    currentAngle: 127,
-    speed: 75,
-    direction: 'clockwise',
-    areaHectares: 52.5,
-    sectorsCount: 8,
-    vriZonesCount: 48,
-    waterUsageM3: 1250,
-    lastIrrigation: '2026-01-22T14:30:00Z',
-  },
-  {
-    id: 'pivot_002',
-    name: 'محوري الحقل الشرقي',
-    nameEn: 'East Field Pivot',
-    fieldId: 'field_002',
-    status: 'stopped',
-    currentAngle: 0,
-    speed: 0,
-    direction: 'clockwise',
-    areaHectares: 35.2,
-    sectorsCount: 6,
-    vriZonesCount: 36,
-    waterUsageM3: 0,
-    lastIrrigation: '2026-01-21T08:00:00Z',
-  },
-];
+import { pivotIrrigationApi, type Pivot } from '@/features/pivot-irrigation/api';
+import { ApiError } from '@/lib/api/safe-fetch';
 
 interface PivotVisualizationProps {
-  pivot: (typeof mockPivots)[0];
+  pivot: Pivot;
 }
 
 function PivotVisualization({ pivot }: PivotVisualizationProps) {
@@ -127,7 +97,7 @@ function PivotVisualization({ pivot }: PivotVisualizationProps) {
 }
 
 interface PivotCardProps {
-  pivot: (typeof mockPivots)[0];
+  pivot: Pivot;
   onSelect: () => void;
   isSelected: boolean;
 }
@@ -184,11 +154,64 @@ function PivotCard({ pivot, onSelect, isSelected }: PivotCardProps) {
 
 export default function PivotIrrigationClient() {
   const t = useTranslations('pivotIrrigation');
-  const [selectedPivotId, setSelectedPivotId] = useState<string | null>(mockPivots[0]?.id || null);
+  const [pivots, setPivots] = useState<Pivot[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedPivotId, setSelectedPivotId] = useState<string | null>(null);
 
-  const selectedPivot = mockPivots.find((p) => p.id === selectedPivotId);
-  const runningPivots = mockPivots.filter((p) => p.status === 'running').length;
-  const totalWaterUsage = mockPivots.reduce((sum, p) => sum + p.waterUsageM3, 0);
+  const fetchPivots = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await pivotIrrigationApi.getPivots();
+      setPivots(data);
+      if (data.length > 0) {
+        setSelectedPivotId((prev) => prev ?? data[0]!.id);
+      }
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات المحاور';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPivots();
+  }, [fetchPivots]);
+
+  const selectedPivot = pivots.find((p) => p.id === selectedPivotId);
+  const runningPivots = pivots.filter((p) => p.status === 'running').length;
+  const totalWaterUsage = pivots.reduce((sum, p) => sum + p.waterUsageM3, 0);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-sahool-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-500">جاري تحميل بيانات المحاور...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button
+            onClick={fetchPivots}
+            className="px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -214,7 +237,7 @@ export default function PivotIrrigationClient() {
               <Droplets className="w-6 h-6 text-blue-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">{mockPivots.length}</h3>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{pivots.length}</h3>
           <p className="text-sm text-gray-600">إجمالي المحاور | Total Pivots</p>
         </div>
 
@@ -247,7 +270,7 @@ export default function PivotIrrigationClient() {
             </div>
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {mockPivots.reduce((sum, p) => sum + p.vriZonesCount, 0)}
+            {pivots.reduce((sum, p) => sum + p.vriZonesCount, 0)}
           </h3>
           <p className="text-sm text-gray-600">مناطق VRI | VRI Zones</p>
         </div>
@@ -258,7 +281,7 @@ export default function PivotIrrigationClient() {
         {/* Pivot List - 1/3 width */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-gray-900">المحاور المسجلة | Registered Pivots</h2>
-          {mockPivots.map((pivot) => (
+          {pivots.map((pivot) => (
             <PivotCard
               key={pivot.id}
               pivot={pivot}

@@ -5,7 +5,7 @@
  * مكون الاستكشاف الميداني
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Users,
   FileText,
@@ -18,18 +18,10 @@ import {
   Bug,
   Leaf,
   Clock,
+  Loader2,
 } from 'lucide-react';
-
-// ---------------------------------------------------------------------------
-// Mock Data
-// ---------------------------------------------------------------------------
-
-const STATS = [
-  { label: 'مستكشفون نشطون', value: 23, icon: Users, color: 'blue' },
-  { label: 'تقارير اليوم', value: 47, icon: FileText, color: 'green' },
-  { label: 'مشاكل مكتشفة', value: 12, icon: AlertTriangle, color: 'red' },
-  { label: 'حقول مغطاة', value: 38, icon: Map, color: 'purple' },
-];
+import { useScoutingStatistics, useScoutingHistory } from '@/features/scouting';
+import type { ScoutingSession } from '@/features/scouting';
 
 const TABS = [
   { id: 'active', label: 'الجولات النشطة', icon: Eye },
@@ -38,26 +30,6 @@ const TABS = [
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
-
-const ACTIVE_SESSIONS = [
-  { id: 's1', scout: 'أحمد محمد', field: 'حقل القمح الشمالي', startTime: '07:30', observations: 5, issues: 1, status: 'active' },
-  { id: 's2', scout: 'علي حسن', field: 'بستان النخيل', startTime: '08:15', observations: 3, issues: 0, status: 'active' },
-  { id: 's3', scout: 'محمد عبدالله', field: 'حقل الطماطم', startTime: '06:45', observations: 8, issues: 2, status: 'active' },
-];
-
-const RECENT_ISSUES = [
-  { id: 'i1', type: 'pest', label: 'حشرة المن', field: 'حقل القمح', severity: 'high', date: '2026-04-03', status: 'open' },
-  { id: 'i2', type: 'disease', label: 'صدأ الأوراق', field: 'حقل الشعير', severity: 'critical', date: '2026-04-02', status: 'open' },
-  { id: 'i3', type: 'nutrient', label: 'نقص النيتروجين', field: 'حقل القمح الشمالي', severity: 'medium', date: '2026-04-01', status: 'resolved' },
-  { id: 'i4', type: 'water', label: 'جفاف جزئي', field: 'حقل الذرة', severity: 'high', date: '2026-03-31', status: 'open' },
-  { id: 'i5', type: 'pest', label: 'دودة الحشد', field: 'حقل الذرة الرفيعة', severity: 'critical', date: '2026-03-30', status: 'in_progress' },
-];
-
-const HISTORY = [
-  { id: 'h1', scout: 'أحمد محمد', field: 'حقل القمح', date: '2026-04-02', observations: 12, issues: 2, duration: '2:30 ساعة' },
-  { id: 'h2', scout: 'علي حسن', field: 'بستان النخيل', date: '2026-04-01', observations: 8, issues: 0, duration: '1:45 ساعة' },
-  { id: 'h3', scout: 'سارة أحمد', field: 'حقل الطماطم', date: '2026-03-31', observations: 15, issues: 3, duration: '3:00 ساعة' },
-];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -97,6 +69,48 @@ const STAT_COLORS: Record<string, { bg: string; icon: string }> = {
 export default function ScoutingClient() {
   const [activeTab, setActiveTab] = useState<TabId>('active');
 
+  const { data: statistics, isLoading: statsLoading, error: statsError } = useScoutingStatistics();
+  const { data: activeSessions, isLoading: activeLoading, error: activeError } = useScoutingHistory({ status: 'active' });
+  const { data: completedSessions, isLoading: historyLoading, error: historyError } = useScoutingHistory({ status: 'completed' });
+
+  // Derive issues from all sessions' observations with high severity
+  const recentIssues = useMemo(() => {
+    if (!activeSessions) return [];
+    return activeSessions
+      .filter((s: ScoutingSession) => (s.averageSeverity ?? 0) >= 3)
+      .map((s: ScoutingSession) => ({
+        id: s.id,
+        type: s.categoryCounts ? (Object.entries(s.categoryCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'other') : 'other',
+        label: s.fieldNameAr || s.fieldName,
+        field: s.fieldNameAr || s.fieldName,
+        severity: (s.averageSeverity ?? 0) >= 4 ? 'critical' : (s.averageSeverity ?? 0) >= 3 ? 'high' : 'medium',
+        date: s.createdAt?.slice(0, 10) ?? '',
+        status: s.status === 'active' ? 'open' : s.status === 'completed' ? 'resolved' : 'in_progress',
+      }));
+  }, [activeSessions]);
+
+  const STATS = [
+    { label: 'مستكشفون نشطون', value: activeSessions?.length ?? 0, icon: Users, color: 'blue' },
+    { label: 'تقارير اليوم', value: statistics?.totalObservations ?? 0, icon: FileText, color: 'green' },
+    { label: 'مشاكل مكتشفة', value: recentIssues.length, icon: AlertTriangle, color: 'red' },
+    { label: 'حقول مغطاة', value: statistics?.sessionsThisMonth ?? 0, icon: Map, color: 'purple' },
+  ];
+
+  const isLoading = statsLoading || activeLoading || historyLoading;
+  const error = statsError || activeError || historyError;
+
+  if (error) {
+    return (
+      <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-700 font-medium">فشل في تحميل بيانات الاستكشاف</p>
+          <p className="text-red-500 text-sm mt-1">Failed to load scouting data</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 p-6 space-y-6">
       {/* Header */}
@@ -117,7 +131,7 @@ export default function ScoutingClient() {
                   <Icon className={`w-5 h-5 ${colors.icon}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                  <p className="text-2xl font-bold text-gray-900">{isLoading ? '...' : s.value}</p>
                   <p className="text-sm text-gray-500">{s.label}</p>
                 </div>
               </div>
@@ -150,82 +164,129 @@ export default function ScoutingClient() {
       {/* Active Sessions Tab */}
       {activeTab === 'active' && (
         <div className="space-y-4">
-          {ACTIVE_SESSIONS.map((session) => (
-            <div key={session.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-900">{session.scout}</p>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                      <MapPin className="w-3 h-3" />
-                      <span>{session.field}</span>
-                      <Clock className="w-3 h-3 mr-2" />
-                      <span>بدأ {session.startTime}</span>
+          {activeLoading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+              <span className="mr-2 text-gray-500">جاري التحميل...</span>
+            </div>
+          )}
+          {!activeLoading && (!activeSessions || activeSessions.length === 0) && (
+            <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 text-center text-gray-500">
+              لا توجد جولات نشطة حالياً
+            </div>
+          )}
+          {activeSessions?.map((session: ScoutingSession) => {
+            const criticalCount = session.severityDistribution
+              ? (session.severityDistribution[4] ?? 0) + (session.severityDistribution[5] ?? 0)
+              : 0;
+            return (
+              <div key={session.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <Eye className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900">{session.scoutName ?? session.scoutId}</p>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                        <MapPin className="w-3 h-3" />
+                        <span>{session.fieldNameAr || session.fieldName}</span>
+                        <Clock className="w-3 h-3 mr-2" />
+                        <span>بدأ {new Date(session.startTime).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1 text-gray-600">
-                    <Camera className="w-4 h-4" />
-                    <span>{session.observations} ملاحظة</span>
-                  </div>
-                  {session.issues > 0 && (
-                    <div className="flex items-center gap-1 text-red-600">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>{session.issues} مشكلة</span>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Camera className="w-4 h-4" />
+                      <span>{session.observationsCount} ملاحظة</span>
                     </div>
-                  )}
-                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                    نشط
-                  </span>
+                    {criticalCount > 0 && (
+                      <div className="flex items-center gap-1 text-red-600">
+                        <AlertTriangle className="w-4 h-4" />
+                        <span>{criticalCount} مشكلة</span>
+                      </div>
+                    )}
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                      نشط
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {/* History Tab */}
       {activeTab === 'history' && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-right p-4 font-medium text-gray-600">المستكشف</th>
-                <th className="text-right p-4 font-medium text-gray-600">الحقل</th>
-                <th className="text-right p-4 font-medium text-gray-600">التاريخ</th>
-                <th className="text-right p-4 font-medium text-gray-600">الملاحظات</th>
-                <th className="text-right p-4 font-medium text-gray-600">المشاكل</th>
-                <th className="text-right p-4 font-medium text-gray-600">المدة</th>
-              </tr>
-            </thead>
-            <tbody>
-              {HISTORY.map((h) => (
-                <tr key={h.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="p-4 font-medium text-gray-900">{h.scout}</td>
-                  <td className="p-4 text-gray-600">{h.field}</td>
-                  <td className="p-4 text-gray-600">{h.date}</td>
-                  <td className="p-4 text-gray-600">{h.observations}</td>
-                  <td className="p-4">
-                    <span className={h.issues > 0 ? 'text-red-600 font-medium' : 'text-green-600'}>
-                      {h.issues}
-                    </span>
-                  </td>
-                  <td className="p-4 text-gray-600">{h.duration}</td>
+          {historyLoading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+              <span className="mr-2 text-gray-500">جاري التحميل...</span>
+            </div>
+          )}
+          {!historyLoading && (!completedSessions || completedSessions.length === 0) && (
+            <div className="p-10 text-center text-gray-500">لا يوجد سجل جلسات سابقة</div>
+          )}
+          {!historyLoading && completedSessions && completedSessions.length > 0 && (
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="text-right p-4 font-medium text-gray-600">المستكشف</th>
+                  <th className="text-right p-4 font-medium text-gray-600">الحقل</th>
+                  <th className="text-right p-4 font-medium text-gray-600">التاريخ</th>
+                  <th className="text-right p-4 font-medium text-gray-600">الملاحظات</th>
+                  <th className="text-right p-4 font-medium text-gray-600">المشاكل</th>
+                  <th className="text-right p-4 font-medium text-gray-600">المدة</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {completedSessions.map((h: ScoutingSession) => {
+                  const criticalCount = h.severityDistribution
+                    ? (h.severityDistribution[4] ?? 0) + (h.severityDistribution[5] ?? 0)
+                    : 0;
+                  const durationMin = h.duration ?? 0;
+                  const durationStr = durationMin > 0
+                    ? `${Math.floor(durationMin / 60)}:${String(durationMin % 60).padStart(2, '0')} ساعة`
+                    : '-';
+                  return (
+                    <tr key={h.id} className="border-b last:border-0 hover:bg-gray-50">
+                      <td className="p-4 font-medium text-gray-900">{h.scoutName ?? h.scoutId}</td>
+                      <td className="p-4 text-gray-600">{h.fieldNameAr || h.fieldName}</td>
+                      <td className="p-4 text-gray-600">{h.createdAt?.slice(0, 10) ?? ''}</td>
+                      <td className="p-4 text-gray-600">{h.observationsCount}</td>
+                      <td className="p-4">
+                        <span className={criticalCount > 0 ? 'text-red-600 font-medium' : 'text-green-600'}>
+                          {criticalCount}
+                        </span>
+                      </td>
+                      <td className="p-4 text-gray-600">{durationStr}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
 
       {/* Issues Tab */}
       {activeTab === 'issues' && (
         <div className="space-y-3">
-          {RECENT_ISSUES.map((issue) => (
+          {activeLoading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+              <span className="mr-2 text-gray-500">جاري التحميل...</span>
+            </div>
+          )}
+          {!activeLoading && recentIssues.length === 0 && (
+            <div className="bg-white rounded-xl p-10 shadow-sm border border-gray-100 text-center text-gray-500">
+              لا توجد مشاكل مكتشفة حالياً
+            </div>
+          )}
+          {recentIssues.map((issue) => (
             <div key={issue.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${

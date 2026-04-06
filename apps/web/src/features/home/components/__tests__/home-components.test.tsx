@@ -291,6 +291,20 @@ describe('RecentActivity', () => {
 
 // ─── TasksSummary Tests ───────────────────────────────────────────────────────
 
+// TasksSummary uses useCompleteTask/useUpdateTaskStatus which need QueryClientProvider
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+vi.mock('@/features/tasks/hooks/useTasks', () => ({
+  useCompleteTask: () => ({ mutate: vi.fn(), isPending: false }),
+  useUpdateTaskStatus: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
+const createWrapper = () => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
 describe('TasksSummary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -302,7 +316,7 @@ describe('TasksSummary', () => {
       isLoading: true,
     } as ReturnType<typeof useUpcomingTasks>);
 
-    render(<TasksSummary />);
+    render(<TasksSummary />, { wrapper: createWrapper() });
     expect(screen.getByText('المهام القادمة')).toBeInTheDocument();
   });
 
@@ -312,7 +326,7 @@ describe('TasksSummary', () => {
       isLoading: false,
     } as ReturnType<typeof useUpcomingTasks>);
 
-    render(<TasksSummary />);
+    render(<TasksSummary />, { wrapper: createWrapper() });
     expect(screen.getByText('لا توجد مهام قادمة')).toBeInTheDocument();
     expect(screen.getByText('No upcoming tasks')).toBeInTheDocument();
   });
@@ -348,7 +362,7 @@ describe('TasksSummary', () => {
       isLoading: false,
     } as ReturnType<typeof useUpcomingTasks>);
 
-    render(<TasksSummary />);
+    render(<TasksSummary />, { wrapper: createWrapper() });
     expect(screen.getByText('ري القمح')).toBeInTheDocument();
     expect(screen.getByText('تسميد الأرض')).toBeInTheDocument();
     expect(screen.getByText('فحص الحقل')).toBeInTheDocument();
@@ -372,7 +386,7 @@ describe('TasksSummary', () => {
       isLoading: false,
     } as ReturnType<typeof useUpcomingTasks>);
 
-    render(<TasksSummary />);
+    render(<TasksSummary />, { wrapper: createWrapper() });
     const completeBtn = screen.getByLabelText('إكمال المهمة');
     fireEvent.click(completeBtn);
     // After toggle, the aria-label should change
@@ -394,7 +408,7 @@ describe('TasksSummary', () => {
       isLoading: false,
     } as ReturnType<typeof useUpcomingTasks>);
 
-    render(<TasksSummary />);
+    render(<TasksSummary />, { wrapper: createWrapper() });
     expect(screen.getByText('عرض جميع المهام')).toBeInTheDocument();
     const link = screen.getByText('عرض جميع المهام').closest('a');
     expect(link).toHaveAttribute('href', '/tasks');
@@ -406,7 +420,7 @@ describe('TasksSummary', () => {
       isLoading: false,
     } as ReturnType<typeof useUpcomingTasks>);
 
-    render(<TasksSummary />);
+    render(<TasksSummary />, { wrapper: createWrapper() });
     expect(screen.getByText('المهام القادمة')).toBeInTheDocument();
     expect(screen.getByText('Upcoming Tasks')).toBeInTheDocument();
   });

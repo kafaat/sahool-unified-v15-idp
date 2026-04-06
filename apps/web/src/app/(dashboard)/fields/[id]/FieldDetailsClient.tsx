@@ -29,6 +29,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useField, useDeleteField, useUpdateField } from '@/features/fields/hooks/useFields';
+import { useCurrentWeather } from '@/features/weather/hooks/useWeather';
 import { useToast } from '@/components/ui/toast';
 import { FieldForm } from '@/features/fields/components/FieldForm';
 import { Modal } from '@/components/ui/modal';
@@ -47,6 +48,17 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
   const { showToast } = useToast();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Extract field coordinates for weather query (centroid is [lng, lat])
+  const fieldLat = field?.centroid?.coordinates?.[1];
+  const fieldLng = field?.centroid?.coordinates?.[0];
+  const hasCoordinates = fieldLat !== undefined && fieldLng !== undefined;
+
+  const { data: weatherData, isLoading: weatherLoading } = useCurrentWeather({
+    lat: fieldLat,
+    lon: fieldLng,
+    enabled: hasCoordinates && !isLoading && !error,
+  });
 
   const handleDelete = async () => {
     try {
@@ -445,28 +457,40 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
               </h2>
             </div>
             <div className="p-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-orange-50 rounded-lg">
-                  <Thermometer className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-gray-900">28°C</p>
-                  <p className="text-xs text-gray-500">درجة الحرارة</p>
+              {weatherLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
                 </div>
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <Droplets className="w-6 h-6 text-blue-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-gray-900">65%</p>
-                  <p className="text-xs text-gray-500">الرطوبة</p>
+              ) : !hasCoordinates || !weatherData ? (
+                <div className="text-center py-6 text-gray-500">
+                  <Sun className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm font-medium">غير متاح</p>
+                  <p className="text-xs text-gray-400 mt-1">Weather data unavailable</p>
                 </div>
-                <div className="text-center p-3 bg-cyan-50 rounded-lg">
-                  <Wind className="w-6 h-6 text-cyan-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-gray-900">12 كم/س</p>
-                  <p className="text-xs text-gray-500">سرعة الرياح</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-orange-50 rounded-lg">
+                    <Thermometer className="w-6 h-6 text-orange-500 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-gray-900">{Math.round(weatherData.temperature)}°C</p>
+                    <p className="text-xs text-gray-500">درجة الحرارة</p>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <Droplets className="w-6 h-6 text-blue-500 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-gray-900">{Math.round(weatherData.humidity)}%</p>
+                    <p className="text-xs text-gray-500">الرطوبة</p>
+                  </div>
+                  <div className="text-center p-3 bg-cyan-50 rounded-lg">
+                    <Wind className="w-6 h-6 text-cyan-500 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-gray-900">{Math.round(weatherData.windSpeed)} كم/س</p>
+                    <p className="text-xs text-gray-500">سرعة الرياح</p>
+                  </div>
+                  <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                    <Sun className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-gray-900">{weatherData.conditionAr}</p>
+                    <p className="text-xs text-gray-500">الحالة</p>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                  <Sun className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-gray-900">مشمس</p>
-                  <p className="text-xs text-gray-500">الحالة</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

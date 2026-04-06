@@ -5,7 +5,7 @@
  * مكون تخطيط الموسم الزراعي — معالج 7 خطوات
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   MapPin,
   Leaf,
@@ -19,7 +19,11 @@ import {
   Save,
   CheckCircle,
   Circle,
+  AlertTriangle,
+  RefreshCw,
 } from 'lucide-react';
+import { useCropPlans, useCropRecommendations, useCreateCropPlan } from '../hooks/useCropPlanning';
+import type { CropRecommendation } from '../api';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -51,15 +55,8 @@ interface PlanData {
 }
 
 // ---------------------------------------------------------------------------
-// Data
+// Static data (crops, steps, prep items — not fetched from API)
 // ---------------------------------------------------------------------------
-
-const FIELDS = [
-  { id: 'f1', name: 'حقل القمح الشمالي', area: 5.2, soil: 'طيني', lastCrop: 'شعير' },
-  { id: 'f2', name: 'حقل الطماطم', area: 3.0, soil: 'رملي طيني', lastCrop: 'بصل' },
-  { id: 'f3', name: 'بستان النخيل', area: 8.5, soil: 'رملي', lastCrop: 'نخيل (دائم)' },
-  { id: 'f4', name: 'حقل الذرة الرفيعة', area: 6.7, soil: 'طيني ثقيل', lastCrop: 'قمح' },
-];
 
 const CROPS: CropOption[] = [
   { code: 'wheat', nameAr: 'قمح', icon: '🌾', season: 'شتوي', plantingMonths: 'أكتوبر-ديسمبر', daysToHarvest: 150, waterMm: 450, yieldTonsHa: 4.5 },
@@ -93,13 +90,47 @@ const PREP_ITEMS = [
 ];
 
 // ---------------------------------------------------------------------------
+// Loading / Error UI
+// ---------------------------------------------------------------------------
+
+function LoadingSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="p-4 rounded-xl border-2 border-gray-200 animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-2" />
+          <div className="h-3 bg-gray-200 rounded w-1/3 mb-1" />
+          <div className="h-3 bg-gray-200 rounded w-1/4" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ErrorBanner({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+      <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+      <p className="text-red-700 font-medium mb-3">{message}</p>
+      <button
+        onClick={onRetry}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+      >
+        <RefreshCw className="w-4 h-4" />
+        إعادة المحاولة
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export default function CropPlanningClient() {
   const [step, setStep] = useState(1);
   const [plan, setPlan] = useState<PlanData>({
-    fieldId: FIELDS[0]?.id ?? '',
+    fieldId: '',
     cropCode: '',
     plantingDate: '',
     variety: '',
@@ -112,9 +143,57 @@ export default function CropPlanningClient() {
     monitoringPlan: { ndvi: true, scouting: true, pest: true, soil: false },
   });
 
+  // Fetch existing plans and recommendations from API
+  const {
+    data: existingPlans,
+    isLoading: plansLoading,
+    isError: plansError,
+    refetch: refetchPlans,
+  } = useCropPlans();
+
+  const {
+    data: recommendations,
+    isLoading: recsLoading,
+  } = useCropRecommendations(plan.fieldId || undefined);
+
+  const createPlanMutation = useCreateCropPlan();
+
+  // Build field list from existing plans (unique fieldIds)
+  const fields = useMemo(() => {
+    if (!existingPlans || existingPlans.length === 0) {
+      // Fallback fields when no plans exist yet
+      return [
+        { id: 'f1', name: 'حقل القمح الشمالي', area: 5.2, soil: 'طيني', lastCrop: 'شعير' },
+        { id: 'f2', name: 'حقل الطماطم', area: 3.0, soil: 'رملي طيني', lastCrop: 'بصل' },
+        { id: 'f3', name: 'بستان النخيل', area: 8.5, soil: 'رملي', lastCrop: 'نخيل (دائم)' },
+        { id: 'f4', name: 'حقل الذرة الرفيعة', area: 6.7, soil: 'طيني ثقيل', lastCrop: 'قمح' },
+      ];
+    }
+    const fieldMap = new Map<string, { id: string; name: string; area: number; soil: string; lastCrop: string }>();
+    existingPlans.forEach((p) => {
+      if (!fieldMap.has(p.fieldId)) {
+        fieldMap.set(p.fieldId, {
+          id: p.fieldId,
+          name: p.fieldId,
+          area: 0,
+          soil: '-',
+          lastCrop: p.cropType,
+        });
+      }
+    });
+    return Array.from(fieldMap.values());
+  }, [existingPlans]);
+
+  // Set default fieldId when fields are loaded
+  useEffect(() => {
+    if (fields.length > 0 && !plan.fieldId) {
+      setPlan((p) => ({ ...p, fieldId: fields[0]?.id ?? '' }));
+    }
+  }, [fields, plan.fieldId]);
+
   const selectedField = useMemo(
-    () => FIELDS.find((f) => f.id === plan.fieldId) ?? FIELDS[0],
-    [plan.fieldId],
+    () => fields.find((f) => f.id === plan.fieldId) ?? fields[0],
+    [plan.fieldId, fields],
   );
   const selectedCrop = useMemo(
     () => CROPS.find((c) => c.code === plan.cropCode),
@@ -130,13 +209,24 @@ export default function CropPlanningClient() {
 
   const expectedYield = useMemo(() => {
     if (!selectedCrop || !selectedField) return 0;
-    return (selectedCrop.yieldTonsHa * (selectedField?.area ?? 1)).toFixed(1);
+    return (selectedCrop.yieldTonsHa * (selectedField?.area || 1)).toFixed(1);
   }, [selectedCrop, selectedField]);
 
   const prepProgress = useMemo(() => {
     const done = plan.prepChecklist.filter(Boolean).length;
     return Math.round((done / PREP_ITEMS.length) * 100);
   }, [plan.prepChecklist]);
+
+  const handleSavePlan = () => {
+    if (!plan.fieldId || !plan.cropCode) return;
+    createPlanMutation.mutate({
+      fieldId: plan.fieldId,
+      cropType: plan.cropCode,
+      season: selectedCrop?.season ?? '',
+      plantingDate: plan.plantingDate,
+      harvestDate: harvestDate ?? undefined,
+    });
+  };
 
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 p-6 space-y-6">
@@ -186,24 +276,56 @@ export default function CropPlanningClient() {
           {step === 1 && (
             <div className="space-y-4">
               <h2 className="text-lg font-bold">اختيار الحقل</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {FIELDS.map((f) => (
-                  <button
-                    key={f.id}
-                    onClick={() => setPlan((p) => ({ ...p, fieldId: f.id }))}
-                    className={`p-4 rounded-xl border-2 text-right transition-all ${
-                      plan.fieldId === f.id
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <p className="font-bold text-gray-900">{f.name}</p>
-                    <p className="text-sm text-gray-500 mt-1">المساحة: {f.area} هكتار</p>
-                    <p className="text-sm text-gray-500">التربة: {f.soil}</p>
-                    <p className="text-sm text-gray-500">آخر محصول: {f.lastCrop}</p>
-                  </button>
-                ))}
-              </div>
+              {plansLoading ? (
+                <LoadingSkeleton />
+              ) : plansError ? (
+                <ErrorBanner
+                  message="فشل في تحميل الحقول. يرجى المحاولة مرة أخرى."
+                  onRetry={() => refetchPlans()}
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {fields.map((f) => (
+                    <button
+                      key={f.id}
+                      onClick={() => setPlan((p) => ({ ...p, fieldId: f.id }))}
+                      className={`p-4 rounded-xl border-2 text-right transition-all ${
+                        plan.fieldId === f.id
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <p className="font-bold text-gray-900">{f.name}</p>
+                      <p className="text-sm text-gray-500 mt-1">المساحة: {f.area} هكتار</p>
+                      <p className="text-sm text-gray-500">التربة: {f.soil}</p>
+                      <p className="text-sm text-gray-500">آخر محصول: {f.lastCrop}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Show API recommendations if available */}
+              {recommendations && recommendations.length > 0 && (
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-medium text-blue-800 mb-2">توصيات المحاصيل للحقل:</h3>
+                  <div className="space-y-2">
+                    {recommendations.map((rec: CropRecommendation) => (
+                      <div key={rec.cropType} className="flex items-center justify-between text-sm">
+                        <span className="text-blue-700">{rec.cropType}</span>
+                        <span className="text-blue-600 font-medium">
+                          ملاءمة: {Math.round(rec.suitabilityScore * 100)}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {recsLoading && plan.fieldId && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-1/2" />
+                </div>
+              )}
             </div>
           )}
 
@@ -501,6 +623,17 @@ export default function CropPlanningClient() {
                       <li>✅ تحضير الحقل: {prepProgress}% مكتمل</li>
                     </ul>
                   </div>
+
+                  {createPlanMutation.isSuccess && (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                      تم حفظ الخطة بنجاح
+                    </div>
+                  )}
+                  {createPlanMutation.isError && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                      فشل في حفظ الخطة. يرجى المحاولة مرة أخرى.
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="text-gray-500">
@@ -523,8 +656,17 @@ export default function CropPlanningClient() {
         </button>
         <div className="flex gap-3">
           {step === 7 && (
-            <button className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-              <Save className="w-4 h-4" /> حفظ الخطة
+            <button
+              onClick={handleSavePlan}
+              disabled={createPlanMutation.isPending}
+              className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+            >
+              {createPlanMutation.isPending ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              حفظ الخطة
             </button>
           )}
           <button

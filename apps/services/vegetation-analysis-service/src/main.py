@@ -957,7 +957,19 @@ async def readiness():
         checks["database"] = "not_configured"
 
     # Check NATS (publishing via shared singleton module)
-    checks["nats"] = "available" if _nats_available else "not_configured"
+    if _nats_available:
+        try:
+            from shared.libs.events.nats_publisher import _publisher_instance
+            if _publisher_instance and _publisher_instance.is_connected:
+                checks["nats"] = "connected"
+            elif _publisher_instance:
+                checks["nats"] = "disconnected"
+            else:
+                checks["nats"] = "available"  # module loaded but publisher not yet created
+        except Exception:
+            checks["nats"] = "available"
+    else:
+        checks["nats"] = "not_configured"
 
     all_ready = all(v != "disconnected" for v in checks.values())
     return {

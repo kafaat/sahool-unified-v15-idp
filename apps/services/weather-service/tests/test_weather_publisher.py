@@ -21,27 +21,41 @@ def publisher():
     types_stub.get_subject = lambda *a, **kw: "test.subject"
     types_stub.get_version = lambda *a, **kw: 1
 
-    # Also ensure parent packages exist in sys.modules
-    for mod_name in ("src", "src.events", "src.events.types"):
-        if mod_name not in sys.modules:
-            sys.modules[mod_name] = types_stub if mod_name == "src.events.types" else ModuleType(mod_name)
-
-    # Now import the module (relative import will find src.events.types in sys.modules)
-    from src.events.publish import WeatherPublisher
-
+    # Stub nats.aio.client so publish.py import gets our mock
     mock_nc = AsyncMock()
     mock_cls = MagicMock(return_value=mock_nc)
 
-    # Patch NATS class on the already-imported module
+    nats_stub = ModuleType("nats")
+    nats_aio = ModuleType("nats.aio")
+    nats_client = ModuleType("nats.aio.client")
+    nats_client.Client = mock_cls
+    nats_stub.aio = nats_aio
+
+    saved = {}
+    for name, mod in [
+        ("src", ModuleType("src")),
+        ("src.events", ModuleType("src.events")),
+        ("src.events.types", types_stub),
+        ("nats", nats_stub),
+        ("nats.aio", nats_aio),
+        ("nats.aio.client", nats_client),
+    ]:
+        saved[name] = sys.modules.get(name)
+        sys.modules[name] = mod
+
+    # Force re-import so publish.py picks up the stubs
+    sys.modules.pop("src.events.publish", None)
     import src.events.publish as pub_mod
 
-    original_nats = pub_mod.NATS
-    pub_mod.NATS = mock_cls
+    yield pub_mod.WeatherPublisher(nats_url="nats://test:4222"), mock_nc
 
-    yield WeatherPublisher(nats_url="nats://test:4222"), mock_nc
-
-    # Restore
-    pub_mod.NATS = original_nats
+    # Restore sys.modules
+    for name, original in saved.items():
+        if original is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = original
+    sys.modules.pop("src.events.publish", None)
 
 
 @pytest.mark.asyncio

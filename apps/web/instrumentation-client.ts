@@ -29,7 +29,11 @@ let Sentry: typeof SentryShim = SentryShim;
 try {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const real = require("@sentry/nextjs");
-  if (real && typeof real.init === "function") {
+  if (
+    real &&
+    typeof real.init === "function" &&
+    typeof real.browserTracingIntegration === "function"
+  ) {
     Sentry = real;
   }
 } catch {

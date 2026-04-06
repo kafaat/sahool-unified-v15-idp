@@ -39,6 +39,7 @@ export interface PivotStats {
 const PIVOT_ENDPOINTS = {
   LIST: `${IRRIGATION_ENDPOINTS.SCHEDULES_LIST}?type=pivot`,
   STATS: IRRIGATION_ENDPOINTS.EFFICIENCY,
+  /** TODO: Pivot control endpoint does not exist yet in the backend. Pending implementation in irrigation-smart service. */
   CONTROL: '/api/v1/irrigation/pivot/control',
 } as const;
 

@@ -91,13 +91,24 @@ export const TasksSummary: React.FC = () => {
   const completeTask = useCompleteTask();
   const updateTaskStatus = useUpdateTaskStatus();
 
-  // Initialize completedIds from tasks that are already completed in API data
+  // Sync completedIds with API data, but preserve in-flight optimistic toggles
   useEffect(() => {
     const alreadyCompleted = new Set(
       (tasksData ?? []).filter((t: TaskItemProps) => t.status === 'completed').map((t: TaskItemProps) => t.id)
     );
-    setCompletedIds(alreadyCompleted);
-  }, [tasksData]);
+    setCompletedIds((prev) => {
+      // If there are pending API calls, merge server state with local optimistic state
+      if (pendingIds.size > 0) {
+        const merged = new Set(alreadyCompleted);
+        for (const id of pendingIds) {
+          if (prev.has(id)) merged.add(id);
+          else merged.delete(id);
+        }
+        return merged;
+      }
+      return alreadyCompleted;
+    });
+  }, [tasksData, pendingIds]);
 
   const handleToggleComplete = useCallback((id: string) => {
     if (pendingIds.has(id)) return; // Prevent double-clicks while API call in-flight

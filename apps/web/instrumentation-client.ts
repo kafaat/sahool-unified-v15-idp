@@ -32,12 +32,23 @@ try {
   if (
     real &&
     typeof real.init === "function" &&
-    typeof real.browserTracingIntegration === "function"
+    typeof real.browserTracingIntegration === "function" &&
+    typeof real.captureRouterTransitionStart === "function"
   ) {
     Sentry = real;
   }
-} catch {
-  // @sentry/nextjs not installed — using shim (all methods are safe no-ops)
+} catch (error: unknown) {
+  // Only swallow MODULE_NOT_FOUND for @sentry/nextjs itself.
+  // Rethrow unexpected errors so they don't silently disable Sentry.
+  const err = error as Record<string, unknown>;
+  const isMissing =
+    err &&
+    err.code === "MODULE_NOT_FOUND" &&
+    typeof err.message === "string" &&
+    err.message.includes("@sentry/nextjs");
+  if (!isMissing) {
+    throw error;
+  }
 }
 
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;

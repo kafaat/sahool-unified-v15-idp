@@ -319,21 +319,19 @@ except ImportError as e:
     logger.warning(f"NDVI Time-Series Analyzer module not available: {e}")
     NDVITimeSeriesAnalyzer = None
 
-# NATS publisher (optional)
+# NATS publisher (optional — uses shared singleton)
 _nats_available = False
-_nats_publisher = None
 try:
     # Add project root to path for shared imports (dynamic path instead of hardcoded)
     _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
     if _project_root not in sys.path:
         sys.path.insert(0, _project_root)
-    from shared.libs.events.nats_publisher import NATSPublisher, publish_analysis_completed_sync
+    from shared.libs.events.nats_publisher import publish_analysis_completed_sync
 
     _nats_available = True
 except ImportError:
     logger.info("NATS publisher not available - running without event publishing")
     publish_analysis_completed_sync = None
-    NATSPublisher = None
 
 # ActionTemplate factory (optional)
 _action_factory_available = False
@@ -420,18 +418,12 @@ async def lifespan(app: FastAPI):
     if _vra_generator:
         register_vra_endpoints(app, _vra_generator)
 
-    # Initialize NATS publisher
-    global _nats_publisher
-    if _nats_available and NATSPublisher:
-        try:
-            _nats_publisher = NATSPublisher()
-            connected = await _nats_publisher.connect()
-            if connected:
-                logger.info("nats_publisher_connected")
-            else:
-                logger.warning("nats_publisher_connect_failed")
-        except Exception as e:
-            logger.warning("nats_publisher_init_error", error=str(e))
+    # NATS publishing is handled by the shared singleton publisher
+    # (shared/libs/events/nats_publisher.py → publish_analysis_completed_sync).
+    # No service-local NATS connection needed — avoids duplicate connections
+    # and keeps readiness consistent with the actual publishing path.
+    if _nats_available:
+        logger.info("nats_publisher_available_via_shared_module")
 
     logger.info("service_ready", service="vegetation-analysis-service", port=8090)
 
@@ -440,7 +432,6 @@ async def lifespan(app: FastAPI):
     # Cleanup
     logger.info("service_shutting_down", service="vegetation-analysis-service")
     for name, resource in [
-        ("nats_publisher", _nats_publisher),
         ("multi_provider", _multi_provider),
         ("sar_processor", _sar_processor),
     ]:
@@ -965,13 +956,8 @@ async def readiness():
     else:
         checks["database"] = "not_configured"
 
-    # Check NATS
-    if _nats_publisher and _nats_publisher.is_connected:
-        checks["nats"] = "connected"
-    elif _nats_publisher:
-        checks["nats"] = "disconnected"
-    else:
-        checks["nats"] = "not_configured"
+    # Check NATS (publishing via shared singleton module)
+    checks["nats"] = "available" if _nats_available else "not_configured"
 
     all_ready = all(v != "disconnected" for v in checks.values())
     return {

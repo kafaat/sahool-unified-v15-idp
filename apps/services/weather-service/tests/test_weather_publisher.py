@@ -4,8 +4,9 @@ Verifies connect() uses reconnection parameters and callbacks update state.
 """
 
 import importlib.util
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 def _load_publish_module(mock_nats_cls):

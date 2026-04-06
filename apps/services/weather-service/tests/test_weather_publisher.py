@@ -6,7 +6,6 @@ Verifies connect() uses reconnection parameters and callbacks update state.
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 from src.events.publish import WeatherPublisher
 
 

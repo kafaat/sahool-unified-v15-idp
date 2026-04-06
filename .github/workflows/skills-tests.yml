@@ -317,14 +317,13 @@ jobs:
 
       - name: Upload combined coverage to Codecov
         uses: codecov/codecov-action@v5
-        if: always()
+        if: always() && secrets.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage-ai/coverage-ai.xml
           fail_ci_if_error: false
           flags: skills-tests
           name: skills-coverage
-        continue-on-error: true
 
       - name: Generate coverage summary
         run: |

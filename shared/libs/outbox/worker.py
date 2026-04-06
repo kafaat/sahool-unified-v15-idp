@@ -31,9 +31,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import AsyncGenerator, Callable
-from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
@@ -128,7 +127,7 @@ class OutboxWorker:
             try:
                 await self._task
             except asyncio.CancelledError:
-                pass
+                pass  # Expected during graceful shutdown
         logger.info(
             "outbox_worker_stopped",
             extra={"stats": self._stats},

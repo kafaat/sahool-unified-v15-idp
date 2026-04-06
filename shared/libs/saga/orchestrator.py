@@ -206,7 +206,21 @@ class SagaOrchestrator:
                 db.add(record)
                 step_records.append(record)
 
-            db.commit()
+            try:
+                db.commit()
+            except Exception:
+                db.rollback()
+                # Race condition: another process created the saga first
+                # Reload and return the existing saga
+                existing = self._find_existing(db, idem_key)
+                if existing:
+                    return SagaResult(
+                        saga_id=existing.id,
+                        state=SagaState(existing.state),
+                        context=json.loads(existing.context_json),
+                        error=existing.error_message,
+                    )
+                raise
 
             logger.info(
                 "saga_started",
@@ -397,8 +411,9 @@ class SagaOrchestrator:
 
             compensated = False
             last_error = ""
+            retries = max(1, step.compensation_retries)
 
-            for attempt in range(1, step.compensation_retries + 1):
+            for attempt in range(1, retries + 1):
                 try:
                     await asyncio.wait_for(
                         step.compensate(ctx),
@@ -407,7 +422,7 @@ class SagaOrchestrator:
                     compensated = True
                     break
                 except Exception as e:
-                    last_error = f"Compensation '{step.name}' attempt {attempt}/{step.compensation_retries}: {e}"
+                    last_error = f"Compensation '{step.name}' attempt {attempt}/{retries}: {e}"
                     logger.warning(
                         "saga_compensation_retry",
                         extra={
@@ -417,7 +432,7 @@ class SagaOrchestrator:
                             "error": str(e),
                         },
                     )
-                    if attempt < step.compensation_retries:
+                    if attempt < retries:
                         # Exponential backoff: 1s, 2s, 4s
                         await asyncio.sleep(min(2 ** (attempt - 1), 8))
 

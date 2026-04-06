@@ -17,6 +17,7 @@ from uuid import uuid4
 from sqlalchemy import (
     DateTime,
     Enum,
+    ForeignKey,
     Index,
     Integer,
     String,
@@ -138,6 +139,7 @@ class SagaStepRecord(Base):
     )
     saga_id: Mapped[str] = mapped_column(
         PGUUID(as_uuid=False),
+        ForeignKey("saga_executions.id", ondelete="CASCADE"),
         nullable=False,
         comment="FK to saga_executions.id",
     )

@@ -183,8 +183,9 @@ class RateLimiter:
 
         # Use per-request config override if set (avoids shared state mutation)
         # Only allow override for internal service-to-service calls
+        # (ServiceAuthMiddleware sets is_service_request=True)
         config_override = getattr(getattr(request, "state", None), "rate_limit_config_override", None)
-        if config_override and getattr(getattr(request, "state", None), "_internal_service_call", False):
+        if config_override and getattr(getattr(request, "state", None), "is_service_request", False):
             tier = "override"
             config = config_override
         else:

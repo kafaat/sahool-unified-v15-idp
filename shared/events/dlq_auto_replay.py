@@ -106,6 +106,7 @@ class DLQAutoReplayWorker:
         self._dlq_config = dlq_config or DLQConfig()
         self._config = replay_config or AutoReplayConfig()
         self._task: asyncio.Task | None = None
+        self._sub = None  # Reusable pull subscription
         self._running = False
         self._stats = AutoReplayStats()
 
@@ -190,19 +191,24 @@ class DLQAutoReplayWorker:
 
     async def _process_batch(self) -> None:
         """Fetch and process a batch of DLQ messages."""
-        try:
-            sub = await self._js.pull_subscribe(
-                f"{self._dlq_config.dlq_subject_prefix}.>",
-                durable=f"dlq_auto_replay_{self._config.service_name}",
-            )
-        except Exception as e:
-            logger.warning("dlq_subscribe_failed", extra={"error": str(e)})
-            return
+        # Reuse existing subscription; create only on first call or after failure
+        if self._sub is None:
+            try:
+                self._sub = await self._js.pull_subscribe(
+                    f"{self._dlq_config.dlq_subject_prefix}.>",
+                    durable=f"dlq_auto_replay_{self._config.service_name}",
+                )
+            except Exception as e:
+                logger.warning("dlq_subscribe_failed", extra={"error": str(e)})
+                return
 
         try:
-            messages = await sub.fetch(batch=self._config.batch_size, timeout=5)
+            messages = await self._sub.fetch(batch=self._config.batch_size, timeout=5)
+        except TimeoutError:
+            return  # No messages available — normal
         except Exception:
-            # No messages or timeout — normal
+            # Subscription may be stale; reset so it's recreated next poll
+            self._sub = None
             return
 
         for msg in messages:

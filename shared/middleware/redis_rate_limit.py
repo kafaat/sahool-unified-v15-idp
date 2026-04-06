@@ -175,7 +175,13 @@ class RedisRateLimiter(RateLimiter):
                     extra={"error": str(e), "fallback": "in_memory"},
                 )
                 self._fallback_active = True
-            # Reset Redis state so we can reconnect when Redis recovers
+            # Close existing connection (best-effort) then reset state
+            # so we can reconnect when Redis recovers
+            if self._redis:
+                try:
+                    await self._redis.close()
+                except Exception:
+                    pass  # Already broken, just discard
             self._redis = None
             self._sliding_window_sha = None
             self._token_bucket_sha = None

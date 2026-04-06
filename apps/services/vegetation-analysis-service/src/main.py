@@ -427,7 +427,6 @@ async def lifespan(app: FastAPI):
             _nats_publisher = NATSPublisher()
             connected = await _nats_publisher.connect()
             if connected:
-                app.state.nc = _nats_publisher._nc
                 logger.info("nats_publisher_connected")
             else:
                 logger.warning("nats_publisher_connect_failed")
@@ -440,21 +439,16 @@ async def lifespan(app: FastAPI):
 
     # Cleanup
     logger.info("service_shutting_down", service="vegetation-analysis-service")
-    if _nats_publisher:
-        try:
-            await _nats_publisher.close()
-        except Exception as e:
-            logger.warning(f"Error closing NATS publisher: {e}")
-    if _multi_provider:
-        try:
-            await _multi_provider.close()
-        except Exception as e:
-            logger.warning(f"Error closing multi-provider: {e}")
-    if _sar_processor:
-        try:
-            await _sar_processor.close()
-        except Exception as e:
-            logger.warning(f"Error closing SAR processor: {e}")
+    for name, resource in [
+        ("nats_publisher", _nats_publisher),
+        ("multi_provider", _multi_provider),
+        ("sar_processor", _sar_processor),
+    ]:
+        if resource:
+            try:
+                await resource.close()
+            except Exception as e:
+                logger.warning("shutdown_close_error", resource=name, error=str(e))
     logger.info("service_shutdown_complete", service="vegetation-analysis-service")
 
 
@@ -972,11 +966,10 @@ async def readiness():
         checks["database"] = "not_configured"
 
     # Check NATS
-    nc = getattr(app.state, "nc", None)
-    if nc:
-        checks["nats"] = "connected" if not nc.is_closed else "disconnected"
-    elif _nats_publisher and _nats_publisher.is_connected:
+    if _nats_publisher and _nats_publisher.is_connected:
         checks["nats"] = "connected"
+    elif _nats_publisher:
+        checks["nats"] = "disconnected"
     else:
         checks["nats"] = "not_configured"
 

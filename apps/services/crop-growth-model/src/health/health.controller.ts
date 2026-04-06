@@ -3,7 +3,7 @@
  * Kubernetes health check endpoints for crop-growth-model service
  */
 
-import { Controller, Get, HttpCode, HttpStatus, Res } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Res } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import type { Response } from "express";
 

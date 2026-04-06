@@ -240,8 +240,13 @@ async def lifespan(app: FastAPI):
         elif is_ci_or_test:
             logger.info("Running in CI/test mode - using in-memory storage")
             app.state.db_available = False
+        elif environment == "production":
+            raise RuntimeError(
+                "DATABASE_URL is required in production for audit compliance. "
+                "Audit data cannot use in-memory storage in production."
+            )
         else:
-            logger.warning("DATABASE_URL not configured - using in-memory storage")
+            logger.warning("DATABASE_URL not configured - using in-memory storage (development only)")
             app.state.db_available = False
     except Exception as e:
         if is_ci_or_test:
@@ -274,33 +279,66 @@ async def lifespan(app: FastAPI):
             try:
                 data = json.loads(msg.data.decode())
             except (json.JSONDecodeError, UnicodeDecodeError):
-                logger.warning("invalid_nats_message", subject=getattr(msg, "subject", "unknown"))
+                logger.warning("invalid_nats_message", subject=sanitize_log_input(getattr(msg, "subject", "unknown")))
                 return
             tenant_id = data.get("tenant_id")
             if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) < 5:
-                logger.warning("missing_or_invalid_tenant_in_event", subject=getattr(msg, "subject", "unknown"))
+                logger.warning("missing_or_invalid_tenant_in_event", subject=sanitize_log_input(getattr(msg, "subject", "unknown")))
                 return
-            if tenant_id not in _audit_logs:
-                _audit_logs[tenant_id] = []
-            _audit_logs[tenant_id].append(
-                {
-                    "id": str(uuid.uuid4()),
-                    "subject": msg.subject,
-                    "action": msg.subject.split(".")[-1] if "." in msg.subject else msg.subject,
-                    "category": msg.subject.split(".")[1] if len(msg.subject.split(".")) > 1 else "system",
-                    "severity": data.get("severity", "info"),
-                    "user_id": data.get("user_id", "system"),
-                    "resource_type": data.get("resource_type"),
-                    "resource_id": data.get("resource_id"),
-                    "tenant_id": tenant_id,
-                    "success": data.get("success", True),
-                    "details": data,
-                    "data": data,
-                    "timestamp": datetime.now(UTC).isoformat(),
-                    "created_at": datetime.now(UTC).isoformat(),
-                }
-            )
-            logger.info(f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}")
+
+            entry_id = str(uuid.uuid4())
+            subject = msg.subject
+            action = subject.split(".")[-1] if "." in subject else subject
+            category = subject.split(".")[1] if len(subject.split(".")) > 1 else "system"
+            severity = data.get("severity", "info")
+            user_id = data.get("user_id", "system")
+            resource_type = data.get("resource_type")
+            resource_id = data.get("resource_id")
+            success = data.get("success", True)
+            now = datetime.now(UTC).isoformat()
+
+            log_entry = {
+                "id": entry_id,
+                "subject": subject,
+                "action": action,
+                "category": category,
+                "severity": severity,
+                "user_id": user_id,
+                "resource_type": resource_type,
+                "resource_id": resource_id,
+                "tenant_id": tenant_id,
+                "success": success,
+                "details": data,
+                "data": data,
+                "timestamp": now,
+                "created_at": now,
+            }
+
+            # Persist to database first, fall back to in-memory
+            if app.state.db_pool:
+                try:
+                    await app.state.db_pool.execute(
+                        """INSERT INTO audit_logs
+                           (id, tenant_id, user_id, action, category, severity,
+                            resource_type, resource_id, success, details, created_at)
+                           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)""",
+                        uuid.UUID(entry_id), tenant_id, user_id, action, category,
+                        severity, resource_type, resource_id, success,
+                        json.dumps(data), datetime.now(UTC),
+                    )
+                except Exception as db_err:
+                    logger.error("audit_event_db_write_failed", error=str(db_err),
+                                 subject=sanitize_log_input(subject))
+                    # Fall back to in-memory on DB failure
+                    if tenant_id not in _audit_logs:
+                        _audit_logs[tenant_id] = []
+                    _audit_logs[tenant_id].append(log_entry)
+            else:
+                if tenant_id not in _audit_logs:
+                    _audit_logs[tenant_id] = []
+                _audit_logs[tenant_id].append(log_entry)
+
+            logger.info(f"Audit event captured: {sanitize_log_input(subject)} for tenant {sanitize_log_input(tenant_id)}")
 
         audit_subjects = [
             "sahool.user.authenticated",
@@ -500,8 +538,26 @@ async def create_audit_log(
         "created_at": datetime.now(UTC).isoformat(),
     }
 
-    logs = _get_logs_for_tenant(tenant_id)
-    logs.append(log_entry)
+    # Persist to database first, fall back to in-memory
+    if getattr(app.state, "db_pool", None):
+        try:
+            await app.state.db_pool.execute(
+                """INSERT INTO audit_logs
+                   (id, tenant_id, user_id, action, category, severity,
+                    resource_type, resource_id, ip_address, success, details, created_at)
+                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)""",
+                uuid.UUID(log_entry["id"]), tenant_id, user_id, body.action,
+                body.category, body.severity, body.resource_type, body.resource_id,
+                log_entry["ip_address"], True, json.dumps(body.details) if body.details else None,
+                datetime.now(UTC),
+            )
+        except Exception as db_err:
+            logger.error("audit_log_db_write_failed", error=str(db_err))
+            logs = _get_logs_for_tenant(tenant_id)
+            logs.append(log_entry)
+    else:
+        logs = _get_logs_for_tenant(tenant_id)
+        logs.append(log_entry)
 
     logger.info(
         f"Audit log created: action={sanitize_log_input(log_entry['action'])} tenant={sanitize_log_input(tenant_id)}"

@@ -546,16 +546,8 @@ class AutoFixEngine:
         Returns:
             Dict mapping tool names to availability
         """
-        tools = [
-            ToolType.RUFF,
-            ToolType.ESLINT,
-            ToolType.MYPY,
-            ToolType.BANDIT,
-            ToolType.DART_ANALYZE,
-        ]
-
         availability = {}
-        for tool in tools:
+        for tool in ToolType:
             availability[tool.value] = await self.diagnostics.check_tool_available(tool)
 
         return availability

@@ -1,27 +1,26 @@
 ARG PYTHON_VERSION=3.11
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
+# ── Stage 1: Builder ─────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /app
 
 ENV PIP_NO_CACHE_DIR=1
 
-# Install system dependencies
+# Install system dependencies needed for building
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && apt-get install -y --no-install-recommends \
     git \
-    procps \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user for security
-RUN groupadd --system sahool && \
-    useradd --system --gid sahool --shell /bin/bash --create-home sahool
+# Create virtual environment for clean copy to production
+RUN python -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
 
 # Install Python dependencies
 COPY constraints.txt .
 COPY apps/services/code-review-service/requirements.txt .
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun mirror first with long timeout, then fallback to PyPI, finally Tencent
+# Install with resilient multi-mirror fallback strategy
 # Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
@@ -40,22 +39,47 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
 
-# Copy shared modules
-COPY apps/services/shared/ ./shared/
+# Strip build tools from venv (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /app/venv/lib/python*/site-packages/setuptools* \
+           /app/venv/lib/python*/site-packages/pip* \
+           /app/venv/lib/python*/site-packages/wheel* \
+           /app/venv/lib/python*/site-packages/_distutils_hack* \
+           /app/venv/lib/python*/site-packages/pkg_resources* \
+           /app/venv/lib/python*/site-packages/jaraco* \
+           /app/venv/bin/pip* 2>/dev/null || true
+
+# ── Stage 2: Production ─────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
+
+WORKDIR /app
+
+# Install runtime-only system dependencies
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN groupadd --system sahool && \
+    useradd --system --gid sahool --shell /bin/bash --create-home sahool
+
+# Copy virtual environment from builder
+COPY --from=builder --chown=sahool:sahool /app/venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
+# Copy shared modules (platform shared/ first, then service-specific overlay)
+COPY --chown=sahool:sahool shared/ ./shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity
 RUN rm -f ./shared/errors_py.py
 
-# Create logs directory and set ownership first
-RUN mkdir -p /app/logs && \
-    chown -R sahool:sahool /app
+# Create logs directory
+RUN mkdir -p /app/logs && chown -R sahool:sahool /app/logs
 
 # Copy application code
-COPY apps/services/code-review-service/src/ ./src/
-COPY apps/services/code-review-service/config/ ./config/
-
-# Ensure ownership is correct after copying
-RUN chown -R sahool:sahool /app
+COPY --chown=sahool:sahool apps/services/code-review-service/src/ ./src/
+COPY --chown=sahool:sahool apps/services/code-review-service/config/ ./config/
 
 # Set Python path for shared module imports
 ENV PYTHONPATH=/app \
@@ -65,15 +89,6 @@ ENV PYTHONPATH=/app \
 EXPOSE 8102
 
 # Switch to non-root user
-
-# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
-RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
-           /usr/local/lib/python*/site-packages/pip* \
-           /usr/local/lib/python*/site-packages/wheel* \
-           /usr/local/lib/python*/site-packages/_distutils_hack* \
-           /usr/local/lib/python*/site-packages/pkg_resources* \
-           /usr/local/lib/python*/site-packages/jaraco* \
-           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Health check - verify API is responding

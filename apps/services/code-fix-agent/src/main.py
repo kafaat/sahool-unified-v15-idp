@@ -6,6 +6,7 @@ FastAPI service for AI-powered code analysis, bug fixing, and implementation.
 Follows SAHOOL service conventions and A2A Protocol.
 """
 
+import asyncio
 import os
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
@@ -124,8 +125,16 @@ async def lifespan(app: FastAPI):
     """
     logger.info("service_starting", service=SERVICE_NAME, version=SERVICE_VERSION)
 
-    # Initialize agent
-    app.state.agent = CodeFixAgent(agent_id=f"{SERVICE_NAME}_001")
+    # Initialize agent with Ollama URL from environment
+    ollama_url = os.getenv("OLLAMA_URL") or os.getenv("OLLAMA_BASE_URL")
+    ollama_model = os.getenv("OLLAMA_MODEL", "codellama:7b")
+    app.state.agent = CodeFixAgent(
+        agent_id=f"{SERVICE_NAME}_001",
+        ollama_url=ollama_url,
+        ollama_model=ollama_model,
+    )
+    # Lock to prevent concurrent context mutation on the shared agent instance
+    app.state.agent_lock = asyncio.Lock()
 
     # Initialize NATS connection
     nats_url = os.getenv("NATS_URL")
@@ -308,6 +317,28 @@ code_fix_agent_patterns_learned {metrics["patterns_learned"]}
 # ============================================================================
 
 
+async def _run_agent_safe(request: Request, percept_type: str, data: dict, source: str = "api"):
+    """Run agent with lock to prevent concurrent context mutation."""
+    from .agent.code_fix_agent import AgentContext, AgentPercept
+
+    agent: CodeFixAgent = request.app.state.agent
+    lock: asyncio.Lock = request.app.state.agent_lock
+    user = getattr(request.state, "_current_user", None)
+
+    context = AgentContext(
+        request_id=getattr(request.state, "request_id", ""),
+        user_id=str(user.id) if user else None,
+        tenant_id=getattr(user, "tenant_id", None) if user else None,
+    )
+    percept = AgentPercept(percept_type=percept_type, data=data, source=source)
+
+    async with lock:
+        agent.context = context
+        result = await agent.run(percept)
+
+    return result, agent.agent_id
+
+
 @app.post("/api/v1/analyze", response_model=AgentResponse, tags=["Agent"])
 async def analyze_code(request: Request, body: AnalyzeCodeRequest, user: User = Depends(get_current_user)):
     """
@@ -321,27 +352,11 @@ async def analyze_code(request: Request, body: AnalyzeCodeRequest, user: User = 
     - Style violations
     - Type errors
     """
-    agent: CodeFixAgent = request.app.state.agent
-
-    from .agent.code_fix_agent import AgentContext, AgentPercept
-
-    agent.context = AgentContext(
-        request_id=getattr(request.state, "request_id", ""),
-        user_id=str(user.id) if user else None,
-        tenant_id=getattr(user, "tenant_id", None),
+    request.state._current_user = user
+    result, agent_id = await _run_agent_safe(
+        request, "code_snippet",
+        {"code": body.code, "language": body.language, "file_path": body.file_path or ""},
     )
-
-    percept = AgentPercept(
-        percept_type="code_snippet",
-        data={
-            "code": body.code,
-            "language": body.language,
-            "file_path": body.file_path or "",
-        },
-        source="api",
-    )
-
-    result = await agent.run(percept)
 
     return AgentResponse(
         success=result.get("success", False),
@@ -351,7 +366,7 @@ async def analyze_code(request: Request, body: AnalyzeCodeRequest, user: User = 
         reasoning=result.get("action", {}).get("reasoning"),
         reasoning_ar=result.get("action", {}).get("reasoning_ar"),
         response_time_ms=result.get("total_time_ms"),
-        agent_id=result.get("agent_id", agent.agent_id),
+        agent_id=result.get("agent_id", agent_id),
     )
 
 
@@ -363,36 +378,27 @@ async def fix_code(request: Request, body: FixCodeRequest, user: User = Depends(
 
     Generates and applies fixes for the provided errors.
     """
-    agent: CodeFixAgent = request.app.state.agent
-
     from .agent.code_fix_agent import AgentContext, AgentPercept
 
-    agent.context = AgentContext(
+    agent: CodeFixAgent = request.app.state.agent
+    lock: asyncio.Lock = request.app.state.agent_lock
+
+    context = AgentContext(
         request_id=getattr(request.state, "request_id", ""),
         user_id=str(user.id) if user else None,
         tenant_id=getattr(user, "tenant_id", None),
     )
 
-    # First perceive the code
-    await agent.perceive(
-        AgentPercept(
-            percept_type="code_snippet",
-            data={
-                "code": body.code,
-                "language": body.language,
-            },
-            source="api",
+    async with lock:
+        agent.context = context
+        # First perceive the code
+        await agent.perceive(
+            AgentPercept(percept_type="code_snippet", data={"code": body.code, "language": body.language}, source="api")
         )
-    )
-
-    # Then perceive the errors
-    percept = AgentPercept(
-        percept_type="error_log",
-        data=body.errors,
-        source="api",
-    )
-
-    result = await agent.run(percept)
+        # Then perceive the errors and run
+        result = await agent.run(
+            AgentPercept(percept_type="error_log", data=body.errors, source="api")
+        )
 
     return AgentResponse(
         success=result.get("success", False),
@@ -414,23 +420,8 @@ async def review_pr(request: Request, body: ReviewPRRequest, user: User = Depend
 
     Analyzes PR changes and provides review comments.
     """
-    agent: CodeFixAgent = request.app.state.agent
-
-    from .agent.code_fix_agent import AgentContext, AgentPercept
-
-    agent.context = AgentContext(
-        request_id=getattr(request.state, "request_id", ""),
-        user_id=str(user.id) if user else None,
-        tenant_id=getattr(user, "tenant_id", None),
-    )
-
-    percept = AgentPercept(
-        percept_type="pr_diff",
-        data=body.diff,
-        source="api",
-    )
-
-    result = await agent.run(percept)
+    request.state._current_user = user
+    result, agent_id = await _run_agent_safe(request, "pr_diff", body.diff)
 
     return AgentResponse(
         success=result.get("success", False),
@@ -440,7 +431,7 @@ async def review_pr(request: Request, body: ReviewPRRequest, user: User = Depend
         reasoning=result.get("action", {}).get("reasoning"),
         reasoning_ar=result.get("action", {}).get("reasoning_ar"),
         response_time_ms=result.get("total_time_ms"),
-        agent_id=result.get("agent_id", agent.agent_id),
+        agent_id=result.get("agent_id", agent_id),
     )
 
 
@@ -452,29 +443,12 @@ async def generate_tests(request: Request, body: GenerateTestsRequest, user: Use
 
     Generates unit tests for the provided code.
     """
-    agent: CodeFixAgent = request.app.state.agent
-
-    from .agent.code_fix_agent import AgentContext, AgentPercept
-
-    agent.context = AgentContext(
-        request_id=getattr(request.state, "request_id", ""),
-        user_id=str(user.id) if user else None,
-        tenant_id=getattr(user, "tenant_id", None),
-    )
-
-    percept = AgentPercept(
-        percept_type="code_snippet",
-        data={
-            "code": body.code,
-            "language": body.language,
-            "generate_tests": True,
-            "framework": body.framework,
-            "coverage_target": body.coverage_target,
-        },
-        source="api",
-    )
-
-    result = await agent.run(percept)
+    request.state._current_user = user
+    result, agent_id = await _run_agent_safe(request, "code_snippet", {
+        "code": body.code, "language": body.language,
+        "generate_tests": True, "framework": body.framework,
+        "coverage_target": body.coverage_target,
+    })
 
     return AgentResponse(
         success=result.get("success", False),
@@ -484,7 +458,7 @@ async def generate_tests(request: Request, body: GenerateTestsRequest, user: Use
         reasoning=result.get("action", {}).get("reasoning"),
         reasoning_ar=result.get("action", {}).get("reasoning_ar"),
         response_time_ms=result.get("total_time_ms"),
-        agent_id=result.get("agent_id", agent.agent_id),
+        agent_id=result.get("agent_id", agent_id),
     )
 
 
@@ -496,23 +470,8 @@ async def implement_feature(request: Request, body: ImplementFeatureRequest, use
 
     Implements a feature based on the provided specification.
     """
-    agent: CodeFixAgent = request.app.state.agent
-
-    from .agent.code_fix_agent import AgentContext, AgentPercept
-
-    agent.context = AgentContext(
-        request_id=getattr(request.state, "request_id", ""),
-        user_id=str(user.id) if user else None,
-        tenant_id=getattr(user, "tenant_id", None),
-    )
-
-    percept = AgentPercept(
-        percept_type="specification",
-        data=body.specification,
-        source="api",
-    )
-
-    result = await agent.run(percept)
+    request.state._current_user = user
+    result, agent_id = await _run_agent_safe(request, "specification", body.specification)
 
     return AgentResponse(
         success=result.get("success", False),
@@ -522,7 +481,7 @@ async def implement_feature(request: Request, body: ImplementFeatureRequest, use
         reasoning=result.get("action", {}).get("reasoning"),
         reasoning_ar=result.get("action", {}).get("reasoning_ar"),
         response_time_ms=result.get("total_time_ms"),
-        agent_id=result.get("agent_id", agent.agent_id),
+        agent_id=result.get("agent_id", agent_id),
     )
 
 
@@ -534,17 +493,18 @@ async def submit_feedback(request: Request, feedback: dict[str, Any], user: User
 
     Allows the agent to learn from fix results.
     """
-    agent: CodeFixAgent = request.app.state.agent
-
     from .agent.code_fix_agent import AgentContext
 
-    agent.context = AgentContext(
-        request_id=getattr(request.state, "request_id", ""),
-        user_id=str(user.id) if user else None,
-        tenant_id=getattr(user, "tenant_id", None),
-    )
+    agent: CodeFixAgent = request.app.state.agent
+    lock: asyncio.Lock = request.app.state.agent_lock
 
-    await agent.learn(feedback)
+    async with lock:
+        agent.context = AgentContext(
+            request_id=getattr(request.state, "request_id", ""),
+            user_id=str(user.id) if user else None,
+            tenant_id=getattr(user, "tenant_id", None),
+        )
+        await agent.learn(feedback)
 
     return {
         "success": True,

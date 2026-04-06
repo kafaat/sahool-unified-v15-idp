@@ -838,7 +838,8 @@ asyncio.run(main())
   # NOTE: Requires Ollama with GPU. Use: docker compose --profile gpu up -d
   code-review-service:
     profiles:
-      - gpu
+      - ai
+      - tools
     build:
       context: .
       dockerfile: apps/services/code-review-service/Dockerfile
@@ -3537,6 +3538,8 @@ asyncio.run(main())
       - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-codellama:7b}
     ports:
       - "127.0.0.1:8162:8162"
     depends_on:
@@ -4625,6 +4628,7 @@ asyncio.run(main())
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for code-review-agent}
     restart: "no"
     security_opt:
       - no-new-privileges:true

@@ -54,6 +54,17 @@ const blockDangerousCommands: HookCallback = async (input) => {
         "chmod 777",
         "curl | sh",
         "wget | sh",
+        "curl | bash",
+        "wget | bash",
+        "python -c \"exec(",
+        "python3 -c \"exec(",
+        "eval(",
+        "base64 -d |",
+        "base64 --decode |",
+        "> /dev/sd",
+        "mkfs.",
+        "dd if=",
+        ":(){:|:&};:",
       ];
 
       for (const pattern of dangerous) {

@@ -235,7 +235,10 @@ services:
       # Docker bridge, enabling container-to-container communication.
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
       VAULT_LOG_LEVEL: "info"
-      VAULT_ADDR: "http://0.0.0.0:8200"
+      # VAULT_ADDR is the client endpoint used by the vault CLI (e.g. healthcheck).
+      # Inside the vault container, localhost (127.0.0.1) is correct.
+      # Other services connect using the Docker hostname: http://vault:8200
+      VAULT_ADDR: "http://127.0.0.1:8200"
     cap_add:
       - IPC_LOCK
     volumes:

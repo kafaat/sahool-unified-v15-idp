@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Brain,
   TrendingUp,
@@ -13,7 +13,11 @@ import {
   Sparkles,
   Clock,
   Percent,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
+import { analyticsApi } from '@/features/analytics/api';
+import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
   {
@@ -74,6 +78,59 @@ function getConfidenceColor(value: number) {
 export default function YieldForecastingPage() {
   const [dateRange, setDateRange] = useState('season');
   const [modelFilter, setModelFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [apiForecastData, setApiForecastData] = useState<typeof forecastData | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await analyticsApi.getYieldAnalytics({ period: dateRange });
+      if (data && Array.isArray(data) && data.length > 0) {
+        setApiForecastData(data as any);
+      } else {
+        setApiForecastData(null);
+      }
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات التنبؤات';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [dateRange]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const displayData = apiForecastData ?? forecastData;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-500">جاري تحميل بيانات التنبؤات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button onClick={fetchData} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">

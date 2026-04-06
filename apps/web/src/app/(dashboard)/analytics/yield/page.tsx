@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Wheat,
   TrendingUp,
@@ -11,7 +11,11 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Layers,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
+import { analyticsApi } from '@/features/analytics/api';
+import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
   {
@@ -67,6 +71,62 @@ const qualityColor: Record<string, string> = {
 export default function YieldAnalyticsPage() {
   const [dateRange, setDateRange] = useState('season');
   const [cropFilter, setCropFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [apiYieldData, setApiYieldData] = useState<typeof yieldData | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await analyticsApi.getYieldAnalytics({
+        period: dateRange,
+        cropTypes: cropFilter !== 'all' ? [cropFilter] : undefined,
+      });
+      if (data && Array.isArray(data) && data.length > 0) {
+        setApiYieldData(data as any);
+      } else {
+        setApiYieldData(null);
+      }
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات الإنتاجية';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [dateRange, cropFilter]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const displayData = apiYieldData ?? yieldData;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-500">جاري تحميل بيانات الإنتاجية...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button onClick={fetchData} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -159,7 +219,7 @@ export default function YieldAnalyticsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {yieldData.map((row) => (
+              {displayData.map((row) => (
                 <tr key={row.field} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 font-medium text-gray-900">{row.field}</td>
                   <td className="px-4 py-3 text-gray-600">{row.crop}</td>

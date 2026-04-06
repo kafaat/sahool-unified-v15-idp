@@ -88,7 +88,7 @@ class TestProductionGuard:
         is_ci_or_test = environment in ("test", "ci", "testing")
 
         # Should not raise
-        should_raise = (db_url is None and not is_ci_or_test and environment == "production")
+        should_raise = db_url is None and not is_ci_or_test and environment == "production"
         assert not should_raise
 
     def test_test_env_allows_no_database(self):
@@ -124,9 +124,17 @@ class TestNatsEventPersistence:
                    (id, tenant_id, user_id, action, category, severity,
                     resource_type, resource_id, success, details, created_at)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)""",
-                uuid.UUID(entry_id), tenant_id, "user-123",
-                "created", "field", "info", None, None, True,
-                json.dumps(data), datetime.now(UTC),
+                uuid.UUID(entry_id),
+                tenant_id,
+                "user-123",
+                "created",
+                "field",
+                "info",
+                None,
+                None,
+                True,
+                json.dumps(data),
+                datetime.now(UTC),
             )
 
         assert mock_pool.execute.called
@@ -197,8 +205,14 @@ class TestAuditLogFormat:
         }
 
         required_fields = [
-            "id", "tenant_id", "user_id", "action", "category",
-            "severity", "success", "created_at",
+            "id",
+            "tenant_id",
+            "user_id",
+            "action",
+            "category",
+            "severity",
+            "success",
+            "created_at",
         ]
         for field in required_fields:
             assert field in entry, f"Missing required field: {field}"

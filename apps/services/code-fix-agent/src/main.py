@@ -354,7 +354,8 @@ async def analyze_code(request: Request, body: AnalyzeCodeRequest, user: User = 
     """
     request.state._current_user = user
     result, agent_id = await _run_agent_safe(
-        request, "code_snippet",
+        request,
+        "code_snippet",
         {"code": body.code, "language": body.language, "file_path": body.file_path or ""},
     )
 
@@ -396,9 +397,7 @@ async def fix_code(request: Request, body: FixCodeRequest, user: User = Depends(
             AgentPercept(percept_type="code_snippet", data={"code": body.code, "language": body.language}, source="api")
         )
         # Then perceive the errors and run
-        result = await agent.run(
-            AgentPercept(percept_type="error_log", data=body.errors, source="api")
-        )
+        result = await agent.run(AgentPercept(percept_type="error_log", data=body.errors, source="api"))
 
     return AgentResponse(
         success=result.get("success", False),
@@ -444,11 +443,17 @@ async def generate_tests(request: Request, body: GenerateTestsRequest, user: Use
     Generates unit tests for the provided code.
     """
     request.state._current_user = user
-    result, agent_id = await _run_agent_safe(request, "code_snippet", {
-        "code": body.code, "language": body.language,
-        "generate_tests": True, "framework": body.framework,
-        "coverage_target": body.coverage_target,
-    })
+    result, agent_id = await _run_agent_safe(
+        request,
+        "code_snippet",
+        {
+            "code": body.code,
+            "language": body.language,
+            "generate_tests": True,
+            "framework": body.framework,
+            "coverage_target": body.coverage_target,
+        },
+    )
 
     return AgentResponse(
         success=result.get("success", False),

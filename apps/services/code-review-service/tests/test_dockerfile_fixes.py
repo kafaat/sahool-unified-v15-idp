@@ -38,12 +38,10 @@ class TestDockerfileStructure:
         """Dockerfile must COPY shared/ (platform shared modules) before apps/services/shared/."""
         lines = dockerfile_content.split("\n")
         shared_copy_lines = [
-            i for i, line in enumerate(lines)
-            if "COPY" in line and "shared/" in line and "apps/services" not in line
+            i for i, line in enumerate(lines) if "COPY" in line and "shared/" in line and "apps/services" not in line
         ]
         service_shared_copy_lines = [
-            i for i, line in enumerate(lines)
-            if "COPY" in line and "apps/services/shared/" in line
+            i for i, line in enumerate(lines) if "COPY" in line and "apps/services/shared/" in line
         ]
 
         assert len(shared_copy_lines) >= 1, "Missing: COPY shared/ ./shared/"
@@ -78,9 +76,9 @@ class TestDockerfileStructure:
         """Dockerfile should not have redundant chown -R commands."""
         # Count standalone chown commands (not --chown in COPY)
         chown_lines = [
-            line.strip() for line in dockerfile_content.split("\n")
-            if "chown -R sahool:sahool /app" in line and not line.strip().startswith("#")
-            and "COPY" not in line
+            line.strip()
+            for line in dockerfile_content.split("\n")
+            if "chown -R sahool:sahool /app" in line and not line.strip().startswith("#") and "COPY" not in line
         ]
         # Should have at most 1 standalone chown (for logs dir)
         assert len(chown_lines) <= 1, (
@@ -101,6 +99,7 @@ class TestSharedModuleImports:
         """shared.auth.dependencies must be importable."""
         try:
             from shared.auth.dependencies import get_current_user
+
             assert callable(get_current_user)
         except BaseException as e:
             pytest.skip(f"shared.auth not available in this environment: {e}")
@@ -108,7 +107,8 @@ class TestSharedModuleImports:
     def test_shared_errors_py_importable(self):
         """shared.errors_py must be importable."""
         try:
-            from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+            from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
             assert callable(setup_exception_handlers)
             assert callable(add_request_id_middleware)
         except ImportError as e:
@@ -118,6 +118,7 @@ class TestSharedModuleImports:
         """shared.middleware.tenant_context must be importable."""
         try:
             from shared.middleware.tenant_context import TenantContextMiddleware
+
             assert TenantContextMiddleware is not None
         except ImportError as e:
             pytest.skip(f"shared.middleware not available: {e}")
@@ -126,6 +127,7 @@ class TestSharedModuleImports:
         """src.main must be importable (proves all shared deps resolve)."""
         try:
             from src import main
+
             assert main.app is not None
         except ImportError as e:
             pytest.skip(f"Service import failed: {e}")

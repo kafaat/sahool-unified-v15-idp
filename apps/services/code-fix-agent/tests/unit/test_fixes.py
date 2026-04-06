@@ -112,6 +112,7 @@ class TestServiceBasics:
         """Smoke test: verify main module can be imported."""
         try:
             from src import main
+
             assert main is not None
             assert main.app is not None
         except ImportError as e:
@@ -122,6 +123,7 @@ class TestServiceBasics:
         try:
             from fastapi.testclient import TestClient
             from src.main import app
+
             client = TestClient(app)
             response = client.get("/healthz")
             assert response.status_code == 200

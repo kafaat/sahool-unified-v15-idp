@@ -283,7 +283,9 @@ async def lifespan(app: FastAPI):
                 return
             tenant_id = data.get("tenant_id")
             if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) < 5:
-                logger.warning("missing_or_invalid_tenant_in_event", subject=sanitize_log_input(getattr(msg, "subject", "unknown")))
+                logger.warning(
+                    "missing_or_invalid_tenant_in_event", subject=sanitize_log_input(getattr(msg, "subject", "unknown"))
+                )
                 return
 
             entry_id = str(uuid.uuid4())
@@ -322,13 +324,20 @@ async def lifespan(app: FastAPI):
                            (id, tenant_id, user_id, action, category, severity,
                             resource_type, resource_id, success, details, created_at)
                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)""",
-                        uuid.UUID(entry_id), tenant_id, user_id, action, category,
-                        severity, resource_type, resource_id, success,
-                        json.dumps(data), datetime.now(UTC),
+                        uuid.UUID(entry_id),
+                        tenant_id,
+                        user_id,
+                        action,
+                        category,
+                        severity,
+                        resource_type,
+                        resource_id,
+                        success,
+                        json.dumps(data),
+                        datetime.now(UTC),
                     )
                 except Exception as db_err:
-                    logger.error("audit_event_db_write_failed", error=str(db_err),
-                                 subject=sanitize_log_input(subject))
+                    logger.error("audit_event_db_write_failed", error=str(db_err), subject=sanitize_log_input(subject))
                     # Fall back to in-memory on DB failure
                     if tenant_id not in _audit_logs:
                         _audit_logs[tenant_id] = []
@@ -338,7 +347,9 @@ async def lifespan(app: FastAPI):
                     _audit_logs[tenant_id] = []
                 _audit_logs[tenant_id].append(log_entry)
 
-            logger.info(f"Audit event captured: {sanitize_log_input(subject)} for tenant {sanitize_log_input(tenant_id)}")
+            logger.info(
+                f"Audit event captured: {sanitize_log_input(subject)} for tenant {sanitize_log_input(tenant_id)}"
+            )
 
         audit_subjects = [
             "sahool.user.authenticated",
@@ -546,9 +557,17 @@ async def create_audit_log(
                    (id, tenant_id, user_id, action, category, severity,
                     resource_type, resource_id, ip_address, success, details, created_at)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)""",
-                uuid.UUID(log_entry["id"]), tenant_id, user_id, body.action,
-                body.category, body.severity, body.resource_type, body.resource_id,
-                log_entry["ip_address"], True, json.dumps(body.details) if body.details else None,
+                uuid.UUID(log_entry["id"]),
+                tenant_id,
+                user_id,
+                body.action,
+                body.category,
+                body.severity,
+                body.resource_type,
+                body.resource_id,
+                log_entry["ip_address"],
+                True,
+                json.dumps(body.details) if body.details else None,
                 datetime.now(UTC),
             )
         except Exception as db_err:

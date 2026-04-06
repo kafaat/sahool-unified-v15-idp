@@ -233,6 +233,49 @@ export interface DeleteFieldPayload {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// KPI / Live Data Response Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface SatelliteIndices {
+  ndvi?: number;
+  evi?: number;
+  lai?: number;
+  savi?: number;
+  ndwi?: number;
+  ndmi?: number;
+  [key: string]: number | undefined;
+}
+
+export interface FieldWeatherData {
+  temperature_c: number;
+  humidity_pct: number;
+  wind_speed_kmh: number;
+  condition: string;
+  condition_ar: string;
+  precipitation_mm: number;
+  uv_index?: number;
+  cloud_cover?: number;
+}
+
+export interface FieldIndicator {
+  id: string;
+  name_ar: string;
+  name_en: string;
+  value: number;
+  unit: string;
+  status: 'optimal' | 'good' | 'warning' | 'critical' | 'info';
+  trend?: 'improving' | 'stable' | 'declining';
+  category: string;
+}
+
+export interface FieldIndicatorsData {
+  field_id: string;
+  indicators: FieldIndicator[];
+  overall_score?: number;
+  timestamp?: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Hook Return Types
 // ═══════════════════════════════════════════════════════════════════════════
 

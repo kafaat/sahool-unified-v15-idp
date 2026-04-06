@@ -50,7 +50,6 @@ RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null &&
 COPY apps/services/shared/ ./shared/
 
 # Resolve errors_py file/package ambiguity (must run AFTER COPY)
-RUN rm -f ./shared/errors_py.py
 
 # Set ownership and switch to non-root user
 RUN chown -R sahool:sahool /app

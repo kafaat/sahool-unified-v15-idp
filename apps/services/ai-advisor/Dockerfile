@@ -104,8 +104,6 @@ COPY --chown=sahool:sahool shared/ /app/shared/
 # Copy services shared modules overlay (shared.errors_py, shared.middleware, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy platform-bootstrap package (event bus, tenant context, observability)
 # Placed at /app/platform_bootstrap/ so that PYTHONPATH=/app resolves it as

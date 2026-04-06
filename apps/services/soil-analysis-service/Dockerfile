@@ -44,8 +44,6 @@ COPY shared/ ./shared/
 # Copy services shared modules overlay (shared.errors_py, shared.logging_config, etc.)
 COPY apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy application
 COPY apps/services/soil-analysis-service/src/ ./src/

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "docker-compose-orchestration": {
+      "source": "manutej/luxor-claude-marketplace",
+      "sourceType": "github",
+      "computedHash": "01831d0723a2ac491e233bd9bfdffdac8c0ae5500f140a3ca0382ac5f4a26159"
+    },
+    "next-upgrade": {
+      "source": "vercel-labs/next-skills",
+      "sourceType": "github",
+      "computedHash": "e3aeb1f9e8a68d24df0c1c2e3c8ab97ede09a7251a2c76988318d02254346979"
+    },
+    "postgres-best-practices": {
+      "source": "neondatabase/postgres-skills",
+      "sourceType": "github",
+      "computedHash": "473522bc6174a0884970dff513e758eaa4df443a063801555b6df442d441b158"
+    }
+  }
+}

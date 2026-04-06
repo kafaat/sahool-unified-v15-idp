@@ -71,8 +71,6 @@ COPY shared/ ./shared/
 # Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
 COPY apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy source
 COPY apps/services/iot-gateway/src/ ./src/

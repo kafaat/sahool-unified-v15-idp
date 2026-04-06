@@ -54,8 +54,6 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 COPY shared/ ./shared/
 COPY apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy source
 COPY apps/services/pest-detection-service/src/ ./src/

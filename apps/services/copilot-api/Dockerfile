@@ -60,8 +60,6 @@ WORKDIR /shared
 COPY shared/ ./
 COPY apps/services/shared/ ./
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Production Stage

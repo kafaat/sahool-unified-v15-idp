@@ -28,7 +28,7 @@ from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 Base = declarative_base()
 
 
-class SagaState(str, enum.Enum):
+class SagaState(enum.StrEnum):
     """Saga execution state."""
 
     PENDING = "pending"
@@ -39,7 +39,7 @@ class SagaState(str, enum.Enum):
     FAILED = "failed"
 
 
-class StepState(str, enum.Enum):
+class StepState(enum.StrEnum):
     """Individual step state."""
 
     PENDING = "pending"

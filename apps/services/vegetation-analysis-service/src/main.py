@@ -319,7 +319,7 @@ except ImportError as e:
     logger.warning(f"NDVI Time-Series Analyzer module not available: {e}")
     NDVITimeSeriesAnalyzer = None
 
-# NATS publisher (optional)
+# NATS publisher (optional — uses shared singleton)
 _nats_available = False
 try:
     # Add project root to path for shared imports (dynamic path instead of hardcoded)
@@ -418,22 +418,28 @@ async def lifespan(app: FastAPI):
     if _vra_generator:
         register_vra_endpoints(app, _vra_generator)
 
+    # NATS publishing is handled by the shared singleton publisher
+    # (shared/libs/events/nats_publisher.py → publish_analysis_completed_sync).
+    # No service-local NATS connection needed — avoids duplicate connections
+    # and keeps readiness consistent with the actual publishing path.
+    if _nats_available:
+        logger.info("nats_publisher_available_via_shared_module")
+
     logger.info("service_ready", service="vegetation-analysis-service", port=8090)
 
     yield
 
     # Cleanup
     logger.info("service_shutting_down", service="vegetation-analysis-service")
-    if _multi_provider:
-        try:
-            await _multi_provider.close()
-        except Exception as e:
-            logger.warning(f"Error closing multi-provider: {e}")
-    if _sar_processor:
-        try:
-            await _sar_processor.close()
-        except Exception as e:
-            logger.warning(f"Error closing SAR processor: {e}")
+    for name, resource in [
+        ("multi_provider", _multi_provider),
+        ("sar_processor", _sar_processor),
+    ]:
+        if resource:
+            try:
+                await resource.close()
+            except Exception as e:
+                logger.warning("shutdown_close_error", resource=name, error=str(e))
     logger.info("service_shutdown_complete", service="vegetation-analysis-service")
 
 
@@ -944,15 +950,25 @@ async def readiness():
             async with db_pool.acquire() as conn:
                 await conn.fetchval("SELECT 1")
             checks["database"] = "connected"
-        except Exception:
+        except Exception as e:
+            logger.warning("readyz_db_check_failed", error=str(e))
             checks["database"] = "disconnected"
     else:
         checks["database"] = "not_configured"
 
-    # Check NATS
-    nc = getattr(app.state, "nc", None)
-    if nc:
-        checks["nats"] = "connected" if not nc.is_closed else "disconnected"
+    # Check NATS (publishing via shared singleton module)
+    if _nats_available:
+        try:
+            from shared.libs.events.nats_publisher import _publisher_instance
+
+            if _publisher_instance and _publisher_instance.is_connected:
+                checks["nats"] = "connected"
+            elif _publisher_instance:
+                checks["nats"] = "disconnected"
+            else:
+                checks["nats"] = "available"  # module loaded but publisher not yet created
+        except Exception:
+            checks["nats"] = "available"
     else:
         checks["nats"] = "not_configured"
 

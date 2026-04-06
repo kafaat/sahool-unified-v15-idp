@@ -651,7 +651,7 @@ async def get_slope_analysis(
 
     except Exception as e:
         logger.error("Slope analysis failed", field_id=field_id, error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Slope analysis failed")
 
 
 @router.get(
@@ -718,7 +718,7 @@ async def get_flow_analysis(
 
     except Exception as e:
         logger.error("Flow analysis failed", field_id=field_id, error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Flow analysis failed")
 
 
 @router.get(
@@ -776,7 +776,7 @@ async def get_twi_analysis(
 
     except Exception as e:
         logger.error("TWI analysis failed", field_id=field_id, error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="TWI analysis failed")
 
 
 @router.get(
@@ -840,7 +840,7 @@ async def get_contours(
 
     except Exception as e:
         logger.error("Contour generation failed", field_id=field_id, error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Contour generation failed")
 
 
 @router.get(

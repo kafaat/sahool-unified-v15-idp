@@ -171,7 +171,7 @@ def run_et0(req: ET0Request) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("ET0 run failed")
-        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
 
 
 # ── 2. QUEFTS fertiliser recommendation ─────────────────────────────────────
@@ -231,7 +231,7 @@ def run_quefts(req: QUEFTSRequest) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("QUEFTS run failed")
-        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
 
 
 # ── 3. Soil carbon / N cycling simulation ────────────────────────────────────
@@ -285,7 +285,7 @@ def run_soil_carbon(req: SoilCarbonRequest) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("Soil carbon simulation failed")
-        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
 
 
 # ── 4. Soil water balance (SWB) ─────────────────────────────────────────────
@@ -364,7 +364,7 @@ def run_swb(req: SWBRequest) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("SWB run failed")
-        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
 
 
 # ── 5. PROSAIL inversion ─────────────────────────────────────────────────────
@@ -418,7 +418,7 @@ def run_prosail_inversion(req: PROSAILRequest) -> ModelRunResponse:
 
     except Exception as exc:
         logger.exception("PROSAIL inversion failed")
-        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
 
 
 # ── Helper ───────────────────────────────────────────────────────────────────

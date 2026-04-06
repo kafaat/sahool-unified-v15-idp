@@ -175,7 +175,7 @@ async def analyze_field(request: AnalysisRequest, user: User = Depends(get_curre
 
     except Exception as e:
         logger.error(f"Analysis error: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Analysis failed") from e
 
 
 # Edge agent endpoints
@@ -199,7 +199,7 @@ async def process_sensor_data(request: SensorDataRequest, user: User = Depends(g
 
     except Exception as e:
         logger.error(f"Sensor processing error: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Sensor processing failed") from e
 
 
 @app.post("/api/v1/edge/mobile")
@@ -222,7 +222,7 @@ async def mobile_quick_action(data: dict[str, Any], user: User = Depends(get_cur
 
     except Exception as e:
         logger.error(f"Mobile action error: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Mobile action failed") from e
 
 
 # Learning endpoints
@@ -254,7 +254,7 @@ async def submit_feedback(request: FeedbackRequest, user: User = Depends(get_cur
 
     except Exception as e:
         logger.error(f"Feedback error: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Feedback submission failed") from e
 
 
 # System status

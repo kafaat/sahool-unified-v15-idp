@@ -758,8 +758,11 @@ async def create_fertigation_plan(req: FertigationRequest, current_user: User = 
     """
     try:
         result = fert_engine.calculate_fertigation(req)
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error("Fertigation calculation failed: %s", e)
+        raise HTTPException(status_code=500, detail="Fertigation calculation failed")
 
     nc = getattr(app.state, "nc", None)
     if nc:

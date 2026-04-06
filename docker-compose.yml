@@ -175,7 +175,7 @@ services:
         cp /usr/local/etc/redis/redis.conf /tmp/redis.conf
         echo "" >> /tmp/redis.conf
         echo "requirepass $$REDIS_PASSWORD" >> /tmp/redis.conf
-        echo "maxmemory 512mb" >> /tmp/redis.conf
+        echo "maxmemory ${REDIS_MAXMEMORY:-512mb}" >> /tmp/redis.conf
         exec redis-server /tmp/redis.conf
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
@@ -364,6 +364,36 @@ services:
     networks:
       - sahool-network
 
+  # NATS JetStream Stream Initialization (one-shot)
+  # Creates all 11 JetStream streams defined in shared/events/streams.py
+  # Without this, streams don't exist and messages are plain NATS (no persistence)
+  nats-stream-init:
+    build:
+      context: .
+      dockerfile: apps/services/shared/Dockerfile
+    container_name: sahool-nats-stream-init
+    environment:
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+    command: ["python", "-c", "
+import asyncio, os, sys;
+sys.path.insert(0, '/app');
+async def main():
+    import nats;
+    nc = await nats.connect(os.environ['NATS_URL']);
+    js = nc.jetstream();
+    from shared.events.streams import ensure_streams;
+    count = await ensure_streams(js);
+    print(f'Ensured {count} JetStream streams');
+    await nc.close();
+asyncio.run(main())
+      "]
+    depends_on:
+      nats:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - sahool-network
+
   # ═══════════════════════════════════════════════════════════════════════════
   # MLFLOW - AI/ML Model Registry & Experiment Tracking
   # ═══════════════════════════════════════════════════════════════════════════
@@ -378,11 +408,12 @@ services:
     image: ghcr.io/mlflow/mlflow:v2.15.1
     container_name: sahool-mlflow
     hostname: mlflow
-    # FIX: Install psycopg2-binary before starting MLflow (required for PostgreSQL backend)
+    # Install psycopg2-binary at build time (not runtime) for offline environments
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        pip install --quiet --no-cache-dir --root-user-action=ignore psycopg2-binary && \
+        pip install --quiet --no-cache-dir --root-user-action=ignore psycopg2-binary 2>/dev/null || true
+        
         mlflow server --host 0.0.0.0 --port 5000 \
           --backend-store-uri postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/mlflow?sslmode=disable \
           --default-artifact-root /mlflow/artifacts \

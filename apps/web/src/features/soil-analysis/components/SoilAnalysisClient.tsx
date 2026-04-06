@@ -95,7 +95,11 @@ function buildNutrients(test: SoilTest): Nutrient[] {
     if (value == null) return;
     let status: NutrientStatus = 'adequate';
     let statusAr = 'كافٍ';
-    if (value >= optMin && value <= optMax) { status = 'optimal'; statusAr = 'مثالي'; }
+    const range = optMax - optMin;
+    const coreMin = optMin + range * 0.15;
+    const coreMax = optMax - range * 0.15;
+    if (value >= coreMin && value <= coreMax) { status = 'optimal'; statusAr = 'مثالي'; }
+    else if (value >= optMin && value <= optMax) { status = 'adequate'; statusAr = 'كافٍ'; }
     else if (value < optMin * 0.6) { status = 'deficient'; statusAr = 'ناقص'; }
     else if (value < optMin) { status = 'low'; statusAr = 'منخفض'; }
     else if (value > optMax) { status = 'excess'; statusAr = 'زائد'; }
@@ -117,7 +121,6 @@ export default function SoilAnalysisClient() {
   const [showAllNutrients, setShowAllNutrients] = useState(false);
 
   const { data: soilTests, isLoading: testsLoading, error: testsError } = useSoilTests();
-  const { data: recommendations, isLoading: recsLoading } = useSoilRecommendations(selectedFieldId || undefined);
 
   // Derive unique fields from soil tests
   const fields = useMemo(() => {
@@ -134,10 +137,16 @@ export default function SoilAnalysisClient() {
   // Auto-select first field when data loads
   const effectiveFieldId = selectedFieldId || (fields.length > 0 ? fields[0]!.id : '');
 
+  const { data: recommendations, isLoading: recsLoading } = useSoilRecommendations(effectiveFieldId || undefined);
+
   // Find the latest test for selected field
   const sample = useMemo(() => {
     if (!soilTests || !effectiveFieldId) return null;
-    return soilTests.find((t: SoilTest) => t.fieldId === effectiveFieldId) ?? null;
+    const fieldTests = soilTests.filter((t: SoilTest) => t.fieldId === effectiveFieldId);
+    if (fieldTests.length === 0) return null;
+    return fieldTests.reduce((latest: SoilTest, t: SoilTest) =>
+      new Date(t.sampleDate) > new Date(latest.sampleDate) ? t : latest
+    );
   }, [soilTests, effectiveFieldId]);
 
   const nutrients = useMemo(() => sample ? buildNutrients(sample) : [], [sample]);

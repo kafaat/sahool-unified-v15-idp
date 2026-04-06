@@ -164,7 +164,7 @@ export default function SeasonsClient() {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleCreateSeason} disabled={createSeason.isPending || !formData.name || !formData.nameAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+              <button onClick={handleCreateSeason} disabled={createSeason.isPending || !formData.name || !formData.nameAr || !formData.farmId || !formData.startDate || !formData.endDate} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
                 {createSeason.isPending ? 'جاري الإنشاء...' : 'إنشاء الموسم'}
               </button>
             </div>

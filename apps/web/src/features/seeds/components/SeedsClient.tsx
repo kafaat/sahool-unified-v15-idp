@@ -27,23 +27,24 @@ export default function SeedsClient() {
   const [recommendedOnly, setRecommendedOnly] = useState(false);
 
   const { data: seeds, isLoading, error } = useQuery({
-    queryKey: ['seeds', categoryFilter !== 'all' ? categoryFilter : undefined],
-    queryFn: () => seedsApi.getSeeds(categoryFilter !== 'all' ? categoryFilter : undefined),
+    queryKey: ['seeds'],
+    queryFn: () => seedsApi.getSeeds(undefined),
     staleTime: 1000 * 60 * 5,
   });
 
   const filteredSeeds = useMemo(() => {
     if (!seeds) return [];
     return seeds.filter((seed: Seed) => {
+      const matchesCategory = categoryFilter === 'all' || seed.cropType === categoryFilter;
       const matchesSearch =
         !searchTerm ||
         (seed.nameAr ?? '').includes(searchTerm) ||
         (seed.cropType ?? '').includes(searchTerm) ||
         seed.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRecommended = !recommendedOnly || seed.available;
-      return matchesSearch && matchesRecommended;
+      return matchesCategory && matchesSearch && matchesRecommended;
     });
-  }, [seeds, searchTerm, recommendedOnly]);
+  }, [seeds, searchTerm, categoryFilter, recommendedOnly]);
 
   const getToleranceBadge = (tolerance: DroughtTolerance) => {
     const styles: Record<DroughtTolerance, string> = {

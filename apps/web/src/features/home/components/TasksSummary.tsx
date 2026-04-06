@@ -5,7 +5,7 @@
  * مكون ملخص المهام
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { CheckCircle2, Clock, Calendar, ArrowLeft } from 'lucide-react';
 import { useUpcomingTasks } from '../hooks/useUpcomingTasks';
 import { useCompleteTask, useUpdateTaskStatus } from '@/features/tasks/hooks/useTasks';
@@ -86,6 +86,18 @@ export const TasksSummary: React.FC = () => {
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const completeTask = useCompleteTask();
   const updateTaskStatus = useUpdateTaskStatus();
+
+  // Initialize completedIds from tasks that are already completed in API data
+  useEffect(() => {
+    if (tasksData) {
+      const alreadyCompleted = new Set(
+        tasksData.filter((t: TaskItemProps) => t.status === 'completed').map((t: TaskItemProps) => t.id)
+      );
+      if (alreadyCompleted.size > 0) {
+        setCompletedIds(alreadyCompleted);
+      }
+    }
+  }, [tasksData]);
 
   const handleToggleComplete = useCallback((id: string) => {
     if (pendingIds.has(id)) return; // Prevent double-clicks while API call in-flight

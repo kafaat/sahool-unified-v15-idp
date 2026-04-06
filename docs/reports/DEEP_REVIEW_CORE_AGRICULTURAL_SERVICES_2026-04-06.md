@@ -11,7 +11,7 @@
 
 | الفئة | مؤكّد | مُصحَّح جزئياً | غير دقيق | جديد (مكتشف) |
 |-------|-------|---------------|----------|-------------|
-| P0 — تعطّل كامل | 4 | 1 | 1 | 2 |
+| P0 — تعطّل كامل | 5 | 1 | 0 | 2 |
 | P1 — ضرر وظيفي | 2 | 0 | 1 | 4 |
 | P2 — تحسين | 0 | 0 | 0 | 3 |
 
@@ -19,31 +19,45 @@
 
 ## P0 — مشاكل تُعطّل الخدمات (حرجة)
 
-### P0-1: AUTH_SECRET_KEY مفقود — مُصحَّح جزئياً
+### P0-1: AUTH_SECRET_KEY مفقود — مؤكّد بالكامل
 
-**الحالة**: مؤكّد مع تصحيحات على التقرير الأصلي
+**الحالة**: مؤكّد — التقرير الأصلي صحيح
 
-**الحقيقة التقنية**: وحدة المصادقة `shared/auth/config.py:48` تقرأ `JWT_SECRET_KEY` (وليس `AUTH_SECRET_KEY`):
+**اكتشاف مهم**: يوجد ملفان مختلفان لتكوين المصادقة:
+
+| الملف | يقرأ من | يُستخدم في |
+|-------|---------|-----------|
+| `shared/auth/config.py` (الجذر) | `JWT_SECRET_KEY` | التشغيل المحلي (dev) |
+| `apps/services/shared/auth/config.py` | `AUTH_SECRET_KEY` | **داخل Docker** (الإنتاج) |
+
+في Docker، الخدمات تنسخ `apps/services/shared/` إلى `/app/shared/` (يتضح من Dockerfiles: `COPY apps/services/shared/ ./shared/`). لذلك `from shared.auth.config import get_auth_config` يحلّ إلى الملف الذي يقرأ `AUTH_SECRET_KEY`:
+
 ```python
-value = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
+# apps/services/shared/auth/config.py:16
+secret_key: str = field(default_factory=lambda: os.getenv("AUTH_SECRET_KEY", secrets.token_urlsafe(32)))
 ```
 
-**ملاحظة مهمة**: التقرير الأصلي ذكر `AUTH_SECRET_KEY` كمتغير مفقود، لكن الوحدة الفعلية تقرأ `JWT_SECRET_KEY`. المتغير `AUTH_SECRET_KEY` هو متغير إضافي تستخدمه بعض الخدمات داخلياً ولكنه ليس المتغير الأساسي للمصادقة.
+إذا لم يُضبط `AUTH_SECRET_KEY`، يُنتج كل حاوية سرًّا عشوائيًّا مختلفًا → JWT tokens موقّعة من user-service لا تتطابق → **401 Unauthorized دائماً**.
 
-**الخدمات المتأثرة فعلياً** (تستخدم `get_current_user` ولكن ليس لديها `JWT_SECRET_KEY` في docker-compose.yml):
+**الخدمات المتأثرة** (تستخدم `get_current_user` عبر `apps/services/shared/auth/`):
 
-| الخدمة | المنفذ | `JWT_SECRET_KEY` | `AUTH_SECRET_KEY` | الأثر |
-|--------|--------|-----------------|------------------|-------|
-| advisory-service | 8093 | **موجود** | **موجود** | تم الإصلاح في فرع الإصلاح |
-| crop-intelligence-service | 8095 | **موجود** | غير موجود | يعمل (JWT_SECRET_KEY كافٍ) |
-| ws-gateway | 8081 | **موجود** | **موجود** | تم الإصلاح |
-| iot-gateway | 8106 | **موجود** | غير موجود | يعمل |
-| ai-agents-service | 8130 | **موجود** | غير موجود | يعمل |
-| ai-advisor | 8093 | غير موجود | **موجود** | يحتاج تحقق — `AUTH_SECRET_KEY` موجود لكن هل يُقرأ؟ |
-| astronomical-calendar | 8111 | غير موجود | غير موجود | **لا يزال مفقوداً** |
-| mcp-server | 8201 | غير موجود | غير موجود | **لا يزال مفقوداً** |
+| الخدمة | المنفذ | `AUTH_SECRET_KEY` | `JWT_SECRET_KEY` | الحالة |
+|--------|--------|-----------------|------------------|--------|
+| advisory-service | 8093 | **موجود** | موجود | تم الإصلاح |
+| ws-gateway | 8081 | **موجود** | موجود | تم الإصلاح |
+| crop-intelligence-service | 8095 | **مفقود** | موجود | **مكسور في Docker** |
+| iot-gateway | 8106 | **مفقود** | موجود | **مكسور في Docker** |
+| ai-agents-service | 8130 | **مفقود** | موجود | **مكسور في Docker** |
+| ai-advisor | 8112 | **مفقود** | مفقود | **مكسور في Docker** |
+| astronomical-calendar | 8111 | **مفقود** | مفقود | **مكسور في Docker** |
+| mcp-server | 8201 | **مفقود** | مفقود | **مكسور في Docker** |
+| code-review-service | 8102 | **مفقود** | مفقود | **مكسور في Docker** |
 
-**الخلاصة**: التقرير الأصلي كان **صحيحاً جوهرياً** — كانت هناك فجوات في تكوين المصادقة. تم إصلاح الأغلبية في فرع الإصلاح، لكن **خدمتين لا تزالان بدون JWT_SECRET_KEY**: `astronomical-calendar` و `mcp-server`.
+**ملاحظة خطيرة**: وجود `JWT_SECRET_KEY` لا يكفي — الكود في Docker يقرأ `AUTH_SECRET_KEY` فقط. الخدمات التي لديها `JWT_SECRET_KEY` بدون `AUTH_SECRET_KEY` **لا تزال مكسورة** داخل حاويات Docker.
+
+**الخلاصة**: **7 خدمات لا تزال مكسورة** — تحتاج إضافة `AUTH_SECRET_KEY=${JWT_SECRET_KEY}` في docker-compose.yml.
+
+**مشكلة معمارية أعمق**: وجود ملفي تكوين مختلفين (`shared/auth/config.py` يقرأ `JWT_SECRET_KEY` و `apps/services/shared/auth/config.py` يقرأ `AUTH_SECRET_KEY`) هو مصدر ارتباك. يجب توحيدهما لقراءة نفس المتغير.
 
 ---
 
@@ -252,11 +266,12 @@ await self.nc.connect(self.nats_url)  # بدون reconnect parameters
 ## التوصيات ذات الأولوية القصوى
 
 1. **دمج الفرع فوراً** — يحل مشاكل P0 حرجة (NATS, Vault, JetStream, PgBouncer)
-2. **إصلاح vegetation-analysis-service** — إضافة تهيئة NATS في lifespan (مشكلة جديدة)
-3. **إضافة JWT_SECRET_KEY** لـ `astronomical-calendar` و `mcp-server`
-4. **تنظيف الكود الميّت** — `irrigation-smart/database_utils.py` و `DATABASE_URL` المُضلّلة
-5. **إضافة NATS reconnection** — خاصة في weather-service publisher
-6. **مراجعة except Exception** — تقليل ابتلاع الأخطاء الصامت في الخدمات ذات الكثافة العالية
+2. **إضافة `AUTH_SECRET_KEY`** لـ 7 خدمات مكسورة في Docker (crop-intelligence, iot-gateway, ai-agents-service, ai-advisor, astronomical-calendar, mcp-server, code-review-service)
+3. **توحيد ملفات auth config** — دمج `shared/auth/config.py` و `apps/services/shared/auth/config.py` لقراءة نفس المتغير
+4. **إصلاح vegetation-analysis-service** — إضافة تهيئة NATS في lifespan (مشكلة جديدة)
+5. **تنظيف الكود الميّت** — `irrigation-smart/database_utils.py` و `DATABASE_URL` المُضلّلة
+6. **إضافة NATS reconnection** — خاصة في weather-service publisher
+7. **مراجعة except Exception** — تقليل ابتلاع الأخطاء الصامت في الخدمات ذات الكثافة العالية
 
 ---
 

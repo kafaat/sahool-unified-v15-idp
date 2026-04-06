@@ -820,6 +820,8 @@ services:
       - MAX_FILE_SIZE=1000000
       - API_HOST=0.0.0.0
       - API_PORT=8102
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "127.0.0.1:8102:8102"
     volumes:
@@ -2136,20 +2138,16 @@ services:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # NOTE: DATABASE_URL removed — service uses in-memory knowledge base only (kb/diseases.py, kb/nutrients.py, kb/fertilizers.py)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      # FIX: Added REDIS_URL — token revocation store needs Redis; without this, shared/auth/config.py
-      # defaults REDIS_HOST to localhost which fails inside Docker containers
+      # REDIS_URL — token revocation store needs Redis
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8093:8093"
     depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
       nats:
         condition: service_healthy
       redis:
@@ -2185,8 +2183,7 @@ services:
       - PORT=8094
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # NOTE: DATABASE_URL removed — service is stateless (pure calculation engine, events via NATS)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - IOT_GATEWAY_URL=http://iot-gateway:8106
@@ -2195,9 +2192,6 @@ services:
     ports:
       - "127.0.0.1:8094:8094"
     depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
       nats:
         condition: service_healthy
       iot-gateway:
@@ -2239,6 +2233,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8095:8095"
@@ -2523,6 +2518,7 @@ services:
       - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
       - MQTT_TOPIC=sahool/sensors/#
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -2663,6 +2659,8 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - WEATHER_SERVICE_URL=http://weather-service:8092
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "127.0.0.1:8111:8111"
     depends_on:
@@ -2776,6 +2774,7 @@ services:
       - QDRANT_PORT=6333
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "127.0.0.1:8112:8112"
@@ -3007,6 +3006,8 @@ services:
       - MCP_SERVER_HOST=0.0.0.0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "127.0.0.1:8201:8201"
     depends_on:
@@ -3149,6 +3150,7 @@ services:
       # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8130:8130"

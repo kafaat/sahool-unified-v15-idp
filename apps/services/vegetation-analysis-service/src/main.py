@@ -321,17 +321,19 @@ except ImportError as e:
 
 # NATS publisher (optional)
 _nats_available = False
+_nats_publisher = None
 try:
     # Add project root to path for shared imports (dynamic path instead of hardcoded)
     _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
     if _project_root not in sys.path:
         sys.path.insert(0, _project_root)
-    from shared.libs.events.nats_publisher import publish_analysis_completed_sync
+    from shared.libs.events.nats_publisher import NATSPublisher, publish_analysis_completed_sync
 
     _nats_available = True
 except ImportError:
     logger.info("NATS publisher not available - running without event publishing")
     publish_analysis_completed_sync = None
+    NATSPublisher = None
 
 # ActionTemplate factory (optional)
 _action_factory_available = False
@@ -418,12 +420,31 @@ async def lifespan(app: FastAPI):
     if _vra_generator:
         register_vra_endpoints(app, _vra_generator)
 
+    # Initialize NATS publisher
+    global _nats_publisher
+    if _nats_available and NATSPublisher:
+        try:
+            _nats_publisher = NATSPublisher()
+            connected = await _nats_publisher.connect()
+            if connected:
+                app.state.nc = _nats_publisher._nc
+                logger.info("nats_publisher_connected")
+            else:
+                logger.warning("nats_publisher_connect_failed")
+        except Exception as e:
+            logger.warning("nats_publisher_init_error", error=str(e))
+
     logger.info("service_ready", service="vegetation-analysis-service", port=8090)
 
     yield
 
     # Cleanup
     logger.info("service_shutting_down", service="vegetation-analysis-service")
+    if _nats_publisher:
+        try:
+            await _nats_publisher.close()
+        except Exception as e:
+            logger.warning(f"Error closing NATS publisher: {e}")
     if _multi_provider:
         try:
             await _multi_provider.close()
@@ -944,7 +965,8 @@ async def readiness():
             async with db_pool.acquire() as conn:
                 await conn.fetchval("SELECT 1")
             checks["database"] = "connected"
-        except Exception:
+        except Exception as e:
+            logger.warning("readyz_db_check_failed", error=str(e))
             checks["database"] = "disconnected"
     else:
         checks["database"] = "not_configured"
@@ -953,6 +975,8 @@ async def readiness():
     nc = getattr(app.state, "nc", None)
     if nc:
         checks["nats"] = "connected" if not nc.is_closed else "disconnected"
+    elif _nats_publisher and _nats_publisher.is_connected:
+        checks["nats"] = "connected"
     else:
         checks["nats"] = "not_configured"
 

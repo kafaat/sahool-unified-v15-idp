@@ -295,10 +295,15 @@ async def lifespan(app: FastAPI):
     yield
 
     # Cleanup
-    if getattr(app.state, "db_pool", None):
-        await app.state.db_pool.close()
-    if getattr(app.state, "nc", None):
-        await app.state.nc.close()
+    logger.info("service_shutting_down", service="indicators-service")
+    for name in ("db_pool", "nc"):
+        resource = getattr(app.state, name, None)
+        if resource:
+            try:
+                await resource.close()
+            except Exception as e:
+                logger.warning("shutdown_close_error", resource=name, error=str(e))
+    logger.info("service_shutdown_complete", service="indicators-service")
 
 
 app = FastAPI(
@@ -985,7 +990,8 @@ async def readiness():
             async with db_pool.acquire() as conn:
                 await conn.fetchval("SELECT 1")
             checks["database"] = "connected"
-        except Exception:
+        except Exception as e:
+            logger.warning("readyz_db_check_failed", error=str(e))
             checks["database"] = "disconnected"
     else:
         checks["database"] = "not_configured"

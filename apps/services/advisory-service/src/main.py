@@ -429,11 +429,15 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    if getattr(app.state, "publisher", None):
-        await app.state.publisher.close()
-    if getattr(app.state, "revocation_store", None):
-        await app.state.revocation_store.close()
     logger.info("service_shutting_down", service="advisory-service")
+    for name in ("publisher", "revocation_store"):
+        resource = getattr(app.state, name, None)
+        if resource:
+            try:
+                await resource.close()
+            except Exception as e:
+                logger.warning("shutdown_close_error", resource=name, error=str(e))
+    logger.info("service_shutdown_complete", service="advisory-service")
 
 
 app = FastAPI(

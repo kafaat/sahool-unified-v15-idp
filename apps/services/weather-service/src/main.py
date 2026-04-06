@@ -170,13 +170,15 @@ async def lifespan(app: FastAPI):
     yield
 
     # Cleanup
-    if getattr(app.state, "multi_provider", None):
-        await app.state.multi_provider.close()
-    if getattr(app.state, "weather_provider", None):
-        await app.state.weather_provider.close()
-    if getattr(app.state, "publisher", None):
-        await app.state.publisher.close()
     logger.info("service_shutting_down", service="weather-service")
+    for name in ("multi_provider", "weather_provider", "publisher"):
+        resource = getattr(app.state, name, None)
+        if resource:
+            try:
+                await resource.close()
+            except Exception as e:
+                logger.warning("shutdown_close_error", resource=name, error=str(e))
+    logger.info("service_shutdown_complete", service="weather-service")
 
 
 app = FastAPI(

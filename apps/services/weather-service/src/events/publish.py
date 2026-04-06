@@ -87,16 +87,34 @@ class WeatherPublisher:
         self._connected = False
 
     async def connect(self):
-        """Connect to NATS"""
+        """Connect to NATS with reconnection support"""
         if self._connected:
             return
         if NATS is None:
             logger.warning("nats-py not installed, event publishing disabled")
             return
         self.nc = NATS()
-        await self.nc.connect(self.nats_url)
+        await self.nc.connect(
+            self.nats_url,
+            reconnect_time_wait=2,
+            max_reconnect_attempts=60,
+            error_cb=self._on_error,
+            disconnected_cb=self._on_disconnect,
+            reconnected_cb=self._on_reconnect,
+        )
         self._connected = True
-        logger.info("Weather Publisher connected to NATS")
+        logger.info("weather_publisher_connected", nats_url=self.nats_url)
+
+    async def _on_error(self, e):
+        logger.error("nats_error", error=str(e))
+
+    async def _on_disconnect(self):
+        logger.warning("nats_disconnected")
+        self._connected = False
+
+    async def _on_reconnect(self):
+        logger.info("nats_reconnected")
+        self._connected = True
 
     @property
     def _is_available(self) -> bool:

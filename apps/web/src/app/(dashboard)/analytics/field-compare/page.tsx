@@ -14,7 +14,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsPeriod } from '@/features/analytics/types';
+import type { AnalyticsFilters } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 interface ComparisonRow {
@@ -34,7 +34,7 @@ const statusColor: Record<string, string> = {
 };
 
 export default function FieldComparePage() {
-  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('month');
+  const [dateRange, setDateRange] = useState('month');
   const [cropFilter, setCropFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -18,7 +18,6 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useDroneFlights, useDroneDevices } from '../hooks/useDrone';
-import type { DroneFlight, DroneDevice } from '../types';
 
 const statusColors: Record<string, string> = {
   'available': 'bg-gray-100 text-gray-700',
@@ -127,12 +126,8 @@ export default function DroneClient() {
 
   const stats = {
     total: devices.length,
-    inFlight: devices.filter(
-      (d) => d.status === 'in_flight' || d.status === 'in-flight' || (d as DroneDevice & { status: string }).status === 'in_flight'
-    ).length,
-    idle: devices.filter(
-      (d) => d.status === 'available' || d.status === ('idle' as DroneDevice['status'])
-    ).length,
+    inFlight: devices.filter((d) => d.status === 'in_flight').length,
+    idle: devices.filter((d) => d.status === 'available').length,
     totalMissions: flights.length,
   };
 

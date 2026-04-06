@@ -165,8 +165,8 @@ export default function PivotIrrigationClient() {
     try {
       const data = await pivotIrrigationApi.getPivots();
       setPivots(data);
-      if (data.length > 0 && !selectedPivotId) {
-        setSelectedPivotId(data[0].id);
+      if (data.length > 0) {
+        setSelectedPivotId((prev) => prev ?? data[0]!.id);
       }
     } catch (err) {
       const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات المحاور';
@@ -174,7 +174,7 @@ export default function PivotIrrigationClient() {
     } finally {
       setLoading(false);
     }
-  }, [selectedPivotId]);
+  }, []);
 
   useEffect(() => {
     fetchPivots();

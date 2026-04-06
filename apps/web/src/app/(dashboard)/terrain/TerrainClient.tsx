@@ -58,8 +58,6 @@ export default function TerrainClient() {
   const analyzeSlope = useAnalyzeSlope();
   const optimizeLeveling = useOptimizeLeveling();
   const analyzeDrainage = useAnalyzeDrainage();
-  // analyzeWatershed available via useAnalyzeWatershed() when needed
-
   // Results from mutations
   const demResult: DEMAnalysis | undefined = analyzeDEM.data;
   const slopeResult: SlopeAnalysis | undefined = analyzeSlope.data;

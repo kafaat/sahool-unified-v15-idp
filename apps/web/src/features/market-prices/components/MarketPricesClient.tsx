@@ -17,7 +17,6 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useMarketPrices, useMarketPriceStats } from '../hooks/useMarketPrices';
-import type { CropPriceRecord } from '../types';
 
 // ---------------------------------------------------------------------------
 // Component

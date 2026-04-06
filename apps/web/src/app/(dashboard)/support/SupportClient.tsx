@@ -15,7 +15,7 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { supportApi, type Ticket, type CreateTicketRequest } from '@/features/support/api';
+import { supportApi, type Ticket } from '@/features/support/api';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 interface FAQ {

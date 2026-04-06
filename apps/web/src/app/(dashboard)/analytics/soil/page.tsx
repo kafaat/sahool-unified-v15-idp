@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
+import type { AnalyticsPeriod } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
@@ -68,7 +69,7 @@ function getNutrientStatus(value: number, thresholds: { low: number; high: numbe
 }
 
 export default function SoilAnalyticsPage() {
-  const [dateRange, setDateRange] = useState('quarter');
+  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('season');
   const [fieldFilter, setFieldFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -7,15 +7,12 @@ import {
   Zap,
   Settings,
   AlertTriangle,
-  CheckCircle,
-  Clock,
   Calculator,
   Loader2,
   Leaf,
   Droplets,
 } from 'lucide-react';
 import { useVSCrops, useVSSoils } from '../hooks/useVirtualSensors';
-import type { CropInfo, SoilInfo } from '../types';
 
 export default function VirtualSensorsClient() {
   const [searchTerm, setSearchTerm] = useState('');

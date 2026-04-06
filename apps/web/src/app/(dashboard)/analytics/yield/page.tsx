@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
+import type { AnalyticsPeriod } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
@@ -69,7 +70,7 @@ const qualityColor: Record<string, string> = {
 };
 
 export default function YieldAnalyticsPage() {
-  const [dateRange, setDateRange] = useState('season');
+  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('season');
   const [cropFilter, setCropFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -17,7 +17,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsPeriod } from '@/features/analytics/types';
+import type { AnalyticsFilters } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
@@ -77,7 +77,7 @@ function getConfidenceColor(value: number) {
 }
 
 export default function YieldForecastingPage() {
-  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('season');
+  const [dateRange, setDateRange] = useState('season');
   const [modelFilter, setModelFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +87,7 @@ export default function YieldForecastingPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await analyticsApi.getYieldAnalytics({ period: dateRange });
+      const data = await analyticsApi.getYieldAnalytics({ period: dateRange as AnalyticsFilters['period'] });
       if (data && Array.isArray(data) && data.length > 0) {
         setApiForecastData(data as any);
       } else {

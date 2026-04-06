@@ -99,8 +99,6 @@ WORKDIR /app
 COPY --chown=sahool:sahool shared/ ./shared/
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy source code
 COPY --chown=sahool:sahool apps/services/ai-agents-service/src/ ./src/

@@ -1,219 +1,78 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Search,
   Sprout,
-  Droplets,
-  Thermometer,
   Sun,
   Star,
   Calendar,
   MapPin,
   Package,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
+import { seedsApi } from '@/features/seeds/api';
+import type { Seed } from '@/features/seeds/api';
 
 type CropCategory = 'cereals' | 'vegetables' | 'fruits' | 'legumes' | 'fodder';
 type DroughtTolerance = 'high' | 'medium' | 'low';
 
-interface SeedVariety {
-  id: string;
-  name: string;
-  nameAr: string;
-  crop: string;
-  cropAr: string;
-  category: CropCategory;
-  maturityDays: number;
-  yieldPotential: string;
-  yieldPotentialAr: string;
-  droughtTolerance: DroughtTolerance;
-  optimalTempMin: number;
-  optimalTempMax: number;
-  waterRequirement: string;
-  waterRequirementAr: string;
-  plantingSeason: string;
-  plantingSeasonAr: string;
-  region: string;
-  regionAr: string;
-  rating: number;
-  stockKg: number;
-  pricePerKg: number;
-  recommended: boolean;
-}
-
-const mockSeeds: SeedVariety[] = [
-  {
-    id: 'seed-001',
-    name: 'Sakha 95',
-    nameAr: 'سخا 95',
-    crop: 'Wheat',
-    cropAr: 'القمح',
-    category: 'cereals',
-    maturityDays: 145,
-    yieldPotential: '6.5 t/ha',
-    yieldPotentialAr: '6.5 طن/هـ',
-    droughtTolerance: 'medium',
-    optimalTempMin: 15,
-    optimalTempMax: 25,
-    waterRequirement: '450-650 mm',
-    waterRequirementAr: '450-650 مم',
-    plantingSeason: 'Nov - Dec',
-    plantingSeasonAr: 'نوفمبر - ديسمبر',
-    region: 'Arabian Peninsula',
-    regionAr: 'شبه الجزيرة العربية',
-    rating: 4.5,
-    stockKg: 2500,
-    pricePerKg: 12,
-    recommended: true,
-  },
-  {
-    id: 'seed-002',
-    name: 'Barhi',
-    nameAr: 'برحي',
-    crop: 'Date Palm',
-    cropAr: 'نخيل التمر',
-    category: 'fruits',
-    maturityDays: 180,
-    yieldPotential: '120 kg/tree',
-    yieldPotentialAr: '120 كجم/شجرة',
-    droughtTolerance: 'high',
-    optimalTempMin: 25,
-    optimalTempMax: 45,
-    waterRequirement: '200-300 L/day',
-    waterRequirementAr: '200-300 لتر/يوم',
-    plantingSeason: 'Feb - Mar',
-    plantingSeasonAr: 'فبراير - مارس',
-    region: 'Gulf Region',
-    regionAr: 'منطقة الخليج',
-    rating: 4.8,
-    stockKg: 500,
-    pricePerKg: 85,
-    recommended: true,
-  },
-  {
-    id: 'seed-003',
-    name: 'GS-12',
-    nameAr: 'جي إس-12',
-    crop: 'Tomato',
-    cropAr: 'الطماطم',
-    category: 'vegetables',
-    maturityDays: 75,
-    yieldPotential: '80 t/ha',
-    yieldPotentialAr: '80 طن/هـ',
-    droughtTolerance: 'low',
-    optimalTempMin: 20,
-    optimalTempMax: 30,
-    waterRequirement: '600-800 mm',
-    waterRequirementAr: '600-800 مم',
-    plantingSeason: 'Sep - Oct',
-    plantingSeasonAr: 'سبتمبر - أكتوبر',
-    region: 'Greenhouse',
-    regionAr: 'الصوب الزراعية',
-    rating: 4.2,
-    stockKg: 120,
-    pricePerKg: 350,
-    recommended: false,
-  },
-  {
-    id: 'seed-004',
-    name: 'Giza 843',
-    nameAr: 'جيزة 843',
-    crop: 'Faba Bean',
-    cropAr: 'الفول',
-    category: 'legumes',
-    maturityDays: 130,
-    yieldPotential: '3.5 t/ha',
-    yieldPotentialAr: '3.5 طن/هـ',
-    droughtTolerance: 'medium',
-    optimalTempMin: 12,
-    optimalTempMax: 22,
-    waterRequirement: '300-500 mm',
-    waterRequirementAr: '300-500 مم',
-    plantingSeason: 'Oct - Nov',
-    plantingSeasonAr: 'أكتوبر - نوفمبر',
-    region: 'Nile Valley',
-    regionAr: 'وادي النيل',
-    rating: 3.9,
-    stockKg: 800,
-    pricePerKg: 18,
-    recommended: false,
-  },
-  {
-    id: 'seed-005',
-    name: 'Hail Barley',
-    nameAr: 'شعير حائل',
-    crop: 'Barley',
-    cropAr: 'الشعير',
-    category: 'cereals',
-    maturityDays: 110,
-    yieldPotential: '4.5 t/ha',
-    yieldPotentialAr: '4.5 طن/هـ',
-    droughtTolerance: 'high',
-    optimalTempMin: 10,
-    optimalTempMax: 25,
-    waterRequirement: '350-500 mm',
-    waterRequirementAr: '350-500 مم',
-    plantingSeason: 'Nov - Dec',
-    plantingSeasonAr: 'نوفمبر - ديسمبر',
-    region: 'Northern Arabia',
-    regionAr: 'شمال الجزيرة',
-    rating: 4.3,
-    stockKg: 1800,
-    pricePerKg: 9,
-    recommended: true,
-  },
-  {
-    id: 'seed-006',
-    name: 'Rhodes Grass',
-    nameAr: 'حشيشة رودس',
-    crop: 'Fodder',
-    cropAr: 'علف',
-    category: 'fodder',
-    maturityDays: 60,
-    yieldPotential: '15 t/ha/cut',
-    yieldPotentialAr: '15 طن/هـ/حشة',
-    droughtTolerance: 'high',
-    optimalTempMin: 20,
-    optimalTempMax: 40,
-    waterRequirement: '500-700 mm',
-    waterRequirementAr: '500-700 مم',
-    plantingSeason: 'Mar - Apr',
-    plantingSeasonAr: 'مارس - أبريل',
-    region: 'Arabian Peninsula',
-    regionAr: 'شبه الجزيرة العربية',
-    rating: 4.0,
-    stockKg: 3000,
-    pricePerKg: 6,
-    recommended: false,
-  },
-];
-
-const categoryLabels: Record<CropCategory, string> = {
-  cereals: 'حبوب',
-  vegetables: 'خضروات',
-  fruits: 'فواكه',
-  legumes: 'بقوليات',
-  fodder: 'أعلاف',
+/** Maps cropType values from the Seed model to CropCategory filter values */
+const cropTypeToCategory: Record<string, CropCategory> = {
+  wheat: 'cereals',
+  barley: 'cereals',
+  rice: 'cereals',
+  sorghum: 'cereals',
+  millet: 'cereals',
+  corn: 'cereals',
+  tomato: 'vegetables',
+  cucumber: 'vegetables',
+  onion: 'vegetables',
+  pepper: 'vegetables',
+  eggplant: 'vegetables',
+  potato: 'vegetables',
+  date_palm: 'fruits',
+  mango: 'fruits',
+  citrus: 'fruits',
+  grape: 'fruits',
+  banana: 'fruits',
+  lentil: 'legumes',
+  chickpea: 'legumes',
+  fava_bean: 'legumes',
+  bean: 'legumes',
+  alfalfa: 'fodder',
+  clover: 'fodder',
+  rhodes_grass: 'fodder',
 };
+
 
 export default function SeedsClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<CropCategory | 'all'>('all');
   const [recommendedOnly, setRecommendedOnly] = useState(false);
 
+  const { data: seeds, isLoading, error } = useQuery({
+    queryKey: ['seeds'],
+    queryFn: () => seedsApi.getSeeds(undefined),
+    staleTime: 1000 * 60 * 5,
+  });
+
   const filteredSeeds = useMemo(() => {
-    return mockSeeds.filter((seed) => {
+    if (!seeds) return [];
+    return seeds.filter((seed: Seed) => {
+      const seedCategory = cropTypeToCategory[seed.cropType];
+      const matchesCategory = categoryFilter === 'all' || seedCategory === categoryFilter;
       const matchesSearch =
         !searchTerm ||
-        seed.nameAr.includes(searchTerm) ||
-        seed.cropAr.includes(searchTerm) ||
+        (seed.nameAr ?? '').includes(searchTerm) ||
+        (seed.cropType ?? '').includes(searchTerm) ||
         seed.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = categoryFilter === 'all' || seed.category === categoryFilter;
-      const matchesRecommended = !recommendedOnly || seed.recommended;
-      return matchesSearch && matchesCategory && matchesRecommended;
+      const matchesRecommended = !recommendedOnly || seed.available;
+      return matchesCategory && matchesSearch && matchesRecommended;
     });
-  }, [searchTerm, categoryFilter, recommendedOnly]);
+  }, [seeds, searchTerm, categoryFilter, recommendedOnly]);
 
   const getToleranceBadge = (tolerance: DroughtTolerance) => {
     const styles: Record<DroughtTolerance, string> = {
@@ -229,7 +88,21 @@ export default function SeedsClient() {
     );
   };
 
-  const lowStockCount = mockSeeds.filter((s) => s.stockKg < 200).length;
+  const allSeeds = seeds ?? [];
+  const availableCount = allSeeds.filter((s: Seed) => s.available).length;
+  const highDroughtCount = allSeeds.filter((s: Seed) => s.droughtTolerance === 'high').length;
+
+  if (error) {
+    return (
+      <div className="space-y-6" dir="rtl">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-700 font-medium">فشل في تحميل كتالوج البذور</p>
+          <p className="text-red-500 text-sm mt-1">Failed to load seed catalog</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -241,18 +114,6 @@ export default function SeedsClient() {
         </div>
       </div>
 
-      {/* Low stock alert */}
-      {lowStockCount > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
-            <span className="font-medium text-amber-800">
-              {lowStockCount} صنف مخزونه منخفض ويحتاج إعادة طلب
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border p-4">
@@ -262,7 +123,7 @@ export default function SeedsClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي الأصناف</div>
-              <div className="text-xl font-bold text-gray-900">{mockSeeds.length}</div>
+              <div className="text-xl font-bold text-gray-900">{isLoading ? '...' : allSeeds.length}</div>
             </div>
           </div>
         </div>
@@ -272,9 +133,9 @@ export default function SeedsClient() {
               <Star className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">موصى بها</div>
+              <div className="text-sm text-gray-500">متوفرة</div>
               <div className="text-xl font-bold text-yellow-600">
-                {mockSeeds.filter((s) => s.recommended).length}
+                {isLoading ? '...' : availableCount}
               </div>
             </div>
           </div>
@@ -285,9 +146,11 @@ export default function SeedsClient() {
               <Package className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">إجمالي المخزون</div>
+              <div className="text-sm text-gray-500">متوسط سعر الكيلو</div>
               <div className="text-xl font-bold text-blue-600">
-                {(mockSeeds.reduce((s, v) => s + v.stockKg, 0) / 1000).toFixed(1)} طن
+                {isLoading ? '...' : allSeeds.length > 0
+                  ? (allSeeds.reduce((s: number, v: Seed) => s + v.pricePerKg, 0) / allSeeds.length).toFixed(0)
+                  : 0} ريال
               </div>
             </div>
           </div>
@@ -300,7 +163,7 @@ export default function SeedsClient() {
             <div>
               <div className="text-sm text-gray-500">مقاوم للجفاف</div>
               <div className="text-xl font-bold text-purple-600">
-                {mockSeeds.filter((s) => s.droughtTolerance === 'high').length}
+                {isLoading ? '...' : highDroughtCount}
               </div>
             </div>
           </div>
@@ -338,28 +201,39 @@ export default function SeedsClient() {
             onChange={(e) => setRecommendedOnly(e.target.checked)}
             className="rounded border-gray-300 text-green-600 focus:ring-green-500"
           />
-          <span className="text-gray-700">الموصى بها فقط</span>
+          <span className="text-gray-700">المتوفرة فقط</span>
         </label>
       </div>
 
       {/* Seeds Grid */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+          <span className="mr-2 text-gray-500">جاري التحميل...</span>
+        </div>
+      )}
+      {!isLoading && filteredSeeds.length === 0 && (
+        <div className="bg-white rounded-lg border p-10 text-center text-gray-500">
+          لا توجد بذور مطابقة للبحث
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSeeds.map((seed) => (
+        {filteredSeeds.map((seed: Seed) => (
           <div key={seed.id} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow relative">
-            {seed.recommended && (
+            {seed.available && (
               <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-0.5 bg-yellow-50 text-yellow-700 rounded text-xs font-medium">
                 <Star className="w-3 h-3" />
-                موصى به
+                متوفر
               </div>
             )}
             <div className="mb-3">
               <div className="flex items-center gap-2 mb-1">
                 <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
-                  {categoryLabels[seed.category]}
+                  {seed.cropType}
                 </span>
               </div>
               <h3 className="font-bold text-gray-900 text-lg">{seed.nameAr}</h3>
-              <p className="text-sm text-gray-500">{seed.cropAr} - {seed.name}</p>
+              <p className="text-sm text-gray-500">{seed.variety} - {seed.name}</p>
             </div>
 
             <div className="space-y-2 text-sm mb-4">
@@ -373,23 +247,9 @@ export default function SeedsClient() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-gray-500">
                   <Sprout className="w-4 h-4" />
-                  <span>الإنتاجية</span>
+                  <span>معدل الإنبات</span>
                 </div>
-                <span className="font-medium">{seed.yieldPotentialAr}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Droplets className="w-4 h-4" />
-                  <span>احتياج مائي</span>
-                </div>
-                <span className="font-medium">{seed.waterRequirementAr}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Thermometer className="w-4 h-4" />
-                  <span>الحرارة المثلى</span>
-                </div>
-                <span className="font-medium">{seed.optimalTempMin}-{seed.optimalTempMax}°C</span>
+                <span className="font-medium">{seed.germinationRate}%</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-500">تحمل الجفاف</span>
@@ -398,17 +258,23 @@ export default function SeedsClient() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-gray-500">
                   <MapPin className="w-4 h-4" />
-                  <span>المنطقة</span>
+                  <span>المنشأ</span>
                 </div>
-                <span className="font-medium">{seed.regionAr}</span>
+                <span className="font-medium">{seed.origin}</span>
               </div>
+              {seed.recommendedRegions.length > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">المناطق</span>
+                  <span className="font-medium text-xs">{seed.recommendedRegions.join(', ')}</span>
+                </div>
+              )}
             </div>
 
             <div className="pt-3 border-t flex justify-between items-center">
               <div className="text-sm">
-                <span className="text-gray-500">المخزون: </span>
-                <span className={`font-medium ${seed.stockKg < 200 ? 'text-red-600' : 'text-gray-900'}`}>
-                  {seed.stockKg} كجم
+                <span className="text-gray-500">الحالة: </span>
+                <span className={`font-medium ${seed.available ? 'text-green-600' : 'text-red-600'}`}>
+                  {seed.available ? 'متوفر' : 'غير متوفر'}
                 </span>
               </div>
               <span className="font-bold text-green-700">{seed.pricePerKg} ريال/كجم</span>

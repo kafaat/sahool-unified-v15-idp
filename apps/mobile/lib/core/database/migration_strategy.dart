@@ -20,6 +20,7 @@ import 'schema_version.dart';
 import 'migrations/migration_base.dart';
 import 'migrations/migration_v5.dart';
 import 'migrations/migration_v6.dart';
+import 'migrations/migration_v7.dart';
 import '../utils/app_logger.dart';
 
 /// Migration strategy coordinator
@@ -31,6 +32,7 @@ class SahoolMigrationStrategy {
   static final Map<int, Migration> _migrations = {
     5: MigrationV5(),
     6: MigrationV6(),
+    7: MigrationV7(),
   };
 
   /// Get migration for a specific target version

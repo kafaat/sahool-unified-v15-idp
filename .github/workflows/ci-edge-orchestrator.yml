@@ -122,6 +122,7 @@ jobs:
         if: always() && secrets.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: edge-orchestrator-unit
           name: edge-orchestrator-unit-coverage

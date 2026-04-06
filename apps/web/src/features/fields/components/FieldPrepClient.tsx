@@ -7,6 +7,9 @@
  * Pre-season field preparation workflow with 7 steps:
  * Soil Analysis -> Primary Tillage -> Secondary Tillage ->
  * Land Leveling -> Base Fertilization -> Irrigation Setup -> Establishment Irrigation
+ *
+ * Field selector uses real field data from the fields API.
+ * Steps remain client-side workflow state (no dedicated prep API exists).
  */
 
 import { useState, useMemo, useCallback } from 'react';
@@ -30,7 +33,10 @@ import {
   ExternalLink,
   Wheat,
   Info,
+  AlertTriangle,
 } from 'lucide-react';
+import { useFieldsList } from '../hooks/useFieldsList';
+import type { Field } from '../types';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -49,12 +55,6 @@ interface PrepStep {
   costSar?: number;
   linkLabel?: string;
   linkHref?: string;
-}
-
-interface FieldOption {
-  id: string;
-  nameAr: string;
-  areaHa: number;
 }
 
 interface SeasonOption {
@@ -82,13 +82,6 @@ const STATUS_CONFIG: Record<StepStatus, { labelAr: string; icon: typeof CheckCir
 };
 
 const STEP_ICONS = [FlaskConical, Tractor, Layers, Ruler, Sprout, Droplets, Droplets];
-
-const FIELDS: FieldOption[] = [
-  { id: 'FIELD-003', nameAr: 'حقل القمح', areaHa: 8.5 },
-  { id: 'FIELD-001', nameAr: 'حقل الشعير', areaHa: 5.2 },
-  { id: 'FIELD-007', nameAr: 'حقل الطماطم', areaHa: 3.0 },
-  { id: 'FIELD-012', nameAr: 'حقل النخيل', areaHa: 12.0 },
-];
 
 const SEASONS: SeasonOption[] = [
   { id: 'winter-2026', labelAr: 'شتاء 2026' },
@@ -140,12 +133,30 @@ const INITIAL_STEPS: PrepStep[] = [
 // ---------------------------------------------------------------------------
 
 export default function FieldPrepClient() {
-  const [selectedField, setSelectedField] = useState(FIELDS[0]!.id);
+  const { data: apiFields, isLoading, isError, error, refetch } = useFieldsList();
+
+  const fieldOptions = useMemo(
+    () =>
+      (apiFields ?? []).map((f: Field) => ({
+        id: f.id,
+        nameAr: f.nameAr || f.name,
+        areaHa: f.area,
+      })),
+    [apiFields],
+  );
+
+  const [selectedField, setSelectedField] = useState('');
   const [selectedSeason, setSelectedSeason] = useState(SEASONS[0]!.id);
   const [steps, setSteps] = useState<PrepStep[]>(INITIAL_STEPS);
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set([4]));
 
-  const field = useMemo(() => (FIELDS.find((f) => f.id === selectedField) ?? FIELDS[0])!, [selectedField]);
+  // Use first field from API if nothing selected yet
+  const effectiveFieldId = selectedField || fieldOptions[0]?.id || '';
+  const field = useMemo(
+    () => fieldOptions.find((f: { id: string }) => f.id === effectiveFieldId) ?? fieldOptions[0] ?? { id: '', nameAr: '-', areaHa: 0 },
+    [fieldOptions, effectiveFieldId],
+  );
+
   const completedCount = useMemo(() => steps.filter((s) => s.status === 'completed').length, [steps]);
   const progressPercent = useMemo(() => Math.round((completedCount / steps.length) * 100), [completedCount, steps.length]);
   const totalCostPerHa = useMemo(() => steps.reduce((sum, s) => sum + (s.costSar ?? 0), 0), [steps]);
@@ -173,6 +184,40 @@ export default function FieldPrepClient() {
     );
   }, []);
 
+  // ── Loading State ──────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-3">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto" />
+          <p className="text-gray-600 text-sm">جاري تحميل الحقول...</p>
+          <p className="text-gray-400 text-xs">Loading fields...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error State ────────────────────────────────────────────────────
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-3 max-w-md">
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
+          <p className="text-gray-900 font-semibold">تعذر تحميل الحقول</p>
+          <p className="text-gray-500 text-sm">
+            {error instanceof Error ? error.message : 'Failed to load fields'}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
@@ -188,11 +233,14 @@ export default function FieldPrepClient() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الحقل</label>
             <div className="relative">
               <select
-                value={selectedField}
+                value={effectiveFieldId}
                 onChange={(e) => setSelectedField(e.target.value)}
                 className="w-full appearance-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-2.5 pr-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                {FIELDS.map((f) => (
+                {fieldOptions.length === 0 && (
+                  <option value="">لا توجد حقول</option>
+                )}
+                {fieldOptions.map((f: { id: string; nameAr: string; areaHa: number }) => (
                   <option key={f.id} value={f.id}>{f.nameAr} — {f.areaHa} هكتار</option>
                 ))}
               </select>

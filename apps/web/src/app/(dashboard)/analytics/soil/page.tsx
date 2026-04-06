@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Mountain,
   Droplets,
@@ -11,6 +11,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   FlaskConical,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 
 const statsCards = [
@@ -64,8 +66,52 @@ function getNutrientStatus(value: number, thresholds: { low: number; high: numbe
 }
 
 export default function SoilAnalyticsPage() {
-  const [dateRange, setDateRange] = useState('quarter');
+  const [dateRange, setDateRange] = useState('season');
   const [fieldFilter, setFieldFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error] = useState<string | null>(null);
+  const [apiSoilData, setApiSoilData] = useState<typeof soilData | null>(null);
+
+  // NOTE: Soil analytics API does not return structured table data yet.
+  // Skip the API call to avoid a useless request. Show local reference data
+  // with a visual indicator that it's sample data, not live.
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setApiSoilData(null); // Will use fallback soilData
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const displayData = apiSoilData ?? soilData;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-500">جاري تحميل بيانات التربة...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button onClick={fetchData} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -156,7 +202,7 @@ export default function SoilAnalyticsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {soilData.map((row) => {
+              {displayData.map((row) => {
                 const nStatus = getNutrientStatus(row.nitrogen, { low: 20, high: 30 });
                 const pStatus = getNutrientStatus(row.phosphorus, { low: 15, high: 25 });
                 const kStatus = getNutrientStatus(row.potassium, { low: 140, high: 180 });

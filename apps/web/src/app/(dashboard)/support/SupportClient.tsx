@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   HelpCircle,
   MessageSquare,
@@ -12,7 +12,11 @@ import {
   Send,
   Clock,
   CheckCircle,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
+import { supportApi, type Ticket } from '@/features/support/api';
+import { ApiError } from '@/lib/api/safe-fetch';
 
 interface FAQ {
   id: string;
@@ -21,16 +25,6 @@ interface FAQ {
   answer: string;
   answerAr: string;
   category: string;
-}
-
-interface Ticket {
-  id: string;
-  subject: string;
-  subjectAr: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
-  priority: 'low' | 'medium' | 'high';
-  createdAt: string;
-  updatedAt: string;
 }
 
 const faqs: FAQ[] = [
@@ -86,31 +80,58 @@ const faqs: FAQ[] = [
   },
 ];
 
-const mockTickets: Ticket[] = [
-  {
-    id: 'TKT-001',
-    subject: 'Sensor not connecting',
-    subjectAr: 'الحساس لا يتصل',
-    status: 'in_progress',
-    priority: 'high',
-    createdAt: '2025-01-24T10:00:00Z',
-    updatedAt: '2025-01-25T08:00:00Z',
-  },
-  {
-    id: 'TKT-002',
-    subject: 'Need help with VRA map',
-    subjectAr: 'أحتاج مساعدة في خريطة التطبيق المتغير',
-    status: 'open',
-    priority: 'medium',
-    createdAt: '2025-01-25T06:00:00Z',
-    updatedAt: '2025-01-25T06:00:00Z',
-  },
-];
-
 export default function SupportClient() {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [ticketsLoading, setTicketsLoading] = useState(true);
+  const [ticketsError, setTicketsError] = useState<string | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
   const [newTicketSubject, setNewTicketSubject] = useState('');
   const [newTicketMessage, setNewTicketMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const fetchTickets = useCallback(async () => {
+    setTicketsLoading(true);
+    setTicketsError(null);
+    try {
+      const data = await supportApi.getTickets();
+      setTickets(data);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب التذاكر';
+      setTicketsError(message);
+    } finally {
+      setTicketsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
+
+  const handleSubmitTicket = async () => {
+    if (!newTicketSubject.trim() || !newTicketMessage.trim()) return;
+
+    setSubmitting(true);
+    setSubmitSuccess(false);
+    setSubmitError(null);
+    try {
+      const newTicket = await supportApi.createTicket({
+        subject: newTicketSubject,
+        message: newTicketMessage,
+      });
+      setTickets((prev) => [newTicket, ...prev]);
+      setNewTicketSubject('');
+      setNewTicketMessage('');
+      setSubmitSuccess(true);
+      setTimeout(() => setSubmitSuccess(false), 3000);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في إرسال التذكرة';
+      setSubmitError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const getStatusBadge = (status: Ticket['status']) => {
     const styles = {
@@ -230,6 +251,16 @@ export default function SupportClient() {
             </div>
           </div>
           <div className="p-4 space-y-4">
+            {submitSuccess && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                تم إرسال التذكرة بنجاح
+              </div>
+            )}
+            {submitError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {submitError}
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">الموضوع</label>
               <input
@@ -250,9 +281,17 @@ export default function SupportClient() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
               />
             </div>
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700">
-              <Send className="w-4 h-4" />
-              <span>إرسال التذكرة</span>
+            <button
+              onClick={handleSubmitTicket}
+              disabled={submitting || !newTicketSubject.trim() || !newTicketMessage.trim()}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              <span>{submitting ? 'جاري الإرسال...' : 'إرسال التذكرة'}</span>
             </button>
           </div>
         </div>
@@ -264,10 +303,26 @@ export default function SupportClient() {
           <h2 className="text-lg font-semibold text-gray-900">تذاكري</h2>
         </div>
         <div className="divide-y">
-          {mockTickets.length === 0 ? (
+          {ticketsLoading ? (
+            <div className="p-8 text-center">
+              <Loader2 className="w-6 h-6 text-sahool-green-600 animate-spin mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">جاري تحميل التذاكر...</p>
+            </div>
+          ) : ticketsError ? (
+            <div className="p-8 text-center">
+              <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm mb-2">{ticketsError}</p>
+              <button
+                onClick={fetchTickets}
+                className="text-sahool-green-600 text-sm font-medium hover:underline"
+              >
+                إعادة المحاولة
+              </button>
+            </div>
+          ) : tickets.length === 0 ? (
             <div className="p-8 text-center text-gray-500">لا توجد تذاكر دعم</div>
           ) : (
-            mockTickets.map((ticket) => (
+            tickets.map((ticket) => (
               <div key={ticket.id} className="p-4 hover:bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

@@ -83,6 +83,7 @@ import '../../features/community/ui/community_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
 import '../../features/reports/presentation/screens/reports_dashboard_screen.dart';
 import '../../features/settings/presentation/screens/help_screen.dart';
+import '../../features/settings/presentation/screens/about_screen.dart';
 import '../../features/field/ui/field_form_screen.dart';
 import '../../features/irrigation/presentation/screens/irrigation_dashboard_screen.dart';
 
@@ -753,6 +754,12 @@ class AppRouter {
         path: '/help',
         name: 'help',
         builder: (context, state) => const HelpScreen(),
+      ),
+
+      GoRoute(
+        path: '/about',
+        name: 'about',
+        builder: (context, state) => const AboutScreen(),
       ),
 
       GoRoute(

@@ -11,10 +11,53 @@
  * - Debug logging disabled (tree-shaken by withSentryConfig disableLogger: true)
  * - DSN guard prevents initialization when no DSN is configured
  *
+ * IMPORTANT: Uses a shim-first approach to handle missing @sentry/nextjs.
+ * The webpack alias in next.config.js points to sentry-shim.ts when the
+ * package is not installed, but Next.js 15 may process instrumentation-client.ts
+ * before webpack aliases are applied. The local shim import acts as a fallback.
+ *
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
  */
 
-import * as Sentry from "@sentry/nextjs";
+// Import from the local shim first (always available), then attempt to
+// override with the real package. This ensures the module never resolves
+// to undefined, preventing "Cannot read properties of undefined (reading 'call')".
+import * as SentryShim from "./src/lib/sentry-shim";
+
+let Sentry: typeof SentryShim = SentryShim;
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const real = require("@sentry/nextjs");
+  if (
+    real &&
+    typeof real.init === "function" &&
+    typeof real.browserTracingIntegration === "function" &&
+    typeof real.captureRouterTransitionStart === "function"
+  ) {
+    Sentry = real;
+  }
+} catch (error: unknown) {
+  // Only swallow MODULE_NOT_FOUND when @sentry/nextjs itself is the missing
+  // module. Transitive failures (e.g. a sub-package missing) are rethrown
+  // so Sentry doesn't silently disappear.
+  // Uses the same regex as next.config.js and instrumentation.ts.
+  const err = error as Record<string, unknown>;
+  const isSentryMissing =
+    err &&
+    err.code === "MODULE_NOT_FOUND" &&
+    typeof err.message === "string" &&
+    /['"]@sentry\/nextjs['"]/.test(err.message);
+  if (!isSentryMissing) {
+    throw error;
+  }
+}
+
+/** Subset of Sentry Event used in beforeSend filtering */
+interface SentryEventSubset {
+  request?: { headers?: Record<string, string> };
+  breadcrumbs?: Array<{ category?: string }>;
+}
 
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
@@ -37,12 +80,11 @@ if (SENTRY_DSN && SENTRY_DSN.length > 0) {
     integrations: [Sentry.browserTracingIntegration()],
 
     // Filter sensitive data before sending
-    beforeSend(event) {
+    beforeSend(event: SentryEventSubset) {
       if (event.request?.headers) {
-        const headers = event.request.headers as Record<string, string>;
-        delete headers["cookie"];
-        delete headers["authorization"];
-        delete headers["x-csrf-token"];
+        delete event.request.headers["cookie"];
+        delete event.request.headers["authorization"];
+        delete event.request.headers["x-csrf-token"];
       }
 
       if (event.breadcrumbs) {

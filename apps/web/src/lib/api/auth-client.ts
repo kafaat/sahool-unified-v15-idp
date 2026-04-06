@@ -63,6 +63,21 @@ class AuthApiClient {
 
   clearToken() {
     this.token = null;
+
+    // Clear cookies to prevent stale tokens from being sent
+    // Uses both root-scoped and unscoped removal for backwards compatibility
+    if (typeof window !== 'undefined') {
+      try {
+        const Cookies = require('js-cookie');
+        Cookies.remove('access_token', { path: '/' });
+        Cookies.remove('refresh_token', { path: '/' });
+        // Legacy path-scoped removal (cookies set without explicit path)
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+      } catch {
+        // js-cookie may not be available in all environments
+      }
+    }
   }
 
   // -------------------------------------------------------------------------

@@ -14,126 +14,13 @@ import {
   Edit,
   Plus,
   Clock,
+  Loader2,
 } from 'lucide-react';
+import { useAuditLogs, useAuditStats } from '@/features/audit';
+import type { AuditLog, AuditFilters } from '@/features/audit';
 
 type AuditAction = 'create' | 'update' | 'delete' | 'login' | 'logout' | 'export' | 'config_change';
 type AuditSeverity = 'info' | 'warning' | 'critical';
-
-interface AuditEntry {
-  id: string;
-  timestamp: string;
-  userId: string;
-  userName: string;
-  action: AuditAction;
-  resource: string;
-  resourceAr: string;
-  description: string;
-  descriptionAr: string;
-  severity: AuditSeverity;
-  ipAddress: string;
-  tenantId: string;
-}
-
-const mockAuditLog: AuditEntry[] = [
-  {
-    id: 'aud-001',
-    timestamp: '2026-04-04T08:45:00Z',
-    userId: 'user-1',
-    userName: 'أحمد الرشيدي',
-    action: 'create',
-    resource: 'Field',
-    resourceAr: 'حقل',
-    description: 'Created field FIELD-012 "North Wheat Plot"',
-    descriptionAr: 'إنشاء حقل FIELD-012 "قطعة القمح الشمالية"',
-    severity: 'info',
-    ipAddress: '192.168.1.45',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-002',
-    timestamp: '2026-04-04T08:30:00Z',
-    userId: 'user-2',
-    userName: 'فاطمة المنصور',
-    action: 'config_change',
-    resource: 'Irrigation',
-    resourceAr: 'الري',
-    description: 'Changed irrigation schedule for Field-003',
-    descriptionAr: 'تغيير جدول الري للحقل 003',
-    severity: 'warning',
-    ipAddress: '192.168.1.22',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-003',
-    timestamp: '2026-04-04T08:15:00Z',
-    userId: 'user-3',
-    userName: 'خالد العمري',
-    action: 'delete',
-    resource: 'Sensor',
-    resourceAr: 'حساس',
-    description: 'Deleted sensor SNS-045 from Field-002',
-    descriptionAr: 'حذف الحساس SNS-045 من الحقل 002',
-    severity: 'critical',
-    ipAddress: '10.0.0.15',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-004',
-    timestamp: '2026-04-04T07:50:00Z',
-    userId: 'user-1',
-    userName: 'أحمد الرشيدي',
-    action: 'login',
-    resource: 'Auth',
-    resourceAr: 'المصادقة',
-    description: 'User logged in via mobile app',
-    descriptionAr: 'تسجيل دخول عبر تطبيق الجوال',
-    severity: 'info',
-    ipAddress: '192.168.1.45',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-005',
-    timestamp: '2026-04-04T07:30:00Z',
-    userId: 'user-4',
-    userName: 'سارة الحربي',
-    action: 'export',
-    resource: 'Report',
-    resourceAr: 'تقرير',
-    description: 'Exported monthly harvest report PDF',
-    descriptionAr: 'تصدير تقرير الحصاد الشهري PDF',
-    severity: 'info',
-    ipAddress: '192.168.1.88',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-006',
-    timestamp: '2026-04-04T07:00:00Z',
-    userId: 'system',
-    userName: 'النظام',
-    action: 'update',
-    resource: 'Model',
-    resourceAr: 'نموذج',
-    description: 'Auto-deployed yolo26-pest-v3 to edge-001',
-    descriptionAr: 'نشر تلقائي لنموذج yolo26-pest-v3 على الجهاز edge-001',
-    severity: 'warning',
-    ipAddress: '10.0.0.1',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-007',
-    timestamp: '2026-04-03T22:15:00Z',
-    userId: 'user-5',
-    userName: 'محمد القحطاني',
-    action: 'config_change',
-    resource: 'RBAC',
-    resourceAr: 'الصلاحيات',
-    description: 'Changed role permissions for "Field Worker" role',
-    descriptionAr: 'تغيير صلاحيات دور "عامل الحقل"',
-    severity: 'critical',
-    ipAddress: '192.168.1.10',
-    tenantId: 'farm-001',
-  },
-];
 
 const actionIcons: Record<AuditAction, React.ReactNode> = {
   create: <Plus className="w-4 h-4" />,
@@ -160,36 +47,29 @@ export default function AuditClient() {
   const [severityFilter, setSeverityFilter] = useState<AuditSeverity | 'all'>('all');
   const [actionFilter, setActionFilter] = useState<AuditAction | 'all'>('all');
 
+  const filters: AuditFilters = useMemo(() => {
+    const f: AuditFilters = {};
+    if (actionFilter !== 'all') f.action = actionFilter;
+    if (searchTerm) f.search = searchTerm;
+    return f;
+  }, [actionFilter, searchTerm]);
+
+  const { data: auditLogs, isLoading: logsLoading, error: logsError } = useAuditLogs(filters);
+  const { data: auditStats, isLoading: statsLoading } = useAuditStats();
+
   const filteredLogs = useMemo(() => {
-    return mockAuditLog.filter((entry) => {
+    if (!auditLogs) return [];
+    return auditLogs.filter((entry: AuditLog) => {
       const matchesSearch =
         !searchTerm ||
-        entry.descriptionAr.includes(searchTerm) ||
-        entry.userName.includes(searchTerm) ||
-        entry.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSeverity = severityFilter === 'all' || entry.severity === severityFilter;
+        (entry.detailsAr ?? '').includes(searchTerm) ||
+        (entry.userNameAr ?? entry.userName ?? '').includes(searchTerm) ||
+        (entry.details ?? '').toLowerCase().includes(searchTerm.toLowerCase());
+      // severityFilter is client-side only since AuditLog doesn't have severity from API
       const matchesAction = actionFilter === 'all' || entry.action === actionFilter;
-      return matchesSearch && matchesSeverity && matchesAction;
+      return matchesSearch && matchesAction;
     });
-  }, [searchTerm, severityFilter, actionFilter]);
-
-  const getSeverityBadge = (severity: AuditSeverity) => {
-    const styles: Record<AuditSeverity, string> = {
-      info: 'bg-blue-100 text-blue-800',
-      warning: 'bg-yellow-100 text-yellow-800',
-      critical: 'bg-red-100 text-red-800',
-    };
-    const labels: Record<AuditSeverity, string> = {
-      info: 'معلومات',
-      warning: 'تحذير',
-      critical: 'حرج',
-    };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[severity]}`}>
-        {labels[severity]}
-      </span>
-    );
-  };
+  }, [auditLogs, searchTerm, actionFilter]);
 
   const getActionColor = (action: AuditAction) => {
     const colors: Record<AuditAction, string> = {
@@ -204,7 +84,22 @@ export default function AuditClient() {
     return colors[action];
   };
 
-  const criticalCount = mockAuditLog.filter((e) => e.severity === 'critical').length;
+  const totalLogs = auditStats?.totalLogs ?? auditLogs?.length ?? 0;
+  const todayLogs = auditStats?.todayLogs ?? 0;
+  const topUsersCount = auditStats?.topUsers?.length ?? (auditLogs ? new Set(auditLogs.map((e: AuditLog) => e.userId)).size : 0);
+  const deleteCount = auditStats?.byAction?.['delete'] ?? 0;
+
+  if (logsError) {
+    return (
+      <div className="space-y-6" dir="rtl">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-700 font-medium">فشل في تحميل سجل التدقيق</p>
+          <p className="text-red-500 text-sm mt-1">Failed to load audit logs</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -225,12 +120,12 @@ export default function AuditClient() {
       </div>
 
       {/* Critical alert */}
-      {criticalCount > 0 && (
+      {deleteCount > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-red-600" />
             <span className="font-medium text-red-800">
-              {criticalCount} إجراء حرج يتطلب مراجعة خلال الـ 24 ساعة الماضية
+              {deleteCount} إجراء حذف يتطلب مراجعة خلال الـ 24 ساعة الماضية
             </span>
           </div>
         </div>
@@ -245,7 +140,7 @@ export default function AuditClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي السجلات</div>
-              <div className="text-xl font-bold text-gray-900">{mockAuditLog.length}</div>
+              <div className="text-xl font-bold text-gray-900">{statsLoading ? '...' : totalLogs}</div>
             </div>
           </div>
         </div>
@@ -257,7 +152,7 @@ export default function AuditClient() {
             <div>
               <div className="text-sm text-gray-500">مستخدمون نشطون</div>
               <div className="text-xl font-bold text-green-600">
-                {new Set(mockAuditLog.map((e) => e.userId)).size}
+                {statsLoading ? '...' : topUsersCount}
               </div>
             </div>
           </div>
@@ -268,8 +163,8 @@ export default function AuditClient() {
               <Shield className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">إجراءات حرجة</div>
-              <div className="text-xl font-bold text-red-600">{criticalCount}</div>
+              <div className="text-sm text-gray-500">سجلات اليوم</div>
+              <div className="text-xl font-bold text-red-600">{statsLoading ? '...' : todayLogs}</div>
             </div>
           </div>
         </div>
@@ -281,7 +176,9 @@ export default function AuditClient() {
             <div>
               <div className="text-sm text-gray-500">آخر نشاط</div>
               <div className="text-sm font-bold text-purple-600">
-                {new Date(mockAuditLog[0]!.timestamp).toLocaleTimeString('ar-SA')}
+                {auditLogs && auditLogs.length > 0
+                  ? new Date(auditLogs[0]!.timestamp).toLocaleTimeString('ar-SA')
+                  : '-'}
               </div>
             </div>
           </div>
@@ -327,46 +224,58 @@ export default function AuditClient() {
 
       {/* Audit Table */}
       <div className="bg-white rounded-lg border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">الوقت</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">المستخدم</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">الإجراء</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">المورد</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">الوصف</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">المستوى</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">IP</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {filteredLogs.map((entry) => (
-                <tr key={entry.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                    {new Date(entry.timestamp).toLocaleString('ar-SA', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-900">{entry.userName}</td>
-                  <td className="px-4 py-3">
-                    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${getActionColor(entry.action)}`}>
-                      {actionIcons[entry.action]}
-                      {actionLabels[entry.action]}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{entry.resourceAr}</td>
-                  <td className="px-4 py-3 text-gray-600 max-w-xs truncate">{entry.descriptionAr}</td>
-                  <td className="px-4 py-3">{getSeverityBadge(entry.severity)}</td>
-                  <td className="px-4 py-3 text-gray-400 font-mono text-xs">{entry.ipAddress}</td>
+        {logsLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+            <span className="mr-2 text-gray-500">جاري التحميل...</span>
+          </div>
+        )}
+        {!logsLoading && filteredLogs.length === 0 && (
+          <div className="p-10 text-center text-gray-500">لا توجد سجلات تدقيق</div>
+        )}
+        {!logsLoading && filteredLogs.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">الوقت</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">المستخدم</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">الإجراء</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">المورد</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">الوصف</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">IP</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y">
+                {filteredLogs.map((entry: AuditLog) => {
+                  const action = (entry.action ?? 'update') as AuditAction;
+                  return (
+                    <tr key={entry.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                        {new Date(entry.timestamp).toLocaleString('ar-SA', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-900">{entry.userNameAr || entry.userName}</td>
+                      <td className="px-4 py-3">
+                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${getActionColor(action)}`}>
+                          {actionIcons[action]}
+                          {entry.actionAr || actionLabels[action] || entry.action}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">{entry.resource}</td>
+                      <td className="px-4 py-3 text-gray-600 max-w-xs truncate">{entry.detailsAr || entry.details}</td>
+                      <td className="px-4 py-3 text-gray-400 font-mono text-xs">{entry.ipAddress ?? '-'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

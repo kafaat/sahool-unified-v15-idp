@@ -530,30 +530,10 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Agro Rules API (خدمة مسترجعة من kernel)
+  // Agro Rules — REMOVED: agro-rules is a NATS-only worker with no HTTP port.
+  // These methods called /api/v1/agro-rules/* which has no Kong route.
+  // IoT automation rules are handled via NATS events, not REST.
   // ═══════════════════════════════════════════════════════════════════════════
-
-  async getIoTRules(fieldId: string) {
-    return this.request<any>(`/api/v1/agro-rules/fields/${fieldId}/rules`);
-  }
-
-  async createIoTRule(data: {
-    fieldId: string;
-    condition: string;
-    action: string;
-    threshold: number;
-  }) {
-    return this.request<any>('/api/v1/agro-rules/rules', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async triggerRule(ruleId: string) {
-    return this.request<any>(`/api/v1/agro-rules/rules/${ruleId}/trigger`, {
-      method: 'POST',
-    });
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Chat Service API (خدمة المحادثات - port 8115)

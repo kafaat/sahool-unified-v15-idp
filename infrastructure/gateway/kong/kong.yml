@@ -875,13 +875,14 @@ services:
         protocols: ["http", "https"]
 
   # GlobalGAP Compliance - Certification tracking
+  # Routes both /api/v1/globalgap (legacy) and /api/v1/compliance (used by web app)
   - name: globalgap-compliance
     host: globalgap-compliance
     port: 8128  # Container internal port (Dockerfile EXPOSE 8128, docker-compose PORT=8128)
     protocol: http
     routes:
       - name: globalgap-compliance-route
-        paths: ["/api/v1/globalgap", "/globalgap"]
+        paths: ["/api/v1/globalgap", "/globalgap", "/api/v1/compliance"]
         strip_path: true
         protocols: ["http", "https"]
 

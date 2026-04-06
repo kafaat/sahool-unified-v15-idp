@@ -118,6 +118,7 @@ services:
         target: /etc/pgbouncer/runtime
         tmpfs:
           size: 1048576
+          mode: 0777
       # Healthcheck script (comprehensive pool verification)
       - ./infrastructure/core/pgbouncer/healthcheck.sh:/healthcheck.sh:ro
     ports:

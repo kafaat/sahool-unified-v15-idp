@@ -610,6 +610,7 @@ export const COMPLIANCE_ENDPOINTS = {
   STANDARDS: `${API_PREFIX}/compliance/standards`,
 } as const;
 
+/** @deprecated No backend service exists yet. Planned for future release. */
 export const DOCUMENT_ENDPOINTS = {
   LIST: `${API_PREFIX}/documents`,
   GET: `${API_PREFIX}/documents/{documentId}`,

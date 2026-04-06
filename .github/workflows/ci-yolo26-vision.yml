@@ -137,6 +137,7 @@ jobs:
         if: always() && secrets.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: yolo26-vision
           name: yolo26-vision-coverage

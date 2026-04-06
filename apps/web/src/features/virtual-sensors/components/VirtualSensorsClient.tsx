@@ -7,185 +7,88 @@ import {
   Zap,
   Settings,
   AlertTriangle,
-  CheckCircle,
-  Clock,
   Calculator,
+  Loader2,
+  Leaf,
+  Droplets,
 } from 'lucide-react';
-
-type AlgorithmType = 'regression' | 'kalman_filter' | 'neural_network' | 'physics_model' | 'ensemble';
-type SensorAccuracy = 'high' | 'medium' | 'low';
-type CalibrationStatus = 'calibrated' | 'needs_calibration' | 'auto_calibrating';
-
-interface VirtualSensor {
-  id: string;
-  name: string;
-  nameAr: string;
-  parameter: string;
-  parameterAr: string;
-  algorithm: AlgorithmType;
-  accuracy: SensorAccuracy;
-  calibrationStatus: CalibrationStatus;
-  currentValue: number;
-  unit: string;
-  inputSensors: string[];
-  fieldName: string;
-  lastComputed: string;
-  confidenceInterval: number;
-}
-
-const mockVirtualSensors: VirtualSensor[] = [
-  {
-    id: 'vs-001',
-    name: 'ET Estimation',
-    nameAr: 'تقدير التبخر-نتح',
-    parameter: 'Evapotranspiration',
-    parameterAr: 'التبخر-نتح',
-    algorithm: 'physics_model',
-    accuracy: 'high',
-    calibrationStatus: 'calibrated',
-    currentValue: 5.2,
-    unit: 'mm/day',
-    inputSensors: ['حرارة', 'رطوبة', 'رياح', 'إشعاع'],
-    fieldName: 'الحقل الشمالي',
-    lastComputed: '2026-04-04T08:00:00Z',
-    confidenceInterval: 95,
-  },
-  {
-    id: 'vs-002',
-    name: 'Soil Nitrogen Estimate',
-    nameAr: 'تقدير نيتروجين التربة',
-    parameter: 'Nitrogen',
-    parameterAr: 'النيتروجين',
-    algorithm: 'neural_network',
-    accuracy: 'medium',
-    calibrationStatus: 'auto_calibrating',
-    currentValue: 22.5,
-    unit: 'ppm',
-    inputSensors: ['NDVI', 'رطوبة التربة', 'درجة الحرارة'],
-    fieldName: 'حقل القمح',
-    lastComputed: '2026-04-04T07:45:00Z',
-    confidenceInterval: 82,
-  },
-  {
-    id: 'vs-003',
-    name: 'Crop Water Stress Index',
-    nameAr: 'مؤشر إجهاد المحصول المائي',
-    parameter: 'CWSI',
-    parameterAr: 'م.إ.م.م',
-    algorithm: 'ensemble',
-    accuracy: 'high',
-    calibrationStatus: 'calibrated',
-    currentValue: 0.35,
-    unit: '',
-    inputSensors: ['حرارة الغطاء', 'حرارة الهواء', 'رطوبة نسبية'],
-    fieldName: 'الحقل الجنوبي',
-    lastComputed: '2026-04-04T08:10:00Z',
-    confidenceInterval: 91,
-  },
-  {
-    id: 'vs-004',
-    name: 'LAI Estimation',
-    nameAr: 'تقدير مؤشر مساحة الورقة',
-    parameter: 'Leaf Area Index',
-    parameterAr: 'مؤشر مساحة الورقة',
-    algorithm: 'regression',
-    accuracy: 'medium',
-    calibrationStatus: 'needs_calibration',
-    currentValue: 3.8,
-    unit: 'm2/m2',
-    inputSensors: ['NDVI', 'إشعاع شمسي'],
-    fieldName: 'بستان النخيل',
-    lastComputed: '2026-04-04T06:30:00Z',
-    confidenceInterval: 75,
-  },
-  {
-    id: 'vs-005',
-    name: 'Soil Salinity Predictor',
-    nameAr: 'مؤشر ملوحة التربة',
-    parameter: 'EC',
-    parameterAr: 'التوصيلية الكهربائية',
-    algorithm: 'kalman_filter',
-    accuracy: 'high',
-    calibrationStatus: 'calibrated',
-    currentValue: 2.1,
-    unit: 'dS/m',
-    inputSensors: ['رطوبة التربة', 'حرارة التربة', 'EC سابقة'],
-    fieldName: 'الصوب الزراعية',
-    lastComputed: '2026-04-04T08:05:00Z',
-    confidenceInterval: 88,
-  },
-  {
-    id: 'vs-006',
-    name: 'Disease Risk Score',
-    nameAr: 'درجة خطر الأمراض',
-    parameter: 'Risk Score',
-    parameterAr: 'درجة الخطر',
-    algorithm: 'ensemble',
-    accuracy: 'low',
-    calibrationStatus: 'needs_calibration',
-    currentValue: 62,
-    unit: '%',
-    inputSensors: ['رطوبة', 'حرارة', 'مدة البلل', 'NDVI'],
-    fieldName: 'حقل القمح',
-    lastComputed: '2026-04-04T07:00:00Z',
-    confidenceInterval: 68,
-  },
-];
-
-const algorithmLabels: Record<AlgorithmType, string> = {
-  regression: 'انحدار خطي',
-  kalman_filter: 'مرشح كالمان',
-  neural_network: 'شبكة عصبية',
-  physics_model: 'نموذج فيزيائي',
-  ensemble: 'نموذج مجمع',
-};
+import { useVSCrops, useVSSoils } from '../hooks/useVirtualSensors';
 
 export default function VirtualSensorsClient() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [accuracyFilter, setAccuracyFilter] = useState<SensorAccuracy | 'all'>('all');
+  const [activeTab, setActiveTab] = useState<'crops' | 'soils'>('crops');
 
-  const filteredSensors = useMemo(() => {
-    return mockVirtualSensors.filter((sensor) => {
-      const matchesSearch =
-        !searchTerm ||
-        sensor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sensor.nameAr.includes(searchTerm);
-      const matchesAccuracy = accuracyFilter === 'all' || sensor.accuracy === accuracyFilter;
-      return matchesSearch && matchesAccuracy;
-    });
-  }, [searchTerm, accuracyFilter]);
+  const {
+    data: crops = [],
+    isLoading: isLoadingCrops,
+    isError: isCropsError,
+    error: cropsError,
+  } = useVSCrops();
 
-  const getAccuracyBadge = (accuracy: SensorAccuracy) => {
-    const styles: Record<SensorAccuracy, string> = {
-      high: 'bg-green-100 text-green-800',
-      medium: 'bg-yellow-100 text-yellow-800',
-      low: 'bg-red-100 text-red-800',
-    };
-    const labels: Record<SensorAccuracy, string> = { high: 'عالية', medium: 'متوسطة', low: 'منخفضة' };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[accuracy]}`}>
-        {labels[accuracy]}
-      </span>
+  const {
+    data: soils = [],
+    isLoading: isLoadingSoils,
+    isError: isSoilsError,
+    error: soilsError,
+  } = useVSSoils();
+
+  const isLoading = isLoadingCrops || isLoadingSoils;
+  const isError = isCropsError || isSoilsError;
+  const errorMsg = cropsError ?? soilsError;
+
+  const filteredCrops = useMemo(() => {
+    if (!searchTerm) return crops;
+    return crops.filter(
+      (c) =>
+        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.nameAr.includes(searchTerm)
     );
-  };
+  }, [crops, searchTerm]);
 
-  const getCalibrationIcon = (status: CalibrationStatus) => {
-    if (status === 'calibrated') return <CheckCircle className="w-4 h-4 text-green-500" />;
-    if (status === 'auto_calibrating') return <Settings className="w-4 h-4 text-blue-500 animate-spin" />;
-    return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-  };
+  const filteredSoils = useMemo(() => {
+    if (!searchTerm) return soils;
+    return soils.filter(
+      (s) =>
+        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.nameAr.includes(searchTerm)
+    );
+  }, [soils, searchTerm]);
 
-  const getCalibrationLabel = (status: CalibrationStatus) => {
-    const labels: Record<CalibrationStatus, string> = {
-      calibrated: 'معاير',
-      needs_calibration: 'يحتاج معايرة',
-      auto_calibrating: 'معايرة تلقائية',
-    };
-    return labels[status];
-  };
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-600 font-medium">جاري تحميل بيانات المستشعرات الافتراضية...</p>
+          <p className="text-sm text-gray-400 mt-1">Loading virtual sensors data...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const calibratedCount = mockVirtualSensors.filter((s) => s.calibrationStatus === 'calibrated').length;
-  const needsCalibration = mockVirtualSensors.filter((s) => s.calibrationStatus === 'needs_calibration').length;
+  // Error state
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            فشل في تحميل بيانات المستشعرات الافتراضية
+          </h3>
+          <p className="text-sm text-gray-500 mb-4">
+            {errorMsg instanceof Error ? errorMsg.message : 'Failed to load virtual sensors data'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -193,21 +96,9 @@ export default function VirtualSensorsClient() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">المستشعرات الافتراضية</h1>
-          <p className="text-gray-500 mt-1">Virtual Sensors</p>
+          <p className="text-gray-500 mt-1">Virtual Sensors - Crop & Soil Parameters</p>
         </div>
       </div>
-
-      {/* Alerts */}
-      {needsCalibration > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-yellow-600" />
-            <span className="font-medium text-yellow-800">
-              {needsCalibration} مستشعر يحتاج إعادة معايرة لتحسين الدقة
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -217,30 +108,30 @@ export default function VirtualSensorsClient() {
               <Calculator className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">إجمالي المستشعرات</div>
-              <div className="text-xl font-bold text-gray-900">{mockVirtualSensors.length}</div>
+              <div className="text-sm text-gray-500">حسابات متاحة</div>
+              <div className="text-xl font-bold text-gray-900">5</div>
             </div>
           </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+              <Leaf className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">معاير</div>
-              <div className="text-xl font-bold text-green-600">{calibratedCount}</div>
+              <div className="text-sm text-gray-500">أنواع المحاصيل</div>
+              <div className="text-xl font-bold text-green-600">{crops.length}</div>
             </div>
           </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <Gauge className="w-5 h-5 text-yellow-600" />
+              <Droplets className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">يحتاج معايرة</div>
-              <div className="text-xl font-bold text-yellow-600">{needsCalibration}</div>
+              <div className="text-sm text-gray-500">أنواع التربة</div>
+              <div className="text-xl font-bold text-yellow-600">{soils.length}</div>
             </div>
           </div>
         </div>
@@ -250,97 +141,216 @@ export default function VirtualSensorsClient() {
               <Zap className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">متوسط الثقة</div>
+              <div className="text-sm text-gray-500">الخوارزميات</div>
               <div className="text-xl font-bold text-blue-600">
-                {Math.round(mockVirtualSensors.reduce((s, v) => s + v.confidenceInterval, 0) / mockVirtualSensors.length)}%
+                ET0 / ETc / SM
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Computation cards */}
+      <div className="bg-white rounded-lg border p-5">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">الحسابات المتاحة</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="border rounded-lg p-4 bg-blue-50">
+            <div className="flex items-center gap-2 mb-2">
+              <Calculator className="w-5 h-5 text-blue-600" />
+              <h3 className="font-medium text-gray-900">التبخر-نتح المرجعي (ET0)</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-2">
+              حساب معدل التبخر-نتح المرجعي باستخدام معادلة بنمان-مونتيث
+            </p>
+            <p className="text-xs text-gray-400">Penman-Monteith equation</p>
+          </div>
+          <div className="border rounded-lg p-4 bg-green-50">
+            <div className="flex items-center gap-2 mb-2">
+              <Leaf className="w-5 h-5 text-green-600" />
+              <h3 className="font-medium text-gray-900">التبخر-نتح الفعلي (ETc)</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-2">
+              حساب احتياج المحصول الفعلي من المياه بناء على معامل المحصول (Kc)
+            </p>
+            <p className="text-xs text-gray-400">Crop coefficient method</p>
+          </div>
+          <div className="border rounded-lg p-4 bg-yellow-50">
+            <div className="flex items-center gap-2 mb-2">
+              <Droplets className="w-5 h-5 text-yellow-600" />
+              <h3 className="font-medium text-gray-900">تقدير رطوبة التربة</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-2">
+              تقدير رطوبة التربة الحالية باستخدام الميزان المائي
+            </p>
+            <p className="text-xs text-gray-400">Water balance estimation</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs for Crops / Soils */}
+      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 w-fit">
+        <button
+          onClick={() => setActiveTab('crops')}
+          className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md transition-colors ${
+            activeTab === 'crops'
+              ? 'bg-white text-green-700 shadow-sm font-medium'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Leaf className="w-4 h-4" />
+          المحاصيل ({crops.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('soils')}
+          className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md transition-colors ${
+            activeTab === 'soils'
+              ? 'bg-white text-green-700 shadow-sm font-medium'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Droplets className="w-4 h-4" />
+          التربة ({soils.length})
+        </button>
+      </div>
+
+      {/* Search */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="بحث عن مستشعر افتراضي..."
+            placeholder={activeTab === 'crops' ? 'بحث عن محصول...' : 'بحث عن نوع تربة...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pr-10 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
           />
         </div>
-        <select
-          value={accuracyFilter}
-          onChange={(e) => setAccuracyFilter(e.target.value as SensorAccuracy | 'all')}
-          className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-        >
-          <option value="all">جميع مستويات الدقة</option>
-          <option value="high">دقة عالية</option>
-          <option value="medium">دقة متوسطة</option>
-          <option value="low">دقة منخفضة</option>
-        </select>
       </div>
 
-      {/* Sensors Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSensors.map((sensor) => (
-          <div key={sensor.id} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="font-medium text-gray-900">{sensor.nameAr}</h3>
-                <p className="text-sm text-gray-500">{sensor.fieldName}</p>
-              </div>
-              {getAccuracyBadge(sensor.accuracy)}
+      {/* Crops tab */}
+      {activeTab === 'crops' && (
+        <>
+          {filteredCrops.length === 0 ? (
+            <div className="bg-white rounded-lg border p-8 text-center">
+              <Leaf className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد محاصيل</h3>
+              <p className="text-gray-500 text-sm">
+                {searchTerm ? 'لا توجد نتائج تطابق البحث' : 'لم يتم تحميل بيانات المحاصيل'}
+              </p>
             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredCrops.map((crop) => (
+                <div key={crop.type} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-medium text-gray-900">{crop.nameAr}</h3>
+                      <p className="text-sm text-gray-500">{crop.name}</p>
+                    </div>
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {crop.stages?.length ?? 0} مراحل
+                    </span>
+                  </div>
 
-            <div className="text-center py-4 mb-3 bg-gray-50 rounded-lg">
-              <div className="text-3xl font-bold text-gray-900">
-                {sensor.currentValue}
-                <span className="text-sm font-normal text-gray-500 mr-1">{sensor.unit}</span>
-              </div>
-              <div className="text-sm text-gray-500 mt-1">{sensor.parameterAr}</div>
-            </div>
+                  {crop.stages && crop.stages.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-gray-500 mb-1">مراحل النمو ومعامل Kc:</p>
+                      {crop.stages.map((stage) => (
+                        <div key={stage.name} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">{stage.nameAr}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-400">{stage.durationDays} يوم</span>
+                            <span className="font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded text-xs">
+                              Kc: {stage.kc}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500">الخوارزمية</span>
-                <span className="font-medium text-gray-700">{algorithmLabels[sensor.algorithm]}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500">المعايرة</span>
-                <div className="flex items-center gap-1">
-                  {getCalibrationIcon(sensor.calibrationStatus)}
-                  <span className="text-gray-700">{getCalibrationLabel(sensor.calibrationStatus)}</span>
+                  <div className="mt-4 pt-3 border-t flex justify-between items-center">
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <Gauge className="w-3 h-3" />
+                      <span>نموذج فيزيائي</span>
+                    </div>
+                    <button
+                      disabled
+                      title="قريبا - Coming soon"
+                      className="text-green-600 hover:text-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      حساب ETc
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500">فاصل الثقة</span>
-                <span className="font-medium text-gray-700">{sensor.confidenceInterval}%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500">المدخلات</span>
-                <span className="text-gray-700 text-xs">{sensor.inputSensors.join(' , ')}</span>
-              </div>
+              ))}
             </div>
+          )}
+        </>
+      )}
 
-            <div className="mt-4 pt-3 border-t flex justify-between items-center">
-              <div className="flex items-center gap-1 text-xs text-gray-400">
-                <Clock className="w-3 h-3" />
-                <span>{new Date(sensor.lastComputed).toLocaleTimeString('ar-SA')}</span>
-              </div>
-              <button
-                disabled
-                title="قريبا - Coming soon"
-                className="text-green-600 hover:text-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                إعدادات
-              </button>
+      {/* Soils tab */}
+      {activeTab === 'soils' && (
+        <>
+          {filteredSoils.length === 0 ? (
+            <div className="bg-white rounded-lg border p-8 text-center">
+              <Droplets className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد أنواع تربة</h3>
+              <p className="text-gray-500 text-sm">
+                {searchTerm ? 'لا توجد نتائج تطابق البحث' : 'لم يتم تحميل بيانات التربة'}
+              </p>
             </div>
-          </div>
-        ))}
-      </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredSoils.map((soil) => (
+                <div key={soil.type} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-medium text-gray-900">{soil.nameAr}</h3>
+                      <p className="text-sm text-gray-500">{soil.name}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">السعة الحقلية</span>
+                      <span className="font-medium text-gray-700">{soil.fieldCapacity}%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">نقطة الذبول</span>
+                      <span className="font-medium text-gray-700">{soil.wiltingPoint}%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">التوصيلية المشبعة</span>
+                      <span className="font-medium text-gray-700">{soil.saturatedConductivity} mm/h</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">الماء المتاح</span>
+                      <span className="font-medium text-blue-700">
+                        {(soil.fieldCapacity - soil.wiltingPoint).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t flex justify-between items-center">
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <Settings className="w-3 h-3" />
+                      <span>خصائص هيدروليكية</span>
+                    </div>
+                    <button
+                      disabled
+                      title="قريبا - Coming soon"
+                      className="text-green-600 hover:text-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      تقدير الرطوبة
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

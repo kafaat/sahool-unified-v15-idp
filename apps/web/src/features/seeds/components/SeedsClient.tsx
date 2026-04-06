@@ -67,7 +67,21 @@ export default function SeedsClient() {
     );
   };
 
-  const lowStockCount = mockSeeds.filter((s) => s.stockKg < 200).length;
+  const allSeeds = seeds ?? [];
+  const availableCount = allSeeds.filter((s: Seed) => s.available).length;
+  const highDroughtCount = allSeeds.filter((s: Seed) => s.droughtTolerance === 'high').length;
+
+  if (error) {
+    return (
+      <div className="space-y-6" dir="rtl">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-700 font-medium">فشل في تحميل كتالوج البذور</p>
+          <p className="text-red-500 text-sm mt-1">Failed to load seed catalog</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -79,18 +93,6 @@ export default function SeedsClient() {
         </div>
       </div>
 
-      {/* Low stock alert */}
-      {lowStockCount > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
-            <span className="font-medium text-amber-800">
-              {lowStockCount} صنف مخزونه منخفض ويحتاج إعادة طلب
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border p-4">
@@ -100,7 +102,7 @@ export default function SeedsClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي الأصناف</div>
-              <div className="text-xl font-bold text-gray-900">{mockSeeds.length}</div>
+              <div className="text-xl font-bold text-gray-900">{isLoading ? '...' : allSeeds.length}</div>
             </div>
           </div>
         </div>
@@ -110,9 +112,9 @@ export default function SeedsClient() {
               <Star className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">موصى بها</div>
+              <div className="text-sm text-gray-500">متوفرة</div>
               <div className="text-xl font-bold text-yellow-600">
-                {mockSeeds.filter((s) => s.recommended).length}
+                {isLoading ? '...' : availableCount}
               </div>
             </div>
           </div>
@@ -123,9 +125,11 @@ export default function SeedsClient() {
               <Package className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">إجمالي المخزون</div>
+              <div className="text-sm text-gray-500">متوسط سعر الكيلو</div>
               <div className="text-xl font-bold text-blue-600">
-                {(mockSeeds.reduce((s, v) => s + v.stockKg, 0) / 1000).toFixed(1)} طن
+                {isLoading ? '...' : allSeeds.length > 0
+                  ? (allSeeds.reduce((s: number, v: Seed) => s + v.pricePerKg, 0) / allSeeds.length).toFixed(0)
+                  : 0} ريال
               </div>
             </div>
           </div>
@@ -138,7 +142,7 @@ export default function SeedsClient() {
             <div>
               <div className="text-sm text-gray-500">مقاوم للجفاف</div>
               <div className="text-xl font-bold text-purple-600">
-                {mockSeeds.filter((s) => s.droughtTolerance === 'high').length}
+                {isLoading ? '...' : highDroughtCount}
               </div>
             </div>
           </div>

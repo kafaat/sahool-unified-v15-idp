@@ -280,15 +280,15 @@ jobs:
           fi
 
       - name: Upload coverage to Codecov
-        if: always()
+        if: always() && secrets.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: apps/mobile/sahool_field_app/coverage/lcov.info
           flags: flutter,mobile
           name: sahool-mobile-coverage
           fail_ci_if_error: false
           verbose: true
-        continue-on-error: true
 
       - name: Upload coverage artifacts
         if: always()

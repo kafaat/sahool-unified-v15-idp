@@ -56,7 +56,8 @@ def _load_weather_publisher(mock_nats_cls):
     # 4. Load publish.py inside the fake package
     pub_path = _EVENTS_DIR / "publish.py"
     pub_spec = importlib.util.spec_from_file_location(
-        f"{pkg_name}.publish", pub_path,
+        f"{pkg_name}.publish",
+        pub_path,
         submodule_search_locations=[],
     )
     pub_mod = importlib.util.module_from_spec(pub_spec)

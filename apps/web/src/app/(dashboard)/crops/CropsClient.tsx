@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets } from 'lucide-react';
 import { useCrops, useCropStats } from '@/features/crops';
 import type { CropCategory, CropStage } from '@/features/crops';
@@ -41,6 +42,7 @@ function getHealthColor(score: number): string {
 }
 
 export default function CropsClient() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CropCategory | 'all'>('all');
 
@@ -210,7 +212,10 @@ export default function CropsClient() {
                       <span className="text-gray-500">NDVI: {crop.ndvi.toFixed(2)}</span>
                     )}
                   </div>
-                  <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
+                  <button
+                    onClick={() => router.push(`/crops/${crop.id}`)}
+                    className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
+                  >
                     تفاصيل
                   </button>
                 </div>

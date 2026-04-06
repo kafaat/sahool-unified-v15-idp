@@ -14,126 +14,13 @@ import {
   Edit,
   Plus,
   Clock,
+  Loader2,
 } from 'lucide-react';
+import { useAuditLogs, useAuditStats } from '@/features/audit';
+import type { AuditLog, AuditFilters } from '@/features/audit';
 
 type AuditAction = 'create' | 'update' | 'delete' | 'login' | 'logout' | 'export' | 'config_change';
 type AuditSeverity = 'info' | 'warning' | 'critical';
-
-interface AuditEntry {
-  id: string;
-  timestamp: string;
-  userId: string;
-  userName: string;
-  action: AuditAction;
-  resource: string;
-  resourceAr: string;
-  description: string;
-  descriptionAr: string;
-  severity: AuditSeverity;
-  ipAddress: string;
-  tenantId: string;
-}
-
-const mockAuditLog: AuditEntry[] = [
-  {
-    id: 'aud-001',
-    timestamp: '2026-04-04T08:45:00Z',
-    userId: 'user-1',
-    userName: 'أحمد الرشيدي',
-    action: 'create',
-    resource: 'Field',
-    resourceAr: 'حقل',
-    description: 'Created field FIELD-012 "North Wheat Plot"',
-    descriptionAr: 'إنشاء حقل FIELD-012 "قطعة القمح الشمالية"',
-    severity: 'info',
-    ipAddress: '192.168.1.45',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-002',
-    timestamp: '2026-04-04T08:30:00Z',
-    userId: 'user-2',
-    userName: 'فاطمة المنصور',
-    action: 'config_change',
-    resource: 'Irrigation',
-    resourceAr: 'الري',
-    description: 'Changed irrigation schedule for Field-003',
-    descriptionAr: 'تغيير جدول الري للحقل 003',
-    severity: 'warning',
-    ipAddress: '192.168.1.22',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-003',
-    timestamp: '2026-04-04T08:15:00Z',
-    userId: 'user-3',
-    userName: 'خالد العمري',
-    action: 'delete',
-    resource: 'Sensor',
-    resourceAr: 'حساس',
-    description: 'Deleted sensor SNS-045 from Field-002',
-    descriptionAr: 'حذف الحساس SNS-045 من الحقل 002',
-    severity: 'critical',
-    ipAddress: '10.0.0.15',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-004',
-    timestamp: '2026-04-04T07:50:00Z',
-    userId: 'user-1',
-    userName: 'أحمد الرشيدي',
-    action: 'login',
-    resource: 'Auth',
-    resourceAr: 'المصادقة',
-    description: 'User logged in via mobile app',
-    descriptionAr: 'تسجيل دخول عبر تطبيق الجوال',
-    severity: 'info',
-    ipAddress: '192.168.1.45',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-005',
-    timestamp: '2026-04-04T07:30:00Z',
-    userId: 'user-4',
-    userName: 'سارة الحربي',
-    action: 'export',
-    resource: 'Report',
-    resourceAr: 'تقرير',
-    description: 'Exported monthly harvest report PDF',
-    descriptionAr: 'تصدير تقرير الحصاد الشهري PDF',
-    severity: 'info',
-    ipAddress: '192.168.1.88',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-006',
-    timestamp: '2026-04-04T07:00:00Z',
-    userId: 'system',
-    userName: 'النظام',
-    action: 'update',
-    resource: 'Model',
-    resourceAr: 'نموذج',
-    description: 'Auto-deployed yolo26-pest-v3 to edge-001',
-    descriptionAr: 'نشر تلقائي لنموذج yolo26-pest-v3 على الجهاز edge-001',
-    severity: 'warning',
-    ipAddress: '10.0.0.1',
-    tenantId: 'farm-001',
-  },
-  {
-    id: 'aud-007',
-    timestamp: '2026-04-03T22:15:00Z',
-    userId: 'user-5',
-    userName: 'محمد القحطاني',
-    action: 'config_change',
-    resource: 'RBAC',
-    resourceAr: 'الصلاحيات',
-    description: 'Changed role permissions for "Field Worker" role',
-    descriptionAr: 'تغيير صلاحيات دور "عامل الحقل"',
-    severity: 'critical',
-    ipAddress: '192.168.1.10',
-    tenantId: 'farm-001',
-  },
-];
 
 const actionIcons: Record<AuditAction, React.ReactNode> = {
   create: <Plus className="w-4 h-4" />,
@@ -160,18 +47,29 @@ export default function AuditClient() {
   const [severityFilter, setSeverityFilter] = useState<AuditSeverity | 'all'>('all');
   const [actionFilter, setActionFilter] = useState<AuditAction | 'all'>('all');
 
+  const filters: AuditFilters = useMemo(() => {
+    const f: AuditFilters = {};
+    if (actionFilter !== 'all') f.action = actionFilter;
+    if (searchTerm) f.search = searchTerm;
+    return f;
+  }, [actionFilter, searchTerm]);
+
+  const { data: auditLogs, isLoading: logsLoading, error: logsError } = useAuditLogs(filters);
+  const { data: auditStats, isLoading: statsLoading } = useAuditStats();
+
   const filteredLogs = useMemo(() => {
-    return mockAuditLog.filter((entry) => {
+    if (!auditLogs) return [];
+    return auditLogs.filter((entry: AuditLog) => {
       const matchesSearch =
         !searchTerm ||
-        entry.descriptionAr.includes(searchTerm) ||
-        entry.userName.includes(searchTerm) ||
-        entry.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSeverity = severityFilter === 'all' || entry.severity === severityFilter;
+        (entry.detailsAr ?? '').includes(searchTerm) ||
+        (entry.userNameAr ?? entry.userName ?? '').includes(searchTerm) ||
+        (entry.details ?? '').toLowerCase().includes(searchTerm.toLowerCase());
+      // severityFilter is client-side only since AuditLog doesn't have severity from API
       const matchesAction = actionFilter === 'all' || entry.action === actionFilter;
-      return matchesSearch && matchesSeverity && matchesAction;
+      return matchesSearch && matchesAction;
     });
-  }, [searchTerm, severityFilter, actionFilter]);
+  }, [auditLogs, searchTerm, actionFilter]);
 
   const getSeverityBadge = (severity: AuditSeverity) => {
     const styles: Record<AuditSeverity, string> = {

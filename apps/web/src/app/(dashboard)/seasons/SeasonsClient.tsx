@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Calendar, Plus, Search, AlertTriangle, TrendingUp, DollarSign } from 'lucide-react';
-import { useSeasons, useSeasonStats } from '@/features/seasons';
-import type { SeasonStatus, SeasonType } from '@/features/seasons';
+import { Calendar, Plus, Search, AlertTriangle, TrendingUp, DollarSign, X } from 'lucide-react';
+import { useSeasons, useSeasonStats, useCreateSeason } from '@/features/seasons';
+import type { SeasonStatus, SeasonType, SeasonFormData } from '@/features/seasons';
 
 const statusConfig: Record<SeasonStatus, { color: string; labelAr: string }> = {
   planning: { color: 'bg-blue-100 text-blue-800', labelAr: 'تخطيط' },
@@ -28,9 +28,30 @@ const statusOptions: Array<{ value: SeasonStatus | 'all'; labelAr: string }> = [
   { value: 'completed', labelAr: 'مكتمل' },
 ];
 
+const defaultFormData: SeasonFormData = {
+  name: '',
+  nameAr: '',
+  type: 'winter',
+  year: new Date().getFullYear(),
+  startDate: '',
+  endDate: '',
+  farmId: '',
+  targetYieldTons: 0,
+  budgetSar: 0,
+};
+
+const typeOptions: Array<{ value: SeasonType; labelAr: string }> = [
+  { value: 'winter', labelAr: 'شتوي' },
+  { value: 'summer', labelAr: 'صيفي' },
+  { value: 'spring', labelAr: 'ربيعي' },
+  { value: 'fall', labelAr: 'خريفي' },
+];
+
 export default function SeasonsClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<SeasonStatus | 'all'>('all');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [formData, setFormData] = useState<SeasonFormData>(defaultFormData);
 
   const {
     data: seasons = [],
@@ -38,6 +59,20 @@ export default function SeasonsClient() {
     error,
   } = useSeasons(selectedStatus !== 'all' ? { status: selectedStatus } : undefined);
   const { data: stats } = useSeasonStats();
+  const createSeason = useCreateSeason();
+
+  const handleCreateSeason = () => {
+    createSeason.mutate(formData, {
+      onSuccess: () => {
+        setShowCreateDialog(false);
+        setFormData(defaultFormData);
+      },
+    });
+  };
+
+  const updateField = (field: keyof SeasonFormData, value: string | number) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const filteredSeasons = useMemo(() => {
     if (!searchTerm) return seasons;
@@ -71,13 +106,82 @@ export default function SeasonsClient() {
 
   return (
     <div className="space-y-6">
+      {/* Create Season Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">موسم جديد</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (EN)</label>
+                  <input value={formData.name} onChange={(e) => updateField('name', e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="Winter 2026" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (AR)</label>
+                  <input value={formData.nameAr} onChange={(e) => updateField('nameAr', e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" placeholder="شتاء 2026" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">النوع</label>
+                  <select value={formData.type} onChange={(e) => updateField('type', e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500">
+                    {typeOptions.map((o) => (<option key={o.value} value={o.value}>{o.labelAr}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">السنة</label>
+                  <input type="number" value={formData.year} onChange={(e) => updateField('year', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ البداية</label>
+                  <input type="date" value={formData.startDate} onChange={(e) => updateField('startDate', e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ النهاية</label>
+                  <input type="date" value={formData.endDate} onChange={(e) => updateField('endDate', e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">معرف المزرعة</label>
+                <input value={formData.farmId} onChange={(e) => updateField('farmId', e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="FARM-001" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الإنتاج المستهدف (طن)</label>
+                  <input type="number" value={formData.targetYieldTons} onChange={(e) => updateField('targetYieldTons', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الميزانية (ريال)</label>
+                  <input type="number" value={formData.budgetSar} onChange={(e) => updateField('budgetSar', Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreateSeason} disabled={createSeason.isPending || !formData.name || !formData.nameAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {createSeason.isPending ? 'جاري الإنشاء...' : 'إنشاء الموسم'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">إدارة المواسم</h1>
           <p className="text-gray-500 mt-1">Season Management</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors">
+        <button
+          onClick={() => setShowCreateDialog(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
+        >
           <Plus className="w-4 h-4" />
           <span>موسم جديد</span>
         </button>

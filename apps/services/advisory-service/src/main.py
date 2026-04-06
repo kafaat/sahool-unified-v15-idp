@@ -7,7 +7,6 @@ Port: 8093
 # Service version - single source of truth
 VERSION = "16.0.0"
 
-import html
 import json
 import os
 import re
@@ -18,10 +17,8 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 
-# Shared middleware imports - add project root to path (for local dev)
-_project_root = os.path.join(os.path.dirname(__file__), "..", "..")
-if _project_root != "/" and _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
+# Shared middleware imports - add apps/services/ to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -131,16 +128,17 @@ VALID_IRRIGATION_TYPES: set[str] = {"drip", "flood", "sprinkler", "furrow", "piv
 
 
 def _sanitize_text(value: str) -> str:
-    """Sanitize user-provided text — strip control chars, limit length.
-    NOTE: Do NOT html.escape() here — it breaks symptom/stage matching
-    against the agricultural knowledge base (e.g., 'yellowing & wilting'
-    becomes 'yellowing &amp; wilting' which matches nothing).
-    FastAPI returns JSON, so XSS via response body is not a concern."""
-    import re
+    """Sanitize user-provided text for safe processing.
 
-    # Remove control characters but preserve & < > for agricultural terms
-    value = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", value)
-    return value[:500]  # Limit length to prevent abuse
+    Strips null bytes and ASCII control characters (which have no agricultural meaning)
+    but preserves characters like &, <, > that appear in agricultural symptom descriptions
+    (e.g. 'yellowing & wilting', '<5% leaf area affected').
+    Using html.escape() here would turn '&' into '&amp;' and break symptom matching
+    against the knowledge base.
+    """
+    # Remove null bytes and ASCII control characters (0x00-0x1F except tab/newline)
+    # Limit to 500 chars to prevent abuse
+    return re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", value)[:500]
 
 
 def _validate_identifier(value: str, field_name: str) -> str:
@@ -371,7 +369,7 @@ class FertilizerPlanRequest(BaseModel):
     @field_validator("stage")
     @classmethod
     def sanitize_stage(cls, v: str) -> str:
-        return _sanitize_text(v.strip().lower())
+        return _sanitize_text(v.strip())
 
     @field_validator("soil_fertility")
     @classmethod
@@ -429,15 +427,11 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
+    if getattr(app.state, "publisher", None):
+        await app.state.publisher.close()
+    if getattr(app.state, "revocation_store", None):
+        await app.state.revocation_store.close()
     logger.info("service_shutting_down", service="advisory-service")
-    for name in ("publisher", "revocation_store"):
-        resource = getattr(app.state, name, None)
-        if resource:
-            try:
-                await resource.close()
-            except Exception as e:
-                logger.warning("shutdown_close_error", resource=name, error=str(e))
-    logger.info("service_shutdown_complete", service="advisory-service")
 
 
 app = FastAPI(
@@ -899,12 +893,15 @@ def list_categories():
 
 
 @app.get("/api/v1/crops/search")
-def search_crops_endpoint(q: str = Query(min_length=2, max_length=100)):
+def search_crops_endpoint(q: str):
     """Search crops by Arabic or English name"""
+    if not q or len(q) < 2:
+        raise HTTPException(status_code=422, detail="Query must be at least 2 characters")
+
     results = search_crops_catalog(q)
 
     return {
-        "query": q[:100],
+        "query": q,
         "results": [
             {
                 "code": crop.code,

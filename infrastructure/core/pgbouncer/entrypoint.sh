@@ -20,6 +20,8 @@ mkdir -p /etc/pgbouncer/runtime 2>/dev/null || true
 chmod 750 /etc/pgbouncer/runtime 2>/dev/null || true
 
 # FIX: Create default PgBouncer directories as fallback
+# The edoburu/pgbouncer image normally creates these in its own entrypoint,
+# but since we override it, these directories may not exist
 mkdir -p /var/run/pgbouncer 2>/dev/null || true
 mkdir -p /var/log/pgbouncer 2>/dev/null || true
 chmod 750 /var/run/pgbouncer 2>/dev/null || true
@@ -268,6 +270,9 @@ main() {
         exit 1
     fi
 
+    log_info "Starting PgBouncer..."
+    log_info "═══════════════════════════════════════════════════════════════════"
+
     # Apply environment variable overrides to pgbouncer.ini
     # These env vars from docker-compose.yml were previously ignored (dead config)
     _runtime_ini="/etc/pgbouncer/runtime/pgbouncer.ini"
@@ -279,9 +284,6 @@ main() {
     [ -n "${MAX_CLIENT_CONN:-}" ] && sed -i "s/^max_client_conn.*/max_client_conn = $MAX_CLIENT_CONN/" "$_runtime_ini"
     [ -n "${QUERY_TIMEOUT:-}" ] && sed -i "s/^query_timeout.*/query_timeout = $QUERY_TIMEOUT/" "$_runtime_ini"
     log_info "Applied environment variable overrides to runtime config"
-
-    log_info "Starting PgBouncer..."
-    log_info "═══════════════════════════════════════════════════════════════════"
 
     # Execute pgbouncer with runtime config (includes env var overrides)
     exec pgbouncer "$_runtime_ini"

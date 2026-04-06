@@ -3,6 +3,7 @@ SAHOOL Notification Service - Data Repository Layer
 طبقة الوصول للبيانات - Repository Pattern
 """
 
+import hmac
 import logging
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -521,8 +522,6 @@ class NotificationChannelRepository:
             return False
 
         # If verification code is provided, check it
-        import hmac
-
         if verification_code and not hmac.compare_digest(str(channel.verification_code or ""), str(verification_code)):
             return False
 

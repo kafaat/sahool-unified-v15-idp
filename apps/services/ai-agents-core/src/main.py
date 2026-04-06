@@ -254,7 +254,7 @@ async def submit_feedback(request: FeedbackRequest, user: User = Depends(get_cur
 
     except Exception as e:
         logger.error(f"Feedback error: {e}")
-        raise HTTPException(status_code=500, detail="Feedback submission failed") from e
+        raise HTTPException(status_code=500, detail="Feedback failed") from e
 
 
 # System status

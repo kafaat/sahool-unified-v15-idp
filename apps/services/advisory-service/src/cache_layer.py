@@ -168,6 +168,7 @@ def cache_disease_lookup(ttl: int = 3600):
                     value, expires_at = cache._cache[cache_key]
                     if time.time() <= expires_at:
                         cache._hits += 1
+                        logger.debug(f"Cache hit for disease lookup: {cache_key[:16]}...")
                         return value
                     else:
                         del cache._cache[cache_key]

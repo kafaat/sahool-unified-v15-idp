@@ -7,7 +7,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowRight, AlertTriangle } from 'lucide-react';
 import { EquipmentDetails, MaintenanceSchedule } from '@/features/equipment';
 
 interface EquipmentDetailClientProps {

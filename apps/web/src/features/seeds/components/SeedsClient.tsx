@@ -5,8 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Search,
   Sprout,
-  Droplets,
-  Thermometer,
   Sun,
   Star,
   Calendar,
@@ -21,13 +19,7 @@ import type { Seed } from '@/features/seeds/api';
 type CropCategory = 'cereals' | 'vegetables' | 'fruits' | 'legumes' | 'fodder';
 type DroughtTolerance = 'high' | 'medium' | 'low';
 
-const categoryLabels: Record<CropCategory, string> = {
-  cereals: 'حبوب',
-  vegetables: 'خضروات',
-  fruits: 'فواكه',
-  legumes: 'بقوليات',
-  fodder: 'أعلاف',
-};
+
 
 export default function SeedsClient() {
   const [searchTerm, setSearchTerm] = useState('');

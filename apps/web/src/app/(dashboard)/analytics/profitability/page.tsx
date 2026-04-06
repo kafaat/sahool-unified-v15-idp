@@ -15,7 +15,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsPeriod } from '@/features/analytics/types';
+import type { AnalyticsFilters } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
@@ -71,7 +71,7 @@ const costBreakdown = [
 ];
 
 export default function ProfitabilityPage() {
-  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('season');
+  const [dateRange, setDateRange] = useState('season');
   const [viewMode, setViewMode] = useState<'fields' | 'costs'>('fields');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,8 +82,8 @@ export default function ProfitabilityPage() {
     setError(null);
     try {
       const [costData] = await Promise.all([
-        analyticsApi.getCostAnalytics({ period: dateRange }),
-        analyticsApi.getRevenueAnalytics({ period: dateRange }),
+        analyticsApi.getCostAnalytics({ period: dateRange as AnalyticsFilters['period'] }),
+        analyticsApi.getRevenueAnalytics({ period: dateRange as AnalyticsFilters['period'] }),
       ]);
       // Use API data if structured as expected
       if (costData && Array.isArray(costData) && costData.length > 0) {

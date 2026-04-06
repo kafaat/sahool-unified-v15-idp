@@ -47,10 +47,10 @@ export default function FieldComparePage() {
     try {
       const [comparison, summary] = await Promise.all([
         analyticsApi.getComparison('fields', 'yield', {
-          period: dateRange,
+          period: dateRange as AnalyticsFilters['period'],
           cropTypes: cropFilter !== 'all' ? [cropFilter] : undefined,
         }),
-        analyticsApi.getSummary({ period: dateRange }),
+        analyticsApi.getSummary({ period: dateRange as AnalyticsFilters['period'] }),
       ]);
       // Map comparison data if available
       if (comparison && Array.isArray((comparison as any).items)) {

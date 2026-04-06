@@ -828,6 +828,11 @@ services:
       - MAX_FILE_SIZE=1000000
       - API_HOST=0.0.0.0
       - API_PORT=8102
+      # FIX: Added JWT/auth env vars — service uses get_current_user() from shared.auth.
+      # Without AUTH_SECRET_KEY, all code review API endpoints return 401 Unauthorized.
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "127.0.0.1:8102:8102"
     volumes:
@@ -2682,6 +2687,12 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - WEATHER_SERVICE_URL=http://weather-service:8092
+      # FIX: Added JWT/auth env vars — service uses get_current_user() from shared.auth.
+      # Without AUTH_SECRET_KEY, AuthConfig generates a random secret per restart, making
+      # all authenticated /api/v1/calendar/* endpoints return 401 Unauthorized.
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "127.0.0.1:8111:8111"
     depends_on:
@@ -3026,6 +3037,12 @@ services:
       - MCP_SERVER_HOST=0.0.0.0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Added JWT/auth env vars — service uses get_current_user() from shared.auth.
+      # Without AUTH_SECRET_KEY, AuthConfig generates a random secret per restart, making
+      # all authenticated MCP tool calls return 401 Unauthorized.
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "127.0.0.1:8201:8201"
     depends_on:
@@ -3070,6 +3087,14 @@ services:
       - PORT=8121
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # FIX: Added JWT/auth env vars + REDIS_URL — service uses get_current_user() and
+      # TokenRevocationMiddleware (reads REDIS_URL via get_revocation_store()).
+      # Without AUTH_SECRET_KEY, all skill assessment endpoints return 401 Unauthorized.
+      # Without REDIS_URL, token revocation is disabled (graceful degradation only).
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8121:8121"
     depends_on:
@@ -4171,6 +4196,12 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - MODEL_PATH=/app/models/yolo26m.engine
+      # FIX: Added JWT/auth env vars — service uses get_current_user() from shared.auth.
+      # Without AUTH_SECRET_KEY, all vision detection endpoints (pest, disease, weed)
+      # return 401 Unauthorized on every authenticated request.
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     volumes:
       - yolo26-models:/app/models
     ports:
@@ -4222,6 +4253,12 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      # FIX: Added JWT/auth env vars — service uses get_current_user() from shared.auth.
+      # Without AUTH_SECRET_KEY, all terrain analysis endpoints (slope, flow, TWI, contours)
+      # return 401 Unauthorized on every authenticated request.
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     volumes:
       - terrain-dem-data:/app/data/dem
     ports:

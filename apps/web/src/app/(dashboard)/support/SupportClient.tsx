@@ -89,6 +89,7 @@ export default function SupportClient() {
   const [newTicketMessage, setNewTicketMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const fetchTickets = useCallback(async () => {
     setTicketsLoading(true);
@@ -113,6 +114,7 @@ export default function SupportClient() {
 
     setSubmitting(true);
     setSubmitSuccess(false);
+    setSubmitError(null);
     try {
       const newTicket = await supportApi.createTicket({
         subject: newTicketSubject,
@@ -125,7 +127,7 @@ export default function SupportClient() {
       setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (err) {
       const message = err instanceof ApiError ? err.messageAr : 'فشل في إرسال التذكرة';
-      alert(message);
+      setSubmitError(message);
     } finally {
       setSubmitting(false);
     }
@@ -252,6 +254,11 @@ export default function SupportClient() {
             {submitSuccess && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
                 تم إرسال التذكرة بنجاح
+              </div>
+            )}
+            {submitError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {submitError}
               </div>
             )}
             <div>

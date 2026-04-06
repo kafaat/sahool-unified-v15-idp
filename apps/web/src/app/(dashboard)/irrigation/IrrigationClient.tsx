@@ -488,7 +488,11 @@ export default function IrrigationClient() {
             )
           );
         }
-        showToast({ type: 'info', message: 'Irrigation started', messageAr: 'بدأ الري' });
+        if (response.success) {
+          showToast({ type: 'info', message: 'Irrigation started', messageAr: 'بدأ الري' });
+        } else {
+          showToast({ type: 'warning', message: 'Applied locally — will sync later', messageAr: 'تم تطبيق محلياً — سيتم المزامنة لاحقاً' });
+        }
       } catch {
         // Optimistic update for offline-first UX
         setSchedules((prev) =>
@@ -519,7 +523,11 @@ export default function IrrigationClient() {
             )
           );
         }
-        showToast({ type: 'success', message: 'Irrigation completed', messageAr: 'تم إكمال الري' });
+        if (response.success) {
+          showToast({ type: 'success', message: 'Irrigation completed', messageAr: 'تم إكمال الري' });
+        } else {
+          showToast({ type: 'warning', message: 'Applied locally — will sync later', messageAr: 'تم تطبيق محلياً — سيتم المزامنة لاحقاً' });
+        }
       } catch {
         // Optimistic update for offline-first UX
         setSchedules((prev) =>

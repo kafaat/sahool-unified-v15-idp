@@ -81,10 +81,7 @@ export default function ProfitabilityPage() {
     setLoading(true);
     setError(null);
     try {
-      const [costData] = await Promise.all([
-        analyticsApi.getCostAnalytics({ period: dateRange as AnalyticsFilters['period'] }),
-        analyticsApi.getRevenueAnalytics({ period: dateRange as AnalyticsFilters['period'] }),
-      ]);
+      const costData = await analyticsApi.getCostAnalytics({ period: dateRange as AnalyticsFilters['period'] });
       // Use API data if structured as expected
       if (costData && Array.isArray(costData) && costData.length > 0) {
         setApiProfitData(costData as any);

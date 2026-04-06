@@ -80,6 +80,10 @@ const TaskItem: React.FC<
   );
 };
 
+/**
+ * NOTE (testing): This component uses useUpcomingTasks (react-query) internally.
+ * Tests must wrap it in a QueryClientProvider with a dedicated QueryClient instance.
+ */
 export const TasksSummary: React.FC = () => {
   const { data: tasksData, isLoading } = useUpcomingTasks({ limit: 8 });
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());

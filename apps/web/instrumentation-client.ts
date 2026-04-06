@@ -38,17 +38,25 @@ try {
     Sentry = real;
   }
 } catch (error: unknown) {
-  // Only swallow MODULE_NOT_FOUND for @sentry/nextjs itself.
-  // Rethrow unexpected errors so they don't silently disable Sentry.
+  // Only swallow MODULE_NOT_FOUND when @sentry/nextjs itself is the missing
+  // module. Transitive failures (e.g. a sub-package missing) are rethrown
+  // so Sentry doesn't silently disappear.
+  // Uses the same regex as next.config.js and instrumentation.ts.
   const err = error as Record<string, unknown>;
-  const isMissing =
+  const isSentryMissing =
     err &&
     err.code === "MODULE_NOT_FOUND" &&
     typeof err.message === "string" &&
-    err.message.includes("@sentry/nextjs");
-  if (!isMissing) {
+    /['"]@sentry\/nextjs['"]/.test(err.message);
+  if (!isSentryMissing) {
     throw error;
   }
+}
+
+/** Subset of Sentry Event used in beforeSend filtering */
+interface SentryEventSubset {
+  request?: { headers?: Record<string, string> };
+  breadcrumbs?: Array<{ category?: string }>;
 }
 
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -72,18 +80,15 @@ if (SENTRY_DSN && SENTRY_DSN.length > 0) {
     integrations: [Sentry.browserTracingIntegration()],
 
     // Filter sensitive data before sending
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    beforeSend(event: any) {
+    beforeSend(event: SentryEventSubset) {
       if (event.request?.headers) {
-        const headers = event.request.headers as Record<string, string>;
-        delete headers["cookie"];
-        delete headers["authorization"];
-        delete headers["x-csrf-token"];
+        delete event.request.headers["cookie"];
+        delete event.request.headers["authorization"];
+        delete event.request.headers["x-csrf-token"];
       }
 
       if (event.breadcrumbs) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        event.breadcrumbs = event.breadcrumbs.filter((breadcrumb: any) => {
+        event.breadcrumbs = event.breadcrumbs.filter((breadcrumb) => {
           if (
             process.env.NODE_ENV === "production" &&
             breadcrumb.category === "console"

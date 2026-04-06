@@ -187,6 +187,10 @@ async def lifespan(app: FastAPI):
             app.state.nc = None
     else:
         app.state.nc = None
+        logger.error(
+            "NATS_URL not configured — field event subscriptions DISABLED. "
+            "Indicators will NOT be computed for new field data."
+        )
 
     # Subscribe to NATS events
     if app.state.nc:

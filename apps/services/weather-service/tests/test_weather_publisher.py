@@ -3,19 +3,45 @@ Tests for WeatherPublisher NATS reconnection behavior.
 Verifies connect() uses reconnection parameters and callbacks update state.
 """
 
+import sys
+from types import ModuleType
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from src.events.publish import WeatherPublisher
 
 
 @pytest.fixture
-def publisher(monkeypatch):
-    """Create a WeatherPublisher with a mocked NATS class."""
+def publisher():
+    """Import WeatherPublisher with mocked dependencies and NATS class."""
+    # Stub the relative-import dependency (src.events.types) so publish.py loads
+    types_stub = ModuleType("src.events.types")
+    types_stub.IRRIGATION_ADJUSTMENT = "irrigation_adjustment"
+    types_stub.WEATHER_ALERT = "weather_alert"
+    types_stub.WEATHER_FORECAST_ISSUED = "weather_forecast_issued"
+    types_stub.get_subject = lambda *a, **kw: "test.subject"
+    types_stub.get_version = lambda *a, **kw: 1
+
+    # Also ensure parent packages exist in sys.modules
+    for mod_name in ("src", "src.events", "src.events.types"):
+        if mod_name not in sys.modules:
+            sys.modules[mod_name] = types_stub if mod_name == "src.events.types" else ModuleType(mod_name)
+
+    # Now import the module (relative import will find src.events.types in sys.modules)
+    from src.events.publish import WeatherPublisher
+
     mock_nc = AsyncMock()
     mock_cls = MagicMock(return_value=mock_nc)
-    monkeypatch.setattr("src.events.publish.NATS", mock_cls)
-    return WeatherPublisher(nats_url="nats://test:4222"), mock_nc
+
+    # Patch NATS class on the already-imported module
+    import src.events.publish as pub_mod
+
+    original_nats = pub_mod.NATS
+    pub_mod.NATS = mock_cls
+
+    yield WeatherPublisher(nats_url="nats://test:4222"), mock_nc
+
+    # Restore
+    pub_mod.NATS = original_nats
 
 
 @pytest.mark.asyncio

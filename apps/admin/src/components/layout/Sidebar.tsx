@@ -139,8 +139,6 @@ const aiTechNav = [
 // Audit & Compliance section
 const auditNav = [{ name: 'سجل التدقيق', href: '/audit', icon: ClipboardList }];
 
-// Admin-only sections that require role check
-const ADMIN_ONLY_SECTIONS = ['aiTech', 'audit'];
 
 const getSystemNav = () => [
   { name: t('nav.support'), href: '/support', icon: MessageCircle, badge: 5 },

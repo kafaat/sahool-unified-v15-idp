@@ -338,8 +338,8 @@ export default function AuditPage() {
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {filteredLogs.map((log) => {
-                  const sev = SEVERITY_CONFIG[log.severity] || SEVERITY_CONFIG.info;
-                  const SevIcon = sev.icon;
+                  const sev = SEVERITY_CONFIG[log.severity] ?? SEVERITY_CONFIG['info']!;
+                  const SevIcon = sev!.icon;
                   return (
                     <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-300 whitespace-nowrap">
@@ -355,7 +355,7 @@ export default function AuditPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${sev.bg} ${sev.color}`}>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${sev!.bg} ${sev!.color}`}>
                           <SevIcon className="w-3 h-3" />
                           {log.severity}
                         </span>

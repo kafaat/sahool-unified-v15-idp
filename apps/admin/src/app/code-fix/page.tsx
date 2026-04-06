@@ -19,9 +19,7 @@ import {
   XCircle,
   Shield,
   Zap,
-  AlertTriangle,
   Cpu,
-  RefreshCw,
   Code2,
   TestTube2,
 } from 'lucide-react';

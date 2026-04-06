@@ -73,6 +73,9 @@ class FieldsRepo {
     required List<LatLng> boundary,
     String? cropType,
     String? farmId,
+    String? irrigationType,
+    DateTime? plantingDate,
+    String? notes,
   }) async {
     // Validate boundary has minimum points for a valid polygon
     if (boundary.isNotEmpty && boundary.length < 3) {
@@ -97,6 +100,9 @@ class FieldsRepo {
         boundary: boundary,
         centroid: Value(centroid),
         areaHectares: areaHectares,
+        irrigationType: Value(irrigationType),
+        plantingDate: Value(plantingDate),
+        notes: Value(notes),
         createdAt: now,
         updatedAt: now,
       ),
@@ -111,6 +117,9 @@ class FieldsRepo {
         'name': name,
         'crop_type': cropType,
         'area_hectares': areaHectares,
+        'irrigation_type': irrigationType,
+        'planting_date': plantingDate?.toIso8601String(),
+        'notes': notes,
         'local_id': fieldId,
       },
     );
@@ -141,6 +150,9 @@ class FieldsRepo {
       boundary: boundary,
       centroid: centroid,
       areaHectares: areaHectares,
+      irrigationType: irrigationType,
+      plantingDate: plantingDate,
+      notes: notes,
       createdAt: now,
       updatedAt: now,
       synced: false,

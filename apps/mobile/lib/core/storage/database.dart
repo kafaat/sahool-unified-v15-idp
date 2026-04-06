@@ -99,6 +99,9 @@ class Fields extends Table {
 
   RealColumn get areaHectares => real()();
   TextColumn get status => text().nullable()(); // active, fallow, etc.
+  TextColumn get irrigationType => text().nullable()(); // drip, flood, sprinkler, rainfed, pivot
+  DateTimeColumn get plantingDate => dateTime().nullable()();
+  TextColumn get notes => text().nullable()();
   RealColumn get ndviCurrent => real().nullable()();
   DateTimeColumn get ndviUpdatedAt => dateTime().nullable()();
 

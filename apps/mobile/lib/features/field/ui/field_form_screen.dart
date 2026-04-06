@@ -32,6 +32,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _areaController = TextEditingController();
+  final _notesController = TextEditingController();
 
   String? _selectedCrop;
   String? _selectedIrrigation;
@@ -94,6 +95,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   void dispose() {
     _nameController.dispose();
     _areaController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -245,6 +247,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                 label: 'حقل الملاحظات، اختياري',
                 textField: true,
                 child: TextFormField(
+                  controller: _notesController,
                   maxLines: 3,
                   decoration: const InputDecoration(
                     labelText: 'ملاحظات',
@@ -664,6 +667,11 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
           name: _nameController.text.trim(),
           boundary: const [], // valid: empty boundary, user draws later
           cropType: _selectedCrop,
+          irrigationType: _selectedIrrigation,
+          plantingDate: _plantingDate,
+          notes: _notesController.text.trim().isNotEmpty
+              ? _notesController.text.trim()
+              : null,
         );
       }
 

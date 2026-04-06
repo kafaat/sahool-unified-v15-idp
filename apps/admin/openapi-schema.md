@@ -422,7 +422,7 @@ DELETE /api/v1/iot-service/devices/:id:
 
 | Property | Value |
 |----------|-------|
-| **Upstream** | `community-chat:8097` |
+| **Upstream** | `chat-service:8115` |
 | **Kong Paths** | `/api/v1/community/chat` |
 | **ACL** | starter, professional, enterprise |
 | **Rate Limit** | 2000/min |
@@ -807,7 +807,7 @@ POST /api/v1/sensors/virtual/calibrate:
 
 | Property | Value |
 |----------|-------|
-| **Upstream** | `yield-prediction-service:8098` |
+| **Upstream** | `yield-prediction-service:8152` |
 | **Kong Paths** | `/api/v1/yield` |
 | **ACL** | professional, enterprise |
 | **Rate Limit** | 1000/min |
@@ -837,7 +837,7 @@ GET /api/v1/yield/benchmarks:
 
 | Property | Value |
 |----------|-------|
-| **Upstream** | `field-chat:8099` |
+| **Upstream** | `chat-service:8115` |
 | **Kong Paths** | `/api/v1/field/chat`, `/api/v1/field-chat` |
 | **ACL** | starter, professional, enterprise |
 | **Rate Limit** | 2000/min |

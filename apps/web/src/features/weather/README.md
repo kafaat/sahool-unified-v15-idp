@@ -4,9 +4,9 @@
 
 ## Overview | نظرة عامة
 
-This feature provides real-time weather data, forecasts, and alerts for agricultural decision-making. It integrates with the SAHOOL weather-core service running on port 8108.
+This feature provides real-time weather data, forecasts, and alerts for agricultural decision-making. It integrates with the SAHOOL weather-service running on port 8092.
 
-توفر هذه الميزة بيانات الطقس في الوقت الفعلي والتنبؤات والتنبيهات لاتخاذ القرارات الزراعية. تتكامل مع خدمة weather-core في منصة سهول التي تعمل على المنفذ 8108.
+توفر هذه الميزة بيانات الطقس في الوقت الفعلي والتنبؤات والتنبيهات لاتخاذ القرارات الزراعية. تتكامل مع خدمة weather-service في منصة سهول التي تعمل على المنفذ 8092.
 
 ## Features | الميزات
 
@@ -35,7 +35,7 @@ This feature provides real-time weather data, forecasts, and alerts for agricult
 
 ### Endpoints
 
-The feature calls the following weather-core endpoints:
+The feature calls the following weather-service endpoints:
 
 ```
 GET /api/v1/weather/current?lat={lat}&lon={lon}
@@ -45,8 +45,8 @@ GET /api/v1/weather/alerts?lat={lat}&lon={lon}
 
 ### Service Configuration
 
-- **Service**: weather-core
-- **Port**: 8108 (via Kong gateway)
+- **Service**: weather-service
+- **Port**: 8092 (via Kong gateway)
 - **Base URL**: `${NEXT_PUBLIC_API_URL}/api/v1/weather`
 - **Default Location**: Sana'a, Yemen (15.3694, 44.191)
 
@@ -223,16 +223,16 @@ The feature exports the following components:
 
 ### Testing with Mock Data
 
-Set `USE_MOCK_WEATHER=true` in the weather-core service to use mock data:
+Set `USE_MOCK_WEATHER=true` in the weather-service to use mock data:
 
 ```bash
-# In weather-core service
+# In weather-service
 export USE_MOCK_WEATHER=true
 ```
 
 ### Testing with Real API
 
-Ensure Kong gateway is running and weather-core is accessible:
+Ensure Kong gateway is running and weather-service is accessible:
 
 ```bash
 # Check service health
@@ -281,7 +281,7 @@ const { data } = useCurrentWeather(); // Uses Sana'a coordinates
 ### No Weather Data Showing
 
 1. Check Kong gateway is running: `docker ps | grep kong`
-2. Verify weather-core service: `curl http://localhost:8108/healthz`
+2. Verify weather-service: `curl http://localhost:8092/healthz`
 3. Check browser console for API errors
 4. Verify environment variables are set
 
@@ -290,7 +290,7 @@ const { data } = useCurrentWeather(); // Uses Sana'a coordinates
 If you see mock data in production:
 
 - Check `NEXT_PUBLIC_API_URL` is set correctly
-- Verify weather-core service is accessible
+- Verify weather-service is accessible
 - Check Kong routing configuration
 - Review browser network tab for failed requests
 

@@ -8,9 +8,9 @@
 
 ## Summary | الملخص
 
-Updated the weather feature to use real API calls to the weather-core service instead of mock data, with intelligent fallback to ensure the UI remains functional.
+Updated the weather feature to use real API calls to the weather-service instead of mock data, with intelligent fallback to ensure the UI remains functional.
 
-تم تحديث ميزة الطقس لاستخدام استدعاءات API الحقيقية لخدمة weather-core بدلاً من البيانات الوهمية، مع احتياطي ذكي لضمان بقاء واجهة المستخدم وظيفية.
+تم تحديث ميزة الطقس لاستخدام استدعاءات API الحقيقية لخدمة weather-service بدلاً من البيانات الوهمية، مع احتياطي ذكي لضمان بقاء واجهة المستخدم وظيفية.
 
 ## Files Changed | الملفات المعدلة
 
@@ -18,7 +18,7 @@ Updated the weather feature to use real API calls to the weather-core service in
 
 **Major Changes:**
 
-- ✅ Added real API integration with weather-core service (port 8108)
+- ✅ Added real API integration with weather-service (port 8092)
 - ✅ Implemented GET endpoints:
   - `GET /api/v1/weather/current?lat={lat}&lon={lon}`
   - `GET /api/v1/weather/forecast?lat={lat}&lon={lon}&days=7`
@@ -69,7 +69,7 @@ useWeatherAlerts(options?: { lat?, lon?, enabled? })
 - ✅ Moved from importing types from `@sahool/api-client` to defining local types
 - ✅ Updated `WeatherAlert` interface to match API response format
 - ✅ Added proper field names and types for all weather data structures
-- ✅ Ensured compatibility with weather-core API responses
+- ✅ Ensured compatibility with weather-service API responses
 
 **Updated Types:**
 
@@ -200,14 +200,14 @@ curl "http://localhost:8000/api/v1/weather/alerts?lat=15.3694&lon=44.191"
 
 ### Test Fallback Behavior
 
-1. Stop weather-core service
+1. Stop weather-service
 2. Refresh the app
 3. Verify mock data is shown
 4. Check console for Arabic warning messages
 
 ### Test with Mock Data (Development)
 
-Set environment variable in weather-core:
+Set environment variable in weather-service:
 
 ```bash
 export USE_MOCK_WEATHER=true
@@ -258,7 +258,7 @@ Types are now defined locally instead of imported from `@sahool/api-client`.
 
 ## Benefits | الفوائد
 
-1. **Real Weather Data**: Live data from weather-core service
+1. **Real Weather Data**: Live data from weather-service
 2. **Resilient**: Fallback ensures app always works
 3. **User-Friendly**: Arabic error messages
 4. **Type-Safe**: Proper TypeScript types
@@ -270,7 +270,7 @@ Types are now defined locally instead of imported from `@sahool/api-client`.
 ## Next Steps | الخطوات التالية
 
 1. **Update Components**: Migrate existing weather components to new hook signature
-2. **Test Integration**: Verify with real weather-core service
+2. **Test Integration**: Verify with real weather-service
 3. **Monitor**: Check API error rates and fallback usage
 4. **Optimize**: Tune cache times based on usage patterns
 5. **Enhance**: Consider adding more weather features
@@ -280,7 +280,7 @@ Types are now defined locally instead of imported from `@sahool/api-client`.
 For issues or questions:
 
 - Check the README: `/apps/web/src/features/weather/README.md`
-- Review API docs: `/apps/services/weather-core/README.md`
+- Review API docs: `/apps/services/weather-service/README.md`
 - Check Kong gateway: `/infra/kong/kong.yml` (line 776-789)
 
 ## Version History | سجل الإصدارات

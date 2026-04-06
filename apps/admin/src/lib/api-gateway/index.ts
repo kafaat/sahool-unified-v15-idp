@@ -247,9 +247,9 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   },
   analytics: {
     name: 'analytics',
-    // Analytics port (8100) - not registered in SERVICE_PORTS
-    baseUrl: `${API_BASE}:8100`,
-    port: 8100,
+    // Routes through indicators-service (port 8091) via Kong gateway
+    baseUrl: `${API_BASE}:${SERVICE_PORTS.INDICATORS}`,
+    port: SERVICE_PORTS.INDICATORS,
     healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,

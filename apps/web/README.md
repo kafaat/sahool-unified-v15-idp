@@ -166,11 +166,11 @@ npm run dev
 
 الخدمات المحاكاة:
 
-- **field-core**: إدارة الحقول
+- **field-management-service**: إدارة الحقول
 - **task-service**: إدارة المهام
-- **ndvi-engine**: تحليل NDVI
-- **weather-core**: بيانات الطقس
-- **agro-advisor**: التوصيات الزراعية
+- **vegetation-analysis-service**: تحليل NDVI
+- **weather-service**: بيانات الطقس
+- **advisory-service**: التوصيات الزراعية
 - **iot-gateway**: المستشعرات
 - **equipment-service**: المعدات
 

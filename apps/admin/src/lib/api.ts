@@ -278,7 +278,7 @@ export async function updateDiagnosisStatus(
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Weather API (POST-based with lat/lon coordinates)
-// Uses weather-service (port 8092) — weather-core (8108) deprecated & archived
+// Uses weather-service (port 8092)
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**

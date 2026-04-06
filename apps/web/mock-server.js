@@ -7,7 +7,7 @@ const http = require("http");
 
 // Mock Data
 const mockData = {
-  // Fields (field-core)
+  // Fields (field-management-service)
   fields: [
     {
       id: "field_001",
@@ -165,7 +165,7 @@ const mockData = {
     },
   ],
 
-  // NDVI Summary (ndvi-engine)
+  // NDVI Summary (vegetation-analysis-service)
   ndviSummary: {
     tenantId: "tenant_1",
     totalFields: 4,
@@ -181,7 +181,7 @@ const mockData = {
     timestamp: new Date().toISOString(),
   },
 
-  // Weather (weather-core)
+  // Weather (weather-service)
   weather: {
     location: { lat: 15.37, lng: 44.19, name: "صنعاء" },
     current: {
@@ -417,11 +417,11 @@ const routes = {
   "GET /healthz": () => ({
     status: "ok",
     services: [
-      "field-core",
+      "field-management-service",
       "task-service",
-      "ndvi-engine",
-      "weather-core",
-      "agro-advisor",
+      "vegetation-analysis-service",
+      "weather-service",
+      "advisory-service",
       "iot-gateway",
     ],
   }),
@@ -609,12 +609,12 @@ server.listen(PORT, () => {
 ║  URL:  http://localhost:${PORT}                                       ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║  Services Simulated:                                             ║
-║    ✓ field-core      - إدارة الحقول                              ║
-║    ✓ task-service    - إدارة المهام                              ║
-║    ✓ ndvi-engine     - تحليل NDVI                                ║
-║    ✓ weather-core    - بيانات الطقس                              ║
-║    ✓ agro-advisor    - التوصيات الزراعية                         ║
-║    ✓ iot-gateway     - المستشعرات                                ║
+║    ✓ field-management  - إدارة الحقول                            ║
+║    ✓ task-service      - إدارة المهام                            ║
+║    ✓ vegetation-analysis - تحليل NDVI                            ║
+║    ✓ weather-service   - بيانات الطقس                            ║
+║    ✓ advisory-service  - التوصيات الزراعية                       ║
+║    ✓ iot-gateway       - المستشعرات                              ║
 ║    ✓ equipment-service - المعدات                                 ║
 ╚══════════════════════════════════════════════════════════════════╝
   `);

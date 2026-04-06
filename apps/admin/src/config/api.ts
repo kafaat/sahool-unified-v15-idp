@@ -403,6 +403,8 @@ export const API_PATHS = {
     posts: CHAT_ENDPOINTS.COMMUNITY_POSTS,
     postById: (id: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id }),
     comments: (postId: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_COMMENTS, { postId }),
+    approvePost: (id: string) => `${buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id })}/approve`,
+    hidePost: (id: string) => `${buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id })}/hide`,
   },
 
   // Advisory (from unified contracts + service-specific paths)

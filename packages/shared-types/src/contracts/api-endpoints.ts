@@ -274,6 +274,8 @@ export const MARKETPLACE_ENDPOINTS = {
   LISTING_CREATE: `${API_PREFIX}/marketplace/listings`,
   PRODUCTS: `${API_PREFIX}/marketplace/products`,
   PRODUCT_GET: `${API_PREFIX}/marketplace/products/{productId}`,
+  PRODUCT_APPROVE: `${API_PREFIX}/marketplace/products/{productId}/approve`,
+  PRODUCT_REJECT: `${API_PREFIX}/marketplace/products/{productId}/reject`,
   ORDERS: `${API_PREFIX}/marketplace/orders`,
   ORDERS_BY_USER: `${API_PREFIX}/marketplace/orders/user/{userId}`,
   HARVEST: `${API_PREFIX}/marketplace/harvest`,

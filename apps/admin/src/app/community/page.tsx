@@ -20,7 +20,8 @@ import {
   XCircle,
 } from 'lucide-react';
 import { logger } from '../../lib/logger';
-import { MOCK_POSTS } from './community.mock';
+import { apiClient } from '@/lib/api';
+import { API_URLS } from '@/config/api';
 import type { Post } from './community.mock';
 
 export default function CommunityPage() {
@@ -37,12 +38,44 @@ export default function CommunityPage() {
   async function loadPosts() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setPosts(MOCK_POSTS);
+      const response = await apiClient.get(API_URLS.community.posts);
+      const data = response.data?.data || response.data || [];
+      setPosts(Array.isArray(data) ? data : []);
     } catch (error) {
       logger.error('Failed to load posts:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        const { MOCK_POSTS } = await import('./community.mock');
+        setPosts(MOCK_POSTS);
+      }
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleApprovePost(postId: string) {
+    try {
+      await apiClient.post(API_URLS.community.approvePost(postId), {});
+      setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, status: 'active' as const } : p)));
+    } catch (error) {
+      logger.error('Failed to approve post:', error);
+    }
+  }
+
+  async function handleHidePost(postId: string) {
+    try {
+      await apiClient.post(API_URLS.community.hidePost(postId), {});
+      setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, status: 'hidden' as const } : p)));
+    } catch (error) {
+      logger.error('Failed to hide post:', error);
+    }
+  }
+
+  async function handleDeletePost(postId: string) {
+    try {
+      await apiClient.delete(API_URLS.community.postById(postId));
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+    } catch (error) {
+      logger.error('Failed to delete post:', error);
     }
   }
 
@@ -170,26 +203,26 @@ export default function CommunityPage() {
           </button>
           {(post.status === 'flagged' || post.status === 'pending') && (
             <button
-              disabled
-              className="p-2 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              title="قبول (قريبًا)"
+              onClick={() => handleApprovePost(post.id)}
+              className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+              title="قبول"
             >
               <CheckCircle className="w-4 h-4 text-green-500" />
             </button>
           )}
           {post.status !== 'hidden' && (
             <button
-              disabled
-              className="p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              title="إخفاء (قريبًا)"
+              onClick={() => handleHidePost(post.id)}
+              className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+              title="إخفاء"
             >
               <XCircle className="w-4 h-4 text-red-500" />
             </button>
           )}
           <button
-            disabled
-            className="p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="حذف (قريبًا)"
+            onClick={() => handleDeletePost(post.id)}
+            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+            title="حذف"
           >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>

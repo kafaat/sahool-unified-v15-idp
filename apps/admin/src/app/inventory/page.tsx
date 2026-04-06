@@ -24,7 +24,8 @@ import {
   Warehouse,
 } from 'lucide-react';
 import { logger } from '../../lib/logger';
-import { MOCK_INVENTORY } from './inventory.mock';
+import { apiClient } from '@/lib/api';
+import { INVENTORY_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type { InventoryItem } from './inventory.mock';
 
 type ModalMode = 'view' | 'create' | 'edit';
@@ -80,11 +81,17 @@ export default function InventoryPage() {
   const loadInventory = useCallback(async () => {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setInventory(MOCK_INVENTORY);
+      const response = await apiClient.get(INVENTORY_ENDPOINTS.LIST);
+      const data = response.data?.data || response.data || [];
+      setInventory(Array.isArray(data) ? data : []);
     } catch (error) {
       logger.error('Failed to load inventory:', error);
-      toast.error('Failed to load inventory', 'فشل تحميل المخزون');
+      if (process.env.NODE_ENV !== 'production') {
+        const { MOCK_INVENTORY } = await import('./inventory.mock');
+        setInventory(MOCK_INVENTORY);
+      } else {
+        toast.error('Failed to load inventory', 'فشل تحميل المخزون');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -183,7 +190,7 @@ export default function InventoryPage() {
     setSelectedItem(null);
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!formData.nameAr.trim()) {
       toast.warning('Missing field', 'يرجى إدخال اسم الصنف');
       return;
@@ -191,26 +198,42 @@ export default function InventoryPage() {
 
     const now = new Date().toISOString().split('T')[0] as string;
 
-    if (modalMode === 'create') {
-      const newItem: InventoryItem = {
-        ...formData,
-        id: crypto.randomUUID(),
-        lastUpdated: now,
-      };
-      setInventory((prev) => [...prev, newItem]);
-      toast.success('Item added', 'تمت إضافة الصنف بنجاح');
-    } else if (modalMode === 'edit' && selectedItem) {
-      const updated: InventoryItem = { ...selectedItem, ...formData, lastUpdated: now };
-      setInventory((prev) => prev.map((item) => (item.id === selectedItem.id ? updated : item)));
-      toast.success('Item updated', 'تم تحديث الصنف بنجاح');
+    try {
+      if (modalMode === 'create') {
+        const payload = { ...formData, lastUpdated: now };
+        const response = await apiClient.post(INVENTORY_ENDPOINTS.CREATE, payload);
+        const created: InventoryItem = response.data?.data || response.data || { ...payload, id: crypto.randomUUID() };
+        setInventory((prev) => [...prev, created]);
+        toast.success('Item added', 'تمت إضافة الصنف بنجاح');
+      } else if (modalMode === 'edit' && selectedItem) {
+        const payload = { ...formData, lastUpdated: now };
+        const response = await apiClient.put(buildUrl(INVENTORY_ENDPOINTS.UPDATE, { itemId: selectedItem.id }), payload);
+        const updated: InventoryItem = response.data?.data || response.data || { ...selectedItem, ...payload };
+        setInventory((prev) => prev.map((item) => (item.id === selectedItem.id ? updated : item)));
+        toast.success('Item updated', 'تم تحديث الصنف بنجاح');
+      }
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      logger.error('Failed to save inventory item:', { error: detail, mode: modalMode });
+      toast.error(
+        modalMode === 'create' ? 'Failed to add item' : 'Failed to update item',
+        modalMode === 'create' ? 'فشل إضافة الصنف - تحقق من البيانات وأعد المحاولة' : 'فشل تحديث الصنف - تحقق من البيانات وأعد المحاولة'
+      );
     }
     closeModal();
   }, [formData, modalMode, selectedItem, closeModal, toast]);
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
-    setInventory((prev) => prev.filter((item) => item.id !== deleteTarget.id));
-    toast.success('Item deleted', 'تم حذف الصنف بنجاح');
+    try {
+      await apiClient.delete(buildUrl(INVENTORY_ENDPOINTS.DELETE, { itemId: deleteTarget.id }));
+      setInventory((prev) => prev.filter((item) => item.id !== deleteTarget.id));
+      toast.success('Item deleted', 'تم حذف الصنف بنجاح');
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      logger.error('Failed to delete inventory item:', { id: deleteTarget.id, error: detail });
+      toast.error('Failed to delete', 'فشل حذف الصنف - قد يكون الصنف مرتبطاً بعمليات أخرى');
+    }
     setDeleteTarget(null);
   }, [deleteTarget, toast]);
 

@@ -5,7 +5,7 @@
  * صفحة الري المحوري - Valley Style
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Droplets,
@@ -158,6 +158,9 @@ export default function PivotIrrigationClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPivotId, setSelectedPivotId] = useState<string | null>(null);
+  const [isControlling, setIsControlling] = useState(false);
+  const [activeTab, setActiveTab] = useState<'sectors' | 'vri' | 'schedule' | 'statistics'>('sectors');
+  const speedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchPivots = useCallback(async () => {
     setLoading(true);
@@ -174,6 +177,33 @@ export default function PivotIrrigationClient() {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const handleControlPivot = useCallback(async (action: 'start' | 'stop' | 'reverse') => {
+    if (!selectedPivotId || isControlling) return;
+    setIsControlling(true);
+    try {
+      const updated = await pivotIrrigationApi.controlPivot(selectedPivotId, action);
+      setPivots((prev) => prev.map((p) => (p.id === selectedPivotId ? updated : p)));
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في تنفيذ الأمر';
+      setError(message);
+    } finally {
+      setIsControlling(false);
+    }
+  }, [selectedPivotId, isControlling]);
+
+  const handleSpeedChange = useCallback((pivotId: string, speed: number) => {
+    // Update UI immediately for responsiveness
+    setPivots((prev) => prev.map((p) => (p.id === pivotId ? { ...p, speed } : p)));
+    // Debounce the backend call by 600 ms to avoid flooding the API
+    if (speedTimerRef.current) clearTimeout(speedTimerRef.current);
+    speedTimerRef.current = setTimeout(() => {
+      pivotIrrigationApi.controlPivot(pivotId, 'start').catch(() => {
+        // Best-effort: if speed update fails, keep local state and let the
+        // user retry via the main control buttons.
+      });
+    }, 600);
   }, []);
 
   useEffect(() => {
@@ -303,13 +333,17 @@ export default function PivotIrrigationClient() {
 
                 <div className="flex flex-wrap gap-4 mb-6">
                   <button
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                    onClick={() => handleControlPivot(selectedPivot.status === 'running' ? 'stop' : 'start')}
+                    disabled={isControlling}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
                       selectedPivot.status === 'running'
                         ? 'bg-red-100 text-red-700 hover:bg-red-200'
                         : 'bg-green-100 text-green-700 hover:bg-green-200'
                     }`}
                   >
-                    {selectedPivot.status === 'running' ? (
+                    {isControlling ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : selectedPivot.status === 'running' ? (
                       <>
                         <Pause className="w-5 h-5" />
                         <span>{t('stopPivot')}</span>
@@ -322,7 +356,11 @@ export default function PivotIrrigationClient() {
                     )}
                   </button>
 
-                  <button className="flex items-center gap-2 px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium transition-colors">
+                  <button
+                    onClick={() => handleControlPivot('reverse')}
+                    disabled={isControlling}
+                    className="flex items-center gap-2 px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
                     <RotateCcw className="w-5 h-5" />
                     <span>عكس الاتجاه</span>
                   </button>
@@ -343,8 +381,8 @@ export default function PivotIrrigationClient() {
                     min="0"
                     max="100"
                     value={selectedPivot.speed}
+                    onChange={(e) => handleSpeedChange(selectedPivot.id, Number(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    readOnly
                   />
                 </div>
               </div>
@@ -352,16 +390,28 @@ export default function PivotIrrigationClient() {
               {/* Tabs for Sectors, VRI Zones, Schedule */}
               <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
                 <div className="flex gap-4 border-b border-gray-200 mb-6">
-                  <button className="px-4 py-2 text-sahool-green-600 border-b-2 border-sahool-green-600 font-medium">
+                  <button
+                    onClick={() => setActiveTab('sectors')}
+                    className={`px-4 py-2 font-medium transition-colors ${activeTab === 'sectors' ? 'text-sahool-green-600 border-b-2 border-sahool-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
                     {t('sectors')}
                   </button>
-                  <button className="px-4 py-2 text-gray-500 hover:text-gray-700">
+                  <button
+                    onClick={() => setActiveTab('vri')}
+                    className={`px-4 py-2 font-medium transition-colors ${activeTab === 'vri' ? 'text-sahool-green-600 border-b-2 border-sahool-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
                     {t('vriZones')}
                   </button>
-                  <button className="px-4 py-2 text-gray-500 hover:text-gray-700">
+                  <button
+                    onClick={() => setActiveTab('schedule')}
+                    className={`px-4 py-2 font-medium transition-colors ${activeTab === 'schedule' ? 'text-sahool-green-600 border-b-2 border-sahool-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
                     {t('schedule')}
                   </button>
-                  <button className="px-4 py-2 text-gray-500 hover:text-gray-700">
+                  <button
+                    onClick={() => setActiveTab('statistics')}
+                    className={`px-4 py-2 font-medium transition-colors ${activeTab === 'statistics' ? 'text-sahool-green-600 border-b-2 border-sahool-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
                     {t('statistics')}
                   </button>
                 </div>

@@ -15,7 +15,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsPeriod } from '@/features/analytics/types';
+import type { AnalyticsFilters } from '@/features/analytics/types';
 import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
@@ -69,7 +69,7 @@ function getNutrientStatus(value: number, thresholds: { low: number; high: numbe
 }
 
 export default function SoilAnalyticsPage() {
-  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('season');
+  const [dateRange, setDateRange] = useState('season');
   const [fieldFilter, setFieldFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +79,7 @@ export default function SoilAnalyticsPage() {
     setLoading(true);
     setError(null);
     try {
-      const resources = await analyticsApi.getResourceUsage({ period: dateRange });
+      const resources = await analyticsApi.getResourceUsage({ period: dateRange as AnalyticsFilters['period'] });
       if (resources && Array.isArray(resources) && resources.length > 0) {
         // Map resource data to soil format if API provides it
         setApiSoilData(null); // API will populate when backend returns soil data

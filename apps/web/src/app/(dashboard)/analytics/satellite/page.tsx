@@ -70,7 +70,7 @@ const healthColor: Record<string, string> = {
 };
 
 export default function SatelliteAnalyticsPage() {
-  const [dateRange, setDateRange] = useState<AnalyticsPeriod>('month');
+  const [dateRange, setDateRange] = useState('month');
   const [indexType, setIndexType] = useState('ndvi');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +80,7 @@ export default function SatelliteAnalyticsPage() {
     setLoading(true);
     setError(null);
     try {
-      const summary = await analyticsApi.getSummary({ period: dateRange });
+      const summary = await analyticsApi.getSummary({ period: dateRange as AnalyticsFilters['period'] });
       if (summary && Array.isArray((summary as any).satelliteFields)) {
         setApiSatelliteData((summary as any).satelliteFields);
       } else {

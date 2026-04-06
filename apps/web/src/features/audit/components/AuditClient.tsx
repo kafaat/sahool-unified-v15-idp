@@ -71,24 +71,6 @@ export default function AuditClient() {
     });
   }, [auditLogs, searchTerm, actionFilter]);
 
-  const getSeverityBadge = (severity: AuditSeverity) => {
-    const styles: Record<AuditSeverity, string> = {
-      info: 'bg-blue-100 text-blue-800',
-      warning: 'bg-yellow-100 text-yellow-800',
-      critical: 'bg-red-100 text-red-800',
-    };
-    const labels: Record<AuditSeverity, string> = {
-      info: 'معلومات',
-      warning: 'تحذير',
-      critical: 'حرج',
-    };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[severity]}`}>
-        {labels[severity]}
-      </span>
-    );
-  };
-
   const getActionColor = (action: AuditAction) => {
     const colors: Record<AuditAction, string> = {
       create: 'bg-green-100 text-green-600',

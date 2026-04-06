@@ -793,7 +793,13 @@ async def get_publisher(
 
 async def close_publisher():
     """Close the singleton publisher instance."""
-    global _publisher_instance
+    global _publisher_instance, _publisher_lock
+
+    # FIX: Guard against calling close_publisher() before get_publisher() has
+    # ever been called. _publisher_lock is None at module level; if we attempt
+    # `async with None:` we get TypeError. Only acquire the lock when it exists.
+    if _publisher_lock is None:
+        return
 
     async with _publisher_lock:
         if _publisher_instance is not None:

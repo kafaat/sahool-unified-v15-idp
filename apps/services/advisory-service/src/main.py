@@ -7,7 +7,6 @@ Port: 8093
 # Service version - single source of truth
 VERSION = "16.0.0"
 
-import html
 import json
 import os
 import re
@@ -129,8 +128,16 @@ VALID_IRRIGATION_TYPES: set[str] = {"drip", "flood", "sprinkler", "furrow", "piv
 
 
 def _sanitize_text(value: str) -> str:
-    """Sanitize user-provided text by escaping HTML entities."""
-    return html.escape(value, quote=True)
+    """Sanitize user-provided text for safe processing.
+
+    Strips null bytes and ASCII control characters (which have no agricultural meaning)
+    but preserves characters like &, <, > that appear in agricultural symptom descriptions
+    (e.g. 'yellowing & wilting', '<5% leaf area affected').
+    Using html.escape() here would turn '&' into '&amp;' and break symptom matching
+    against the knowledge base.
+    """
+    # Remove null bytes and ASCII control characters (0x00-0x1F except tab/newline)
+    return re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", value)
 
 
 def _validate_identifier(value: str, field_name: str) -> str:

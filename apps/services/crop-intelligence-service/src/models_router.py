@@ -169,6 +169,8 @@ def run_et0(req: ET0Request) -> ModelRunResponse:
             warnings=warnings,
         )
 
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("ET0 run failed")
         raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
@@ -229,6 +231,8 @@ def run_quefts(req: QUEFTSRequest) -> ModelRunResponse:
             warnings=warnings,
         )
 
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("QUEFTS run failed")
         raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
@@ -283,6 +287,8 @@ def run_soil_carbon(req: SoilCarbonRequest) -> ModelRunResponse:
             quality_flag="needs_calibration",
         )
 
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("Soil carbon simulation failed")
         raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
@@ -362,6 +368,8 @@ def run_swb(req: SWBRequest) -> ModelRunResponse:
             result=swb,
         )
 
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("SWB run failed")
         raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc
@@ -416,6 +424,8 @@ def run_prosail_inversion(req: PROSAILRequest) -> ModelRunResponse:
             quality_flag="needs_calibration",
         )
 
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("PROSAIL inversion failed")
         raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Model computation failed") from exc

@@ -3054,6 +3054,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=${POSTGRES_SSL_MODE:-disable}
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8121:8121"
@@ -4158,6 +4159,8 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - MODEL_PATH=/app/models/yolo26m.engine
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     volumes:
       - yolo26-models:/app/models
     ports:
@@ -4209,6 +4212,8 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     volumes:
       - terrain-dem-data:/app/data/dem
     ports:

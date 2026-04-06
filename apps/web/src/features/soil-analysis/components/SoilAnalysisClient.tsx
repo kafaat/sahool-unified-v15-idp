@@ -267,7 +267,7 @@ export default function SoilAnalysisClient() {
                   <Thermometer className="w-5 h-5 text-green-600" />
                   <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">تفاصيل العناصر الغذائية</h3>
                 </div>
-                <span className="text-xs text-gray-400">العينة: {sample.id} | التاريخ: {sample.date} | العمق: {sample.depth}</span>
+                <span className="text-xs text-gray-400">العينة: {sample.id} | التاريخ: {sample.sampleDate} | الحالة: {sample.status}</span>
               </div>
 
               <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -310,7 +310,7 @@ export default function SoilAnalysisClient() {
                 })}
               </div>
 
-              {sample.nutrients.length > 5 && (
+              {nutrients.length > 5 && (
                 <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 text-center">
                   <button
                     type="button"
@@ -320,7 +320,7 @@ export default function SoilAnalysisClient() {
                     {showAllNutrients ? (
                       <><ChevronUp className="w-4 h-4" />عرض أقل</>
                     ) : (
-                      <><ChevronDown className="w-4 h-4" />عرض جميع العناصر ({sample.nutrients.length})</>
+                      <><ChevronDown className="w-4 h-4" />عرض جميع العناصر ({nutrients.length})</>
                     )}
                   </button>
                 </div>
@@ -333,21 +333,38 @@ export default function SoilAnalysisClient() {
                 <Info className="w-5 h-5 text-blue-500" />
                 <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">التوصيات</h3>
               </div>
+              {recsLoading && (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-green-600" />
+                  <span className="mr-2 text-sm text-gray-500">جاري تحميل التوصيات...</span>
+                </div>
+              )}
+              {!recsLoading && (!recommendations || recommendations.length === 0) && (
+                <p className="text-sm text-gray-500 text-center py-4">لا توجد توصيات لهذا الحقل حالياً</p>
+              )}
               <ul className="space-y-3">
-                {sample.recommendationsAr.map((rec, i) => {
-                  const isWarning = rec.includes('نقص') || rec.includes('حاد') || rec.includes('مراقبة');
+                {recommendations?.map((rec: SoilRecommendation) => {
+                  const isHighPriority = rec.priority === 'high';
+                  const text = rec.recommendationAr || rec.recommendation;
                   return (
-                    <li key={i} className={`flex items-start gap-3 text-sm rounded-lg p-3 ${
-                      isWarning
+                    <li key={rec.id} className={`flex items-start gap-3 text-sm rounded-lg p-3 ${
+                      isHighPriority
                         ? 'bg-amber-50 dark:bg-amber-900/15 border border-amber-100 dark:border-amber-800'
                         : 'bg-gray-50 dark:bg-gray-700/40 border border-gray-100 dark:border-gray-700'
                     }`}>
-                      {isWarning ? (
+                      {isHighPriority ? (
                         <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                       ) : (
                         <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                       )}
-                      <span className="text-gray-700 dark:text-gray-300">{rec}</span>
+                      <div>
+                        <span className="text-gray-700 dark:text-gray-300">{text}</span>
+                        {rec.fertilizerAr && (
+                          <span className="block text-xs text-gray-500 mt-1">
+                            {rec.fertilizerAr} {rec.rate ? `— ${rec.rate} ${rec.unit ?? ''}` : ''}
+                          </span>
+                        )}
+                      </div>
                     </li>
                   );
                 })}

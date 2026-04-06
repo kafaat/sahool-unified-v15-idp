@@ -61,7 +61,8 @@ if (SENTRY_DSN && SENTRY_DSN.length > 0) {
     integrations: [Sentry.browserTracingIntegration()],
 
     // Filter sensitive data before sending
-    beforeSend(event) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    beforeSend(event: any) {
       if (event.request?.headers) {
         const headers = event.request.headers as Record<string, string>;
         delete headers["cookie"];
@@ -70,7 +71,8 @@ if (SENTRY_DSN && SENTRY_DSN.length > 0) {
       }
 
       if (event.breadcrumbs) {
-        event.breadcrumbs = event.breadcrumbs.filter((breadcrumb) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        event.breadcrumbs = event.breadcrumbs.filter((breadcrumb: any) => {
           if (
             process.env.NODE_ENV === "production" &&
             breadcrumb.category === "console"

@@ -102,7 +102,22 @@ export default function AuditClient() {
     return colors[action];
   };
 
-  const criticalCount = mockAuditLog.filter((e) => e.severity === 'critical').length;
+  const totalLogs = auditStats?.totalLogs ?? auditLogs?.length ?? 0;
+  const todayLogs = auditStats?.todayLogs ?? 0;
+  const topUsersCount = auditStats?.topUsers?.length ?? (auditLogs ? new Set(auditLogs.map((e: AuditLog) => e.userId)).size : 0);
+  const deleteCount = auditStats?.byAction?.['delete'] ?? 0;
+
+  if (logsError) {
+    return (
+      <div className="space-y-6" dir="rtl">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-700 font-medium">فشل في تحميل سجل التدقيق</p>
+          <p className="text-red-500 text-sm mt-1">Failed to load audit logs</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -123,12 +138,12 @@ export default function AuditClient() {
       </div>
 
       {/* Critical alert */}
-      {criticalCount > 0 && (
+      {deleteCount > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-red-600" />
             <span className="font-medium text-red-800">
-              {criticalCount} إجراء حرج يتطلب مراجعة خلال الـ 24 ساعة الماضية
+              {deleteCount} إجراء حذف يتطلب مراجعة خلال الـ 24 ساعة الماضية
             </span>
           </div>
         </div>
@@ -143,7 +158,7 @@ export default function AuditClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي السجلات</div>
-              <div className="text-xl font-bold text-gray-900">{mockAuditLog.length}</div>
+              <div className="text-xl font-bold text-gray-900">{statsLoading ? '...' : totalLogs}</div>
             </div>
           </div>
         </div>
@@ -155,7 +170,7 @@ export default function AuditClient() {
             <div>
               <div className="text-sm text-gray-500">مستخدمون نشطون</div>
               <div className="text-xl font-bold text-green-600">
-                {new Set(mockAuditLog.map((e) => e.userId)).size}
+                {statsLoading ? '...' : topUsersCount}
               </div>
             </div>
           </div>
@@ -166,8 +181,8 @@ export default function AuditClient() {
               <Shield className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <div className="text-sm text-gray-500">إجراءات حرجة</div>
-              <div className="text-xl font-bold text-red-600">{criticalCount}</div>
+              <div className="text-sm text-gray-500">سجلات اليوم</div>
+              <div className="text-xl font-bold text-red-600">{statsLoading ? '...' : todayLogs}</div>
             </div>
           </div>
         </div>
@@ -179,7 +194,9 @@ export default function AuditClient() {
             <div>
               <div className="text-sm text-gray-500">آخر نشاط</div>
               <div className="text-sm font-bold text-purple-600">
-                {new Date(mockAuditLog[0]!.timestamp).toLocaleTimeString('ar-SA')}
+                {auditLogs && auditLogs.length > 0
+                  ? new Date(auditLogs[0]!.timestamp).toLocaleTimeString('ar-SA')
+                  : '-'}
               </div>
             </div>
           </div>
@@ -225,46 +242,58 @@ export default function AuditClient() {
 
       {/* Audit Table */}
       <div className="bg-white rounded-lg border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">الوقت</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">المستخدم</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">الإجراء</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">المورد</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">الوصف</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">المستوى</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">IP</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {filteredLogs.map((entry) => (
-                <tr key={entry.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                    {new Date(entry.timestamp).toLocaleString('ar-SA', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-900">{entry.userName}</td>
-                  <td className="px-4 py-3">
-                    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${getActionColor(entry.action)}`}>
-                      {actionIcons[entry.action]}
-                      {actionLabels[entry.action]}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{entry.resourceAr}</td>
-                  <td className="px-4 py-3 text-gray-600 max-w-xs truncate">{entry.descriptionAr}</td>
-                  <td className="px-4 py-3">{getSeverityBadge(entry.severity)}</td>
-                  <td className="px-4 py-3 text-gray-400 font-mono text-xs">{entry.ipAddress}</td>
+        {logsLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+            <span className="mr-2 text-gray-500">جاري التحميل...</span>
+          </div>
+        )}
+        {!logsLoading && filteredLogs.length === 0 && (
+          <div className="p-10 text-center text-gray-500">لا توجد سجلات تدقيق</div>
+        )}
+        {!logsLoading && filteredLogs.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">الوقت</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">المستخدم</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">الإجراء</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">المورد</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">الوصف</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">IP</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y">
+                {filteredLogs.map((entry: AuditLog) => {
+                  const action = (entry.action ?? 'update') as AuditAction;
+                  return (
+                    <tr key={entry.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                        {new Date(entry.timestamp).toLocaleString('ar-SA', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-900">{entry.userNameAr || entry.userName}</td>
+                      <td className="px-4 py-3">
+                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${getActionColor(action)}`}>
+                          {actionIcons[action]}
+                          {entry.actionAr || actionLabels[action] || entry.action}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">{entry.resource}</td>
+                      <td className="px-4 py-3 text-gray-600 max-w-xs truncate">{entry.detailsAr || entry.details}</td>
+                      <td className="px-4 py-3 text-gray-400 font-mono text-xs">{entry.ipAddress ?? '-'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

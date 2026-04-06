@@ -12,149 +12,63 @@ import {
   AlertTriangle,
   Activity,
   Server,
+  Loader2,
 } from 'lucide-react';
+import { useEdgeDevices } from '../hooks/useEdgeDevices';
+import type { EdgeDevice, EdgeFilters } from '../types';
 
-type DeviceStatus = 'online' | 'offline' | 'deploying' | 'error';
-type DeviceModel = 'jetson_orin_nano' | 'jetson_orin_nx' | 'jetson_agx_orin' | 'raspberry_pi';
+type DeviceStatus = EdgeDevice['status'];
 
-interface EdgeDevice {
-  id: string;
-  name: string;
-  nameAr: string;
-  model: DeviceModel;
-  fieldId: string;
-  fieldName: string;
-  status: DeviceStatus;
-  cpuUsage: number;
-  gpuUsage: number;
-  memoryUsage: number;
-  temperature: number;
-  deployedModels: string[];
-  lastSync: string;
-  uptime: string;
-}
-
-const mockDevices: EdgeDevice[] = [
-  {
-    id: 'edge-001',
-    name: 'Orin NX - North Field',
-    nameAr: 'أورين NX - الحقل الشمالي',
-    model: 'jetson_orin_nx',
-    fieldId: 'field-1',
-    fieldName: 'الحقل الشمالي',
-    status: 'online',
-    cpuUsage: 45,
-    gpuUsage: 72,
-    memoryUsage: 68,
-    temperature: 52,
-    deployedModels: ['yolo26-pest-v3', 'crop-disease-v2'],
-    lastSync: '2026-04-04T08:15:00Z',
-    uptime: '14d 6h',
-  },
-  {
-    id: 'edge-002',
-    name: 'AGX Orin - Palm Grove',
-    nameAr: 'AGX أورين - بستان النخيل',
-    model: 'jetson_agx_orin',
-    fieldId: 'field-4',
-    fieldName: 'بستان النخيل',
-    status: 'deploying',
-    cpuUsage: 88,
-    gpuUsage: 95,
-    memoryUsage: 82,
-    temperature: 67,
-    deployedModels: ['rpw-detection-v4'],
-    lastSync: '2026-04-04T08:10:00Z',
-    uptime: '3d 12h',
-  },
-  {
-    id: 'edge-003',
-    name: 'Orin Nano - Greenhouse',
-    nameAr: 'أورين نانو - الصوب الزراعية',
-    model: 'jetson_orin_nano',
-    fieldId: 'field-5',
-    fieldName: 'الصوب الزراعية',
-    status: 'online',
-    cpuUsage: 32,
-    gpuUsage: 41,
-    memoryUsage: 55,
-    temperature: 44,
-    deployedModels: ['tomato-ripeness-v1'],
-    lastSync: '2026-04-04T08:14:00Z',
-    uptime: '28d 2h',
-  },
-  {
-    id: 'edge-004',
-    name: 'RPi 5 - Weather Station',
-    nameAr: 'راسبيري باي 5 - محطة الطقس',
-    model: 'raspberry_pi',
-    fieldId: 'field-2',
-    fieldName: 'الحقل الجنوبي',
-    status: 'offline',
-    cpuUsage: 0,
-    gpuUsage: 0,
-    memoryUsage: 0,
-    temperature: 0,
-    deployedModels: [],
-    lastSync: '2026-04-03T22:30:00Z',
-    uptime: '0h',
-  },
-  {
-    id: 'edge-005',
-    name: 'Orin NX - Wheat Field',
-    nameAr: 'أورين NX - حقل القمح',
-    model: 'jetson_orin_nx',
-    fieldId: 'field-3',
-    fieldName: 'حقل القمح',
-    status: 'error',
-    cpuUsage: 12,
-    gpuUsage: 0,
-    memoryUsage: 91,
-    temperature: 78,
-    deployedModels: ['weed-detect-v2', 'wheat-rust-v1'],
-    lastSync: '2026-04-04T07:45:00Z',
-    uptime: '1d 8h',
-  },
-];
-
-const modelLabels: Record<DeviceModel, { label: string; labelAr: string }> = {
+const modelLabels: Record<string, { label: string; labelAr: string }> = {
+  jetson_orin: { label: 'Jetson Orin', labelAr: 'جيتسون أورين' },
   jetson_orin_nano: { label: 'Jetson Orin Nano', labelAr: 'جيتسون أورين نانو' },
   jetson_orin_nx: { label: 'Jetson Orin NX', labelAr: 'جيتسون أورين NX' },
   jetson_agx_orin: { label: 'Jetson AGX Orin', labelAr: 'جيتسون AGX أورين' },
+  jetson_nano: { label: 'Jetson Nano', labelAr: 'جيتسون نانو' },
   raspberry_pi: { label: 'Raspberry Pi', labelAr: 'راسبيري باي' },
+  custom: { label: 'Custom', labelAr: 'مخصص' },
 };
 
 export default function EdgeDevicesClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<DeviceStatus | 'all'>('all');
 
+  // Build API filters
+  const apiFilters: EdgeFilters | undefined = useMemo(() => {
+    const filters: EdgeFilters = {};
+    if (statusFilter !== 'all') filters.status = statusFilter;
+    return Object.keys(filters).length > 0 ? filters : undefined;
+  }, [statusFilter]);
+
+  const { data: devices = [], isLoading, isError, error } = useEdgeDevices(apiFilters);
+
+  // Client-side search filtering
   const filteredDevices = useMemo(() => {
-    return mockDevices.filter((device) => {
+    if (!searchTerm) return devices;
+    return devices.filter((device) => {
       const matchesSearch =
-        !searchTerm ||
         device.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         device.nameAr.includes(searchTerm);
-      const matchesStatus = statusFilter === 'all' || device.status === statusFilter;
-      return matchesSearch && matchesStatus;
+      return matchesSearch;
     });
-  }, [searchTerm, statusFilter]);
+  }, [devices, searchTerm]);
 
   const getStatusBadge = (status: DeviceStatus) => {
     const styles: Record<DeviceStatus, string> = {
       online: 'bg-green-100 text-green-800',
       offline: 'bg-red-100 text-red-800',
-      deploying: 'bg-blue-100 text-blue-800',
+      syncing: 'bg-blue-100 text-blue-800',
       error: 'bg-orange-100 text-orange-800',
     };
     const labels: Record<DeviceStatus, string> = {
       online: 'متصل',
       offline: 'غير متصل',
-      deploying: 'جاري النشر',
+      syncing: 'جاري المزامنة',
       error: 'خطأ',
     };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
-        {labels[status]}
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status] ?? 'bg-gray-100 text-gray-800'}`}>
+        {labels[status] ?? status}
       </span>
     );
   };
@@ -165,9 +79,45 @@ export default function EdgeDevicesClient() {
     return 'bg-green-500';
   };
 
-  const onlineCount = mockDevices.filter((d) => d.status === 'online').length;
-  const errorCount = mockDevices.filter((d) => d.status === 'error').length;
-  const totalModels = mockDevices.reduce((sum, d) => sum + d.deployedModels.length, 0);
+  const onlineCount = devices.filter((d) => d.status === 'online').length;
+  const errorCount = devices.filter((d) => d.status === 'error').length;
+  const totalModels = devices.reduce((sum, d) => sum + (d.models?.length ?? 0), 0);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-600 font-medium">جاري تحميل بيانات الأجهزة الطرفية...</p>
+          <p className="text-sm text-gray-400 mt-1">Loading edge devices data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            فشل في تحميل بيانات الأجهزة الطرفية
+          </h3>
+          <p className="text-sm text-gray-500 mb-4">
+            {error instanceof Error ? error.message : 'Failed to load edge devices data'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -208,7 +158,7 @@ export default function EdgeDevicesClient() {
             </div>
             <div>
               <div className="text-sm text-gray-500">إجمالي الأجهزة</div>
-              <div className="text-xl font-bold text-gray-900">{mockDevices.length}</div>
+              <div className="text-xl font-bold text-gray-900">{devices.length}</div>
             </div>
           </div>
         </div>
@@ -267,102 +217,119 @@ export default function EdgeDevicesClient() {
           <option value="all">جميع الحالات</option>
           <option value="online">متصل</option>
           <option value="offline">غير متصل</option>
-          <option value="deploying">جاري النشر</option>
+          <option value="syncing">جاري المزامنة</option>
           <option value="error">خطأ</option>
         </select>
       </div>
 
+      {/* Empty state */}
+      {filteredDevices.length === 0 && (
+        <div className="bg-white rounded-lg border p-8 text-center">
+          <Server className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد أجهزة</h3>
+          <p className="text-gray-500 text-sm">
+            {searchTerm || statusFilter !== 'all'
+              ? 'لا توجد نتائج تطابق معايير البحث'
+              : 'لم يتم تسجيل أي أجهزة طرفية بعد'}
+          </p>
+        </div>
+      )}
+
       {/* Devices Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {filteredDevices.map((device) => (
-          <div
-            key={device.id}
-            className={`bg-white rounded-lg border p-5 hover:shadow-md transition-shadow ${
-              device.status === 'error' ? 'border-orange-300' : device.status === 'offline' ? 'border-red-200' : ''
-            }`}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  device.status === 'online' ? 'bg-green-100 text-green-600' :
-                  device.status === 'error' ? 'bg-orange-100 text-orange-600' :
-                  'bg-gray-100 text-gray-600'
-                }`}>
-                  <HardDrive className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">{device.nameAr}</h3>
-                  <p className="text-sm text-gray-500">{modelLabels[device.model].labelAr}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {getStatusBadge(device.status)}
-                {device.status === 'online' ? (
-                  <Wifi className="w-4 h-4 text-green-500" />
-                ) : device.status === 'offline' ? (
-                  <WifiOff className="w-4 h-4 text-red-500" />
-                ) : null}
-              </div>
-            </div>
+        {filteredDevices.map((device) => {
+          const typeLabel = modelLabels[device.type] ?? { label: device.type, labelAr: device.type };
 
-            {device.status !== 'offline' && (
-              <div className="space-y-3 mb-4">
-                {[
-                  { label: 'المعالج', value: device.cpuUsage },
-                  { label: 'GPU', value: device.gpuUsage },
-                  { label: 'الذاكرة', value: device.memoryUsage },
-                ].map((metric) => (
-                  <div key={metric.label}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-500">{metric.label}</span>
-                      <span className="font-medium">{metric.value}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full ${getUsageColor(metric.value)}`}
-                        style={{ width: `${metric.value}%` }}
-                      />
-                    </div>
+          return (
+            <div
+              key={device.id}
+              className={`bg-white rounded-lg border p-5 hover:shadow-md transition-shadow ${
+                device.status === 'error' ? 'border-orange-300' : device.status === 'offline' ? 'border-red-200' : ''
+              }`}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    device.status === 'online' ? 'bg-green-100 text-green-600' :
+                    device.status === 'error' ? 'bg-orange-100 text-orange-600' :
+                    'bg-gray-100 text-gray-600'
+                  }`}>
+                    <HardDrive className="w-5 h-5" />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="font-medium text-gray-900">{device.nameAr}</h3>
+                    <p className="text-sm text-gray-500">{typeLabel.labelAr}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {getStatusBadge(device.status)}
+                  {device.status === 'online' ? (
+                    <Wifi className="w-4 h-4 text-green-500" />
+                  ) : device.status === 'offline' ? (
+                    <WifiOff className="w-4 h-4 text-red-500" />
+                  ) : null}
+                </div>
               </div>
-            )}
 
-            <div className="flex items-center justify-between text-sm mb-3">
-              <div className="flex items-center gap-1 text-gray-500">
-                <Thermometer className="w-4 h-4" />
-                <span>{device.temperature}°C</span>
+              {device.status !== 'offline' && (
+                <div className="space-y-3 mb-4">
+                  {[
+                    { label: 'المعالج', value: device.cpuUsage },
+                    ...(device.gpuUsage != null ? [{ label: 'GPU', value: device.gpuUsage }] : []),
+                    { label: 'الذاكرة', value: device.memoryUsage },
+                  ].map((metric) => (
+                    <div key={metric.label}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-500">{metric.label}</span>
+                        <span className="font-medium">{metric.value}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${getUsageColor(metric.value)}`}
+                          style={{ width: `${metric.value}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-sm mb-3">
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Thermometer className="w-4 h-4" />
+                  <span>{device.diskUsage}% قرص</span>
+                </div>
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Activity className="w-4 h-4" />
+                  <span>{device.location?.fieldName ?? '-'}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-gray-500">
-                <Activity className="w-4 h-4" />
-                <span>{device.uptime}</span>
+
+              {device.models.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {device.models.map((model) => (
+                    <span key={model} className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-xs">
+                      {model}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="pt-3 border-t flex justify-between items-center">
+                <span className="text-xs text-gray-400">
+                  آخر ظهور: {new Date(device.lastSeen).toLocaleTimeString('ar-SA')}
+                </span>
+                <button
+                  disabled
+                  title="قريبا - Coming soon"
+                  className="text-green-600 hover:text-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  التفاصيل
+                </button>
               </div>
             </div>
-
-            {device.deployedModels.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-3">
-                {device.deployedModels.map((model) => (
-                  <span key={model} className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-xs">
-                    {model}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <div className="pt-3 border-t flex justify-between items-center">
-              <span className="text-xs text-gray-400">
-                آخر مزامنة: {new Date(device.lastSync).toLocaleTimeString('ar-SA')}
-              </span>
-              <button
-                disabled
-                title="قريبا - Coming soon"
-                className="text-green-600 hover:text-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                التفاصيل
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

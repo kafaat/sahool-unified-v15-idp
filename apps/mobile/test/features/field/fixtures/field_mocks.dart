@@ -162,6 +162,12 @@ class _TestField extends Fake implements Field {
   @override
   final String? status;
   @override
+  final String? irrigationType;
+  @override
+  final DateTime? plantingDate;
+  @override
+  final String? notes;
+  @override
   final double? ndviCurrent;
   @override
   final DateTime? ndviUpdatedAt;
@@ -189,6 +195,9 @@ class _TestField extends Fake implements Field {
     this.centroid,
     required this.areaHectares,
     this.status,
+    this.irrigationType,
+    this.plantingDate,
+    this.notes,
     this.ndviCurrent,
     this.ndviUpdatedAt,
     required this.synced,

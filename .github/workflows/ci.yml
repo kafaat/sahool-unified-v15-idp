@@ -337,8 +337,8 @@ jobs:
 
       - name: Run API contract tests
         run: |
-          pytest tests/contract/ -v --timeout=60 || true
-        continue-on-error: true
+          pytest tests/contract/ -v --timeout=60
+        continue-on-error: false
         env:
           ENVIRONMENT: test
           PYTHONPATH: .

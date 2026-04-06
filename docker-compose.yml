@@ -1883,6 +1883,9 @@ services:
       - PORT=8081
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      # FIX: Added AUTH_SECRET_KEY — shared.auth.dependencies reads AUTH_SECRET_KEY, not JWT_SECRET_KEY.
+      # Without this, all WebSocket connections fail JWT validation (random secret per restart).
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -2142,6 +2145,10 @@ services:
       # FIX: Added REDIS_URL — token revocation store needs Redis; without this, shared/auth/config.py
       # defaults REDIS_HOST to localhost which fails inside Docker containers
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      # FIX: Added AUTH_SECRET_KEY — shared.auth.dependencies reads AUTH_SECRET_KEY, not JWT_SECRET_KEY.
+      # Without this, AuthConfig defaults to secrets.token_urlsafe(32) on every restart, making
+      # every authenticated advisory request return 401 Unauthorized.
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
@@ -2238,6 +2245,9 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      # FIX: Added AUTH_SECRET_KEY — shared.auth.dependencies reads AUTH_SECRET_KEY, not JWT_SECRET_KEY.
+      # Without this, all crop-health endpoints return 401 Unauthorized on every authenticated request.
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
@@ -2522,6 +2532,9 @@ services:
       - MQTT_USER=${MQTT_USER:-sahool_iot}
       - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
       - MQTT_TOPIC=sahool/sensors/#
+      # FIX: Added AUTH_SECRET_KEY — shared.auth.dependencies reads AUTH_SECRET_KEY, not JWT_SECRET_KEY.
+      # Without this, all API sensor ingestion endpoints (POST /readings, POST /devices) return 401.
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -3139,6 +3152,9 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # FIX: Added AUTH_SECRET_KEY — shared.auth.dependencies reads AUTH_SECRET_KEY, not JWT_SECRET_KEY.
+      # Without this, all AI agent endpoints return 401 Unauthorized on every authenticated request.
+      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:

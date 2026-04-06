@@ -68,7 +68,9 @@ class GracefulShutdownMiddleware:
     ):
         self._app = app
         self._drain_timeout = drain_timeout
-        self._exclude_paths = exclude_paths or {"/healthz", "/readyz", "/metrics"}
+        # Always include health paths so they return degraded status during drain
+        self._health_paths = {"/healthz", "/readyz"}
+        self._exclude_paths = (exclude_paths or {"/healthz", "/readyz", "/metrics"}) | self._health_paths
         self._in_flight = 0
         self._lock = asyncio.Lock()
         self._draining = False
@@ -103,7 +105,7 @@ class GracefulShutdownMiddleware:
             )
 
         # Health check during drain returns degraded status
-        if self._draining and path in ("/healthz", "/readyz"):
+        if self._draining and path in self._health_paths:
             return JSONResponse(
                 status_code=503,
                 content={

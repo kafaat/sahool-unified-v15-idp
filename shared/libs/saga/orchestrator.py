@@ -4,7 +4,7 @@ SAHOOL Saga Orchestrator
 منسق الـ Saga مع حالة مستدامة وتعويض تلقائي
 
 Orchestrated Saga pattern with:
-- Persistent state in PostgreSQL (crash recovery)
+- Persistent state in PostgreSQL (audit trail and failure inspection)
 - Per-step timeout with asyncio.wait_for
 - Compensation with retry + exponential backoff
 - Idempotency keys (no duplicate sagas)
@@ -158,7 +158,7 @@ class SagaOrchestrator:
             # Check idempotency
             existing = self._find_existing(db, idem_key)
             if existing:
-                if existing.state == SagaState.COMPLETED.value:
+                if existing.state == SagaState.COMPLETED:
                     logger.info(
                         "saga_already_completed",
                         extra={"saga_id": existing.id, "key": idem_key},
@@ -168,7 +168,7 @@ class SagaOrchestrator:
                         state=SagaState.COMPLETED,
                         context=json.loads(existing.context_json),
                     )
-                if existing.state in (SagaState.RUNNING.value, SagaState.COMPENSATING.value):
+                if existing.state in (SagaState.RUNNING, SagaState.COMPENSATING):
                     raise ValueError(f"Saga {idem_key} is already in progress (state={existing.state})")
 
             # Create saga execution record

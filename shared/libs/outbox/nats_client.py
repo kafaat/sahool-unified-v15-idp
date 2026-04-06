@@ -49,14 +49,12 @@ class NATSOutboxClient(EventBusClient):
 
     Args:
         js: NATS JetStream context
-        stream: JetStream stream name for outbox events
     """
 
-    def __init__(self, js: JetStreamContext, stream: str = "SAHOOL_EVENTS"):
+    def __init__(self, js: JetStreamContext):
         if not _nats_available:
             raise RuntimeError("nats-py package is required for NATSOutboxClient. Install with: pip install nats-py")
         self._js = js
-        self._stream = stream
 
     def publish(self, topic: str, message: str) -> None:
         """
@@ -79,12 +77,8 @@ class NATSOutboxClient(EventBusClient):
         subject = f"sahool.outbox.{topic}"
 
         if loop and loop.is_running():
-            # We're inside an async context - create a future
-            # The outbox worker runs in async context, so this path is typical
-            future = asyncio.ensure_future(self._js.publish(subject, message.encode("utf-8")))
-            # Since publish_pending iterates synchronously, we need to
-            # handle this carefully. The caller (outbox worker) should
-            # use the async variant instead.
+            # Sync publish() cannot be used inside an async context.
+            # The caller should use NATSOutboxAsyncClient instead.
             raise RuntimeError(
                 "NATSOutboxClient.publish() called from async context. "
                 "Use NATSOutboxAsyncClient or the async outbox worker instead."

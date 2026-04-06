@@ -255,8 +255,9 @@ class DLQAutoReplayWorker:
         non_retriable_types = {"ValidationError", "ValueError", "KeyError", "TypeError"}
         if error_type in non_retriable_types:
             self._stats.total_skipped += 1
-            # Don't ACK — leave for manual review via DLQ API
-            await msg.nak()
+            # Terminate delivery — non-retriable errors need manual review
+            # via the DLQ management API (nak would cause infinite redelivery)
+            await msg.term()
             return
 
         # 2. Check replay count
@@ -269,7 +270,7 @@ class DLQAutoReplayWorker:
                     "replay_count": metadata.replay_count,
                 },
             )
-            await msg.nak()
+            await msg.term()
             return
 
         # 3. Check age
@@ -298,7 +299,7 @@ class DLQAutoReplayWorker:
                     "age_hours": age.total_seconds() / 3600,
                 },
             )
-            await msg.nak()
+            await msg.term()
             return
 
         # 4. Calculate backoff — don't replay too frequently

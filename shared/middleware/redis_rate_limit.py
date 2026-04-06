@@ -187,9 +187,14 @@ class RedisRateLimiter(RateLimiter):
             tenant_id = getattr(request.state.user, "tenant_id", None) or "default"
         key = f"{tenant_id}:{client_ip}"
 
-        # Determine tier (reuse parent logic)
-        tier = self._get_tier(request)
-        config = self._get_config(tier)
+        # Honor per-request config override (set by tier_func in setup_rate_limiting)
+        config_override = getattr(getattr(request, "state", None), "rate_limit_config_override", None)
+        if config_override and getattr(getattr(request, "state", None), "_internal_service_call", False):
+            tier = "override"
+            config = config_override
+        else:
+            tier = self._get_tier(request)
+            config = self._get_config(tier)
 
         now = time.time()
 

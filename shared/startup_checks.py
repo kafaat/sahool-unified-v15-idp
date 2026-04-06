@@ -89,16 +89,18 @@ class StartupValidationError(SystemExit):
             f"{'=' * 60}\n\n" + "\n".join(f"  - {e}" for e in errors) + f"\n\n{'=' * 60}\n"
         )
         logger.critical(message)
-        super().__init__(1)
+        # Pass message so it's visible even without logging configured
+        super().__init__(message)
 
 
-def require_env(name: str, description: str = "") -> str:
+def require_env(name: str, description: str = "", service_name: str = "unknown") -> str:
     """
     Get a required environment variable or raise an error.
 
     Args:
         name: Environment variable name
         description: Human-readable description for error message
+        service_name: Service name for error output
 
     Returns:
         The environment variable value
@@ -111,7 +113,7 @@ def require_env(name: str, description: str = "") -> str:
         desc = f" ({description})" if description else ""
         raise StartupValidationError(
             [f"Missing required: {name}{desc}"],
-            service_name="unknown",
+            service_name=service_name,
         )
     return value
 

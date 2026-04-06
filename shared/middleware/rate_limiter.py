@@ -83,9 +83,7 @@ def setup_rate_limiting(
         internal=_TIER_CONFIGS[RateLimitTier.INTERNAL],
     )
 
-    if limiter is not None:
-        pass  # Use the provided limiter (e.g., RedisRateLimiter)
-    elif use_redis:
+    if limiter is None and use_redis:
         try:
             from .redis_rate_limit import RedisRateLimiter
 
@@ -100,7 +98,7 @@ def setup_rate_limiting(
                 extra={"error": str(e)},
             )
             limiter = RateLimiter(tier_config=tier_config)
-    else:
+    elif limiter is None:
         limiter = RateLimiter(tier_config=tier_config)
 
     @app.middleware("http")

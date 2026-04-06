@@ -15,18 +15,16 @@ Architecture:
                                               Mark as published
 
 Usage:
-    from shared.libs.outbox.worker import OutboxWorker, create_outbox_lifespan
+    from shared.libs.outbox.worker import OutboxWorker
 
-    # Option 1: Manual integration in existing lifespan
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         worker = OutboxWorker(db_factory=get_session, nats_client=async_client)
-        task = await worker.start()
-        yield
-        await worker.stop()
-
-    # Option 2: Use helper to wrap existing lifespan
-    app = FastAPI(lifespan=create_outbox_lifespan(get_session, nats_url))
+        await worker.start()
+        try:
+            yield
+        finally:
+            await worker.stop()
 """
 
 from __future__ import annotations

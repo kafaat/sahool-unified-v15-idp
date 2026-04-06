@@ -87,7 +87,7 @@ class WeatherPublisher:
         self._connected = False
 
     async def connect(self):
-        """Connect to NATS with auto-reconnect support"""
+        """Connect to NATS with reconnection support"""
         if self._connected:
             return
         if NATS is None:
@@ -103,18 +103,18 @@ class WeatherPublisher:
             reconnected_cb=self._on_reconnect,
         )
         self._connected = True
-        logger.info("Weather Publisher connected to NATS")
+        logger.info("Weather Publisher connected to NATS: %s", self.nats_url)
 
     async def _on_error(self, e):
-        logger.error("nats_error", extra={"error": str(e)})
+        logger.error("NATS error: %s", e)
 
     async def _on_disconnect(self):
         self._connected = False
-        logger.warning("nats_disconnected — will auto-reconnect")
+        logger.warning("NATS disconnected — will auto-reconnect")
 
     async def _on_reconnect(self):
         self._connected = True
-        logger.info("nats_reconnected")
+        logger.info("NATS reconnected")
 
     @property
     def _is_available(self) -> bool:

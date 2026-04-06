@@ -225,6 +225,7 @@ class OTPStorage:
     def __init__(self):
         # In-memory storage fallback: {key: {otp_hash, created_at, expires_at, attempts, verified}}
         self._storage: dict[str, dict[str, Any]] = {}
+        self._last_sent: dict[str, float] = {}  # Rate limiting for resends
         self._redis_client = None
         self._use_redis = False
         # Salt for OTP hashing — MUST be stable across restarts when using Redis
@@ -260,6 +261,11 @@ class OTPStorage:
             except Exception as e:
                 logger.warning(f"Redis not available for OTP storage, using in-memory: {e}")
 
+    def _get_key(self, identifier: str, purpose: str, tenant_id: str | None = None) -> str:
+        """Generate storage key"""
+        tenant = tenant_id or "default"
+        return f"otp:{tenant}:{purpose}:{identifier}"
+
     def _hash_otp(self, otp_code: str) -> str:
         """Hash OTP code for secure storage — never store plaintext"""
         return hashlib.sha256(f"{self._hash_salt}:{otp_code}".encode()).hexdigest()
@@ -268,11 +274,6 @@ class OTPStorage:
         """Verify OTP code against stored hash (timing-safe)"""
         computed = self._hash_otp(otp_code)
         return hmac.compare_digest(computed, stored_hash)
-
-    def _get_key(self, identifier: str, purpose: str, tenant_id: str | None = None) -> str:
-        """Generate storage key"""
-        tenant = tenant_id or "default"
-        return f"otp:{tenant}:{purpose}:{identifier}"
 
     def _generate_otp(self) -> str:
         """Generate cryptographically secure OTP"""
@@ -332,6 +333,9 @@ class OTPStorage:
                 self._storage[key] = otp_data
         else:
             self._storage[key] = otp_data
+
+        # Track last sent time
+        self._last_sent[key] = now
 
         return otp_code, self.OTP_EXPIRY_SECONDS
 
@@ -429,6 +433,9 @@ class OTPStorage:
         """
         Check if OTP can be resent (cooldown check).
         Uses Redis TTL for distributed rate limiting (survives pod restarts).
+
+        Returns:
+            Tuple of (can_resend, seconds_until_can_resend)
         """
         key = self._get_key(identifier, purpose, tenant_id)
         cooldown_key = f"{key}:cooldown"
@@ -442,12 +449,14 @@ class OTPStorage:
             except Exception:
                 pass
 
-        # Fallback: check OTP data creation time
-        otp_data = self._storage.get(key)
-        if otp_data:
-            elapsed = time.time() - otp_data.get("created_at", 0)
-            if elapsed < self.RESEND_COOLDOWN_SECONDS:
-                return False, int(self.RESEND_COOLDOWN_SECONDS - elapsed)
+        # Fallback: check last sent time (in-memory)
+        last_sent = self._last_sent.get(key, 0)
+        now = time.time()
+        elapsed = now - last_sent
+
+        if elapsed < self.RESEND_COOLDOWN_SECONDS:
+            wait_time = int(self.RESEND_COOLDOWN_SECONDS - elapsed)
+            return False, wait_time
 
         return True, 0
 
@@ -488,6 +497,7 @@ class OTPStorage:
                 logger.warning(f"Redis delete error: {e}")
 
         self._storage.pop(key, None)
+        self._last_sent.pop(key, None)
 
     def cleanup_expired(self):
         """Clean up expired OTPs from in-memory storage"""
@@ -721,7 +731,7 @@ async def send_otp(request: Request, body: SendOTPRequest, tenant_id: str = Depe
         identifier=body.identifier,
         purpose=body.purpose.value,
         tenant_id=tenant_id,
-        otp_code=otp_code,  # Pass the already-sent code
+        otp_code=otp_code,
     )
 
     masked = _otp_storage._mask_identifier(body.identifier)

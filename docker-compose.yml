@@ -853,6 +853,8 @@ asyncio.run(main())
       - MAX_FILE_SIZE=1000000
       - API_HOST=0.0.0.0
       - API_PORT=8102
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8102:8102"
     volumes:
@@ -1797,7 +1799,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - SAM_CHECKPOINT_PATH=/models/sam_vit_h.pth
       - YOLO_MODEL_PATH=/models/yolo_agri_ops.pt
       - MLLM_PROVIDER=${MLLM_PROVIDER:-ollama}
@@ -1917,6 +1919,7 @@ asyncio.run(main())
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -1964,7 +1967,7 @@ asyncio.run(main())
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable&prepared_statement_cache_size=0
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
       - THARWATT_BASE_URL=${THARWATT_BASE_URL:-https://developers-test.tharwatt.com:5253}
@@ -2022,7 +2025,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8090:8090"
     depends_on:
@@ -2067,7 +2070,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8091:8091"
     depends_on:
@@ -2128,7 +2131,7 @@ asyncio.run(main())
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8092:8092"
     depends_on:
@@ -2169,20 +2172,16 @@ asyncio.run(main())
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # NOTE: DATABASE_URL removed — service uses in-memory knowledge base only (kb/diseases.py, kb/nutrients.py, kb/fertilizers.py)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      # FIX: Added REDIS_URL — token revocation store needs Redis; without this, shared/auth/config.py
-      # defaults REDIS_HOST to localhost which fails inside Docker containers
+      # REDIS_URL — token revocation store needs Redis
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8093:8093"
     depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
       nats:
         condition: service_healthy
       redis:
@@ -2218,19 +2217,15 @@ asyncio.run(main())
       - PORT=8094
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # NOTE: DATABASE_URL removed — service is stateless (pure calculation engine, events via NATS)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - IOT_GATEWAY_URL=http://iot-gateway:8106
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8094:8094"
     depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
       nats:
         condition: service_healthy
       iot-gateway:
@@ -2272,6 +2267,7 @@ asyncio.run(main())
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8095:8095"
@@ -2317,7 +2313,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8119:8119"
     depends_on:
@@ -2408,7 +2404,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
       - "127.0.0.1:8101:8101"
@@ -2451,7 +2447,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       # FIX: Add REDIS_URL — without it the service falls back to in-memory cache, losing sync between instances
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -2501,7 +2497,7 @@ asyncio.run(main())
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8104:8104"
     depends_on:
@@ -2556,6 +2552,7 @@ asyncio.run(main())
       - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
       - MQTT_TOPIC=sahool/sensors/#
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -2619,7 +2616,7 @@ asyncio.run(main())
       - CREATE_DB_SCHEMA=${CREATE_DB_SCHEMA:-true}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       # SMTP Configuration (Email fallback)
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
@@ -2696,6 +2693,8 @@ asyncio.run(main())
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - WEATHER_SERVICE_URL=http://weather-service:8092
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8111:8111"
     depends_on:
@@ -2735,7 +2734,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - TASK_SERVICE_URL=http://task-service:8103
       - ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
@@ -2809,10 +2808,14 @@ asyncio.run(main())
       - QDRANT_PORT=6333
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8112:8112"
     depends_on:
+      redis:
+        condition: service_healthy
       qdrant:
         condition: service_healthy
       nats:
@@ -2859,7 +2862,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
     ports:
       - "127.0.0.1:8113:8113"
@@ -2905,7 +2908,7 @@ asyncio.run(main())
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8116:8116"
     depends_on:
@@ -2952,7 +2955,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
       - "127.0.0.1:8118:8118"
@@ -2993,7 +2996,7 @@ asyncio.run(main())
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       # MIGRATION: Updated to use field-management-service instead of field-ops
       - FIELDOPS_URL=http://field-management-service:3000
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -3040,6 +3043,8 @@ asyncio.run(main())
       - MCP_SERVER_HOST=0.0.0.0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8201:8201"
     depends_on:
@@ -3086,7 +3091,8 @@ asyncio.run(main())
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=${POSTGRES_SSL_MODE:-disable}
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8121:8121"
     depends_on:
@@ -3182,6 +3188,7 @@ asyncio.run(main())
       # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8130:8130"
@@ -3231,7 +3238,7 @@ asyncio.run(main())
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
@@ -3282,7 +3289,7 @@ asyncio.run(main())
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
@@ -3330,7 +3337,7 @@ asyncio.run(main())
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - ROCKETCHAT_URL=${ROCKETCHAT_INTERNAL_URL:-http://rocketchat:3000}
       - ROCKETCHAT_ADMIN_USER=${ROCKETCHAT_ADMIN_USER:-rc_admin}
       - ROCKETCHAT_ADMIN_PASSWORD=${ROCKETCHAT_ADMIN_PASSWORD:-}
@@ -3382,7 +3389,7 @@ asyncio.run(main())
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - WECHAT_APP_ID=${WECHAT_APP_ID:-}
       - WECHAT_APP_SECRET=${WECHAT_APP_SECRET:-}
       - WECHAT_TOKEN=${WECHAT_TOKEN:-}
@@ -3478,7 +3485,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
@@ -3527,7 +3534,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
@@ -3577,7 +3584,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
@@ -3634,7 +3641,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       # LLM Provider Configuration
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
@@ -3690,7 +3697,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
@@ -3746,7 +3753,7 @@ asyncio.run(main())
       # NOTE: sslmode=disable for dev only. Production uses sslmode=require via docker-compose.tls.yml
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=${POSTGRES_SSL_MODE:-disable}
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8114:8114"
@@ -3792,7 +3799,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8123:8123"
@@ -3839,7 +3846,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AUDIT_SERVICE_URL=http://audit-service:8114
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
@@ -3895,7 +3902,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8134:8134"
@@ -3941,7 +3948,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - VISION_SERVICE_URL=http://yolo26-vision-service:8150
     ports:
@@ -3988,7 +3995,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8126:8126"
@@ -4038,7 +4045,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8127:8127"
@@ -4084,7 +4091,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
@@ -4133,7 +4140,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - SUPPLY_CHAIN_SERVICE_URL=http://supply-chain-service:8230
     ports:
@@ -4189,6 +4196,8 @@ asyncio.run(main())
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - MODEL_PATH=/app/models/yolo26m.engine
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     volumes:
       - yolo26-models:/app/models
     ports:
@@ -4240,6 +4249,8 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     volumes:
       - terrain-dem-data:/app/data/dem
     ports:
@@ -4285,7 +4296,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
     ports:
       - "127.0.0.1:8165:8165"
@@ -4332,7 +4343,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
@@ -4380,7 +4391,7 @@ asyncio.run(main())
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8180:8180"
@@ -4428,7 +4439,7 @@ asyncio.run(main())
     environment:
       - PORT=8250
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4470,7 +4481,7 @@ asyncio.run(main())
     environment:
       - PORT=8251
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4512,7 +4523,7 @@ asyncio.run(main())
     environment:
       - PORT=8252
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4561,7 +4572,7 @@ asyncio.run(main())
     environment:
       - PORT=8260
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
@@ -4640,7 +4651,7 @@ asyncio.run(main())
     environment:
       - PORT=8183
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -4686,7 +4697,7 @@ asyncio.run(main())
     environment:
       - PORT=8240
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
@@ -4735,7 +4746,7 @@ asyncio.run(main())
     environment:
       - PORT=8253
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      - AUTH_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}

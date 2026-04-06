@@ -95,7 +95,7 @@ async def get_delivery_statistics(
         )
     except Exception as e:
         logger.error(f"Error getting delivery stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")
 
 
 @router.get("/channel-performance")
@@ -123,7 +123,7 @@ async def get_channel_performance(
         raise HTTPException(status_code=400, detail=f"Invalid time_range: {time_range}")
     except Exception as e:
         logger.error(f"Error getting channel performance: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")
 
 
 @router.get("/notification-types")
@@ -151,7 +151,7 @@ async def get_notification_type_breakdown(
         raise HTTPException(status_code=400, detail=f"Invalid time_range: {time_range}")
     except Exception as e:
         logger.error(f"Error getting type breakdown: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")
 
 
 @router.get("/regional-distribution")
@@ -179,7 +179,7 @@ async def get_regional_distribution(
         raise HTTPException(status_code=400, detail=f"Invalid time_range: {time_range}")
     except Exception as e:
         logger.error(f"Error getting regional distribution: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")
 
 
 @router.get("/hourly-trends")
@@ -204,7 +204,7 @@ async def get_hourly_trends(
 
     except Exception as e:
         logger.error(f"Error getting hourly trends: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")
 
 
 @router.get("/user-engagement")
@@ -238,7 +238,7 @@ async def get_user_engagement(
         raise HTTPException(status_code=400, detail=f"Invalid time_range: {time_range}")
     except Exception as e:
         logger.error(f"Error getting user engagement: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")
 
 
 @router.get("/priority-distribution")
@@ -266,7 +266,7 @@ async def get_priority_distribution(
         raise HTTPException(status_code=400, detail=f"Invalid time_range: {time_range}")
     except Exception as e:
         logger.error(f"Error getting priority distribution: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")
 
 
 @router.get("/dashboard")
@@ -289,7 +289,7 @@ async def get_dashboard_summary(
 
     except Exception as e:
         logger.error(f"Error getting dashboard summary: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")
 
 
 @router.get("/health")
@@ -406,4 +406,4 @@ async def compare_time_periods(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Error comparing time periods: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Analytics service error")

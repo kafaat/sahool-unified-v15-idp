@@ -684,8 +684,11 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest, current_user: 
     """
     try:
         result = engine.calculate_cycle(req)
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error("Irrigation cycle calculation failed: %s", e)
+        raise HTTPException(status_code=500, detail="Irrigation cycle calculation failed")
 
     # Publish NATS event (subject: sahool.{tenant_id}.irrigation.cycle_calculated)
     nc = getattr(app.state, "nc", None)

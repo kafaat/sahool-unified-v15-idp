@@ -14,9 +14,6 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { analyticsApi } from '@/features/analytics/api';
-import type { AnalyticsFilters } from '@/features/analytics/types';
-import { ApiError } from '@/lib/api/safe-fetch';
 
 const statsCards = [
   {
@@ -72,27 +69,17 @@ export default function SoilAnalyticsPage() {
   const [dateRange, setDateRange] = useState('season');
   const [fieldFilter, setFieldFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
   const [apiSoilData, setApiSoilData] = useState<typeof soilData | null>(null);
 
+  // NOTE: Soil analytics API does not return structured table data yet.
+  // Skip the API call to avoid a useless request. Show local reference data
+  // with a visual indicator that it's sample data, not live.
   const fetchData = useCallback(async () => {
     setLoading(true);
-    setError(null);
-    try {
-      const resources = await analyticsApi.getResourceUsage({ period: dateRange as AnalyticsFilters['period'] });
-      if (resources && Array.isArray(resources) && resources.length > 0) {
-        // Map resource data to soil format if API provides it
-        setApiSoilData(null); // API will populate when backend returns soil data
-      } else {
-        setApiSoilData(null);
-      }
-    } catch (err) {
-      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات التربة';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [dateRange]);
+    setApiSoilData(null); // Will use fallback soilData
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchData();

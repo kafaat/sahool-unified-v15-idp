@@ -89,14 +89,10 @@ export const TasksSummary: React.FC = () => {
 
   // Initialize completedIds from tasks that are already completed in API data
   useEffect(() => {
-    if (tasksData) {
-      const alreadyCompleted = new Set(
-        tasksData.filter((t: TaskItemProps) => t.status === 'completed').map((t: TaskItemProps) => t.id)
-      );
-      if (alreadyCompleted.size > 0) {
-        setCompletedIds(alreadyCompleted);
-      }
-    }
+    const alreadyCompleted = new Set(
+      (tasksData ?? []).filter((t: TaskItemProps) => t.status === 'completed').map((t: TaskItemProps) => t.id)
+    );
+    setCompletedIds(alreadyCompleted);
   }, [tasksData]);
 
   const handleToggleComplete = useCallback((id: string) => {

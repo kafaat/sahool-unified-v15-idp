@@ -4,7 +4,7 @@
  */
 
 import { createApiClient } from '@/lib/api/factory';
-import { safeFetch } from '@/lib/api/safe-fetch';
+import { safeFetch, ApiError } from '@/lib/api/safe-fetch';
 import { BILLING_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type {
   Wallet,
@@ -72,9 +72,12 @@ export const walletApi = {
         return data as Wallet;
       }
 
-      throw new Error(
-        `${ERROR_MESSAGES.FETCH_FAILED.en} | ${ERROR_MESSAGES.FETCH_FAILED.ar}`
-      );
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint: BILLING_ENDPOINTS.WALLET,
+      });
     });
   },
 
@@ -92,9 +95,12 @@ export const walletApi = {
         return data as WalletStats;
       }
 
-      throw new Error(
-        `${ERROR_MESSAGES.FETCH_FAILED.en} | ${ERROR_MESSAGES.FETCH_FAILED.ar}`
-      );
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint,
+      });
     });
   },
 
@@ -124,9 +130,12 @@ export const walletApi = {
         return data;
       }
 
-      throw new Error(
-        `${ERROR_MESSAGES.FETCH_FAILED.en} | ${ERROR_MESSAGES.FETCH_FAILED.ar}`
-      );
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint: BILLING_ENDPOINTS.TRANSACTIONS,
+      });
     });
   },
 
@@ -144,9 +153,12 @@ export const walletApi = {
         return data as Transaction;
       }
 
-      throw new Error(
-        `${ERROR_MESSAGES.FETCH_FAILED.en} | ${ERROR_MESSAGES.FETCH_FAILED.ar}`
-      );
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint,
+      });
     });
   },
 
@@ -164,11 +176,12 @@ export const walletApi = {
           return result as Transaction;
         }
 
-        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
       } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
         const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
         throw err;
       }
     });
@@ -188,12 +201,13 @@ export const walletApi = {
           return result as Transaction;
         }
 
-        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
       } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
         const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
-        if (status === 402) throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
+        if (status === 402) throw new ApiError({ message: ERROR_MESSAGES.INSUFFICIENT_BALANCE.en, messageAr: ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar, statusCode: 402, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
         throw err;
       }
     });
@@ -213,12 +227,13 @@ export const walletApi = {
           return result as Transaction;
         }
 
-        throw new Error(`${ERROR_MESSAGES.SERVER_ERROR.en} | ${ERROR_MESSAGES.SERVER_ERROR.ar}`);
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
       } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
         const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 400) throw new Error(`${ERROR_MESSAGES.INVALID_AMOUNT.en} | ${ERROR_MESSAGES.INVALID_AMOUNT.ar}`);
-        if (status === 401) throw new Error(`${ERROR_MESSAGES.UNAUTHORIZED.en} | ${ERROR_MESSAGES.UNAUTHORIZED.ar}`);
-        if (status === 402) throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_BALANCE.en} | ${ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar}`);
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
+        if (status === 402) throw new ApiError({ message: ERROR_MESSAGES.INSUFFICIENT_BALANCE.en, messageAr: ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar, statusCode: 402, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
         throw err;
       }
     });

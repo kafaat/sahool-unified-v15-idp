@@ -173,7 +173,7 @@ export default function SeedsClient() {
             onChange={(e) => setRecommendedOnly(e.target.checked)}
             className="rounded border-gray-300 text-green-600 focus:ring-green-500"
           />
-          <span className="text-gray-700">الموصى بها فقط</span>
+          <span className="text-gray-700">المتوفرة فقط</span>
         </label>
       </div>
 

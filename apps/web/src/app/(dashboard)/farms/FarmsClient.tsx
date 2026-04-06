@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X } from 'lucide-react';
 import { useFarms, useFarmStats, useUpdateFarm } from '@/features/farms';
 import type { Farm, FarmStatus } from '@/features/farms';
@@ -13,7 +12,6 @@ const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
 };
 
 export default function FarmsClient() {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingFarm, setEditingFarm] = useState<Farm | null>(null);
   const [editName, setEditName] = useState('');
@@ -215,7 +213,7 @@ export default function FarmsClient() {
                 </div>
                 <div className="px-6 py-3 bg-gray-50 border-t flex justify-between">
                   <button
-                    onClick={() => router.push(`/farms/${farm.id}`)}
+                    onClick={() => handleOpenEdit(farm)}
                     className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
                   >
                     عرض التفاصيل

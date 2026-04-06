@@ -137,7 +137,7 @@ export default function SoilAnalysisClient() {
   // Auto-select first field when data loads
   const effectiveFieldId = selectedFieldId || (fields.length > 0 ? fields[0]!.id : '');
 
-  const { data: recommendations, isLoading: recsLoading } = useSoilRecommendations(effectiveFieldId || undefined);
+  const { data: recommendations, isLoading: recsLoading, error: recsError } = useSoilRecommendations(effectiveFieldId || undefined);
 
   // Find the latest test for selected field
   const sample = useMemo(() => {
@@ -348,7 +348,13 @@ export default function SoilAnalysisClient() {
                   <span className="mr-2 text-sm text-gray-500">جاري تحميل التوصيات...</span>
                 </div>
               )}
-              {!recsLoading && (!recommendations || recommendations.length === 0) && (
+              {!recsLoading && recsError && (
+                <div className="flex items-center gap-2 py-4 px-3 bg-red-50 dark:bg-red-900/15 rounded-lg border border-red-100 dark:border-red-800">
+                  <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                  <p className="text-sm text-red-700 dark:text-red-400">فشل في تحميل التوصيات. يرجى المحاولة لاحقاً.</p>
+                </div>
+              )}
+              {!recsLoading && !recsError && (!recommendations || recommendations.length === 0) && (
                 <p className="text-sm text-gray-500 text-center py-4">لا توجد توصيات لهذا الحقل حالياً</p>
               )}
               <ul className="space-y-3">

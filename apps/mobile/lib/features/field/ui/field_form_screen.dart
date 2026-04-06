@@ -193,7 +193,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                     DropdownMenuItem(value: 'sprinkler', child: Text('رشاشات')),
                     DropdownMenuItem(value: 'flood', child: Text('غمر')),
                     DropdownMenuItem(value: 'pivot', child: Text('محوري')),
-                    DropdownMenuItem(value: 'none', child: Text('بدون ري (مطري)')),
+                    DropdownMenuItem(value: 'rainfed', child: Text('بدون ري (مطري)')),
                   ],
                   onChanged: (v) => setState(() => _selectedIrrigation = v),
                 ),
@@ -658,6 +658,11 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
           fieldId: widget.fieldId!,
           name: _nameController.text.trim(),
           cropType: _selectedCrop,
+          irrigationType: _selectedIrrigation,
+          plantingDate: _plantingDate,
+          notes: _notesController.text.trim().isNotEmpty
+              ? _notesController.text.trim()
+              : null,
         );
       } else {
         // إنشاء حقل جديد - Create new field

@@ -216,6 +216,9 @@ class FieldsRepo {
     String? name,
     String? cropType,
     String? status,
+    String? irrigationType,
+    DateTime? plantingDate,
+    String? notes,
   }) async {
     final field = await _db.getFieldById(fieldId);
     if (field == null) return;
@@ -227,6 +230,9 @@ class FieldsRepo {
         name: name != null ? Value(name) : const Value.absent(),
         cropType: cropType != null ? Value(cropType) : const Value.absent(),
         status: status != null ? Value(status) : const Value.absent(),
+        irrigationType: irrigationType != null ? Value(irrigationType) : const Value.absent(),
+        plantingDate: plantingDate != null ? Value(plantingDate) : const Value.absent(),
+        notes: notes != null ? Value(notes) : const Value.absent(),
         updatedAt: Value(DateTime.now()),
         synced: const Value(false),
       ),
@@ -247,6 +253,9 @@ class FieldsRepo {
           if (name != null) 'name': name,
           if (cropType != null) 'crop_type': cropType,
           if (status != null) 'status': status,
+          if (irrigationType != null) 'irrigation_type': irrigationType,
+          if (plantingDate != null) 'planting_date': plantingDate.toIso8601String(),
+          if (notes != null) 'notes': notes,
         }),
       ),
     );

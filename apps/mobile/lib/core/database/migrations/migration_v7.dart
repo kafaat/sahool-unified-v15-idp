@@ -28,7 +28,7 @@ class MigrationV7 extends Migration with MigrationHelpers {
       'اضافة نوع الري وتاريخ الزراعة والملاحظات لجدول الحقول';
 
   @override
-  bool get supportsRollback => true;
+  bool get supportsRollback => false;
 
   @override
   bool get requiresBackup => false;
@@ -40,36 +40,17 @@ class MigrationV7 extends Migration with MigrationHelpers {
   List<String> get affectedTables => ['fields'];
 
   @override
-  Future<void> up(Migrator m, GeneratedDatabase db) async {
-    // All columns are nullable — safe additive migration
-    await db.customStatement(
-      'ALTER TABLE fields ADD COLUMN irrigation_type TEXT',
+  Future<void> upgrade(Migrator m, GeneratedDatabase db) async {
+    // Use addColumnIfNotExists for idempotency (safe on retry)
+    await addColumnIfNotExists(
+      db, 'fields', 'irrigation_type TEXT', 'irrigation_type',
     );
-    await db.customStatement(
-      'ALTER TABLE fields ADD COLUMN planting_date INTEGER',
+    await addColumnIfNotExists(
+      db, 'fields', 'planting_date INTEGER', 'planting_date',
     );
-    await db.customStatement(
-      'ALTER TABLE fields ADD COLUMN notes TEXT',
+    await addColumnIfNotExists(
+      db, 'fields', 'notes TEXT', 'notes',
     );
-  }
-
-  @override
-  Future<void> rollback(Migrator m, GeneratedDatabase db) async {
-    // SQLite doesn't support DROP COLUMN before 3.35.0
-    // For older versions, this is a no-op (columns are nullable, harmless)
-    try {
-      await db.customStatement(
-        'ALTER TABLE fields DROP COLUMN irrigation_type',
-      );
-      await db.customStatement(
-        'ALTER TABLE fields DROP COLUMN planting_date',
-      );
-      await db.customStatement(
-        'ALTER TABLE fields DROP COLUMN notes',
-      );
-    } catch (_) {
-      // SQLite < 3.35.0 doesn't support DROP COLUMN — safe to ignore
-    }
   }
 
   @override

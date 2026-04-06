@@ -374,8 +374,8 @@ class NATSSubscriber:
             if event.event_type in self._handlers:
                 await self._handlers[event.event_type](event)
 
-            # Default: use notification callback if available
-            if self._notification_callback:
+            # Default: use notification callback only if no specific handler ran
+            elif self._notification_callback:
                 await self._process_event_to_notification(event)
 
         except Exception as e:

@@ -827,15 +827,18 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
     # Publish event
     event_id = None
     if getattr(app.state, "publisher", None):
-        event_id = await app.state.publisher.publish_fertilizer_plan(
-            tenant_id=req.tenant_id,
-            field_id=req.field_id,
-            crop=req.crop,
-            stage=req.stage,
-            plan=plan.applications,
-            correlation_id=req.correlation_id,
-            notes=plan.notes,
-        )
+        try:
+            event_id = await app.state.publisher.publish_fertilizer_plan(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                crop=req.crop,
+                stage=req.stage,
+                plan=plan.applications,
+                correlation_id=req.correlation_id,
+                notes=plan.notes,
+            )
+        except Exception as _pub_err:
+            logger.warning("NATS publish failed (non-fatal): %s", _pub_err)
 
     return {
         "field_id": req.field_id,

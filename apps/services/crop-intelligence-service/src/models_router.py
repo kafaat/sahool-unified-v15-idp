@@ -372,7 +372,9 @@ def run_swb(req: SWBRequest) -> ModelRunResponse:
         raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("SWB run failed")
-        raise HTTPException(http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Soil water balance simulation failed") from exc
+        raise HTTPException(
+            http_status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Soil water balance simulation failed"
+        ) from exc
 
 
 # ── 5. PROSAIL inversion ─────────────────────────────────────────────────────

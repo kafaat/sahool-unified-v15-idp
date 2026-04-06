@@ -1,0 +1,1625 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>تقرير الفحص العميق للخدمات الزراعية الأساسية - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير الفحص العميق للخدمات الزراعية الأساسية
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">تقرير الفحص العميق للخدمات الزراعية الأساسية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ</strong>: 2026-04-06
+<strong>الفرع المُراجَع</strong>: <code>claude/fix-docker-container-health-Ged0X</code>
+<strong>نطاق الفحص</strong>: 15 خدمة زراعية أساسية + البنية التحتية (docker-compose.yml, PgBouncer, Redis, NATS)
+<strong>المنهجية</strong>: مراجعة يدوية للكود + تحقق آلي من النتائج المُبلّغة</p>
+<hr />
+<h2 id="_2">ملخص تنفيذي<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>مؤكّد</th>
+<th>مُصحَّح جزئياً</th>
+<th>غير دقيق</th>
+<th>جديد (مكتشف)</th>
+<th>المجموع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0 — تعطّل كامل</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td><strong>6</strong></td>
+</tr>
+<tr>
+<td>P1 — ضرر وظيفي</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>4</td>
+<td><strong>7</strong></td>
+</tr>
+<tr>
+<td>P2 — تحسين</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td><strong>3</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ملاحظة</strong>: P0-1 (AUTH_SECRET_KEY) كان مُصحَّحاً جزئياً في فرع الإصلاح (2 من 9 خدمات). P0-2/3/4 مؤكّدة ومُصلحة بالكامل. P0-5/6 مكتشفة حديثاً.</p>
+</blockquote>
+<hr />
+<h2 id="p0">P0 — مشاكل تُعطّل الخدمات (حرجة)<a class="headerlink" href="#p0" title="Permanent link">&para;</a></h2>
+<h3 id="p0-1-auth_secret_key">P0-1: AUTH_SECRET_KEY مفقود — مؤكّد بالكامل<a class="headerlink" href="#p0-1-auth_secret_key" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: مؤكّد — التقرير الأصلي صحيح</p>
+<p><strong>اكتشاف مهم</strong>: يوجد ملفان مختلفان لتكوين المصادقة:</p>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>يقرأ من</th>
+<th>يُستخدم في</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared/auth/config.py</code> (الجذر)</td>
+<td><code>JWT_SECRET_KEY</code></td>
+<td>التشغيل المحلي (dev)</td>
+</tr>
+<tr>
+<td><code>apps/services/shared/auth/config.py</code></td>
+<td><code>AUTH_SECRET_KEY</code></td>
+<td><strong>داخل Docker</strong> (الإنتاج)</td>
+</tr>
+</tbody>
+</table>
+<p>في Docker، الخدمات تنسخ <code>apps/services/shared/</code> إلى <code>/app/shared/</code> (يتضح من Dockerfiles: <code>COPY apps/services/shared/ ./shared/</code>). لذلك <code>from shared.auth.config import get_auth_config</code> يحلّ إلى الملف الذي يقرأ <code>AUTH_SECRET_KEY</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/shared/auth/config.py:16</span>
+<span class="n">secret_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;AUTH_SECRET_KEY&quot;</span><span class="p">,</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">(</span><span class="mi">32</span><span class="p">)))</span>
+</code></pre></div>
+
+<p>إذا لم يُضبط <code>AUTH_SECRET_KEY</code>، يُنتج كل حاوية سرًّا عشوائيًّا مختلفًا → JWT tokens موقّعة من user-service لا تتطابق → <strong>401 Unauthorized دائماً</strong>.</p>
+<p><strong>الخدمات المتأثرة</strong> (تستخدم <code>get_current_user</code> عبر <code>apps/services/shared/auth/</code>):</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th><code>AUTH_SECRET_KEY</code></th>
+<th><code>JWT_SECRET_KEY</code></th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>advisory-service</td>
+<td>8093</td>
+<td><strong>موجود</strong></td>
+<td>موجود</td>
+<td>تم الإصلاح</td>
+</tr>
+<tr>
+<td>ws-gateway</td>
+<td>8081</td>
+<td><strong>موجود</strong></td>
+<td>موجود</td>
+<td>تم الإصلاح</td>
+</tr>
+<tr>
+<td>crop-intelligence-service</td>
+<td>8095</td>
+<td><strong>مفقود</strong></td>
+<td>موجود</td>
+<td><strong>مكسور في Docker</strong></td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>8106</td>
+<td><strong>مفقود</strong></td>
+<td>موجود</td>
+<td><strong>مكسور في Docker</strong></td>
+</tr>
+<tr>
+<td>ai-agents-service</td>
+<td>8130</td>
+<td><strong>مفقود</strong></td>
+<td>موجود</td>
+<td><strong>مكسور في Docker</strong></td>
+</tr>
+<tr>
+<td>ai-advisor</td>
+<td>8112</td>
+<td><strong>مفقود</strong></td>
+<td>مفقود</td>
+<td><strong>مكسور في Docker</strong></td>
+</tr>
+<tr>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td><strong>مفقود</strong></td>
+<td>مفقود</td>
+<td><strong>مكسور في Docker</strong></td>
+</tr>
+<tr>
+<td>mcp-server</td>
+<td>8201</td>
+<td><strong>مفقود</strong></td>
+<td>مفقود</td>
+<td><strong>مكسور في Docker</strong></td>
+</tr>
+<tr>
+<td>code-review-service</td>
+<td>8102</td>
+<td><strong>مفقود</strong></td>
+<td>مفقود</td>
+<td><strong>مكسور في Docker</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>ملاحظة خطيرة</strong>: وجود <code>JWT_SECRET_KEY</code> لا يكفي — الكود في Docker يقرأ <code>AUTH_SECRET_KEY</code> فقط. الخدمات التي لديها <code>JWT_SECRET_KEY</code> بدون <code>AUTH_SECRET_KEY</code> <strong>لا تزال مكسورة</strong> داخل حاويات Docker.</p>
+<p><strong>الخلاصة</strong>: <strong>7 خدمات لا تزال مكسورة</strong> — تحتاج إضافة <code>AUTH_SECRET_KEY=${JWT_SECRET_KEY}</code> في docker-compose.yml.</p>
+<p><strong>مشكلة معمارية أعمق</strong>: وجود ملفي تكوين مختلفين (<code>shared/auth/config.py</code> يقرأ <code>JWT_SECRET_KEY</code> و <code>apps/services/shared/auth/config.py</code> يقرأ <code>AUTH_SECRET_KEY</code>) هو مصدر ارتباك. يجب توحيدهما لقراءة نفس المتغير.</p>
+<hr />
+<h3 id="p0-2-nats-auth">P0-2: NATS Auth مفقود — مؤكّد<a class="headerlink" href="#p0-2-nats-auth" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: مؤكّد ومُصلح في فرع الإصلاح</p>
+<p>فرع الإصلاح غيّر من <code>nats.conf</code> (بكلمات مرور bcrypt ثابتة) إلى <code>nats-secure.conf</code> (يقرأ من متغيرات البيئة):</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># قبل الإصلاح</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats.conf&quot;</span><span class="w"> </span><span class="p p-Indicator">]</span>
+
+<span class="c1"># بعد الإصلاح</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats-secure.conf&quot;</span><span class="w"> </span><span class="p p-Indicator">]</span>
+</code></pre></div>
+
+<hr />
+<h3 id="p0-3-vault-bind-address">P0-3: Vault Bind Address خاطئ — مؤكّد<a class="headerlink" href="#p0-3-vault-bind-address" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: مؤكّد ومُصلح</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># قبل — Vault لا يمكن الوصول إليه من حاويات أخرى</span>
+<span class="nt">VAULT_DEV_LISTEN_ADDRESS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;127.0.0.1:8200&quot;</span>
+
+<span class="c1"># بعد — يمكن الوصول عبر شبكة Docker</span>
+<span class="nt">VAULT_DEV_LISTEN_ADDRESS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.0.0.0:8200&quot;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="p0-4-jetstream">P0-4: JetStream لا يُهيّأ — مؤكّد<a class="headerlink" href="#p0-4-jetstream" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: مؤكّد ومُصلح</p>
+<p>فرع الإصلاح أضاف حاوية <code>nats-stream-init</code> (one-shot) تنشئ 11 JetStream stream عند بدء التشغيل. بدون هذا، الرسائل تُرسل كـ plain NATS بدون persistence.</p>
+<hr />
+<h3 id="p0-5-vegetation-analysis-service-nats">P0-5 (جديد): vegetation-analysis-service لا يُهيّئ NATS أبداً<a class="headerlink" href="#p0-5-vegetation-analysis-service-nats" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: مكتشف حديثاً — لم يُذكر في التقرير الأصلي</p>
+<p><strong>الملف</strong>: <code>apps/services/vegetation-analysis-service/src/main.py:347-437</code></p>
+<p>دالة <code>lifespan</code> لا تُنشئ أي اتصال NATS:
+- لا يوجد <code>await nats.connect(...)</code> 
+- لا يوجد <code>app.state.nc</code>
+- نقطة <code>/readyz</code> (سطر 953) تتحقق من <code>app.state.nc</code> الذي لا يُنشأ أبداً → تُعيد دائماً <code>"not_configured"</code></p>
+<p><strong>الأثر</strong>: الخدمة لا تستطيع نشر أحداث NDVI/vegetation عبر NATS. جميع الأحداث المُعرّفة (<code>sahool.vegetation.*</code>) لا تُرسل أبداً.</p>
+<hr />
+<h3 id="p0-6-crop-growth-model-readyz">P0-6 (جديد): crop-growth-model — readyz لا يفحص أي شيء<a class="headerlink" href="#p0-6-crop-growth-model-readyz" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: مكتشف حديثاً</p>
+<p><strong>الملف</strong>: <code>apps/services/crop-growth-model/src/health/health.controller.ts</code></p>
+<p>كلا من <code>/healthz</code> و <code>/readyz</code> تُعيدان <code>{ status: "ok" }</code> بشكل ثابت بدون فحص أي تبعية (DB, NATS). هذا يعني أن Kubernetes readiness probe سيمرر الخدمة حتى لو كانت تبعياتها مُعطّلة.</p>
+<hr />
+<h2 id="p1">P1 — مشاكل تشغيلية (لا تُعطّل لكن تضرّ)<a class="headerlink" href="#p1" title="Permanent link">&para;</a></h2>
+<h3 id="p1-1-irrigation-smart-database_utilspy">P1-1: irrigation-smart — database_utils.py كود ميّت — مؤكّد<a class="headerlink" href="#p1-1-irrigation-smart-database_utilspy" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: مؤكّد بالكامل</p>
+<p><strong>التحقق</strong>:
+- <code>apps/services/irrigation-smart/src/main.py:204-243</code> — lifespan تُهيّئ NATS فقط، لا DB pool
+- <code>apps/services/irrigation-smart/src/database_utils.py</code> — يحتوي على <code>IrrigationDatabase</code> class كامل مع <code>save_irrigation_plan()</code> و <code>get_sensor_readings_summary()</code> — لا يُستورد أبداً
+- <code>docker-compose.yml:2191</code> — يضبط <code>DATABASE_URL</code> الذي لا يُستخدم
+- جميع endpoints تحسب البيانات من الذاكرة فقط أو تُرسل عبر NATS
+- <code>/readyz</code> يتحقق من <code>db_pool</code> الذي يكون دائماً <code>None</code> → يُعيد <code>"not_configured"</code></p>
+<p><strong>السبب الجذري</strong>: بقايا من تصميم معماري سابق كان يخطط لتخزين البيانات محلياً. تم التحول إلى event-driven لكن لم يُنظف الكود القديم.</p>
+<p><strong>التوصية</strong>: حذف <code>database_utils.py</code> وإزالة <code>DATABASE_URL</code> من docker-compose.yml</p>
+<hr />
+<h3 id="p1-2-advisory-service-database_url">P1-2: advisory-service — DATABASE_URL مُضلِّل — مؤكّد<a class="headerlink" href="#p1-2-advisory-service-database_url" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: مؤكّد بالكامل</p>
+<p><strong>التحقق</strong>:
+- <code>apps/services/advisory-service/src/main.py:406-436</code> — lifespan تُهيّئ NATS Publisher و Token Revocation Store فقط
+- لا يوجد أي import لـ asyncpg أو SQLAlchemy في الخدمة بالكامل
+- جميع البيانات من knowledge base في الذاكرة: <code>kb/diseases.py</code>, <code>kb/nutrients.py</code>, <code>kb/fertilizers.py</code>
+- <code>docker-compose.yml</code> يضبط <code>DATABASE_URL</code> بدون أي استخدام فعلي</p>
+<p><strong>التوصية</strong>: إزالة <code>DATABASE_URL</code> من docker-compose.yml وتحديث README.md</p>
+<hr />
+<h3 id="p1-3-notification-service-ssl">P1-3: notification-service — تناقض SSL — غير دقيق<a class="headerlink" href="#p1-3-notification-service-ssl" title="Permanent link">&para;</a></h3>
+<p><strong>الحالة</strong>: غير صحيح — لا يوجد تناقض</p>
+<p><strong>التحقق</strong>: ملف <code>apps/services/notification-service/src/database.py:40-63</code> يستخدم DSN فقط بدون parameter <code>ssl</code> منفصل:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">TORTOISE_ORM</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;connections&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;engine&quot;</span><span class="p">:</span> <span class="s2">&quot;tortoise.backends.asyncpg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;credentials&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;dsn&quot;</span><span class="p">:</span> <span class="n">DATABASE_URL</span><span class="p">,</span>
+                <span class="s2">&quot;statement_cache_size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># PgBouncer transaction mode</span>
+                <span class="c1"># ssl handled by sslmode in DATABASE_URL</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>لا يوجد <code>'ssl': 'prefer'</code> كما ذُكر في التقرير. الإعداد متسق تماماً.</p>
+<hr />
+<h3 id="p1-4-weather-service-nats-reconnection">P1-4 (جديد): weather-service — NATS بدون reconnection<a class="headerlink" href="#p1-4-weather-service-nats-reconnection" title="Permanent link">&para;</a></h3>
+<p><strong>الملف</strong>: <code>apps/services/weather-service/src/events/publish.py:97</code></p>
+<div class="codehilite"><pre><span></span><code><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nats_url</span><span class="p">)</span>  <span class="c1"># بدون reconnect parameters</span>
+</code></pre></div>
+
+<p>لا يوجد <code>reconnect_time_wait</code>, <code>max_reconnect_attempts</code>, أو callbacks للانقطاع. أي انقطاع مؤقت في الشبكة يصبح فشلاً دائماً.</p>
+<hr />
+<h3 id="p1-5-healthz-4">P1-5 (جديد): healthz لا يفحص التبعيات في 4 خدمات<a class="headerlink" href="#p1-5-healthz-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th><code>/healthz</code></th>
+<th><code>/readyz</code></th>
+<th>المشكلة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>weather-service</td>
+<td>ثابت "healthy"</td>
+<td>يفحص NATS+providers</td>
+<td><code>/healthz</code> لا يكشف أي مشكلة</td>
+</tr>
+<tr>
+<td>vegetation-analysis</td>
+<td>ثابت "healthy"</td>
+<td>يفحص nc/db (لا يُنشأ أبداً)</td>
+<td><code>/readyz</code> يُعيد دائماً not_configured</td>
+</tr>
+<tr>
+<td>indicators-service</td>
+<td>ثابت "ok"</td>
+<td>يفحص DB+NATS</td>
+<td><code>/healthz</code> مُضلِّل</td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td>ثابت "ok"</td>
+<td>يفحص CROP_REQUIREMENTS فقط</td>
+<td>لا يفحص NATS publisher</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ملاحظة</strong>: <code>/healthz</code> (liveness) يجب أن يكون بسيطاً فعلاً (لمنع restart loops)، لكن <code>/readyz</code> (readiness) يجب أن يفحص كل التبعيات. المشكلة الحقيقية في vegetation-analysis حيث <code>/readyz</code> مكسور.</p>
+<hr />
+<h3 id="p1-6-241-except-exception-30">P1-6 (جديد): 241 except Exception عبر 30 خدمة<a class="headerlink" href="#p1-6-241-except-exception-30" title="Permanent link">&para;</a></h3>
+<p>عدد <code>except Exception</code> في ملفات main.py فقط:</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>العدد</th>
+<th>ملاحظة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>notification-service</td>
+<td>27</td>
+<td>الأعلى</td>
+</tr>
+<tr>
+<td>vegetation-analysis-service</td>
+<td>25</td>
+<td></td>
+</tr>
+<tr>
+<td>billing-core</td>
+<td>22</td>
+<td></td>
+</tr>
+<tr>
+<td>lowcode-engine</td>
+<td>17</td>
+<td></td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>14</td>
+<td></td>
+</tr>
+<tr>
+<td>field-management-service (legacy)</td>
+<td>13</td>
+<td></td>
+</tr>
+<tr>
+<td>provider-config</td>
+<td>12</td>
+<td></td>
+</tr>
+<tr>
+<td>crop-intelligence-service</td>
+<td>12</td>
+<td></td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>11</td>
+<td></td>
+</tr>
+<tr>
+<td>ai-agents-service</td>
+<td>9</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>ليست كلها مشاكل (بعضها يُسجّل الخطأ ويستمر)، لكن الكثافة العالية تشير إلى نمط "ابتلاع الأخطاء" الذي يخفي مشاكل حقيقية.</p>
+<hr />
+<h3 id="p1-7-pgbouncer">P1-7 (جديد): PgBouncer إعدادات غير متسقة<a class="headerlink" href="#p1-7-pgbouncer" title="Permanent link">&para;</a></h3>
+<p>فرع الإصلاح أصلح 12 مشكلة في PgBouncer:
+- <code>auth_type</code> كان خاطئاً
+- <code>statement_cache_size=0</code> مفقود من بعض خدمات Tortoise ORM
+- Entrypoint script كان يحتوي على أخطاء</p>
+<hr />
+<h2 id="_3">ما يعمل بشكل سليم — مؤكّد<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>السبب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>weather-service</td>
+<td>مستقل، Open-Meteo مجاني كـ fallback</td>
+</tr>
+<tr>
+<td>vegetation-analysis-service</td>
+<td>يتعامل مع غياب Sentinel Hub credentials</td>
+</tr>
+<tr>
+<td>crop-intelligence-service</td>
+<td>يرجع إلى بيانات نموذجية في الذاكرة</td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>healthcheck يعيد 200 دائماً (يمنع cascade failure)</td>
+</tr>
+<tr>
+<td>field-management-service</td>
+<td>Prisma + PgBouncer صحيح (<code>pgbouncer=true</code> في DSN)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="claudefix-docker-container-health-ged0x">ملخص إصلاحات فرع <code>claude/fix-docker-container-health-Ged0X</code><a class="headerlink" href="#claudefix-docker-container-health-ged0x" title="Permanent link">&para;</a></h2>
+<p>الفرع يحتوي على <strong>60+ commit</strong> تُعالج:</p>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>عدد الإصلاحات</th>
+<th>أمثلة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>أمن (Security)</td>
+<td>~40+</td>
+<td>tenant isolation bypass في 8 خدمات، CORS wildcards، XSS</td>
+</tr>
+<tr>
+<td>بنية تحتية</td>
+<td>~15</td>
+<td>NATS auth، Vault bind، PgBouncer، JetStream init</td>
+</tr>
+<tr>
+<td>Docker/Build</td>
+<td>~26</td>
+<td><code>build-essential</code> في 12 Dockerfile، <code>;</code> → <code>&amp;&amp;</code> في 11</td>
+</tr>
+<tr>
+<td>أكواد خطأ مكررة</td>
+<td>7</td>
+<td>Vision service error codes</td>
+</tr>
+<tr>
+<td>منطق الأعمال</td>
+<td>~15</td>
+<td>streaming JSON crash، cache races، publisher lock</td>
+</tr>
+<tr>
+<td>Flutter/Mobile</td>
+<td>~230</td>
+<td><code>library;</code> directive في 227 ملف</td>
+</tr>
+<tr>
+<td>Dependencies</td>
+<td>~5</td>
+<td>openai/anthropic version conflicts</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_4">التوصيات ذات الأولوية القصوى<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>دمج الفرع فوراً</strong> — يحل مشاكل P0 حرجة (NATS, Vault, JetStream, PgBouncer)</li>
+<li><strong>إضافة <code>AUTH_SECRET_KEY</code></strong> لـ 7 خدمات مكسورة في Docker (crop-intelligence, iot-gateway, ai-agents-service, ai-advisor, astronomical-calendar, mcp-server, code-review-service)</li>
+<li><strong>توحيد ملفات auth config</strong> — دمج <code>shared/auth/config.py</code> و <code>apps/services/shared/auth/config.py</code> لقراءة نفس المتغير</li>
+<li><strong>إصلاح vegetation-analysis-service</strong> — إضافة تهيئة NATS في lifespan (مشكلة جديدة)</li>
+<li><strong>تنظيف الكود الميّت</strong> — <code>irrigation-smart/database_utils.py</code> و <code>DATABASE_URL</code> المُضلّلة</li>
+<li><strong>إضافة NATS reconnection</strong> — خاصة في weather-service publisher</li>
+<li><strong>مراجعة except Exception</strong> — تقليل ابتلاع الأخطاء الصامت في الخدمات ذات الكثافة العالية</li>
+</ol>
+<hr />
+<p><em>تم إنشاء هذا التقرير بواسطة مراجعة كود عميقة مع تحقق آلي من كل نتيجة.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

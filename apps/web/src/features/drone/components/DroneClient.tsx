@@ -14,85 +14,126 @@ import {
   Pause,
   RotateCcw,
   Map,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
-
-interface Drone {
-  id: string;
-  name: string;
-  nameAr: string;
-  model: string;
-  status: 'idle' | 'in-flight' | 'charging' | 'maintenance';
-  battery: number;
-  lastMission: string;
-  fieldId: string;
-  fieldName: string;
-  totalFlightHours: number;
-}
-
-interface Mission {
-  id: string;
-  droneId: string;
-  droneName: string;
-  type: 'survey' | 'spray' | 'vra' | 'mapping';
-  typeAr: string;
-  fieldName: string;
-  status: 'planned' | 'active' | 'completed' | 'aborted';
-  date: string;
-  areaCovered: number;
-  duration: number;
-}
-
-const MOCK_DRONES: Drone[] = [
-  { id: 'DR-001', name: 'Falcon-1', nameAr: 'الصقر-1', model: 'DJI Agras T40', status: 'idle', battery: 92, lastMission: '2026-04-03', fieldId: 'F-003', fieldName: 'حقل القمح الشمالي', totalFlightHours: 245 },
-  { id: 'DR-002', name: 'Falcon-2', nameAr: 'الصقر-2', model: 'DJI Matrice 350', status: 'in-flight', battery: 67, lastMission: '2026-04-04', fieldId: 'F-007', fieldName: 'حقل النخيل', totalFlightHours: 189 },
-  { id: 'DR-003', name: 'Eagle-1', nameAr: 'النسر-1', model: 'DJI Agras T20P', status: 'charging', battery: 35, lastMission: '2026-04-02', fieldId: 'F-012', fieldName: 'حقل الطماطم', totalFlightHours: 312 },
-  { id: 'DR-004', name: 'Hawk-1', nameAr: 'الباز-1', model: 'DJI Phantom 4 RTK', status: 'maintenance', battery: 0, lastMission: '2026-03-28', fieldId: 'F-001', fieldName: 'حقل الشعير', totalFlightHours: 410 },
-];
-
-const MOCK_MISSIONS: Mission[] = [
-  { id: 'MS-101', droneId: 'DR-002', droneName: 'الصقر-2', type: 'survey', typeAr: 'مسح جوي', fieldName: 'حقل النخيل', status: 'active', date: '2026-04-04', areaCovered: 12.5, duration: 35 },
-  { id: 'MS-100', droneId: 'DR-001', droneName: 'الصقر-1', type: 'vra', typeAr: 'رش متغير المعدل', fieldName: 'حقل القمح الشمالي', status: 'completed', date: '2026-04-03', areaCovered: 8.2, duration: 45 },
-  { id: 'MS-099', droneId: 'DR-003', droneName: 'النسر-1', type: 'spray', typeAr: 'رش مبيدات', fieldName: 'حقل الطماطم', status: 'completed', date: '2026-04-02', areaCovered: 5.0, duration: 28 },
-  { id: 'MS-098', droneId: 'DR-001', droneName: 'الصقر-1', type: 'mapping', typeAr: 'خرائط تضاريس', fieldName: 'حقل الشعير', status: 'completed', date: '2026-04-01', areaCovered: 15.0, duration: 55 },
-  { id: 'MS-097', droneId: 'DR-004', droneName: 'الباز-1', type: 'survey', typeAr: 'مسح جوي', fieldName: 'حقل القمح الجنوبي', status: 'aborted', date: '2026-03-28', areaCovered: 3.1, duration: 12 },
-];
+import { useDroneFlights, useDroneDevices } from '../hooks/useDrone';
+import type { DroneFlight, DroneDevice } from '../types';
 
 const statusColors: Record<string, string> = {
+  'available': 'bg-gray-100 text-gray-700',
   'idle': 'bg-gray-100 text-gray-700',
+  'in_flight': 'bg-green-100 text-green-700',
   'in-flight': 'bg-green-100 text-green-700',
   'charging': 'bg-blue-100 text-blue-700',
   'maintenance': 'bg-orange-100 text-orange-700',
+  'offline': 'bg-red-100 text-red-700',
 };
 
 const statusLabels: Record<string, string> = {
+  'available': 'جاهز',
   'idle': 'جاهز',
+  'in_flight': 'في الطيران',
   'in-flight': 'في الطيران',
   'charging': 'قيد الشحن',
   'maintenance': 'صيانة',
+  'offline': 'غير متصل',
 };
 
 const missionStatusColors: Record<string, string> = {
   'planned': 'bg-blue-100 text-blue-700',
+  'in_progress': 'bg-green-100 text-green-700',
   'active': 'bg-green-100 text-green-700',
   'completed': 'bg-gray-100 text-gray-700',
+  'failed': 'bg-red-100 text-red-700',
+  'cancelled': 'bg-red-100 text-red-700',
   'aborted': 'bg-red-100 text-red-700',
 };
 
 const missionStatusLabels: Record<string, string> = {
   'planned': 'مخطط',
+  'in_progress': 'نشط',
   'active': 'نشط',
   'completed': 'مكتمل',
+  'failed': 'فشل',
+  'cancelled': 'ملغى',
   'aborted': 'ملغى',
+};
+
+const missionTypeLabels: Record<string, string> = {
+  'survey': 'مسح جوي',
+  'spray': 'رش مبيدات',
+  'mapping': 'خرائط تضاريس',
+  'inspection': 'فحص',
+  'vra': 'رش متغير المعدل',
 };
 
 export default function DroneClient() {
   const [activeTab, setActiveTab] = useState<'fleet' | 'missions'>('fleet');
 
+  const {
+    data: flights = [],
+    isLoading: isLoadingFlights,
+    isError: isFlightsError,
+    error: flightsError,
+  } = useDroneFlights();
+
+  const {
+    data: devices = [],
+    isLoading: isLoadingDevices,
+    isError: isDevicesError,
+    error: devicesError,
+  } = useDroneDevices();
+
+  const isLoading = isLoadingFlights || isLoadingDevices;
+  const isError = isFlightsError || isDevicesError;
+  const errorMsg = flightsError ?? devicesError;
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-600 font-medium">جاري تحميل بيانات الطائرات...</p>
+          <p className="text-sm text-gray-400 mt-1">Loading drone data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            فشل في تحميل بيانات الطائرات
+          </h3>
+          <p className="text-sm text-gray-500 mb-4">
+            {errorMsg instanceof Error ? errorMsg.message : 'Failed to load drone data'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const stats = {
-    total: MOCK_DRONES.length,
-    inFlight: MOCK_DRONES.filter(d => d.status === 'in-flight').length,
-    idle: MOCK_DRONES.filter(d => d.status === 'idle').length,
-    totalMissions: MOCK_MISSIONS.length,
+    total: devices.length,
+    inFlight: devices.filter(
+      (d) => d.status === 'in_flight' || d.status === 'in-flight' || (d as DroneDevice & { status: string }).status === 'in_flight'
+    ).length,
+    idle: devices.filter(
+      (d) => d.status === 'available' || d.status === ('idle' as DroneDevice['status'])
+    ).length,
+    totalMissions: flights.length,
   };
 
   return (
@@ -168,46 +209,60 @@ export default function DroneClient() {
 
         <div className="p-6">
           {activeTab === 'fleet' ? (
-            <table className="w-full text-right">
-              <thead>
-                <tr className="border-b border-gray-200 text-sm text-gray-500">
-                  <th className="pb-3 pr-4 font-medium">الطائرة</th>
-                  <th className="pb-3 pr-4 font-medium">الموديل</th>
-                  <th className="pb-3 pr-4 font-medium">الحالة</th>
-                  <th className="pb-3 pr-4 font-medium">البطارية</th>
-                  <th className="pb-3 pr-4 font-medium">الحقل</th>
-                  <th className="pb-3 pr-4 font-medium">ساعات الطيران</th>
-                  <th className="pb-3 font-medium">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK_DRONES.map(drone => (
-                  <tr key={drone.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-4 pr-4">
-                      <p className="font-semibold text-gray-900">{drone.nameAr}</p>
-                      <p className="text-xs text-gray-500">{drone.id}</p>
-                    </td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{drone.model}</td>
-                    <td className="py-4 pr-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[drone.status]}`}>
-                        {statusLabels[drone.status]}
-                      </span>
-                    </td>
-                    <td className="py-4 pr-4">
-                      <div className="flex items-center gap-2">
-                        <Battery className={`w-4 h-4 ${drone.battery > 50 ? 'text-green-600' : drone.battery > 20 ? 'text-orange-500' : 'text-red-500'}`} />
-                        <span className="text-sm">{drone.battery}%</span>
-                      </div>
-                    </td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{drone.fieldName}</td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{drone.totalFlightHours} س</td>
-                    <td className="py-4">
-                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">تفاصيل</button>
-                    </td>
+            devices.length === 0 ? (
+              <div className="text-center py-12">
+                <Plane className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد طائرات مسجلة</h3>
+                <p className="text-gray-500 text-sm">No drones registered yet</p>
+              </div>
+            ) : (
+              <table className="w-full text-right">
+                <thead>
+                  <tr className="border-b border-gray-200 text-sm text-gray-500">
+                    <th className="pb-3 pr-4 font-medium">الطائرة</th>
+                    <th className="pb-3 pr-4 font-medium">الموديل</th>
+                    <th className="pb-3 pr-4 font-medium">الحالة</th>
+                    <th className="pb-3 pr-4 font-medium">البطارية</th>
+                    <th className="pb-3 pr-4 font-medium">ساعات الطيران</th>
+                    <th className="pb-3 font-medium">إجراءات</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {devices.map((drone) => (
+                    <tr key={drone.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-4 pr-4">
+                        <p className="font-semibold text-gray-900">{drone.nameAr}</p>
+                        <p className="text-xs text-gray-500">{drone.id}</p>
+                      </td>
+                      <td className="py-4 pr-4 text-sm text-gray-700">
+                        {drone.manufacturer} {drone.model}
+                      </td>
+                      <td className="py-4 pr-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[drone.status] ?? 'bg-gray-100 text-gray-700'}`}>
+                          {statusLabels[drone.status] ?? drone.status}
+                        </span>
+                      </td>
+                      <td className="py-4 pr-4">
+                        <div className="flex items-center gap-2">
+                          <Battery className={`w-4 h-4 ${drone.battery > 50 ? 'text-green-600' : drone.battery > 20 ? 'text-orange-500' : 'text-red-500'}`} />
+                          <span className="text-sm">{drone.battery}%</span>
+                        </div>
+                      </td>
+                      <td className="py-4 pr-4 text-sm text-gray-700">{drone.totalFlightHours} س</td>
+                      <td className="py-4">
+                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">تفاصيل</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )
+          ) : flights.length === 0 ? (
+            <div className="text-center py-12">
+              <Map className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد مهمات</h3>
+              <p className="text-gray-500 text-sm">No missions recorded yet</p>
+            </div>
           ) : (
             <table className="w-full text-right">
               <thead>
@@ -223,20 +278,28 @@ export default function DroneClient() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_MISSIONS.map(mission => (
-                  <tr key={mission.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-4 pr-4 text-sm font-semibold text-gray-900">{mission.id}</td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{mission.typeAr}</td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{mission.droneName}</td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{mission.fieldName}</td>
+                {flights.map((flight) => (
+                  <tr key={flight.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-4 pr-4 text-sm font-semibold text-gray-900">{flight.id}</td>
+                    <td className="py-4 pr-4 text-sm text-gray-700">
+                      {missionTypeLabels[flight.missionType] ?? flight.missionType}
+                    </td>
+                    <td className="py-4 pr-4 text-sm text-gray-700">{flight.droneName}</td>
+                    <td className="py-4 pr-4 text-sm text-gray-700">
+                      {flight.fieldNameAr ?? flight.fieldName}
+                    </td>
                     <td className="py-4 pr-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${missionStatusColors[mission.status]}`}>
-                        {missionStatusLabels[mission.status]}
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${missionStatusColors[flight.status] ?? 'bg-gray-100 text-gray-700'}`}>
+                        {missionStatusLabels[flight.status] ?? flight.status}
                       </span>
                     </td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{mission.areaCovered}</td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{mission.duration}</td>
-                    <td className="py-4 text-sm text-gray-700">{mission.date}</td>
+                    <td className="py-4 pr-4 text-sm text-gray-700">{flight.coverage ?? '-'}</td>
+                    <td className="py-4 pr-4 text-sm text-gray-700">{flight.duration ?? '-'}</td>
+                    <td className="py-4 text-sm text-gray-700">
+                      {flight.startedAt
+                        ? new Date(flight.startedAt).toLocaleDateString('ar-SA')
+                        : new Date(flight.createdAt).toLocaleDateString('ar-SA')}
+                    </td>
                   </tr>
                 ))}
               </tbody>

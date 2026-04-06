@@ -43,11 +43,8 @@ from .dlq_config import DLQConfig, DLQMessageMetadata
 logger = logging.getLogger(__name__)
 
 # Lazy import
-_nats_available = False
 try:
     from nats.js import JetStreamContext
-
-    _nats_available = True
 except ImportError:
     JetStreamContext = None
 
@@ -152,7 +149,7 @@ class DLQAutoReplayWorker:
             try:
                 await self._task
             except asyncio.CancelledError:
-                pass
+                pass  # Expected during graceful shutdown
         logger.info(
             "dlq_auto_replay_stopped",
             extra={
@@ -314,7 +311,7 @@ class DLQAutoReplayWorker:
                     await msg.nak()
                     return
             except (ValueError, TypeError):
-                pass
+                pass  # Malformed timestamp — skip backoff check, proceed to replay
 
         # 5. Republish to original subject
         original_payload = data.get("original_message", "")

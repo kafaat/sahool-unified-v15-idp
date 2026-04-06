@@ -19,6 +19,33 @@ import type { Seed } from '@/features/seeds/api';
 type CropCategory = 'cereals' | 'vegetables' | 'fruits' | 'legumes' | 'fodder';
 type DroughtTolerance = 'high' | 'medium' | 'low';
 
+/** Maps cropType values from the Seed model to CropCategory filter values */
+const cropTypeToCategory: Record<string, CropCategory> = {
+  wheat: 'cereals',
+  barley: 'cereals',
+  rice: 'cereals',
+  sorghum: 'cereals',
+  millet: 'cereals',
+  corn: 'cereals',
+  tomato: 'vegetables',
+  cucumber: 'vegetables',
+  onion: 'vegetables',
+  pepper: 'vegetables',
+  eggplant: 'vegetables',
+  potato: 'vegetables',
+  date_palm: 'fruits',
+  mango: 'fruits',
+  citrus: 'fruits',
+  grape: 'fruits',
+  banana: 'fruits',
+  lentil: 'legumes',
+  chickpea: 'legumes',
+  fava_bean: 'legumes',
+  bean: 'legumes',
+  alfalfa: 'fodder',
+  clover: 'fodder',
+  rhodes_grass: 'fodder',
+};
 
 
 export default function SeedsClient() {
@@ -35,7 +62,8 @@ export default function SeedsClient() {
   const filteredSeeds = useMemo(() => {
     if (!seeds) return [];
     return seeds.filter((seed: Seed) => {
-      const matchesCategory = categoryFilter === 'all' || seed.cropType === categoryFilter;
+      const seedCategory = cropTypeToCategory[seed.cropType];
+      const matchesCategory = categoryFilter === 'all' || seedCategory === categoryFilter;
       const matchesSearch =
         !searchTerm ||
         (seed.nameAr ?? '').includes(searchTerm) ||

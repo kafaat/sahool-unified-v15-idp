@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets } from 'lucide-react';
+import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets, ChevronDown, ChevronUp } from 'lucide-react';
 import { useCrops, useCropStats } from '@/features/crops';
 import type { CropCategory, CropStage } from '@/features/crops';
 
@@ -43,6 +43,7 @@ function getHealthColor(score: number): string {
 export default function CropsClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CropCategory | 'all'>('all');
+  const [expandedCropId, setExpandedCropId] = useState<string | null>(null);
 
   const {
     data: crops = [],
@@ -211,12 +212,31 @@ export default function CropsClient() {
                     )}
                   </div>
                   <button
-                    onClick={() => alert(`${crop.nameAr} (${crop.varietyAr})\nالحقل: ${crop.fieldNameAr}\nالمرحلة: ${stageConfig[crop.currentStage].labelAr}\nالصحة: ${crop.healthScore}%${crop.ndvi !== undefined ? `\nNDVI: ${crop.ndvi.toFixed(2)}` : ''}\nالمساحة: ${crop.areaHa} هـ\nالري: ${crop.irrigationTypeAr}`)}
-                    className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
+                    onClick={() => setExpandedCropId(expandedCropId === crop.id ? null : crop.id)}
+                    className="flex items-center gap-1 text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
                   >
                     تفاصيل
+                    {expandedCropId === crop.id ? (
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    )}
                   </button>
                 </div>
+
+                {expandedCropId === crop.id && (
+                  <div className="mt-3 pt-3 border-t text-sm text-gray-600 space-y-1">
+                    <p><span className="text-gray-400">المحصول:</span> {crop.nameAr} ({crop.varietyAr})</p>
+                    <p><span className="text-gray-400">الحقل:</span> {crop.fieldNameAr}</p>
+                    <p><span className="text-gray-400">المرحلة:</span> {stageConfig[crop.currentStage].labelAr}</p>
+                    <p><span className="text-gray-400">الصحة:</span> {crop.healthScore}%</p>
+                    {crop.ndvi !== undefined && (
+                      <p><span className="text-gray-400">NDVI:</span> {crop.ndvi.toFixed(2)}</p>
+                    )}
+                    <p><span className="text-gray-400">المساحة:</span> {crop.areaHa} هـ</p>
+                    <p><span className="text-gray-400">الري:</span> {crop.irrigationTypeAr}</p>
+                  </div>
+                )}
               </div>
             );
           })

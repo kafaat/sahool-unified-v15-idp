@@ -211,18 +211,12 @@ export default function FarmsClient() {
                     </div>
                   </div>
                 </div>
-                <div className="px-6 py-3 bg-gray-50 border-t flex justify-between">
+                <div className="px-6 py-3 bg-gray-50 border-t flex justify-end">
                   <button
                     onClick={() => handleOpenEdit(farm)}
                     className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
                   >
-                    عرض التفاصيل
-                  </button>
-                  <button
-                    onClick={() => handleOpenEdit(farm)}
-                    className="text-gray-500 hover:text-gray-700 text-sm"
-                  >
-                    تعديل
+                    تفاصيل وتعديل
                   </button>
                 </div>
               </div>

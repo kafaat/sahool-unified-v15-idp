@@ -31,11 +31,11 @@ export interface CreateTicketRequest {
 
 /**
  * Support ticket endpoints (routed through notification-service).
- * These are not in shared contracts yet, so we define them locally.
+ * Uses NOTIFICATION_ENDPOINTS from shared contracts.
  */
 const SUPPORT_ENDPOINTS = {
-  TICKETS: '/api/v1/notifications?type=support_ticket',
-  CREATE_TICKET: '/api/v1/notifications/subscribe',
+  TICKETS: `${NOTIFICATION_ENDPOINTS.LIST}?type=support_ticket`,
+  CREATE_TICKET: NOTIFICATION_ENDPOINTS.LIST,
 } as const;
 
 export const supportApi = {

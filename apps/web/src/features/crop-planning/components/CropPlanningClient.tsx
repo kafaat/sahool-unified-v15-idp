@@ -5,7 +5,7 @@
  * مكون تخطيط الموسم الزراعي — معالج 7 خطوات
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   MapPin,
   Leaf,
@@ -185,7 +185,7 @@ export default function CropPlanningClient() {
   }, [existingPlans]);
 
   // Set default fieldId when fields are loaded
-  useMemo(() => {
+  useEffect(() => {
     if (fields.length > 0 && !plan.fieldId) {
       setPlan((p) => ({ ...p, fieldId: fields[0]?.id ?? '' }));
     }

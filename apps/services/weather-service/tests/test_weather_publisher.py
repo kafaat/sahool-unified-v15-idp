@@ -3,39 +3,49 @@ Tests for WeatherPublisher NATS reconnection behavior.
 Verifies connect() uses reconnection parameters and callbacks update state.
 """
 
+import importlib
+import importlib.util
 import sys
+from pathlib import Path
 from types import ModuleType
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+# Resolve file paths relative to this test file
+_EVENTS_DIR = Path(__file__).resolve().parent.parent / "src" / "events"
 
-@pytest.fixture
-def publisher():
-    """Import WeatherPublisher with mocked dependencies and NATS class."""
-    # Stub the relative-import dependency (src.events.types) so publish.py loads
-    types_stub = ModuleType("src.events.types")
-    types_stub.IRRIGATION_ADJUSTMENT = "irrigation_adjustment"
-    types_stub.WEATHER_ALERT = "weather_alert"
-    types_stub.WEATHER_FORECAST_ISSUED = "weather_forecast_issued"
-    types_stub.get_subject = lambda *a, **kw: "test.subject"
-    types_stub.get_version = lambda *a, **kw: 1
 
-    # Stub nats.aio.client so publish.py import gets our mock
-    mock_nc = AsyncMock()
-    mock_cls = MagicMock(return_value=mock_nc)
+def _load_weather_publisher(mock_nats_cls):
+    """
+    Load WeatherPublisher by file path with mocked NATS dependency.
 
+    Uses importlib.util.spec_from_file_location to avoid conflicts
+    with other 'src' packages when CI runs from repo root.
+    """
+    # 1. Load types.py as a standalone module (no relative import issues)
+    types_path = _EVENTS_DIR / "types.py"
+    types_spec = importlib.util.spec_from_file_location("weather_events_types", types_path)
+    types_mod = importlib.util.module_from_spec(types_spec)
+    types_spec.loader.exec_module(types_mod)
+
+    # 2. Create a fake package so publish.py's `from .types import ...` resolves
+    pkg_name = "_weather_events_pkg"
+    pkg = ModuleType(pkg_name)
+    pkg.__path__ = [str(_EVENTS_DIR)]
+    pkg.__package__ = pkg_name
+
+    sys.modules[pkg_name] = pkg
+    sys.modules[f"{pkg_name}.types"] = types_mod
+
+    # 3. Stub nats
     nats_stub = ModuleType("nats")
     nats_aio = ModuleType("nats.aio")
     nats_client = ModuleType("nats.aio.client")
-    nats_client.Client = mock_cls
-    nats_stub.aio = nats_aio
+    nats_client.Client = mock_nats_cls
 
     saved = {}
     for name, mod in [
-        ("src", ModuleType("src")),
-        ("src.events", ModuleType("src.events")),
-        ("src.events.types", types_stub),
         ("nats", nats_stub),
         ("nats.aio", nats_aio),
         ("nats.aio.client", nats_client),
@@ -43,19 +53,39 @@ def publisher():
         saved[name] = sys.modules.get(name)
         sys.modules[name] = mod
 
-    # Force re-import so publish.py picks up the stubs
-    sys.modules.pop("src.events.publish", None)
-    import src.events.publish as pub_mod
+    # 4. Load publish.py inside the fake package
+    pub_path = _EVENTS_DIR / "publish.py"
+    pub_spec = importlib.util.spec_from_file_location(
+        f"{pkg_name}.publish", pub_path,
+        submodule_search_locations=[],
+    )
+    pub_mod = importlib.util.module_from_spec(pub_spec)
+    pub_mod.__package__ = pkg_name
+    sys.modules[f"{pkg_name}.publish"] = pub_mod
+    pub_spec.loader.exec_module(pub_mod)
+
+    return pub_mod, saved
+
+
+@pytest.fixture
+def publisher():
+    """Provide a WeatherPublisher with mocked NATS."""
+    mock_nc = AsyncMock()
+    mock_cls = MagicMock(return_value=mock_nc)
+
+    pub_mod, saved_nats = _load_weather_publisher(mock_cls)
 
     yield pub_mod.WeatherPublisher(nats_url="nats://test:4222"), mock_nc
 
-    # Restore sys.modules
-    for name, original in saved.items():
+    # Cleanup
+    for name, original in saved_nats.items():
         if original is None:
             sys.modules.pop(name, None)
         else:
             sys.modules[name] = original
-    sys.modules.pop("src.events.publish", None)
+    for key in list(sys.modules):
+        if key.startswith("_weather_events_pkg"):
+            del sys.modules[key]
 
 
 @pytest.mark.asyncio

@@ -128,6 +128,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       headers: auth.headers,
       signal: AbortSignal.timeout(15000),
     });
+
+    // Passthrough non-JSON responses (e.g. CSV export)
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      const body = await response.arrayBuffer();
+      const headers = new Headers();
+      if (contentType) headers.set('Content-Type', contentType);
+      const disposition = response.headers.get('content-disposition');
+      if (disposition) headers.set('Content-Disposition', disposition);
+      return new NextResponse(body, { status: response.status, headers });
+    }
+
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (err) {

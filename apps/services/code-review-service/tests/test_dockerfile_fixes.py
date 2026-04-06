@@ -96,13 +96,15 @@ class TestSharedModuleImports:
     """Test that shared module imports work correctly."""
 
     def test_shared_auth_importable(self):
-        """shared.auth.dependencies must be importable."""
-        try:
-            from shared.auth.dependencies import get_current_user
+        """shared.auth.dependencies must be importable.
 
-            assert callable(get_current_user)
-        except BaseException as e:
-            pytest.skip(f"shared.auth not available in this environment: {e}")
+        Skips when cryptography native extensions are broken (pyo3 panic in some CI envs).
+        """
+        # Guard: cffi_backend is required by cryptography → jwt → shared.auth
+        pytest.importorskip("_cffi_backend", reason="cffi native backend not available")
+        from shared.auth.dependencies import get_current_user
+
+        assert callable(get_current_user)
 
     def test_shared_errors_py_importable(self):
         """shared.errors_py must be importable."""

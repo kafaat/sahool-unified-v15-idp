@@ -835,7 +835,7 @@ asyncio.run(main())
 
   # Real-time Code Review Service - Monitors codebase and reviews with DeepSeek
   # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
-  # NOTE: Requires Ollama with GPU. Use: docker compose --profile gpu up -d
+  # NOTE: Requires Ollama. Use: docker compose --profile ai up -d
   code-review-service:
     profiles:
       - ai

@@ -9,8 +9,6 @@ Validates:
 import os
 import sys
 
-import pytest
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 os.environ.setdefault("ENVIRONMENT", "test")
 
@@ -35,14 +33,14 @@ class TestGetAvailableToolsExpansion:
 
         source = inspect.getsource(AutoFixEngine.get_available_tools)
 
-        # Should NOT contain a hardcoded list of specific tools
-        assert "ToolType.RUFF," not in source or "for tool in ToolType" in source, (
-            "get_available_tools should iterate ToolType enum, not hardcode specific tools"
-        )
-
-        # Should iterate all ToolType
+        # Should iterate all ToolType (not a hardcoded subset)
         assert "for tool in ToolType" in source, (
             "get_available_tools should use 'for tool in ToolType' to check all tools"
+        )
+
+        # Should NOT contain a hardcoded tools list
+        assert "tools = [" not in source, (
+            "get_available_tools should iterate ToolType enum, not use a hardcoded tools list"
         )
 
     def test_all_tooltype_values_are_strings(self):

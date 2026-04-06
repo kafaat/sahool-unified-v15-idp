@@ -16,7 +16,7 @@ import json
 import os
 import uuid
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -115,9 +115,8 @@ class TestNatsEventPersistence:
         tenant_id = "00000000-0000-0000-0000-000000000001"
         entry_id = str(uuid.uuid4())
         data = {"tenant_id": tenant_id, "user_id": "user-123"}
-        _audit_logs = {}
 
-        # Simulate handle_event logic
+        # Simulate handle_event logic (DB path)
         if mock_pool:
             await mock_pool.execute(
                 """INSERT INTO audit_logs
@@ -165,17 +164,14 @@ class TestNatsEventPersistence:
     @pytest.mark.asyncio
     async def test_memory_only_when_no_pool(self):
         """When db_pool is None, write to in-memory only."""
-        db_pool = None
         tenant_id = "00000000-0000-0000-0000-000000000001"
-        _audit_logs = {}
+        _audit_logs: dict[str, list] = {}
         log_entry = {"id": str(uuid.uuid4()), "action": "authenticated", "tenant_id": tenant_id}
 
-        if db_pool:
-            pass  # Would write to DB
-        else:
-            if tenant_id not in _audit_logs:
-                _audit_logs[tenant_id] = []
-            _audit_logs[tenant_id].append(log_entry)
+        # Simulate no-DB path: directly write to in-memory
+        if tenant_id not in _audit_logs:
+            _audit_logs[tenant_id] = []
+        _audit_logs[tenant_id].append(log_entry)
 
         assert len(_audit_logs[tenant_id]) == 1
 

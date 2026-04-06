@@ -317,7 +317,7 @@ code_fix_agent_patterns_learned {metrics["patterns_learned"]}
 # ============================================================================
 
 
-async def _run_agent_safe(request: Request, percept_type: str, data: dict, source: str = "api"):
+async def _run_agent_safe(request: Request, percept_type: str, data: Any, source: str = "api"):
     """Run agent with lock to prevent concurrent context mutation."""
     from .agent.code_fix_agent import AgentContext, AgentPercept
 

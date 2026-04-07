@@ -3,7 +3,10 @@
 // Reports Page - Report Generation & Viewing
 // صفحة التقارير — إنشاء وعرض التقارير
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
+import { API_PATHS } from '@/config/api';
+import { logger } from '../../lib/logger';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { cn } from '@/lib/utils';
@@ -265,6 +268,32 @@ export default function ReportsPage() {
   const [formData, setFormData] = useState<GenerateFormData>(INITIAL_FORM);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedTypeCard, setSelectedTypeCard] = useState<ReportTypeKey | null>(null);
+  const [recentReports, setRecentReports] = useState<RecentReport[]>(MOCK_RECENT_REPORTS);
+  const [availableFields, setAvailableFields] = useState<Array<{ id: string; name_ar: string }>>(MOCK_FIELDS);
+
+  const loadReports = useCallback(async () => {
+    const result = await apiClient.get(API_PATHS.analytics.reports);
+    if (result.success && result.data) {
+      const data = Array.isArray(result.data) ? (result.data as RecentReport[]) : [];
+      if (data.length > 0) setRecentReports(data);
+    } else {
+      logger.warn('Failed to load reports, using mock data');
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadReports();
+    apiClient.get(API_PATHS.fields.list).then((result) => {
+      if (result.success && result.data) {
+        const items = Array.isArray(result.data) ? result.data : [];
+        const mapped = (items as Array<Record<string, unknown>>).map((f) => ({
+          id: String(f.id ?? f.field_id ?? ''),
+          name_ar: String(f.name_ar ?? f.nameAr ?? f.name ?? ''),
+        })).filter((f) => f.id);
+        if (mapped.length > 0) setAvailableFields(mapped);
+      }
+    }).catch(() => {/* keep MOCK_FIELDS */});
+  }, [loadReports]);
 
   const handleOpenForm = useCallback((typeKey?: ReportTypeKey) => {
     setFormData({
@@ -293,15 +322,41 @@ export default function ReportsPage() {
   const handleGenerate = useCallback(async () => {
     if (!formData.reportType || !formData.dateFrom || !formData.dateTo) return;
     setIsGenerating(true);
-    // Simulate report generation
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsGenerating(false);
-    handleCloseForm();
-  }, [formData, handleCloseForm]);
+    try {
+      const result = await apiClient.post(API_PATHS.analytics.reports, { ...formData });
+      if (result.success) {
+        await loadReports();
+      } else {
+        logger.error('Failed to generate report:', result.error);
+      }
+    } catch (err) {
+      logger.error('Report generation error:', err);
+    } finally {
+      setIsGenerating(false);
+      handleCloseForm();
+    }
+  }, [formData, handleCloseForm, loadReports]);
+
+  const handleDownloadReport = useCallback(async (id: string, format: string) => {
+    try {
+      const result = await apiClient.get(`${API_PATHS.analytics.reports}/${id}/download`);
+      if (result.success && result.data) {
+        const url = typeof result.data === 'string' ? result.data : (result.data as Record<string, unknown>).url as string;
+        if (url) {
+          window.open(url, '_blank');
+          return;
+        }
+      }
+      // Fallback: open download URL directly
+      window.open(`${API_PATHS.analytics.reports}/${id}/download?format=${format}`, '_blank');
+    } catch (err) {
+      logger.error('Report download error:', err);
+    }
+  }, []);
 
   // ─── Stats ──────────────────────────────────────────────────────────────
-  const completedCount = MOCK_RECENT_REPORTS.filter((r) => r.status === 'completed').length;
-  const processingCount = MOCK_RECENT_REPORTS.filter((r) => r.status === 'processing').length;
+  const completedCount = recentReports.filter((r) => r.status === 'completed').length;
+  const processingCount = recentReports.filter((r) => r.status === 'processing').length;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950" dir="rtl">
@@ -325,7 +380,7 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="إجمالي التقارير"
-            value={MOCK_RECENT_REPORTS.length}
+            value={recentReports.length}
             icon={FileText}
             iconColor="text-sahool-600"
           />
@@ -426,7 +481,7 @@ export default function ReportsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {MOCK_RECENT_REPORTS.map((report) => {
+                  {recentReports.map((report) => {
                     const statusCfg = getStatusConfig(report.status);
                     const FormatIcon = getFormatIcon(report.format);
                     return (
@@ -476,6 +531,7 @@ export default function ReportsPage() {
                               type="button"
                               title="تحميل"
                               disabled={report.status !== 'completed'}
+                              onClick={() => void handleDownloadReport(report.id, report.format)}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
                               <Download className="w-4 h-4" />
@@ -484,6 +540,7 @@ export default function ReportsPage() {
                               type="button"
                               title="عرض"
                               disabled={report.status !== 'completed'}
+                              onClick={() => window.open('/reports/' + report.id, '_blank')}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
                               <Eye className="w-4 h-4" />
@@ -492,6 +549,7 @@ export default function ReportsPage() {
                               type="button"
                               title="مشاركة"
                               disabled={report.status !== 'completed'}
+                              onClick={() => navigator.clipboard?.writeText(window.location.origin + '/reports/' + report.id)}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
                               <Share2 className="w-4 h-4" />
@@ -594,7 +652,7 @@ export default function ReportsPage() {
                   الحقول
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {MOCK_FIELDS.map((field) => {
+                 {availableFields.map((field) => {
                     const isChecked = formData.selectedFields.includes(field.id);
                     return (
                       <label

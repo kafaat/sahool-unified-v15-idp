@@ -8,9 +8,11 @@
  * (fieldview_features.py) including NDVI, LAI, area, and soil moisture.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import { Trophy, ArrowRight, TrendingUp, Scale } from 'lucide-react';
+import { apiClient } from '@/lib/api';
+import { FIELD_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -169,11 +171,13 @@ function FieldSelector({
   selectedId,
   excludeId,
   onChange,
+  fields,
 }: {
   label: string;
   selectedId: string;
   excludeId: string;
   onChange: (id: string) => void;
+  fields: FieldData[];
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -183,7 +187,7 @@ function FieldSelector({
         onChange={(e) => onChange(e.target.value)}
         className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sahool-500"
       >
-        {MOCK_FIELDS.map((f) => (
+        {fields.map((f) => (
           <option key={f.id} value={f.id} disabled={f.id === excludeId}>
             {f.nameAr} ({f.id})
           </option>
@@ -239,11 +243,39 @@ function FieldCard({ field, side }: { field: FieldData; side: 'A' | 'B' }) {
 // ---------------------------------------------------------------------------
 
 export default function FieldComparisonPage() {
+  const [fieldOptions, setFieldOptions] = useState<FieldData[]>(MOCK_FIELDS);
+  const [isLoadingFields, setIsLoadingFields] = useState(true);
   const [fieldAId, setFieldAId] = useState(MOCK_FIELDS[0]?.id ?? '');
   const [fieldBId, setFieldBId] = useState(MOCK_FIELDS[1]?.id ?? '');
 
-  const fieldA = useMemo(() => MOCK_FIELDS.find((f) => f.id === fieldAId) ?? MOCK_FIELDS[0]!, [fieldAId]);
-  const fieldB = useMemo(() => MOCK_FIELDS.find((f) => f.id === fieldBId) ?? MOCK_FIELDS[1]!, [fieldBId]);
+  useEffect(() => {
+    apiClient.get(FIELD_ENDPOINTS.LIST).then((result) => {
+      if (result.success && result.data) {
+        const items = Array.isArray(result.data) ? result.data : [];
+        const mapped = (items as Array<Record<string, unknown>>).map((f): FieldData => ({
+          id: String(f.id ?? f.field_id ?? ''),
+          name: String(f.name ?? f.name_en ?? ''),
+          nameAr: String(f.name_ar ?? f.nameAr ?? f.name ?? ''),
+          crop: String(f.crop ?? f.crop_type ?? ''),
+          cropAr: String(f.crop_ar ?? f.cropAr ?? f.crop ?? ''),
+          areaHa: Number(f.area_ha ?? f.areaHa ?? 0),
+          ndvi: Number(f.ndvi ?? 0),
+          lai: Number(f.lai ?? 0),
+          soilMoisture: Number(f.soil_moisture ?? f.soilMoisture ?? 0),
+          healthStatus: (f.health_status ?? f.healthStatus ?? 'moderate') as FieldData['healthStatus'],
+          healthStatusAr: String(f.health_status_ar ?? f.healthStatusAr ?? 'معتدل'),
+        })).filter((f) => f.id);
+        if (mapped.length > 0) {
+          setFieldOptions(mapped);
+          setFieldAId(mapped[0]?.id ?? MOCK_FIELDS[0]?.id ?? '');
+          setFieldBId(mapped[1]?.id ?? MOCK_FIELDS[1]?.id ?? '');
+        }
+      }
+    }).catch(() => {/* keep MOCK_FIELDS */}).finally(() => setIsLoadingFields(false));
+  }, []);
+
+  const fieldA = useMemo(() => fieldOptions.find((f) => f.id === fieldAId) ?? fieldOptions[0]!, [fieldAId, fieldOptions]);
+  const fieldB = useMemo(() => fieldOptions.find((f) => f.id === fieldBId) ?? fieldOptions[1]!, [fieldBId, fieldOptions]);
 
   // Compute winners per metric
   const results = useMemo(() => {
@@ -264,6 +296,10 @@ export default function FieldComparisonPage() {
     <div className="p-6" dir="rtl">
       <Header title="مقارنة الحقول" subtitle="Field Comparison" />
 
+      {isLoadingFields && (
+        <p className="mt-2 text-sm text-gray-400 dark:text-gray-500">جارٍ تحميل الحقول...</p>
+      )}
+
       {/* Field Selectors */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-end mb-6">
         <FieldSelector
@@ -271,6 +307,7 @@ export default function FieldComparisonPage() {
           selectedId={fieldAId}
           excludeId={fieldBId}
           onChange={setFieldAId}
+          fields={fieldOptions}
         />
 
         <div className="hidden md:flex items-center justify-center pb-1">
@@ -284,6 +321,7 @@ export default function FieldComparisonPage() {
           selectedId={fieldBId}
           excludeId={fieldAId}
           onChange={setFieldBId}
+          fields={fieldOptions}
         />
       </div>
 

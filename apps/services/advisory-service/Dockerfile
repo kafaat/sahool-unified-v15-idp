@@ -57,9 +57,14 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy shared libraries
+# Copy service-level shared libraries
 COPY apps/services/shared/ ./shared/
 
+# Copy root shared/events/ (advisory-service imports shared.events.subjects)
+COPY shared/events/ ./shared/events/
+
+# Resolve errors_py file/package ambiguity
+RUN rm -f ./shared/errors_py.py
 
 # Copy source
 COPY apps/services/advisory-service/src/ ./src/

@@ -372,6 +372,36 @@ class TestConflictDetection:
         )
         assert conflict is None
 
+    def test_tenant_mismatch_raises_permission_error(self, local_item):
+        """Requesting tenant that doesn't match item tenant raises PermissionError."""
+        with pytest.raises(PermissionError, match="Tenant mismatch"):
+            detect_conflict(
+                local_item=local_item,
+                server_data={"name": "Server Field"},
+                server_modified_at=datetime(2025, 1, 16, 10, 0, tzinfo=UTC),
+                requesting_tenant_id="different-tenant",
+            )
+
+    def test_tenant_match_no_error(self, local_item):
+        """Matching requesting tenant does not raise."""
+        conflict = detect_conflict(
+            local_item=local_item,
+            server_data=local_item.local_data.copy(),
+            server_modified_at=datetime(2025, 1, 16, 10, 0, tzinfo=UTC),
+            requesting_tenant_id="t-001",
+        )
+        assert conflict is None
+
+    def test_tenant_none_skips_check(self, local_item):
+        """No tenant check when requesting_tenant_id is None (default)."""
+        conflict = detect_conflict(
+            local_item=local_item,
+            server_data=local_item.local_data.copy(),
+            server_modified_at=datetime(2025, 1, 16, 10, 0, tzinfo=UTC),
+            requesting_tenant_id=None,
+        )
+        assert conflict is None
+
 
 class TestFindConflictingFields:
     """Test conflicting field detection."""

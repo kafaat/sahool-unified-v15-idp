@@ -455,17 +455,14 @@ class TestHasPermission:
         assert engine._has_permission(ctx, "fieldops:task.read") is True
 
     def test_no_scope_no_super_admin(self):
-        """Without scopes or super_admin, permissions are not granted"""
+        """Viewer role has fieldops:task.read via RBAC role grants"""
         engine = PolicyEngine()
         ctx = PolicyContext(roles=["viewer"])
-        # The _has_permission role-based path calls has_permission([role_enum], perm)
-        # which expects a dict, causing AttributeError (not caught).
-        # For non-super_admin without scopes, only the role-based path remains.
-        # The role-based check raises AttributeError, so returns False.
-        # This is actually a known API mismatch in the policy engine.
-        # We test the actual behavior here.
-        with pytest.raises(AttributeError):
-            engine._has_permission(ctx, "fieldops:task.read")
+        # After fixing has_permission signature mismatch (P1-3), the role-based
+        # path now correctly passes a dict to has_permission() instead of a list.
+        # The viewer role is granted fieldops:task.read in shared/security/rbac.py.
+        result = engine._has_permission(ctx, "fieldops:task.read")
+        assert result is True
 
     def test_invalid_role_raises_attribute_error(self):
         """Invalid role enum value raises ValueError which is caught"""

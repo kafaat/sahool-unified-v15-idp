@@ -235,6 +235,7 @@ def decode_token_unsafe(token: str) -> dict:
     - NEVER use for authorization decisions
     - NEVER trust data from this function for access control
     - Use ONLY for debugging, logging, or extracting non-sensitive metadata
+    - BLOCKED in production/staging to prevent accidental misuse
 
     Args:
         token: JWT token string
@@ -242,11 +243,22 @@ def decode_token_unsafe(token: str) -> dict:
     Returns:
         Decoded token payload as dictionary (UNVERIFIED!)
 
+    Raises:
+        RuntimeError: If called in production or staging environment
+
     Example:
         >>> # For debugging only - data cannot be trusted
         >>> payload = decode_token_unsafe(token)
         >>> print(f"Debug: user_id={payload.get('sub')}")
     """
+    import os
+
+    env = os.getenv("ENVIRONMENT", "development")
+    if env in ("production", "staging"):
+        raise RuntimeError(
+            "decode_token_unsafe() is blocked in production/staging. "
+            "Use decode_token() with proper verification instead."
+        )
     try:
         # nosemgrep: python.jwt.security.unverified-jwt-decode
         return jwt.decode(token, options=_get_debug_decode_options(), algorithms=["HS256", "HS384", "HS512"])

@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X } from 'lucide-react';
-import { useFarms, useFarmStats, useUpdateFarm } from '@/features/farms';
-import type { Farm, FarmStatus } from '@/features/farms';
+import { useFarms, useFarmStats, useUpdateFarm, useCreateFarm } from '@/features/farms';
+import type { Farm, FarmStatus, FarmFormData } from '@/features/farms';
 
 const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
   active: { color: 'bg-green-100 text-green-800', labelAr: 'نشطة' },
@@ -16,9 +16,24 @@ export default function FarmsClient() {
   const [editingFarm, setEditingFarm] = useState<Farm | null>(null);
   const [editName, setEditName] = useState('');
   const [editNameAr, setEditNameAr] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newFarm, setNewFarm] = useState<Omit<FarmFormData, 'region' | 'regionAr'>>({ name: '', nameAr: '', location: '', locationAr: '', totalAreaHa: 0, waterSource: '', waterSourceAr: '' });
   const { data: farms = [], isLoading, error } = useFarms();
   const { data: stats } = useFarmStats();
   const updateFarm = useUpdateFarm();
+  const createFarm = useCreateFarm();
+
+  const handleCreateFarm = () => {
+    createFarm.mutate(
+      { ...newFarm, region: '', regionAr: '' },
+      {
+        onSuccess: () => {
+          setShowCreateDialog(false);
+          setNewFarm({ name: '', nameAr: '', location: '', locationAr: '', totalAreaHa: 0, waterSource: '', waterSourceAr: '' });
+        },
+      }
+    );
+  };
 
   const filteredFarms = useMemo(() => {
     if (!searchTerm) return farms;
@@ -67,6 +82,54 @@ export default function FarmsClient() {
 
   return (
     <div className="space-y-6">
+      {/* Create Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">إضافة مزرعة جديدة</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المزرعة (EN)</label>
+                <input value={newFarm.name} onChange={(e) => setNewFarm({ ...newFarm, name: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المزرعة (AR)</label>
+                <input value={newFarm.nameAr} onChange={(e) => setNewFarm({ ...newFarm, nameAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الموقع (EN)</label>
+                <input value={newFarm.location} onChange={(e) => setNewFarm({ ...newFarm, location: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الموقع (AR)</label>
+                <input value={newFarm.locationAr} onChange={(e) => setNewFarm({ ...newFarm, locationAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">المساحة الكلية (هكتار)</label>
+                <input type="number" min={0} value={newFarm.totalAreaHa} onChange={(e) => setNewFarm({ ...newFarm, totalAreaHa: Number(e.target.value) })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">مصدر المياه (EN)</label>
+                <input value={newFarm.waterSource} onChange={(e) => setNewFarm({ ...newFarm, waterSource: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">مصدر المياه (AR)</label>
+                <input value={newFarm.waterSourceAr} onChange={(e) => setNewFarm({ ...newFarm, waterSourceAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreateFarm} disabled={createFarm.isPending || !newFarm.name || !newFarm.nameAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {createFarm.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Edit Dialog */}
       {editingFarm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -102,9 +165,8 @@ export default function FarmsClient() {
           <p className="text-gray-500 mt-1">Farm Management</p>
         </div>
         <button
-          disabled
-          title="قريباً - Coming soon"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => setShowCreateDialog(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة مزرعة</span>

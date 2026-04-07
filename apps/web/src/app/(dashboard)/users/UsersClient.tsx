@@ -10,9 +10,10 @@ import {
   CheckCircle,
   Clock,
   UserX,
+  X,
 } from 'lucide-react';
-import { useUsers, useUserStats } from '@/features/users';
-import type { UserRole, UserStatus } from '@/features/users';
+import { useUsers, useUserStats, useCreateUser } from '@/features/users';
+import type { UserRole, UserStatus, UserFormData } from '@/features/users';
 
 const roles: Array<{ value: UserRole | 'all'; label: string; labelAr: string }> = [
   { value: 'all', label: 'All Roles', labelAr: 'جميع الأدوار' },
@@ -44,6 +45,8 @@ const roleLabelsAr: Record<UserRole, string> = {
 export default function UsersClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newUser, setNewUser] = useState<UserFormData>({ name: '', nameAr: '', email: '', role: 'farmer' as UserRole, phone: '' });
 
   const {
     data: users = [],
@@ -51,6 +54,16 @@ export default function UsersClient() {
     error,
   } = useUsers(selectedRole !== 'all' ? { role: selectedRole } : undefined);
   const { data: stats } = useUserStats();
+  const createUser = useCreateUser();
+
+  const handleCreateUser = () => {
+    createUser.mutate(newUser, {
+      onSuccess: () => {
+        setShowCreateDialog(false);
+        setNewUser({ name: '', nameAr: '', email: '', role: 'farmer', phone: '' });
+      },
+    });
+  };
 
   const filteredUsers = useMemo(() => {
     if (!searchTerm) return users;
@@ -85,6 +98,50 @@ export default function UsersClient() {
 
   return (
     <div className="space-y-6">
+      {/* Create Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">إضافة مستخدم جديد</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (EN)</label>
+                <input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (AR)</label>
+                <input value={newUser.nameAr} onChange={(e) => setNewUser({ ...newUser, nameAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+                <input type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الدور</label>
+                <select value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500">
+                  {roles.filter((r) => r.value !== 'all').map((r) => (
+                    <option key={r.value} value={r.value}>{r.labelAr}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">رقم الهاتف (اختياري)</label>
+                <input type="tel" value={newUser.phone ?? ''} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreateUser} disabled={createUser.isPending || !newUser.name || !newUser.nameAr || !newUser.email} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {createUser.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -92,9 +149,8 @@ export default function UsersClient() {
           <p className="text-gray-500 mt-1">User Management</p>
         </div>
         <button
-          disabled
-          title="قريباً - Coming soon"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => setShowCreateDialog(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة مستخدم</span>

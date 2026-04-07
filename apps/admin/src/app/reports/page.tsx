@@ -280,8 +280,8 @@ export default function ReportsPage() {
       } else {
         logger.warn('Failed to load reports, using mock data');
       }
-    } catch {
-      logger.warn('Failed to load reports, using mock data');
+    } catch (err) {
+      logger.warn('Failed to load reports, using mock data', err);
     }
   }, []);
 

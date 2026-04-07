@@ -217,10 +217,14 @@ export function isSensitiveAction(request: NextRequest): boolean {
 
 /**
  * Generate a cryptographically random CSRF token.
+ * Uses base64url encoding consistent with the middleware's existing token format.
  * Works in Edge Runtime (uses Web Crypto API).
  */
 export function generateCsrfToken(): string {
   const bytes = new Uint8Array(32);
   crypto.getRandomValues(bytes);
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
 }

@@ -187,12 +187,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ];
     const isSecure = window.location.protocol === 'https:';
     const domain = window.location.hostname;
+    const dotDomain = domain.startsWith('.') ? domain : `.${domain}`;
     for (const name of cookiesToClear) {
       // Remove with all attribute combinations so no stale cookie survives.
       Cookies.remove(name, { path: '/' });
       Cookies.remove(name, { path: '/', secure: isSecure });
       Cookies.remove(name, { path: '/', domain });
+      Cookies.remove(name, { path: '/', domain: dotDomain });
       Cookies.remove(name, { path: '/', secure: isSecure, domain });
+      Cookies.remove(name, { path: '/', secure: isSecure, domain: dotDomain });
       // Also remove legacy path-scoped cookies (set without explicit path by
       // older builds, which default to the current route). Without this, a
       // stale cookie scoped to e.g. /dashboard could shadow the root removal.

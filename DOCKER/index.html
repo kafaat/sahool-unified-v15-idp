@@ -1433,7 +1433,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w
 <h3 id="standardized-build-patterns">أنماط البناء المعيارية | Standardized Build Patterns<a class="headerlink" href="#standardized-build-patterns" title="Permanent link">&para;</a></h3>
 <h4 id="apt-get-mirror-fallback">apt-get Mirror Fallback (جميع الخدمات)<a class="headerlink" href="#apt-get-mirror-fallback" title="Permanent link">&para;</a></h4>
 <p>جميع الحاويات تستخدم سكريبت <code>docker/apt-update.sh</code> المشترك بدلاً من <code>apt-get update</code> مباشرة.
-السكريبت يتعامل مع فشل DNS تلقائياً بالتبديل إلى مرايا Aliyun:</p>
+السكريبت يتعامل مع فشل DNS وفشل تحميل الفهارس الجزئي تلقائياً:</p>
 <div class="codehilite"><pre><span></span><code><span class="c"># نسخ السكريبت المشترك</span>
 <span class="k">COPY</span><span class="w"> </span>docker/apt-update.sh<span class="w"> </span>/usr/local/bin/
 <span class="k">RUN</span><span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>/usr/local/bin/apt-update.sh
@@ -1443,7 +1443,11 @@ docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w
 <span class="w">    </span>curl<span class="w"> </span>tini<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*
 </code></pre></div>
 
-<p>يدعم: Debian DEB822 (bookworm+)، Ubuntu DEB822 (noble+)، وصيغة sources.list التقليدية.</p>
+<p><strong>المميزات:</strong>
+- <strong>كشف الفشل الجزئي</strong>: يكتشف <code>W: Failed to fetch</code> حتى عندما يُرجع <code>apt-get update</code> كود خروج 0
+- <strong>إعادة المحاولة</strong>: حتى 3 محاولات مع تأخير متزايد (5s, 10s, 20s) و <code>Acquire::Retries=3</code>
+- <strong>3 مرايا</strong>: المصدر الافتراضي ← Aliyun ← Tencent
+- <strong>دعم</strong>: Debian DEB822 (bookworm+)، Ubuntu DEB822 (noble+)، وصيغة sources.list التقليدية</p>
 <h4 id="npm-install-retry-mirror-fallback-nodejs">npm Install مع Retry و Mirror Fallback (خدمات Node.js)<a class="headerlink" href="#npm-install-retry-mirror-fallback-nodejs" title="Permanent link">&para;</a></h4>
 <p>جميع خدمات Node.js تستخدم نمط retry loop موحد مع 5 محاولات و mirror fallback:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>--mount<span class="o">=</span><span class="nv">type</span><span class="o">=</span>cache,target<span class="o">=</span>/root/.npm<span class="w"> </span><span class="se">\</span>

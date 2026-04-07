@@ -15,23 +15,27 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting — keyed on client IP to prevent refresh-token abuse
+    // Skip rate limiting when IP cannot be determined to avoid a shared
+    // 'unknown' bucket that could unfairly throttle unrelated clients.
     const ip =
       request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       request.headers.get('x-real-ip') ||
-      'unknown';
+      '';
 
-    const rateLimit = checkRateLimit(`refresh:${ip}`, {
-      maxAttempts: 20,           // generous: normal clients refresh ~1/30 min
-      windowMs: 5 * 60 * 1000,  // 5-minute window
-      lockoutDurationMs: 10 * 60 * 1000, // 10-minute lockout
-    });
+    if (ip) {
+      const rateLimit = checkRateLimit(`refresh:${ip}`, {
+        maxAttempts: 20,           // generous: normal clients refresh ~1/30 min
+        windowMs: 5 * 60 * 1000,  // 5-minute window
+        lockoutDurationMs: 10 * 60 * 1000, // 10-minute lockout
+      });
 
-    if (!rateLimit.allowed) {
-      logger.warn(`Refresh rate limit exceeded for IP: ${ip}`);
-      return NextResponse.json(
-        { error: 'Too many refresh attempts. Please try again later.' },
-        { status: 429, headers: { 'Retry-After': '600' } }
-      );
+      if (!rateLimit.allowed) {
+        logger.warn(`Refresh rate limit exceeded for IP: ${ip}`);
+        return NextResponse.json(
+          { error: 'Too many refresh attempts. Please try again later.' },
+          { status: 429, headers: { 'Retry-After': '600' } }
+        );
+      }
     }
 
     const cookieStore = await cookies();

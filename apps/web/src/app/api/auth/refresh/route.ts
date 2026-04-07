@@ -20,23 +20,27 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting — keyed on client IP to prevent refresh-token abuse
+    // Skip rate limiting when IP cannot be determined to avoid a shared
+    // 'unknown' bucket that could unfairly throttle unrelated clients.
     const ip =
       request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       request.headers.get('x-real-ip') ||
-      'unknown';
+      '';
 
-    const limited = await isRateLimited(ip, {
-      keyPrefix: 'refresh',
-      maxRequests: 20,          // generous: normal clients refresh ~1/30 min
-      windowMs: 5 * 60 * 1000,  // 5-minute window
-    });
+    if (ip) {
+      const limited = await isRateLimited(ip, {
+        keyPrefix: 'refresh',
+        maxRequests: 20,          // generous: normal clients refresh ~1/30 min
+        windowMs: 5 * 60 * 1000,  // 5-minute window
+      });
 
-    if (limited) {
-      logger.error(`[Auth Refresh API] Rate limit exceeded for IP: ${ip}`);
-      return NextResponse.json(
-        { success: false, error: 'Too many refresh attempts. Please try again later.' },
-        { status: 429, headers: { 'Retry-After': '300' } }
-      );
+      if (limited) {
+        logger.error(`[Auth Refresh API] Rate limit exceeded for IP: ${ip}`);
+        return NextResponse.json(
+          { success: false, error: 'Too many refresh attempts. Please try again later.' },
+          { status: 429, headers: { 'Retry-After': '300' } }
+        );
+      }
     }
 
     if (!API_BASE_URL) {

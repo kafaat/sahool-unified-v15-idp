@@ -14,6 +14,9 @@ const MAX_MESSAGE_LEN = 4096;
 const MAX_STACK_LEN = 16384;
 const MAX_URL_LEN = 2048;
 const MAX_ENV_LEN = 64;
+const MAX_USER_AGENT_LEN = 512;
+const MAX_TIMESTAMP_LEN = 64;
+const MAX_CONTEXT_JSON_LEN = 8192;
 
 interface ErrorLogPayload {
   message: string;
@@ -66,15 +69,30 @@ function validatePayload(
   const truncate = (v: string | undefined, max: number): string | undefined =>
     v && v.length > max ? v.slice(0, max) + '…[truncated]' : v;
 
+  // Truncate context to prevent oversized payloads
+  let safeContext: Record<string, unknown> | undefined;
+  if (obj.context !== undefined) {
+    try {
+      const contextStr = JSON.stringify(obj.context);
+      if (contextStr.length > MAX_CONTEXT_JSON_LEN) {
+        safeContext = { _truncated: true, _original_size: contextStr.length };
+      } else {
+        safeContext = obj.context as Record<string, unknown>;
+      }
+    } catch {
+      safeContext = { _error: 'non-serializable context' };
+    }
+  }
+
   const data: ErrorLogPayload = {
     message: truncate(obj.message as string, MAX_MESSAGE_LEN)!,
-    timestamp: obj.timestamp as string,
+    timestamp: truncate(obj.timestamp as string, MAX_TIMESTAMP_LEN)!,
     stack: truncate(obj.stack as string | undefined, MAX_STACK_LEN),
     componentStack: truncate(obj.componentStack as string | undefined, MAX_STACK_LEN),
     url: truncate(obj.url as string | undefined, MAX_URL_LEN),
-    userAgent: obj.userAgent as string | undefined,
+    userAgent: truncate(obj.userAgent as string | undefined, MAX_USER_AGENT_LEN),
     environment: truncate(obj.environment as string | undefined, MAX_ENV_LEN),
-    context: obj.context as Record<string, unknown> | undefined,
+    context: safeContext,
   };
 
   return { ok: true, data };

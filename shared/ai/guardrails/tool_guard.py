@@ -144,7 +144,16 @@ class ToolGuard:
                     self._record_block("custom_validator", context, custom_decision)
                     return custom_decision
             except Exception as e:
-                logger.warning("Custom validator error", error=str(e))
+                logger.error("Custom validator error — failing secure", error=str(e))
+                fail_decision = GuardDecision(
+                    allowed=False,
+                    reason=f"Custom validator raised exception: {type(e).__name__}",
+                    reason_ar="خطأ في المدقق المخصص - رفض آمن",
+                    layer="custom_validator",
+                    details={"error": str(e)},
+                )
+                self._record_block("custom_validator", context, fail_decision)
+                return fail_decision
 
         # All checks passed
         elapsed_ms = (time.time() - start_time) * 1000
@@ -217,10 +226,11 @@ class ToolGuard:
             )
 
     def _check_blocked_patterns(self, context: ToolCallContext) -> GuardDecision:
-        args_str = json.dumps(context.args, ensure_ascii=False)
+        args_str = json.dumps(context.args, ensure_ascii=False).lower()
 
         for pattern in self.blocked_patterns:
-            if fnmatch.fnmatch(args_str, f"*{pattern}*"):
+            pattern_lower = pattern.lower()
+            if pattern_lower in args_str:
                 return GuardDecision(
                     allowed=False,
                     reason=f"Blocked pattern detected: {pattern}",
@@ -232,7 +242,14 @@ class ToolGuard:
             for key in ("path", "file", "file_path", "target", "source"):
                 if key in context.args:
                     path = str(context.args[key]).replace("\\", "/")
-                    if fnmatch.fnmatch(path, pattern):
+                    # Normalize URL-encoded path traversal attempts
+                    try:
+                        from urllib.parse import unquote
+                        path = unquote(path)
+                    except Exception:
+                        pass
+                    path_lower = path.lower()
+                    if fnmatch.fnmatch(path_lower, pattern_lower):
                         return GuardDecision(
                             allowed=False,
                             reason="Path matches blocked pattern",

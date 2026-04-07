@@ -41,7 +41,7 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from .dlq_config import DLQConfig, DLQMessageMetadata
@@ -400,6 +400,8 @@ def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
     """
     Create FastAPI router for DLQ management endpoints.
 
+    All endpoints require admin authentication.
+
     Args:
         manager: DLQ manager instance (creates new one if None)
 
@@ -410,10 +412,22 @@ def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
 
     dlq_manager = manager or DLQManager()
 
+    # Auth dependency - DLQ management requires admin role
+    try:
+        from shared.auth.dependencies import require_roles
+
+        admin_required = Depends(require_roles("admin", "super_admin"))
+    except ImportError:
+        logger.warning("shared.auth not available; DLQ endpoints unprotected")
+        admin_required = None
+
+    # Build common dependencies list
+    _deps = [admin_required] if admin_required is not None else []
+
     # NOTE: Lifecycle management (connect/close) is handled by the application
     # lifespan in create_app(), not via deprecated router.on_event hooks.
 
-    @router.get("/messages", response_model=DLQMessageList)
+    @router.get("/messages", response_model=DLQMessageList, dependencies=_deps)
     async def list_dlq_messages(
         page: int = Query(1, ge=1),
         page_size: int = Query(50, ge=1, le=200),
@@ -430,12 +444,12 @@ def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
             service_filter=service,
         )
 
-    @router.get("/stats", response_model=DLQStats)
+    @router.get("/stats", response_model=DLQStats, dependencies=_deps)
     async def get_dlq_stats():
         """Get DLQ statistics and health metrics."""
         return await dlq_manager.get_stats()
 
-    @router.post("/replay/{seq}", response_model=dict[str, Any])
+    @router.post("/replay/{seq}", response_model=dict[str, Any], dependencies=_deps)
     async def replay_single_message(
         seq: int,
         delete_after: bool = Query(True),
@@ -444,12 +458,12 @@ def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
         success = await dlq_manager.replay_message(seq, delete_after)
         return {"seq": seq, "success": success}
 
-    @router.post("/replay/bulk", response_model=ReplayResponse)
+    @router.post("/replay/bulk", response_model=ReplayResponse, dependencies=_deps)
     async def replay_bulk_messages(request: ReplayRequest):
         """Replay multiple messages from DLQ."""
         return await dlq_manager.replay_bulk(request)
 
-    @router.post("/archive", response_model=ArchiveResponse)
+    @router.post("/archive", response_model=ArchiveResponse, dependencies=_deps)
     async def archive_messages(request: ArchiveRequest):
         """Archive old DLQ messages."""
         return await dlq_manager.archive_old_messages(request)

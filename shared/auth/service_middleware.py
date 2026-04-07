@@ -114,7 +114,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
                 logger.debug(f"Service request: {payload['service_name']} -> {self.current_service}")
 
             except Exception as e:
-                logger.warning(f"Service authentication failed: {str(e)}")
+                logger.warning("Service authentication failed", exc_info=True)
 
                 if self.require_service_auth:
                     return JSONResponse(
@@ -200,7 +200,7 @@ async def verify_service_request(
         return payload
 
     except Exception as e:
-        logger.warning(f"Service token verification failed: {str(e)}")
+        logger.warning("Service token verification failed", exc_info=True)
         raise HTTPException(
             status_code=401,
             detail={

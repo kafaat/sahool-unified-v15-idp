@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Package, Plus, Search, AlertTriangle, X } from 'lucide-react';
-import { useInventory, useInventoryStats, useUpdateInventory } from '@/features/inventory';
-import type { InventoryItem, InventoryCategory } from '@/features/inventory';
+import { useInventory, useInventoryStats, useUpdateInventory, useCreateInventory } from '@/features/inventory';
+import type { InventoryItem, InventoryCategory, InventoryFormData } from '@/features/inventory';
 
 const categories: Array<{ value: InventoryCategory | 'all'; label: string; labelAr: string }> = [
   { value: 'all', label: 'All Categories', labelAr: 'جميع الفئات' },
@@ -22,6 +22,16 @@ export default function InventoryClient() {
   const [editQuantity, setEditQuantity] = useState(0);
   const [editPurchasePrice, setEditPurchasePrice] = useState(0);
   const [editNotes, setEditNotes] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newNameAr, setNewNameAr] = useState('');
+  const [newCategory, setNewCategory] = useState<InventoryCategory>('fertilizers');
+  const [newQuantity, setNewQuantity] = useState(0);
+  const [newUnit, setNewUnit] = useState('');
+  const [newUnitAr, setNewUnitAr] = useState('');
+  const [newPurchasePrice, setNewPurchasePrice] = useState(0);
+  const [newLocation, setNewLocation] = useState('');
+  const [newLocationAr, setNewLocationAr] = useState('');
 
   // Fetch data using React Query hooks
   const {
@@ -31,6 +41,7 @@ export default function InventoryClient() {
   } = useInventory(selectedCategory !== 'all' ? { category: selectedCategory } : undefined);
   const { data: stats } = useInventoryStats();
   const updateInventory = useUpdateInventory();
+  const createInventory = useCreateInventory();
 
   const handleOpenEdit = (item: InventoryItem) => {
     setEditingItem(item);
@@ -45,6 +56,37 @@ export default function InventoryClient() {
       { id: editingItem.id, data: { quantity: editQuantity, purchasePrice: editPurchasePrice, notes: editNotes || undefined } },
       { onSuccess: () => setEditingItem(null) }
     );
+  };
+
+  const handleCreate = () => {
+    if (!newNameAr) return;
+    const data: InventoryFormData = {
+      name: newName,
+      nameAr: newNameAr,
+      category: newCategory,
+      sku: '',
+      quantity: newQuantity,
+      unit: newUnit,
+      unitAr: newUnitAr,
+      minQuantity: 0,
+      purchasePrice: newPurchasePrice,
+      location: newLocation || undefined,
+      locationAr: newLocationAr || undefined,
+    };
+    createInventory.mutate(data, {
+      onSuccess: () => {
+        setShowCreateDialog(false);
+        setNewName('');
+        setNewNameAr('');
+        setNewCategory('fertilizers');
+        setNewQuantity(0);
+        setNewUnit('');
+        setNewUnitAr('');
+        setNewPurchasePrice(0);
+        setNewLocation('');
+        setNewLocationAr('');
+      },
+    });
   };
 
   // Filter inventory based on search term
@@ -134,6 +176,73 @@ export default function InventoryClient() {
         </div>
       )}
 
+      {/* Create Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">إضافة عنصر جديد</h2>
+            <p className="text-sm text-gray-500 mb-4">Add New Item</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم العنصر (عربي)</label>
+                <input type="text" value={newNameAr} onChange={(e) => setNewNameAr(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="أدخل الاسم بالعربية" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم العنصر (إنجليزي)</label>
+                <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="Enter name in English" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الفئة</label>
+                <select value={newCategory} onChange={(e) => setNewCategory(e.target.value as InventoryCategory)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500">
+                  {categories.filter((c) => c.value !== 'all').map((c) => (
+                    <option key={c.value} value={c.value}>{c.labelAr}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الكمية</label>
+                  <input type="number" value={newQuantity} onChange={(e) => setNewQuantity(Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">سعر الشراء (ريال)</label>
+                  <input type="number" value={newPurchasePrice} onChange={(e) => setNewPurchasePrice(Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الوحدة (عربي)</label>
+                  <input type="text" value={newUnitAr} onChange={(e) => setNewUnitAr(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="كغ" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الوحدة (إنجليزي)</label>
+                  <input type="text" value={newUnit} onChange={(e) => setNewUnit(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="kg" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الموقع (عربي)</label>
+                  <input type="text" value={newLocationAr} onChange={(e) => setNewLocationAr(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="المستودع الرئيسي" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الموقع (إنجليزي)</label>
+                  <input type="text" value={newLocation} onChange={(e) => setNewLocation(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="Main warehouse" />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreate} disabled={createInventory.isPending || !newNameAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {createInventory.isPending ? 'جاري الإضافة...' : 'إضافة'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -141,9 +250,8 @@ export default function InventoryClient() {
           <p className="text-gray-500 mt-1">Inventory Management</p>
         </div>
         <button
-          disabled
-          title="قريباً - Coming soon"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => setShowCreateDialog(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة عنصر</span>

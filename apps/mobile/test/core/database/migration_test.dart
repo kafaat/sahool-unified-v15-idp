@@ -24,15 +24,15 @@ void main() {
     });
 
     test('SchemaVersionRegistry should have all versions', () {
-      expect(SchemaVersionRegistry.versions.length, equals(6));
+      expect(SchemaVersionRegistry.versions.length, equals(7));
       expect(SchemaVersionRegistry.versions.first.version, equals(1));
-      expect(SchemaVersionRegistry.versions.last.version, equals(6));
+      expect(SchemaVersionRegistry.versions.last.version, equals(7));
     });
 
     test('SchemaVersionRegistry.current should return latest version', () {
       final current = SchemaVersionRegistry.current;
-      expect(current.version, equals(6));
-      expect(current.description, contains('CachedUsers'));
+      expect(current.version, equals(7));
+      expect(current.description, contains('irrigationType'));
     });
 
     test('SchemaVersionRegistry.getVersion should return correct version', () {

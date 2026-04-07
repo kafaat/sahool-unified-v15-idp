@@ -348,7 +348,7 @@ async def register_camera(request: CameraRegistration, current_user: User = Depe
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
-            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """INSERT INTO cameras (camera_id, tower_id, name, name_ar, latitude, longitude,
                    altitude_m, focal_length_mm, sensor_width_mm, sensor_height_mm,
                    image_width_px, image_height_px, zoom_min, zoom_max, tenant_id, status, created_at)
@@ -527,7 +527,7 @@ async def process_frame(request: FrameProcessRequest, current_user: User = Depen
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
-            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """INSERT INTO frame_results (frame_id, camera_id, field_id, tenant_id,
                    detections_count, anomalies_count, processed_at)
                    VALUES ($1,$2,$3,$4,$5,$6,$7)""",
@@ -734,7 +734,7 @@ async def analyze_timeline(request: TimelineAnalysisRequest, current_user: User 
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
-            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """INSERT INTO timeline_analyses (analysis_id, field_id, tenant_id,
                    crop_type, growth_stage, confidence, processing_time_ms, analyzed_at)
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)""",
@@ -932,7 +932,7 @@ async def acknowledge_anomaly(
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
             tenant_id = current_user.tenant_id or ""
-            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """UPDATE anomalies SET status='acknowledged',
                    acknowledged_by=$1, acknowledged_notes=$2, acknowledged_at=$3
                    WHERE anomaly_id=$4 AND tenant_id=$5""",
@@ -979,7 +979,7 @@ async def resolve_anomaly(
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
             tenant_id = current_user.tenant_id or ""
-            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """UPDATE anomalies SET status='resolved',
                    resolved_by=$1, resolution_notes=$2, resolution_notes_ar=$3, resolved_at=$4
                    WHERE anomaly_id=$5 AND tenant_id=$6""",

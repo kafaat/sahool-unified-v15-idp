@@ -52,7 +52,7 @@ function sendMetric(metric: Metric): void {
         : metric.rating === 'needs-improvement'
           ? 'color: orange'
           : 'color: red';
-    console.log(`%c[Web Vital] ${metric.name}: ${metric.value.toFixed(1)} (${metric.rating})`, color);
+    console.log(`%c[Web Vital] ${metric.name}: ${metric.value.toFixed(1)} (${metric.rating})`, color); // nosemgrep: unsafe-formatstring -- developer diagnostic output, not user-facing
   }
 }
 

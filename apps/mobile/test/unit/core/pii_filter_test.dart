@@ -520,6 +520,7 @@ void main() {
     });
 
     test('Should sanitize error messages', () {
+      // nosemgrep: generic.secrets.security.detected-jwt-token -- synthetic test data for PII filter validation
       const error = '''
         Authentication failed for user ahmed@example.com
         Token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.SflKxwRJSMeKKF2QT

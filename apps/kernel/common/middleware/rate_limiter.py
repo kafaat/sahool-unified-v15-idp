@@ -742,7 +742,7 @@ class ClientIdentifier:
         if api_key:
             # SECURITY: Use full SHA-256 hash (64 chars) to prevent hash collisions
             api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()
-            return f"apikey:{api_key_hash}"
+            return f"apikey:{api_key_hash}"  # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
 
         # 2. محاولة الحصول على معرف المستخدم من المصادقة
         # 2. Try to get user ID from authentication
@@ -758,7 +758,7 @@ class ClientIdentifier:
         else:
             ip = request.client.host if request.client else "unknown"
 
-        return f"ip:{ip}"
+        return f"ip:{ip}"  # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
 
     @staticmethod
     def get_identification_method(client_id: str) -> str:

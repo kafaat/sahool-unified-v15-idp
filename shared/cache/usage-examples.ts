@@ -81,7 +81,7 @@ export class UserService {
 
   private async updateUserInDatabase(userId: string, data: any) {
     // Simulate database update
-    console.log(`Updating user ${userId} in database`, data);
+    console.log(`Updating user ${userId} in database`, data); // nosemgrep: unsafe-formatstring -- developer diagnostic output, not user-facing
   }
 }
 

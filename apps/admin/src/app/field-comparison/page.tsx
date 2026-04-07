@@ -274,7 +274,7 @@ export default function FieldComparisonPage() {
   }, []);
 
   const fieldA = useMemo(() => fieldOptions.find((f) => f.id === fieldAId) ?? fieldOptions[0] ?? MOCK_FIELDS[0]!, [fieldAId, fieldOptions]);
-  const fieldB = useMemo(() => fieldOptions.find((f) => f.id === fieldBId) ?? fieldOptions[1] ?? fieldOptions[0] ?? MOCK_FIELDS[1] ?? MOCK_FIELDS[0]!, [fieldBId, fieldOptions]);
+  const fieldB = useMemo(() => fieldOptions.find((f) => f.id === fieldBId) ?? fieldOptions[1] ?? fieldOptions[0], [fieldBId, fieldOptions]);
 
   // Compute winners per metric
   const results = useMemo(() => {

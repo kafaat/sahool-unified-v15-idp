@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { pivotIrrigationApi, type Pivot } from '@/features/pivot-irrigation/api';
 import { ApiError } from '@/lib/api/safe-fetch';
+import { logger } from '@/lib/logger';
 
 interface PivotVisualizationProps {
   pivot: Pivot;
@@ -199,9 +200,8 @@ export default function PivotIrrigationClient() {
     // Debounce the backend call by 600 ms to avoid flooding the API
     if (speedTimerRef.current) clearTimeout(speedTimerRef.current);
     speedTimerRef.current = setTimeout(() => {
-      pivotIrrigationApi.updateSpeed(pivotId, speed).catch(() => {
-        // Best-effort: if speed update fails, keep local state and let the
-        // user retry via the speed control.
+      pivotIrrigationApi.updateSpeed(pivotId, speed).catch((err) => {
+        logger.warn('Pivot speed update failed, keeping local state:', err);
       });
     }, 600);
   }, []);

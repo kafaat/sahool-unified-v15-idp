@@ -149,6 +149,7 @@ export const IRRIGATION_ENDPOINTS = {
   RECOMMENDATIONS: `${API_PREFIX}/irrigation/recommendations`,
   CROPS: `${API_PREFIX}/irrigation/crops`,
   METHODS: `${API_PREFIX}/irrigation/methods`,
+  PIVOT_CONTROL: `${API_PREFIX}/irrigation/pivot/control`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -165,6 +166,8 @@ export const ADVISORY_ENDPOINTS = {
   RECOMMENDATIONS: `${API_PREFIX}/advisory/recommendations`,
   FERTILIZER_ADVISORY: `${API_PREFIX}/advisory/fertilizer`,
   FERTILIZER_CALCULATE: `${API_PREFIX}/advisory/fertilizer/calculate`,
+  FERTILIZER_UPDATE: `${API_PREFIX}/advisory/fertilizer/{prescriptionId}`,
+  FERTILIZER_ZONE_UPDATE: `${API_PREFIX}/advisory/fertilizer/{prescriptionId}/zones/{zoneId}`,
   AGRO_ADVICE: `${API_PREFIX}/agro-advisor/advice`,
   AGRO_DISEASE: `${API_PREFIX}/agro-advisor/disease`,
   AGRO_NUTRIENTS: `${API_PREFIX}/agro-advisor/nutrients`,

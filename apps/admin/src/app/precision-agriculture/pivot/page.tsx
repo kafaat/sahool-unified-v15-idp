@@ -9,7 +9,7 @@ import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { cn } from '@/lib/utils';
 import { adminApiClient as apiClient } from '@/lib/api';
-import { IRRIGATION_ENDPOINTS } from '@sahool/shared-types/contracts';
+import { IRRIGATION_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import { logger } from '../../../lib/logger';
 import {
   Droplets,
@@ -245,7 +245,8 @@ export default function PivotIrrigationPage() {
     setIsLoading(true);
     try {
       const result = await apiClient.get<PivotSystem[]>(
-        IRRIGATION_ENDPOINTS.SCHEDULES_LIST + '?type=pivot'
+        IRRIGATION_ENDPOINTS.SCHEDULES_LIST,
+        { params: { type: 'pivot' } }
       );
       if (result.success && result.data) {
         const data = Array.isArray(result.data) ? result.data : [];
@@ -273,7 +274,7 @@ export default function PivotIrrigationPage() {
       if (isControlling) return;
       setIsControlling(true);
       try {
-        await apiClient.post('/api/v1/irrigation/pivot/control', { pivotId, action });
+        await apiClient.post(IRRIGATION_ENDPOINTS.PIVOT_CONTROL, { pivotId, action });
         await loadData();
       } catch (err) {
         logger.error('Pivot control failed:', err);

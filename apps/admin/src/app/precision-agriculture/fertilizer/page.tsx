@@ -10,7 +10,7 @@ import StatCard from '@/components/ui/StatCard';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { adminApiClient as apiClient } from '@/lib/api';
 import { API_PATHS } from '@/config/api';
-import { ADVISORY_ENDPOINTS } from '@sahool/shared-types/contracts';
+import { ADVISORY_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import {
   FlaskConical,
   MapPin,
@@ -403,7 +403,7 @@ export default function FertilizerPrescriptionPage() {
     if (!selectedPrescription) return;
     try {
       const result = await apiClient.put(
-        API_PATHS.advisory.fertilizer + '/' + selectedPrescription.id,
+        buildUrl(ADVISORY_ENDPOINTS.FERTILIZER_UPDATE, { prescriptionId: selectedPrescription.id }),
         selectedPrescription
       );
       if (!result.success) throw new Error(result.error || 'Failed to save prescription');
@@ -417,11 +417,10 @@ export default function FertilizerPrescriptionPage() {
     if (!selectedPrescription || !selectedZone) return;
     try {
       const result = await apiClient.patch(
-        API_PATHS.advisory.fertilizer +
-          '/' +
-          selectedPrescription.id +
-          '/zones/' +
-          selectedZone.id,
+        buildUrl(ADVISORY_ENDPOINTS.FERTILIZER_ZONE_UPDATE, {
+          prescriptionId: selectedPrescription.id,
+          zoneId: selectedZone.zoneId,
+        }),
         { applicationRate: zoneRate }
       );
       if (!result.success) throw new Error(result.error || 'Failed to update zone');

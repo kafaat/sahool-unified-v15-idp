@@ -279,6 +279,14 @@ function computeHeterogeneity(zones: FieldZone[]): number {
   return Math.round(cv);
 }
 
+/** Close a GeoJSON polygon ring by repeating the first coordinate as the last if not already closed. */
+function closeRing(coords: number[][]): number[][] {
+  const first = coords[0];
+  const last = coords[coords.length - 1];
+  if (first && last && (first[0] !== last[0] || first[1] !== last[1])) return [...coords, [...first]];
+  return coords;
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -452,14 +460,6 @@ export default function FieldZonesPage() {
     ],
     [expandedZoneId],
   );
-
-  /** Close a GeoJSON polygon ring by repeating the first coordinate as the last if not already closed. */
-  const closeRing = (coords: number[][]): number[][] => {
-    const first = coords[0];
-    const last = coords[coords.length - 1];
-    if (first && last && (first[0] !== last[0] || first[1] !== last[1])) return [...coords, [...first]];
-    return coords;
-  };
 
   const handleExport = useCallback((format: 'geojson' | 'csv') => {
     if (format === 'geojson') {

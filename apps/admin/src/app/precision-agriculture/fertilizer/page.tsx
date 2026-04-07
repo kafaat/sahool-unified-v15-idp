@@ -849,7 +849,10 @@ export default function FertilizerPrescriptionPage() {
                         <input
                           type="number"
                           value={zoneRate}
-                          onChange={(e) => setZoneRate(Number(e.target.value))}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            if (Number.isFinite(val)) setZoneRate(val);
+                          }}
                           className="mt-1 w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                         />
                       </label>

@@ -32,6 +32,7 @@ export default function TerrainPage() {
         limit: 20,
         search: searchQuery || undefined,
         analysis_type: typeFilter || undefined,
+        status: statusFilter || undefined,
       });
       setAnalyses(res.data);
       setTotalPages(res.meta.totalPages);

@@ -95,7 +95,12 @@ export const logger = {
           a instanceof Error ? { error: a.message, stack: a.stack } : a
         );
       }
-      console.error(JSON.stringify(entry));
+      try {
+        console.error(JSON.stringify(entry));
+      } catch {
+        // Fallback if entry contains circular refs or non-serializable values
+        console.error(entry.message, entry.stack ?? '');
+      }
     }
   },
 

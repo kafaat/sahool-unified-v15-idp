@@ -199,8 +199,14 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    // Log structured error
-    logger.error(JSON.stringify(logEntry));
+    // Log structured error (safe stringify to handle circular refs)
+    let logStr: string;
+    try {
+      logStr = JSON.stringify(logEntry);
+    } catch {
+      logStr = JSON.stringify({ level: 'error', service: 'sahool-admin', message: sanitized.message, receivedAt: logEntry.receivedAt });
+    }
+    logger.error(logStr);
 
     // In production, you would:
     // 1. Send to external logging service (e.g., LogRocket, Datadog, Sentry)

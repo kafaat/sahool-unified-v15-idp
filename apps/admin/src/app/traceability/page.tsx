@@ -374,7 +374,7 @@ export default function TraceabilityPage() {
           </p>
         </div>
         <button
-          onClick={() => downloadCSV(batches as Record<string, unknown>[], 'traceability.csv')}
+          onClick={() => downloadCSV(batches as Record<string, unknown>[], 'traceability')}
           className="flex items-center gap-2 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           title="تصدير CSV"
         >

@@ -203,7 +203,7 @@ export interface TerrainAnalysis {
 export const terrainService = {
   /** جلب التحليلات — Fetch analyses */
   async getAnalyses(
-    params?: PaginationParams & { field_id?: string; analysis_type?: string }
+    params?: PaginationParams & { field_id?: string; analysis_type?: string; status?: string }
   ): Promise<PaginatedResponse<TerrainAnalysis>> {
     try {
       const qp = new URLSearchParams();
@@ -212,6 +212,7 @@ export const terrainService = {
       if (params?.search) qp.set('search', params.search);
       if (params?.field_id) qp.set('field_id', params.field_id);
       if (params?.analysis_type) qp.set('analysis_type', params.analysis_type);
+      if (params?.status) qp.set('status', params.status);
       const response = await fetch(
         `${API_URLS.terrainEndpoints.analyze}?${qp}`,
         fetchDefaults

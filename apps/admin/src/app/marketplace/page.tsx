@@ -328,7 +328,7 @@ export default function MarketplacePage() {
             />
           </button>
           <button
-            onClick={() => downloadCSV(products as Record<string, unknown>[], 'marketplace.csv')}
+            onClick={() => downloadCSV(products as Record<string, unknown>[], 'marketplace')}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تصدير CSV"
           >

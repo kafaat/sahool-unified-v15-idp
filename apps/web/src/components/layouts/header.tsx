@@ -72,7 +72,7 @@ export const Header = React.memo(function Header({ onMenuToggle }: HeaderProps) 
             type="button"
             onClick={onMenuToggle}
             className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
-            aria-label={t('toggleMenu') || 'Toggle menu'}
+            aria-label="Toggle menu"
             data-testid="mobile-menu"
           >
             <Menu className="w-6 h-6" aria-hidden="true" />

@@ -246,7 +246,7 @@ export default function PivotIrrigationPage() {
     try {
       const result = await apiClient.get<PivotSystem[]>(
         IRRIGATION_ENDPOINTS.SCHEDULES_LIST,
-        { params: { type: 'pivot' } }
+        { type: 'pivot' }
       );
       if (result.success && result.data) {
         const data = Array.isArray(result.data) ? result.data : [];

@@ -272,10 +272,10 @@ export default function ReportsPage() {
   const [availableFields, setAvailableFields] = useState<Array<{ id: string; name_ar: string }>>(MOCK_FIELDS);
 
   const loadReports = useCallback(async () => {
-    const result = await apiClient.get(API_PATHS.analytics.reports);
-    if (result.success && result.data) {
-      const data = Array.isArray(result.data) ? (result.data as RecentReport[]) : [];
-      if (data.length > 0) setRecentReports(data);
+    const { data } = await apiClient.get(API_PATHS.analytics.reports);
+    const reports = Array.isArray(data) ? (data as RecentReport[]) : Array.isArray(data?.data) ? (data.data as RecentReport[]) : [];
+    if (reports.length > 0) {
+      setRecentReports(reports);
     } else {
       logger.warn('Failed to load reports, using mock data');
     }
@@ -283,15 +283,14 @@ export default function ReportsPage() {
 
   useEffect(() => {
     void loadReports();
-    apiClient.get(API_PATHS.fields.list).then((result) => {
-      if (result.success && result.data) {
-        const items = Array.isArray(result.data) ? result.data : [];
-        const mapped = (items as Array<Record<string, unknown>>).map((f) => ({
-          id: String(f.id ?? f.field_id ?? ''),
-          name_ar: String(f.name_ar ?? f.nameAr ?? f.name ?? ''),
-        })).filter((f) => f.id);
-        if (mapped.length > 0) setAvailableFields(mapped);
-      }
+    apiClient.get(API_PATHS.fields.list).then((response) => {
+      const payload = response.data;
+      const items = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
+      const mapped = (items as Array<Record<string, unknown>>).map((f) => ({
+        id: String(f.id ?? f.field_id ?? ''),
+        name_ar: String(f.name_ar ?? f.nameAr ?? f.name ?? ''),
+      })).filter((f) => f.id);
+      if (mapped.length > 0) setAvailableFields(mapped);
     }).catch(() => {/* keep MOCK_FIELDS */});
   }, [loadReports]);
 
@@ -323,11 +322,11 @@ export default function ReportsPage() {
     if (!formData.reportType || !formData.dateFrom || !formData.dateTo) return;
     setIsGenerating(true);
     try {
-      const result = await apiClient.post(API_PATHS.analytics.reports, { ...formData });
-      if (result.success) {
+      const response = await apiClient.post(API_PATHS.analytics.reports, { ...formData });
+      if (response.status >= 200 && response.status < 300) {
         await loadReports();
       } else {
-        logger.error('Failed to generate report:', result.error);
+        logger.error('Failed to generate report:', response.data);
       }
     } catch (err) {
       logger.error('Report generation error:', err);
@@ -339,9 +338,10 @@ export default function ReportsPage() {
 
   const handleDownloadReport = useCallback(async (id: string, format: string) => {
     try {
-      const result = await apiClient.get(`${API_PATHS.analytics.reports}/${id}/download`);
-      if (result.success && result.data) {
-        const url = typeof result.data === 'string' ? result.data : (result.data as Record<string, unknown>).url as string;
+      const response = await apiClient.get(`${API_PATHS.analytics.reports}/${id}/download`);
+      const data = response.data;
+      if (data) {
+        const url = typeof data === 'string' ? data : (data as Record<string, unknown>).url as string;
         if (url) {
           window.open(url, '_blank');
           return;

@@ -199,11 +199,18 @@ export default function PivotIrrigationClient() {
     // Debounce the backend call by 600 ms to avoid flooding the API
     if (speedTimerRef.current) clearTimeout(speedTimerRef.current);
     speedTimerRef.current = setTimeout(() => {
-      pivotIrrigationApi.controlPivot(pivotId, 'start').catch(() => {
+      pivotIrrigationApi.updateSpeed(pivotId, speed).catch(() => {
         // Best-effort: if speed update fails, keep local state and let the
-        // user retry via the main control buttons.
+        // user retry via the speed control.
       });
     }, 600);
+  }, []);
+
+  // Cleanup debounce timer on unmount to avoid stale state updates
+  useEffect(() => {
+    return () => {
+      if (speedTimerRef.current) clearTimeout(speedTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {

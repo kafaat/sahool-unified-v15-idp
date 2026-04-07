@@ -249,10 +249,10 @@ export default function FieldComparisonPage() {
   const [fieldBId, setFieldBId] = useState(MOCK_FIELDS[1]?.id ?? '');
 
   useEffect(() => {
-    apiClient.get(FIELD_ENDPOINTS.LIST).then((result) => {
-      if (result.success && result.data) {
-        const items = Array.isArray(result.data) ? result.data : [];
-        const mapped = (items as Array<Record<string, unknown>>).map((f): FieldData => ({
+    apiClient.get(FIELD_ENDPOINTS.LIST).then((response) => {
+      const payload = response.data;
+      const items = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
+      const mapped = (items as Array<Record<string, unknown>>).map((f): FieldData => ({
           id: String(f.id ?? f.field_id ?? ''),
           name: String(f.name ?? f.name_en ?? ''),
           nameAr: String(f.name_ar ?? f.nameAr ?? f.name ?? ''),
@@ -270,12 +270,11 @@ export default function FieldComparisonPage() {
           setFieldAId(mapped[0]?.id ?? MOCK_FIELDS[0]?.id ?? '');
           setFieldBId(mapped[1]?.id ?? MOCK_FIELDS[1]?.id ?? '');
         }
-      }
     }).catch(() => {/* keep MOCK_FIELDS */}).finally(() => setIsLoadingFields(false));
   }, []);
 
-  const fieldA = useMemo(() => fieldOptions.find((f) => f.id === fieldAId) ?? fieldOptions[0]!, [fieldAId, fieldOptions]);
-  const fieldB = useMemo(() => fieldOptions.find((f) => f.id === fieldBId) ?? fieldOptions[1]!, [fieldBId, fieldOptions]);
+  const fieldA = useMemo(() => fieldOptions.find((f) => f.id === fieldAId) ?? fieldOptions[0] ?? MOCK_FIELDS[0]!, [fieldAId, fieldOptions]);
+  const fieldB = useMemo(() => fieldOptions.find((f) => f.id === fieldBId) ?? fieldOptions[1] ?? fieldOptions[0] ?? MOCK_FIELDS[1] ?? MOCK_FIELDS[0]!, [fieldBId, fieldOptions]);
 
   // Compute winners per metric
   const results = useMemo(() => {

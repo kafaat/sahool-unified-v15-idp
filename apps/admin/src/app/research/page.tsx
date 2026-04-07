@@ -40,11 +40,12 @@ export default function ResearchPage() {
   async function loadTrials() {
     setIsLoading(true);
     try {
-      const result = await apiClient.get(RESEARCH_ENDPOINTS.TRIALS);
-      if (result.success && result.data) {
-        setTrials(result.data as ResearchTrial[]);
+      const response = await apiClient.get(RESEARCH_ENDPOINTS.TRIALS);
+      const data = response.data?.data ?? response.data;
+      if (Array.isArray(data)) {
+        setTrials(data as ResearchTrial[]);
       } else {
-        logger.error('Failed to load research trials:', result.error);
+        logger.error('Failed to load research trials: invalid response payload', response.data);
         setTrials(MOCK_TRIALS);
       }
     } catch (error) {

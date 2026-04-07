@@ -293,21 +293,20 @@ export default function FieldZonesPage() {
 
   // Load field list on mount
   useEffect(() => {
-    apiClient.get(FIELD_ENDPOINTS.LIST).then((result) => {
-      if (result.success && result.data) {
-        const items = Array.isArray(result.data) ? result.data : [];
-        const mapped = (items as Array<Record<string, unknown>>).map((f) => ({
-          id: String(f.id ?? f.field_id ?? ''),
-          name: String(f.name ?? f.name_en ?? ''),
-          nameAr: String(f.name_ar ?? f.nameAr ?? f.name ?? ''),
-          crop: String(f.crop ?? f.crop_type ?? ''),
-          cropAr: String(f.crop_ar ?? f.cropAr ?? f.crop ?? ''),
-          areaHa: Number(f.area_ha ?? f.areaHa ?? 0),
-        })).filter((f) => f.id);
-        if (mapped.length > 0) {
-          setFieldOptions(mapped);
-          setSelectedFieldId(mapped[0]?.id ?? FIELDS[0]!.id);
-        }
+    apiClient.get(FIELD_ENDPOINTS.LIST).then((response) => {
+      const payload = response.data;
+      const items = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
+      const mapped = (items as Array<Record<string, unknown>>).map((f) => ({
+        id: String(f.id ?? f.field_id ?? ''),
+        name: String(f.name ?? f.name_en ?? ''),
+        nameAr: String(f.name_ar ?? f.nameAr ?? f.name ?? ''),
+        crop: String(f.crop ?? f.crop_type ?? ''),
+        cropAr: String(f.crop_ar ?? f.cropAr ?? f.crop ?? ''),
+        areaHa: Number(f.area_ha ?? f.areaHa ?? 0),
+      })).filter((f) => f.id);
+      if (mapped.length > 0) {
+        setFieldOptions(mapped);
+        setSelectedFieldId(mapped[0]?.id ?? FIELDS[0]!.id);
       }
     }).catch(() => {/* keep FIELDS */});
   }, []);
@@ -317,9 +316,10 @@ export default function FieldZonesPage() {
     if (!selectedFieldId) return;
     setZonesLoading(true);
     apiClient.get(buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_ZONES, { fieldId: selectedFieldId }))
-      .then((result) => {
-        if (result.success && result.data) {
-          const data = Array.isArray(result.data) ? (result.data as FieldZone[]) : [];
+      .then((response) => {
+        const payload = response.data;
+        const data = Array.isArray(payload) ? (payload as FieldZone[]) : Array.isArray(payload?.data) ? (payload.data as FieldZone[]) : null;
+        if (data) {
           setZones(data);
         } else {
           setZones(MOCK_ZONES[selectedFieldId] ?? []);
@@ -453,7 +453,7 @@ export default function FieldZonesPage() {
     [expandedZoneId],
   );
 
-  const handleExport = useCallback((format: 'geojson' | 'shapefile') => {
+  const handleExport = useCallback((format: 'geojson' | 'csv') => {
     if (format === 'geojson') {
       const geojson = {
         type: 'FeatureCollection',
@@ -473,7 +473,14 @@ export default function FieldZonesPage() {
           },
           geometry: {
             type: 'Polygon',
-            coordinates: [z.boundary.map((c) => [c.lng, c.lat])],
+            coordinates: [(() => {
+              const ring = z.boundary.map((c) => [c.lng, c.lat]);
+              // GeoJSON rings must be closed (first coordinate == last)
+              const first = ring[0];
+              const last = ring[ring.length - 1];
+              if (first && last && (first[0] !== last[0] || first[1] !== last[1])) ring.push([...first]);
+              return ring;
+            })()],
           },
         })),
       };
@@ -487,9 +494,11 @@ export default function FieldZonesPage() {
     } else {
       const headers = ['id', 'nameAr', 'type', 'areaHa', 'ndvi', 'irrigationRate', 'fertilizerRate', 'seedRate', 'status'];
       const rows = zones.map((z) =>
-        [z.id, z.nameAr, z.type, z.areaHa, z.ndvi, z.irrigationRate, z.fertilizerRate, z.seedRate, z.status].join(',')
+        [z.id, z.nameAr, z.type, z.areaHa, z.ndvi, z.irrigationRate, z.fertilizerRate, z.seedRate, z.status]
+          .map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`)
+          .join(',')
       );
-      const csv = [headers.join(','), ...rows].join('\n');
+      const csv = [headers.map((h) => `"${h}"`).join(','), ...rows].join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -720,11 +729,11 @@ export default function FieldZonesPage() {
               </button>
               <button
                 type="button"
-                onClick={() => handleExport('shapefile')}
+                onClick={() => handleExport('csv')}
                 className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <Download className="w-4 h-4" />
-                Shapefile
+                CSV
               </button>
             </div>
           </div>

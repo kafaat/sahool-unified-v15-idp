@@ -42,11 +42,17 @@ export default function CropHealthPage() {
   async function loadRecords() {
     setIsLoading(true);
     try {
-      const result = await apiClient.get(API_PATHS.cropHealth.diagnoses);
-      if (result.success && result.data) {
-        setRecords(result.data as CropHealthRecord[]);
+      const response = await apiClient.get(API_PATHS.cropHealth.diagnoses);
+      const payload = response.data;
+      const recordsData = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : null;
+      if (recordsData) {
+        setRecords(recordsData as CropHealthRecord[]);
       } else {
-        logger.error('Failed to load crop health records:', result.error);
+        logger.error('Failed to load crop health records: unexpected response payload', payload);
         setRecords(MOCK_RECORDS);
       }
     } catch (error) {

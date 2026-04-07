@@ -41,6 +41,8 @@ const PIVOT_ENDPOINTS = {
   STATS: IRRIGATION_ENDPOINTS.EFFICIENCY,
   /** TODO: Pivot control endpoint does not exist yet in the backend. Pending implementation in irrigation-smart service. */
   CONTROL: '/api/v1/irrigation/pivot/control',
+  /** TODO: Pivot speed endpoint — pending implementation in irrigation-smart service. */
+  SPEED: '/api/v1/irrigation/pivot/speed',
 } as const;
 
 export const pivotIrrigationApi = {
@@ -82,6 +84,16 @@ export const pivotIrrigationApi = {
     return safeFetch(PIVOT_ENDPOINTS.CONTROL, async () => {
       const response = await api.post(PIVOT_ENDPOINTS.CONTROL, { pivotId, action });
       return response.data.data || response.data;
+    });
+  },
+
+  /**
+   * Update pivot rotation speed (PATCH)
+   * تحديث سرعة دوران المحور
+   */
+  updateSpeed: async (pivotId: string, speed: number): Promise<void> => {
+    await safeFetch(PIVOT_ENDPOINTS.SPEED, async () => {
+      await api.patch(PIVOT_ENDPOINTS.SPEED, { pivotId, speed });
     });
   },
 

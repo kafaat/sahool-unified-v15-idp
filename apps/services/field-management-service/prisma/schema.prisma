@@ -117,6 +117,7 @@ model Field {
   boundaryHistory FieldBoundaryHistory[]
   tasks           Task[]
   ndviReadings    NdviReading[]
+  kpiSnapshots    FieldKpiSnapshot[]
   farm            Farm?                   @relation(fields: [farmId], references: [id], onDelete: SetNull)
 
   // Indexes
@@ -313,6 +314,44 @@ model NdviReading {
   @@index([tenantId], name: "idx_ndvi_tenant")
   @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
   @@map("ndvi_readings")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field KPI Snapshot - لقطات KPI للحقل
+// Caches latest Sentinel Hub + OpenWeather indices per field
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldKpiSnapshot {
+  id        String   @id @default(uuid()) @db.Uuid
+  fieldId   String   @map("field_id") @db.Uuid
+  tenantId  String   @map("tenant_id") @db.VarChar(100)
+  fetchedAt DateTime @default(now()) @map("fetched_at") @db.Timestamptz
+
+  // Sentinel Hub vegetation indices
+  ndvi Decimal? @db.Decimal(5, 4)
+  evi  Decimal? @db.Decimal(5, 4)
+  ndwi Decimal? @db.Decimal(5, 4)
+  savi Decimal? @db.Decimal(5, 4)
+  lai  Decimal? @db.Decimal(6, 4)
+  ndmi Decimal? @db.Decimal(5, 4)
+
+  // OpenWeather / weather service data
+  temperature      Decimal? @map("temperature_c") @db.Decimal(5, 2)
+  humidity         Decimal? @map("humidity_pct") @db.Decimal(5, 2)
+  windSpeed        Decimal? @map("wind_speed_kmh") @db.Decimal(6, 2)
+  precipitation    Decimal? @map("precipitation_mm") @db.Decimal(6, 2)
+  uvIndex          Decimal? @map("uv_index") @db.Decimal(4, 2)
+  weatherCondition   String? @map("weather_condition") @db.VarChar(100)
+  weatherConditionAr String? @map("weather_condition_ar") @db.VarChar(100)
+
+  satelliteSource String? @map("satellite_source") @db.VarChar(50)
+  weatherSource   String? @map("weather_source") @db.VarChar(50)
+
+  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([fieldId, fetchedAt(sort: Desc)], name: "idx_kpi_field_date")
+  @@index([tenantId], name: "idx_kpi_tenant")
+  @@map("field_kpi_snapshots")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

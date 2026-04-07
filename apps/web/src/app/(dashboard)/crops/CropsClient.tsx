@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets, ChevronDown, ChevronUp } from 'lucide-react';
-import { useCrops, useCropStats } from '@/features/crops';
-import type { CropCategory, CropStage } from '@/features/crops';
+import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useCrops, useCropStats, useCreateCrop } from '@/features/crops';
+import type { CropCategory, CropStage, CropFormData } from '@/features/crops';
 
 const categoryLabels: Record<CropCategory, string> = {
   cereals: 'حبوب',
@@ -44,6 +44,8 @@ export default function CropsClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CropCategory | 'all'>('all');
   const [expandedCropId, setExpandedCropId] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newCrop, setNewCrop] = useState<Omit<CropFormData, 'expectedHarvestDate' | 'irrigationType' | 'irrigationTypeAr'>>({ name: '', nameAr: '', variety: '', varietyAr: '', category: 'cereals' as CropCategory, fieldId: '', plantingDate: '', areaHa: 0 });
 
   const {
     data: crops = [],
@@ -51,6 +53,19 @@ export default function CropsClient() {
     error,
   } = useCrops(selectedCategory !== 'all' ? { category: selectedCategory } : undefined);
   const { data: stats } = useCropStats();
+  const createCrop = useCreateCrop();
+
+  const handleCreateCrop = () => {
+    createCrop.mutate(
+      { ...newCrop, expectedHarvestDate: '', irrigationType: '', irrigationTypeAr: '' },
+      {
+        onSuccess: () => {
+          setShowCreateDialog(false);
+          setNewCrop({ name: '', nameAr: '', variety: '', varietyAr: '', category: 'cereals', fieldId: '', plantingDate: '', areaHa: 0 });
+        },
+      }
+    );
+  };
 
   const filteredCrops = useMemo(() => {
     if (!searchTerm) return crops;
@@ -85,6 +100,62 @@ export default function CropsClient() {
 
   return (
     <div className="space-y-6">
+      {/* Create Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">إضافة محصول جديد</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المحصول (EN)</label>
+                <input value={newCrop.name} onChange={(e) => setNewCrop({ ...newCrop, name: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المحصول (AR)</label>
+                <input value={newCrop.nameAr} onChange={(e) => setNewCrop({ ...newCrop, nameAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الصنف (EN)</label>
+                <input value={newCrop.variety} onChange={(e) => setNewCrop({ ...newCrop, variety: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الصنف (AR)</label>
+                <input value={newCrop.varietyAr} onChange={(e) => setNewCrop({ ...newCrop, varietyAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الفئة</label>
+                <select value={newCrop.category} onChange={(e) => setNewCrop({ ...newCrop, category: e.target.value as CropCategory })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500">
+                  {categories.filter((c) => c.value !== 'all').map((c) => (
+                    <option key={c.value} value={c.value}>{c.labelAr}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">معرّف الحقل</label>
+                <input value={newCrop.fieldId} onChange={(e) => setNewCrop({ ...newCrop, fieldId: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="FIELD-001" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">المساحة (هكتار)</label>
+                <input type="number" min={0} value={newCrop.areaHa} onChange={(e) => setNewCrop({ ...newCrop, areaHa: Number(e.target.value) })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ الزراعة</label>
+                <input type="date" value={newCrop.plantingDate} onChange={(e) => setNewCrop({ ...newCrop, plantingDate: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreateCrop} disabled={createCrop.isPending || !newCrop.name || !newCrop.nameAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {createCrop.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -92,9 +163,8 @@ export default function CropsClient() {
           <p className="text-gray-500 mt-1">Crop Management</p>
         </div>
         <button
-          disabled
-          title="قريباً - Coming soon"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => setShowCreateDialog(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة محصول</span>

@@ -6,22 +6,28 @@
  */
 
 import React, { useState } from 'react';
-import { ArrowUpRight, ArrowDownLeft, Send } from 'lucide-react';
-import { WalletDashboard, TransactionHistory, TransferForm } from '@/features/wallet';
+import { ArrowUpRight, ArrowDownLeft, Send, Loader2 } from 'lucide-react';
+import { WalletDashboard, TransactionHistory, TransferForm, useDeposit, useWithdraw, type PaymentMethod } from '@/features/wallet';
 import { useToast } from '@/components/ui/toast';
 
 type ViewMode = 'dashboard' | 'transfer' | 'deposit' | 'withdraw';
 
 export default function WalletClient() {
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
-  const [showComingSoon, setShowComingSoon] = useState<{
-    type: 'deposit' | 'withdraw' | null;
-  }>({ type: null });
   const { showToast } = useToast();
 
-  // Feature flags - set to true when features are implemented
-  const isDepositEnabled = false;
-  const isWithdrawEnabled = false;
+  const deposit = useDeposit();
+  const withdraw = useWithdraw();
+
+  // Deposit form state
+  const [depositAmount, setDepositAmount] = useState('');
+  const [depositMethod, setDepositMethod] = useState<PaymentMethod>('bank_transfer');
+  const [depositReference, setDepositReference] = useState('');
+
+  // Withdraw form state
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawMethod, setWithdrawMethod] = useState<'bank_transfer' | 'cash'>('bank_transfer');
+  const [withdrawBankAccount, setWithdrawBankAccount] = useState('');
 
   const handleTransferSuccess = () => {
     setViewMode('dashboard');
@@ -34,21 +40,75 @@ export default function WalletClient() {
   };
 
   const handleDepositClick = () => {
-    if (isDepositEnabled) {
-      setViewMode('deposit');
-    } else {
-      setShowComingSoon({ type: 'deposit' });
-      setTimeout(() => setShowComingSoon({ type: null }), 3000);
-    }
+    setViewMode('deposit');
   };
 
   const handleWithdrawClick = () => {
-    if (isWithdrawEnabled) {
-      setViewMode('withdraw');
-    } else {
-      setShowComingSoon({ type: 'withdraw' });
-      setTimeout(() => setShowComingSoon({ type: null }), 3000);
-    }
+    setViewMode('withdraw');
+  };
+
+  const handleDepositSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const amount = parseFloat(depositAmount);
+    if (Number.isNaN(amount) || amount <= 0) return;
+    deposit.mutate(
+      {
+        amount,
+        paymentMethod: depositMethod,
+        reference: depositReference || undefined,
+      },
+      {
+        onSuccess: () => {
+          setViewMode('dashboard');
+          setDepositAmount('');
+          setDepositReference('');
+          showToast({
+            type: 'success',
+            message: 'Deposit successful',
+            messageAr: 'تم الإيداع بنجاح',
+          });
+        },
+        onError: () => {
+          showToast({
+            type: 'error',
+            message: 'Deposit failed. Please try again.',
+            messageAr: 'فشل الإيداع. يرجى المحاولة مرة أخرى.',
+          });
+        },
+      }
+    );
+  };
+
+  const handleWithdrawSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const amount = parseFloat(withdrawAmount);
+    if (Number.isNaN(amount) || amount <= 0) return;
+    withdraw.mutate(
+      {
+        amount,
+        method: withdrawMethod,
+        bankAccount: withdrawBankAccount || undefined,
+      },
+      {
+        onSuccess: () => {
+          setViewMode('dashboard');
+          setWithdrawAmount('');
+          setWithdrawBankAccount('');
+          showToast({
+            type: 'success',
+            message: 'Withdrawal successful',
+            messageAr: 'تم السحب بنجاح',
+          });
+        },
+        onError: () => {
+          showToast({
+            type: 'error',
+            message: 'Withdrawal failed. Please try again.',
+            messageAr: 'فشل السحب. يرجى المحاولة مرة أخرى.',
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -97,6 +157,125 @@ export default function WalletClient() {
         </div>
       )}
 
+      {viewMode === 'deposit' && (
+        <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">إيداع</h2>
+          <form onSubmit={handleDepositSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">المبلغ</label>
+              <input
+                type="number"
+                min="1"
+                step="0.01"
+                required
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                placeholder="أدخل المبلغ"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">طريقة الدفع</label>
+              <select
+                value={depositMethod}
+                onChange={(e) => setDepositMethod(e.target.value as PaymentMethod)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              >
+                <option value="bank_transfer">تحويل بنكي</option>
+                <option value="card">بطاقة ائتمان</option>
+                <option value="cash">نقداً</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">المرجع (اختياري)</label>
+              <input
+                type="text"
+                value={depositReference}
+                onChange={(e) => setDepositReference(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                placeholder="رقم المرجع"
+              />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={deposit.isPending}
+                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:opacity-50"
+              >
+                {deposit.isPending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'إيداع'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('dashboard')}
+                className="px-6 py-3 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+              >
+                إلغاء
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {viewMode === 'withdraw' && (
+        <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">سحب</h2>
+          <form onSubmit={handleWithdrawSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">المبلغ</label>
+              <input
+                type="number"
+                min="1"
+                step="0.01"
+                required
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                placeholder="أدخل المبلغ"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">طريقة السحب</label>
+              <select
+                value={withdrawMethod}
+                onChange={(e) => setWithdrawMethod(e.target.value as 'bank_transfer' | 'cash')}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              >
+                <option value="bank_transfer">تحويل بنكي</option>
+                <option value="cash">نقداً</option>
+              </select>
+            </div>
+            {withdrawMethod === 'bank_transfer' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">رقم الحساب البنكي (اختياري)</label>
+                <input
+                  type="text"
+                  value={withdrawBankAccount}
+                  onChange={(e) => setWithdrawBankAccount(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  placeholder="أدخل رقم الحساب"
+                />
+              </div>
+            )}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={withdraw.isPending}
+                className="flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold disabled:opacity-50"
+              >
+                {withdraw.isPending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'سحب'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('dashboard')}
+                className="px-6 py-3 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+              >
+                إلغاء
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {/* Quick Actions Floating Button (Mobile) */}
       <div className="fixed bottom-6 left-6 md:hidden flex flex-col gap-3">
         <button
@@ -121,29 +300,6 @@ export default function WalletClient() {
           <ArrowUpRight className="w-6 h-6" />
         </button>
       </div>
-
-      {/* Coming Soon Notification */}
-      {showComingSoon.type && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
-          <div className="bg-blue-600 text-white px-6 py-4 rounded-lg shadow-xl border-2 border-blue-500">
-            <div className="flex items-center gap-3">
-              <div className="text-2xl">🚀</div>
-              <div>
-                <p className="font-bold">
-                  {showComingSoon.type === 'deposit'
-                    ? 'قريباً: ميزة الإيداع'
-                    : 'قريباً: ميزة السحب'}
-                </p>
-                <p className="text-sm opacity-90">
-                  {showComingSoon.type === 'deposit'
-                    ? 'Coming Soon: Deposit Feature'
-                    : 'Coming Soon: Withdrawal Feature'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

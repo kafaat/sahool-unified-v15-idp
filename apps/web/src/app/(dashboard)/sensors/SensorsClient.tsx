@@ -12,8 +12,9 @@ import {
   Wind,
   AlertTriangle,
   Loader2,
+  X,
 } from 'lucide-react';
-import { useSensors } from '@/features/iot';
+import { useSensors, useSensor } from '@/features/iot';
 import type { SensorType, SensorStatus, SensorFilters } from '@/features/iot';
 
 const sensorTypes: Record<string, { icon: React.ReactNode; label: string; labelAr: string }> = {
@@ -40,6 +41,7 @@ export default function SensorsClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<SensorStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<SensorType | 'all'>('all');
+  const [selectedSensorId, setSelectedSensorId] = useState<string | null>(null);
 
   // Build API filters from UI state
   const apiFilters: SensorFilters | undefined = useMemo(() => {
@@ -51,6 +53,7 @@ export default function SensorsClient() {
   }, [statusFilter, typeFilter, searchTerm]);
 
   const { data: sensors = [], isLoading, isError, error } = useSensors(apiFilters);
+  const { data: sensorDetail } = useSensor(selectedSensorId ?? '');
 
   // Client-side search fallback (in case API does not support text search)
   const filteredSensors = useMemo(() => {
@@ -335,9 +338,8 @@ export default function SensorsClient() {
                   آخر تحديث: {readingTime ? new Date(readingTime).toLocaleTimeString('ar-SA') : '-'}
                 </span>
                 <button
-                  disabled
-                  title="قريباً - Coming soon"
-                  className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setSelectedSensorId(sensor.id)}
+                  className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
                 >
                   التفاصيل
                 </button>
@@ -346,6 +348,58 @@ export default function SensorsClient() {
           );
         })}
       </div>
+
+      {/* Sensor Detail Modal */}
+      {selectedSensorId && sensorDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setSelectedSensorId(null)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">تفاصيل الحساس</h2>
+            <p className="text-sm text-gray-500 mb-4">Sensor Details</p>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="text-sm text-gray-500">الاسم</span>
+                <span className="text-sm font-medium text-gray-900">{sensorDetail.nameAr}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="text-sm text-gray-500">النوع</span>
+                <span className="text-sm font-medium text-gray-900">{sensorTypes[sensorDetail.type]?.labelAr ?? sensorDetail.type}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="text-sm text-gray-500">الحالة</span>
+                {getStatusBadge(sensorDetail.status)}
+              </div>
+              {sensorDetail.location && (
+                <div className="flex justify-between items-center py-2 border-b">
+                  <span className="text-sm text-gray-500">الموقع</span>
+                  <span className="text-sm font-medium text-gray-900">{sensorDetail.location.fieldName ?? `${sensorDetail.location.latitude}, ${sensorDetail.location.longitude}`}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="text-sm text-gray-500">القراءة الأخيرة</span>
+                <span className="text-sm font-bold text-gray-900">
+                  {sensorDetail.lastReading?.value ?? '-'} {sensorDetail.lastReading?.unit ?? sensorDetail.unit ?? ''}
+                </span>
+              </div>
+              {sensorDetail.battery != null && (
+                <div className="flex justify-between items-center py-2 border-b">
+                  <span className="text-sm text-gray-500">مستوى البطارية</span>
+                  <span className={`text-sm font-medium ${getBatteryColor(sensorDetail.battery)}`}>{sensorDetail.battery}%</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="text-sm text-gray-500">تاريخ التركيب</span>
+                <span className="text-sm font-medium text-gray-900">{new Date(sensorDetail.createdAt).toLocaleDateString('ar-SA')}</span>
+              </div>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button onClick={() => setSelectedSensorId(null)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إغلاق</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -78,6 +78,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "sentinel-hub.com",
       },
+      {
+        protocol: "https",
+        hostname: "maps.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "maps.gstatic.com",
+      },
     ],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -204,6 +212,7 @@ const nextConfig = {
       "@sahool/shared-types",
       "@sahool/api-client",
       "react-leaflet",
+      "@react-google-maps/api",
       "jose",
       "axios",
     ],
@@ -269,9 +278,9 @@ const nextConfig = {
               chunks: "all",
               priority: 30,
             },
-            // Separate mapping libraries (leaflet, maplibre) into their own chunk
+            // Separate mapping libraries (leaflet, maplibre, google-maps) into their own chunk
             maps: {
-              test: /[\\/]node_modules[\\/](leaflet|react-leaflet|maplibre-gl)[\\/]/,
+              test: /[\\/]node_modules[\\/](leaflet|react-leaflet|maplibre-gl|@react-google-maps)[\\/]/,
               name: "maps",
               chunks: "all",
               priority: 30,

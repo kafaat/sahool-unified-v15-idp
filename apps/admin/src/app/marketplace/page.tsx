@@ -19,7 +19,8 @@ import {
   Filter,
 } from 'lucide-react';
 import { logger } from '../../lib/logger';
-import { MOCK_PRODUCTS } from './marketplace.mock';
+import { apiClient } from '@/lib/api';
+import { MARKETPLACE_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type { Product } from './marketplace.mock';
 
 export default function MarketplacePage() {
@@ -36,12 +37,35 @@ export default function MarketplacePage() {
   async function loadProducts() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setProducts(MOCK_PRODUCTS);
+      const response = await apiClient.get(MARKETPLACE_ENDPOINTS.PRODUCTS);
+      const data = response.data?.data || response.data || [];
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       logger.error('Failed to load products:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        const { MOCK_PRODUCTS } = await import('./marketplace.mock');
+        setProducts(MOCK_PRODUCTS);
+      }
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleApproveProduct(productId: string) {
+    try {
+      await apiClient.post(buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_APPROVE, { productId }), {});
+      setProducts((prev) => prev.map((p) => (p.id === productId ? { ...p, status: 'active' as const } : p)));
+    } catch (error) {
+      logger.error('Failed to approve product:', error);
+    }
+  }
+
+  async function handleRejectProduct(productId: string) {
+    try {
+      await apiClient.post(buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_REJECT, { productId }), {});
+      setProducts((prev) => prev.map((p) => (p.id === productId ? { ...p, status: 'rejected' as const } : p)));
+    } catch (error) {
+      logger.error('Failed to reject product:', error);
     }
   }
 
@@ -179,16 +203,16 @@ export default function MarketplacePage() {
           {product.status === 'pending' && (
             <>
               <button
-                disabled
-                className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                title="قبول (قريبًا)"
+                onClick={() => handleApproveProduct(product.id)}
+                className="p-2 rounded-lg transition-colors hover:bg-green-50"
+                title="قبول"
               >
                 <CheckCircle className="w-4 h-4 text-green-500" />
               </button>
               <button
-                disabled
-                className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                title="رفض (قريبًا)"
+                onClick={() => handleRejectProduct(product.id)}
+                className="p-2 rounded-lg transition-colors hover:bg-red-50"
+                title="رفض"
               >
                 <XCircle className="w-4 h-4 text-red-500" />
               </button>

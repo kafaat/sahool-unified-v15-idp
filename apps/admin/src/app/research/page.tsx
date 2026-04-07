@@ -3,7 +3,10 @@
 // Research Management Page
 // صفحة إدارة الأبحاث
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
+import { RESEARCH_ENDPOINTS } from '@sahool/shared-types/contracts';
 import Header from '@/components/layout/Header';
 import DataTable from '@/components/ui/DataTable';
 import { formatDate, cn } from '@/lib/utils';
@@ -24,6 +27,7 @@ import { MOCK_TRIALS } from './research.mock';
 import type { ResearchTrial } from './research.mock';
 
 export default function ResearchPage() {
+  const router = useRouter();
   const [trials, setTrials] = useState<ResearchTrial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,14 +40,41 @@ export default function ResearchPage() {
   async function loadTrials() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setTrials(MOCK_TRIALS);
+      const response = await apiClient.get(RESEARCH_ENDPOINTS.TRIALS);
+      const data = response.data?.data ?? response.data;
+      if (Array.isArray(data)) {
+        setTrials(data as ResearchTrial[]);
+      } else {
+        logger.error('Failed to load research trials: invalid response payload', response.data);
+        setTrials(MOCK_TRIALS);
+      }
     } catch (error) {
       logger.error('Failed to load research trials:', error);
+      setTrials(MOCK_TRIALS);
     } finally {
       setIsLoading(false);
     }
   }
+
+  const handleExportCSV = useCallback(() => {
+    const headers = ['اسم التجربة', 'المحصول', 'الحالة', 'الموقع', 'تاريخ البدء', 'تاريخ الانتهاء'];
+    const rows = trials.map((t) => [
+      t.nameAr,
+      t.cropAr,
+      t.status,
+      t.fieldNameAr,
+      t.startDate,
+      t.endDate,
+    ]);
+    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'research-trials.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [trials]);
 
   const filteredTrials = useMemo(() => {
     return trials.filter((t) => {
@@ -182,11 +213,11 @@ export default function ResearchPage() {
     {
       key: 'actions',
       header: '',
-      render: (_trial: ResearchTrial) => (
+      render: (trial: ResearchTrial) => (
         <button
-          disabled
-          className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          title="عرض (قريبًا)"
+          onClick={() => router.push('/research/' + trial.id)}
+          className="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+          title="عرض"
         >
           <Eye className="w-4 h-4 text-gray-500" />
         </button>
@@ -303,16 +334,15 @@ export default function ResearchPage() {
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={handleExportCSV}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
           <button
-            disabled
-            className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تجربة جديدة (قريبًا)"
+            onClick={() => router.push('/research/new')}
+            className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
             تجربة جديدة

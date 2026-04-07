@@ -20,7 +20,8 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { logger } from '../../lib/logger';
-import { MOCK_SHIPMENTS } from './logistics.mock';
+import { apiClient } from '@/lib/api';
+import { LOGISTICS_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type { Shipment } from './logistics.mock';
 
 export default function LogisticsPage() {
@@ -36,10 +37,15 @@ export default function LogisticsPage() {
   async function loadShipments() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setShipments(MOCK_SHIPMENTS);
+      const response = await apiClient.get(LOGISTICS_ENDPOINTS.SHIPMENTS);
+      const data = response.data?.data || response.data || [];
+      setShipments(Array.isArray(data) ? data : []);
     } catch (error) {
       logger.error('Failed to load shipments:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        const { MOCK_SHIPMENTS } = await import('./logistics.mock');
+        setShipments(MOCK_SHIPMENTS);
+      }
     } finally {
       setIsLoading(false);
     }

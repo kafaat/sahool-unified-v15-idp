@@ -3,10 +3,14 @@
 // Center Pivot Irrigation Management - الري المحوري
 // Valley-style pivot management with VRI zones
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { cn } from '@/lib/utils';
+import { adminApiClient as apiClient } from '@/lib/api';
+import { IRRIGATION_ENDPOINTS } from '@sahool/shared-types/contracts';
+import { logger } from '../../../lib/logger';
 import {
   Droplets,
   Play,
@@ -230,28 +234,60 @@ function PivotVisualization({ pivot }: { pivot: PivotSystem }) {
 }
 
 export default function PivotIrrigationPage() {
+  const router = useRouter();
   const [pivots, setPivots] = useState<PivotSystem[]>([]);
   const [statistics, setStatistics] = useState<PivotStatistics | null>(null);
   const [selectedPivot, setSelectedPivot] = useState<PivotSystem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isControlling, setIsControlling] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const mockPivots = generateMockPivots();
-      setPivots(mockPivots);
-      setStatistics(generateMockStatistics(mockPivots));
-      setSelectedPivot(mockPivots[0] ?? null);
+      const result = await apiClient.get<PivotSystem[]>(
+        IRRIGATION_ENDPOINTS.SCHEDULES_LIST,
+        { type: 'pivot' }
+      );
+      if (result.success && result.data) {
+        const data = Array.isArray(result.data) ? result.data : [];
+        setPivots(data);
+        setStatistics(generateMockStatistics(data));
+        setSelectedPivot((prev) => data.find((p) => p.id === prev?.id) ?? data[0] ?? null);
+      } else {
+        throw new Error(result.error || 'Failed to fetch pivot data');
+      }
+    } catch (err) {
+      logger.error('Failed to load pivot data:', err);
+      if (process.env.NODE_ENV === 'development') {
+        const mockPivots = generateMockPivots();
+        setPivots(mockPivots);
+        setStatistics(generateMockStatistics(mockPivots));
+        setSelectedPivot((prev) => mockPivots.find((p) => p.id === prev?.id) ?? mockPivots[0] ?? null);
+      }
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  const handleControl = useCallback(
+    async (pivotId: string, action: 'start' | 'stop' | 'reverse') => {
+      if (isControlling) return;
+      setIsControlling(true);
+      try {
+        await apiClient.post(IRRIGATION_ENDPOINTS.PIVOT_CONTROL, { pivotId, action });
+        await loadData();
+      } catch (err) {
+        logger.error('Pivot control failed:', err);
+      } finally {
+        setIsControlling(false);
+      }
+    },
+    [isControlling, loadData]
+  );
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   return (
     <div className="p-6">
@@ -293,9 +329,8 @@ export default function PivotIrrigationPage() {
       {/* Refresh Button */}
       <div className="mt-4 flex justify-between items-center">
         <button
-          disabled
+          onClick={() => router.push('/precision-agriculture/pivot/new')}
           className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          title="قريبًا"
         >
           <PlusCircle className="w-4 h-4" />
           إضافة محوري جديد
@@ -389,14 +424,20 @@ export default function PivotIrrigationPage() {
 
                 <div className="flex flex-wrap gap-3 mb-6">
                   <button
-                    disabled
+                    onClick={() =>
+                      selectedPivot &&
+                      handleControl(
+                        selectedPivot.id,
+                        selectedPivot.status === 'running' ? 'stop' : 'start'
+                      )
+                    }
+                    disabled={isControlling || !selectedPivot}
                     className={cn(
                       'flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
                       selectedPivot.status === 'running'
                         ? 'bg-red-100 text-red-700 hover:bg-red-200'
                         : 'bg-green-100 text-green-700 hover:bg-green-200'
                     )}
-                    title="قريبًا"
                   >
                     {selectedPivot.status === 'running' ? (
                       <>
@@ -412,9 +453,9 @@ export default function PivotIrrigationPage() {
                   </button>
 
                   <button
-                    disabled
+                    onClick={() => selectedPivot && handleControl(selectedPivot.id, 'reverse')}
+                    disabled={isControlling || !selectedPivot}
                     className="flex items-center gap-2 px-5 py-2.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="قريبًا"
                   >
                     <RotateCw className="w-4 h-4" />
                     عكس الاتجاه

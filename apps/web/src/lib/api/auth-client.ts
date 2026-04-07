@@ -69,6 +69,7 @@ class AuthApiClient {
     if (typeof window !== 'undefined') {
       Cookies.remove('access_token', { path: '/' });
       Cookies.remove('refresh_token', { path: '/' });
+      // Legacy path-scoped removal (cookies set without explicit path)
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
     }

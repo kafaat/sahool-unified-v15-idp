@@ -403,6 +403,8 @@ export const API_PATHS = {
     posts: CHAT_ENDPOINTS.COMMUNITY_POSTS,
     postById: (id: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id }),
     comments: (postId: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_COMMENTS, { postId }),
+    approvePost: (id: string) => `${buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id })}/approve`,
+    hidePost: (id: string) => `${buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id })}/hide`,
   },
 
   // Advisory (from unified contracts + service-specific paths)
@@ -697,6 +699,15 @@ export const API_URLS = {
     events: `${SERVICE_URLS.traceability}${API_PATHS.traceability.events}`,
     qrCode: (batchId: string) =>
       `${SERVICE_URLS.traceability}${API_PATHS.traceability.qrCode(batchId)}`,
+  },
+
+  // Community endpoints
+  community: {
+    posts: `${SERVICE_URLS.communityChat}${API_PATHS.community.posts}`,
+    postById: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.postById(id)}`,
+    comments: (postId: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.comments(postId)}`,
+    approvePost: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.approvePost(id)}`,
+    hidePost: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.hidePost(id)}`,
   },
 
   // Vision endpoints

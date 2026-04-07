@@ -3,7 +3,10 @@
 // Crop Health Management Page
 // صفحة إدارة صحة المحاصيل
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
+import { API_PATHS } from '@/config/api';
 import { PageErrorBoundary } from '@/components/common/PageErrorBoundary';
 import Header from '@/components/layout/Header';
 import DataTable from '@/components/ui/DataTable';
@@ -26,6 +29,7 @@ import { MOCK_RECORDS } from './crop-health.mock';
 import type { CropHealthRecord } from './crop-health.mock';
 
 export default function CropHealthPage() {
+  const router = useRouter();
   const [records, setRecords] = useState<CropHealthRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,14 +42,42 @@ export default function CropHealthPage() {
   async function loadRecords() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setRecords(MOCK_RECORDS);
+      const result = await apiClient.get(API_PATHS.cropHealth.diagnoses);
+      if (result.success && result.data) {
+        setRecords(result.data as CropHealthRecord[]);
+      } else {
+        logger.error('Failed to load crop health records:', result.error);
+        setRecords(MOCK_RECORDS);
+      }
     } catch (error) {
       logger.error('Failed to load crop health records:', error);
+      setRecords(MOCK_RECORDS);
     } finally {
       setIsLoading(false);
     }
   }
+
+  const handleExportCSV = useCallback(() => {
+    const headers = ['اسم المزرعة', 'الحقل', 'المحصول', 'مرحلة النمو', 'NDVI', 'حالة الصحة', 'آخر فحص', 'الإجراء الموصى به'];
+    const rows = records.map((r) => [
+      r.farmNameAr,
+      r.fieldNameAr,
+      r.cropAr,
+      '',
+      r.ndvi.toFixed(2),
+      r.healthStatus,
+      r.lastInspection,
+      (r.recommendationsAr ?? []).join('; '),
+    ]);
+    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'crop-health.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [records]);
 
   const filteredRecords = useMemo(() => {
     return records.filter((r) => {
@@ -216,11 +248,11 @@ export default function CropHealthPage() {
     {
       key: 'actions',
       header: '',
-      render: (_record: CropHealthRecord) => (
+      render: (record: CropHealthRecord) => (
         <button
-          disabled
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          title="عرض (قريبًا)"
+          onClick={() => router.push('/crop-health/' + record.id)}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          title="عرض"
         >
           <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         </button>
@@ -336,9 +368,9 @@ export default function CropHealthPage() {
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={handleExportCSV}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>

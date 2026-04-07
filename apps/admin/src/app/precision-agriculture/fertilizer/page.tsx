@@ -4,11 +4,13 @@
 // إدارة وصفات التسميد المتغير المحسّنة
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { adminApiClient as apiClient } from '@/lib/api';
 import { API_PATHS } from '@/config/api';
+import { ADVISORY_ENDPOINTS } from '@sahool/shared-types/contracts';
 import {
   FlaskConical,
   MapPin,
@@ -313,12 +315,15 @@ function getNutrientBarWidth(current: number, target: number): number {
 // ═══════════════════════════════════════════════════════════════
 
 export default function FertilizerPrescriptionPage() {
+  const router = useRouter();
   const [prescriptions, setPrescriptions] = useState<FertilizerPrescription[]>([]);
+  const [products, setProducts] = useState<FertilizerProduct[]>(MOCK_PRODUCTS);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPrescription, setSelectedPrescription] = useState<FertilizerPrescription | null>(
     null
   );
   const [selectedZone, setSelectedZone] = useState<ZonePrescription | null>(null);
+  const [zoneRate, setZoneRate] = useState<number>(0);
   const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -342,6 +347,89 @@ export default function FertilizerPrescriptionPage() {
   useEffect(() => {
     loadPrescriptions();
   }, [loadPrescriptions]);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const result = await apiClient.get<FertilizerProduct[]>(ADVISORY_ENDPOINTS.FERTILIZERS);
+        if (result.success && result.data && Array.isArray(result.data)) {
+          setProducts(result.data);
+        }
+      } catch {
+        logger.info('Using mock fertilizer products');
+      }
+    }
+    loadProducts();
+  }, []);
+
+  useEffect(() => {
+    if (selectedZone) {
+      setZoneRate(selectedZone.applicationRate);
+    }
+  }, [selectedZone]);
+
+  const handleExportCSV = useCallback(() => {
+    const headers = [
+      'الحقل',
+      'المزرعة',
+      'المحصول',
+      'المرحلة',
+      'المساحة (هـ)',
+      'الحالة',
+      'التكلفة (ر.س)',
+      'تاريخ الإنشاء',
+    ];
+    const rows = prescriptions.map((p) => [
+      p.fieldName,
+      p.farmName,
+      p.cropType,
+      p.cropStage,
+      p.totalArea.toString(),
+      p.status,
+      p.totalCost.toString(),
+      p.createdAt,
+    ]);
+    const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fertilizer-prescriptions-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [prescriptions]);
+
+  const handleSavePrescription = useCallback(async () => {
+    if (!selectedPrescription) return;
+    try {
+      const result = await apiClient.put(
+        API_PATHS.advisory.fertilizer + '/' + selectedPrescription.id,
+        selectedPrescription
+      );
+      if (!result.success) throw new Error(result.error || 'Failed to save prescription');
+      await loadPrescriptions();
+    } catch (err) {
+      logger.error('Failed to save prescription:', err);
+    }
+  }, [selectedPrescription, loadPrescriptions]);
+
+  const handleUpdateZone = useCallback(async () => {
+    if (!selectedPrescription || !selectedZone) return;
+    try {
+      const result = await apiClient.patch(
+        API_PATHS.advisory.fertilizer +
+          '/' +
+          selectedPrescription.id +
+          '/zones/' +
+          selectedZone.id,
+        { applicationRate: zoneRate }
+      );
+      if (!result.success) throw new Error(result.error || 'Failed to update zone');
+      await loadPrescriptions();
+    } catch (err) {
+      logger.error('Failed to update zone prescription:', err);
+    }
+  }, [selectedPrescription, selectedZone, zoneRate, loadPrescriptions]);
 
   const filteredPrescriptions =
     filterStatus === 'all' ? prescriptions : prescriptions.filter((p) => p.status === filterStatus);
@@ -420,9 +508,8 @@ export default function FertilizerPrescriptionPage() {
                 </button>
               </div>
               <button
-                disabled
-                className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                title="وصفة جديدة (قريبًا)"
+                onClick={() => router.push('/precision-agriculture/fertilizer/new')}
+                className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-emerald-700"
               >
                 <Plus className="w-4 h-4" />
                 وصفة جديدة
@@ -528,17 +615,15 @@ export default function FertilizerPrescriptionPage() {
               </button>
               <div className="flex items-center gap-2">
                 <button
-                  disabled
-                  className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-                  title="تصدير (قريبًا)"
+                  onClick={handleExportCSV}
+                  className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Download className="w-4 h-4" />
                   تصدير
                 </button>
                 <button
-                  disabled
-                  className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  title="حفظ التعديلات (قريبًا)"
+                  onClick={handleSavePrescription}
+                  className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-emerald-700"
                 >
                   <Save className="w-4 h-4" />
                   حفظ التعديلات
@@ -753,7 +838,7 @@ export default function FertilizerPrescriptionPage() {
                       تغيير السماد
                     </h4>
                     <select className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200">
-                      {MOCK_PRODUCTS.map((prod) => (
+                      {products.map((prod) => (
                         <option key={prod.id} value={prod.id}>
                           {prod.nameAr} (N:{prod.nContent} P:{prod.pContent} K:{prod.kContent})
                         </option>
@@ -764,15 +849,15 @@ export default function FertilizerPrescriptionPage() {
                         <span className="text-gray-500 dark:text-gray-400">معدل (كجم/هـ)</span>
                         <input
                           type="number"
-                          defaultValue={selectedZone.applicationRate}
+                          value={zoneRate}
+                          onChange={(e) => setZoneRate(Number(e.target.value))}
                           className="mt-1 w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                         />
                       </label>
                     </div>
                     <button
-                      disabled
-                      className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                      title="تحديث الوصفة (قريبًا)"
+                      onClick={handleUpdateZone}
+                      className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-emerald-700"
                     >
                       <CheckCircle className="w-4 h-4" />
                       تحديث الوصفة

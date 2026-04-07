@@ -62,6 +62,39 @@ export default function VRAPage() {
     loadPrescriptions();
   }, [loadPrescriptions]);
 
+  const handleExportCSV = useCallback(() => {
+    const headers = [
+      'المزرعة',
+      'الحقل',
+      'المحصول',
+      'نوع الوصفة',
+      'الحالة',
+      'المنطقة (هـ)',
+      'المناطق',
+      'التكلفة',
+      'التاريخ',
+    ];
+    const rows = prescriptions.map((p) => [
+      p.farmName,
+      p.fieldName,
+      p.cropType,
+      p.prescriptionType,
+      p.status,
+      p.area.toFixed(1),
+      p.zones.toString(),
+      p.totalCost.toFixed(2),
+      p.createdAt,
+    ]);
+    const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vra-prescriptions-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [prescriptions]);
+
   async function handleApprove(id: string) {
     try {
       await approvePrescription(id);
@@ -163,9 +196,9 @@ export default function VRAPage() {
           </select>
 
           <button
-            disabled
-            className="mr-auto px-4 py-2 bg-sahool-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير التقرير (قريبًا)"
+            onClick={handleExportCSV}
+            disabled={isLoading || prescriptions.length === 0}
+            className="mr-auto px-4 py-2 bg-sahool-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 hover:bg-sahool-700 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Download className="w-4 h-4" />
             تصدير التقرير

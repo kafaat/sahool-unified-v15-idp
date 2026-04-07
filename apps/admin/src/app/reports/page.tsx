@@ -272,11 +272,15 @@ export default function ReportsPage() {
   const [availableFields, setAvailableFields] = useState<Array<{ id: string; name_ar: string }>>(MOCK_FIELDS);
 
   const loadReports = useCallback(async () => {
-    const { data } = await apiClient.get(API_PATHS.analytics.reports);
-    const reports = Array.isArray(data) ? (data as RecentReport[]) : Array.isArray(data?.data) ? (data.data as RecentReport[]) : [];
-    if (reports.length > 0) {
-      setRecentReports(reports);
-    } else {
+    try {
+      const { data } = await apiClient.get(API_PATHS.analytics.reports);
+      const reports = Array.isArray(data) ? (data as RecentReport[]) : Array.isArray(data?.data) ? (data.data as RecentReport[]) : [];
+      if (reports.length > 0) {
+        setRecentReports(reports);
+      } else {
+        logger.warn('Failed to load reports, using mock data');
+      }
+    } catch {
       logger.warn('Failed to load reports, using mock data');
     }
   }, []);

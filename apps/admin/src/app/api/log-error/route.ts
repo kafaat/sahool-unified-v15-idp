@@ -153,26 +153,32 @@ export async function POST(request: NextRequest) {
     // ── Length limits to prevent log injection / oversized payloads ──────
     const MAX_MESSAGE_LEN = 4096;
     const MAX_STACK_LEN = 16384;
-    if (payload.message.length > MAX_MESSAGE_LEN) {
-      payload.message = payload.message.slice(0, MAX_MESSAGE_LEN) + '…[truncated]';
-    }
-    if (payload.stack && payload.stack.length > MAX_STACK_LEN) {
-      payload.stack = payload.stack.slice(0, MAX_STACK_LEN) + '…[truncated]';
-    }
-    if (payload.componentStack && payload.componentStack.length > MAX_STACK_LEN) {
-      payload.componentStack = payload.componentStack.slice(0, MAX_STACK_LEN) + '…[truncated]';
-    }
+    const sanitized: ErrorLogPayload = {
+      ...payload,
+      message:
+        payload.message.length > MAX_MESSAGE_LEN
+          ? payload.message.slice(0, MAX_MESSAGE_LEN) + '…[truncated]'
+          : payload.message,
+      stack:
+        payload.stack && payload.stack.length > MAX_STACK_LEN
+          ? payload.stack.slice(0, MAX_STACK_LEN) + '…[truncated]'
+          : payload.stack,
+      componentStack:
+        payload.componentStack && payload.componentStack.length > MAX_STACK_LEN
+          ? payload.componentStack.slice(0, MAX_STACK_LEN) + '…[truncated]'
+          : payload.componentStack,
+    };
 
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
-      logger.error('[Admin Error Log]', JSON.stringify(payload, null, 2));
+      logger.error('[Admin Error Log]', JSON.stringify(sanitized, null, 2));
     }
 
     // Create structured log entry
     const logEntry = {
       level: 'error',
       service: 'sahool-admin',
-      ...payload,
+      ...sanitized,
       clientIP,
       receivedAt: new Date().toISOString(),
       requestHeaders: {

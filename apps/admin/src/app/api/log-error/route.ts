@@ -7,8 +7,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '../../../lib/logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Types
+// Validation Schema (lightweight Zod-like runtime validation without extra dep)
 // ═══════════════════════════════════════════════════════════════════════════
+
+const MAX_MESSAGE_LEN = 4096;
+const MAX_STACK_LEN = 16384;
+const MAX_URL_LEN = 2048;
+const MAX_ENV_LEN = 64;
 
 interface ErrorLogPayload {
   message: string;
@@ -19,6 +24,60 @@ interface ErrorLogPayload {
   timestamp: string;
   environment?: string;
   context?: Record<string, unknown>;
+}
+
+/**
+ * Validate and sanitise the request body.
+ * Returns either a sanitised payload or an error string.
+ */
+function validatePayload(
+  body: unknown,
+): { ok: true; data: ErrorLogPayload } | { ok: false; error: string } {
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return { ok: false, error: 'Request body must be a JSON object' };
+  }
+
+  const obj = body as Record<string, unknown>;
+
+  // ── Required fields ─────────────────────────────────────────────────
+  if (typeof obj.message !== 'string' || obj.message.length === 0) {
+    return { ok: false, error: 'Missing or invalid field: message (non-empty string required)' };
+  }
+  if (typeof obj.timestamp !== 'string' || obj.timestamp.length === 0) {
+    return { ok: false, error: 'Missing or invalid field: timestamp (non-empty string required)' };
+  }
+
+  // ── Optional string fields ──────────────────────────────────────────
+  for (const field of ['stack', 'componentStack', 'url', 'userAgent', 'environment'] as const) {
+    if (obj[field] !== undefined && typeof obj[field] !== 'string') {
+      return { ok: false, error: `Invalid field: ${field} (string expected)` };
+    }
+  }
+
+  // ── Optional object field ───────────────────────────────────────────
+  if (
+    obj.context !== undefined &&
+    (typeof obj.context !== 'object' || obj.context === null || Array.isArray(obj.context))
+  ) {
+    return { ok: false, error: 'Invalid field: context (object expected)' };
+  }
+
+  // ── Length limits to prevent log injection / oversized payloads ──────
+  const truncate = (v: string | undefined, max: number): string | undefined =>
+    v && v.length > max ? v.slice(0, max) + '…[truncated]' : v;
+
+  const data: ErrorLogPayload = {
+    message: truncate(obj.message as string, MAX_MESSAGE_LEN)!,
+    timestamp: obj.timestamp as string,
+    stack: truncate(obj.stack as string | undefined, MAX_STACK_LEN),
+    componentStack: truncate(obj.componentStack as string | undefined, MAX_STACK_LEN),
+    url: truncate(obj.url as string | undefined, MAX_URL_LEN),
+    userAgent: obj.userAgent as string | undefined,
+    environment: truncate(obj.environment as string | undefined, MAX_ENV_LEN),
+    context: obj.context as Record<string, unknown> | undefined,
+  };
+
+  return { ok: true, data };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -108,66 +167,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Too many error reports' }, { status: 429 });
     }
 
-    const payload: ErrorLogPayload = await request.json();
-
-    // ── Validate required fields ──────────────────────────────────────────
-    if (typeof payload.message !== 'string' || payload.message.length === 0) {
-      return NextResponse.json(
-        { error: 'Missing or invalid field: message (non-empty string required)' },
-        { status: 400 }
-      );
-    }
-    if (typeof payload.timestamp !== 'string' || payload.timestamp.length === 0) {
-      return NextResponse.json(
-        { error: 'Missing or invalid field: timestamp (non-empty string required)' },
-        { status: 400 }
-      );
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
-    // ── Validate optional field types ─────────────────────────────────────
-    if (payload.stack !== undefined && typeof payload.stack !== 'string') {
-      return NextResponse.json({ error: 'Invalid field: stack (string expected)' }, { status: 400 });
+    // ── Validate & sanitise payload ─────────────────────────────────────
+    const result = validatePayload(body);
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
     }
-    if (payload.componentStack !== undefined && typeof payload.componentStack !== 'string') {
-      return NextResponse.json(
-        { error: 'Invalid field: componentStack (string expected)' },
-        { status: 400 }
-      );
-    }
-    if (payload.url !== undefined && typeof payload.url !== 'string') {
-      return NextResponse.json({ error: 'Invalid field: url (string expected)' }, { status: 400 });
-    }
-    if (payload.environment !== undefined && typeof payload.environment !== 'string') {
-      return NextResponse.json(
-        { error: 'Invalid field: environment (string expected)' },
-        { status: 400 }
-      );
-    }
-    if (payload.context !== undefined && (typeof payload.context !== 'object' || payload.context === null || Array.isArray(payload.context))) {
-      return NextResponse.json(
-        { error: 'Invalid field: context (object expected)' },
-        { status: 400 }
-      );
-    }
-
-    // ── Length limits to prevent log injection / oversized payloads ──────
-    const MAX_MESSAGE_LEN = 4096;
-    const MAX_STACK_LEN = 16384;
-    const sanitized: ErrorLogPayload = {
-      ...payload,
-      message:
-        payload.message.length > MAX_MESSAGE_LEN
-          ? payload.message.slice(0, MAX_MESSAGE_LEN) + '…[truncated]'
-          : payload.message,
-      stack:
-        payload.stack && payload.stack.length > MAX_STACK_LEN
-          ? payload.stack.slice(0, MAX_STACK_LEN) + '…[truncated]'
-          : payload.stack,
-      componentStack:
-        payload.componentStack && payload.componentStack.length > MAX_STACK_LEN
-          ? payload.componentStack.slice(0, MAX_STACK_LEN) + '…[truncated]'
-          : payload.componentStack,
-    };
+    const sanitized = result.data;
 
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {

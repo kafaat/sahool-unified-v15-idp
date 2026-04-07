@@ -26,7 +26,7 @@ import {
   getCSPConfig,
 } from '@/lib/security/csp-config';
 import { validateJwtToken } from '@/lib/security/jwt-middleware';
-import { validateCsrfRequest } from '@/lib/security/csrf-server';
+import { validateCsrfRequest, isSensitiveAction, generateCsrfToken } from '@/lib/security/csrf-server';
 
 // ---------------------------------------------------------------------------
 // Inline locale constants to avoid pulling in the full @sahool/i18n barrel
@@ -293,14 +293,13 @@ export async function middleware(request: NextRequest) {
   // Generate CSRF token if not present
   let csrfToken = request.cookies.get('csrf_token')?.value;
   const clientCsrf = request.cookies.get('_csrf')?.value;
-  if (!csrfToken) {
-    // Use Web Crypto API for Edge Runtime compatibility
-    const randomValues = new Uint8Array(32);
-    crypto.getRandomValues(randomValues);
-    csrfToken = btoa(String.fromCharCode(...randomValues))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
+
+  // Rotate CSRF token after sensitive actions (password change, role update, 2FA)
+  // to prevent session-fixation-style replay of captured tokens.
+  const shouldRotate = isSensitiveAction(request);
+
+  if (!csrfToken || shouldRotate) {
+    csrfToken = generateCsrfToken();
     // Double-submit cookie pattern: httpOnly cookie for server-side validation
     response.cookies.set('csrf_token', csrfToken, {
       httpOnly: true, // Server-side only - used for validation

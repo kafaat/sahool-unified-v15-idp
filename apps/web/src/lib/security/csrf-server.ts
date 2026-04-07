@@ -187,3 +187,40 @@ export function getCsrfErrorInfo(
     hasTokenHeader: !!request.headers.get('x-csrf-token'),
   };
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CSRF Token Rotation (M-12)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Paths that should trigger CSRF token rotation after successful completion.
+ * Rotating the token after sensitive actions prevents session-fixation-style
+ * attacks where an attacker replays a captured CSRF token.
+ */
+export const SENSITIVE_PATHS = [
+  '/api/auth/change-password',
+  '/api/auth/update-email',
+  '/api/users/roles',
+  '/api/auth/enable-2fa',
+  '/api/auth/disable-2fa',
+  '/api/settings/security',
+] as const;
+
+/**
+ * Check whether the current request targets a sensitive action that
+ * warrants CSRF token rotation after success.
+ */
+export function isSensitiveAction(request: NextRequest): boolean {
+  const pathname = request.nextUrl.pathname;
+  return SENSITIVE_PATHS.some((p) => pathname.startsWith(p));
+}
+
+/**
+ * Generate a cryptographically random CSRF token.
+ * Works in Edge Runtime (uses Web Crypto API).
+ */
+export function generateCsrfToken(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}

@@ -19,6 +19,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { downloadCSV } from '@/lib/api';
+import { complianceService } from '@/lib/api/advanced-services';
 import { logger } from '../../lib/logger';
 import { MOCK_RECORDS } from './compliance.mock';
 import type { ComplianceRecord } from './compliance.mock';
@@ -37,10 +38,15 @@ export default function CompliancePage() {
   async function loadRecords() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await complianceService.list();
+      if (response.data.length > 0) {
+        setRecords(response.data as unknown as ComplianceRecord[]);
+      } else {
+        setRecords(MOCK_RECORDS);
+      }
+    } catch {
+      logger.error('Failed to load compliance records from API, using mock data');
       setRecords(MOCK_RECORDS);
-    } catch (error) {
-      logger.error('Failed to load compliance records:', error);
     } finally {
       setIsLoading(false);
     }

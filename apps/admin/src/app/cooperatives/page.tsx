@@ -3,10 +3,12 @@
 // Cooperative Management Page
 // صفحة إدارة التعاونيات
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { cn } from '@/lib/utils';
+import { cooperativeService } from '@/lib/api/advanced-services';
+import { logger } from '../../lib/logger';
 import {
   Users,
   Layers,
@@ -591,18 +593,36 @@ function formatRevenue(amount: number): string {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function CooperativesPage() {
+  const [cooperatives, setCooperatives] = useState<Cooperative[]>(MOCK_COOPERATIVES);
+  const [_isLoading, setIsLoading] = useState(true);
   const [selectedCoop, setSelectedCoop] = useState<Cooperative | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
+
+  useEffect(() => {
+    async function loadCooperatives() {
+      try {
+        const response = await cooperativeService.list();
+        if (response.data.length > 0) {
+          setCooperatives(response.data as unknown as Cooperative[]);
+        }
+      } catch {
+        logger.error('Failed to load cooperatives from API, using mock data');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadCooperatives();
+  }, []);
 
   // ── Stats ──────────────────────────────────────────────────────────────
 
   const stats = useMemo(() => {
-    const totalCoops = MOCK_COOPERATIVES.length;
-    const activeMembers = MOCK_COOPERATIVES.reduce((sum, c) => sum + c.memberCount, 0);
-    const sharedResources = MOCK_COOPERATIVES.reduce((sum, c) => sum + c.sharedResources, 0);
-    const totalRevenue = MOCK_COOPERATIVES.reduce((sum, c) => sum + c.totalRevenue, 0);
+    const totalCoops = cooperatives.length;
+    const activeMembers = cooperatives.reduce((sum, c) => sum + c.memberCount, 0);
+    const sharedResources = cooperatives.reduce((sum, c) => sum + c.sharedResources, 0);
+    const totalRevenue = cooperatives.reduce((sum, c) => sum + c.totalRevenue, 0);
     return { totalCoops, activeMembers, sharedResources, totalRevenue };
-  }, []);
+  }, [cooperatives]);
 
   // ── Tabs ───────────────────────────────────────────────────────────────
 
@@ -686,7 +706,7 @@ export default function CooperativesPage() {
         {activeTab === 'overview' && (
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {MOCK_COOPERATIVES.map((coop) => {
+              {cooperatives.map((coop) => {
                 const statusCfg = getStatusConfig(coop.status);
                 const typeCfg = getTypeColors(coop.type);
                 const isSelected = selectedCoop?.id === coop.id;
@@ -789,7 +809,7 @@ export default function CooperativesPage() {
         {/* ── Members Tab ──────────────────────────────────────────────── */}
         {activeTab === 'members' && (
           <div className="p-6">
-            {MOCK_COOPERATIVES.map((coop) => (
+            {cooperatives.map((coop) => (
               <div key={coop.id} className="mb-6 last:mb-0">
                 <div className="flex items-center gap-3 mb-3">
                   <h3 className="font-bold text-gray-900 dark:text-white">{coop.nameAr}</h3>
@@ -866,7 +886,7 @@ export default function CooperativesPage() {
         {/* ── Resources Tab ────────────────────────────────────────────── */}
         {activeTab === 'resources' && (
           <div className="p-6">
-            {MOCK_COOPERATIVES.map((coop) => (
+            {cooperatives.map((coop) => (
               <div key={coop.id} className="mb-6 last:mb-0">
                 <div className="flex items-center gap-3 mb-3">
                   <h3 className="font-bold text-gray-900 dark:text-white">{coop.nameAr}</h3>
@@ -928,7 +948,7 @@ export default function CooperativesPage() {
         {/* ── Revenue Tab ──────────────────────────────────────────────── */}
         {activeTab === 'revenue' && (
           <div className="p-6">
-            {MOCK_COOPERATIVES.map((coop) => (
+            {cooperatives.map((coop) => (
               <div key={coop.id} className="mb-8 last:mb-0">
                 <div className="flex items-center gap-3 mb-4">
                   <h3 className="font-bold text-gray-900 dark:text-white">{coop.nameAr}</h3>

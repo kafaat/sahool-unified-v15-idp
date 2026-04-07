@@ -12,9 +12,11 @@
  * - Preventive pesticide suggestions
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Header from '@/components/layout/Header';
 import { cn, formatDate, formatNumber } from '@/lib/utils';
+import { seasonService } from '@/lib/api/advanced-services';
+import { logger } from '../../lib/logger';
 import {
   Search,
   Plus,
@@ -1366,13 +1368,27 @@ function CreateSeasonModal({
 // =============================================================================
 
 export default function SeasonsPage() {
-  const [seasons] = useState<Season[]>(MOCK_SEASONS);
+  const [seasons, setSeasons] = useState<Season[]>(MOCK_SEASONS);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [expandedSeason, setExpandedSeason] = useState<string | null>('s-001');
   const [selectedCrop, setSelectedCrop] = useState<SeasonCrop | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  useEffect(() => {
+    async function loadSeasons() {
+      try {
+        const response = await seasonService.list();
+        if (response.data.length > 0) {
+          setSeasons(response.data as unknown as Season[]);
+        }
+      } catch {
+        logger.error('Failed to load seasons from API, using mock data');
+      }
+    }
+    loadSeasons();
+  }, []);
 
   const filteredSeasons = useMemo(() => {
     return seasons.filter((s) => {

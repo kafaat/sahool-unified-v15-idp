@@ -22,6 +22,7 @@ import {
   DollarSign,
 } from 'lucide-react';
 import { downloadCSV } from '@/lib/api';
+import { disasterService } from '@/lib/api/advanced-services';
 import { logger } from '../../lib/logger';
 import { MOCK_REPORTS } from './disasters.mock';
 import type { DisasterReport } from './disasters.mock';
@@ -42,10 +43,15 @@ export default function DisastersPage() {
   async function loadReports() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await disasterService.list();
+      if (response.data.length > 0) {
+        setReports(response.data as unknown as DisasterReport[]);
+      } else {
+        setReports(MOCK_REPORTS);
+      }
+    } catch {
+      logger.error('Failed to load disaster reports from API, using mock data');
       setReports(MOCK_REPORTS);
-    } catch (error) {
-      logger.error('Failed to load disaster reports:', error);
     } finally {
       setIsLoading(false);
     }

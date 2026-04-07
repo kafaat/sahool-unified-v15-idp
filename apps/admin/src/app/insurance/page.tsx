@@ -3,10 +3,12 @@
 // Crop Insurance Management Page
 // صفحة إدارة التأمين الزراعي
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { cn } from '@/lib/utils';
+import { insuranceService } from '@/lib/api/advanced-services';
+import { logger } from '../../lib/logger';
 import {
   Shield,
   FileText,
@@ -631,29 +633,55 @@ function PolicyDetailPanel({ policy }: PolicyDetailPanelProps) {
 // ─── Main Page Component ──────────────────────────────────────────────────────
 
 export default function InsurancePage() {
+  const [policies, setPolicies] = useState<InsurancePolicy[]>(MOCK_POLICIES);
+  const [claims, setClaims] = useState<InsuranceClaim[]>(MOCK_CLAIMS);
+  const [_isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('policies');
   const [selectedPolicy, setSelectedPolicy] = useState<InsurancePolicy | null>(
-    MOCK_POLICIES[0] ?? null
+    policies[0] ?? null
   );
 
+  useEffect(() => {
+    async function loadInsurance() {
+      try {
+        const [policiesRes, claimsRes] = await Promise.all([
+          insuranceService.listPolicies(),
+          insuranceService.listClaims(),
+        ]);
+        if (policiesRes.data.length > 0) {
+          setPolicies(policiesRes.data as unknown as InsurancePolicy[]);
+          setSelectedPolicy((policiesRes.data[0] as unknown as InsurancePolicy) ?? null);
+        }
+        if (claimsRes.data.length > 0) {
+          setClaims(claimsRes.data as unknown as InsuranceClaim[]);
+        }
+      } catch {
+        logger.error('Failed to load insurance data from API, using mock data');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadInsurance();
+  }, []);
+
   const stats = useMemo(() => {
-    const activePolicies = MOCK_POLICIES.filter((p) => p.status === 'active').length;
-    const pendingClaims = MOCK_CLAIMS.filter(
+    const activePolicies = policies.filter((p) => p.status === 'active').length;
+    const pendingClaims = claims.filter(
       (c) => c.status === 'submitted' || c.status === 'under_review'
     ).length;
-    const totalCoverage = MOCK_POLICIES.filter((p) => p.status === 'active').reduce(
+    const totalCoverage = policies.filter((p) => p.status === 'active').reduce(
       (acc, p) => acc + p.coverageAmount_SAR,
       0
     );
     const avgRiskScore =
-      MOCK_POLICIES.reduce((acc, p) => acc + RISK_LEVEL_SCORES[p.riskLevel], 0) /
-      MOCK_POLICIES.length;
+      policies.reduce((acc, p) => acc + RISK_LEVEL_SCORES[p.riskLevel], 0) /
+      policies.length;
     return { activePolicies, pendingClaims, totalCoverage, avgRiskScore };
-  }, []);
+  }, [policies, claims]);
 
   const tabs: { key: ActiveTab; label: string; count?: number }[] = [
-    { key: 'policies', label: 'وثائق التأمين', count: MOCK_POLICIES.length },
-    { key: 'claims', label: 'المطالبات', count: MOCK_CLAIMS.length },
+    { key: 'policies', label: 'وثائق التأمين', count: policies.length },
+    { key: 'claims', label: 'المطالبات', count: claims.length },
     { key: 'risk', label: 'تقييم المخاطر' },
   ];
 
@@ -735,10 +763,10 @@ export default function InsurancePage() {
             <div className="flex items-center justify-between mb-1">
               <h2 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-sahool-600" />
-                الوثائق ({MOCK_POLICIES.length})
+                الوثائق ({policies.length})
               </h2>
             </div>
-            {MOCK_POLICIES.map((policy) => (
+            {policies.map((policy) => (
               <PolicyCard
                 key={policy.id}
                 policy={policy}
@@ -768,7 +796,7 @@ export default function InsurancePage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-sahool-600" />
-              المطالبات ({MOCK_CLAIMS.length})
+              المطالبات ({claims.length})
             </h2>
             <div className="flex items-center gap-3 text-sm">
               {(['submitted', 'under_review', 'approved', 'rejected'] as ClaimStatus[]).map(
@@ -783,7 +811,7 @@ export default function InsurancePage() {
                       {CLAIM_STATUS_LABELS[status]}
                     </span>
                     <span className="text-gray-500 dark:text-gray-400">
-                      ({MOCK_CLAIMS.filter((c) => c.status === status).length})
+                      ({claims.filter((c) => c.status === status).length})
                     </span>
                   </div>
                 )
@@ -791,11 +819,11 @@ export default function InsurancePage() {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {MOCK_CLAIMS.map((claim) => (
+            {claims.map((claim) => (
               <ClaimCard
                 key={claim.id}
                 claim={claim}
-                policy={MOCK_POLICIES.find((p) => p.id === claim.policyId)}
+                policy={policies.find((p) => p.id === claim.policyId)}
               />
             ))}
           </div>
@@ -813,7 +841,7 @@ export default function InsurancePage() {
           {/* Risk Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {(['low', 'moderate', 'high'] as RiskLevel[]).map((level) => {
-              const count = MOCK_POLICIES.filter((p) => p.riskLevel === level).length;
+              const count = policies.filter((p) => p.riskLevel === level).length;
               const colorMap = {
                 low: 'bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800/40',
                 moderate:
@@ -937,7 +965,7 @@ export default function InsurancePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
-                  {MOCK_POLICIES.map((policy) => {
+                  {policies.map((policy) => {
                     const score = RISK_LEVEL_SCORES[policy.riskLevel];
                     return (
                       <tr

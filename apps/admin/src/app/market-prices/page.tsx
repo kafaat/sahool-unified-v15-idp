@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { downloadCSV } from '@/lib/api';
 import { marketPriceService } from '@/lib/api/advanced-services';
+import type { MarketPrice as ApiMarketPrice } from '@/lib/api/advanced-services';
 import { cn } from '@/lib/utils';
 import { logger } from '../../lib/logger';
 import {
@@ -597,6 +598,33 @@ function DetailPanel({ crop, onClose }: { crop: MarketPrice; onClose: () => void
 }
 
 // ─────────────────────────────────────────────
+// API → UI Adapter
+// ─────────────────────────────────────────────
+
+function adaptApiMarketPrice(api: ApiMarketPrice): MarketPrice {
+  const trend: Trend = (api.change_pct ?? 0) > 0 ? 'up' : (api.change_pct ?? 0) < 0 ? 'down' : 'stable';
+  return {
+    id: api.id,
+    cropName: api.crop_type ?? '',
+    cropNameEn: api.crop_type ?? '',
+    cropIcon: '🌾',
+    currentPrice: api.price ?? 0,
+    previousPrice: api.price ? api.price / (1 + (api.change_pct ?? 0) / 100) : 0,
+    unit: api.unit ?? 'kg',
+    changePercent: api.change_pct ?? 0,
+    market: api.market ?? '',
+    marketEn: api.market ?? '',
+    quality: 'A',
+    trend,
+    lastUpdated: api.date ?? '',
+    category: api.crop_type ?? '',
+    weekHistory: [],
+    marketComparison: [],
+    bestSellRecommendation: '',
+  };
+}
+
+// ─────────────────────────────────────────────
 // Main Page Component
 // ─────────────────────────────────────────────
 
@@ -614,7 +642,7 @@ export default function MarketPricesPage() {
       try {
         const response = await marketPriceService.list();
         if (response.data.length > 0) {
-          setPrices(response.data as unknown as MarketPrice[]);
+          setPrices(response.data.map(adaptApiMarketPrice));
         }
       } catch {
         logger.error('Failed to load market prices from API, using mock data');

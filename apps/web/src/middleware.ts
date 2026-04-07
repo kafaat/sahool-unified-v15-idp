@@ -26,7 +26,7 @@ import {
   getCSPConfig,
 } from '@/lib/security/csp-config';
 import { validateJwtToken } from '@/lib/security/jwt-middleware';
-import { validateCsrfRequest, isSensitiveAction, generateCsrfToken } from '@/lib/security/csrf-server';
+import { validateCsrfRequest, generateCsrfToken } from '@/lib/security/csrf-server';
 
 // ---------------------------------------------------------------------------
 // Inline locale constants to avoid pulling in the full @sahool/i18n barrel
@@ -294,11 +294,13 @@ export async function middleware(request: NextRequest) {
   let csrfToken = request.cookies.get('csrf_token')?.value;
   const clientCsrf = request.cookies.get('_csrf')?.value;
 
-  // Rotate CSRF token after sensitive actions (password change, role update, 2FA)
-  // to prevent session-fixation-style replay of captured tokens.
-  const shouldRotate = isSensitiveAction(request);
+  // Note: CSRF rotation for sensitive actions (password change, role update, 2FA)
+  // is handled in the API route handlers themselves by deleting the csrf_token and
+  // _csrf cookies. On the next page navigation, the middleware sees !csrfToken and
+  // generates a fresh token. This works because /api routes return early above
+  // (line 172) and never reach this code path.
 
-  if (!csrfToken || shouldRotate) {
+  if (!csrfToken) {
     csrfToken = generateCsrfToken();
     // Double-submit cookie pattern: httpOnly cookie for server-side validation
     response.cookies.set('csrf_token', csrfToken, {

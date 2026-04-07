@@ -4,7 +4,7 @@
 // خريطة المزارع التفاعلية
 // Updated: satellite toggle, polygon boundaries, enhanced Arabic UI
 
-import { useEffect, useState, useRef, type ComponentType } from 'react';
+import { useEffect, useState, useRef, type ComponentType, type JSX } from 'react';
 import dynamic from 'next/dynamic';
 import { getHealthScoreColor } from '@/lib/utils';
 
@@ -18,7 +18,7 @@ import { getHealthScoreColor } from '@/lib/utils';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function dynamicLeaflet<T extends ComponentType<any>>(
   loader: () => Promise<T>,
-  loading?: () => React.JSX.Element | null,
+  loading?: () => JSX.Element | null,
 ): T {
   return dynamic(loader as Parameters<typeof dynamic>[0], {
     ssr: false,

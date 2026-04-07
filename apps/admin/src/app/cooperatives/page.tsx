@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { cn } from '@/lib/utils';
 import { cooperativeService } from '@/lib/api/advanced-services';
+import type { Cooperative as ApiCooperative } from '@/lib/api/advanced-services';
 import { logger } from '../../lib/logger';
 import {
   Users,
@@ -588,6 +589,30 @@ function formatRevenue(amount: number): string {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// API → UI Adapter
+// محوّل من واجهة برمجة التطبيقات إلى واجهة المستخدم
+// ═══════════════════════════════════════════════════════════════════════════
+
+function adaptApiCooperative(api: ApiCooperative): Cooperative {
+  return {
+    id: api.id,
+    name: api.name,
+    nameAr: api.name_ar || api.name,
+    region: api.region,
+    type: 'agricultural',
+    memberCount: api.member_count ?? 0,
+    sharedResources: 0,
+    totalRevenue: 0,
+    status: api.status === 'active' ? 'active' : api.status === 'inactive' ? 'inactive' : 'pending',
+    foundedDate: api.created_at ?? '',
+    chairman: '',
+    members: [],
+    resources: [],
+    revenueHistory: [],
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Main Component
 // المكون الرئيسي
 // ═══════════════════════════════════════════════════════════════════════════
@@ -603,7 +628,7 @@ export default function CooperativesPage() {
       try {
         const response = await cooperativeService.list();
         if (response.data.length > 0) {
-          setCooperatives(response.data as unknown as Cooperative[]);
+          setCooperatives(response.data.map(adaptApiCooperative));
         }
       } catch {
         logger.error('Failed to load cooperatives from API, using mock data');

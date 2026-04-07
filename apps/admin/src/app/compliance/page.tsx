@@ -20,9 +20,34 @@ import {
 } from 'lucide-react';
 import { downloadCSV } from '@/lib/api';
 import { complianceService } from '@/lib/api/advanced-services';
+import type { ComplianceRecord as ApiComplianceRecord } from '@/lib/api/advanced-services';
 import { logger } from '../../lib/logger';
 import { MOCK_RECORDS } from './compliance.mock';
 import type { ComplianceRecord } from './compliance.mock';
+
+/** Map API ComplianceRecord (snake_case) → UI ComplianceRecord (camelCase) */
+function adaptApiCompliance(api: ApiComplianceRecord): ComplianceRecord {
+  const statusMap: Record<string, ComplianceRecord['status']> = {
+    compliant: 'compliant',
+    non_compliant: 'non_compliant',
+    pending_review: 'pending',
+    in_progress: 'partial',
+  };
+  return {
+    id: api.id,
+    farmId: api.farm_id,
+    farmName: api.farm_id,
+    farmNameAr: api.farm_id,
+    standard: (api.standard as ComplianceRecord['standard']) || 'globalgap',
+    status: statusMap[api.status] ?? 'pending',
+    score: api.score ?? 0,
+    lastAudit: api.audit_date ?? '',
+    nextAudit: api.next_audit_date ?? '',
+    auditor: '',
+    findings: api.findings ?? 0,
+    criticalFindings: 0,
+  };
+}
 
 export default function CompliancePage() {
   const [records, setRecords] = useState<ComplianceRecord[]>([]);
@@ -40,7 +65,7 @@ export default function CompliancePage() {
     try {
       const response = await complianceService.list();
       if (response.data.length > 0) {
-        setRecords(response.data as unknown as ComplianceRecord[]);
+        setRecords(response.data.map(adaptApiCompliance));
       } else {
         setRecords(MOCK_RECORDS);
       }

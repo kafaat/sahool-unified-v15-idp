@@ -8,6 +8,10 @@ import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { cn } from '@/lib/utils';
 import { insuranceService } from '@/lib/api/advanced-services';
+import type {
+  InsurancePolicy as ApiInsurancePolicy,
+  InsuranceClaim as ApiInsuranceClaim,
+} from '@/lib/api/advanced-services';
 import { logger } from '../../lib/logger';
 import {
   Shield,
@@ -630,6 +634,47 @@ function PolicyDetailPanel({ policy }: PolicyDetailPanelProps) {
   );
 }
 
+// ─── API → UI Adapters ────────────────────────────────────────────────────────
+
+function adaptApiPolicy(api: ApiInsurancePolicy): InsurancePolicy {
+  const statusMap: Record<string, PolicyStatus> = {
+    active: 'active', expired: 'expired', cancelled: 'expired', pending: 'pending',
+  };
+  return {
+    id: api.id,
+    policyNumber: api.policy_number ?? '',
+    farmerName: api.farm_id ?? '',
+    crop: api.crop_type ?? '',
+    cropAr: api.crop_type ?? '',
+    fieldArea_ha: 0,
+    coverageAmount_SAR: api.coverage_amount ?? 0,
+    premium_SAR: api.premium ?? 0,
+    type: (api.coverage_type as PolicyType) || 'traditional',
+    status: statusMap[api.status] ?? 'pending',
+    startDate: api.start_date ?? '',
+    endDate: api.end_date ?? '',
+    riskLevel: 'moderate',
+  };
+}
+
+function adaptApiClaim(api: ApiInsuranceClaim): InsuranceClaim {
+  const statusMap: Record<string, ClaimStatus> = {
+    submitted: 'submitted', under_review: 'under_review',
+    approved: 'approved', rejected: 'rejected', paid: 'approved',
+  };
+  return {
+    id: api.id,
+    claimNumber: api.claim_number ?? '',
+    policyId: api.policy_id ?? '',
+    type: (api.disaster_type as ClaimType) || 'drought',
+    amount_SAR: api.claim_amount ?? 0,
+    status: statusMap[api.status] ?? 'submitted',
+    filedDate: api.submitted_at ?? '',
+    description: '',
+    descriptionAr: '',
+  };
+}
+
 // ─── Main Page Component ──────────────────────────────────────────────────────
 
 export default function InsurancePage() {
@@ -649,11 +694,12 @@ export default function InsurancePage() {
           insuranceService.listClaims(),
         ]);
         if (policiesRes.data.length > 0) {
-          setPolicies(policiesRes.data as unknown as InsurancePolicy[]);
-          setSelectedPolicy((policiesRes.data[0] as unknown as InsurancePolicy) ?? null);
+          const mapped = policiesRes.data.map(adaptApiPolicy);
+          setPolicies(mapped);
+          setSelectedPolicy(mapped[0] ?? null);
         }
         if (claimsRes.data.length > 0) {
-          setClaims(claimsRes.data as unknown as InsuranceClaim[]);
+          setClaims(claimsRes.data.map(adaptApiClaim));
         }
       } catch {
         logger.error('Failed to load insurance data from API, using mock data');

@@ -42,7 +42,7 @@ function iterativeReplace(input: string, pattern: RegExp, replacement: string): 
   while (result !== previous && iterations < MAX_ITERATIONS) {
     previous = result;
     // Create a new RegExp to reset lastIndex for global patterns
-    const freshPattern = new RegExp(pattern.source, pattern.flags);
+    const freshPattern = new RegExp(pattern.source, pattern.flags); // nosemgrep: detect-non-literal-regexp -- recreating from existing RegExp properties, not user input
     result = result.replace(freshPattern, replacement);
     iterations++;
   }
@@ -140,7 +140,7 @@ function removePatternCompletely(
   // Use do-while with explicit containment check
   // This pattern is recognized by CodeQL as safe iterative sanitization
   do {
-    const freshPattern = new RegExp(pattern.source, pattern.flags);
+    const freshPattern = new RegExp(pattern.source, pattern.flags); // nosemgrep: detect-non-literal-regexp -- recreating from existing RegExp properties, not user input
     result = result.replace(freshPattern, '');
     iterations++;
   } while (pattern.test(result) && iterations < maxIter);
@@ -233,7 +233,7 @@ function regexSanitize(input: string, options?: SanitizeOptions): string {
   } else {
     // Remove tags not in allowed list
     const allowedTagsPattern = options.ALLOWED_TAGS.join('|');
-    const disallowedTagRegex = new RegExp(`<(?!\\/?(${allowedTagsPattern})\\b)[^>]*>`, 'gi');
+    const disallowedTagRegex = new RegExp(`<(?!\\/?(${allowedTagsPattern})\\b)[^>]*>`, 'gi'); // nosemgrep: detect-non-literal-regexp -- ALLOWED_TAGS are developer-configured, not user input
     result = iterativeReplace(result, disallowedTagRegex, '');
   }
 

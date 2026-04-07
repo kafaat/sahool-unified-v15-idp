@@ -143,7 +143,9 @@ class SimpleMigrationRunner:
         async with self._pool.acquire() as conn:
             # Ensure tracking table exists (always real, even in dry-run)
             if not dry_run:
-                await conn.execute(_CREATE_TRACKING_TABLE)
+                await conn.execute(
+                    _CREATE_TRACKING_TABLE
+                )  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- static DDL constant
 
             applied_versions = await self._get_applied_versions(conn, dry_run=dry_run)
 
@@ -168,7 +170,7 @@ class SimpleMigrationRunner:
                     async with conn.transaction():
                         await conn.execute(migration.up)
                         duration_ms = int((time.monotonic() - t0) * 1000)
-                        await conn.execute(
+                        await conn.execute(  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- table name is module constant, values are parameterized
                             f"""
                             INSERT INTO {_TRACKING_TABLE} (version, description, duration_ms)
                             VALUES ($1, $2, $3)
@@ -260,7 +262,7 @@ class SimpleMigrationRunner:
                     t0 = time.monotonic()
                     async with conn.transaction():
                         await conn.execute(migration.down)
-                        await conn.execute(
+                        await conn.execute(  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- table name is module constant, version is parameterized
                             f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1",  # nosec B608
                             migration.version,
                         )
@@ -314,7 +316,7 @@ class SimpleMigrationRunner:
     async def _get_applied_versions(self, conn: asyncpg.Connection, *, dry_run: bool = False) -> set[int]:
         """Return set of already-applied version numbers."""
         try:
-            rows = await conn.fetch(f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version")  # nosec B608  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli  -- _TRACKING_TABLE is a module constant, not user input
+            rows = await conn.fetch(f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version")  # nosec B608  # nosemgrep: asyncpg-sqli -- _TRACKING_TABLE is a module constant, not user input
             return {row["version"] for row in rows}
         except Exception:
             # Table may not exist yet (first run or dry_run before real run).

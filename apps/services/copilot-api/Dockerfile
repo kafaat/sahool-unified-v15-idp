@@ -39,6 +39,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
+# nosemgrep: dockerfile-pip-extra-index-url -- fallback mirrors for regional availability
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --extra-index-url https://download.pytorch.org/whl/cpu \

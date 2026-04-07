@@ -106,7 +106,7 @@ def _verify_wechat_signature(
         return False
 
     sort_str = "".join(sorted([_WECHAT_CALLBACK_TOKEN, timestamp, nonce]))
-    expected = hashlib.sha1(sort_str.encode("utf-8")).hexdigest()  # nosec B324 - WeChat mandates SHA1
+    expected = hashlib.sha1(sort_str.encode("utf-8")).hexdigest()  # nosec B324 # nosemgrep: insecure-hash-algorithm-sha1 -- WeChat API protocol mandates SHA1 for callback verification
 
     if not hmac.compare_digest(expected.lower(), signature.lower()):
         logger.warning("wechat_signature_mismatch")

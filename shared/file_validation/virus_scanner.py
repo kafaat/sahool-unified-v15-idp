@@ -252,7 +252,9 @@ class CloudVirusScanner(VirusScannerInterface):
             True if file is safe, False if malware detected
         """
         if not self.api_key:
-            logger.warning("VirusTotal API key not configured, skipping scan for %s", filename)
+            logger.warning(
+                "VirusTotal API key not configured, skipping scan for %s", filename
+            )  # nosemgrep: python-logger-credential-disclosure -- logs filename, not credentials
             return True
 
         try:

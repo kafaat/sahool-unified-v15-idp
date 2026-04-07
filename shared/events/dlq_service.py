@@ -417,12 +417,10 @@ def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
         from shared.auth.dependencies import require_roles
     except ImportError as exc:
         logger.exception(
-            "DLQ endpoints require shared.auth.dependencies.require_roles; "
-            "refusing to create unprotected router"
+            "DLQ endpoints require shared.auth.dependencies.require_roles; refusing to create unprotected router"
         )
         raise RuntimeError(
-            "DLQ router requires admin authentication dependency "
-            "'shared.auth.dependencies.require_roles'"
+            "DLQ router requires admin authentication dependency 'shared.auth.dependencies.require_roles'"
         ) from exc
 
     admin_required = Depends(require_roles("admin", "super_admin"))

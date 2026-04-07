@@ -384,11 +384,15 @@ class VaultClient:
             try:
                 return await self._get_stale_cache_fallback(cache_key)
             except KeyError:
-                logger.error("Failed to get secret from Vault: %s", type(e).__name__)  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
+                logger.error(
+                    "Failed to get secret from Vault: %s", type(e).__name__
+                )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
                 raise e
         except Exception as e:
             # Deterministic errors (KeyError, bad data shape) - don't mask with stale cache
-            logger.error("Failed to get secret from Vault: %s", type(e).__name__)  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
+            logger.error(
+                "Failed to get secret from Vault: %s", type(e).__name__
+            )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
             raise
 
     async def set_secret(self, path: str, data: dict[str, Any]) -> None:
@@ -426,7 +430,9 @@ class VaultClient:
             logger.info(f"Secret '{path}' updated successfully")
 
         except Exception as e:
-            logger.error("Failed to set secret at path: %s", type(e).__name__)  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
+            logger.error(
+                "Failed to set secret at path: %s", type(e).__name__
+            )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
             logger.debug("Vault set_secret error details", exc_info=True)
             raise
 
@@ -457,7 +463,9 @@ class VaultClient:
             logger.info(f"Secret '{path}' deleted successfully")
 
         except Exception as e:
-            logger.error("Failed to delete secret: %s", type(e).__name__)  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
+            logger.error(
+                "Failed to delete secret: %s", type(e).__name__
+            )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
             logger.debug("Vault delete_secret error details", exc_info=True)
             raise
 
@@ -484,7 +492,9 @@ class VaultClient:
             return response["data"]["keys"]
 
         except Exception as e:
-            logger.error("Failed to list secrets: %s", type(e).__name__)  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
+            logger.error(
+                "Failed to list secrets: %s", type(e).__name__
+            )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
             logger.debug("Vault list_secrets error details", exc_info=True)
             raise
 

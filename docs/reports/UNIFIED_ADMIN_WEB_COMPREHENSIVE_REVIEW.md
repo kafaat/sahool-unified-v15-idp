@@ -22,9 +22,14 @@
 10. [التعريب والوصول](#10-التعريب-والوصول--i18n--accessibility)
 11. [الوضع الداكن](#11-الوضع-الداكن--dark-mode)
 12. [جدول المشاكل الموحّد](#12-جدول-المشاكل-الموحّد--unified-issues-table)
-13. [خطة العمل](#13-خطة-العمل--action-plan)
-14. [نتائج التحقق العميق](#14-نتائج-التحقق-العميق--deep-verification-results)
-15. [النقاط الإيجابية](#15-النقاط-الإيجابية--positive-highlights)
+13. [أفضل الأنماط المتبعة والمعمارية المرجعية](#13-أفضل-الأنماط-المتبعة-والمعمارية-المرجعية--best-practices--reference-patterns)
+14. [حالة الأيقونات ونظام التصميم](#14-حالة-الأيقونات-ونظام-التصميم--icon-system--design-status)
+15. [الهياكل والأكواد الناقصة مع أمثلة](#15-الهياكل-والأكواد-الناقصة-مع-أمثلة--missing-structures--code-examples)
+16. [الاختبارات المطلوبة تفصيلياً](#16-الاختبارات-المطلوبة-تفصيلياً--required-tests-detailed)
+17. [مقترحات التحسين المفصلة](#17-مقترحات-التحسين-المفصلة--detailed-improvement-proposals)
+18. [خطة العمل](#18-خطة-العمل--action-plan)
+19. [نتائج التحقق العميق](#19-نتائج-التحقق-العميق--deep-verification-results)
+20. [النقاط الإيجابية](#20-النقاط-الإيجابية--positive-highlights)
 
 ---
 
@@ -630,9 +635,624 @@ crop-health, compliance, disasters, logistics, research, community, marketplace,
 
 ---
 
-## 13. خطة العمل | Action Plan
+## 13. أفضل الأنماط المتبعة والمعمارية المرجعية | Best Practices & Reference Patterns
 
-### المرحلة 1: فوري (أسبوع واحد) — الأمان والحرج
+### 13.1 أنماط معمارية ممتازة يجب الحفاظ عليها | Excellent Patterns to Preserve
+
+#### أ) نمط Provider Hierarchy (Web)
+
+```tsx
+// ✅ نمط ممتاز: QueryClientProvider في dashboard فقط — يوفر ~50KB لصفحات المصادقة
+// apps/web/src/app/layout.tsx
+<ThemeProvider>
+  <AuthProvider>
+    <ToastProvider>
+      {children}
+    </ToastProvider>
+  </AuthProvider>
+</ThemeProvider>
+
+// apps/web/src/app/(dashboard)/layout.tsx
+<QueryClientProvider client={queryClient}>
+  <Sidebar />
+  <main>{children}</main>
+</QueryClientProvider>
+```
+
+#### ب) نمط Edge Middleware Optimization (مشترك)
+
+```typescript
+// ✅ نمط ممتاز: استخدام jose بدلاً من jsonwebtoken لتوافق Edge Runtime
+// يوفر ~500KB+ من حجم middleware bundle
+import { jwtVerify } from 'jose';  // ~5KB — Edge-compatible
+// ❌ import jwt from 'jsonwebtoken';  // ~200KB — لا يعمل في Edge
+```
+
+#### ج) نمط Code Splitting (Web)
+
+```tsx
+// ✅ نمط ممتاز: 12 ملف .dynamic.tsx مع SSR: false + loading fallback
+// apps/web/src/components/charts/LazyRecharts.dynamic.tsx
+import dynamic from 'next/dynamic';
+export const LazyLineChart = dynamic(
+  () => import('recharts').then(mod => mod.LineChart),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+```
+
+#### د) نمط CSRF Double-Submit (مشترك)
+
+```typescript
+// ✅ نمط أمني متقدم: كوكي httpOnly + كوكي قابل للقراءة + timing-safe comparison
+// middleware.ts
+const csrfCookie = cookies.get('csrf_token');  // httpOnly — لا يمكن قراءته من JS
+const csrfHeader = request.headers.get('x-csrf-token');  // من العميل
+// مقارنة آمنة ضد التوقيت (timing-safe)
+if (!timingSafeEqual(csrfCookie, csrfHeader)) { return 403; }
+```
+
+#### هـ) نمط Error Boundary المتدرج (Web)
+
+```tsx
+// ✅ نمط ممتاز: كل منطقة لها ErrorBoundary مستقل
+<ErrorBoundary fallback={<SidebarFallback />}>
+  <Sidebar />
+</ErrorBoundary>
+<ErrorBoundary fallback={<HeaderFallback />}>
+  <Header />
+</ErrorBoundary>
+<ErrorBoundary fallback={<ContentFallback />}>
+  <main>{children}</main>
+</ErrorBoundary>
+```
+
+#### و) نمط Toast Lazy Icons (Web)
+
+```tsx
+// ✅ إبداعي: تحميل أيقونات Toast بـ React.lazy() — يوفر ~5KB من البداية
+const SuccessIcon = React.lazy(() => import('lucide-react').then(m => ({ default: m.CheckCircle })));
+const ErrorIcon = React.lazy(() => import('lucide-react').then(m => ({ default: m.XCircle })));
+```
+
+#### ز) نمط API Chain مع Token Refresh Queue (Admin)
+
+```typescript
+// ✅ نمط متقدم: طابور Token Refresh لمنع طلبات متعددة متزامنة
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: Function; reject: Function }> = [];
+
+apiClient.interceptors.response.use(null, async (error) => {
+  if (error.response?.status === 401 && !originalRequest._retry) {
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      });
+    }
+    isRefreshing = true;
+    // ... refresh token, then process queue
+  }
+});
+```
+
+### 13.2 أنماط مضادة يجب تجنبها | Anti-Patterns to Avoid
+
+| النمط المضاد | أين وُجد | النمط الصحيح |
+|-------------|----------|-------------|
+| `catch (error) { /* silent */ }` | Admin: 12 حالة في `lib/api.ts` | `catch (error) { logger.error('context', error); throw; }` |
+| `as any` | Admin: 7 حالات في `FarmsMap.tsx` | استخدام types محددة أو `unknown` مع type guards |
+| `edgeLogger` مشروط بـ dev فقط | مشترك: `middleware.ts` | `console.error` بدون شرط أو POST لـ endpoint |
+| نصوص مشفرة بدل i18n | مشترك: Login, ErrorBoundary | استخدام `t('key')` من نظام الترجمة |
+| `bg-white` بدون `dark:` variant | Web: `modal.tsx`, `toast.tsx` | `bg-white dark:bg-gray-800` دائماً |
+| `<Link>` بدون `prefetch={false}` | Web: sidebar (15 رابط) | `<Link prefetch={false}>` لتوفير ~750KB |
+
+---
+
+## 14. حالة الأيقونات ونظام التصميم | Icon System & Design Status
+
+### 14.1 نظام الأيقونات الحالي
+
+| الجانب | Admin | Web |
+|--------|-------|-----|
+| **المكتبة** | `lucide-react` v0.575.0 | `lucide-react` (مشترك) |
+| **عدد الأيقونات المستخدمة** | ~50 أيقونة | ~60 أيقونة |
+| **التحميل الكسول** | ❌ استيراد مباشر | ✅ Toast icons فقط |
+| **RTL Support** | ✅ (lucide مدعوم) | ✅ `ms-`/`me-` margins |
+
+### 14.2 أيقونات مفقودة أو غير متسقة
+
+| السياق | الحالة | التأثير |
+|--------|--------|---------|
+| **Sidebar mobile hamburger** | ❌ **مفقود** — لا يوجد `<Menu />` icon في header | لا يوجد زر hamburger menu للهواتف (Web) |
+| **Notification badges** | ❌ **مفقود** — لا badge icons في sidebar | لا تنبيهات مرئية للمستخدم (Web) |
+| **Export buttons** | ⚠️ موجودة لكن **معطلة** في ~10 صفحات | `<Download />` icon موجود لكن الزر disabled (Admin) |
+| **Empty states** | ⚠️ **لا أيقونات حالة فارغة** | لا توجد رسومات/أيقونات عند عدم وجود بيانات |
+| **Loading indicators** | ⚠️ **غير موحدة** | spinner مختلف بين الصفحات |
+| **Status indicators** | ✅ متسقة | `CheckCircle`, `AlertTriangle`, `XCircle` |
+| **Navigation icons** | ✅ 15 أيقونة في sidebar | كل عنصر له أيقونة مناسبة |
+
+### 14.3 توصيات نظام الأيقونات
+
+1. **إنشاء `IconProvider`** — wrapper موحد يدعم RTL/LTR تلقائياً وأحجام متناسقة
+2. **تحميل كسول شامل** — استخدام `React.lazy` لجميع أيقونات lucide (مثل نمط Toast)
+3. **أيقونات حالة فارغة** — إنشاء 4 رسومات SVG مخصصة: no-data, no-results, error, offline
+4. **Spinner موحد** — مكون `<Spinner size="sm|md|lg" />` مع `aria-busy`
+
+### 14.4 مكونات نظام التصميم المفقودة
+
+| المكون | الأولوية | مثال الاستخدام | الحالة |
+|--------|:--------:|---------------|--------|
+| **`<Icon>`** wrapper | عالية | `<Icon name="home" size={20} />` | ❌ مفقود |
+| **`<EmptyState>`** | عالية | حقول فارغة، نتائج بحث صفرية | ❌ مفقود |
+| **`<StatusBadge>`** | متوسطة | Active/Inactive/Pending | ❌ مفقود |
+| **`<LoadingOverlay>`** | متوسطة | تحميل الصفحة الكاملة | ❌ مفقود |
+| **`<ConfirmDialog>`** | عالية | تأكيد الحذف/الإجراءات | ❌ مفقود |
+| **`<FormField>`** | عالية | label + input + error + help text | ❌ مفقود |
+| **`<Card>`** | عالية | بطاقات المعلومات | ⚠️ inline في كل صفحة |
+| **`<Badge>`** | متوسطة | عدد التنبيهات، الحالة | ❌ مفقود |
+
+---
+
+## 15. الهياكل والأكواد الناقصة مع أمثلة | Missing Structures & Code Examples
+
+### 15.1 ملفات ناقصة حرجة | Critical Missing Files
+
+#### أ) `loading.tsx` لمسارات Dashboard (Web)
+
+**الملفات المطلوبة:** `loading.tsx` في كل مسار dashboard (37 مسار)
+
+```tsx
+// apps/web/src/app/(dashboard)/analytics/loading.tsx
+// apps/web/src/app/(dashboard)/weather/loading.tsx
+// apps/web/src/app/(dashboard)/tasks/loading.tsx
+// ... (حالياً فقط fields/ يملك loading.tsx)
+
+export default function Loading() {
+  return (
+    <div className="animate-pulse space-y-4 p-6">
+      <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+        ))}
+      </div>
+      <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+    </div>
+  );
+}
+```
+
+#### ب) Responsive Sidebar + Mobile Drawer (Web)
+
+**الملفات المتأثرة:**
+- `src/components/layouts/sidebar.tsx` — يحتاج responsive classes
+- `src/components/layouts/header.tsx` — يحتاج hamburger button
+- `src/app/(dashboard)/layout.tsx` — يحتاج state management
+
+```tsx
+// src/components/layouts/sidebar.tsx — التعديل المطلوب
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  return (
+    <>
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={cn(
+          "fixed inset-y-0 start-0 z-50 w-64 bg-white dark:bg-gray-900 border-e",
+          "transform transition-transform duration-300 ease-in-out",
+          "md:relative md:translate-x-0",  // ✅ مرئي دائماً على Desktop
+          isOpen ? "translate-x-0" : "-translate-x-full"  // ✅ drawer على Mobile
+        )}
+        data-testid="sidebar"
+      >
+        {/* ... navigation items ... */}
+      </aside>
+    </>
+  );
+}
+
+// src/components/layouts/header.tsx — إضافة hamburger
+import { Menu } from 'lucide-react';
+
+export function Header({ onMenuToggle }: { onMenuToggle: () => void }) {
+  return (
+    <header className="...">
+      <button
+        className="md:hidden p-2"
+        onClick={onMenuToggle}
+        aria-label="Toggle menu"
+        data-testid="mobile-menu"
+      >
+        <Menu className="h-6 w-6" />
+      </button>
+      {/* ... rest of header ... */}
+    </header>
+  );
+}
+```
+
+#### ج) Edge-compatible Production Logger (مشترك)
+
+```typescript
+// src/lib/edge-logger.ts — ملف جديد مطلوب
+const isProduction = process.env.NODE_ENV === 'production';
+
+export const edgeLogger = {
+  error: (...args: unknown[]) => {
+    // ✅ دائماً يسجّل — لا يُسكت في الإنتاج!
+    console.error('[SAHOOL]', ...args);
+  },
+  warn: (...args: unknown[]) => {
+    console.warn('[SAHOOL]', ...args);
+  },
+  info: (...args: unknown[]) => {
+    if (!isProduction) {
+      console.info('[SAHOOL]', ...args);
+    }
+  },
+  security: (event: string, details: Record<string, unknown>) => {
+    // ✅ أحداث الأمان تُسجّل دائماً
+    console.error('[SAHOOL:SECURITY]', event, JSON.stringify(details));
+    // اختياري: POST إلى /api/security-log للتسجيل المركزي
+  },
+};
+```
+
+#### د) مكونات UI مفقودة حرجة
+
+```tsx
+// src/components/ui/table.tsx — مكون DataTable قابل لإعادة الاستخدام
+interface Column<T> {
+  key: keyof T;
+  header: string;
+  headerAr?: string;
+  render?: (value: T[keyof T], row: T) => React.ReactNode;
+  sortable?: boolean;
+}
+
+interface DataTableProps<T> {
+  columns: Column<T>[];
+  data: T[];
+  loading?: boolean;
+  emptyMessage?: string;
+  emptyMessageAr?: string;
+  onRowClick?: (row: T) => void;
+  pagination?: { page: number; pageSize: number; total: number };
+  onPageChange?: (page: number) => void;
+}
+
+export function DataTable<T>({ columns, data, loading, ... }: DataTableProps<T>) {
+  // ... implementation with dark mode, RTL, a11y
+}
+```
+
+```tsx
+// src/components/ui/empty-state.tsx — حالة فارغة موحدة
+interface EmptyStateProps {
+  icon?: React.ReactNode;
+  title: string;
+  titleAr?: string;
+  description?: string;
+  descriptionAr?: string;
+  action?: { label: string; labelAr?: string; onClick: () => void };
+}
+
+export function EmptyState({ icon, title, titleAr, description, ... }: EmptyStateProps) {
+  const { locale } = useLocale();
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center" role="status">
+      {icon && <div className="mb-4 text-gray-400">{icon}</div>}
+      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+        {locale === 'ar' ? (titleAr || title) : title}
+      </h3>
+      {/* ... */}
+    </div>
+  );
+}
+```
+
+### 15.2 هياكل Stub تحتاج تحويل لتكامل حقيقي | Stub Pages Needing Real Integration
+
+| الصفحة Stub | الخدمة الخلفية | المنفذ | API المطلوب |
+|-------------|---------------|--------|------------|
+| `/vision` | `yolo26-vision-service` | 8150 | `POST /api/v1/detect/pest`, `POST /api/v1/detect/disease` |
+| `/terrain` | `terrain-core-service` | 8185 | `GET /api/v1/terrain/dem`, `GET /api/v1/terrain/slope` |
+| `/edge-devices` | `edge-orchestrator-service` | 8180 | `GET /api/v1/edge/devices`, `POST /api/v1/edge/deploy` |
+| `/audit` | `audit-service` | 8114 | `GET /api/v1/audit/logs`, `GET /api/v1/audit/stats` |
+| `/scouting` | — | — | يحتاج endpoint جديد |
+| `/drone` | `drone-service` | 8126 | `GET /api/v1/drones`, `POST /api/v1/flight-plan` |
+| `/virtual-sensors` | `virtual-sensors` | 8119 | `GET /api/v1/sensors/virtual` |
+
+### 15.3 ملفات i18n ناقصة | Missing i18n Entries
+
+```json
+// نصوص مشفرة يجب نقلها إلى ملفات الترجمة:
+
+// apps/web — Login page
+"تسجيل الدخول إلى سهول"  →  t('auth.login.title')
+
+// apps/web — ErrorBoundary
+"حدث خطأ غير متوقع"  →  t('errors.unexpected')
+
+// apps/admin — Stub pages (8 صفحات)
+"سيتم عرض ... هنا"  →  t('common.comingSoon', { feature: t('features.vision') })
+
+// apps/admin — Export buttons (~10 صفحات)
+"قريبًا"  →  t('common.comingSoonShort')
+```
+
+---
+
+## 16. الاختبارات المطلوبة تفصيلياً | Required Tests — Detailed
+
+### 16.1 اختبارات حرجة مفقودة (P0) | Critical Missing Tests
+
+#### أ) اختبارات الأمان — Edge Logger (Admin + Web)
+
+```typescript
+// __tests__/middleware-security-logging.test.ts
+describe('Security Event Logging', () => {
+  it('logs CSRF failures in production', async () => {
+    process.env.NODE_ENV = 'production';
+    const consoleSpy = vi.spyOn(console, 'error');
+    await middleware(requestWithInvalidCSRF);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('CSRF'),
+      expect.any(Object)
+    );
+  });
+
+  it('logs JWT brute-force attempts in production', async () => {
+    process.env.NODE_ENV = 'production';
+    const consoleSpy = vi.spyOn(console, 'error');
+    await middleware(requestWithInvalidJWT);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('JWT'),
+      expect.any(Object)
+    );
+  });
+
+  it('logs rate limiting events in production', async () => {
+    // 6th attempt should be logged
+  });
+});
+```
+
+#### ب) اختبارات Responsive Sidebar (Web)
+
+```typescript
+// e2e/responsive-sidebar.spec.ts — يجب أن يحل محل responsive.spec.ts المعطل
+import { test, expect } from '@playwright/test';
+
+test.describe('Mobile Sidebar', () => {
+  test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE
+
+  test('sidebar is hidden by default on mobile', async ({ page }) => {
+    await page.goto('/dashboard');
+    const sidebar = page.getByTestId('sidebar');
+    await expect(sidebar).not.toBeVisible();
+  });
+
+  test('hamburger menu opens sidebar drawer', async ({ page }) => {
+    await page.goto('/dashboard');
+    await page.getByTestId('mobile-menu').click();
+    const sidebar = page.getByTestId('sidebar');
+    await expect(sidebar).toBeVisible();
+  });
+
+  test('clicking overlay closes sidebar', async ({ page }) => {
+    await page.goto('/dashboard');
+    await page.getByTestId('mobile-menu').click();
+    await page.getByTestId('sidebar-overlay').click();
+    await expect(page.getByTestId('sidebar')).not.toBeVisible();
+  });
+
+  test('sidebar is always visible on desktop', async ({ page }) => {
+    test.use({ viewport: { width: 1280, height: 720 } });
+    await page.goto('/dashboard');
+    await expect(page.getByTestId('sidebar')).toBeVisible();
+  });
+});
+```
+
+### 16.2 اختبارات عالية الأولوية (P1) | High Priority Tests
+
+#### أ) اختبارات Hooks (Web — 37 ميزة بدون اختبار)
+
+```typescript
+// src/features/fields/__tests__/useCreateField.test.ts
+import { renderHook, waitFor } from '@testing-library/react';
+import { useCreateField } from '../hooks/useCreateField';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+describe('useCreateField', () => {
+  it('creates field and invalidates cache', async () => {
+    const { result } = renderHook(() => useCreateField(), { wrapper });
+    result.current.mutate({ name: 'Field 1', area: 5.0, coordinates: [...] });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    // verify cache invalidation
+  });
+
+  it('handles validation errors', async () => {
+    const { result } = renderHook(() => useCreateField(), { wrapper });
+    result.current.mutate({ name: '', area: -1 });
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toContain('validation');
+  });
+});
+```
+
+#### ب) اختبارات Dark Mode (Web)
+
+```typescript
+// src/components/ui/__tests__/modal-dark-mode.test.tsx
+describe('Modal Dark Mode', () => {
+  it('applies dark background when dark mode is active', () => {
+    document.documentElement.classList.add('dark');
+    render(<Modal open onClose={() => {}}><p>Content</p></Modal>);
+    const overlay = screen.getByRole('dialog');
+    expect(overlay).toHaveClass('dark:bg-gray-800');
+  });
+
+  it('applies dark border when dark mode is active', () => {
+    document.documentElement.classList.add('dark');
+    render(<Modal open onClose={() => {}}><p>Content</p></Modal>);
+    expect(screen.getByRole('dialog')).toHaveClass('dark:border-gray-700');
+  });
+});
+```
+
+#### ج) اختبارات CSRF Token Rotation (Web)
+
+```typescript
+// __tests__/csrf-rotation.test.ts
+describe('CSRF Token Rotation', () => {
+  it('rotates CSRF token after login', async () => {
+    const tokenBefore = getCookie('csrf_token');
+    await login(validCredentials);
+    const tokenAfter = getCookie('csrf_token');
+    expect(tokenAfter).not.toBe(tokenBefore);
+  });
+
+  it('rotates CSRF token after password change', async () => {
+    // ...
+  });
+});
+```
+
+### 16.3 اختبارات متوسطة الأولوية (P2) | Medium Priority Tests
+
+| الفئة | عدد الاختبارات | الملفات المستهدفة |
+|-------|:--------------:|-----------------|
+| **Feature unit tests** | ~37 ملف | `src/features/*/` — كل ميزة تحتاج اختبار واحد على الأقل |
+| **React Query hooks** | ~10 ملفات | `useFields`, `useWeather`, `useTasks`, `useAlerts`, etc. |
+| **API integration** | ~5 ملفات | اختبار تدفق API → Cache → UI |
+| **Dark mode** | ~4 ملفات | Modal, Toast, Sidebar, Dashboard cards |
+| **i18n** | ~3 ملفات | تبديل اللغة، RTL rendering، placeholder text |
+
+### 16.4 هدف التغطية | Coverage Targets
+
+| المقياس | الحالي (Admin) | الحالي (Web) | الهدف |
+|---------|:-------------:|:------------:|:-----:|
+| **ملفات الاختبار** | 52 | 74 | 150+ |
+| **Lines** | ~40% (تقديري) | ~30% (تقديري) | 70% |
+| **Branches** | — | — | 60% |
+| **Functions** | — | — | 75% |
+| **Security paths** | ✅ جيد | ✅ جيد | 90%+ |
+
+---
+
+## 17. مقترحات التحسين المفصلة | Detailed Improvement Proposals
+
+### 17.1 🔒 تحسينات أمنية | Security Improvements
+
+| # | المقترح | التأثير | الجهد | التفاصيل |
+|---|---------|---------|-------|----------|
+| **SEC-1** | تمكين تسجيل الأمان في الإنتاج | حرج | 2 ساعة | استبدال `edgeLogger` بـ `console.error` بدون شرط + POST اختياري لـ `/api/security-log` |
+| **SEC-2** | Rate limiting بـ Redis | عالي | 4 ساعات | استبدال `Map()` بـ `@upstash/ratelimit` أو Redis Sentinel الموجود |
+| **SEC-3** | CSRF token rotation | متوسط | 3 ساعات | تدوير عند login/password-change/role-change |
+| **SEC-4** | تقييد CORS لنقطة CSP | عالي | 30 دقيقة | `'*'` → `process.env.ALLOWED_ORIGINS` |
+| **SEC-5** | WebAuthn/FIDO2 | منخفض | 20 ساعة | مصادقة بيومترية كبديل لـ 2FA |
+| **SEC-6** | Subresource Integrity (SRI) | منخفض | 2 ساعة | إضافة `integrity` hashes لـ CDN scripts |
+
+### 17.2 🏗️ تحسينات معمارية | Architecture Improvements
+
+| # | المقترح | التأثير | الجهد | التفاصيل |
+|---|---------|---------|-------|----------|
+| **ARCH-1** | Responsive sidebar (drawer) | حرج | 8 ساعات | إعادة هيكلة sidebar/header/layout مع state management |
+| **ARCH-2** | Mutation hooks مركزية | عالي | 6 ساعات | إنشاء `useMutation` hooks في `lib/api/hooks.ts` لكل عملية كتابة |
+| **ARCH-3** | WebSocket connection pooling | متوسط | 8 ساعات | singleton connection مع multiplexing بدل connection-per-subscription |
+| **ARCH-4** | Design System مشترك | عالي | 40 ساعة | توحيد مكونات UI بين Admin و Web عبر `@sahool/design-system` |
+| **ARCH-5** | Monorepo build caching | متوسط | 4 ساعات | إضافة Turborepo caching للبناء المشترك |
+
+### 17.3 🎨 تحسينات واجهة المستخدم | UI Improvements
+
+| # | المقترح | التأثير | الجهد | التفاصيل |
+|---|---------|---------|-------|----------|
+| **UI-1** | مكتبة UI موسعة (12 مكون) | عالي | 30 ساعة | Table, Select, Tabs, DatePicker, Breadcrumb, Avatar, Pagination, Skeleton, Alert, Progress, Tooltip, EmptyState |
+| **UI-2** | Dark mode شامل | متوسط | 4 ساعات | إصلاح Modal + Toast + أي مكون بـ `bg-white` بدون `dark:` |
+| **UI-3** | أيقونات حالة فارغة | متوسط | 6 ساعات | 4 رسومات SVG: no-data, no-results, error, offline |
+| **UI-4** | Spinner موحد | منخفض | 1 ساعة | مكون `<Spinner />` واحد بأحجام ثابتة |
+| **UI-5** | `loading.tsx` لجميع المسارات | عالي | 4 ساعات | 36 ملف skeleton loader |
+| **UI-6** | `next/image` wrapper | متوسط | 2 ساعة | wrapper موحد لصور المزرعة مع WebP/AVIF + blur placeholder |
+
+### 17.4 📊 تحسينات الأداء | Performance Improvements
+
+| # | المقترح | التأثير | الجهد | التفاصيل |
+|---|---------|---------|-------|----------|
+| **PERF-1** | `prefetch={false}` لروابط sidebar | متوسط | 30 دقيقة | توفير ~750KB bandwidth |
+| **PERF-2** | Lazy loading لجميع أيقونات lucide | منخفض | 2 ساعة | `React.lazy` بدل static import |
+| **PERF-3** | Bundle analyzer تقرير شهري | منخفض | 1 ساعة | `@next/bundle-analyzer` في CI |
+| **PERF-4** | Web Vitals monitoring | متوسط | 3 ساعات | `next/web-vitals` + Grafana dashboard |
+
+### 17.5 📝 تحسينات جودة الكود | Code Quality Improvements
+
+| # | المقترح | التأثير | الجهد | التفاصيل |
+|---|---------|---------|-------|----------|
+| **CQ-1** | إصلاح 116 تحذير ESLint | متوسط | 3 ساعات | `pnpm lint --fix` + مراجعة يدوية |
+| **CQ-2** | إزالة `as any` (7 حالات) | منخفض | 1 ساعة | استبدال بـ proper types |
+| **CQ-3** | `exhaustive-deps` ESLint rule | متوسط | 2 ساعة | تفعيل وإصلاح warnings |
+| **CQ-4** | Zod validation لمسارات API | عالي | 4 ساعات | schema validation لكل route handler |
+| **CQ-5** | Error boundaries لجميع الصفحات | متوسط | 3 ساعات | wrap كل صفحة dashboard بـ ErrorBoundary |
+
+### 17.6 🌐 تحسينات التعريب | i18n Improvements
+
+| # | المقترح | التأثير | الجهد | التفاصيل |
+|---|---------|---------|-------|----------|
+| **I18N-1** | نقل النصوص المشفرة | متوسط | 3 ساعات | Login, ErrorBoundary, Stub pages (~30 نص) |
+| **I18N-2** | مفتاح تبديل اللغة في sidebar | عالي | 1 ساعة | `<LocaleSwitcher />` موجود لكن غير مُدرج |
+| **I18N-3** | i18n extraction CI check | منخفض | 2 ساعة | فحص CI يكشف نصوص مشفرة جديدة |
+| **I18N-4** | RTL E2E tests | منخفض | 2 ساعة | اختبارات Playwright بـ `dir="rtl"` |
+
+### 17.7 🔄 تحويل الصفحات MOCK/STUB | Page Conversion Roadmap
+
+#### أولوية التحويل (حسب القيمة التجارية):
+
+| الأولوية | الصفحة | الأسطر | الخدمة الخلفية | الجهد المقدّر |
+|:--------:|--------|:------:|---------------|:------------:|
+| 1 | `/insurance` | 1,053 | `crop-insurance` module | 12 ساعة |
+| 2 | `/market-prices` | 821 | `market-prices` module | 8 ساعات |
+| 3 | `/irrigation` | 816 | `irrigation-smart:8094` | 8 ساعات |
+| 4 | `/seeds` | 1,066 | يحتاج endpoint جديد | 10 ساعات |
+| 5 | `/seasons` | 1,125 | `agri-calendar` module | 10 ساعات |
+| 6 | `/inventory` | 661 | `inventory-service:8116` | 6 ساعات |
+| 7 | `/crop-health` | 339 | `crop-intelligence-service:8095` | 4 ساعات |
+| 8 | `/vision` (stub) | 78 | `yolo26-vision-service:8150` | 16 ساعة |
+| 9 | `/terrain` (stub) | 78 | `terrain-core-service:8185` | 12 ساعة |
+| 10 | `/edge-devices` (stub) | 78 | `edge-orchestrator-service:8180` | 12 ساعة |
+
+**المجموع التقديري:** ~98 ساعة لتحويل أعلى 10 صفحات
+
+### 17.8 📊 مقاييس النجاح | Success Metrics
+
+| المقياس | الحالي | الهدف (3 أشهر) | الهدف (6 أشهر) |
+|---------|:------:|:-------------:|:-------------:|
+| صفحات FULL API | 16 (27%) | 26 (43%) | 40 (67%) |
+| مكونات UI مشتركة | 12 | 24 | 30 |
+| تغطية الاختبارات | ~35% | 50% | 70% |
+| ملفات الاختبار | 126 | 180 | 250 |
+| تحذيرات ESLint | 116 | 30 | 0 |
+| ثغرات npm | 4 moderate | 0 moderate | 0 |
+| صفحات Stub | 8 | 4 | 0 |
+| Dark mode coverage | ~70% | 90% | 100% |
+| Lighthouse Performance | — | >80 | >90 |
+| Lighthouse Accessibility | — | >85 | >95 |
+
+---
+
+## 18. خطة العمل | Action Plan
+
+### المرحلة 1: فوري (أسبوع واحد) — الأمان والحرج (انظر SEC-1..6, ARCH-1, UI-5)
 
 1. **إصلاح C-1:** تمكين `edgeLogger` في الإنتاج — استخدام `console.error` بدون شرط أو POST إلى `/api/security-log`
 2. **إصلاح C-2:** إضافة sidebar متجاوب مع drawer pattern (hidden on mobile, visible on md+)
@@ -645,7 +1265,7 @@ crop-health, compliance, disasters, logistics, research, community, marketplace,
 
 **الجهد المقدّر:** ~20 ساعة
 
-### المرحلة 2: قصير المدى (شهر واحد) — الجودة والميزات
+### المرحلة 2: قصير المدى (شهر واحد) — الجودة والميزات (انظر UI-1..6, CQ-1..5, I18N-1..2)
 
 9. توسيع مكتبة UI (Table, Select, Tabs, DatePicker, Pagination)
 10. إصلاح dark mode لـ Modal و Toast
@@ -657,7 +1277,7 @@ crop-health, compliance, disasters, logistics, research, community, marketplace,
 
 **الجهد المقدّر:** ~40 ساعة
 
-### المرحلة 3: طويل المدى — التحسين المستمر
+### المرحلة 3: طويل المدى — التحسين المستمر (انظر القسم 17.7 — تحويل الصفحات)
 
 16. إضافة WebAuthn/FIDO2 للمصادقة البيومترية
 17. إنشاء design system مشترك بين web و mobile
@@ -667,7 +1287,7 @@ crop-health, compliance, disasters, logistics, research, community, marketplace,
 
 ---
 
-## 14. نتائج التحقق العميق | Deep Verification Results
+## 19. نتائج التحقق العميق | Deep Verification Results
 
 تم التحقق العميق من 3 مشاكل حرجة مع فحص الملفات المتأثرة:
 
@@ -696,7 +1316,7 @@ crop-health, compliance, disasters, logistics, research, community, marketplace,
 
 ---
 
-## 15. النقاط الإيجابية | Positive Highlights
+## 20. النقاط الإيجابية | Positive Highlights
 
 ### مشترك بين التطبيقين
 

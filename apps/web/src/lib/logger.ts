@@ -69,12 +69,25 @@ export const logger = {
   },
 
   /**
-   * Log errors (development only)
-   * تسجيل الأخطاء (بيئة التطوير فقط)
+   * Log errors (all environments)
+   * تسجيل الأخطاء (جميع البيئات)
+   *
+   * In production, errors are logged as structured JSON to avoid exposing
+   * sensitive details while still capturing actionable information.
    */
   error: (...args: unknown[]) => {
     if (isDev) {
       console.error(...args);
+    } else {
+      // In production, log structured JSON to avoid exposing sensitive details
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          service: 'sahool-web',
+          timestamp: new Date().toISOString(),
+          message: args[0] instanceof Error ? args[0].message : String(args[0]),
+        })
+      );
     }
   },
 

@@ -19,6 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const { isAuthenticated, isLoading, checkAuth } = useAuth();
   const [commandPaletteOpen, setCommandPaletteOpen] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   const [queryClient] = React.useState(
     () =>
@@ -84,7 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           }
         >
-          <Sidebar />
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         </ErrorBoundary>
         <div className="flex-1 flex flex-col overflow-hidden">
           <ErrorBoundary
@@ -94,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             }
           >
-            <Header />
+            <Header onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
           </ErrorBoundary>
           <main id="main-content" className="flex-1 overflow-y-auto p-6">
             <ErrorBoundary>{children}</ErrorBoundary>

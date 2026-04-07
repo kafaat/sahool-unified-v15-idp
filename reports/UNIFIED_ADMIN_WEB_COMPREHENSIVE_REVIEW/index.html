@@ -1,0 +1,4271 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>تقرير المراجعة المعمّقة الشاملة والموحّدة — بوابة الإدارة (Admin) و لوحة المعلومات (Web) - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#admin-web" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير المراجعة المعمّقة الشاملة والموحّدة — بوابة الإدارة (Admin) و لوحة المعلومات (Web)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="admin-web">تقرير المراجعة المعمّقة الشاملة والموحّدة — بوابة الإدارة (Admin) و لوحة المعلومات (Web)<a class="headerlink" href="#admin-web" title="Permanent link">&para;</a></h1>
+<h1 id="unified-comprehensive-deep-review-admin-portal-web-dashboard">Unified Comprehensive Deep Review — Admin Portal &amp; Web Dashboard<a class="headerlink" href="#unified-comprehensive-deep-review-admin-portal-web-dashboard" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>تاريخ التوحيد:</strong> 2026-04-07 · <strong>الإصدار:</strong> 16.0.0<br />
+<strong>المصادر:</strong> AUDIT_REPORT.md (Admin)، ADMIN_PORTAL_REVIEW.md، WEB_APP_DETAILED_REVIEW.md، SECURITY_AUDIT_REPORT.md (Web)، SECURITY_ENHANCEMENTS.md، SECURITY_FIXES_APPLIED.md، CSRF_IMPLEMENTATION_SUMMARY.md، CSRF_PROTECTION.md، CSP_IMPLEMENTATION_SUMMARY.md<br />
+<strong>الحالة:</strong> تقرير موحّد نهائي — لا تكرار</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">الفهرس | Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-ملخص-تنفيذي--executive-summary">ملخص تنفيذي</a></li>
+<li><a href="#2-البنية-والتكوين--architecture--configuration">البنية والتكوين</a></li>
+<li><a href="#3-التبعيات--dependencies">التبعيات</a></li>
+<li><a href="#4-الأمان-الشامل--comprehensive-security">الأمان الشامل</a></li>
+<li><a href="#5-تصنيف-الصفحات--page-classification">تصنيف الصفحات</a></li>
+<li><a href="#6-مكونات-الواجهة--ui-components">مكونات الواجهة</a></li>
+<li><a href="#7-تكامل-api--api-integration">تكامل API</a></li>
+<li><a href="#8-الأداء--performance">الأداء</a></li>
+<li><a href="#9-الاختبارات--testing">الاختبارات</a></li>
+<li><a href="#10-التعريب-والوصول--i18n--accessibility">التعريب والوصول</a></li>
+<li><a href="#11-الوضع-الداكن--dark-mode">الوضع الداكن</a></li>
+<li><a href="#12-جدول-المشاكل-الموحّد--unified-issues-table">جدول المشاكل الموحّد</a></li>
+<li><a href="#13-أفضل-الأنماط-المتبعة-والمعمارية-المرجعية--best-practices--reference-patterns">أفضل الأنماط المتبعة والمعمارية المرجعية</a></li>
+<li><a href="#14-حالة-الأيقونات-ونظام-التصميم--icon-system--design-status">حالة الأيقونات ونظام التصميم</a></li>
+<li><a href="#15-الهياكل-والأكواد-الناقصة-مع-أمثلة--missing-structures--code-examples">الهياكل والأكواد الناقصة مع أمثلة</a></li>
+<li><a href="#16-الاختبارات-المطلوبة-تفصيلياً--required-tests-detailed">الاختبارات المطلوبة تفصيلياً</a></li>
+<li><a href="#17-مقترحات-التحسين-المفصلة--detailed-improvement-proposals">مقترحات التحسين المفصلة</a></li>
+<li><a href="#18-خطة-العمل--action-plan">خطة العمل</a></li>
+<li><a href="#19-نتائج-التحقق-العميق--deep-verification-results">نتائج التحقق العميق</a></li>
+<li><a href="#20-النقاط-الإيجابية--positive-highlights">النقاط الإيجابية</a></li>
+</ol>
+<hr />
+<h2 id="1-executive-summary">1. ملخص تنفيذي | Executive Summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="overall-scores">التقييم العام | Overall Scores<a class="headerlink" href="#overall-scores" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th style="text-align: center;">Admin Portal</th>
+<th style="text-align: center;">Web Dashboard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>التقييم الكلي</strong></td>
+<td style="text-align: center;"><strong>B+ (85/100)</strong></td>
+<td style="text-align: center;"><strong>7.75/10</strong></td>
+</tr>
+<tr>
+<td><strong>الأمان</strong></td>
+<td style="text-align: center;">8.5/10 🔒</td>
+<td style="text-align: center;">9/10 🔒</td>
+</tr>
+<tr>
+<td><strong>جودة الكود</strong></td>
+<td style="text-align: center;">8/10 📝</td>
+<td style="text-align: center;">8/10 📝</td>
+</tr>
+<tr>
+<td><strong>Type Safety</strong></td>
+<td style="text-align: center;">9/10 ⚡</td>
+<td style="text-align: center;">8/10 ⚡</td>
+</tr>
+<tr>
+<td><strong>المعمارية</strong></td>
+<td style="text-align: center;">8/10 🏗️</td>
+<td style="text-align: center;">8/10 🏗️</td>
+</tr>
+<tr>
+<td><strong>الأداء</strong></td>
+<td style="text-align: center;">8/10 ⚡</td>
+<td style="text-align: center;">8/10 ⚡</td>
+</tr>
+<tr>
+<td><strong>الاختبارات</strong></td>
+<td style="text-align: center;">7/10 🧪</td>
+<td style="text-align: center;">5/10 🧪</td>
+</tr>
+<tr>
+<td><strong>إمكانية الوصول</strong></td>
+<td style="text-align: center;">7/10 ♿</td>
+<td style="text-align: center;">8/10 ♿</td>
+</tr>
+<tr>
+<td><strong>مكونات الواجهة</strong></td>
+<td style="text-align: center;">7/10 🎨</td>
+<td style="text-align: center;">6/10 🎨</td>
+</tr>
+<tr>
+<td><strong>جاهزية الإنتاج</strong></td>
+<td style="text-align: center;">85% 🎯</td>
+<td style="text-align: center;">78% 🎯</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-findings">أهم النتائج | Key Findings<a class="headerlink" href="#key-findings" title="Permanent link">&para;</a></h3>
+<p><strong>Admin Portal:</strong>
+- ✅ 0 أخطاء TypeScript — الوضع الصارم مفعّل
+- ✅ لا توجد ثغرات أمنية حرجة
+- ⚠️ ~116 تحذير ESLint (متغيرات/استيرادات غير مستخدمة)
+- ⚠️ 4 ثغرات npm متوسطة (تبعيات عابرة)
+- ⚠️ 8 صفحات هيكلية (Stub) و 20 صفحة بيانات وهمية فقط
+- ⚠️ <code>edgeLogger</code> يُسكت جميع السجلات في الإنتاج</p>
+<p><strong>Web Dashboard:</strong>
+- ✅ 3 مشاكل أمنية حرجة تم إصلاحها سابقاً
+- ✅ أمان على مستوى الإنتاج (CSP, CSRF, JWT, HSTS)
+- ✅ تقسيم الكود ممتاز (12 dynamic wrapper، ~600KB+ توفير)
+- ⚠️ لا يوجد شريط جانبي متجاوب للهواتف
+- ⚠️ <code>edgeLogger</code> يُسكت أخطاء الأمان في الإنتاج
+- ⚠️ 12 مكون UI فقط — يحتاج توسيع</p>
+<hr />
+<h2 id="2-architecture-configuration">2. البنية والتكوين | Architecture &amp; Configuration<a class="headerlink" href="#2-architecture-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="21-tech-stack">2.1 الإطار التقني | Tech Stack (مشترك)<a class="headerlink" href="#21-tech-stack" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التقنية</th>
+<th>Admin</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Next.js</td>
+<td>15.5.12</td>
+<td>15.5.12</td>
+</tr>
+<tr>
+<td>React</td>
+<td>19.2.4</td>
+<td>19.2.4</td>
+</tr>
+<tr>
+<td>TypeScript</td>
+<td>5.9.3 (strict)</td>
+<td>5.9.3 (strict)</td>
+</tr>
+<tr>
+<td>Tailwind CSS</td>
+<td>3.4.17</td>
+<td>3.4.x (shared config)</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Vitest 3.2.4</td>
+<td>Vitest + Playwright</td>
+</tr>
+<tr>
+<td>JWT</td>
+<td>jose 5.9.6+</td>
+<td>jose (Edge-compatible)</td>
+</tr>
+<tr>
+<td>Sanitization</td>
+<td>xss 1.0.15</td>
+<td>safe-sanitizer.ts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-route-structure">2.2 هيكل المسارات | Route Structure<a class="headerlink" href="#22-route-structure" title="Permanent link">&para;</a></h3>
+<p><strong>Admin Portal — 60 صفحة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="n">auth</span><span class="p">)</span><span class="o">/</span><span class="w">         </span><span class="err">→</span><span class="w"> </span><span class="err">صفحات</span><span class="w"> </span><span class="err">المصادقة</span><span class="w"> </span><span class="err">العامة</span><span class="w"> </span><span class="p">(</span><span class="n">login</span><span class="p">,</span><span class="w"> </span><span class="n">register</span><span class="p">,</span><span class="w"> </span><span class="n">OTP</span><span class="p">,</span><span class="w"> </span><span class="n">forgot</span><span class="o">/</span><span class="n">reset</span><span class="w"> </span><span class="n">password</span><span class="p">)</span>
+<span class="o">/</span><span class="w">               </span><span class="err">→</span><span class="w"> </span><span class="err">إعادة</span><span class="w"> </span><span class="err">توجيه</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="o">/</span><span class="n">dashboard</span>
+<span class="n">dashboard</span><span class="o">/</span><span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="err">لوحة</span><span class="w"> </span><span class="err">التحكم</span><span class="w"> </span><span class="err">الرئيسية</span>
+<span class="n">analytics</span><span class="o">/</span><span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="n">compare</span><span class="p">,</span><span class="w"> </span><span class="n">profitability</span><span class="p">,</span><span class="w"> </span><span class="n">satellite</span><span class="p">,</span><span class="w"> </span><span class="n">soil</span><span class="p">,</span><span class="w"> </span><span class="n">yield</span><span class="p">,</span><span class="w"> </span><span class="n">gap</span><span class="o">-</span><span class="n">analysis</span><span class="p">,</span><span class="w"> </span><span class="n">yield</span><span class="o">-</span><span class="n">forecasting</span>
+<span class="n">precision</span><span class="o">-</span><span class="n">agriculture</span><span class="o">/</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">fertilizer</span><span class="p">,</span><span class="w"> </span><span class="n">gdd</span><span class="p">,</span><span class="w"> </span><span class="n">spray</span><span class="p">,</span><span class="w"> </span><span class="n">vra</span><span class="p">,</span><span class="w"> </span><span class="n">pivot</span>
+<span class="n">reports</span><span class="o">/</span><span class="w">        </span><span class="err">→</span><span class="w"> </span><span class="n">seasonal</span>
+<span class="n">settings</span><span class="o">/</span><span class="w">       </span><span class="err">→</span><span class="w"> </span><span class="err">إعدادات</span><span class="w"> </span><span class="err">عامة</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">security</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sessions</span>
+<span class="o">+</span><span class="w"> </span><span class="mh">40</span><span class="w"> </span><span class="err">صفحة</span><span class="w"> </span><span class="err">أخرى</span><span class="w"> </span><span class="p">(</span><span class="n">diseases</span><span class="p">,</span><span class="w"> </span><span class="n">users</span><span class="p">,</span><span class="w"> </span><span class="n">farms</span><span class="p">,</span><span class="w"> </span><span class="n">sensors</span><span class="p">,</span><span class="w"> </span><span class="n">copilot</span><span class="p">,</span><span class="w"> </span><span class="n">tasks</span><span class="p">,</span><span class="w"> </span><span class="n">alerts</span><span class="p">,</span><span class="w"> </span><span class="n">etc</span><span class="p">.)</span>
+</code></pre></div>
+
+<p><strong>Web Dashboard — 94+ مسار:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span><span class="n">auth</span><span class="p">)</span><span class="o">/</span><span class="w">         </span><span class="err">→</span><span class="w"> </span><span class="err">صفحات</span><span class="w"> </span><span class="err">المصادقة</span><span class="w"> </span><span class="err">العامة</span><span class="w"> </span><span class="p">(</span><span class="n">login</span><span class="p">,</span><span class="w"> </span><span class="n">register</span><span class="p">,</span><span class="w"> </span><span class="n">OTP</span><span class="p">)</span>
+<span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="mh">37</span><span class="o">+</span><span class="w"> </span><span class="err">مسار</span><span class="w"> </span><span class="err">محمي</span><span class="w"> </span><span class="p">(</span><span class="n">fields</span><span class="p">,</span><span class="w"> </span><span class="n">weather</span><span class="p">,</span><span class="w"> </span><span class="n">tasks</span><span class="p">,</span><span class="w"> </span><span class="n">analytics</span><span class="p">,</span><span class="w"> </span><span class="n">etc</span><span class="p">.)</span>
+<span class="n">api</span><span class="o">/</span><span class="w">            </span><span class="err">→</span><span class="w"> </span><span class="mh">20</span><span class="w"> </span><span class="err">مسار</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="err">جانب</span><span class="w"> </span><span class="err">الخادم</span><span class="w"> </span><span class="p">(</span><span class="n">auth</span><span class="p">,</span><span class="w"> </span><span class="n">CSRF</span><span class="p">,</span><span class="w"> </span><span class="n">health</span><span class="p">,</span><span class="w"> </span><span class="n">etc</span><span class="p">.)</span>
+</code></pre></div>
+
+<h3 id="23-provider-hierarchy">2.3 تسلسل المزودين | Provider Hierarchy<a class="headerlink" href="#23-provider-hierarchy" title="Permanent link">&para;</a></h3>
+<p><strong>Admin:</strong> <code>ThemeProvider</code> → <code>AuthProvider</code> → Pages<br />
+<strong>Web:</strong> <code>ThemeProvider</code> → <code>AuthProvider</code> → <code>ToastProvider</code> → Dashboard: <code>QueryClientProvider</code>  </p>
+<blockquote>
+<p>✅ Web يفصل QueryClientProvider في لوحة التحكم فقط — صفحات المصادقة لا تحمّل React Query (ممتاز)</p>
+</blockquote>
+<h3 id="24-error-boundaries">2.4 حدود الأخطاء | Error Boundaries<a class="headerlink" href="#24-error-boundaries" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>Admin</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Error Boundary Component</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Development Stack Traces</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Server-side Logging</td>
+<td>✅ via Sentry (lazy)</td>
+<td>✅ via <code>/api/log-error</code></td>
+</tr>
+<tr>
+<td>Error ID References</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Retry Mechanism</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Bilingual Messages</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Granular Isolation</td>
+<td>—</td>
+<td>✅ Sidebar + Header + Content each separate</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-dependencies">3. التبعيات | Dependencies<a class="headerlink" href="#3-dependencies" title="Permanent link">&para;</a></h2>
+<h3 id="31-admin-portal-17-1">3.1 Admin Portal — التبعيات الرئيسية (17 إنتاج + 1 اختياري)<a class="headerlink" href="#31-admin-portal-17-1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الحزمة</th>
+<th>الإصدار</th>
+<th>الغرض</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>react / react-dom</td>
+<td>^19.2.4</td>
+<td>إطار الواجهة</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>next</td>
+<td>15.5.12</td>
+<td>الإطار</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>axios</td>
+<td>1.13.6</td>
+<td>عميل HTTP</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>jose</td>
+<td>5.9.6</td>
+<td>JWT (متوافق مع Edge)</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>xss</td>
+<td>^1.0.15</td>
+<td>تطهير XSS</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>leaflet / react-leaflet</td>
+<td>1.9.4 / 4.2.1</td>
+<td>خرائط</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>recharts</td>
+<td>2.15.4</td>
+<td>رسوم بيانية</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>lucide-react</td>
+<td>0.575.0</td>
+<td>أيقونات</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>@sahool/api-client</td>
+<td>^16.0.0</td>
+<td>عميل API مشترك</td>
+<td>✅ داخلي</td>
+</tr>
+<tr>
+<td>@sahool/shared-types</td>
+<td>^16.0.0</td>
+<td>أنواع مشتركة</td>
+<td>✅ داخلي</td>
+</tr>
+<tr>
+<td>@opentelemetry/api</td>
+<td>^1.9.0</td>
+<td>تتبع</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>clsx / tailwind-merge</td>
+<td>2.1.1 / 2.6.0</td>
+<td>أدوات CSS</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>date-fns</td>
+<td>4.1.0</td>
+<td>تواريخ</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>js-cookie</td>
+<td>3.0.5</td>
+<td>إدارة الكوكيز</td>
+<td>✅ حديث</td>
+</tr>
+<tr>
+<td>@sentry/nextjs</td>
+<td>^9.5.0</td>
+<td>تتبع الأخطاء (اختياري)</td>
+<td>✅ حديث</td>
+</tr>
+</tbody>
+</table>
+<p><strong>⚠️ ثغرات معروفة (4 متوسطة — تبعيات عابرة):</strong>
+- lodash (عبر @nestjs/config, @nestjs/swagger) — Prototype Pollution
+- next — Unbounded Memory Consumption عبر PPR Resume Endpoint</p>
+<h3 id="32-web-dashboard">3.2 Web Dashboard — تبعيات إضافية<a class="headerlink" href="#32-web-dashboard" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الحزمة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>next-intl</td>
+<td>التعريب والتدويل</td>
+</tr>
+<tr>
+<td>@tanstack/react-query</td>
+<td>إدارة حالة الخادم</td>
+</tr>
+<tr>
+<td>react-focus-lock</td>
+<td>قفل التركيز في Modals</td>
+</tr>
+<tr>
+<td>maplibre-gl</td>
+<td>خرائط Vector</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-comprehensive-security">4. الأمان الشامل | Comprehensive Security<a class="headerlink" href="#4-comprehensive-security" title="Permanent link">&para;</a></h2>
+<h3 id="41-authentication-authorization">4.1 المصادقة والتفويض | Authentication &amp; Authorization<a class="headerlink" href="#41-authentication-authorization" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+<th>الملف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JWT بتحقق التوقيع (jose)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>middleware.ts</code></td>
+</tr>
+<tr>
+<td>httpOnly Cookies</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>unified-client.ts</code></td>
+</tr>
+<tr>
+<td>RBAC (admin/supervisor/viewer)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>middleware.ts</code></td>
+</tr>
+<tr>
+<td>Idle Timeout (30 دقيقة)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>middleware.ts</code></td>
+</tr>
+<tr>
+<td>2FA / OTP</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td>صفحات auth</td>
+</tr>
+<tr>
+<td>BroadcastChannel (sync logout)</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅</td>
+<td><code>auth.store.tsx</code></td>
+</tr>
+<tr>
+<td>UUID validation لـ tenant_id</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅</td>
+<td><code>auth.store.tsx</code></td>
+</tr>
+<tr>
+<td>E2E test mode gated</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅</td>
+<td><code>NODE_ENV=development</code> فقط</td>
+</tr>
+<tr>
+<td>Rate Limiting (5 محاولات/15 دقيقة)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">—</td>
+<td><code>middleware.ts</code></td>
+</tr>
+<tr>
+<td>Backup Codes</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">—</td>
+<td><code>settings/security</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-csrf-protection-2026-01-06">4.2 CSRF Protection (تم تطبيقه 2026-01-06)<a class="headerlink" href="#42-csrf-protection-2026-01-06" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الاستراتيجية</strong></td>
+<td>طبقة مزدوجة: SameSite Cookies + CSRF Tokens</td>
+</tr>
+<tr>
+<td><strong>الطبقة الأولى</strong></td>
+<td>SameSite=Strict cookies (حماية أساسية)</td>
+</tr>
+<tr>
+<td><strong>الطبقة الثانية</strong></td>
+<td>CSRF tokens — 32 بايت عشوائي تشفيري</td>
+</tr>
+<tr>
+<td><strong>المقارنة</strong></td>
+<td>Timing-safe comparison (مقاومة لهجمات التوقيت)</td>
+</tr>
+<tr>
+<td><strong>الاستثناءات</strong></td>
+<td><code>/api/auth/login</code>, <code>/api/auth/register</code>, <code>/api/webhooks</code></td>
+</tr>
+<tr>
+<td><strong>الأساليب المحمية</strong></td>
+<td>POST, PUT, DELETE, PATCH</td>
+</tr>
+<tr>
+<td><strong>الكوكيز</strong></td>
+<td><code>csrf_token</code> (httpOnly) + <code>_csrf</code> (قابل للقراءة من العميل)</td>
+</tr>
+<tr>
+<td><strong>التغطية الاختبارية</strong></td>
+<td>100% — 35/35 اختبار (79 إجمالي)</td>
+</tr>
+<tr>
+<td><strong>التوافق</strong></td>
+<td>99.8% من المتصفحات (Chrome 51+, Firefox 60+, Safari 12+, Edge 16+)</td>
+</tr>
+<tr>
+<td><strong>الملفات</strong></td>
+<td><code>middleware.ts</code>, <code>csrf-server.ts</code>, <code>/api/csrf-token/route.ts</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>⚠️ مشكلة (Web فقط):</strong> لا يتم تدوير CSRF token عند الإجراءات الحساسة (تغيير كلمة المرور/تسجيل الدخول). الخطورة منخفضة بسبب SameSite=Strict.</p>
+<h3 id="43-content-security-policy-csp-2025-12-30">4.3 Content Security Policy — CSP (تم تطبيقه 2025-12-30)<a class="headerlink" href="#43-content-security-policy-csp-2025-12-30" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>النوع</strong></td>
+<td>Nonce-based (يزيل الحاجة لـ unsafe-inline)</td>
+</tr>
+<tr>
+<td><strong>الإنتاج</strong></td>
+<td>يزيل unsafe-eval</td>
+</tr>
+<tr>
+<td><strong>التوجيهات</strong></td>
+<td>12 توجيه صارم</td>
+</tr>
+<tr>
+<td><strong>الإبلاغ</strong></td>
+<td><code>/api/csp-report</code> مع rate limiting (100 تقرير/دقيقة/IP)</td>
+</tr>
+<tr>
+<td><strong>البيئة</strong></td>
+<td>سياسات مختلفة لـ dev و prod</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التوجيهات الرئيسية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nv">default</span><span class="o">-</span><span class="nv">src</span>:<span class="w"> </span><span class="s1">&#39;self&#39;</span>
+<span class="nv">script</span><span class="o">-</span><span class="nv">src</span>:<span class="w"> </span><span class="s1">&#39;self&#39;</span><span class="w"> </span><span class="s1">&#39;nonce-{random}&#39;</span>
+<span class="nv">style</span><span class="o">-</span><span class="nv">src</span>:<span class="w"> </span><span class="s1">&#39;self&#39;</span><span class="w"> </span><span class="s1">&#39;nonce-{random}&#39;</span><span class="w"> </span><span class="nv">fonts</span>.<span class="nv">googleapis</span>.<span class="nv">com</span>
+<span class="nv">img</span><span class="o">-</span><span class="nv">src</span>:<span class="w"> </span><span class="s1">&#39;self&#39;</span><span class="w"> </span><span class="nv">data</span>:<span class="w"> </span><span class="nv">https</span>:<span class="w"> </span><span class="nv">blob</span>:
+<span class="nv">frame</span><span class="o">-</span><span class="nv">ancestors</span>:<span class="w"> </span><span class="s1">&#39;none&#39;</span>
+<span class="nv">object</span><span class="o">-</span><span class="nv">src</span>:<span class="w"> </span><span class="s1">&#39;none&#39;</span>
+<span class="nv">upgrade</span><span class="o">-</span><span class="nv">insecure</span><span class="o">-</span><span class="nv">requests</span><span class="w"> </span><span class="ss">(</span><span class="nv">production</span><span class="ss">)</span>
+</code></pre></div>
+
+<p><strong>الملفات المُنشأة (8 ملفات):</strong>
+- <code>csp-config.ts</code> (311 سطر) — التكوين الأساسي
+- <code>nonce.ts</code> (129 سطر) — أدوات Nonce
+- <code>/api/csp-report/route.ts</code> (146 سطر) — استقبال الإبلاغات
+- <code>csp-example.tsx</code> (365 سطر) — أمثلة الاستخدام
+- <code>csp-config.test.ts</code> (333 سطر) — الاختبارات
+- <code>CSP_README.md</code>, <code>CSP_MIGRATION.md</code>, <code>CSP_QUICK_REFERENCE.md</code></p>
+<h3 id="44-security-headers">4.4 رؤوس الأمان | Security Headers<a class="headerlink" href="#44-security-headers" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الرأس</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HSTS</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>max-age=31536000; includeSubDomains; preload</code> (2 سنة)</td>
+</tr>
+<tr>
+<td>X-Frame-Options</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>DENY</code></td>
+</tr>
+<tr>
+<td>X-Content-Type-Options</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>nosniff</code></td>
+</tr>
+<tr>
+<td>Referrer-Policy</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>strict-origin-when-cross-origin</code></td>
+</tr>
+<tr>
+<td>X-XSS-Protection</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td><code>1; mode=block</code></td>
+</tr>
+<tr>
+<td>Permissions-Policy</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td>camera=(), microphone=(), geolocation=(self)</td>
+</tr>
+<tr>
+<td>Content-Security-Policy</td>
+<td style="text-align: center;">✅ (nonce)</td>
+<td style="text-align: center;">✅ (nonce)</td>
+<td>انظر القسم 4.3</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45-xss-xss-prevention">4.5 حماية XSS | XSS Prevention<a class="headerlink" href="#45-xss-xss-prevention" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>Admin</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>مكتبة تطهير</td>
+<td><code>xss</code> library</td>
+<td><code>safe-sanitizer.ts</code> (282 سطر)</td>
+</tr>
+<tr>
+<td>لا <code>dangerouslySetInnerHTML</code></td>
+<td>✅ لا يوجد</td>
+<td>✅ أمثلة تعليمية فقط</td>
+</tr>
+<tr>
+<td>CSP nonce-based</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Input validation</td>
+<td><code>lib/validation.ts</code></td>
+<td><code>lib/validation.ts</code> (375 سطر)</td>
+</tr>
+<tr>
+<td>URL validation</td>
+<td>http/https فقط</td>
+<td>http/https فقط</td>
+</tr>
+<tr>
+<td>File Upload validation</td>
+<td>50MB, JPEG/PNG/WebP/TIFF</td>
+<td>موجود (يحتاج مراجعة)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="46-input-validation">4.6 التحقق من المدخلات | Input Validation<a class="headerlink" href="#46-input-validation" title="Permanent link">&para;</a></h3>
+<p><strong>المدققات المشتركة:</strong>
+- ✅ البريد الإلكتروني (RFC 5322, حد 254 حرف)
+- ✅ الهاتف (تنسيق يمني +967 + دولي)
+- ✅ كلمة المرور (8+ حرف, uppercase, lowercase, رقم, خاص)
+- ✅ رمز 2FA (6 أرقام بالضبط)
+- ✅ URL (http/https فقط)
+- ✅ Safe Text (كشف HTML, protocols, event handlers, encoding bypasses)
+- ✅ رفع الملفات (MIME whitelist, حد الحجم)</p>
+<p><strong>خاص بـ Admin:</strong>
+- ✅ Weather Route: UUID field_id, lat/lon range, days 1-30 clamp</p>
+<h3 id="47-secrets-management">4.7 إدارة الأسرار | Secrets Management<a class="headerlink" href="#47-secrets-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ لا أسرار مشفرة في الكود (تم التحقق بـ grep)</li>
+<li>✅ لا <code>Math.random()</code> في كود الإنتاج (Admin محقق — في ملفي اختبار فقط)</li>
+<li>✅ <code>JWT_SECRET</code> جانب الخادم فقط (لا <code>NEXT_PUBLIC_</code>)</li>
+<li>✅ <code>API_GATEWAY_URL</code> runtime فقط (Kong: <code>http://kong-gateway:8000</code>)</li>
+<li>✅ <code>NEXT_PUBLIC_API_URL</code> آمن (fallback فقط، بدون أسرار)</li>
+<li>✅ <code>console.*</code> في 3 ملفات إنتاج فقط (Admin: logger.ts, middleware.ts, api-middleware.ts)</li>
+</ul>
+<h3 id="48-2025-2026">4.8 التحسينات الأمنية المُطبقة (ديسمبر 2025 — يناير 2026)<a class="headerlink" href="#48-2025-2026" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة الأصلية</th>
+<th>الإصلاح</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>كوكيز غير آمنة</td>
+<td>أضيف <code>secure: true</code>, <code>sameSite: "strict"</code></td>
+<td>✅ حماية من CSRF + اعتراض الشبكة</td>
+</tr>
+<tr>
+<td>2</td>
+<td>عدم وجود CSP</td>
+<td>تطبيق CSP شامل مع nonce</td>
+<td>✅ حماية من XSS</td>
+</tr>
+<tr>
+<td>3</td>
+<td>تحليل كوكيز غير آمن</td>
+<td>استبدال بمكتبة <code>js-cookie</code></td>
+<td>✅ تحليل موثوق</td>
+</tr>
+<tr>
+<td>4</td>
+<td>JWT بدون تحقق توقيع</td>
+<td>إضافة تحقق التوقيع بـ jose</td>
+<td>✅ حماية من التزوير</td>
+</tr>
+<tr>
+<td>5</td>
+<td>عدم وجود CSRF tokens</td>
+<td>تطبيق طبقة مزدوجة</td>
+<td>✅ حماية شاملة</td>
+</tr>
+<tr>
+<td>6</td>
+<td>رؤوس أمان ضعيفة</td>
+<td>HSTS + Permissions-Policy</td>
+<td>✅ defense-in-depth</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Open redirect</td>
+<td><code>sanitizeReturnUrl()</code></td>
+<td>✅ منع التحويلات المفتوحة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>تحسين الدرجة الأمنية:</strong> 6/10 → <strong>9/10</strong> (+50% تحسين)</p>
+<hr />
+<h2 id="5-page-classification">5. تصنيف الصفحات | Page Classification<a class="headerlink" href="#5-page-classification" title="Permanent link">&para;</a></h2>
+<h3 id="51-admin-portal-60">5.1 Admin Portal — 60 صفحة<a class="headerlink" href="#51-admin-portal-60" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التصنيف</th>
+<th style="text-align: center;">العدد</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FULL</strong> (API حقيقي)</td>
+<td style="text-align: center;">16</td>
+<td>تكامل كامل مع الخدمات الخلفية</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong> (API + fallback)</td>
+<td style="text-align: center;">16</td>
+<td>تحاول API أولاً، تراجع وهمي عند الفشل</td>
+</tr>
+<tr>
+<td><strong>MOCK</strong> (بيانات وهمية فقط)</td>
+<td style="text-align: center;">20</td>
+<td>واجهة واقعية بدون تكامل خلفي</td>
+</tr>
+<tr>
+<td><strong>STUB</strong> (هيكلية)</td>
+<td style="text-align: center;">8</td>
+<td>78 سطر لكل صفحة، أرقام مشفرة</td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary><strong>قائمة الصفحات FULL (16 صفحة) — API حقيقي</strong></summary>
+
+| الصفحة | الأسطر | مصدر API | الميزات |
+|--------|--------|---------|---------|
+| `/dashboard` | 560 | `fetchDashboardStats`, `fetchFarms` | إحصائيات، قائمة مزارع، طقس |
+| `/diseases` | 553 | `fetchDiagnoses`, `updateDiagnosisStatus` | شبكة بطاقات، modal، تأكيد/رفض/علاج |
+| `/users` | 662 | `fetchUsers`, `updateUser`, `deleteUser` | CRUD، إدارة أدوار |
+| `/farms` | 405 | `fetchFarms` | قائمة مزارع، satellite modal |
+| `/sensors` | 745 | `iotService` (CRUD) | CRUD كامل، قراءات |
+| `/epidemic` | 477 | `fetchDiagnoses`, `fetchDiagnosisStats` | خريطة حرارية، أمراض |
+| `/copilot` | 1,074 | `axios` → copilot endpoints | RAG، سجلات الحراسة، 4 تبويبات |
+| `/tasks` | 862 | `fetchTasks`, `createTask`, `updateTask` | إدارة مهام كاملة |
+| `/alerts` | 782 | `fetchAlerts`, `updateAlertStatus` | إدارة تنبيهات |
+| `/settings` | 1,310 | `fetchSettings`, `updateSettings` | إعدادات النظام |
+| `/(auth)/login` | 355 | Zustand auth store | 2FA, backup codes |
+| `/(auth)/register` | 287 | `/api/auth/register` | نموذج تسجيل |
+| `/(auth)/forgot-password` | 280 | `/api/auth/forgot-password` | OTP متعدد القنوات |
+| `/(auth)/reset-password` | 303 | `/api/auth/reset-password` | إعادة تعيين بالرمز |
+| `/(auth)/verify-otp` | 541 | `/api/auth/verify-otp` | 6 أرقام، 5 دقائق انتهاء |
+| `/settings/security` | 528 | `/admin/2fa` endpoints | إعداد/تحقق/تعطيل 2FA |
+
+</details>
+
+<details>
+<summary><strong>قائمة الصفحات MEDIUM (16 صفحة) — API مع تراجع وهمي</strong></summary>
+
+| الصفحة | الأسطر | النمط |
+|--------|--------|-------|
+| `/weather` | 633 | Proxy عبر `/api/weather` |
+| `/yield` | 404 | `apiClient.post` → mock on catch |
+| `/traceability` | 371 | `Promise.allSettled` → MOCK |
+| `/support` | 537 | `apiClient.get` → mock on catch |
+| `/equipment` | 1,061 | `apiClient.get` → mock on catch |
+| `/analytics/field-compare` | 683 | `field.list` → mock fallback |
+| `/analytics/profitability` | 310 | `fetchProfitabilityData` → fallback |
+| `/analytics/satellite` | 513 | `fetchSatelliteData` → fallback |
+| `/analytics/soil` | 385 | `/api/soil-analysis` → fallback |
+| `/analytics/yield` | 449 | `Promise.allSettled` → fallback |
+| `/precision-agriculture/fertilizer` | 752 | `/api/advisory/fertilizer` → fallback |
+| `/precision-agriculture/gdd` | 276 | `fetchGDDData` → fallback |
+| `/precision-agriculture/spray` | 402 | `Promise.all` → fallback |
+| `/precision-agriculture/vra` | 311 | `fetchVRAPrescriptions` → fallback |
+| `/reports/seasonal` | 566 | `/api/v1/reports/seasonal` → fallback |
+| `/settings/sessions` | 270 | `/api/admin/sessions` |
+
+</details>
+
+<details>
+<summary><strong>قائمة الصفحات MOCK (20 صفحة) — بيانات وهمية</strong></summary>
+
+crop-health, compliance, disasters, logistics, research, community, marketplace, insurance, market-prices, irrigation, inventory, seeds, seasons, cooperatives, soil-map, lab, analytics/gap-analysis, analytics/yield-forecasting, precision-agriculture/pivot, equipment/fleet-tracking
+
+</details>
+
+<details>
+<summary><strong>قائمة الصفحات STUB (8 صفحات) — هيكلية فقط</strong></summary>
+
+`/` (15 سطر — redirect), `/vision`, `/terrain`, `/edge-devices`, `/audit`, `/scouting`, `/drone`, `/virtual-sensors`  
+— جميعها 78 سطر، 4 بطاقات إحصاء بأرقام مشفرة + "سيتم عرض ... هنا"
+
+</details>
+
+<h3 id="52-web-dashboard">5.2 Web Dashboard — هيكل المسارات<a class="headerlink" href="#52-web-dashboard" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المنطقة</th>
+<th style="text-align: center;">المسارات</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(auth)</td>
+<td style="text-align: center;">5+</td>
+<td>✅ تكامل كامل</td>
+</tr>
+<tr>
+<td>(dashboard)</td>
+<td style="text-align: center;">37+</td>
+<td>✅ معظمها بتكامل API</td>
+</tr>
+<tr>
+<td>api</td>
+<td style="text-align: center;">20</td>
+<td>✅ مسارات جانب الخادم</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-ui-components">6. مكونات الواجهة | UI Components<a class="headerlink" href="#6-ui-components" title="Permanent link">&para;</a></h2>
+<h3 id="61-web">6.1 مكونات Web المُراجعة<a class="headerlink" href="#61-web" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th style="text-align: center;">التقييم</th>
+<th>الميزات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Button</strong></td>
+<td style="text-align: center;">9/10</td>
+<td>5 أنماط، 3 أحجام، loading، RTL-aware (<code>ms-</code>/<code>me-</code>)، <code>aria-busy/disabled</code></td>
+</tr>
+<tr>
+<td><strong>Modal</strong></td>
+<td style="text-align: center;">9/10</td>
+<td>Focus lock، Escape، focus restore، 5 أحجام، <code>aria-modal/labelledby/describedby</code></td>
+</tr>
+<tr>
+<td><strong>Toast</strong></td>
+<td style="text-align: center;">8/10</td>
+<td>Lazy icons (~5KB)، auto-dismiss، <code>aria-live="polite"</code></td>
+</tr>
+<tr>
+<td><strong>ErrorBoundary</strong></td>
+<td style="text-align: center;">9/10</td>
+<td>Server logging، retry، HOC wrapper، bilingual</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-web">6.2 المكونات المفقودة (Web)<a class="headerlink" href="#62-web" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th style="text-align: center;">الأولوية</th>
+<th>السبب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Table/DataGrid</strong></td>
+<td style="text-align: center;">عالية</td>
+<td>مطلوب لقوائم الحقول والمهام</td>
+</tr>
+<tr>
+<td><strong>Select/Dropdown</strong></td>
+<td style="text-align: center;">عالية</td>
+<td>لا يوجد مكون select مخصص</td>
+</tr>
+<tr>
+<td><strong>Tabs</strong></td>
+<td style="text-align: center;">عالية</td>
+<td>مطلوب لصفحات التفاصيل</td>
+</tr>
+<tr>
+<td><strong>Date Picker</strong></td>
+<td style="text-align: center;">عالية</td>
+<td>مطلوب لميزات المواسم/التقويم</td>
+</tr>
+<tr>
+<td><strong>Map Component</strong></td>
+<td style="text-align: center;">عالية</td>
+<td>wrapper قابل لإعادة الاستخدام</td>
+</tr>
+<tr>
+<td><strong>Breadcrumb</strong></td>
+<td style="text-align: center;">متوسطة</td>
+<td>سياق التنقل</td>
+</tr>
+<tr>
+<td><strong>Avatar</strong></td>
+<td style="text-align: center;">متوسطة</td>
+<td>عرض ملف المستخدم</td>
+</tr>
+<tr>
+<td><strong>Pagination</strong></td>
+<td style="text-align: center;">متوسطة</td>
+<td>تصفح القوائم</td>
+</tr>
+<tr>
+<td><strong>Skeleton</strong></td>
+<td style="text-align: center;">متوسطة</td>
+<td>placeholders (موجود في dashboard فقط)</td>
+</tr>
+<tr>
+<td><strong>Alert/Banner</strong></td>
+<td style="text-align: center;">متوسطة</td>
+<td>إشعارات inline</td>
+</tr>
+<tr>
+<td><strong>Progress</strong></td>
+<td style="text-align: center;">منخفضة</td>
+<td>تقدم الرفع/المزامنة</td>
+</tr>
+<tr>
+<td><strong>Tooltip</strong></td>
+<td style="text-align: center;">منخفضة</td>
+<td>تلميحات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-admin">6.3 مكونات Admin<a class="headerlink" href="#63-admin" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ استخدام <code>React.memo</code> لبعض المكونات</li>
+<li>✅ Dynamic imports للخرائط والرسوم البيانية</li>
+<li>⚠️ أزرار التصدير معطلة ("قريبًا") في ~10 صفحات</li>
+<li>⚠️ أزرار العرض/التفاصيل معطلة في صفحات stub</li>
+</ul>
+<hr />
+<h2 id="7-api-api-integration">7. تكامل API | API Integration<a class="headerlink" href="#7-api-api-integration" title="Permanent link">&para;</a></h2>
+<h3 id="71-api">7.1 سلسلة API (مشتركة)<a class="headerlink" href="#71-api" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">@sahool</span><span class="o">/</span><span class="n">api</span><span class="o">-</span><span class="n">client</span><span class="w"> </span><span class="p">(</span><span class="n">حزمة</span><span class="w"> </span><span class="n">مشتركة</span><span class="p">)</span>
+<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">unified</span><span class="o">-</span><span class="n">client</span><span class="p">.</span><span class="n">ts</span><span class="w"> </span><span class="p">(</span><span class="n">CSRF</span><span class="w"> </span><span class="n">interceptor</span><span class="p">,</span><span class="w"> </span><span class="n">httpOnly</span><span class="w"> </span><span class="n">cookies</span><span class="p">,</span><span class="w"> </span><span class="n">retry</span><span class="p">)</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">ts</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="n">ts</span><span class="w"> </span><span class="p">(</span><span class="n">دوال</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">المركزية</span><span class="p">)</span>
+<span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="n">hooks</span><span class="w"> </span><span class="p">(</span><span class="n">React</span><span class="w"> </span><span class="n">Query</span><span class="w"> </span><span class="n">integration</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">Web</span><span class="w"> </span><span class="n">فقط</span><span class="p">)</span>
+<span class="w">        </span><span class="err">→</span><span class="w"> </span><span class="n">مكونات</span><span class="w"> </span><span class="n">الصفحات</span>
+</code></pre></div>
+
+<h3 id="72">7.2 نقاط القوة<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSRF Header Injection</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>httpOnly Cookies</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Token Refresh</td>
+<td style="text-align: center;">✅ (queuing)</td>
+<td style="text-align: center;">✅ (proxy <code>/api/auth/refresh</code>)</td>
+</tr>
+<tr>
+<td>Retry + Exponential Backoff</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅ (3 محاولات, 1s-30s)</td>
+</tr>
+<tr>
+<td>HTTPS Enforcement</td>
+<td style="text-align: center;">✅ (prod)</td>
+<td style="text-align: center;">✅ (prod)</td>
+</tr>
+<tr>
+<td>Server-side Proxying</td>
+<td style="text-align: center;">✅ via next.config.js</td>
+<td style="text-align: center;">✅ via next.config.js</td>
+</tr>
+<tr>
+<td>React Query</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ centralized hooks</td>
+</tr>
+<tr>
+<td>Type-safe Methods</td>
+<td style="text-align: center;">✅ 40+ functions</td>
+<td style="text-align: center;">✅ 965-line client</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-api">7.3 مشاكل API<a class="headerlink" href="#73-api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>التطبيق</th>
+<th>الخطورة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API-1</td>
+<td>لا يوجد mutation hooks مركزية</td>
+<td>Web</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>API-2</td>
+<td>WebSocket بدون connection pooling</td>
+<td>Web</td>
+<td>منخفضة</td>
+</tr>
+<tr>
+<td>API-3</td>
+<td>API URL fallback إلى سلسلة فارغة</td>
+<td>Web</td>
+<td>منخفضة</td>
+</tr>
+<tr>
+<td>API-4</td>
+<td>CORS مفتوح في <code>/api/csp-report</code> (<code>*</code>)</td>
+<td>Admin</td>
+<td>عالية</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-performance">8. الأداء | Performance<a class="headerlink" href="#8-performance" title="Permanent link">&para;</a></h2>
+<h3 id="81">8.1 التحسينات المُطبقة<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>التحسين</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dynamic Imports (SSR: false)</td>
+<td style="text-align: center;">✅ خرائط + رسوم</td>
+<td style="text-align: center;">✅ <strong>12 wrapper</strong> (~600KB+)</td>
+</tr>
+<tr>
+<td>Chunk Splitting</td>
+<td style="text-align: center;">✅ charts, maps, framework</td>
+<td style="text-align: center;">✅ charts, maps, framework</td>
+</tr>
+<tr>
+<td>Package Import Optimization</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅ (14 حزمة)</td>
+</tr>
+<tr>
+<td>Lazy Icons</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ Toast (~5KB)</td>
+</tr>
+<tr>
+<td>Async CSS</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ Leaflet CSS</td>
+</tr>
+<tr>
+<td>Self-hosted Fonts</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ Tajawal WOFF2 + CDN fallback</td>
+</tr>
+<tr>
+<td>Query Scoping</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ Dashboard layout فقط</td>
+</tr>
+<tr>
+<td>Standalone Output (Docker)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Console Stripping (prod)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Source Maps Disabled (prod)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82-web">8.2 تقسيم الكود (Web — محقق بالتعمق)<a class="headerlink" href="#82-web" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ملف Dynamic Wrapper</th>
+<th>المكون</th>
+<th>التوفير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LazyRecharts.dynamic.tsx</code></td>
+<td>15 مكون Recharts</td>
+<td>~120KB</td>
+</tr>
+<tr>
+<td><code>MapView.dynamic.tsx</code></td>
+<td>MapLibre GL JS</td>
+<td>~200KB</td>
+</tr>
+<tr>
+<td><code>FieldMap.dynamic.tsx</code></td>
+<td>خريطة الحقل</td>
+<td>~50KB</td>
+</tr>
+<tr>
+<td><code>InteractiveFieldMap.dynamic.tsx</code></td>
+<td>خريطة تفاعلية</td>
+<td>~50KB</td>
+</tr>
+<tr>
+<td><code>ComparisonChart.dynamic.tsx</code></td>
+<td>رسوم المقارنة</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>CostAnalysis.dynamic.tsx</code></td>
+<td>تحليل التكاليف</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>YieldAnalysis.dynamic.tsx</code></td>
+<td>تحليل الإنتاجية</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>YieldChart.dynamic.tsx</code></td>
+<td>رسم الإنتاجية</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>SensorChart.dynamic.tsx</code></td>
+<td>رسوم IoT</td>
+<td>~30KB</td>
+</tr>
+<tr>
+<td><code>SensorReadings.dynamic.tsx</code></td>
+<td>بيانات الحساسات</td>
+<td>~20KB</td>
+</tr>
+<tr>
+<td><code>ObservationMarker.dynamic.tsx</code></td>
+<td>علامات الخريطة</td>
+<td>~15KB</td>
+</tr>
+<tr>
+<td><code>ScoutingMode.dynamic.tsx</code></td>
+<td>واجهة الاستكشاف</td>
+<td>~20KB</td>
+</tr>
+<tr>
+<td><strong>المجموع</strong></td>
+<td></td>
+<td><strong>~625KB+</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="83">8.3 مشاكل الأداء<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>التطبيق</th>
+<th>الخطورة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PERF-1</td>
+<td>لا يوجد <code>next/image</code> wrapper</td>
+<td>Web</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>PERF-2</td>
+<td>Route prefetching لـ 15 رابط (~750KB)</td>
+<td>Web</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>PERF-3</td>
+<td>Edge middleware optimization</td>
+<td>✅ كلاهما</td>
+<td>محلول</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-testing">9. الاختبارات | Testing<a class="headerlink" href="#9-testing" title="Permanent link">&para;</a></h2>
+<h3 id="91">9.1 إحصائيات المقارنة<a class="headerlink" href="#91" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ملفات الاختبار</strong></td>
+<td style="text-align: center;">52</td>
+<td style="text-align: center;">74 (47 unit + 27 E2E)</td>
+</tr>
+<tr>
+<td><strong>حالات الاختبار</strong></td>
+<td style="text-align: center;">1,044</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr>
+<td><strong>اختبارات وهمية</strong> (expect(true))</td>
+<td style="text-align: center;"><strong>0</strong> ✅</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr>
+<td><strong>اختبارات متخطاة</strong> (skip)</td>
+<td style="text-align: center;"><strong>0</strong> ✅</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr>
+<td><strong>إطار Unit</strong></td>
+<td style="text-align: center;">Vitest</td>
+<td style="text-align: center;">Vitest</td>
+</tr>
+<tr>
+<td><strong>إطار E2E</strong></td>
+<td style="text-align: center;">Playwright (مستوى المشروع)</td>
+<td style="text-align: center;">Playwright (27 ملف)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92">9.2 المناطق المُختبرة جيداً<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<p><strong>Admin:</strong>
+- ✅ API route handlers (weather, auth, middleware)
+- ✅ CSRF interceptor behavior
+- ✅ Component rendering
+- ✅ Utility functions
+- ✅ Mock data factories
+- ✅ Security middleware</p>
+<p><strong>Web:</strong>
+- ✅ Security: CSP, CSRF, JWT, nonce validation (6 ملفات)
+- ✅ Auth store: state, security, contracts (4 ملفات)
+- ✅ API client: routes, auth (3 ملفات)
+- ✅ UI components: Button, Modal, Toast (2 ملفات)
+- ✅ E2E: Auth flows, navigation, forms, responsive, accessibility (27 spec)</p>
+<h3 id="93">9.3 فجوات الاختبار<a class="headerlink" href="#93" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفجوة</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+<th style="text-align: center;">الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>اختبارات مستوى الميزات</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">⚠️ 37 ميزة بدون اختبار</td>
+<td style="text-align: center;">عالية</td>
+</tr>
+<tr>
+<td>اختبارات Hooks</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">⚠️ <code>useFormValidation</code> فقط</td>
+<td style="text-align: center;">عالية</td>
+</tr>
+<tr>
+<td>اختبارات التكامل (API → UI)</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">⚠️</td>
+<td style="text-align: center;">متوسطة</td>
+</tr>
+<tr>
+<td>Snapshot tests</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">⚠️</td>
+<td style="text-align: center;">منخفضة</td>
+</tr>
+<tr>
+<td>Performance tests (Web Vitals)</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">⚠️</td>
+<td style="text-align: center;">منخفضة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="94-e2e-web">9.4 جودة E2E (Web)<a class="headerlink" href="#94-e2e-web" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Multi-browser (Chromium, Firefox, WebKit)</li>
+<li>✅ Mobile viewport (Pixel 5, iPhone 12)</li>
+<li>✅ CI adaptations (2 workers, 1 retry)</li>
+<li>✅ Screenshots/video on failure</li>
+<li>⚠️ <code>responsive.spec.ts</code> يشير إلى selectors غير موجودة (<code>mobile-menu</code>, <code>mobile-drawer</code>)</li>
+</ul>
+<hr />
+<h2 id="10-i18n-accessibility">10. التعريب والوصول | i18n &amp; Accessibility<a class="headerlink" href="#10-i18n-accessibility" title="Permanent link">&para;</a></h2>
+<h3 id="101">10.1 التعريب<a class="headerlink" href="#101" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>نظام الترجمة</td>
+<td style="text-align: center;"><code>lib/i18n</code> (مخصص)</td>
+<td style="text-align: center;"><code>next-intl</code> (مكتبة كاملة)</td>
+</tr>
+<tr>
+<td>اللغات</td>
+<td style="text-align: center;">AR + EN</td>
+<td style="text-align: center;">AR (افتراضي) + EN</td>
+</tr>
+<tr>
+<td>RTL Support</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅ (<code>start</code>/<code>end</code>, <code>ms-</code>/<code>me-</code>)</td>
+</tr>
+<tr>
+<td>Locale Detection</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅ Edge-optimized</td>
+</tr>
+<tr>
+<td>Cookie Persistence</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ (سنة)</td>
+</tr>
+<tr>
+<td>مفتاح تبديل اللغة</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">⚠️ موجود لكن غير مستخدم في التنقل الرئيسي</td>
+</tr>
+<tr>
+<td>نصوص مشفرة</td>
+<td style="text-align: center;">⚠️ بعض</td>
+<td style="text-align: center;">⚠️ Login + ErrorBoundary</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102">10.2 إمكانية الوصول<a class="headerlink" href="#102" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ARIA attributes</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅ (299 حالة)</td>
+</tr>
+<tr>
+<td>Skip-to-content</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ ثنائي اللغة</td>
+</tr>
+<tr>
+<td>Focus lock (Modals)</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ react-focus-lock</td>
+</tr>
+<tr>
+<td>Screen reader announcements</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅ Modals + Toasts</td>
+</tr>
+<tr>
+<td><code>aria-current="page"</code></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>alt text coverage</td>
+<td style="text-align: center;">⚠️ يحتاج تحقق</td>
+<td style="text-align: center;">⚠️ حالة واحدة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-dark-mode">11. الوضع الداكن | Dark Mode<a class="headerlink" href="#11-dark-mode" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>التطبيق</td>
+<td style="text-align: center;">Class-based (<code>dark:</code> Tailwind)</td>
+<td style="text-align: center;">Class-based via ThemeProvider</td>
+</tr>
+<tr>
+<td>System Preference Detection</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>localStorage Persistence</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>ThemeToggle Component</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td><strong>Modal dark mode</strong></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">⚠️ <code>bg-white</code> بدون <code>dark:</code> variant</td>
+</tr>
+<tr>
+<td><strong>Toast dark mode</strong></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">⚠️ light backgrounds فقط</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="12-unified-issues-table">12. جدول المشاكل الموحّد | Unified Issues Table<a class="headerlink" href="#12-unified-issues-table" title="Permanent link">&para;</a></h2>
+<h3 id="p0">🔴 حرج (P0) — يجب الإصلاح فوراً<a class="headerlink" href="#p0" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>التطبيقات</th>
+<th>الملفات</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C-1</strong></td>
+<td><code>edgeLogger</code> يُسكت أخطاء الأمان في الإنتاج (JWT brute-force, CSRF failures غير مرئية)</td>
+<td><strong>Admin + Web</strong></td>
+<td><code>middleware.ts:43-48</code> (Web), <code>middleware.ts:56-59</code> (Admin)</td>
+<td><strong>مؤكد</strong></td>
+</tr>
+<tr>
+<td><strong>C-2</strong></td>
+<td>لا يوجد شريط جانبي متجاوب للهواتف (sidebar w-64 ثابت، لا hamburger، لا drawer)</td>
+<td><strong>Web</strong></td>
+<td><code>sidebar.tsx</code>, <code>header.tsx</code>, <code>layout.tsx</code></td>
+<td><strong>مؤكد</strong></td>
+</tr>
+<tr>
+<td><strong>C-3</strong></td>
+<td>E2E responsive tests تشير إلى selectors غير موجودة</td>
+<td><strong>Web</strong></td>
+<td><code>e2e/responsive.spec.ts</code></td>
+<td><strong>مؤكد</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="p1">🟠 عالي (P1) — إصلاح خلال أسبوع<a class="headerlink" href="#p1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>التطبيقات</th>
+<th>الملفات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H-1</strong></td>
+<td>تحديث التبعيات (4 ثغرات متوسطة)</td>
+<td>Admin</td>
+<td><code>package.json</code></td>
+</tr>
+<tr>
+<td><strong>H-2</strong></td>
+<td>إضافة rate limiting لنقاط المصادقة</td>
+<td>Admin</td>
+<td><code>api/auth/login/route.ts</code>, <code>refresh/route.ts</code></td>
+</tr>
+<tr>
+<td><strong>H-3</strong></td>
+<td>إصلاح CORS في <code>/api/csp-report</code> (<code>*</code> → أصول محددة)</td>
+<td>Admin</td>
+<td><code>api/csp-report/route.ts</code></td>
+</tr>
+<tr>
+<td><strong>H-4</strong></td>
+<td>إصلاح ابتلاع الأخطاء الصامت (12 catch فارغ)</td>
+<td>Admin</td>
+<td><code>lib/api.ts</code> + <code>irrigation/page.tsx</code></td>
+</tr>
+<tr>
+<td><strong>H-5</strong></td>
+<td>إضافة <code>loading.tsx</code> لمسارات Dashboard</td>
+<td>Web</td>
+<td>مسارات (dashboard)/</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p2">🟡 متوسط (P2) — إصلاح خلال شهر<a class="headerlink" href="#p2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>التطبيقات</th>
+<th>الملفات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>M-1</strong></td>
+<td>استبدال <code>as any</code> (7 حالات)</td>
+<td>Admin</td>
+<td><code>FarmsMap.tsx</code></td>
+</tr>
+<tr>
+<td><strong>M-2</strong></td>
+<td>إضافة loading states/skeletons</td>
+<td>Admin</td>
+<td><code>users/page.tsx</code>, <code>diseases/page.tsx</code></td>
+</tr>
+<tr>
+<td><strong>M-3</strong></td>
+<td>تفعيل قاعدة <code>exhaustive-deps</code> ESLint</td>
+<td>Admin</td>
+<td><code>eslint.config.mjs</code></td>
+</tr>
+<tr>
+<td><strong>M-4</strong></td>
+<td>إضافة Zod schema validation لمسارات API</td>
+<td>Admin</td>
+<td><code>api/log-error/route.ts</code></td>
+</tr>
+<tr>
+<td><strong>M-5</strong></td>
+<td>تحسين UX الأخطاء (toast notifications)</td>
+<td>Admin</td>
+<td>صفحات متعددة</td>
+</tr>
+<tr>
+<td><strong>M-6</strong></td>
+<td>توسيع مكتبة UI (Table, Select, Tabs, DatePicker)</td>
+<td>Web</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>M-7</strong></td>
+<td>إصلاح dark mode لـ Modal و Toast</td>
+<td>Web</td>
+<td><code>modal.tsx</code>, <code>toast.tsx</code></td>
+</tr>
+<tr>
+<td><strong>M-8</strong></td>
+<td>Mutation hooks مركزية</td>
+<td>Web</td>
+<td><code>hooks.ts</code></td>
+</tr>
+<tr>
+<td><strong>M-9</strong></td>
+<td>Route prefetching wastes bandwidth</td>
+<td>Web</td>
+<td><code>sidebar.tsx</code></td>
+</tr>
+<tr>
+<td><strong>M-10</strong></td>
+<td>نصوص مشفرة بدل i18n</td>
+<td>كلاهما</td>
+<td>Login, ErrorBoundary</td>
+</tr>
+<tr>
+<td><strong>M-11</strong></td>
+<td>مفتاح تبديل اللغة غير موجود في التنقل</td>
+<td>Web</td>
+<td><code>sidebar.tsx</code></td>
+</tr>
+<tr>
+<td><strong>M-12</strong></td>
+<td>CSRF token rotation عند الإجراءات الحساسة</td>
+<td>Web</td>
+<td><code>middleware.ts</code></td>
+</tr>
+<tr>
+<td><strong>M-13</strong></td>
+<td>Cookie cleanup هش عند logout</td>
+<td>Web</td>
+<td><code>auth.store.tsx</code></td>
+</tr>
+<tr>
+<td><strong>M-14</strong></td>
+<td>زيادة تغطية الاختبارات (target 70%+)</td>
+<td>Admin</td>
+<td>متعدد</td>
+</tr>
+<tr>
+<td><strong>M-15</strong></td>
+<td>إضافة اختبارات مستوى الميزات + hooks</td>
+<td>Web</td>
+<td>37 ميزة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p3">🟢 منخفض (P3) — عند توفر الوقت<a class="headerlink" href="#p3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>التطبيقات</th>
+<th>الملفات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L-1</strong></td>
+<td>إصلاح ~116 تحذير ESLint (متغيرات غير مستخدمة)</td>
+<td>Admin</td>
+<td>متعدد</td>
+</tr>
+<tr>
+<td><strong>L-2</strong></td>
+<td>استبدال <code>console.error</code> بـ <code>logger.error</code></td>
+<td>Admin</td>
+<td>4 ملفات</td>
+</tr>
+<tr>
+<td><strong>L-3</strong></td>
+<td>Root page renders Cockpit بدون auth check</td>
+<td>Web</td>
+<td><code>HomeClient.tsx</code></td>
+</tr>
+<tr>
+<td><strong>L-4</strong></td>
+<td>WebSocket بدون connection pooling</td>
+<td>Web</td>
+<td><code>ws/index.ts</code></td>
+</tr>
+<tr>
+<td><strong>L-5</strong></td>
+<td>API URL fallback إلى سلسلة فارغة</td>
+<td>Web</td>
+<td><code>unified-client.ts</code></td>
+</tr>
+<tr>
+<td><strong>L-6</strong></td>
+<td>لا يوجد <code>next/image</code> wrapper</td>
+<td>Web</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>L-7</strong></td>
+<td>Toast بدون حد أقصى (يمكن التراكم لا نهائياً)</td>
+<td>Web</td>
+<td><code>toast.tsx</code></td>
+</tr>
+<tr>
+<td><strong>L-8</strong></td>
+<td>صفحات Stub بأرقام مشفرة (8 صفحات)</td>
+<td>Admin</td>
+<td>vision, terrain, etc.</td>
+</tr>
+<tr>
+<td><strong>L-9</strong></td>
+<td>أزرار التصدير معطلة في ~10 صفحات</td>
+<td>Admin</td>
+<td>متعدد</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-best-practices-reference-patterns">13. أفضل الأنماط المتبعة والمعمارية المرجعية | Best Practices &amp; Reference Patterns<a class="headerlink" href="#13-best-practices-reference-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="131-excellent-patterns-to-preserve">13.1 أنماط معمارية ممتازة يجب الحفاظ عليها | Excellent Patterns to Preserve<a class="headerlink" href="#131-excellent-patterns-to-preserve" title="Permanent link">&para;</a></h3>
+<h4 id="provider-hierarchy-web">أ) نمط Provider Hierarchy (Web)<a class="headerlink" href="#provider-hierarchy-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ✅ نمط ممتاز: QueryClientProvider في dashboard فقط — يوفر ~50KB لصفحات المصادقة</span>
+<span class="c1">// apps/web/src/app/layout.tsx</span>
+<span class="p">&lt;</span><span class="nt">ThemeProvider</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">AuthProvider</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">ToastProvider</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="nx">children</span><span class="p">}</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">ToastProvider</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">AuthProvider</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ThemeProvider</span><span class="p">&gt;</span>
+
+<span class="c1">// apps/web/src/app/(dashboard)/layout.tsx</span>
+<span class="p">&lt;</span><span class="nt">QueryClientProvider</span><span class="w"> </span><span class="na">client</span><span class="o">=</span><span class="p">{</span><span class="nx">queryClient</span><span class="p">}&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">Sidebar</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">main</span><span class="p">&gt;{</span><span class="nx">children</span><span class="p">}&lt;/</span><span class="nt">main</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">QueryClientProvider</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<h4 id="edge-middleware-optimization">ب) نمط Edge Middleware Optimization (مشترك)<a class="headerlink" href="#edge-middleware-optimization" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ✅ نمط ممتاز: استخدام jose بدلاً من jsonwebtoken لتوافق Edge Runtime</span>
+<span class="c1">// يوفر ~500KB+ من حجم middleware bundle</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">jwtVerify</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;jose&#39;</span><span class="p">;</span><span class="w">  </span><span class="c1">// ~5KB — Edge-compatible</span>
+<span class="c1">// ❌ import jwt from &#39;jsonwebtoken&#39;;  // ~200KB — لا يعمل في Edge</span>
+</code></pre></div>
+
+<h4 id="code-splitting-web">ج) نمط Code Splitting (Web)<a class="headerlink" href="#code-splitting-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ✅ نمط ممتاز: 12 ملف .dynamic.tsx مع SSR: false + loading fallback</span>
+<span class="c1">// apps/web/src/components/charts/LazyRecharts.dynamic.tsx</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">dynamic</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;next/dynamic&#39;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">LazyLineChart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">dynamic</span><span class="p">(</span>
+<span class="w">  </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;recharts&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">mod</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">mod</span><span class="p">.</span><span class="nx">LineChart</span><span class="p">),</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">ssr</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span><span class="w"> </span><span class="nx">loading</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">&lt;</span><span class="nt">ChartSkeleton</span><span class="w"> </span><span class="p">/&gt;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<h4 id="csrf-double-submit">د) نمط CSRF Double-Submit (مشترك)<a class="headerlink" href="#csrf-double-submit" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ✅ نمط أمني متقدم: كوكي httpOnly + كوكي قابل للقراءة + timing-safe comparison</span>
+<span class="c1">// middleware.ts</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">csrfCookie</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cookies</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;csrf_token&#39;</span><span class="p">);</span><span class="w">  </span><span class="c1">// httpOnly — لا يمكن قراءته من JS</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">csrfHeader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;x-csrf-token&#39;</span><span class="p">);</span><span class="w">  </span><span class="c1">// من العميل</span>
+<span class="c1">// مقارنة آمنة ضد التوقيت (timing-safe)</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">timingSafeEqual</span><span class="p">(</span><span class="nx">csrfCookie</span><span class="p">,</span><span class="w"> </span><span class="nx">csrfHeader</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">403</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<h4 id="error-boundary-web">هـ) نمط Error Boundary المتدرج (Web)<a class="headerlink" href="#error-boundary-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ✅ نمط ممتاز: كل منطقة لها ErrorBoundary مستقل</span>
+<span class="p">&lt;</span><span class="nt">ErrorBoundary</span><span class="w"> </span><span class="na">fallback</span><span class="o">=</span><span class="p">{&lt;</span><span class="nt">SidebarFallback</span><span class="w"> </span><span class="p">/&gt;}&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">Sidebar</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ErrorBoundary</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">ErrorBoundary</span><span class="w"> </span><span class="na">fallback</span><span class="o">=</span><span class="p">{&lt;</span><span class="nt">HeaderFallback</span><span class="w"> </span><span class="p">/&gt;}&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">Header</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ErrorBoundary</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">ErrorBoundary</span><span class="w"> </span><span class="na">fallback</span><span class="o">=</span><span class="p">{&lt;</span><span class="nt">ContentFallback</span><span class="w"> </span><span class="p">/&gt;}&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">main</span><span class="p">&gt;{</span><span class="nx">children</span><span class="p">}&lt;/</span><span class="nt">main</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ErrorBoundary</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<h4 id="toast-lazy-icons-web">و) نمط Toast Lazy Icons (Web)<a class="headerlink" href="#toast-lazy-icons-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ✅ إبداعي: تحميل أيقونات Toast بـ React.lazy() — يوفر ~5KB من البداية</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">SuccessIcon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">React</span><span class="p">.</span><span class="nx">lazy</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;lucide-react&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">default</span><span class="o">:</span><span class="w"> </span><span class="kt">m.CheckCircle</span><span class="w"> </span><span class="p">})));</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ErrorIcon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">React</span><span class="p">.</span><span class="nx">lazy</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;lucide-react&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">default</span><span class="o">:</span><span class="w"> </span><span class="kt">m.XCircle</span><span class="w"> </span><span class="p">})));</span>
+</code></pre></div>
+
+<h4 id="api-chain-token-refresh-queue-admin">ز) نمط API Chain مع Token Refresh Queue (Admin)<a class="headerlink" href="#api-chain-token-refresh-queue-admin" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ✅ نمط متقدم: طابور Token Refresh لمنع طلبات متعددة متزامنة</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">isRefreshing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">failedQueue</span><span class="o">:</span><span class="w"> </span><span class="kt">Array</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="nx">resolve</span><span class="o">:</span><span class="w"> </span><span class="kt">Function</span><span class="p">;</span><span class="w"> </span><span class="nx">reject</span><span class="o">:</span><span class="w"> </span><span class="kt">Function</span><span class="w"> </span><span class="p">}</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
+
+<span class="nx">apiClient</span><span class="p">.</span><span class="nx">interceptors</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">response</span><span class="o">?</span><span class="p">.</span><span class="nx">status</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">401</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">originalRequest</span><span class="p">.</span><span class="nx">_retry</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isRefreshing</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">failedQueue</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="w"> </span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="w"> </span><span class="p">});</span>
+<span class="w">      </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">isRefreshing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// ... refresh token, then process queue</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h3 id="132-anti-patterns-to-avoid">13.2 أنماط مضادة يجب تجنبها | Anti-Patterns to Avoid<a class="headerlink" href="#132-anti-patterns-to-avoid" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النمط المضاد</th>
+<th>أين وُجد</th>
+<th>النمط الصحيح</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>catch (error) { /* silent */ }</code></td>
+<td>Admin: 12 حالة في <code>lib/api.ts</code></td>
+<td><code>catch (error) { logger.error('context', error); throw; }</code></td>
+</tr>
+<tr>
+<td><code>as any</code></td>
+<td>Admin: 7 حالات في <code>FarmsMap.tsx</code></td>
+<td>استخدام types محددة أو <code>unknown</code> مع type guards</td>
+</tr>
+<tr>
+<td><code>edgeLogger</code> مشروط بـ dev فقط</td>
+<td>مشترك: <code>middleware.ts</code></td>
+<td><code>console.error</code> بدون شرط أو POST لـ endpoint</td>
+</tr>
+<tr>
+<td>نصوص مشفرة بدل i18n</td>
+<td>مشترك: Login, ErrorBoundary</td>
+<td>استخدام <code>t('key')</code> من نظام الترجمة</td>
+</tr>
+<tr>
+<td><code>bg-white</code> بدون <code>dark:</code> variant</td>
+<td>Web: <code>modal.tsx</code>, <code>toast.tsx</code></td>
+<td><code>bg-white dark:bg-gray-800</code> دائماً</td>
+</tr>
+<tr>
+<td><code>&lt;Link&gt;</code> بدون <code>prefetch={false}</code></td>
+<td>Web: sidebar (15 رابط)</td>
+<td><code>&lt;Link prefetch={false}&gt;</code> لتوفير ~750KB</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="14-icon-system-design-status">14. حالة الأيقونات ونظام التصميم | Icon System &amp; Design Status<a class="headerlink" href="#14-icon-system-design-status" title="Permanent link">&para;</a></h2>
+<h3 id="141">14.1 نظام الأيقونات الحالي<a class="headerlink" href="#141" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الجانب</th>
+<th>Admin</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>المكتبة</strong></td>
+<td><code>lucide-react</code> v0.575.0</td>
+<td><code>lucide-react</code> (مشترك)</td>
+</tr>
+<tr>
+<td><strong>عدد الأيقونات المستخدمة</strong></td>
+<td>~50 أيقونة</td>
+<td>~60 أيقونة</td>
+</tr>
+<tr>
+<td><strong>التحميل الكسول</strong></td>
+<td>❌ استيراد مباشر</td>
+<td>✅ Toast icons فقط</td>
+</tr>
+<tr>
+<td><strong>RTL Support</strong></td>
+<td>✅ (lucide مدعوم)</td>
+<td>✅ <code>ms-</code>/<code>me-</code> margins</td>
+</tr>
+</tbody>
+</table>
+<h3 id="142">14.2 أيقونات مفقودة أو غير متسقة<a class="headerlink" href="#142" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>السياق</th>
+<th>الحالة</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sidebar mobile hamburger</strong></td>
+<td>❌ <strong>مفقود</strong> — لا يوجد <code>&lt;Menu /&gt;</code> icon في header</td>
+<td>لا يوجد زر hamburger menu للهواتف (Web)</td>
+</tr>
+<tr>
+<td><strong>Notification badges</strong></td>
+<td>❌ <strong>مفقود</strong> — لا badge icons في sidebar</td>
+<td>لا تنبيهات مرئية للمستخدم (Web)</td>
+</tr>
+<tr>
+<td><strong>Export buttons</strong></td>
+<td>⚠️ موجودة لكن <strong>معطلة</strong> في ~10 صفحات</td>
+<td><code>&lt;Download /&gt;</code> icon موجود لكن الزر disabled (Admin)</td>
+</tr>
+<tr>
+<td><strong>Empty states</strong></td>
+<td>⚠️ <strong>لا أيقونات حالة فارغة</strong></td>
+<td>لا توجد رسومات/أيقونات عند عدم وجود بيانات</td>
+</tr>
+<tr>
+<td><strong>Loading indicators</strong></td>
+<td>⚠️ <strong>غير موحدة</strong></td>
+<td>spinner مختلف بين الصفحات</td>
+</tr>
+<tr>
+<td><strong>Status indicators</strong></td>
+<td>✅ متسقة</td>
+<td><code>CheckCircle</code>, <code>AlertTriangle</code>, <code>XCircle</code></td>
+</tr>
+<tr>
+<td><strong>Navigation icons</strong></td>
+<td>✅ 15 أيقونة في sidebar</td>
+<td>كل عنصر له أيقونة مناسبة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="143">14.3 توصيات نظام الأيقونات<a class="headerlink" href="#143" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إنشاء <code>IconProvider</code></strong> — wrapper موحد يدعم RTL/LTR تلقائياً وأحجام متناسقة</li>
+<li><strong>تحميل كسول شامل</strong> — استخدام <code>React.lazy</code> لجميع أيقونات lucide (مثل نمط Toast)</li>
+<li><strong>أيقونات حالة فارغة</strong> — إنشاء 4 رسومات SVG مخصصة: no-data, no-results, error, offline</li>
+<li><strong>Spinner موحد</strong> — مكون <code>&lt;Spinner size="sm|md|lg" /&gt;</code> مع <code>aria-busy</code></li>
+</ol>
+<h3 id="144">14.4 مكونات نظام التصميم المفقودة<a class="headerlink" href="#144" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th style="text-align: center;">الأولوية</th>
+<th>مثال الاستخدام</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>&lt;Icon&gt;</code></strong> wrapper</td>
+<td style="text-align: center;">عالية</td>
+<td><code>&lt;Icon name="home" size={20} /&gt;</code></td>
+<td>❌ مفقود</td>
+</tr>
+<tr>
+<td><strong><code>&lt;EmptyState&gt;</code></strong></td>
+<td style="text-align: center;">عالية</td>
+<td>حقول فارغة، نتائج بحث صفرية</td>
+<td>❌ مفقود</td>
+</tr>
+<tr>
+<td><strong><code>&lt;StatusBadge&gt;</code></strong></td>
+<td style="text-align: center;">متوسطة</td>
+<td>Active/Inactive/Pending</td>
+<td>❌ مفقود</td>
+</tr>
+<tr>
+<td><strong><code>&lt;LoadingOverlay&gt;</code></strong></td>
+<td style="text-align: center;">متوسطة</td>
+<td>تحميل الصفحة الكاملة</td>
+<td>❌ مفقود</td>
+</tr>
+<tr>
+<td><strong><code>&lt;ConfirmDialog&gt;</code></strong></td>
+<td style="text-align: center;">عالية</td>
+<td>تأكيد الحذف/الإجراءات</td>
+<td>❌ مفقود</td>
+</tr>
+<tr>
+<td><strong><code>&lt;FormField&gt;</code></strong></td>
+<td style="text-align: center;">عالية</td>
+<td>label + input + error + help text</td>
+<td>❌ مفقود</td>
+</tr>
+<tr>
+<td><strong><code>&lt;Card&gt;</code></strong></td>
+<td style="text-align: center;">عالية</td>
+<td>بطاقات المعلومات</td>
+<td>⚠️ inline في كل صفحة</td>
+</tr>
+<tr>
+<td><strong><code>&lt;Badge&gt;</code></strong></td>
+<td style="text-align: center;">متوسطة</td>
+<td>عدد التنبيهات، الحالة</td>
+<td>❌ مفقود</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="15-missing-structures-code-examples">15. الهياكل والأكواد الناقصة مع أمثلة | Missing Structures &amp; Code Examples<a class="headerlink" href="#15-missing-structures-code-examples" title="Permanent link">&para;</a></h2>
+<h3 id="151-critical-missing-files">15.1 ملفات ناقصة حرجة | Critical Missing Files<a class="headerlink" href="#151-critical-missing-files" title="Permanent link">&para;</a></h3>
+<h4 id="loadingtsx-dashboard-web">أ) <code>loading.tsx</code> لمسارات Dashboard (Web)<a class="headerlink" href="#loadingtsx-dashboard-web" title="Permanent link">&para;</a></h4>
+<p><strong>الملفات المطلوبة:</strong> <code>loading.tsx</code> في كل مسار dashboard (37 مسار)</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/app/(dashboard)/analytics/loading.tsx</span>
+<span class="c1">// apps/web/src/app/(dashboard)/weather/loading.tsx</span>
+<span class="c1">// apps/web/src/app/(dashboard)/tasks/loading.tsx</span>
+<span class="c1">// ... (حالياً فقط fields/ يملك loading.tsx)</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">Loading</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;animate-pulse space-y-4 p-6&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;grid grid-cols-1 md:grid-cols-3 gap-4&quot;</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">{[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="mf">3</span><span class="p">].</span><span class="nx">map</span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">          </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">key</span><span class="o">=</span><span class="p">{</span><span class="nx">i</span><span class="p">}</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;h-32 bg-gray-200 dark:bg-gray-700 rounded-lg&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">        </span><span class="p">))}</span>
+<span class="w">      </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;h-64 bg-gray-200 dark:bg-gray-700 rounded-lg&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="responsive-sidebar-mobile-drawer-web">ب) Responsive Sidebar + Mobile Drawer (Web)<a class="headerlink" href="#responsive-sidebar-mobile-drawer-web" title="Permanent link">&para;</a></h4>
+<p><strong>الملفات المتأثرة:</strong>
+- <code>src/components/layouts/sidebar.tsx</code> — يحتاج responsive classes
+- <code>src/components/layouts/header.tsx</code> — يحتاج hamburger button
+- <code>src/app/(dashboard)/layout.tsx</code> — يحتاج state management</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// src/components/layouts/sidebar.tsx — التعديل المطلوب</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nx">SidebarProps</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">isOpen</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">onClose</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">Sidebar</span><span class="p">({</span><span class="w"> </span><span class="nx">isOpen</span><span class="p">,</span><span class="w"> </span><span class="nx">onClose</span><span class="w"> </span><span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="nx">SidebarProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="cm">/* Overlay for mobile */</span><span class="p">}</span>
+<span class="w">      </span><span class="p">{</span><span class="nx">isOpen</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="p">&lt;</span><span class="nt">div</span>
+<span class="w">          </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;fixed inset-0 bg-black/50 z-40 md:hidden&quot;</span>
+<span class="w">          </span><span class="na">onClick</span><span class="o">=</span><span class="p">{</span><span class="nx">onClose</span><span class="p">}</span>
+<span class="w">          </span><span class="na">aria-hidden</span><span class="o">=</span><span class="s">&quot;true&quot;</span>
+<span class="w">        </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">)}</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">aside</span>
+<span class="w">        </span><span class="na">className</span><span class="o">=</span><span class="p">{</span><span class="nx">cn</span><span class="p">(</span>
+<span class="w">          </span><span class="s2">&quot;fixed inset-y-0 start-0 z-50 w-64 bg-white dark:bg-gray-900 border-e&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;transform transition-transform duration-300 ease-in-out&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;md:relative md:translate-x-0&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// ✅ مرئي دائماً على Desktop</span>
+<span class="w">          </span><span class="nx">isOpen</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;translate-x-0&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;-translate-x-full&quot;</span><span class="w">  </span><span class="c1">// ✅ drawer على Mobile</span>
+<span class="w">        </span><span class="p">)}</span>
+<span class="w">        </span><span class="na">data-testid</span><span class="o">=</span><span class="s">&quot;sidebar&quot;</span>
+<span class="w">      </span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">{</span><span class="cm">/* ... navigation items ... */</span><span class="p">}</span>
+<span class="w">      </span><span class="p">&lt;/</span><span class="nt">aside</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;/&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// src/components/layouts/header.tsx — إضافة hamburger</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Menu</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;lucide-react&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">Header</span><span class="p">({</span><span class="w"> </span><span class="nx">onMenuToggle</span><span class="w"> </span><span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">onMenuToggle</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">header</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;...&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">button</span>
+<span class="w">        </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;md:hidden p-2&quot;</span>
+<span class="w">        </span><span class="na">onClick</span><span class="o">=</span><span class="p">{</span><span class="nx">onMenuToggle</span><span class="p">}</span>
+<span class="w">        </span><span class="na">aria-label</span><span class="o">=</span><span class="s">&quot;Toggle menu&quot;</span>
+<span class="w">        </span><span class="na">data-testid</span><span class="o">=</span><span class="s">&quot;mobile-menu&quot;</span>
+<span class="w">      </span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">&lt;</span><span class="nt">Menu</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;h-6 w-6&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="cm">/* ... rest of header ... */</span><span class="p">}</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">header</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="edge-compatible-production-logger">ج) Edge-compatible Production Logger (مشترك)<a class="headerlink" href="#edge-compatible-production-logger" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// src/lib/edge-logger.ts — ملف جديد مطلوب</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">isProduction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;production&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">edgeLogger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">unknown</span><span class="p">[])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ✅ دائماً يسجّل — لا يُسكت في الإنتاج!</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;[SAHOOL]&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">args</span><span class="p">);</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">warn</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">unknown</span><span class="p">[])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s1">&#39;[SAHOOL]&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">args</span><span class="p">);</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">unknown</span><span class="p">[])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">isProduction</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="s1">&#39;[SAHOOL]&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">args</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">security</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">details</span><span class="o">:</span><span class="w"> </span><span class="kt">Record</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">unknown</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ✅ أحداث الأمان تُسجّل دائماً</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;[SAHOOL:SECURITY]&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">,</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">details</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// اختياري: POST إلى /api/security-log للتسجيل المركزي</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h4 id="ui">د) مكونات UI مفقودة حرجة<a class="headerlink" href="#ui" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// src/components/ui/table.tsx — مكون DataTable قابل لإعادة الاستخدام</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nx">Column</span><span class="p">&lt;</span><span class="nt">T</span><span class="p">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">keyof</span><span class="w"> </span><span class="nx">T</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">header</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">headerAr?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">render</span><span class="o">?:</span><span class="w"> </span><span class="p">(</span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">[</span><span class="nx">keyof</span><span class="w"> </span><span class="nx">T</span><span class="p">],</span><span class="w"> </span><span class="nx">row</span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">React</span><span class="p">.</span><span class="nx">ReactNode</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">sortable?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">interface</span><span class="w"> </span><span class="nx">DataTableProps</span><span class="p">&lt;</span><span class="nt">T</span><span class="p">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">columns</span><span class="o">:</span><span class="w"> </span><span class="kt">Column</span><span class="p">&lt;</span><span class="nt">T</span><span class="p">&gt;[];</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">[];</span>
+<span class="w">  </span><span class="nx">loading?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">emptyMessage?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">emptyMessageAr?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">onRowClick</span><span class="o">?:</span><span class="w"> </span><span class="p">(</span><span class="nx">row</span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">pagination</span><span class="o">?:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="nx">pageSize</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="nx">total</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="nx">onPageChange</span><span class="o">?:</span><span class="w"> </span><span class="p">(</span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">DataTable</span><span class="p">&lt;</span><span class="nt">T</span><span class="p">&gt;({</span><span class="w"> </span><span class="nx">columns</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">loading</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="nx">DataTableProps</span><span class="p">&lt;</span><span class="nt">T</span><span class="p">&gt;)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// ... implementation with dark mode, RTL, a11y</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1">// src/components/ui/empty-state.tsx — حالة فارغة موحدة</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nx">EmptyStateProps</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">icon?</span><span class="o">:</span><span class="w"> </span><span class="kt">React.ReactNode</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">titleAr?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">description?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">descriptionAr?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">action</span><span class="o">?:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">labelAr?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">onClick</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="w"> </span><span class="p">};</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">EmptyState</span><span class="p">({</span><span class="w"> </span><span class="nx">icon</span><span class="p">,</span><span class="w"> </span><span class="nx">title</span><span class="p">,</span><span class="w"> </span><span class="nx">titleAr</span><span class="p">,</span><span class="w"> </span><span class="nx">description</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="nx">EmptyStateProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">locale</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useLocale</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;flex flex-col items-center justify-center py-12 text-center&quot;</span><span class="w"> </span><span class="na">role</span><span class="o">=</span><span class="s">&quot;status&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="nx">icon</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;mb-4 text-gray-400&quot;</span><span class="p">&gt;{</span><span class="nx">icon</span><span class="p">}&lt;/</span><span class="nt">div</span><span class="p">&gt;}</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">h3</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;text-lg font-medium text-gray-900 dark:text-gray-100&quot;</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">{</span><span class="nx">locale</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;ar&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="nx">titleAr</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">title</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nx">title</span><span class="p">}</span>
+<span class="w">      </span><span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="cm">/* ... */</span><span class="p">}</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="152-stub-stub-pages-needing-real-integration">15.2 هياكل Stub تحتاج تحويل لتكامل حقيقي | Stub Pages Needing Real Integration<a class="headerlink" href="#152-stub-stub-pages-needing-real-integration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الصفحة Stub</th>
+<th>الخدمة الخلفية</th>
+<th>المنفذ</th>
+<th>API المطلوب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/vision</code></td>
+<td><code>yolo26-vision-service</code></td>
+<td>8150</td>
+<td><code>POST /api/v1/detect/pest</code>, <code>POST /api/v1/detect/disease</code></td>
+</tr>
+<tr>
+<td><code>/terrain</code></td>
+<td><code>terrain-core-service</code></td>
+<td>8185</td>
+<td><code>GET /api/v1/terrain/dem</code>, <code>GET /api/v1/terrain/slope</code></td>
+</tr>
+<tr>
+<td><code>/edge-devices</code></td>
+<td><code>edge-orchestrator-service</code></td>
+<td>8180</td>
+<td><code>GET /api/v1/edge/devices</code>, <code>POST /api/v1/edge/deploy</code></td>
+</tr>
+<tr>
+<td><code>/audit</code></td>
+<td><code>audit-service</code></td>
+<td>8114</td>
+<td><code>GET /api/v1/audit/logs</code>, <code>GET /api/v1/audit/stats</code></td>
+</tr>
+<tr>
+<td><code>/scouting</code></td>
+<td>—</td>
+<td>—</td>
+<td>يحتاج endpoint جديد</td>
+</tr>
+<tr>
+<td><code>/drone</code></td>
+<td><code>drone-service</code></td>
+<td>8126</td>
+<td><code>GET /api/v1/drones</code>, <code>POST /api/v1/flight-plan</code></td>
+</tr>
+<tr>
+<td><code>/virtual-sensors</code></td>
+<td><code>virtual-sensors</code></td>
+<td>8119</td>
+<td><code>GET /api/v1/sensors/virtual</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="153-i18n-missing-i18n-entries">15.3 ملفات i18n ناقصة | Missing i18n Entries<a class="headerlink" href="#153-i18n-missing-i18n-entries" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// نصوص مشفرة يجب نقلها إلى ملفات الترجمة:</span>
+
+<span class="c1">// apps/web — Login page</span>
+<span class="s2">&quot;تسجيل الدخول إلى سهول&quot;</span><span class="w">  </span><span class="err">→</span><span class="w">  </span><span class="kc">t</span><span class="err">(&#39;au</span><span class="kc">t</span><span class="err">h.logi</span><span class="kc">n</span><span class="err">.</span><span class="kc">t</span><span class="err">i</span><span class="kc">tle</span><span class="err">&#39;)</span>
+
+<span class="c1">// apps/web — ErrorBoundary</span>
+<span class="s2">&quot;حدث خطأ غير متوقع&quot;</span><span class="w">  </span><span class="err">→</span><span class="w">  </span><span class="kc">t</span><span class="err">(&#39;errors.u</span><span class="kc">ne</span><span class="err">xpec</span><span class="kc">te</span><span class="err">d&#39;)</span>
+
+<span class="c1">// apps/admin — Stub pages (8 صفحات)</span>
+<span class="s2">&quot;سيتم عرض ... هنا&quot;</span><span class="w">  </span><span class="err">→</span><span class="w">  </span><span class="kc">t</span><span class="err">(&#39;commo</span><span class="kc">n</span><span class="err">.comi</span><span class="kc">n</span><span class="err">gSoo</span><span class="kc">n</span><span class="err">&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kc">feature</span><span class="p">:</span><span class="w"> </span><span class="kc">t</span><span class="err">(&#39;</span><span class="kc">features</span><span class="err">.visio</span><span class="kc">n</span><span class="err">&#39;)</span><span class="w"> </span><span class="p">}</span><span class="err">)</span>
+
+<span class="c1">// apps/admin — Export buttons (~10 صفحات)</span>
+<span class="s2">&quot;قريبًا&quot;</span><span class="w">  </span><span class="err">→</span><span class="w">  </span><span class="kc">t</span><span class="err">(&#39;commo</span><span class="kc">n</span><span class="err">.comi</span><span class="kc">n</span><span class="err">gSoo</span><span class="kc">n</span><span class="err">Shor</span><span class="kc">t</span><span class="err">&#39;)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="16-required-tests-detailed">16. الاختبارات المطلوبة تفصيلياً | Required Tests — Detailed<a class="headerlink" href="#16-required-tests-detailed" title="Permanent link">&para;</a></h2>
+<h3 id="161-p0-critical-missing-tests">16.1 اختبارات حرجة مفقودة (P0) | Critical Missing Tests<a class="headerlink" href="#161-p0-critical-missing-tests" title="Permanent link">&para;</a></h3>
+<h4 id="edge-logger-admin-web">أ) اختبارات الأمان — Edge Logger (Admin + Web)<a class="headerlink" href="#edge-logger-admin-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// __tests__/middleware-security-logging.test.ts</span>
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;Security Event Logging&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;logs CSRF failures in production&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;production&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">consoleSpy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">vi</span><span class="p">.</span><span class="nx">spyOn</span><span class="p">(</span><span class="nx">console</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">middleware</span><span class="p">(</span><span class="nx">requestWithInvalidCSRF</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">consoleSpy</span><span class="p">).</span><span class="nx">toHaveBeenCalledWith</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">expect</span><span class="p">.</span><span class="nx">stringContaining</span><span class="p">(</span><span class="s1">&#39;CSRF&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nb">Object</span><span class="p">)</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;logs JWT brute-force attempts in production&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;production&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">consoleSpy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">vi</span><span class="p">.</span><span class="nx">spyOn</span><span class="p">(</span><span class="nx">console</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">middleware</span><span class="p">(</span><span class="nx">requestWithInvalidJWT</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">consoleSpy</span><span class="p">).</span><span class="nx">toHaveBeenCalledWith</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">expect</span><span class="p">.</span><span class="nx">stringContaining</span><span class="p">(</span><span class="s1">&#39;JWT&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">expect</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nb">Object</span><span class="p">)</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;logs rate limiting events in production&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 6th attempt should be logged</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h4 id="responsive-sidebar-web">ب) اختبارات Responsive Sidebar (Web)<a class="headerlink" href="#responsive-sidebar-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// e2e/responsive-sidebar.spec.ts — يجب أن يحل محل responsive.spec.ts المعطل</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@playwright/test&#39;</span><span class="p">;</span>
+
+<span class="nx">test</span><span class="p">.</span><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;Mobile Sidebar&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">test</span><span class="p">.</span><span class="nx">use</span><span class="p">({</span><span class="w"> </span><span class="nx">viewport</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">width</span><span class="o">:</span><span class="w"> </span><span class="kt">375</span><span class="p">,</span><span class="w"> </span><span class="nx">height</span><span class="o">:</span><span class="w"> </span><span class="kt">667</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">});</span><span class="w"> </span><span class="c1">// iPhone SE</span>
+
+<span class="w">  </span><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;sidebar is hidden by default on mobile&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">sidebar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByTestId</span><span class="p">(</span><span class="s1">&#39;sidebar&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">sidebar</span><span class="p">).</span><span class="nx">not</span><span class="p">.</span><span class="nx">toBeVisible</span><span class="p">();</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;hamburger menu opens sidebar drawer&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByTestId</span><span class="p">(</span><span class="s1">&#39;mobile-menu&#39;</span><span class="p">).</span><span class="nx">click</span><span class="p">();</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">sidebar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByTestId</span><span class="p">(</span><span class="s1">&#39;sidebar&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">sidebar</span><span class="p">).</span><span class="nx">toBeVisible</span><span class="p">();</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;clicking overlay closes sidebar&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByTestId</span><span class="p">(</span><span class="s1">&#39;mobile-menu&#39;</span><span class="p">).</span><span class="nx">click</span><span class="p">();</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">getByTestId</span><span class="p">(</span><span class="s1">&#39;sidebar-overlay&#39;</span><span class="p">).</span><span class="nx">click</span><span class="p">();</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">getByTestId</span><span class="p">(</span><span class="s1">&#39;sidebar&#39;</span><span class="p">)).</span><span class="nx">not</span><span class="p">.</span><span class="nx">toBeVisible</span><span class="p">();</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;sidebar is always visible on desktop&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">test</span><span class="p">.</span><span class="nx">use</span><span class="p">({</span><span class="w"> </span><span class="nx">viewport</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">width</span><span class="o">:</span><span class="w"> </span><span class="kt">1280</span><span class="p">,</span><span class="w"> </span><span class="nx">height</span><span class="o">:</span><span class="w"> </span><span class="kt">720</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">page</span><span class="p">.</span><span class="nx">getByTestId</span><span class="p">(</span><span class="s1">&#39;sidebar&#39;</span><span class="p">)).</span><span class="nx">toBeVisible</span><span class="p">();</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h3 id="162-p1-high-priority-tests">16.2 اختبارات عالية الأولوية (P1) | High Priority Tests<a class="headerlink" href="#162-p1-high-priority-tests" title="Permanent link">&para;</a></h3>
+<h4 id="hooks-web-37">أ) اختبارات Hooks (Web — 37 ميزة بدون اختبار)<a class="headerlink" href="#hooks-web-37" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// src/features/fields/__tests__/useCreateField.test.ts</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">renderHook</span><span class="p">,</span><span class="w"> </span><span class="nx">waitFor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@testing-library/react&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useCreateField</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../hooks/useCreateField&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">QueryClient</span><span class="p">,</span><span class="w"> </span><span class="nx">QueryClientProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@tanstack/react-query&#39;</span><span class="p">;</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;useCreateField&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;creates field and invalidates cache&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">renderHook</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">useCreateField</span><span class="p">(),</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">wrapper</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="nx">result</span><span class="p">.</span><span class="nx">current</span><span class="p">.</span><span class="nx">mutate</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Field 1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">area</span><span class="o">:</span><span class="w"> </span><span class="kt">5.0</span><span class="p">,</span><span class="w"> </span><span class="nx">coordinates</span><span class="o">:</span><span class="w"> </span><span class="p">[...]</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">waitFor</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">current</span><span class="p">.</span><span class="nx">isSuccess</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="kc">true</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// verify cache invalidation</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;handles validation errors&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">renderHook</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">useCreateField</span><span class="p">(),</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">wrapper</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="nx">result</span><span class="p">.</span><span class="nx">current</span><span class="p">.</span><span class="nx">mutate</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">area</span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">waitFor</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">current</span><span class="p">.</span><span class="nx">isError</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="kc">true</span><span class="p">));</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">current</span><span class="p">.</span><span class="nx">error</span><span class="p">).</span><span class="nx">toContain</span><span class="p">(</span><span class="s1">&#39;validation&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h4 id="dark-mode-web">ب) اختبارات Dark Mode (Web)<a class="headerlink" href="#dark-mode-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// src/components/ui/__tests__/modal-dark-mode.test.tsx</span>
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;Modal Dark Mode&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;applies dark background when dark mode is active&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">.</span><span class="nx">classList</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;dark&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Modal</span><span class="w"> </span><span class="nx">open</span><span class="w"> </span><span class="nx">onClose</span><span class="o">=</span><span class="p">{()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{}}</span><span class="o">&gt;&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="nx">Content</span><span class="o">&lt;</span><span class="err">/p&gt;&lt;/Modal&gt;);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">overlay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByRole</span><span class="p">(</span><span class="s1">&#39;dialog&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">overlay</span><span class="p">).</span><span class="nx">toHaveClass</span><span class="p">(</span><span class="s1">&#39;dark:bg-gray-800&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;applies dark border when dark mode is active&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">.</span><span class="nx">classList</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;dark&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Modal</span><span class="w"> </span><span class="nx">open</span><span class="w"> </span><span class="nx">onClose</span><span class="o">=</span><span class="p">{()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{}}</span><span class="o">&gt;&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="nx">Content</span><span class="o">&lt;</span><span class="err">/p&gt;&lt;/Modal&gt;);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByRole</span><span class="p">(</span><span class="s1">&#39;dialog&#39;</span><span class="p">)).</span><span class="nx">toHaveClass</span><span class="p">(</span><span class="s1">&#39;dark:border-gray-700&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h4 id="csrf-token-rotation-web">ج) اختبارات CSRF Token Rotation (Web)<a class="headerlink" href="#csrf-token-rotation-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// __tests__/csrf-rotation.test.ts</span>
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;CSRF Token Rotation&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;rotates CSRF token after login&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">tokenBefore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getCookie</span><span class="p">(</span><span class="s1">&#39;csrf_token&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="nx">validCredentials</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">tokenAfter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getCookie</span><span class="p">(</span><span class="s1">&#39;csrf_token&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">tokenAfter</span><span class="p">).</span><span class="nx">not</span><span class="p">.</span><span class="nx">toBe</span><span class="p">(</span><span class="nx">tokenBefore</span><span class="p">);</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;rotates CSRF token after password change&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h3 id="163-p2-medium-priority-tests">16.3 اختبارات متوسطة الأولوية (P2) | Medium Priority Tests<a class="headerlink" href="#163-p2-medium-priority-tests" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th style="text-align: center;">عدد الاختبارات</th>
+<th>الملفات المستهدفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Feature unit tests</strong></td>
+<td style="text-align: center;">~37 ملف</td>
+<td><code>src/features/*/</code> — كل ميزة تحتاج اختبار واحد على الأقل</td>
+</tr>
+<tr>
+<td><strong>React Query hooks</strong></td>
+<td style="text-align: center;">~10 ملفات</td>
+<td><code>useFields</code>, <code>useWeather</code>, <code>useTasks</code>, <code>useAlerts</code>, etc.</td>
+</tr>
+<tr>
+<td><strong>API integration</strong></td>
+<td style="text-align: center;">~5 ملفات</td>
+<td>اختبار تدفق API → Cache → UI</td>
+</tr>
+<tr>
+<td><strong>Dark mode</strong></td>
+<td style="text-align: center;">~4 ملفات</td>
+<td>Modal, Toast, Sidebar, Dashboard cards</td>
+</tr>
+<tr>
+<td><strong>i18n</strong></td>
+<td style="text-align: center;">~3 ملفات</td>
+<td>تبديل اللغة، RTL rendering، placeholder text</td>
+</tr>
+</tbody>
+</table>
+<h3 id="164-coverage-targets">16.4 هدف التغطية | Coverage Targets<a class="headerlink" href="#164-coverage-targets" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th style="text-align: center;">الحالي (Admin)</th>
+<th style="text-align: center;">الحالي (Web)</th>
+<th style="text-align: center;">الهدف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ملفات الاختبار</strong></td>
+<td style="text-align: center;">52</td>
+<td style="text-align: center;">74</td>
+<td style="text-align: center;">150+</td>
+</tr>
+<tr>
+<td><strong>Lines</strong></td>
+<td style="text-align: center;">~40% (تقديري)</td>
+<td style="text-align: center;">~30% (تقديري)</td>
+<td style="text-align: center;">70%</td>
+</tr>
+<tr>
+<td><strong>Branches</strong></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">60%</td>
+</tr>
+<tr>
+<td><strong>Functions</strong></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">75%</td>
+</tr>
+<tr>
+<td><strong>Security paths</strong></td>
+<td style="text-align: center;">✅ جيد</td>
+<td style="text-align: center;">✅ جيد</td>
+<td style="text-align: center;">90%+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="17-detailed-improvement-proposals">17. مقترحات التحسين المفصلة | Detailed Improvement Proposals<a class="headerlink" href="#17-detailed-improvement-proposals" title="Permanent link">&para;</a></h2>
+<h3 id="171-security-improvements">17.1 🔒 تحسينات أمنية | Security Improvements<a class="headerlink" href="#171-security-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المقترح</th>
+<th>التأثير</th>
+<th>الجهد</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SEC-1</strong></td>
+<td>تمكين تسجيل الأمان في الإنتاج</td>
+<td>حرج</td>
+<td>2 ساعة</td>
+<td>استبدال <code>edgeLogger</code> بـ <code>console.error</code> بدون شرط + POST اختياري لـ <code>/api/security-log</code></td>
+</tr>
+<tr>
+<td><strong>SEC-2</strong></td>
+<td>Rate limiting بـ Redis</td>
+<td>عالي</td>
+<td>4 ساعات</td>
+<td>استبدال <code>Map()</code> بـ <code>@upstash/ratelimit</code> أو Redis Sentinel الموجود</td>
+</tr>
+<tr>
+<td><strong>SEC-3</strong></td>
+<td>CSRF token rotation</td>
+<td>متوسط</td>
+<td>3 ساعات</td>
+<td>تدوير عند login/password-change/role-change</td>
+</tr>
+<tr>
+<td><strong>SEC-4</strong></td>
+<td>تقييد CORS لنقطة CSP</td>
+<td>عالي</td>
+<td>30 دقيقة</td>
+<td><code>'*'</code> → <code>process.env.ALLOWED_ORIGINS</code></td>
+</tr>
+<tr>
+<td><strong>SEC-5</strong></td>
+<td>WebAuthn/FIDO2</td>
+<td>منخفض</td>
+<td>20 ساعة</td>
+<td>مصادقة بيومترية كبديل لـ 2FA</td>
+</tr>
+<tr>
+<td><strong>SEC-6</strong></td>
+<td>Subresource Integrity (SRI)</td>
+<td>منخفض</td>
+<td>2 ساعة</td>
+<td>إضافة <code>integrity</code> hashes لـ CDN scripts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="172-architecture-improvements">17.2 🏗️ تحسينات معمارية | Architecture Improvements<a class="headerlink" href="#172-architecture-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المقترح</th>
+<th>التأثير</th>
+<th>الجهد</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ARCH-1</strong></td>
+<td>Responsive sidebar (drawer)</td>
+<td>حرج</td>
+<td>8 ساعات</td>
+<td>إعادة هيكلة sidebar/header/layout مع state management</td>
+</tr>
+<tr>
+<td><strong>ARCH-2</strong></td>
+<td>Mutation hooks مركزية</td>
+<td>عالي</td>
+<td>6 ساعات</td>
+<td>إنشاء <code>useMutation</code> hooks في <code>lib/api/hooks.ts</code> لكل عملية كتابة</td>
+</tr>
+<tr>
+<td><strong>ARCH-3</strong></td>
+<td>WebSocket connection pooling</td>
+<td>متوسط</td>
+<td>8 ساعات</td>
+<td>singleton connection مع multiplexing بدل connection-per-subscription</td>
+</tr>
+<tr>
+<td><strong>ARCH-4</strong></td>
+<td>Design System مشترك</td>
+<td>عالي</td>
+<td>40 ساعة</td>
+<td>توحيد مكونات UI بين Admin و Web عبر <code>@sahool/design-system</code></td>
+</tr>
+<tr>
+<td><strong>ARCH-5</strong></td>
+<td>Monorepo build caching</td>
+<td>متوسط</td>
+<td>4 ساعات</td>
+<td>إضافة Turborepo caching للبناء المشترك</td>
+</tr>
+</tbody>
+</table>
+<h3 id="173-ui-improvements">17.3 🎨 تحسينات واجهة المستخدم | UI Improvements<a class="headerlink" href="#173-ui-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المقترح</th>
+<th>التأثير</th>
+<th>الجهد</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UI-1</strong></td>
+<td>مكتبة UI موسعة (12 مكون)</td>
+<td>عالي</td>
+<td>30 ساعة</td>
+<td>Table, Select, Tabs, DatePicker, Breadcrumb, Avatar, Pagination, Skeleton, Alert, Progress, Tooltip, EmptyState</td>
+</tr>
+<tr>
+<td><strong>UI-2</strong></td>
+<td>Dark mode شامل</td>
+<td>متوسط</td>
+<td>4 ساعات</td>
+<td>إصلاح Modal + Toast + أي مكون بـ <code>bg-white</code> بدون <code>dark:</code></td>
+</tr>
+<tr>
+<td><strong>UI-3</strong></td>
+<td>أيقونات حالة فارغة</td>
+<td>متوسط</td>
+<td>6 ساعات</td>
+<td>4 رسومات SVG: no-data, no-results, error, offline</td>
+</tr>
+<tr>
+<td><strong>UI-4</strong></td>
+<td>Spinner موحد</td>
+<td>منخفض</td>
+<td>1 ساعة</td>
+<td>مكون <code>&lt;Spinner /&gt;</code> واحد بأحجام ثابتة</td>
+</tr>
+<tr>
+<td><strong>UI-5</strong></td>
+<td><code>loading.tsx</code> لجميع المسارات</td>
+<td>عالي</td>
+<td>4 ساعات</td>
+<td>36 ملف skeleton loader</td>
+</tr>
+<tr>
+<td><strong>UI-6</strong></td>
+<td><code>next/image</code> wrapper</td>
+<td>متوسط</td>
+<td>2 ساعة</td>
+<td>wrapper موحد لصور المزرعة مع WebP/AVIF + blur placeholder</td>
+</tr>
+</tbody>
+</table>
+<h3 id="174-performance-improvements">17.4 📊 تحسينات الأداء | Performance Improvements<a class="headerlink" href="#174-performance-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المقترح</th>
+<th>التأثير</th>
+<th>الجهد</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PERF-1</strong></td>
+<td><code>prefetch={false}</code> لروابط sidebar</td>
+<td>متوسط</td>
+<td>30 دقيقة</td>
+<td>توفير ~750KB bandwidth</td>
+</tr>
+<tr>
+<td><strong>PERF-2</strong></td>
+<td>Lazy loading لجميع أيقونات lucide</td>
+<td>منخفض</td>
+<td>2 ساعة</td>
+<td><code>React.lazy</code> بدل static import</td>
+</tr>
+<tr>
+<td><strong>PERF-3</strong></td>
+<td>Bundle analyzer تقرير شهري</td>
+<td>منخفض</td>
+<td>1 ساعة</td>
+<td><code>@next/bundle-analyzer</code> في CI</td>
+</tr>
+<tr>
+<td><strong>PERF-4</strong></td>
+<td>Web Vitals monitoring</td>
+<td>متوسط</td>
+<td>3 ساعات</td>
+<td><code>next/web-vitals</code> + Grafana dashboard</td>
+</tr>
+</tbody>
+</table>
+<h3 id="175-code-quality-improvements">17.5 📝 تحسينات جودة الكود | Code Quality Improvements<a class="headerlink" href="#175-code-quality-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المقترح</th>
+<th>التأثير</th>
+<th>الجهد</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CQ-1</strong></td>
+<td>إصلاح 116 تحذير ESLint</td>
+<td>متوسط</td>
+<td>3 ساعات</td>
+<td><code>pnpm lint --fix</code> + مراجعة يدوية</td>
+</tr>
+<tr>
+<td><strong>CQ-2</strong></td>
+<td>إزالة <code>as any</code> (7 حالات)</td>
+<td>منخفض</td>
+<td>1 ساعة</td>
+<td>استبدال بـ proper types</td>
+</tr>
+<tr>
+<td><strong>CQ-3</strong></td>
+<td><code>exhaustive-deps</code> ESLint rule</td>
+<td>متوسط</td>
+<td>2 ساعة</td>
+<td>تفعيل وإصلاح warnings</td>
+</tr>
+<tr>
+<td><strong>CQ-4</strong></td>
+<td>Zod validation لمسارات API</td>
+<td>عالي</td>
+<td>4 ساعات</td>
+<td>schema validation لكل route handler</td>
+</tr>
+<tr>
+<td><strong>CQ-5</strong></td>
+<td>Error boundaries لجميع الصفحات</td>
+<td>متوسط</td>
+<td>3 ساعات</td>
+<td>wrap كل صفحة dashboard بـ ErrorBoundary</td>
+</tr>
+</tbody>
+</table>
+<h3 id="176-i18n-improvements">17.6 🌐 تحسينات التعريب | i18n Improvements<a class="headerlink" href="#176-i18n-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المقترح</th>
+<th>التأثير</th>
+<th>الجهد</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>I18N-1</strong></td>
+<td>نقل النصوص المشفرة</td>
+<td>متوسط</td>
+<td>3 ساعات</td>
+<td>Login, ErrorBoundary, Stub pages (~30 نص)</td>
+</tr>
+<tr>
+<td><strong>I18N-2</strong></td>
+<td>مفتاح تبديل اللغة في sidebar</td>
+<td>عالي</td>
+<td>1 ساعة</td>
+<td><code>&lt;LocaleSwitcher /&gt;</code> موجود لكن غير مُدرج</td>
+</tr>
+<tr>
+<td><strong>I18N-3</strong></td>
+<td>i18n extraction CI check</td>
+<td>منخفض</td>
+<td>2 ساعة</td>
+<td>فحص CI يكشف نصوص مشفرة جديدة</td>
+</tr>
+<tr>
+<td><strong>I18N-4</strong></td>
+<td>RTL E2E tests</td>
+<td>منخفض</td>
+<td>2 ساعة</td>
+<td>اختبارات Playwright بـ <code>dir="rtl"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="177-mockstub-page-conversion-roadmap">17.7 🔄 تحويل الصفحات MOCK/STUB | Page Conversion Roadmap<a class="headerlink" href="#177-mockstub-page-conversion-roadmap" title="Permanent link">&para;</a></h3>
+<h4 id="_1">أولوية التحويل (حسب القيمة التجارية):<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">الأولوية</th>
+<th>الصفحة</th>
+<th style="text-align: center;">الأسطر</th>
+<th>الخدمة الخلفية</th>
+<th style="text-align: center;">الجهد المقدّر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td><code>/insurance</code></td>
+<td style="text-align: center;">1,053</td>
+<td><code>crop-insurance</code> module</td>
+<td style="text-align: center;">12 ساعة</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td><code>/market-prices</code></td>
+<td style="text-align: center;">821</td>
+<td><code>market-prices</code> module</td>
+<td style="text-align: center;">8 ساعات</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td><code>/irrigation</code></td>
+<td style="text-align: center;">816</td>
+<td><code>irrigation-smart:8094</code></td>
+<td style="text-align: center;">8 ساعات</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td><code>/seeds</code></td>
+<td style="text-align: center;">1,066</td>
+<td>يحتاج endpoint جديد</td>
+<td style="text-align: center;">10 ساعات</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td><code>/seasons</code></td>
+<td style="text-align: center;">1,125</td>
+<td><code>agri-calendar</code> module</td>
+<td style="text-align: center;">10 ساعات</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td><code>/inventory</code></td>
+<td style="text-align: center;">661</td>
+<td><code>inventory-service:8116</code></td>
+<td style="text-align: center;">6 ساعات</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td><code>/crop-health</code></td>
+<td style="text-align: center;">339</td>
+<td><code>crop-intelligence-service:8095</code></td>
+<td style="text-align: center;">4 ساعات</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td><code>/vision</code> (stub)</td>
+<td style="text-align: center;">78</td>
+<td><code>yolo26-vision-service:8150</code></td>
+<td style="text-align: center;">16 ساعة</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td><code>/terrain</code> (stub)</td>
+<td style="text-align: center;">78</td>
+<td><code>terrain-core-service:8185</code></td>
+<td style="text-align: center;">12 ساعة</td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td><code>/edge-devices</code> (stub)</td>
+<td style="text-align: center;">78</td>
+<td><code>edge-orchestrator-service:8180</code></td>
+<td style="text-align: center;">12 ساعة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المجموع التقديري:</strong> ~98 ساعة لتحويل أعلى 10 صفحات</p>
+<h3 id="178-success-metrics">17.8 📊 مقاييس النجاح | Success Metrics<a class="headerlink" href="#178-success-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th style="text-align: center;">الحالي</th>
+<th style="text-align: center;">الهدف (3 أشهر)</th>
+<th style="text-align: center;">الهدف (6 أشهر)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>صفحات FULL API</td>
+<td style="text-align: center;">16 (27%)</td>
+<td style="text-align: center;">26 (43%)</td>
+<td style="text-align: center;">40 (67%)</td>
+</tr>
+<tr>
+<td>مكونات UI مشتركة</td>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">24</td>
+<td style="text-align: center;">30</td>
+</tr>
+<tr>
+<td>تغطية الاختبارات</td>
+<td style="text-align: center;">~35%</td>
+<td style="text-align: center;">50%</td>
+<td style="text-align: center;">70%</td>
+</tr>
+<tr>
+<td>ملفات الاختبار</td>
+<td style="text-align: center;">126</td>
+<td style="text-align: center;">180</td>
+<td style="text-align: center;">250</td>
+</tr>
+<tr>
+<td>تحذيرات ESLint</td>
+<td style="text-align: center;">116</td>
+<td style="text-align: center;">30</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td>ثغرات npm</td>
+<td style="text-align: center;">4 moderate</td>
+<td style="text-align: center;">0 moderate</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td>صفحات Stub</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td>Dark mode coverage</td>
+<td style="text-align: center;">~70%</td>
+<td style="text-align: center;">90%</td>
+<td style="text-align: center;">100%</td>
+</tr>
+<tr>
+<td>Lighthouse Performance</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">&gt;80</td>
+<td style="text-align: center;">&gt;90</td>
+</tr>
+<tr>
+<td>Lighthouse Accessibility</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">&gt;85</td>
+<td style="text-align: center;">&gt;95</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="18-action-plan">18. خطة العمل | Action Plan<a class="headerlink" href="#18-action-plan" title="Permanent link">&para;</a></h2>
+<h3 id="1-sec-16-arch-1-ui-5">المرحلة 1: فوري (أسبوع واحد) — الأمان والحرج (انظر SEC-1..6, ARCH-1, UI-5)<a class="headerlink" href="#1-sec-16-arch-1-ui-5" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إصلاح C-1:</strong> تمكين <code>edgeLogger</code> في الإنتاج — استخدام <code>console.error</code> بدون شرط أو POST إلى <code>/api/security-log</code></li>
+<li><strong>إصلاح C-2:</strong> إضافة sidebar متجاوب مع drawer pattern (hidden on mobile, visible on md+)</li>
+<li><strong>إصلاح C-3:</strong> تحديث E2E responsive tests لمطابقة selectors الفعلية</li>
+<li><strong>إصلاح H-1:</strong> تحديث التبعيات (lodash, next)</li>
+<li><strong>إصلاح H-2:</strong> إضافة rate limiting (Redis-backed للإنتاج)</li>
+<li><strong>إصلاح H-3:</strong> تقييد CORS على أصول محددة</li>
+<li><strong>إصلاح H-4:</strong> إضافة error logging لـ 12 catch فارغ</li>
+<li><strong>إصلاح H-5:</strong> إضافة <code>loading.tsx</code> لجميع مسارات dashboard</li>
+</ol>
+<p><strong>الجهد المقدّر:</strong> ~20 ساعة</p>
+<h3 id="2-ui-16-cq-15-i18n-12">المرحلة 2: قصير المدى (شهر واحد) — الجودة والميزات (انظر UI-1..6, CQ-1..5, I18N-1..2)<a class="headerlink" href="#2-ui-16-cq-15-i18n-12" title="Permanent link">&para;</a></h3>
+<ol>
+<li>توسيع مكتبة UI (Table, Select, Tabs, DatePicker, Pagination)</li>
+<li>إصلاح dark mode لـ Modal و Toast</li>
+<li>Mutation hooks مركزية</li>
+<li>زيادة تغطية الاختبارات (target 150+ ملف)</li>
+<li>إضافة <code>prefetch={false}</code> لروابط sidebar</li>
+<li>نقل النصوص المشفرة إلى نظام الترجمة</li>
+<li>إضافة مفتاح تبديل اللغة في sidebar</li>
+</ol>
+<p><strong>الجهد المقدّر:</strong> ~40 ساعة</p>
+<h3 id="3-177">المرحلة 3: طويل المدى — التحسين المستمر (انظر القسم 17.7 — تحويل الصفحات)<a class="headerlink" href="#3-177" title="Permanent link">&para;</a></h3>
+<ol>
+<li>إضافة WebAuthn/FIDO2 للمصادقة البيومترية</li>
+<li>إنشاء design system مشترك بين web و mobile</li>
+<li>تحويل صفحات MOCK إلى تكامل API حقيقي</li>
+<li>تحويل صفحات STUB إلى واجهات كاملة</li>
+<li>إضافة performance benchmarks (Web Vitals)</li>
+</ol>
+<hr />
+<h2 id="19-deep-verification-results">19. نتائج التحقق العميق | Deep Verification Results<a class="headerlink" href="#19-deep-verification-results" title="Permanent link">&para;</a></h2>
+<p>تم التحقق العميق من 3 مشاكل حرجة مع فحص الملفات المتأثرة:</p>
+<h3 id="sidebar-web">✅ مؤكد: Sidebar غير متجاوب (Web)<a class="headerlink" href="#sidebar-web" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sidebar.tsx</code></td>
+<td><code>w-64</code> ثابت، لا responsive breakpoints</td>
+</tr>
+<tr>
+<td><code>header.tsx</code></td>
+<td>لا hamburger menu</td>
+</tr>
+<tr>
+<td><code>layout.tsx</code></td>
+<td><code>&lt;Sidebar /&gt;</code> يظهر دائماً في flex</td>
+</tr>
+<tr>
+<td><code>responsive.spec.ts</code></td>
+<td><code>[data-testid="mobile-menu"]</code> و <code>[data-testid="mobile-drawer"]</code> <strong>غير موجودين</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="edgelogger-admin-web">✅ مؤكد: edgeLogger يُسكت الأخطاء (Admin + Web)<a class="headerlink" href="#edgelogger-admin-web" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>middleware.ts</code></td>
+<td><code>edgeLogger.error()</code> مغلف بـ <code>NODE_ENV === "development"</code></td>
+</tr>
+<tr>
+<td>الأسطر المتأثرة</td>
+<td>CSRF failure (193), JWT exception (230), JWT validation failure (239)</td>
+</tr>
+<tr>
+<td><code>lib/logger.ts</code></td>
+<td><code>logger.error/warn/info</code> جميعها dev-only. <code>logger.critical</code> يستخدم Sentry (~300KB — ثقيل جداً لـ Edge)</td>
+</tr>
+<tr>
+<td><strong>التأثير</strong></td>
+<td>هجمات JWT و فشل CSRF <strong>غير مرئية تماماً</strong> في الإنتاج</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dynamic-imports-web">❌ مدحوض: عدم وجود Dynamic Imports (Web)<a class="headerlink" href="#dynamic-imports-web" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>النتيجة:</strong> 12 ملف <code>.dynamic.tsx</code> مكتشف — تقسيم الكود <strong>ممتاز</strong></li>
+<li>تم تصحيح تقييم الأداء من 7/10 إلى <strong>8/10</strong></li>
+</ul>
+<hr />
+<h2 id="20-positive-highlights">20. النقاط الإيجابية | Positive Highlights<a class="headerlink" href="#20-positive-highlights" title="Permanent link">&para;</a></h2>
+<h3 id="_2">مشترك بين التطبيقين<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ <strong>أمان على مستوى الإنتاج</strong> — CSP, CSRF, JWT, HSTS, nonce</li>
+<li>✅ <strong>TypeScript strict mode</strong> بدون أخطاء</li>
+<li>✅ <strong>Error Boundaries شاملة</strong> — logging, retry, bilingual</li>
+<li>✅ <strong>Edge middleware optimization</strong> — تجنب imports ثقيلة (~500KB+)</li>
+<li>✅ <strong>Standalone Docker output</strong> — images محسّنة</li>
+<li>✅ <strong>Tailwind shared config</strong> عبر <code>@sahool/tailwind-config</code></li>
+<li>✅ <strong>Input validation شاملة</strong> — email, phone, password, URL, safe text</li>
+</ol>
+<h3 id="admin">خاص بـ Admin<a class="headerlink" href="#admin" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ <strong>1,044 حالة اختبار</strong> بدون اختبارات وهمية أو متخطاة</li>
+<li>✅ <strong>Rate limiting مُطبق</strong> (5 محاولات/15 دقيقة)</li>
+<li>✅ <strong>2FA مع backup codes</strong> و QR code</li>
+<li>✅ <strong>Multi-channel OTP</strong> (email, SMS, WhatsApp, Telegram)</li>
+<li>✅ <strong>Google Maps links</strong> مع <code>encodeURIComponent</code> والتحقق من الإحداثيات</li>
+</ol>
+<h3 id="web">خاص بـ Web<a class="headerlink" href="#web" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ <strong>تقسيم الكود ممتاز</strong> — 12 dynamic wrapper (~625KB+ توفير)</li>
+<li>✅ <strong>Auth store متقدم</strong> — cross-tab logout, session expiry, UUID validation</li>
+<li>✅ <strong>Button component مثالي</strong> — variants, sizes, loading, icons, RTL, ARIA</li>
+<li>✅ <strong>Modal accessibility ممتازة</strong> — focus lock, restore, screen reader</li>
+<li>✅ <strong>Toast lazy-loading</strong> — إبداعي وفعال</li>
+<li>✅ <strong>QueryClient scoping</strong> — في dashboard فقط (توفير bundle لصفحات auth)</li>
+<li>✅ <strong>Progressive dashboard loading</strong> — Suspense + custom skeletons</li>
+<li>✅ <strong>E2E شامل</strong> — multi-browser, mobile viewport, CI-adapted</li>
+</ol>
+<hr />
+<h2 id="production-readiness-matrix">ملحق: مصفوفة الجاهزية للإنتاج | Production Readiness Matrix<a class="headerlink" href="#production-readiness-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTPS enforcement (CSP upgrade-insecure-requests)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>HSTS headers (31536000s)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>X-Frame-Options: DENY</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Content Security Policy (nonce-based)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Environment variables template</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Error logging (Sentry)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Session management (30min + refresh)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Input validation &amp; sanitization</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Secrets management</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>CORS restriction</td>
+<td style="text-align: center;">⚠️ CSP endpoint permissive</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Rate limiting on auth</td>
+<td style="text-align: center;">⚠️ in-memory only</td>
+<td style="text-align: center;">⚠️ needs verification</td>
+</tr>
+<tr>
+<td>Dependency vulnerabilities</td>
+<td style="text-align: center;">⚠️ 4 moderate</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Mobile responsive</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">⚠️ <strong>Sidebar مفقود</strong></td>
+</tr>
+<tr>
+<td>Production error logging</td>
+<td style="text-align: center;">⚠️ <strong>edgeLogger silent</strong></td>
+<td style="text-align: center;">⚠️ <strong>edgeLogger silent</strong></td>
+</tr>
+<tr>
+<td>E2E tests passing</td>
+<td style="text-align: center;">✅ (CI fixed)</td>
+<td style="text-align: center;">⚠️ responsive tests broken</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>المراجعة القادمة:</strong> بعد تطبيق إصلاحات المرحلة 1<br />
+<strong>آخر تحديث:</strong> 2026-04-07 · الإصدار 16.0.0</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

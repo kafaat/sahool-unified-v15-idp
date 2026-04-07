@@ -49,9 +49,11 @@ export default function WalletClient() {
 
   const handleDepositSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const amount = parseFloat(depositAmount);
+    if (Number.isNaN(amount) || amount <= 0) return;
     deposit.mutate(
       {
-        amount: parseFloat(depositAmount),
+        amount,
         paymentMethod: depositMethod,
         reference: depositReference || undefined,
       },
@@ -79,9 +81,11 @@ export default function WalletClient() {
 
   const handleWithdrawSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const amount = parseFloat(withdrawAmount);
+    if (Number.isNaN(amount) || amount <= 0) return;
     withdraw.mutate(
       {
-        amount: parseFloat(withdrawAmount),
+        amount,
         method: withdrawMethod,
         bankAccount: withdrawBankAccount || undefined,
       },

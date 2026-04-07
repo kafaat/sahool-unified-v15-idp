@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 logger = logging.getLogger(__name__)
 
-from models import RelationshipType
+from ...models import RelationshipType
 
 # Authentication dependency
 try:
@@ -195,10 +195,10 @@ async def get_all_related(
 @router.get("/path/{source_type}/{source_id}/{target_type}/{target_id}")
 async def find_path(
     request,
-    source_type: str = Query(..., description="Source entity type"),
-    source_id: str = Query(..., description="Source entity ID"),
-    target_type: str = Query(..., description="Target entity type"),
-    target_id: str = Query(..., description="Target entity ID"),
+    source_type: str = Path(..., description="Source entity type"),
+    source_id: str = Path(..., description="Source entity ID"),
+    target_type: str = Path(..., description="Target entity type"),
+    target_id: str = Path(..., description="Target entity ID"),
     _user=Depends(get_current_user),
 ):
     """

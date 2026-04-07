@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 logger = logging.getLogger(__name__)
 
-from models import RelationshipType
+from ...models import RelationshipType
 
 # Authentication dependency
 try:

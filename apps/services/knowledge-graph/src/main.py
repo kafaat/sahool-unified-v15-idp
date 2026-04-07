@@ -34,10 +34,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, "../../../../shared")
 
 # Import shared middleware
-from services import EntityService, KnowledgeGraphService, RelationshipService
+from .services import EntityService, KnowledgeGraphService, RelationshipService
 
 # Import models and services
-from models import HealthCheckResponse
+from .models import HealthCheckResponse
 
 # Import CORS config from shared module (has its own internal fallback)
 from shared.cors_config import setup_cors_middleware
@@ -182,7 +182,7 @@ async def health_combined():
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Import API routers
-from api.v1 import entities_router, graphs_router, relationships_router
+from .api.v1 import entities_router, graphs_router, relationships_router
 
 app.include_router(graphs_router)
 app.include_router(entities_router)

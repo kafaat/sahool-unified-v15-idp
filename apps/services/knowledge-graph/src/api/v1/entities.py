@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 logger = logging.getLogger(__name__)
 
-from models import Crop, Disease, Treatment
+from ...models import Crop, Disease, Treatment
 
 # Authentication dependency
 try:

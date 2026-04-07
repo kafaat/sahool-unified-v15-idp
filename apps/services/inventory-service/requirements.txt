@@ -25,3 +25,6 @@ python-dateutil==2.9.0.post0
 httpx==0.28.1
 
 structlog>=24.1.0
+
+# Authentication
+PyJWT>=2.9.0,<3.0.0

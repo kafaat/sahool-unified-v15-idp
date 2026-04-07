@@ -65,6 +65,8 @@ COPY --from=builder /install /usr/local
 
 # Copy shared modules
 COPY apps/services/shared ./shared/
+# Copy root shared/db (provides shared.db.simple_migrations used by this service)
+COPY shared/db/ ./shared/db/
 
 # Copy source code
 COPY apps/services/hydrology-service/src/ ./src/

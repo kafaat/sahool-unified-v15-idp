@@ -6,7 +6,7 @@ Relationship Service - Manage relationships between entities
 import logging
 from typing import Any, Dict, List, Optional
 
-from models import RelationshipType
+from ..models import RelationshipType
 
 logger = logging.getLogger(__name__)
 

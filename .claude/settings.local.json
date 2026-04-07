@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(xargs grep:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker run:*)",
+      "Bash(docker exec sahool-postgres psql -U sahool -d sahool -c \":*)",
+      "Bash(1 docker exec sahool-postgres psql -U sahool -d sahool -c \":*)",
+      "Bash(docker stop:*)"
+    ]
+  }
+}

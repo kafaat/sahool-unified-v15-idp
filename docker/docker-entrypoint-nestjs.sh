@@ -52,6 +52,34 @@ handle_p3005() {
 }
 
 # ---------------------------------------------------------------------------
+# handle_p3018: a migration SQL statement failed mid-apply.
+# The migration is recorded as "started" but not finished. Mark it rolled-back
+# so that Prisma will re-attempt it on the next deploy.
+# ---------------------------------------------------------------------------
+handle_p3018() {
+  echo 'Mid-migration failure detected (P3018). Marking failed migration as rolled back...'
+  # Prisma error includes: Migration name: <migration_name>
+  failed_migration=$(grep -oP 'Migration name: \K\S+' /tmp/prisma_migrate.log | head -n1)
+  if [ -z "$failed_migration" ]; then
+    # Fallback: try backtick pattern used in other error messages
+    failed_migration=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log | head -n1)
+  fi
+  if [ -z "$failed_migration" ]; then
+    echo 'ERROR: Could not extract failed migration name from P3018 error log.'
+    cat /tmp/prisma_migrate.log
+    return 1
+  fi
+  echo "Marking migration as rolled back: $failed_migration"
+  if ! npx prisma migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
+    echo 'ERROR: Failed to mark migration as rolled back.'
+    cat /tmp/prisma_migrate.log
+    return 1
+  fi
+  echo "Migration '$failed_migration' marked as rolled back (P3018 resolved)."
+  return 0
+}
+
+# ---------------------------------------------------------------------------
 # handle_p3009: mark the failed migration as rolled back
 # ---------------------------------------------------------------------------
 handle_p3009() {
@@ -97,6 +125,15 @@ run_migrations() {
     # ---- P3009: failed migration ----
     if grep -q 'P3009' /tmp/prisma_migrate.log; then
       if ! handle_p3009; then
+        exit 1
+      fi
+      attempt=$((attempt + 1))
+      continue
+    fi
+
+    # ---- P3018: mid-migration SQL failure ----
+    if grep -q 'P3018' /tmp/prisma_migrate.log; then
+      if ! handle_p3018; then
         exit 1
       fi
       attempt=$((attempt + 1))

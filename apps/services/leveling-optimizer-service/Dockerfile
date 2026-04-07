@@ -73,6 +73,8 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy shared modules (required for shared.middleware, shared.auth, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
+# Copy root shared/events (provides shared.events.subjects used by this service)
+COPY --chown=sahool:sahool shared/events/ ./shared/events/
 
 
 # Copy application code

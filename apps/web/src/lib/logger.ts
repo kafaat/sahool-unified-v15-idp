@@ -80,14 +80,22 @@ export const logger = {
       console.error(...args);
     } else {
       // In production, log structured JSON to avoid exposing sensitive details
-      console.error(
-        JSON.stringify({
-          level: 'error',
-          service: 'sahool-web',
-          timestamp: new Date().toISOString(),
-          message: args[0] instanceof Error ? args[0].message : String(args[0]),
-        })
-      );
+      const firstArg = args[0];
+      const entry: Record<string, unknown> = {
+        level: 'error',
+        service: 'sahool-web',
+        timestamp: new Date().toISOString(),
+        message: firstArg instanceof Error ? firstArg.message : String(firstArg),
+      };
+      if (firstArg instanceof Error && firstArg.stack) {
+        entry.stack = firstArg.stack;
+      }
+      if (args.length > 1) {
+        entry.details = args.slice(1).map((a) =>
+          a instanceof Error ? { error: a.message, stack: a.stack } : a
+        );
+      }
+      console.error(JSON.stringify(entry));
     }
   },
 

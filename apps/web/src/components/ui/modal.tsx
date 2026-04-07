@@ -124,7 +124,7 @@ export function Modal({
           aria-describedby={descriptionId}
           tabIndex={-1}
           className={clsx(
-            'relative bg-white rounded-lg shadow-xl w-full',
+            'relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full',
             sizes[size],
             'max-h-[90vh] flex flex-col',
             'focus:outline-none',
@@ -134,19 +134,19 @@ export function Modal({
         >
           {/* Header */}
           {(title || titleAr || showCloseButton) && (
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               {(title || titleAr) && (
-                <h2 id={titleId} className="text-xl font-bold text-gray-900">
-                  <span className="text-gray-900">{titleAr}</span>
+                <h2 id={titleId} className="text-xl font-bold text-gray-900 dark:text-white">
+                  <span className="text-gray-900 dark:text-white">{titleAr}</span>
                   {titleAr && title && <span className="mx-2">•</span>}
-                  {title && <span className="text-gray-600 text-base">{title}</span>}
+                  {title && <span className="text-gray-600 dark:text-gray-300 text-base">{title}</span>}
                 </h2>
               )}
               {showCloseButton && (
                 <button
                   type="button"
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-sahool-green-500"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-sahool-green-500"
                   aria-label={`${closeLabelAr} - ${closeLabel}`}
                 >
                   <X className="w-5 h-5" aria-hidden="true" />
@@ -167,7 +167,7 @@ export function ModalFooter({ className, ...props }: React.HTMLAttributes<HTMLDi
   return (
     <div
       className={clsx(
-        'flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50',
+        'flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50',
         className
       )}
       {...props}

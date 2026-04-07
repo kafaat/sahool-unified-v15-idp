@@ -25,6 +25,9 @@ interface ToastContextType {
 
 const ToastContext = React.createContext<ToastContextType | null>(null);
 
+/** Maximum number of visible toasts at once to prevent UI overflow */
+const MAX_VISIBLE_TOASTS = 5;
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<Toast[]>([]);
   const timeoutsRef = React.useRef<Map<string, NodeJS.Timeout>>(new Map());
@@ -70,7 +73,22 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         Math.random().toString(36).substring(2, 9);
       const newToast = { ...toast, id };
 
-      setToasts((prev) => [...prev, newToast]);
+      setToasts((prev) => {
+        const updated = [...prev, newToast];
+        // Evict oldest toasts if we exceed the limit
+        if (updated.length > MAX_VISIBLE_TOASTS) {
+          const excess = updated.slice(0, updated.length - MAX_VISIBLE_TOASTS);
+          for (const old of excess) {
+            const oldTimeout = timeoutsRef.current.get(old.id);
+            if (oldTimeout) {
+              clearTimeout(oldTimeout);
+              timeoutsRef.current.delete(old.id);
+            }
+          }
+          return updated.slice(-MAX_VISIBLE_TOASTS);
+        }
+        return updated;
+      });
 
       const duration = toast.duration || 5000;
       const timeout = setTimeout(() => {
@@ -151,10 +169,12 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
   };
 
   const variants = {
-    success: 'bg-sahool-green-50 border-sahool-green-500 text-sahool-green-800',
-    error: 'bg-red-50 border-red-500 text-red-800',
-    info: 'bg-blue-50 border-blue-500 text-blue-800',
-    warning: 'bg-yellow-50 border-yellow-500 text-yellow-800',
+    success:
+      'bg-sahool-green-50 dark:bg-sahool-green-900/30 border-sahool-green-500 text-sahool-green-800 dark:text-sahool-green-200',
+    error: 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-800 dark:text-red-200',
+    info: 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-800 dark:text-blue-200',
+    warning:
+      'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-500 text-yellow-800 dark:text-yellow-200',
   };
 
   return (

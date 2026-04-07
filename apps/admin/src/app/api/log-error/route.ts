@@ -110,12 +110,57 @@ export async function POST(request: NextRequest) {
 
     const payload: ErrorLogPayload = await request.json();
 
-    // Validate required fields
-    if (!payload.message || !payload.timestamp) {
+    // ── Validate required fields ──────────────────────────────────────────
+    if (typeof payload.message !== 'string' || payload.message.length === 0) {
       return NextResponse.json(
-        { error: 'Missing required fields: message, timestamp' },
+        { error: 'Missing or invalid field: message (non-empty string required)' },
         { status: 400 }
       );
+    }
+    if (typeof payload.timestamp !== 'string' || payload.timestamp.length === 0) {
+      return NextResponse.json(
+        { error: 'Missing or invalid field: timestamp (non-empty string required)' },
+        { status: 400 }
+      );
+    }
+
+    // ── Validate optional field types ─────────────────────────────────────
+    if (payload.stack !== undefined && typeof payload.stack !== 'string') {
+      return NextResponse.json({ error: 'Invalid field: stack (string expected)' }, { status: 400 });
+    }
+    if (payload.componentStack !== undefined && typeof payload.componentStack !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid field: componentStack (string expected)' },
+        { status: 400 }
+      );
+    }
+    if (payload.url !== undefined && typeof payload.url !== 'string') {
+      return NextResponse.json({ error: 'Invalid field: url (string expected)' }, { status: 400 });
+    }
+    if (payload.environment !== undefined && typeof payload.environment !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid field: environment (string expected)' },
+        { status: 400 }
+      );
+    }
+    if (payload.context !== undefined && (typeof payload.context !== 'object' || payload.context === null || Array.isArray(payload.context))) {
+      return NextResponse.json(
+        { error: 'Invalid field: context (object expected)' },
+        { status: 400 }
+      );
+    }
+
+    // ── Length limits to prevent log injection / oversized payloads ──────
+    const MAX_MESSAGE_LEN = 4096;
+    const MAX_STACK_LEN = 16384;
+    if (payload.message.length > MAX_MESSAGE_LEN) {
+      payload.message = payload.message.slice(0, MAX_MESSAGE_LEN) + '…[truncated]';
+    }
+    if (payload.stack && payload.stack.length > MAX_STACK_LEN) {
+      payload.stack = payload.stack.slice(0, MAX_STACK_LEN) + '…[truncated]';
+    }
+    if (payload.componentStack && payload.componentStack.length > MAX_STACK_LEN) {
+      payload.componentStack = payload.componentStack.slice(0, MAX_STACK_LEN) + '…[truncated]';
     }
 
     // Log to console in development

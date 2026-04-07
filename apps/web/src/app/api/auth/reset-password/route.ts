@@ -120,6 +120,9 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     cookieStore.delete({ name: 'access_token', path: '/' });
     cookieStore.delete({ name: 'refresh_token', path: '/' });
+    // Rotate CSRF token — password change is a sensitive action
+    cookieStore.delete({ name: 'csrf_token', path: '/' });
+    cookieStore.delete({ name: '_csrf', path: '/' });
 
     return NextResponse.json({
       success: true,

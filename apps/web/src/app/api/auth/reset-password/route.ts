@@ -118,8 +118,11 @@ export async function POST(request: NextRequest) {
 
     // Clear any stale auth cookies — user must log in with new password
     const cookieStore = await cookies();
-    cookieStore.delete({ name: 'access_token', path: '/' });
-    cookieStore.delete({ name: 'refresh_token', path: '/' });
+    cookieStore.delete('access_token');
+    cookieStore.delete('refresh_token');
+    // Rotate CSRF token — password change is a sensitive action
+    cookieStore.delete('csrf_token');
+    cookieStore.delete('_csrf');
 
     return NextResponse.json({
       success: true,

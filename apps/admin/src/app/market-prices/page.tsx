@@ -3,10 +3,14 @@
 // Market Prices Dashboard Page
 // صفحة لوحة أسعار السوق
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
+import { downloadCSV } from '@/lib/api';
+import { marketPriceService } from '@/lib/api/advanced-services';
+import type { MarketPrice as ApiMarketPrice } from '@/lib/api/advanced-services';
 import { cn } from '@/lib/utils';
+import { logger } from '../../lib/logger';
 import {
   TrendingUp,
   TrendingDown,
@@ -594,15 +598,60 @@ function DetailPanel({ crop, onClose }: { crop: MarketPrice; onClose: () => void
 }
 
 // ─────────────────────────────────────────────
+// API → UI Adapter
+// ─────────────────────────────────────────────
+
+function adaptApiMarketPrice(api: ApiMarketPrice): MarketPrice {
+  const trend: Trend = (api.change_pct ?? 0) > 0 ? 'up' : (api.change_pct ?? 0) < 0 ? 'down' : 'stable';
+  return {
+    id: api.id,
+    cropName: api.crop_type ?? '',
+    cropNameEn: api.crop_type ?? '',
+    cropIcon: '🌾',
+    currentPrice: api.price ?? 0,
+    previousPrice: api.price ? api.price / (1 + (api.change_pct ?? 0) / 100) : 0,
+    unit: api.unit ?? 'kg',
+    changePercent: api.change_pct ?? 0,
+    market: api.market ?? '',
+    marketEn: api.market ?? '',
+    quality: 'GRADE_A',
+    trend,
+    lastUpdated: api.date ?? '',
+    category: api.crop_type ?? '',
+    weekHistory: [],
+    marketComparison: [],
+    bestSellRecommendation: '',
+  };
+}
+
+// ─────────────────────────────────────────────
 // Main Page Component
 // ─────────────────────────────────────────────
 
 export default function MarketPricesPage() {
+  const [prices, setPrices] = useState<MarketPrice[]>(MOCK_PRICES);
+  const [_isLoading, setIsLoading] = useState(true);
   const [marketFilter, setMarketFilter] = useState('الكل');
   const [categoryFilter, setCategoryFilter] = useState('الكل');
   const [trendFilter, setTrendFilter] = useState('الكل');
   const [selectedCrop, setSelectedCrop] = useState<MarketPrice | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    async function loadPrices() {
+      try {
+        const response = await marketPriceService.list();
+        if (response.data.length > 0) {
+          setPrices(response.data.map(adaptApiMarketPrice));
+        }
+      } catch {
+        logger.error('Failed to load market prices from API, using mock data');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadPrices();
+  }, []);
 
   const filteredPrices = useMemo(() => {
     const trendLabelMap: Record<string, Trend | 'الكل'> = {
@@ -611,21 +660,21 @@ export default function MarketPricesPage() {
       هابط: 'down',
       مستقر: 'stable',
     };
-    return MOCK_PRICES.filter((p) => {
+    return prices.filter((p) => {
       if (marketFilter !== 'الكل' && p.market !== marketFilter) return false;
       if (categoryFilter !== 'الكل' && p.category !== categoryFilter) return false;
       if (trendFilter !== 'الكل' && p.trend !== trendLabelMap[trendFilter]) return false;
       return true;
     });
-  }, [marketFilter, categoryFilter, trendFilter]);
+  }, [prices, marketFilter, categoryFilter, trendFilter]);
 
   const stats = useMemo(() => {
-    const tracked = MOCK_PRICES.length;
-    const markets = new Set(MOCK_PRICES.map((p) => p.market)).size;
-    const alerts = MOCK_PRICES.filter((p) => Math.abs(p.changePercent) >= 5).length;
-    const avgChange = MOCK_PRICES.reduce((sum, p) => sum + p.changePercent, 0) / MOCK_PRICES.length;
+    const tracked = prices.length;
+    const markets = new Set(prices.map((p) => p.market)).size;
+    const alerts = prices.filter((p) => Math.abs(p.changePercent) >= 5).length;
+    const avgChange = prices.reduce((sum, p) => sum + p.changePercent, 0) / prices.length;
     return { tracked, markets, alerts, avgChange };
-  }, []);
+  }, [prices]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -746,9 +795,9 @@ export default function MarketPricesPage() {
               />
             </button>
             <button
-              disabled
-              className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              title="تصدير (قريبًا)"
+              onClick={() => downloadCSV(filteredPrices, 'market-prices')}
+              className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              title="تصدير CSV"
             >
               <Download className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </button>
@@ -828,7 +877,7 @@ export default function MarketPricesPage() {
           {filteredPrices.length > 0 && (
             <div className="mt-4 flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
               <span>
-                عرض {filteredPrices.length} من {MOCK_PRICES.length} محصول
+                عرض {filteredPrices.length} من {prices.length} محصول
               </span>
               <span className="flex items-center gap-1">
                 <Activity className="w-3.5 h-3.5" />

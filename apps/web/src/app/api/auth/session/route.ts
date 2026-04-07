@@ -143,6 +143,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Rotate CSRF token after session creation to prevent session fixation.
+    // The middleware will generate a fresh pair on the next request since
+    // we delete both here.
+    cookieStore.delete('csrf_token');
+    cookieStore.delete('_csrf');
+
     return NextResponse.json({
       success: true,
       message: 'Session created successfully',

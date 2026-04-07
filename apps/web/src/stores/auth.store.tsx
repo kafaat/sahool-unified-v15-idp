@@ -176,15 +176,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // httpOnly cookies (access_token, refresh_token, csrf_token) are cleared
     // server-side by DELETE /api/auth/session, but if that request failed
     // we still need to clean up any non-httpOnly copies the browser may hold.
-    Cookies.remove('_csrf', { path: '/' });
-    Cookies.remove('access_token', { path: '/' });
-    Cookies.remove('refresh_token', { path: '/' });
-
-    // Also remove legacy path-scoped cookies (set without explicit path by
-    // older builds, which default to the current route). Without this, a
-    // stale cookie scoped to e.g. /dashboard could shadow the root removal.
-    Cookies.remove('access_token');
-    Cookies.remove('refresh_token');
+    const cookiesToClear = [
+      '_csrf',
+      'access_token',
+      'refresh_token',
+      'csrf_token',
+      'tenant_id',
+      'locale',           // locale preference (set by middleware)
+      'session_id',       // session identifier
+    ];
+    const isSecure = window.location.protocol === 'https:';
+    const domain = window.location.hostname;
+    const dotDomain = domain.startsWith('.') ? domain : `.${domain}`;
+    for (const name of cookiesToClear) {
+      // Remove with all attribute combinations so no stale cookie survives.
+      Cookies.remove(name, { path: '/' });
+      Cookies.remove(name, { path: '/', secure: isSecure });
+      Cookies.remove(name, { path: '/', domain });
+      Cookies.remove(name, { path: '/', domain: dotDomain });
+      Cookies.remove(name, { path: '/', secure: isSecure, domain });
+      Cookies.remove(name, { path: '/', secure: isSecure, domain: dotDomain });
+      // Also remove legacy path-scoped cookies (set without explicit path by
+      // older builds, which default to the current route). Without this, a
+      // stale cookie scoped to e.g. /dashboard could shadow the root removal.
+      Cookies.remove(name);
+    }
 
     // Clear E2E mock session cookie so logout is fully effective in test mode
     if (isE2ETestModeEnabled()) {

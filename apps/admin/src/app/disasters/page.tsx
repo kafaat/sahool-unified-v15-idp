@@ -21,11 +21,52 @@ import {
   MapPin,
   DollarSign,
 } from 'lucide-react';
+import { downloadCSV } from '@/lib/api';
+import { disasterService } from '@/lib/api/advanced-services';
+import type { DisasterAssessment as ApiDisasterAssessment } from '@/lib/api/advanced-services';
 import { logger } from '../../lib/logger';
 import { MOCK_REPORTS } from './disasters.mock';
 import type { DisasterReport } from './disasters.mock';
 
 type DisasterType = DisasterReport['type'];
+
+const DISASTER_TYPE_AR: Record<string, string> = {
+  flood: 'فيضان', drought: 'جفاف', frost: 'صقيع', hail: 'برد',
+  pest_outbreak: 'آفات', disease_outbreak: 'أمراض', fire: 'حريق',
+  storm: 'عاصفة', pest: 'آفات', disease: 'أمراض',
+};
+
+const SEVERITY_MAP: Record<string, DisasterReport['severity']> = {
+  low: 'minor', medium: 'moderate', high: 'severe', critical: 'catastrophic',
+};
+
+const STATUS_MAP: Record<string, DisasterReport['status']> = {
+  reported: 'active', assessed: 'monitoring', mitigated: 'monitoring', resolved: 'resolved',
+};
+
+/** Map API DisasterAssessment → UI DisasterReport */
+function adaptApiDisaster(api: ApiDisasterAssessment): DisasterReport {
+  const typeKey = api.disaster_type ?? 'flood';
+  return {
+    id: api.id,
+    type: (typeKey === 'pest_outbreak' ? 'pest' : typeKey === 'disease_outbreak' ? 'disease' : typeKey) as DisasterType,
+    typeAr: DISASTER_TYPE_AR[typeKey] ?? typeKey,
+    location: api.field_id ?? '',
+    locationAr: api.field_id ?? '',
+    affectedFarms: 1,
+    affectedArea: api.affected_area_ha ?? 0,
+    severity: SEVERITY_MAP[api.severity] ?? 'moderate',
+    status: STATUS_MAP[api.status] ?? 'active',
+    damageEstimate: api.estimated_loss ?? 0,
+    currency: 'SAR',
+    reportedBy: '',
+    reportedByAr: '',
+    reportedAt: api.reported_at ?? '',
+    resolvedAt: undefined,
+    description: api.description ?? '',
+    descriptionAr: api.description ?? '',
+  };
+}
 
 export default function DisastersPage() {
   const [reports, setReports] = useState<DisasterReport[]>([]);
@@ -41,10 +82,15 @@ export default function DisastersPage() {
   async function loadReports() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await disasterService.list();
+      if (response.data.length > 0) {
+        setReports(response.data.map(adaptApiDisaster));
+      } else {
+        setReports(MOCK_REPORTS);
+      }
+    } catch {
+      logger.error('Failed to load disaster reports from API, using mock data');
       setReports(MOCK_REPORTS);
-    } catch (error) {
-      logger.error('Failed to load disaster reports:', error);
     } finally {
       setIsLoading(false);
     }
@@ -336,9 +382,9 @@ export default function DisastersPage() {
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(reports, 'disaster-reports')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>

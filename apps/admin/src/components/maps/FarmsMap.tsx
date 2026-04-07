@@ -4,9 +4,27 @@
 // خريطة المزارع التفاعلية
 // Updated: satellite toggle, polygon boundaries, enhanced Arabic UI
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type ComponentType, type JSX } from 'react';
 import dynamic from 'next/dynamic';
 import { getHealthScoreColor } from '@/lib/utils';
+
+/**
+ * Helper to cast next/dynamic's return to a usable ComponentType.
+ * react-leaflet generic props (e.g. MapContainer<MapContainerProps>) are
+ * incompatible with next/dynamic's `ComponentType<{}>` return.  Rather than
+ * sprinkling `as any` on every import we centralise a single
+ * `dynamicLeaflet` helper with a well-documented `unknown → T` cast.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function dynamicLeaflet<T extends ComponentType<any>>(
+  loader: () => Promise<T>,
+  loading?: () => JSX.Element | null,
+): T {
+  return dynamic(loader as Parameters<typeof dynamic>[0], {
+    ssr: false,
+    loading: loading ?? (() => null),
+  }) as unknown as T;
+}
 
 // Minimal interface for map farms - compatible with both Farm and MapFarm types
 export interface BaseFarmData {
@@ -29,31 +47,27 @@ const MapLoadingFallback = () => (
   </div>
 );
 
-// Dynamic import for Leaflet (SSR not supported)
-const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
-  ssr: false,
-  loading: () => <MapLoadingFallback />,
-}) as any;
-const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), {
-  ssr: false,
-  loading: () => null,
-}) as any;
-const CircleMarker = dynamic(() => import('react-leaflet').then((mod) => mod.CircleMarker), {
-  ssr: false,
-  loading: () => null,
-}) as any;
-const Polygon = dynamic(() => import('react-leaflet').then((mod) => mod.Polygon), {
-  ssr: false,
-  loading: () => null,
-}) as any;
-const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), {
-  ssr: false,
-  loading: () => null,
-}) as any;
-const LayersControl = dynamic(() => import('react-leaflet').then((mod) => mod.LayersControl), {
-  ssr: false,
-  loading: () => null,
-}) as any;
+// Dynamic imports for Leaflet (SSR not supported).
+// Uses centralised `dynamicLeaflet` helper to avoid per-import `as any` casts.
+const MapContainer = dynamicLeaflet(
+  () => import('react-leaflet').then((mod) => mod.MapContainer),
+  () => <MapLoadingFallback />,
+);
+const TileLayer = dynamicLeaflet(
+  () => import('react-leaflet').then((mod) => mod.TileLayer),
+);
+const CircleMarker = dynamicLeaflet(
+  () => import('react-leaflet').then((mod) => mod.CircleMarker),
+);
+const Polygon = dynamicLeaflet(
+  () => import('react-leaflet').then((mod) => mod.Polygon),
+);
+const Popup = dynamicLeaflet(
+  () => import('react-leaflet').then((mod) => mod.Popup),
+);
+const LayersControl = dynamicLeaflet(
+  () => import('react-leaflet').then((mod) => mod.LayersControl),
+);
 
 interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
   farms: T[];
@@ -116,8 +130,10 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
       // Force cleanup of Leaflet's internal tracker
       if (containerRef) {
         // Remove any Leaflet-specific properties to prevent "Map container already initialized"
-        if ((containerRef as any)._leaflet_id) {
-          delete (containerRef as any)._leaflet_id;
+        // Leaflet stores _leaflet_id on the DOM element which is not part of HTMLElement types
+        const leafletEl = containerRef as HTMLElement & { _leaflet_id?: number };
+        if (leafletEl._leaflet_id) {
+          delete leafletEl._leaflet_id;
         }
       }
     };
@@ -197,7 +213,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
         scrollWheelZoom={true}
         // Force new instance on every mount using version counter
         key={`map-${mapVersion}`}
-        ref={(map: any) => {
+        ref={(map: import('leaflet').Map | null) => {
           if (map) {
             mapInstanceRef.current = map;
           }

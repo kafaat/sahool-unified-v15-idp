@@ -18,9 +18,36 @@ import {
   Award,
   Clock,
 } from 'lucide-react';
+import { downloadCSV } from '@/lib/api';
+import { complianceService } from '@/lib/api/advanced-services';
+import type { ComplianceRecord as ApiComplianceRecord } from '@/lib/api/advanced-services';
 import { logger } from '../../lib/logger';
 import { MOCK_RECORDS } from './compliance.mock';
 import type { ComplianceRecord } from './compliance.mock';
+
+/** Map API ComplianceRecord (snake_case) → UI ComplianceRecord (camelCase) */
+function adaptApiCompliance(api: ApiComplianceRecord): ComplianceRecord {
+  const statusMap: Record<string, ComplianceRecord['status']> = {
+    compliant: 'compliant',
+    non_compliant: 'non_compliant',
+    pending_review: 'pending',
+    in_progress: 'partial',
+  };
+  return {
+    id: api.id,
+    farmId: api.farm_id,
+    farmName: api.farm_id,
+    farmNameAr: api.farm_id,
+    standard: (api.standard as ComplianceRecord['standard']) || 'globalgap',
+    status: statusMap[api.status] ?? 'pending',
+    score: api.score ?? 0,
+    lastAudit: api.audit_date ?? '',
+    nextAudit: api.next_audit_date ?? '',
+    auditor: '',
+    findings: api.findings ?? 0,
+    criticalFindings: 0,
+  };
+}
 
 export default function CompliancePage() {
   const [records, setRecords] = useState<ComplianceRecord[]>([]);
@@ -36,10 +63,15 @@ export default function CompliancePage() {
   async function loadRecords() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await complianceService.list();
+      if (response.data.length > 0) {
+        setRecords(response.data.map(adaptApiCompliance));
+      } else {
+        setRecords(MOCK_RECORDS);
+      }
+    } catch {
+      logger.error('Failed to load compliance records from API, using mock data');
       setRecords(MOCK_RECORDS);
-    } catch (error) {
-      logger.error('Failed to load compliance records:', error);
     } finally {
       setIsLoading(false);
     }
@@ -326,9 +358,9 @@ export default function CompliancePage() {
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(records, 'compliance-records')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>

@@ -200,6 +200,7 @@ class AuthApiClient {
       }
     } catch (error) {
       logger.error('Error refreshing token:', error);
+      this.clearToken();
       return false;
     }
   }

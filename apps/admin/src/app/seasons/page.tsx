@@ -12,9 +12,12 @@
  * - Preventive pesticide suggestions
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Header from '@/components/layout/Header';
 import { cn, formatDate, formatNumber } from '@/lib/utils';
+import { seasonService } from '@/lib/api/advanced-services';
+import type { Season as ApiSeason } from '@/lib/api/advanced-services';
+import { logger } from '../../lib/logger';
 import {
   Search,
   Plus,
@@ -1362,17 +1365,77 @@ function CreateSeasonModal({
 }
 
 // =============================================================================
+// API → UI Adapter | محوّل من واجهة برمجة التطبيقات إلى واجهة المستخدم
+// =============================================================================
+
+const SEASON_TYPE_MAP: Record<string, SeasonType> = {
+  planting: 'winter', growing: 'summer', harvest: 'summer', fallow: 'winter',
+};
+
+function adaptApiSeason(api: ApiSeason): Season {
+  const startYear = api.start_date ? new Date(api.start_date).getFullYear() : new Date().getFullYear();
+  return {
+    id: api.id,
+    name: api.name ?? '',
+    nameAr: api.name_ar ?? api.name ?? '',
+    type: SEASON_TYPE_MAP[api.type] ?? 'winter',
+    year: startYear,
+    status: api.is_current ? 'active' : 'completed',
+    startDate: api.start_date ?? '',
+    endDate: api.end_date ?? '',
+    farmId: '',
+    farmName: api.region ?? '',
+    farmNameAr: api.region ?? '',
+    crops: (api.crops ?? []).map((c, i) => ({
+      id: `crop-${i}`,
+      name: c,
+      nameAr: c,
+      variety: '',
+      varietyAr: '',
+      category: 'grains' as CropCategory,
+      areaHa: 0,
+      plantingDate: api.start_date ?? '',
+      expectedHarvestDate: api.end_date ?? '',
+      plowingDate: '',
+      seedingDate: '',
+      growthStages: [],
+      fertilizerPlan: [],
+      pesticidePlan: [],
+    })),
+    totalAreaHa: 0,
+    targetYieldTons: 0,
+    budgetSar: 0,
+    spentSar: 0,
+    progress: api.is_current ? 50 : 100,
+  };
+}
+
+// =============================================================================
 // Main Page Component | المكون الرئيسي
 // =============================================================================
 
 export default function SeasonsPage() {
-  const [seasons] = useState<Season[]>(MOCK_SEASONS);
+  const [seasons, setSeasons] = useState<Season[]>(MOCK_SEASONS);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [expandedSeason, setExpandedSeason] = useState<string | null>('s-001');
   const [selectedCrop, setSelectedCrop] = useState<SeasonCrop | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  useEffect(() => {
+    async function loadSeasons() {
+      try {
+        const response = await seasonService.list();
+        if (response.data.length > 0) {
+          setSeasons(response.data.map(adaptApiSeason));
+        }
+      } catch {
+        logger.error('Failed to load seasons from API, using mock data');
+      }
+    }
+    loadSeasons();
+  }, []);
 
   const filteredSeasons = useMemo(() => {
     return seasons.filter((s) => {

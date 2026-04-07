@@ -28,6 +28,8 @@ vi.mock('@/lib/security/jwt-middleware', () => ({
 
 vi.mock('@/lib/security/csrf-server', () => ({
   validateCsrfRequest: vi.fn(() => ({ valid: true })),
+  isSensitiveAction: vi.fn(() => false),
+  generateCsrfToken: vi.fn(() => 'mock-csrf-token'),
 }));
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -224,6 +226,8 @@ describe('Middleware Security', () => {
       }));
       vi.doMock('@/lib/security/csrf-server', () => ({
         validateCsrfRequest: vi.fn(() => ({ valid: true })),
+        isSensitiveAction: vi.fn(() => false),
+        generateCsrfToken: vi.fn(() => 'mock-csrf-token'),
       }));
 
       const { middleware } = await import('./middleware');
@@ -250,6 +254,8 @@ describe('Middleware Security', () => {
       }));
       vi.doMock('@/lib/security/csrf-server', () => ({
         validateCsrfRequest: vi.fn(() => ({ valid: true })),
+        isSensitiveAction: vi.fn(() => false),
+        generateCsrfToken: vi.fn(() => 'mock-csrf-token'),
       }));
 
       const { middleware } = await import('./middleware');
@@ -274,6 +280,8 @@ describe('Middleware Security', () => {
       }));
       vi.doMock('@/lib/security/csrf-server', () => ({
         validateCsrfRequest: vi.fn(() => ({ valid: true })),
+        isSensitiveAction: vi.fn(() => false),
+        generateCsrfToken: vi.fn(() => 'mock-csrf-token'),
       }));
 
       const { middleware } = await import('./middleware');

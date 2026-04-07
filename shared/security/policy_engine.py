@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
-from .rbac import Permission, Role, has_permission
+from .rbac import Role, has_permission
 
 logger = logging.getLogger(__name__)
 

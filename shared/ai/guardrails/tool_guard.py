@@ -245,6 +245,7 @@ class ToolGuard:
                     # Normalize URL-encoded path traversal attempts
                     try:
                         from urllib.parse import unquote
+
                         path = unquote(path)
                     except Exception:
                         pass

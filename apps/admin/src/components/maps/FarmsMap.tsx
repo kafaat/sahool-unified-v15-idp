@@ -30,30 +30,38 @@ const MapLoadingFallback = () => (
 );
 
 // Dynamic import for Leaflet (SSR not supported)
+// react-leaflet components have complex generic types that are incompatible with
+// next/dynamic's return type. The `as any` is intentional and widely accepted.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
   ssr: false,
   loading: () => <MapLoadingFallback />,
-}) as any;
+}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), {
   ssr: false,
   loading: () => null,
-}) as any;
+}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CircleMarker = dynamic(() => import('react-leaflet').then((mod) => mod.CircleMarker), {
   ssr: false,
   loading: () => null,
-}) as any;
+}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Polygon = dynamic(() => import('react-leaflet').then((mod) => mod.Polygon), {
   ssr: false,
   loading: () => null,
-}) as any;
+}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), {
   ssr: false,
   loading: () => null,
-}) as any;
+}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const LayersControl = dynamic(() => import('react-leaflet').then((mod) => mod.LayersControl), {
   ssr: false,
   loading: () => null,
-}) as any;
+}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
   farms: T[];
@@ -116,8 +124,10 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
       // Force cleanup of Leaflet's internal tracker
       if (containerRef) {
         // Remove any Leaflet-specific properties to prevent "Map container already initialized"
-        if ((containerRef as any)._leaflet_id) {
-          delete (containerRef as any)._leaflet_id;
+        // Leaflet stores _leaflet_id on the DOM element which is not part of HTMLElement types
+        const leafletEl = containerRef as HTMLElement & { _leaflet_id?: number };
+        if (leafletEl._leaflet_id) {
+          delete leafletEl._leaflet_id;
         }
       }
     };

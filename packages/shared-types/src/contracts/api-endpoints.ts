@@ -149,6 +149,7 @@ export const IRRIGATION_ENDPOINTS = {
   RECOMMENDATIONS: `${API_PREFIX}/irrigation/recommendations`,
   CROPS: `${API_PREFIX}/irrigation/crops`,
   METHODS: `${API_PREFIX}/irrigation/methods`,
+  PIVOT_CONTROL: `${API_PREFIX}/irrigation/pivot/control`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -165,6 +166,8 @@ export const ADVISORY_ENDPOINTS = {
   RECOMMENDATIONS: `${API_PREFIX}/advisory/recommendations`,
   FERTILIZER_ADVISORY: `${API_PREFIX}/advisory/fertilizer`,
   FERTILIZER_CALCULATE: `${API_PREFIX}/advisory/fertilizer/calculate`,
+  FERTILIZER_UPDATE: `${API_PREFIX}/advisory/fertilizer/{prescriptionId}`,
+  FERTILIZER_ZONE_UPDATE: `${API_PREFIX}/advisory/fertilizer/{prescriptionId}/zones/{zoneId}`,
   AGRO_ADVICE: `${API_PREFIX}/agro-advisor/advice`,
   AGRO_DISEASE: `${API_PREFIX}/agro-advisor/disease`,
   AGRO_NUTRIENTS: `${API_PREFIX}/agro-advisor/nutrients`,
@@ -274,6 +277,8 @@ export const MARKETPLACE_ENDPOINTS = {
   LISTING_CREATE: `${API_PREFIX}/marketplace/listings`,
   PRODUCTS: `${API_PREFIX}/marketplace/products`,
   PRODUCT_GET: `${API_PREFIX}/marketplace/products/{productId}`,
+  PRODUCT_APPROVE: `${API_PREFIX}/marketplace/products/{productId}/approve`,
+  PRODUCT_REJECT: `${API_PREFIX}/marketplace/products/{productId}/reject`,
   ORDERS: `${API_PREFIX}/marketplace/orders`,
   ORDERS_BY_USER: `${API_PREFIX}/marketplace/orders/user/{userId}`,
   HARVEST: `${API_PREFIX}/marketplace/harvest`,
@@ -610,6 +615,7 @@ export const COMPLIANCE_ENDPOINTS = {
   STANDARDS: `${API_PREFIX}/compliance/standards`,
 } as const;
 
+/** @deprecated No backend service exists yet. Planned for future release. */
 export const DOCUMENT_ENDPOINTS = {
   LIST: `${API_PREFIX}/documents`,
   GET: `${API_PREFIX}/documents/{documentId}`,

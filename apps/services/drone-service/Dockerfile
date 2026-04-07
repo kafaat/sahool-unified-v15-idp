@@ -51,8 +51,6 @@ RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null &&
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy application
 COPY apps/services/drone-service/src/ ./src/

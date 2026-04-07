@@ -37,14 +37,14 @@ class RateLimiter:
         # Try to get user ID from auth header
         auth_header = request.headers.get("authorization", "")
         if auth_header:
-            return f"auth:{hash(auth_header)}"
+            return f"auth:{hash(auth_header)}"  # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
 
         # Fall back to IP
         forwarded = request.headers.get("x-forwarded-for")
         if forwarded:
-            return f"ip:{forwarded.split(',')[0].strip()}"
+            return f"ip:{forwarded.split(',')[0].strip()}"  # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
 
-        return f"ip:{request.client.host if request.client else 'unknown'}"
+        return f"ip:{request.client.host if request.client else 'unknown'}"  # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
 
     def _cleanup_old_requests(self, requests: list, window: timedelta) -> list:
         """Remove requests outside the time window"""

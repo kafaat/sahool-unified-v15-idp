@@ -6,6 +6,11 @@
  *
  * Manages VRI (Variable Rate Irrigation) zones per field with
  * zone stats, NDVI trends, and recommended actions.
+ *
+ * Field selector uses real field data from the fields API.
+ * Zone data remains client-side (no dedicated zones API exists);
+ * in a future iteration zones would come from the vegetation-analysis
+ * or field-intelligence services.
  */
 
 import { useState, useMemo } from 'react';
@@ -21,7 +26,11 @@ import {
   ChevronDown,
   ChevronUp,
   Wheat,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
+import { useFieldsList } from '../hooks/useFieldsList';
+import type { Field } from '../types';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,7 +44,7 @@ interface HistoricalNDVI {
   value: number;
 }
 
-interface FieldZone {
+interface FieldZoneData {
   id: string;
   nameAr: string;
   type: ZoneProductivity;
@@ -51,77 +60,59 @@ interface FieldZone {
   recommendedActions: string[];
 }
 
-interface FieldOption {
-  id: string;
-  nameAr: string;
-  cropAr: string;
-  areaHa: number;
-}
-
 // ---------------------------------------------------------------------------
-// Mock Data
+// Zone Data (client-side — would come from vegetation-analysis API in future)
 // ---------------------------------------------------------------------------
 
-const FIELDS: FieldOption[] = [
-  { id: 'FIELD-001', nameAr: 'حقل القمح الشمالي', cropAr: 'قمح', areaHa: 25.4 },
-  { id: 'FIELD-002', nameAr: 'شريط الشعير الجنوبي', cropAr: 'شعير', areaHa: 18.0 },
-  { id: 'FIELD-003', nameAr: 'بستان النخيل الشرقي', cropAr: 'نخيل', areaHa: 12.5 },
-];
+const ZONE_DATA: Record<string, FieldZoneData[]> = {
+  // Default zones shown when a field doesn't have specific zone data.
+  // Keyed by field ID for any fields that have specific zones defined.
+};
 
-const MOCK_ZONES: Record<string, FieldZone[]> = {
-  'FIELD-001': [
+/** Generate placeholder zones from a real field's metadata */
+function generateZonesFromField(field: Field): FieldZoneData[] {
+  const ndvi = field.ndviValue ?? 0.55;
+  const areaPerZone = field.area / 3;
+  return [
     {
-      id: 'Z-001-A', nameAr: 'المنطقة أ — الشمال الغربي', type: 'high', typeAr: 'إنتاجية عالية',
-      areaHa: 6.2, ndvi: 0.78, irrigationRate: 12, fertilizerRate: 180, seedRate: 150,
+      id: `${field.id}-A`, nameAr: `المنطقة أ — ${field.nameAr || field.name}`,
+      type: ndvi >= 0.6 ? 'high' : ndvi >= 0.4 ? 'medium' : 'low',
+      typeAr: ndvi >= 0.6 ? 'إنتاجية عالية' : ndvi >= 0.4 ? 'إنتاجية متوسطة' : 'إنتاجية منخفضة',
+      areaHa: Math.round(areaPerZone * 10) / 10, ndvi: Math.min(ndvi + 0.1, 0.95),
+      irrigationRate: 12, fertilizerRate: 180, seedRate: 150,
       status: 'active', statusAr: 'نشط',
       historicalNdvi: [
-        { month: 'أكتوبر', value: 0.45 }, { month: 'نوفمبر', value: 0.58 },
-        { month: 'ديسمبر', value: 0.68 }, { month: 'يناير', value: 0.75 }, { month: 'فبراير', value: 0.78 },
+        { month: 'أكتوبر', value: ndvi - 0.2 }, { month: 'نوفمبر', value: ndvi - 0.12 },
+        { month: 'ديسمبر', value: ndvi - 0.05 }, { month: 'يناير', value: ndvi }, { month: 'فبراير', value: ndvi + 0.1 },
       ],
-      recommendedActions: ['الاستمرار في جدول الري الحالي — كفاءة ممتازة', 'تطبيق الجرعة الثانية من النيتروجين خلال أسبوع'],
+      recommendedActions: ['الاستمرار في جدول الري الحالي', 'مراقبة مؤشر NDVI أسبوعياً'],
     },
     {
-      id: 'Z-001-B', nameAr: 'المنطقة ب — الشمال الشرقي', type: 'medium', typeAr: 'إنتاجية متوسطة',
-      areaHa: 5.8, ndvi: 0.55, irrigationRate: 15, fertilizerRate: 200, seedRate: 160,
+      id: `${field.id}-B`, nameAr: `المنطقة ب — ${field.nameAr || field.name}`,
+      type: 'medium', typeAr: 'إنتاجية متوسطة',
+      areaHa: Math.round(areaPerZone * 10) / 10, ndvi: ndvi,
+      irrigationRate: 15, fertilizerRate: 200, seedRate: 160,
       status: 'active', statusAr: 'نشط',
       historicalNdvi: [
-        { month: 'أكتوبر', value: 0.38 }, { month: 'نوفمبر', value: 0.42 },
-        { month: 'ديسمبر', value: 0.48 }, { month: 'يناير', value: 0.52 }, { month: 'فبراير', value: 0.55 },
+        { month: 'أكتوبر', value: ndvi - 0.15 }, { month: 'نوفمبر', value: ndvi - 0.1 },
+        { month: 'ديسمبر', value: ndvi - 0.05 }, { month: 'يناير', value: ndvi - 0.02 }, { month: 'فبراير', value: ndvi },
       ],
-      recommendedActions: ['زيادة معدل الري بنسبة 15% لتحسين رطوبة التربة', 'فحص التربة للكشف عن نقص المغذيات', 'مراقبة مؤشر NDVI أسبوعياً'],
+      recommendedActions: ['زيادة معدل الري بنسبة 15%', 'فحص التربة للكشف عن نقص المغذيات'],
     },
     {
-      id: 'Z-001-C', nameAr: 'المنطقة ج — الوسطى', type: 'high', typeAr: 'إنتاجية عالية',
-      areaHa: 5.0, ndvi: 0.72, irrigationRate: 12, fertilizerRate: 175, seedRate: 150,
-      status: 'completed', statusAr: 'مكتمل',
-      historicalNdvi: [
-        { month: 'أكتوبر', value: 0.50 }, { month: 'نوفمبر', value: 0.60 },
-        { month: 'ديسمبر', value: 0.65 }, { month: 'يناير', value: 0.70 }, { month: 'فبراير', value: 0.72 },
-      ],
-      recommendedActions: ['اكتملت دورة الري — الحالة ممتازة', 'تجهيز الجدول الزمني للحصاد'],
-    },
-    {
-      id: 'Z-001-D', nameAr: 'المنطقة د — الجنوب الغربي', type: 'low', typeAr: 'إنتاجية منخفضة',
-      areaHa: 4.8, ndvi: 0.32, irrigationRate: 20, fertilizerRate: 240, seedRate: 180,
-      status: 'active', statusAr: 'نشط',
-      historicalNdvi: [
-        { month: 'أكتوبر', value: 0.22 }, { month: 'نوفمبر', value: 0.25 },
-        { month: 'ديسمبر', value: 0.28 }, { month: 'يناير', value: 0.30 }, { month: 'فبراير', value: 0.32 },
-      ],
-      recommendedActions: ['تحليل التربة عاجل — اشتباه بملوحة مرتفعة', 'زيادة الري بنسبة 40% مع رصد الصرف', 'تطبيق سماد عضوي لتحسين بنية التربة'],
-    },
-    {
-      id: 'Z-001-E', nameAr: 'المنطقة هـ — الجنوب الشرقي', type: 'medium', typeAr: 'إنتاجية متوسطة',
-      areaHa: 3.6, ndvi: 0.48, irrigationRate: 16, fertilizerRate: 210, seedRate: 165,
+      id: `${field.id}-C`, nameAr: `المنطقة ج — ${field.nameAr || field.name}`,
+      type: ndvi < 0.4 ? 'low' : 'medium', typeAr: ndvi < 0.4 ? 'إنتاجية منخفضة' : 'إنتاجية متوسطة',
+      areaHa: Math.round(areaPerZone * 10) / 10, ndvi: Math.max(ndvi - 0.15, 0.1),
+      irrigationRate: 20, fertilizerRate: 240, seedRate: 180,
       status: 'scheduled', statusAr: 'مجدول',
       historicalNdvi: [
-        { month: 'أكتوبر', value: 0.30 }, { month: 'نوفمبر', value: 0.35 },
-        { month: 'ديسمبر', value: 0.40 }, { month: 'يناير', value: 0.45 }, { month: 'فبراير', value: 0.48 },
+        { month: 'أكتوبر', value: ndvi - 0.25 }, { month: 'نوفمبر', value: ndvi - 0.2 },
+        { month: 'ديسمبر', value: ndvi - 0.18 }, { month: 'يناير', value: ndvi - 0.16 }, { month: 'فبراير', value: ndvi - 0.15 },
       ],
-      recommendedActions: ['بدء دورة الري المجدولة خلال 48 ساعة', 'تطبيق سماد الفوسفور قبل الري'],
+      recommendedActions: ['تحليل التربة عاجل', 'زيادة الري بنسبة 40%', 'تطبيق سماد عضوي لتحسين بنية التربة'],
     },
-  ],
-};
+  ];
+}
 
 const ZONE_STRATEGIES: { value: ZoneStrategy; labelAr: string }[] = [
   { value: 'manual', labelAr: 'يدوي' },
@@ -146,7 +137,7 @@ const STATUS_BADGE: Record<string, string> = {
   completed: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
 };
 
-function computeCV(zones: FieldZone[]): number {
+function computeCV(zones: FieldZoneData[]): number {
   if (zones.length < 2) return 0;
   const vals = zones.map((z) => z.ndvi);
   const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
@@ -159,15 +150,73 @@ function computeCV(zones: FieldZone[]): number {
 // ---------------------------------------------------------------------------
 
 export default function FieldZonesClient() {
-  const [selectedFieldId, setSelectedFieldId] = useState(FIELDS[0]!.id);
+  const { data: apiFields, isLoading, isError, error, refetch } = useFieldsList();
+
+  const fieldOptions = useMemo(
+    () =>
+      (apiFields ?? []).map((f: Field) => ({
+        id: f.id,
+        nameAr: f.nameAr || f.name,
+        cropAr: f.cropAr || f.crop || '-',
+        areaHa: f.area,
+        _raw: f,
+      })),
+    [apiFields],
+  );
+
+  const [selectedFieldId, setSelectedFieldId] = useState<string>('');
   const [strategy, setStrategy] = useState<ZoneStrategy>('ndvi');
   const [expandedZoneId, setExpandedZoneId] = useState<string | null>(null);
 
-  const zones = useMemo(() => MOCK_ZONES[selectedFieldId] ?? [], [selectedFieldId]);
+  const effectiveFieldId = selectedFieldId || fieldOptions[0]?.id || '';
+
+  const zones = useMemo(() => {
+    // Check if we have pre-defined zone data for this field
+    if (ZONE_DATA[effectiveFieldId]) return ZONE_DATA[effectiveFieldId];
+    // Otherwise, generate zones from the actual field data
+    const fieldOpt = fieldOptions.find((f) => f.id === effectiveFieldId);
+    if (fieldOpt) return generateZonesFromField(fieldOpt._raw);
+    return [];
+  }, [effectiveFieldId, fieldOptions]);
+
   const avgNdvi = useMemo(() => (zones.length ? zones.reduce((s, z) => s + z.ndvi, 0) / zones.length : 0), [zones]);
   const cv = useMemo(() => computeCV(zones), [zones]);
   const totalArea = useMemo(() => zones.reduce((s, z) => s + z.areaHa, 0), [zones]);
   const estimatedSavings = useMemo(() => (cv > 10 ? Math.round(totalArea * cv * 2.5) : 0), [cv, totalArea]);
+
+  // ── Loading State ──────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-3">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto" />
+          <p className="text-gray-600 text-sm">جاري تحميل الحقول...</p>
+          <p className="text-gray-400 text-xs">Loading fields...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error State ────────────────────────────────────────────────────
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-3 max-w-md">
+          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
+          <p className="text-gray-900 font-semibold">تعذر تحميل الحقول</p>
+          <p className="text-gray-500 text-sm">
+            {error instanceof Error ? error.message : 'Failed to load fields'}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -212,11 +261,14 @@ export default function FieldZonesClient() {
               </label>
               <select
                 id="field-select"
-                value={selectedFieldId}
+                value={effectiveFieldId}
                 onChange={(e) => { setSelectedFieldId(e.target.value); setExpandedZoneId(null); }}
                 className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                {FIELDS.map((f) => (
+                {fieldOptions.length === 0 && (
+                  <option value="">لا توجد حقول</option>
+                )}
+                {fieldOptions.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.nameAr} — {f.cropAr} ({f.areaHa} هـ)
                   </option>

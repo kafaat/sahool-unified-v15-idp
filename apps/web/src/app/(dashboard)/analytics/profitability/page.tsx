@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   DollarSign,
   TrendingUp,
@@ -11,6 +11,8 @@ import {
   ArrowDownRight,
   Wallet,
   Receipt,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 
 const statsCards = [
@@ -68,6 +70,47 @@ const costBreakdown = [
 export default function ProfitabilityPage() {
   const [dateRange, setDateRange] = useState('season');
   const [viewMode, setViewMode] = useState<'fields' | 'costs'>('fields');
+  const [loading, setLoading] = useState(true);
+  const [error] = useState<string | null>(null);
+  const [apiProfitData] = useState<typeof profitData | null>(null);
+
+  const fetchData = useCallback(async () => {
+    // NOTE: No dedicated analytics API for profitability data yet.
+    // Using local sample data until backend endpoint is available.
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-500">جاري تحميل بيانات الربحية...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button onClick={fetchData} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const displayProfitData = apiProfitData ?? profitData;
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -165,7 +208,7 @@ export default function ProfitabilityPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {profitData.map((row) => (
+                  {displayProfitData.map((row) => (
                     <tr key={row.field} className="hover:bg-gray-50 transition-colors">
                       <td className="px-5 py-3 font-medium text-gray-900">{row.field}</td>
                       <td className="px-5 py-3 text-gray-600">{row.crop}</td>

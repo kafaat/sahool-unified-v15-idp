@@ -8,11 +8,13 @@
  * Supports manual, NDVI-based, soil-based, and AI-auto zone strategies.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { PageErrorBoundary } from '@/components/common/PageErrorBoundary';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import DataTable from '@/components/ui/DataTable';
+import { apiClient } from '@/lib/api';
+import { FIELD_ENDPOINTS, INTELLIGENCE_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import {
   Grid3X3,
   Leaf,
@@ -277,16 +279,65 @@ function computeHeterogeneity(zones: FieldZone[]): number {
   return Math.round(cv);
 }
 
+/** Close a GeoJSON polygon ring by repeating the first coordinate as the last if not already closed. */
+function closeRing(coords: number[][]): number[][] {
+  const first = coords[0];
+  const last = coords[coords.length - 1];
+  if (first && last && (first[0] !== last[0] || first[1] !== last[1])) return [...coords, [...first]];
+  return coords;
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export default function FieldZonesPage() {
+  const [fieldOptions, setFieldOptions] = useState<FieldOption[]>(FIELDS);
   const [selectedFieldId, setSelectedFieldId] = useState<string>(FIELDS[0]!.id);
   const [strategy, setStrategy] = useState<ZoneStrategy>('ndvi');
   const [expandedZoneId, setExpandedZoneId] = useState<string | null>(null);
+  const [zones, setZones] = useState<FieldZone[]>([]);
+  const [zonesLoading, setZonesLoading] = useState(false);
 
-  const zones = useMemo(() => MOCK_ZONES[selectedFieldId] ?? [], [selectedFieldId]);
+  // Load field list on mount
+  useEffect(() => {
+    apiClient.get(FIELD_ENDPOINTS.LIST).then((response) => {
+      const payload = response.data;
+      const items = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
+      const mapped = (items as Array<Record<string, unknown>>).map((f) => ({
+        id: String(f.id ?? f.field_id ?? ''),
+        name: String(f.name ?? f.name_en ?? ''),
+        nameAr: String(f.name_ar ?? f.nameAr ?? f.name ?? ''),
+        crop: String(f.crop ?? f.crop_type ?? ''),
+        cropAr: String(f.crop_ar ?? f.cropAr ?? f.crop ?? ''),
+        areaHa: Number(f.area_ha ?? f.areaHa ?? 0),
+      })).filter((f) => f.id);
+      if (mapped.length > 0) {
+        setFieldOptions(mapped);
+        setSelectedFieldId(mapped[0]?.id ?? FIELDS[0]!.id);
+      }
+    }).catch(() => {/* keep FIELDS */});
+  }, []);
+
+  // Load zones when selected field changes
+  useEffect(() => {
+    if (!selectedFieldId) return;
+    setZonesLoading(true);
+    apiClient.get(buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_ZONES, { fieldId: selectedFieldId }))
+      .then((response) => {
+        const payload = response.data;
+        const data = Array.isArray(payload) ? (payload as FieldZone[]) : Array.isArray(payload?.data) ? (payload.data as FieldZone[]) : null;
+        if (data) {
+          setZones(data);
+        } else {
+          setZones(MOCK_ZONES[selectedFieldId] ?? []);
+        }
+      })
+      .catch(() => {
+        setZones(MOCK_ZONES[selectedFieldId] ?? []);
+      })
+      .finally(() => setZonesLoading(false));
+  }, [selectedFieldId]);
 
   const avgNdvi = useMemo(() => {
     if (zones.length === 0) return 0;
@@ -410,9 +461,54 @@ export default function FieldZonesPage() {
     [expandedZoneId],
   );
 
-  const handleExport = (format: 'geojson' | 'shapefile') => {
-    alert(`تصدير ${format === 'geojson' ? 'GeoJSON' : 'Shapefile'} — ${zones.length} مناطق`);
-  };
+  const handleExport = useCallback((format: 'geojson' | 'csv') => {
+    if (format === 'geojson') {
+      const geojson = {
+        type: 'FeatureCollection',
+        features: zones.map((z) => ({
+          type: 'Feature',
+          properties: {
+            id: z.id,
+            name: z.name,
+            nameAr: z.nameAr,
+            type: z.type,
+            areaHa: z.areaHa,
+            ndvi: z.ndvi,
+            irrigationRate: z.irrigationRate,
+            fertilizerRate: z.fertilizerRate,
+            seedRate: z.seedRate,
+            status: z.status,
+          },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [closeRing(z.boundary.map((c) => [c.lng, c.lat]))],
+          },
+        })),
+      };
+      const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `field-zones-${selectedFieldId}.geojson`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      const headers = ['id', 'nameAr', 'type', 'areaHa', 'ndvi', 'irrigationRate', 'fertilizerRate', 'seedRate', 'status'];
+      const rows = zones.map((z) =>
+        [z.id, z.nameAr, z.type, z.areaHa, z.ndvi, z.irrigationRate, z.fertilizerRate, z.seedRate, z.status]
+          .map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`)
+          .join(',')
+      );
+      const csv = [headers.map((h) => `"${h}"`).join(','), ...rows].join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `field-zones-${selectedFieldId}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }, [zones, selectedFieldId]);
 
   return (
     <PageErrorBoundary pageName="Field Zones" pageNameAr="تقسيم الحقول">
@@ -471,7 +567,7 @@ export default function FieldZonesPage() {
                 }}
                 className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
               >
-                {FIELDS.map((f) => (
+                {fieldOptions.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.nameAr} — {f.cropAr} ({f.areaHa} هـ)
                   </option>
@@ -507,6 +603,11 @@ export default function FieldZonesPage() {
 
         {/* ---- Zone Table ---- */}
         <div>
+          {zonesLoading ? (
+            <div className="flex items-center justify-center h-32 text-gray-400 dark:text-gray-500 text-sm">
+              جارٍ تحميل المناطق...
+            </div>
+          ) : (
           <DataTable
             columns={columns}
             data={zones}
@@ -514,6 +615,7 @@ export default function FieldZonesPage() {
             onRowClick={(z) => setExpandedZoneId((prev) => (prev === z.id ? null : z.id))}
             emptyMessage="لا توجد مناطق لهذا الحقل — اختر حقلاً آخر أو أنشئ تقسيماً جديداً"
           />
+          )}
 
           {/* Expanded Zone Detail */}
           {expandedZoneId && (() => {
@@ -628,11 +730,11 @@ export default function FieldZonesPage() {
               </button>
               <button
                 type="button"
-                onClick={() => handleExport('shapefile')}
+                onClick={() => handleExport('csv')}
                 className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <Download className="w-4 h-4" />
-                Shapefile
+                CSV
               </button>
             </div>
           </div>

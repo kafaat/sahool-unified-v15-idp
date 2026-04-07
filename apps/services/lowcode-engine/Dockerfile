@@ -54,8 +54,6 @@ RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null &&
 COPY shared/ ./shared/
 COPY apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy source code
 COPY apps/services/lowcode-engine/src/ ./src/

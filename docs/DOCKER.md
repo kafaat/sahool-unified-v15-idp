@@ -199,7 +199,7 @@ docker compose build --progress=plain chat-service
 #### apt-get Mirror Fallback (جميع الخدمات)
 
 جميع الحاويات تستخدم سكريبت `docker/apt-update.sh` المشترك بدلاً من `apt-get update` مباشرة.
-السكريبت يتعامل مع فشل DNS تلقائياً بالتبديل إلى مرايا Aliyun:
+السكريبت يتعامل مع فشل DNS وفشل تحميل الفهارس الجزئي تلقائياً:
 
 ```dockerfile
 # نسخ السكريبت المشترك
@@ -211,7 +211,11 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
     curl tini && rm -rf /var/lib/apt/lists/*
 ```
 
-يدعم: Debian DEB822 (bookworm+)، Ubuntu DEB822 (noble+)، وصيغة sources.list التقليدية.
+**المميزات:**
+- **كشف الفشل الجزئي**: يكتشف `W: Failed to fetch` حتى عندما يُرجع `apt-get update` كود خروج 0
+- **إعادة المحاولة**: حتى 3 محاولات مع تأخير متزايد (5s, 10s, 20s) و `Acquire::Retries=3`
+- **3 مرايا**: المصدر الافتراضي ← Aliyun ← Tencent
+- **دعم**: Debian DEB822 (bookworm+)، Ubuntu DEB822 (noble+)، وصيغة sources.list التقليدية
 
 #### npm Install مع Retry و Mirror Fallback (خدمات Node.js)
 

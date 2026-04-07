@@ -252,7 +252,9 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
+        if: always() && secrets.CODECOV_TOKEN != ''
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: apps/services/ai-advisor/coverage.xml
           flags: agent-evaluation
           name: agent-evaluation-coverage

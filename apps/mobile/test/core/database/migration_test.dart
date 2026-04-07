@@ -15,8 +15,8 @@ import 'package:sahool_field_app/core/database/migrations/migration_verification
 
 void main() {
   group('SchemaVersion', () {
-    test('currentSchemaVersion should be 6', () {
-      expect(currentSchemaVersion, equals(6));
+    test('currentSchemaVersion should be 7', () {
+      expect(currentSchemaVersion, equals(7));
     });
 
     test('minimumSupportedVersion should be 1', () {
@@ -50,8 +50,8 @@ void main() {
     test('SchemaVersionRegistry.isSupported should check version bounds', () {
       expect(SchemaVersionRegistry.isSupported(0), isFalse);
       expect(SchemaVersionRegistry.isSupported(1), isTrue);
-      expect(SchemaVersionRegistry.isSupported(6), isTrue);
-      expect(SchemaVersionRegistry.isSupported(7), isFalse);
+      expect(SchemaVersionRegistry.isSupported(7), isTrue);
+      expect(SchemaVersionRegistry.isSupported(8), isFalse);
     });
 
     test('SchemaVersionRegistry.getVersionsBetween should return correct versions', () {

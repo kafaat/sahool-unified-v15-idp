@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Target,
   AlertTriangle,
@@ -11,9 +11,10 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Search,
+  Loader2,
 } from 'lucide-react';
 
-const statsCards = [
+const defaultStatsCards = [
   {
     title: 'إجمالي الفجوات المكتشفة',
     value: '23',
@@ -67,12 +68,53 @@ export default function GapAnalysisPage() {
   const [dateRange, setDateRange] = useState('month');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error] = useState<string | null>(null);
+  const [apiGapData] = useState<typeof gapData | null>(null);
 
-  const filtered = gapData.filter((row) => {
+  const fetchData = useCallback(async () => {
+    // NOTE: No dedicated analytics API for gap analysis yet.
+    // Using local sample data until backend endpoint is available.
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const displayData = apiGapData ?? gapData;
+
+  const filtered = displayData.filter((row) => {
     if (severityFilter !== 'all' && row.severity !== severityFilter) return false;
     if (searchTerm && !row.field.includes(searchTerm) && !row.category.includes(searchTerm)) return false;
     return true;
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-500">جاري تحميل بيانات الفجوات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button onClick={fetchData} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -111,7 +153,7 @@ export default function GapAnalysisPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statsCards.map((card) => (
+        {defaultStatsCards.map((card) => (
           <div key={card.title} className="rounded-xl bg-white p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
               <div className={`rounded-lg ${card.color} p-2.5`}>

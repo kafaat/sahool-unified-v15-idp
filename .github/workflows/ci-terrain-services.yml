@@ -207,10 +207,10 @@ jobs:
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v5
-        if: always()
-        continue-on-error: true
+        if: always() && secrets.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: ${{ matrix.service }}
           name: ${{ matrix.service }}-coverage

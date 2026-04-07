@@ -222,7 +222,7 @@ def custom_client_identifier(request: Request) -> str:
     # Example: Use organization ID from header
     org_id = request.headers.get("X-Organization-ID")
     if org_id:
-        return f"org:{org_id}"
+        return f"org:{org_id}"  # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
 
     # الرجوع إلى الطريقة الافتراضية
     # Fallback to default method

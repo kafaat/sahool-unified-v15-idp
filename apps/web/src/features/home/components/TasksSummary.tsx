@@ -5,9 +5,10 @@
  * مكون ملخص المهام
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { CheckCircle2, Clock, Calendar, ArrowLeft } from 'lucide-react';
 import { useUpcomingTasks } from '../hooks/useUpcomingTasks';
+import { useCompleteTask, useUpdateTaskStatus } from '@/features/tasks/hooks/useTasks';
 import Link from 'next/link';
 
 interface TaskItemProps {
@@ -79,11 +80,42 @@ const TaskItem: React.FC<
   );
 };
 
+/**
+ * NOTE (testing): This component uses useUpcomingTasks (react-query) internally.
+ * Tests must wrap it in a QueryClientProvider with a dedicated QueryClient instance.
+ */
 export const TasksSummary: React.FC = () => {
   const { data: tasksData, isLoading } = useUpcomingTasks({ limit: 8 });
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const completeTask = useCompleteTask();
+  const updateTaskStatus = useUpdateTaskStatus();
+
+  // Sync completedIds with API data, but preserve in-flight optimistic toggles
+  useEffect(() => {
+    const alreadyCompleted = new Set(
+      (tasksData ?? []).filter((t: TaskItemProps) => t.status === 'completed').map((t: TaskItemProps) => t.id)
+    );
+    setCompletedIds((prev) => {
+      // If there are pending API calls, merge server state with local optimistic state
+      if (pendingIds.size > 0) {
+        const merged = new Set(alreadyCompleted);
+        for (const id of pendingIds) {
+          if (prev.has(id)) merged.add(id);
+          else merged.delete(id);
+        }
+        return merged;
+      }
+      return alreadyCompleted;
+    });
+  }, [tasksData, pendingIds]);
 
   const handleToggleComplete = useCallback((id: string) => {
+    if (pendingIds.has(id)) return; // Prevent double-clicks while API call in-flight
+
+    const isCurrentlyCompleted = completedIds.has(id);
+
+    // Optimistic local update
     setCompletedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -93,7 +125,56 @@ export const TasksSummary: React.FC = () => {
       }
       return next;
     });
-  }, []);
+
+    // Call the real API
+    setPendingIds((prev) => new Set(prev).add(id));
+
+    if (isCurrentlyCompleted) {
+      // Revert to pending status
+      updateTaskStatus.mutate(
+        { id, status: 'pending' },
+        {
+          onError: () => {
+            // Revert optimistic update on failure
+            setCompletedIds((prev) => {
+              const next = new Set(prev);
+              next.add(id);
+              return next;
+            });
+          },
+          onSettled: () => {
+            setPendingIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          },
+        }
+      );
+    } else {
+      // Mark as completed
+      completeTask.mutate(
+        { id },
+        {
+          onError: () => {
+            // Revert optimistic update on failure
+            setCompletedIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          },
+          onSettled: () => {
+            setPendingIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          },
+        }
+      );
+    }
+  }, [completedIds, pendingIds, completeTask, updateTaskStatus]);
 
   if (isLoading) {
     return (

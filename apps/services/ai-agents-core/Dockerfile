@@ -36,8 +36,6 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # Copy shared modules (required for imports from shared/)
 COPY apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy source
 COPY apps/services/ai-agents-core/src/ ./src/

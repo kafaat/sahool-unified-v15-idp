@@ -11,12 +11,13 @@
 /// - v4: Unified Outbox schema with ETag support
 /// - v5: Added migration tracking + metadata columns
 /// - v6: Added CachedUsers and CachedUserProfiles tables
+/// - v7: Added irrigationType, plantingDate, notes to Fields table
 library;
 
 import 'package:drift/drift.dart';
 
 /// Current schema version of the database
-const int currentSchemaVersion = 6;
+const int currentSchemaVersion = 7;
 
 /// Minimum supported schema version for migration
 const int minimumSupportedVersion = 1;
@@ -66,6 +67,7 @@ final DateTime _v3ReleaseDate = DateTime(2024, 9, 1);
 final DateTime _v4ReleaseDate = DateTime(2025, 1, 1);
 final DateTime _v5ReleaseDate = DateTime(2025, 6, 1);
 final DateTime _v6ReleaseDate = DateTime(2026, 3, 1);
+final DateTime _v7ReleaseDate = DateTime(2026, 4, 6);
 
 /// Registry of all schema versions
 class SchemaVersionRegistry {
@@ -110,6 +112,12 @@ class SchemaVersionRegistry {
       description: 'Added CachedUsers and CachedUserProfiles tables',
       descriptionAr: 'اضافة جداول المستخدمين والملفات الشخصية المخزنة مؤقتاً',
       releaseDate: _v6ReleaseDate,
+    ),
+    SchemaVersion(
+      version: 7,
+      description: 'Added irrigationType, plantingDate, notes to Fields table',
+      descriptionAr: 'اضافة نوع الري وتاريخ الزراعة والملاحظات لجدول الحقول',
+      releaseDate: _v7ReleaseDate,
     ),
   ];
 

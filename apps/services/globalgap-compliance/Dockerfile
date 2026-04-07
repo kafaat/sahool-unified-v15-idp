@@ -55,8 +55,6 @@ COPY shared/ ./shared/
 # Copy services shared modules overlay (shared.errors_py, etc.)
 COPY apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy source code | نسخ الكود المصدري
 COPY apps/services/globalgap-compliance/src/ ./src/

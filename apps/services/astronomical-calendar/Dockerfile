@@ -68,8 +68,6 @@ COPY --chown=sahool:sahool shared/ ./shared/
 # Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Copy application code
 COPY --chown=sahool:sahool apps/services/astronomical-calendar/src/ ./src/

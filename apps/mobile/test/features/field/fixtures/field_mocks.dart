@@ -63,6 +63,9 @@ Field createMockDbField({
   LatLng? centroid,
   double areaHectares = 5.0,
   String? status = 'active',
+  String? irrigationType,
+  DateTime? plantingDate,
+  String? notes,
   double? ndviCurrent,
   DateTime? ndviUpdatedAt,
   bool synced = true,
@@ -84,6 +87,9 @@ Field createMockDbField({
     centroid: centroid,
     areaHectares: areaHectares,
     status: status,
+    irrigationType: irrigationType,
+    plantingDate: plantingDate,
+    notes: notes,
     ndviCurrent: ndviCurrent,
     ndviUpdatedAt: ndviUpdatedAt,
     synced: synced,
@@ -162,6 +168,12 @@ class _TestField extends Fake implements Field {
   @override
   final String? status;
   @override
+  final String? irrigationType;
+  @override
+  final DateTime? plantingDate;
+  @override
+  final String? notes;
+  @override
   final double? ndviCurrent;
   @override
   final DateTime? ndviUpdatedAt;
@@ -189,6 +201,9 @@ class _TestField extends Fake implements Field {
     this.centroid,
     required this.areaHectares,
     this.status,
+    this.irrigationType,
+    this.plantingDate,
+    this.notes,
     this.ndviCurrent,
     this.ndviUpdatedAt,
     required this.synced,

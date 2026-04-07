@@ -152,8 +152,6 @@ COPY shared/ ./shared/
 # Copy services shared modules (needed for errors_py module)
 COPY apps/services/shared/ ./apps/services/shared/
 
-# Resolve errors_py file/package ambiguity
-RUN rm -f ./shared/errors_py.py
 
 # Create compatibility layer: copy errors_py to shared/errors_py so imports work
 RUN cp -r ./apps/services/shared/errors_py ./shared/ || true

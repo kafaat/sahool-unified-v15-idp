@@ -105,10 +105,10 @@ services:
     port: 3023
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Only starts with --profile deprecated in docker-compose; use advisory-service for recommendations
     owner: "agro-team@sahool.io"
     team: agro
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-1
     events:
       produces:
@@ -255,10 +255,10 @@ services:
     port: 3022
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Only starts with --profile deprecated in docker-compose; use vegetation-analysis-service for indices
     owner: "data-team@sahool.io"
     team: data
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-2
     events:
       produces:

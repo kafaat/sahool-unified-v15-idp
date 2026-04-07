@@ -11,6 +11,7 @@
  */
 
 import { logger } from '../logger';
+import Cookies from 'js-cookie';
 
 // ---------------------------------------------------------------------------
 // Types (inline to avoid importing the 510-line types.ts)
@@ -63,6 +64,15 @@ class AuthApiClient {
 
   clearToken() {
     this.token = null;
+
+    // Clear cookies to prevent stale tokens from being sent
+    if (typeof window !== 'undefined') {
+      Cookies.remove('access_token', { path: '/' });
+      Cookies.remove('refresh_token', { path: '/' });
+      // Legacy path-scoped removal (cookies set without explicit path)
+      Cookies.remove('access_token');
+      Cookies.remove('refresh_token');
+    }
   }
 
   // -------------------------------------------------------------------------

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Package, Plus, Search, AlertTriangle } from 'lucide-react';
-import { useInventory, useInventoryStats } from '@/features/inventory';
+import { Package, Plus, Search, AlertTriangle, X } from 'lucide-react';
+import { useInventory, useInventoryStats, useUpdateInventory } from '@/features/inventory';
 import type { InventoryItem, InventoryCategory } from '@/features/inventory';
 
 const categories: Array<{ value: InventoryCategory | 'all'; label: string; labelAr: string }> = [
@@ -18,6 +18,10 @@ const categories: Array<{ value: InventoryCategory | 'all'; label: string; label
 export default function InventoryClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<InventoryCategory | 'all'>('all');
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [editQuantity, setEditQuantity] = useState(0);
+  const [editPurchasePrice, setEditPurchasePrice] = useState(0);
+  const [editNotes, setEditNotes] = useState('');
 
   // Fetch data using React Query hooks
   const {
@@ -26,6 +30,22 @@ export default function InventoryClient() {
     error,
   } = useInventory(selectedCategory !== 'all' ? { category: selectedCategory } : undefined);
   const { data: stats } = useInventoryStats();
+  const updateInventory = useUpdateInventory();
+
+  const handleOpenEdit = (item: InventoryItem) => {
+    setEditingItem(item);
+    setEditQuantity(item.quantity);
+    setEditPurchasePrice(item.purchasePrice);
+    setEditNotes(item.notes ?? '');
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingItem) return;
+    updateInventory.mutate(
+      { id: editingItem.id, data: { quantity: editQuantity, purchasePrice: editPurchasePrice, notes: editNotes || undefined } },
+      { onSuccess: () => setEditingItem(null) }
+    );
+  };
 
   // Filter inventory based on search term
   const filteredInventory = useMemo(() => {
@@ -81,6 +101,39 @@ export default function InventoryClient() {
 
   return (
     <div className="space-y-6">
+      {/* Edit Dialog */}
+      {editingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setEditingItem(null)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">تعديل العنصر</h2>
+            <p className="text-sm text-gray-500 mb-4">{editingItem.nameAr} ({editingItem.name})</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الكمية ({editingItem.unitAr || editingItem.unit})</label>
+                <input type="number" value={editQuantity} onChange={(e) => setEditQuantity(Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">سعر الشراء (ريال)</label>
+                <input type="number" value={editPurchasePrice} onChange={(e) => setEditPurchasePrice(Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">ملاحظات</label>
+                <textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setEditingItem(null)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleSaveEdit} disabled={updateInventory.isPending} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {updateInventory.isPending ? 'جاري الحفظ...' : 'حفظ'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -206,7 +259,10 @@ export default function InventoryClient() {
                     </td>
                     <td className="px-4 py-3">{getStatusBadge(item.status)}</td>
                     <td className="px-4 py-3">
-                      <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
+                      <button
+                        onClick={() => handleOpenEdit(item)}
+                        className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
+                      >
                         تعديل
                       </button>
                     </td>

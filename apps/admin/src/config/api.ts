@@ -701,6 +701,15 @@ export const API_URLS = {
       `${SERVICE_URLS.traceability}${API_PATHS.traceability.qrCode(batchId)}`,
   },
 
+  // Community endpoints
+  community: {
+    posts: `${SERVICE_URLS.communityChat}${API_PATHS.community.posts}`,
+    postById: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.postById(id)}`,
+    comments: (postId: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.comments(postId)}`,
+    approvePost: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.approvePost(id)}`,
+    hidePost: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.hidePost(id)}`,
+  },
+
   // Vision endpoints
   visionEndpoints: {
     detectPest: `${SERVICE_URLS.yoloVision}${API_PATHS.vision.detectPest}`,

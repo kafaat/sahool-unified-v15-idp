@@ -36,9 +36,9 @@ void main() {
 
         expect(wsUrl, isNotEmpty);
         expect(
-          wsUrl.startsWith('ws://') || wsUrl.startsWith('wss://'),
+          wsUrl.startsWith('ws://') || wsUrl.startsWith('wss://'), // nosemgrep: detect-insecure-websocket -- test validates both ws:// and wss:// schemes
           isTrue,
-          reason: 'WebSocket URL should start with ws:// or wss://',
+          reason: 'WebSocket URL should start with ws:// or wss://', // nosemgrep: detect-insecure-websocket -- test assertion message
         );
       });
     });

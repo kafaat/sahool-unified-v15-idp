@@ -9,7 +9,7 @@ import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import { cn } from '@/lib/utils';
 import { adminApiClient as apiClient } from '@/lib/api';
-import { IRRIGATION_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
+import { IRRIGATION_ENDPOINTS } from '@sahool/shared-types/contracts';
 import { logger } from '../../../lib/logger';
 import {
   Droplets,

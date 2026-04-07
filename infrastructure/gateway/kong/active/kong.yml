@@ -1731,6 +1731,84 @@ services:
     protocols:
     - http
     - https
+- name: yolo26-vision-service-health
+  host: yolo26-vision-service
+  port: 8150
+  protocol: http
+  routes:
+  - name: yolo26-vision-service-health-route
+    paths:
+    - /api/v1/vision/healthz
+    - /api/v1/vision/readyz
+    strip_path: false
+    protocols:
+    - http
+    - https
+- name: terrain-core-service-health
+  host: terrain-core-service
+  port: 8185
+  protocol: http
+  routes:
+  - name: terrain-core-service-health-route
+    paths:
+    - /api/v1/terrain/healthz
+    - /api/v1/terrain/readyz
+    strip_path: false
+    protocols:
+    - http
+    - https
+- name: hydrology-service-health
+  host: hydrology-service
+  port: 8165
+  protocol: http
+  routes:
+  - name: hydrology-service-health-route
+    paths:
+    - /api/v1/hydrology/healthz
+    - /api/v1/hydrology/readyz
+    strip_path: false
+    protocols:
+    - http
+    - https
+- name: leveling-optimizer-service-health
+  host: leveling-optimizer-service
+  port: 8170
+  protocol: http
+  routes:
+  - name: leveling-optimizer-service-health-route
+    paths:
+    - /api/v1/leveling/healthz
+    - /api/v1/leveling/readyz
+    strip_path: false
+    protocols:
+    - http
+    - https
+- name: edge-orchestrator-service-health
+  host: edge-orchestrator-service
+  port: 8180
+  protocol: http
+  routes:
+  - name: edge-orchestrator-service-health-route
+    paths:
+    - /api/v1/edge/healthz
+    - /api/v1/edge/readyz
+    strip_path: false
+    protocols:
+    - http
+    - https
+- name: whatsapp-bot-service-health
+  host: whatsapp-bot-service
+  port: 8240
+  protocol: http
+  routes:
+  - name: whatsapp-bot-service-health-route
+    paths:
+    - /api/v1/whatsapp/healthz
+    - /api/v1/whatsapp/readyz
+    strip_path: false
+    protocols:
+    - http
+    - https
 - name: root-endpoint
   url: http://kong:8000
   routes:

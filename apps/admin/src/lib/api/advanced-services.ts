@@ -25,12 +25,15 @@ const fetchDefaults: RequestInit = {
  * Download an array of objects as a CSV file
  * تحميل مصفوفة من الكائنات كملف CSV
  */
-export function downloadCSV(data: Record<string, unknown>[], filename: string): void {
+export function downloadCSV(data: Record<string, unknown>[] | object[], filename: string): void {
   if (data.length === 0 || !data[0]) return;
-  const headers = Object.keys(data[0]);
+  const rows = data as Record<string, unknown>[];
+  const first = rows[0];
+  if (!first) return;
+  const headers = Object.keys(first);
   const csvRows = [
     headers.join(','),
-    ...data.map((row) =>
+    ...rows.map((row) =>
       headers
         .map((h) => {
           const val = row[h];

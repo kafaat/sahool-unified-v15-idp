@@ -283,7 +283,7 @@ export default function FarmsPage() {
             />
           </button>
           <button
-            onClick={() => downloadCSV(farms as Record<string, unknown>[], 'farms')}
+            onClick={() => downloadCSV(farms, 'farms')}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تصدير CSV"
           >

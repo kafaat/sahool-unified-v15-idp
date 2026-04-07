@@ -603,7 +603,7 @@ function adaptApiCooperative(api: ApiCooperative): Cooperative {
     memberCount: api.member_count ?? 0,
     sharedResources: 0,
     totalRevenue: 0,
-    status: api.status === 'active' ? 'active' : api.status === 'inactive' ? 'inactive' : 'pending',
+    status: api.status === 'active' ? 'active' : api.status === 'inactive' ? 'suspended' : 'pending',
     foundedDate: api.created_at ?? '',
     chairman: '',
     members: [],

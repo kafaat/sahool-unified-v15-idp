@@ -305,7 +305,7 @@ export default function LogisticsPage() {
             />
           </button>
           <button
-            onClick={() => downloadCSV(shipments as Record<string, unknown>[], 'shipments')}
+            onClick={() => downloadCSV(shipments, 'shipments')}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تصدير CSV"
           >

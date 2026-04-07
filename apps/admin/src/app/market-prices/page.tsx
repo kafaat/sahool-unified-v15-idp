@@ -614,7 +614,7 @@ function adaptApiMarketPrice(api: ApiMarketPrice): MarketPrice {
     changePercent: api.change_pct ?? 0,
     market: api.market ?? '',
     marketEn: api.market ?? '',
-    quality: 'A',
+    quality: 'GRADE_A',
     trend,
     lastUpdated: api.date ?? '',
     category: api.crop_type ?? '',
@@ -795,7 +795,7 @@ export default function MarketPricesPage() {
               />
             </button>
             <button
-              onClick={() => downloadCSV(filteredPrices as Record<string, unknown>[], 'market-prices')}
+              onClick={() => downloadCSV(filteredPrices, 'market-prices')}
               className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               title="تصدير CSV"
             >

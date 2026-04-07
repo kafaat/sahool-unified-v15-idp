@@ -110,7 +110,7 @@ export const auditService = {
       return await response.json() as PaginatedResponse<AuditLog>;
     } catch (error) {
       logger.error('Failed to load audit logs:', error);
-      return { data: [], meta: { total: 0, page: 1, totalPages: 1 } };
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
     }
   },
 
@@ -220,7 +220,7 @@ export const terrainService = {
       return await response.json() as PaginatedResponse<TerrainAnalysis>;
     } catch (error) {
       logger.error('Failed to load terrain analyses:', error);
-      return { data: [], meta: { total: 0, page: 1, totalPages: 1 } };
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
     }
   },
 };
@@ -262,7 +262,7 @@ export const edgeService = {
       return await response.json() as PaginatedResponse<EdgeDevice>;
     } catch (error) {
       logger.error('Failed to load edge devices:', error);
-      return { data: [], meta: { total: 0, page: 1, totalPages: 1 } };
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
     }
   },
 
@@ -325,7 +325,7 @@ export const droneService = {
       return await response.json() as PaginatedResponse<DroneDevice>;
     } catch (error) {
       logger.error('Failed to load drones:', error);
-      return { data: [], meta: { total: 0, page: 1, totalPages: 1 } };
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
     }
   },
 
@@ -348,7 +348,7 @@ export const droneService = {
       return await response.json() as PaginatedResponse<DroneFlight>;
     } catch (error) {
       logger.error('Failed to load drone flights:', error);
-      return { data: [], meta: { total: 0, page: 1, totalPages: 1 } };
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
     }
   },
 };
@@ -390,7 +390,7 @@ export const virtualSensorService = {
       return await response.json() as PaginatedResponse<VirtualSensor>;
     } catch (error) {
       logger.error('Failed to load virtual sensors:', error);
-      return { data: [], meta: { total: 0, page: 1, totalPages: 1 } };
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
     }
   },
 };
@@ -434,7 +434,432 @@ export const scoutingService = {
       return await response.json() as PaginatedResponse<ScoutingReport>;
     } catch (error) {
       logger.error('Failed to load scouting reports:', error);
-      return { data: [], meta: { total: 0, page: 1, totalPages: 1 } };
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
+};
+
+// =============================================================================
+// Cooperative Service | خدمة التعاونيات
+// =============================================================================
+
+/** تعاونية — Cooperative */
+export interface Cooperative {
+  id: string;
+  name: string;
+  name_ar: string;
+  region: string;
+  member_count: number;
+  status: 'active' | 'inactive' | 'pending';
+  created_at: string;
+  total_area_ha: number;
+  crops: string[];
+}
+
+/** إحصائيات التعاونيات — Cooperative statistics */
+export interface CooperativeStats {
+  total_cooperatives: number;
+  active_cooperatives: number;
+  total_members: number;
+  total_area_ha: number;
+  top_crops: Array<{ crop: string; count: number }>;
+}
+
+const COOPERATIVE_URL = `${SERVICE_URLS.cooperative}/api/v1/cooperatives`;
+
+export const cooperativeService = {
+  /** جلب التعاونيات — Fetch cooperatives */
+  async list(
+    params?: PaginationParams & { status?: string; region?: string }
+  ): Promise<PaginatedResponse<Cooperative>> {
+    try {
+      const qp = new URLSearchParams();
+      if (params?.page) qp.set('page', params.page.toString());
+      if (params?.limit) qp.set('limit', params.limit.toString());
+      if (params?.search) qp.set('search', params.search);
+      if (params?.status) qp.set('status', params.status);
+      if (params?.region) qp.set('region', params.region);
+      const response = await fetch(`${COOPERATIVE_URL}?${qp}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as PaginatedResponse<Cooperative>;
+    } catch (error) {
+      logger.error('Failed to load cooperatives:', error);
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
+
+  /** جلب تعاونية بالمعرف — Get cooperative by ID */
+  async getById(id: string): Promise<Cooperative | null> {
+    try {
+      const response = await fetch(`${COOPERATIVE_URL}/${id}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as Cooperative;
+    } catch (error) {
+      logger.error('Failed to load cooperative:', error);
+      return null;
+    }
+  },
+
+  /** إحصائيات التعاونيات — Fetch cooperative stats */
+  async getStats(): Promise<CooperativeStats> {
+    try {
+      const response = await fetch(`${COOPERATIVE_URL}/stats`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as CooperativeStats;
+    } catch (error) {
+      logger.error('Failed to load cooperative stats:', error);
+      return { total_cooperatives: 0, active_cooperatives: 0, total_members: 0, total_area_ha: 0, top_crops: [] };
+    }
+  },
+};
+
+// =============================================================================
+// Compliance Service (GlobalGAP) | خدمة الامتثال
+// =============================================================================
+
+/** سجل امتثال — Compliance record */
+export interface ComplianceRecord {
+  id: string;
+  farm_id: string;
+  standard: string;
+  version: string;
+  status: 'compliant' | 'non_compliant' | 'pending_review' | 'in_progress';
+  score: number;
+  audit_date: string;
+  next_audit_date: string;
+  findings: number;
+}
+
+/** إحصائيات الامتثال — Compliance statistics */
+export interface ComplianceStats {
+  total_records: number;
+  compliant_count: number;
+  non_compliant_count: number;
+  average_score: number;
+  upcoming_audits: number;
+}
+
+const COMPLIANCE_URL = `${SERVICE_URLS.globalgap}/api/v1/compliance`;
+
+export const complianceService = {
+  /** جلب سجلات الامتثال — Fetch compliance records */
+  async list(
+    params?: PaginationParams & { status?: string; standard?: string }
+  ): Promise<PaginatedResponse<ComplianceRecord>> {
+    try {
+      const qp = new URLSearchParams();
+      if (params?.page) qp.set('page', params.page.toString());
+      if (params?.limit) qp.set('limit', params.limit.toString());
+      if (params?.search) qp.set('search', params.search);
+      if (params?.status) qp.set('status', params.status);
+      if (params?.standard) qp.set('standard', params.standard);
+      const response = await fetch(`${COMPLIANCE_URL}?${qp}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as PaginatedResponse<ComplianceRecord>;
+    } catch (error) {
+      logger.error('Failed to load compliance records:', error);
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
+
+  /** إحصائيات الامتثال — Fetch compliance stats */
+  async getStats(): Promise<ComplianceStats> {
+    try {
+      const response = await fetch(`${COMPLIANCE_URL}/stats`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as ComplianceStats;
+    } catch (error) {
+      logger.error('Failed to load compliance stats:', error);
+      return { total_records: 0, compliant_count: 0, non_compliant_count: 0, average_score: 0, upcoming_audits: 0 };
+    }
+  },
+};
+
+// =============================================================================
+// Disaster Assessment Service | خدمة تقييم الكوارث
+// =============================================================================
+
+/** تقييم كارثة — Disaster assessment */
+export interface DisasterAssessment {
+  id: string;
+  field_id: string;
+  disaster_type: 'flood' | 'drought' | 'frost' | 'hail' | 'pest_outbreak' | 'disease_outbreak' | 'fire';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'reported' | 'assessed' | 'mitigated' | 'resolved';
+  reported_at: string;
+  assessed_at?: string;
+  affected_area_ha: number;
+  estimated_loss: number;
+  description: string;
+}
+
+const DISASTER_URL = `${SERVICE_URLS.disasterAssessment}/api/v1/disasters`;
+
+export const disasterService = {
+  /** جلب تقييمات الكوارث — Fetch disaster assessments */
+  async list(
+    params?: PaginationParams & { disaster_type?: string; severity?: string; status?: string }
+  ): Promise<PaginatedResponse<DisasterAssessment>> {
+    try {
+      const qp = new URLSearchParams();
+      if (params?.page) qp.set('page', params.page.toString());
+      if (params?.limit) qp.set('limit', params.limit.toString());
+      if (params?.search) qp.set('search', params.search);
+      if (params?.disaster_type) qp.set('disaster_type', params.disaster_type);
+      if (params?.severity) qp.set('severity', params.severity);
+      if (params?.status) qp.set('status', params.status);
+      const response = await fetch(`${DISASTER_URL}?${qp}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as PaginatedResponse<DisasterAssessment>;
+    } catch (error) {
+      logger.error('Failed to load disaster assessments:', error);
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
+
+  /** جلب تقييم بالمعرف — Get assessment by ID */
+  async getById(id: string): Promise<DisasterAssessment | null> {
+    try {
+      const response = await fetch(`${DISASTER_URL}/${id}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as DisasterAssessment;
+    } catch (error) {
+      logger.error('Failed to load disaster assessment:', error);
+      return null;
+    }
+  },
+};
+
+// =============================================================================
+// Insurance Service | خدمة التأمين الزراعي
+// =============================================================================
+
+/** وثيقة تأمين — Insurance policy */
+export interface InsurancePolicy {
+  id: string;
+  farm_id: string;
+  policy_number: string;
+  crop_type: string;
+  coverage_type: string;
+  premium: number;
+  coverage_amount: number;
+  start_date: string;
+  end_date: string;
+  status: 'active' | 'expired' | 'cancelled' | 'pending';
+}
+
+/** مطالبة تأمين — Insurance claim */
+export interface InsuranceClaim {
+  id: string;
+  policy_id: string;
+  claim_number: string;
+  disaster_type: string;
+  claim_amount: number;
+  approved_amount?: number;
+  status: 'submitted' | 'under_review' | 'approved' | 'rejected' | 'paid';
+  submitted_at: string;
+  resolved_at?: string;
+}
+
+/** إحصائيات التأمين — Insurance statistics */
+export interface InsuranceStats {
+  total_policies: number;
+  active_policies: number;
+  total_claims: number;
+  pending_claims: number;
+  total_premium: number;
+  total_paid_claims: number;
+}
+
+const INSURANCE_URL = `${SERVICE_URLS.advisory}/api/v1/insurance`;
+
+export const insuranceService = {
+  /** جلب وثائق التأمين — Fetch insurance policies */
+  async listPolicies(
+    params?: PaginationParams & { status?: string; crop_type?: string }
+  ): Promise<PaginatedResponse<InsurancePolicy>> {
+    try {
+      const qp = new URLSearchParams();
+      if (params?.page) qp.set('page', params.page.toString());
+      if (params?.limit) qp.set('limit', params.limit.toString());
+      if (params?.search) qp.set('search', params.search);
+      if (params?.status) qp.set('status', params.status);
+      if (params?.crop_type) qp.set('crop_type', params.crop_type);
+      const response = await fetch(`${INSURANCE_URL}/policies?${qp}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as PaginatedResponse<InsurancePolicy>;
+    } catch (error) {
+      logger.error('Failed to load insurance policies:', error);
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
+
+  /** جلب مطالبات التأمين — Fetch insurance claims */
+  async listClaims(
+    params?: PaginationParams & { status?: string; policy_id?: string }
+  ): Promise<PaginatedResponse<InsuranceClaim>> {
+    try {
+      const qp = new URLSearchParams();
+      if (params?.page) qp.set('page', params.page.toString());
+      if (params?.limit) qp.set('limit', params.limit.toString());
+      if (params?.search) qp.set('search', params.search);
+      if (params?.status) qp.set('status', params.status);
+      if (params?.policy_id) qp.set('policy_id', params.policy_id);
+      const response = await fetch(`${INSURANCE_URL}/claims?${qp}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as PaginatedResponse<InsuranceClaim>;
+    } catch (error) {
+      logger.error('Failed to load insurance claims:', error);
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
+
+  /** إحصائيات التأمين — Fetch insurance stats */
+  async getStats(): Promise<InsuranceStats> {
+    try {
+      const response = await fetch(`${INSURANCE_URL}/stats`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as InsuranceStats;
+    } catch (error) {
+      logger.error('Failed to load insurance stats:', error);
+      return { total_policies: 0, active_policies: 0, total_claims: 0, pending_claims: 0, total_premium: 0, total_paid_claims: 0 };
+    }
+  },
+};
+
+// =============================================================================
+// Market Price Service | خدمة أسعار السوق
+// =============================================================================
+
+/** سعر سوقي — Market price entry */
+export interface MarketPrice {
+  id: string;
+  crop_type: string;
+  market: string;
+  price: number;
+  currency: string;
+  unit: string;
+  date: string;
+  change_pct: number;
+  source: string;
+}
+
+/** إحصائيات الأسعار — Market price statistics */
+export interface MarketPriceStats {
+  total_entries: number;
+  markets_tracked: number;
+  crops_tracked: number;
+  last_updated: string;
+  top_gainers: Array<{ crop: string; change_pct: number }>;
+  top_losers: Array<{ crop: string; change_pct: number }>;
+}
+
+const MARKET_PRICE_URL = `${SERVICE_URLS.advisory}/api/v1/market-prices`;
+
+export const marketPriceService = {
+  /** جلب أسعار السوق — Fetch market prices */
+  async list(
+    params?: PaginationParams & { crop_type?: string; market?: string }
+  ): Promise<PaginatedResponse<MarketPrice>> {
+    try {
+      const qp = new URLSearchParams();
+      if (params?.page) qp.set('page', params.page.toString());
+      if (params?.limit) qp.set('limit', params.limit.toString());
+      if (params?.search) qp.set('search', params.search);
+      if (params?.crop_type) qp.set('crop_type', params.crop_type);
+      if (params?.market) qp.set('market', params.market);
+      const response = await fetch(`${MARKET_PRICE_URL}?${qp}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as PaginatedResponse<MarketPrice>;
+    } catch (error) {
+      logger.error('Failed to load market prices:', error);
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
+
+  /** إحصائيات الأسعار — Fetch market price stats */
+  async getStats(): Promise<MarketPriceStats> {
+    try {
+      const response = await fetch(`${MARKET_PRICE_URL}/stats`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as MarketPriceStats;
+    } catch (error) {
+      logger.error('Failed to load market price stats:', error);
+      return { total_entries: 0, markets_tracked: 0, crops_tracked: 0, last_updated: '', top_gainers: [], top_losers: [] };
+    }
+  },
+};
+
+// =============================================================================
+// Season Service (Astronomical Calendar) | خدمة المواسم والتقويم الفلكي
+// =============================================================================
+
+/** موسم زراعي — Agricultural season */
+export interface Season {
+  id: string;
+  name: string;
+  name_ar: string;
+  type: 'planting' | 'growing' | 'harvest' | 'fallow';
+  start_date: string;
+  end_date: string;
+  region: string;
+  crops: string[];
+  is_current: boolean;
+}
+
+/** إحصائيات المواسم — Season statistics */
+export interface SeasonStats {
+  total_seasons: number;
+  current_season: string;
+  current_season_ar: string;
+  upcoming_events: Array<{ event: string; event_ar: string; date: string }>;
+  active_crops: number;
+}
+
+const SEASON_URL = `${SERVICE_URLS.astronomicalCalendar}/api/v1/seasons`;
+
+export const seasonService = {
+  /** جلب المواسم — Fetch seasons */
+  async list(
+    params?: PaginationParams & { type?: string; region?: string }
+  ): Promise<PaginatedResponse<Season>> {
+    try {
+      const qp = new URLSearchParams();
+      if (params?.page) qp.set('page', params.page.toString());
+      if (params?.limit) qp.set('limit', params.limit.toString());
+      if (params?.search) qp.set('search', params.search);
+      if (params?.type) qp.set('type', params.type);
+      if (params?.region) qp.set('region', params.region);
+      const response = await fetch(`${SEASON_URL}?${qp}`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as PaginatedResponse<Season>;
+    } catch (error) {
+      logger.error('Failed to load seasons:', error);
+      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+    }
+  },
+
+  /** جلب الموسم الحالي — Get current season */
+  async getCurrent(): Promise<Season | null> {
+    try {
+      const response = await fetch(`${SEASON_URL}/current`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as Season;
+    } catch (error) {
+      logger.error('Failed to load current season:', error);
+      return null;
+    }
+  },
+
+  /** إحصائيات المواسم — Fetch season stats */
+  async getStats(): Promise<SeasonStats> {
+    try {
+      const response = await fetch(`${SEASON_URL}/stats`, fetchDefaults);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json() as SeasonStats;
+    } catch (error) {
+      logger.error('Failed to load season stats:', error);
+      return { total_seasons: 0, current_season: '', current_season_ar: '', upcoming_events: [], active_crops: 0 };
     }
   },
 };

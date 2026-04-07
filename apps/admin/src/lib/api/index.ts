@@ -57,6 +57,29 @@ export {
 import coreServices from './services';
 import extendedServices from './extended-services';
 
+export {
+  // Advanced Services
+  cooperativeService,
+  complianceService,
+  disasterService,
+  insuranceService,
+  marketPriceService,
+  seasonService,
+  // Advanced Service Types
+  type Cooperative,
+  type CooperativeStats,
+  type ComplianceRecord,
+  type ComplianceStats,
+  type DisasterAssessment,
+  type InsurancePolicy,
+  type InsuranceClaim,
+  type InsuranceStats,
+  type MarketPrice,
+  type MarketPriceStats,
+  type Season,
+  type SeasonStats,
+} from './advanced-services';
+
 export const apiServices = {
   ...coreServices,
   ...extendedServices,

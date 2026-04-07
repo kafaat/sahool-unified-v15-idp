@@ -159,6 +159,7 @@ export const SERVICE_PORTS = {
   // Community & Business
   marketplace: UNIFIED_PORTS.MARKETPLACE,
   research: UNIFIED_PORTS.RESEARCH_CORE,
+  disasterAssessment: UNIFIED_PORTS.DISASTER_ASSESSMENT,
 
   // Vision & Terrain
   yoloVision: UNIFIED_PORTS.YOLO_VISION,
@@ -269,6 +270,7 @@ export const SERVICE_URLS = {
   // Community & Business
   marketplace: getServiceUrl(SERVICE_PORTS.marketplace),
   research: getServiceUrl(SERVICE_PORTS.research),
+  disasterAssessment: getServiceUrl(SERVICE_PORTS.disasterAssessment),
 
   // Vision & Terrain
   yoloVision: getServiceUrl(SERVICE_PORTS.yoloVision),
@@ -559,6 +561,7 @@ export const API_URLS = {
   communityChat: SERVICE_URLS.communityChat,
   marketplace: SERVICE_URLS.marketplace,
   research: SERVICE_URLS.research,
+  disasterAssessment: SERVICE_URLS.disasterAssessment,
   drone: SERVICE_URLS.drone,
   soilAnalysis: SERVICE_URLS.soilAnalysis,
   traceability: SERVICE_URLS.traceability,
@@ -857,6 +860,7 @@ export type ServiceName =
   // Community & Business
   | 'marketplace'
   | 'research'
+  | 'disaster-assessment'
   // Vision & Terrain
   | 'yolo-vision'
   | 'terrain-core'

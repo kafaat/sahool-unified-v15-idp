@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import AlertBadge from '@/components/ui/AlertBadge';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { fetchDiagnoses, updateDiagnosisStatus } from '@/lib/api';
+import { fetchDiagnoses, updateDiagnosisStatus, downloadCSV } from '@/lib/api';
 import { formatDate, cn } from '@/lib/utils';
 import type { DiagnosisRecord } from '@/types';
 import { logger } from '../../lib/logger';
@@ -224,9 +224,9 @@ function DiseasesContent() {
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(diagnoses as Record<string, unknown>[], 'diagnoses.csv')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>

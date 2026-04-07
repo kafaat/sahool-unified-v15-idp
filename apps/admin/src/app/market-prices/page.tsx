@@ -6,6 +6,7 @@
 import React, { useState, useMemo } from 'react';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
+import { downloadCSV } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
   TrendingUp,
@@ -746,9 +747,9 @@ export default function MarketPricesPage() {
               />
             </button>
             <button
-              disabled
-              className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              title="تصدير (قريبًا)"
+              onClick={() => downloadCSV(filteredPrices as Record<string, unknown>[], 'market-prices.csv')}
+              className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              title="تصدير CSV"
             >
               <Download className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </button>

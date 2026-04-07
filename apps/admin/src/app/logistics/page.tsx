@@ -20,7 +20,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { logger } from '../../lib/logger';
-import { apiClient } from '@/lib/api';
+import { apiClient, downloadCSV } from '@/lib/api';
 import { LOGISTICS_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type { Shipment } from './logistics.mock';
 
@@ -305,9 +305,9 @@ export default function LogisticsPage() {
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(shipments as Record<string, unknown>[], 'shipments.csv')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>

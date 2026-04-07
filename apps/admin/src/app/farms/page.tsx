@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import StatusBadge from '@/components/ui/StatusBadge';
 import DataTable from '@/components/ui/DataTable';
-import { fetchFarms } from '@/lib/api';
+import { fetchFarms, downloadCSV } from '@/lib/api';
 import { formatDate, formatArea, getHealthScoreColor, cn } from '@/lib/utils';
 import type { Farm } from '@/types';
 import type { BaseFarmData } from '@/components/maps/FarmsMap';
@@ -283,9 +283,9 @@ export default function FarmsPage() {
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(farms as Record<string, unknown>[], 'farms.csv')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>

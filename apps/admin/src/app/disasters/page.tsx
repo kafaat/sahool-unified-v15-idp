@@ -21,6 +21,7 @@ import {
   MapPin,
   DollarSign,
 } from 'lucide-react';
+import { downloadCSV } from '@/lib/api';
 import { logger } from '../../lib/logger';
 import { MOCK_REPORTS } from './disasters.mock';
 import type { DisasterReport } from './disasters.mock';
@@ -336,9 +337,9 @@ export default function DisastersPage() {
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(reports as Record<string, unknown>[], 'disaster-reports.csv')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>

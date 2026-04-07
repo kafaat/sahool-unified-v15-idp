@@ -93,7 +93,7 @@
     "serialize-javascript": ">=7.0.3",
     "minimatch": ">=10.2.3",
     "multer": "2.1.1",
-    "nodemailer": ">=7.0.11",
+    "nodemailer": ">=8.0.4",
     "@angular-devkit/core": {
       "ajv": "8.18.0"
     },
@@ -102,7 +102,13 @@
     },
     "file-type": "21.3.3",
     "prisma": "~5.22.0",
-    "@prisma/client": "~5.22.0"
+    "@prisma/client": "~5.22.0",
+    "handlebars": ">=4.7.9",
+    "path-to-regexp": ">=0.1.13",
+    "socket.io-parser": ">=4.2.6",
+    "smol-toml": ">=1.6.1",
+    "yaml": ">=2.8.3",
+    "next": "15.5.14"
   },
   "engines": {
     "node": ">=20.0.0",

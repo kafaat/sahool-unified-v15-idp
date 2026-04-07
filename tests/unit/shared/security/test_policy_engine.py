@@ -455,15 +455,14 @@ class TestHasPermission:
         assert engine._has_permission(ctx, "fieldops:task.read") is True
 
     def test_no_scope_no_super_admin(self):
-        """Without scopes or super_admin, permissions are not granted"""
+        """Viewer role has fieldops:task.read via RBAC role grants"""
         engine = PolicyEngine()
         ctx = PolicyContext(roles=["viewer"])
         # After fixing has_permission signature mismatch (P1-3), the role-based
         # path now correctly passes a dict to has_permission() instead of a list.
-        # A "viewer" role should have limited permissions, so fieldops:task.read
-        # depends on whether the RBAC module grants it to viewers.
+        # The viewer role is granted fieldops:task.read in shared/security/rbac.py.
         result = engine._has_permission(ctx, "fieldops:task.read")
-        assert isinstance(result, bool)
+        assert result is True
 
     def test_invalid_role_raises_attribute_error(self):
         """Invalid role enum value raises ValueError which is caught"""

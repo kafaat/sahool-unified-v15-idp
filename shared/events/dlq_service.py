@@ -415,14 +415,20 @@ def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
     # Auth dependency - DLQ management requires admin role
     try:
         from shared.auth.dependencies import require_roles
+    except ImportError as exc:
+        logger.exception(
+            "DLQ endpoints require shared.auth.dependencies.require_roles; "
+            "refusing to create unprotected router"
+        )
+        raise RuntimeError(
+            "DLQ router requires admin authentication dependency "
+            "'shared.auth.dependencies.require_roles'"
+        ) from exc
 
-        admin_required = Depends(require_roles("admin", "super_admin"))
-    except ImportError:
-        logger.warning("shared.auth not available; DLQ endpoints unprotected")
-        admin_required = None
+    admin_required = Depends(require_roles("admin", "super_admin"))
 
     # Build common dependencies list
-    _deps = [admin_required] if admin_required is not None else []
+    _deps = [admin_required]
 
     # NOTE: Lifecycle management (connect/close) is handled by the application
     # lifespan in create_app(), not via deprecated router.on_event hooks.

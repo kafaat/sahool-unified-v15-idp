@@ -144,13 +144,20 @@ class ToolGuard:
                     self._record_block("custom_validator", context, custom_decision)
                     return custom_decision
             except Exception as e:
-                logger.error("Custom validator error — failing secure", error=str(e))
+                logger.error(
+                    "Custom validator error — failing secure",
+                    exception_type=type(e).__name__,
+                    exc_info=True,
+                )
                 fail_decision = GuardDecision(
                     allowed=False,
                     reason=f"Custom validator raised exception: {type(e).__name__}",
                     reason_ar="خطأ في المدقق المخصص - رفض آمن",
                     layer="custom_validator",
-                    details={"error": str(e)},
+                    details={
+                        "error_code": "custom_validator_exception",
+                        "exception_type": type(e).__name__,
+                    },
                 )
                 self._record_block("custom_validator", context, fail_decision)
                 return fail_decision
@@ -230,7 +237,7 @@ class ToolGuard:
 
         for pattern in self.blocked_patterns:
             pattern_lower = pattern.lower()
-            if pattern_lower in args_str:
+            if fnmatch.fnmatch(args_str, f"*{pattern_lower}*"):
                 return GuardDecision(
                     allowed=False,
                     reason=f"Blocked pattern detected: {pattern}",

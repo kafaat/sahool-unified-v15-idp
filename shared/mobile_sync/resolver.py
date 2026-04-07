@@ -59,10 +59,7 @@ def detect_conflict(
     """
     # Validate tenant isolation
     if requesting_tenant_id is not None and local_item.tenant_id and local_item.tenant_id != requesting_tenant_id:
-        raise PermissionError(
-            f"Tenant mismatch: requesting tenant '{requesting_tenant_id}' "
-            f"cannot access item owned by tenant '{local_item.tenant_id}'"
-        )
+        raise PermissionError("Tenant mismatch: access denied")
     # No conflict if server wasn't modified after local
     if server_modified_at <= local_item.local_modified_at:
         return None

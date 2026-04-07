@@ -840,3 +840,27 @@ export {
   type MarketplaceListing,
   type CreateListingData,
 } from './api/extended-services';
+
+export {
+  // Advanced Services
+  auditService,
+  visionService,
+  terrainService,
+  edgeService,
+  droneService,
+  virtualSensorService,
+  scoutingService,
+  // Advanced Utility
+  downloadCSV,
+  // Advanced Types
+  type AuditLog,
+  type AuditStats,
+  type VisionModel,
+  type VisionDetection,
+  type TerrainAnalysis,
+  type EdgeDevice,
+  type DroneDevice,
+  type DroneFlight,
+  type VirtualSensor,
+  type ScoutingReport,
+} from './api/advanced-services';

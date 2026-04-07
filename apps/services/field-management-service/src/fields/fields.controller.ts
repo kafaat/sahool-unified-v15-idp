@@ -34,6 +34,7 @@ import {
   ApiHeader,
 } from "@nestjs/swagger";
 import { FieldsService } from "./fields.service";
+import { KpiSnapshotService, CreateKpiSnapshotDto } from "./kpi-snapshot.service";
 import {
   CreateFieldDto,
   UpdateFieldDto,
@@ -49,7 +50,10 @@ import { getRequestTenantId, assertTenantOwnership } from "../auth/tenant.utils"
 @ApiTags("Fields - الحقول")
 @Controller("api/v1/fields")
 export class FieldsController {
-  constructor(private readonly fieldsService: FieldsService) {}
+  constructor(
+    private readonly fieldsService: FieldsService,
+    private readonly kpiSnapshotService: KpiSnapshotService,
+  ) {}
 
   /**
    * Create a new field
@@ -299,6 +303,57 @@ export class FieldsController {
       data: field,
       etag: field.etag,
       message: "تم استرجاع الحدود السابقة بنجاح",
+    };
+  }
+
+  /**
+   * Get latest KPI snapshot for a field
+   * جلب أحدث لقطة KPI للحقل
+   */
+  @Get(":id/kpi-snapshot")
+  @ApiOperation({
+    summary: "Get latest KPI snapshot",
+    description: "جلب أحدث لقطة KPI من Sentinel Hub + OpenWeather",
+  })
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiResponse({ status: 200, description: "KPI snapshot retrieved" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async getKpiSnapshot(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const snapshot = await this.kpiSnapshotService.getLatest(id, tenantId);
+    return {
+      success: true,
+      data: snapshot,
+    };
+  }
+
+  /**
+   * Save a new KPI snapshot for a field
+   * حفظ لقطة KPI جديدة للحقل
+   */
+  @Post(":id/kpi-snapshot")
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: "Save KPI snapshot",
+    description: "حفظ لقطة KPI جديدة وتحديث صحة الحقل",
+  })
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiResponse({ status: 201, description: "KPI snapshot saved" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async saveKpiSnapshot(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe({ transform: true })) dto: CreateKpiSnapshotDto,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const snapshot = await this.kpiSnapshotService.save(id, tenantId, dto);
+    return {
+      success: true,
+      data: snapshot,
+      message: "تم حفظ لقطة KPI بنجاح",
     };
   }
 

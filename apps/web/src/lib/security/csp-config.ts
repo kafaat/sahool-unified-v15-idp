@@ -104,6 +104,8 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       "'unsafe-inline'",
       // Next.js requires 'unsafe-eval' for hot reloading in development
       ...(isDevelopment ? ["'unsafe-eval'"] : []),
+      // Google Maps API
+      'https://maps.googleapis.com',
     ],
 
     // Style sources
@@ -117,6 +119,8 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       'https://fonts.googleapis.com',
       // Leaflet map CSS (loaded from unpkg CDN)
       'https://unpkg.com',
+      // Google Maps styles
+      'https://maps.googleapis.com',
     ],
 
     // Style attributes (inline style="...") - needed by UI component libraries
@@ -139,6 +143,9 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       'https://*.sentinel-hub.com',
       // SAHOOL CDN
       'https://*.sahool.ye',
+      // Google Maps tiles and icons
+      'https://maps.googleapis.com',
+      'https://maps.gstatic.com',
     ],
 
     // Font sources
@@ -179,6 +186,9 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       'https://*.sahool.ye',
       // ESRI satellite tiles (loaded via fetch by maplibre-gl in MapView)
       'https://server.arcgisonline.com',
+      // Google Maps API
+      'https://maps.googleapis.com',
+      'https://maps.gstatic.com',
     ],
 
     // Media sources

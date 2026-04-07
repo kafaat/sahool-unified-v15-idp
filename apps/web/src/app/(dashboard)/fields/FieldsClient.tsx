@@ -16,6 +16,7 @@ import { Modal } from '@/components/ui/modal';
 import { Plus } from 'lucide-react';
 import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 import { useToast } from '@/components/ui/toast';
+import { fieldsApi } from '@/features/fields/api';
 
 export default function FieldsClient() {
   const router = useRouter();
@@ -53,13 +54,21 @@ export default function FieldsClient() {
         data: { fieldName: data?.name },
       });
 
-      await createField.mutateAsync({ data });
+      const createdField = await createField.mutateAsync({ data });
 
       showToast({
         type: 'success',
         message: t('createSuccess'),
       });
       setShowCreateModal(false);
+
+      // Fire-and-forget KPI fetch — non-blocking
+      if (createdField?.centroid?.coordinates) {
+        const [lng, lat] = createdField.centroid.coordinates;
+        fieldsApi.triggerKpiRefresh(createdField.id, lat, lng).catch(() => {/* silent */});
+      }
+
+      router.push(`/fields/${createdField.id}`);
     } catch (error) {
       ErrorTracking.captureError(
         error instanceof Error ? error : new Error('Failed to create field'),

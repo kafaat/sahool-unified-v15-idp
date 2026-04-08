@@ -45,7 +45,7 @@
     "@types/mapbox-gl": "^3.4.1",
     "@types/mapbox__mapbox-gl-draw": "^1.4.0",
     "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.0.0",

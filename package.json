@@ -5,6 +5,9 @@
   "private": true,
   "workspaces": [
     "packages/*",
+    "apps/web-client",
+    "apps/web-admin",
+    "apps/api-test",
     "apps/web",
     "apps/admin",
     "apps/services/field-management-service",
@@ -24,6 +27,8 @@
   "scripts": {
     "postinstall": "npm run prisma:generate",
     "prisma:generate": "node scripts/prisma-generate.js",
+    "dev:client": "npm run dev --workspace=apps/web-client",
+    "dev:web-admin": "npm run dev --workspace=apps/web-admin",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:admin": "npm run dev --workspace=apps/admin",
     "build:packages": "npm run build --workspace=packages/shared-types && npm run build --workspace=packages/shared-utils && npm run build --workspace=packages/i18n && npm run build --workspace=packages/shared-ui && npm run build --workspace=packages/api-client && npm run build --workspace=packages/shared-hooks",

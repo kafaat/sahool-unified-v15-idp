@@ -1,0 +1,134 @@
+// Admin app reads the SAME SQLite database as web-client.
+// DATABASE_URL must point to the same file: file:../web-client/prisma/dev.db
+// Run `prisma generate` here to generate client for admin app.
+// Do NOT run `prisma migrate` from here — always migrate from web-client.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  role      String   @default("user")
+  status    String   @default("active")
+  pushToken String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  fields       Field[]
+  sentinelReqs SentinelRequest[]
+  weatherReqs  WeatherRequest[]
+  apiUsage     ApiUsageLog[]
+  auditActions AdminAuditLog[] @relation("AdminActions")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+model Field {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  bbox        String
+  centerLng   Float?
+  centerLat   Float?
+  areaSqKm    Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sentinelReqs SentinelRequest[]
+  weatherReqs  WeatherRequest[]
+}
+
+model SentinelRequest {
+  id         String   @id @default(cuid())
+  userId     String
+  fieldId    String?
+  index      String
+  bbox       String
+  dateFrom   String
+  dateTo     String
+  statusCode Int?
+  durationMs Int?
+  createdAt  DateTime @default(now())
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  field Field? @relation(fields: [fieldId], references: [id], onDelete: SetNull)
+}
+
+model WeatherRequest {
+  id         String   @id @default(cuid())
+  userId     String
+  fieldId    String?
+  endpoint   String
+  lat        Float
+  lng        Float
+  statusCode Int?
+  durationMs Int?
+  createdAt  DateTime @default(now())
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  field Field? @relation(fields: [fieldId], references: [id], onDelete: SetNull)
+}
+
+model ApiUsageLog {
+  id            String   @id @default(cuid())
+  userId        String
+  date          String
+  sentinelCalls Int      @default(0)
+  weatherCalls  Int      @default(0)
+  sentinelLimit Int      @default(50)
+  weatherLimit  Int      @default(50)
+  updatedAt     DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, date])
+}
+
+model AdminAuditLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String
+  targetId  String
+  meta      String?
+  createdAt DateTime @default(now())
+  admin User @relation("AdminActions", fields: [adminId], references: [id], onDelete: Cascade)
+}

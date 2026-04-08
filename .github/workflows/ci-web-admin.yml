@@ -1,0 +1,42 @@
+name: CI — web-admin
+
+on:
+  push:
+    paths: ["apps/web-admin/**"]
+  pull_request:
+    paths: ["apps/web-admin/**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web-admin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: "file:./prisma/test.db"
+          NEXTAUTH_SECRET: "ci-test-secret-min-32-chars-here-ok"
+          NEXTAUTH_URL: "http://localhost:3001"

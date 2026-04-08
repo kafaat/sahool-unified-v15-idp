@@ -5,7 +5,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { FieldFormData } from '../types';
-import { fieldsApi } from '../api';
+import { fieldsApi, triggerVegetationAnalysis } from '../api';
 import { logger } from '@/lib/logger';
 import { fieldKeys } from './queryKeys';
 
@@ -19,10 +19,14 @@ export function useCreateField() {
   return useMutation({
     mutationFn: ({ data, tenantId }: { data: FieldFormData; tenantId?: string }) =>
       fieldsApi.createField(data, tenantId),
-    onSuccess: () => {
+    onSuccess: (createdField) => {
       // Invalidate all field queries to refetch
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
       queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
+      // Auto-trigger satellite analysis when a boundary was drawn (fire-and-forget)
+      if (createdField.polygon) {
+        triggerVegetationAnalysis(createdField.id, createdField.polygon).catch(() => {});
+      }
     },
     onError: (error: Error) => {
       // Parse error message

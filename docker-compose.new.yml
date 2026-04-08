@@ -1,0 +1,30 @@
+# docker-compose.new.yml
+# Minimal dev compose for the Agricultural Management System (greenfield).
+# The apps (web-client, web-admin, mobile, api-test) run directly with
+# npm run dev / expo start / python — Docker is only needed for maildev.
+#
+# Start: docker compose -f docker-compose.new.yml up -d
+# Stop:  docker compose -f docker-compose.new.yml down
+
+version: "3.9"
+
+services:
+  # ── Email preview UI (http://localhost:1080) ───────────────────────────
+  # Catches all outbound SMTP mail so you can inspect NextAuth emails
+  # without needing a real mail provider.
+  maildev:
+    image: maildev/maildev:2.1.0
+    container_name: agri-maildev
+    ports:
+      - "127.0.0.1:1080:1080"   # Web UI
+      - "127.0.0.1:1025:1025"   # SMTP
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:1080"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  default:
+    name: agri-network

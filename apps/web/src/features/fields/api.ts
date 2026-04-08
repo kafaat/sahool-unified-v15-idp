@@ -3,7 +3,15 @@
  * طبقة API لميزة الحقول
  */
 
-import type { Field, FieldFormData, FieldFilters, GeoPolygon } from './types';
+import type {
+  Field,
+  FieldFormData,
+  FieldFilters,
+  GeoPolygon,
+  SatelliteIndices,
+  FieldWeatherData,
+  FieldIndicatorsData,
+} from './types';
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
 import { FIELD_ENDPOINTS, SATELLITE_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
@@ -372,3 +380,112 @@ export const fieldsApi = {
     });
   },
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// KPI / Live Data API Functions
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Fetch satellite vegetation indices for a field
+ * جلب مؤشرات الغطاء النباتي من الأقمار الصناعية
+ */
+export async function fetchSatelliteIndices(
+  fieldId: string,
+  lat: number,
+  lng: number
+): Promise<SatelliteIndices> {
+  const params = new URLSearchParams({
+    action: 'indices',
+    fieldId,
+    lat: lat.toString(),
+    lon: lng.toString(),
+  });
+  const res = await fetch(`/api/satellite?${params.toString()}`);
+  if (!res.ok) throw new Error(`Satellite indices fetch failed: ${res.status}`);
+  const data = await res.json();
+  // Normalize: response may be { ndvi, evi, ... } or nested under 'indices'
+  return (data.indices ?? data) as SatelliteIndices;
+}
+
+/**
+ * Fetch current weather for a field location (uses Open-Meteo free provider)
+ * جلب بيانات الطقس الحالي لموقع الحقل
+ */
+export async function fetchFieldWeather(
+  lat: number,
+  lng: number,
+  fieldId: string
+): Promise<FieldWeatherData> {
+  const res = await fetch('/api/weather', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'current', lat, lon: lng, field_id: fieldId }),
+  });
+  if (!res.ok) throw new Error(`Weather fetch failed: ${res.status}`);
+  const d = await res.json();
+  // Normalize across different weather service response shapes
+  return {
+    temperature_c:
+      d.temperature ?? d.temperature_c ?? d.current?.temperature_2m ?? d.temp_c ?? 0,
+    humidity_pct:
+      d.humidity ?? d.humidity_pct ?? d.current?.relative_humidity_2m ?? d.humidity_pct ?? 0,
+    wind_speed_kmh:
+      d.wind_speed ?? d.wind_speed_kmh ?? d.current?.wind_speed_10m ?? d.wind_kph ?? 0,
+    condition: d.condition ?? d.weather_description ?? d.description ?? 'N/A',
+    condition_ar:
+      d.condition_ar ?? d.weather_description_ar ?? d.description_ar ?? 'غير متاح',
+    precipitation_mm: d.precipitation ?? d.precipitation_mm ?? d.precip_mm ?? 0,
+    uv_index: d.uv_index ?? d.current?.uv_index,
+    cloud_cover: d.cloud_cover ?? d.cloudcover ?? d.current?.cloud_cover,
+  };
+}
+
+/**
+ * Fetch 22 field indicators from indicators-service
+ * جلب 22 مؤشراً ميدانياً من خدمة المؤشرات
+ */
+export async function fetchFieldIndicators(fieldId: string): Promise<FieldIndicatorsData> {
+  const res = await fetch(`/api/indicators?fieldId=${encodeURIComponent(fieldId)}`);
+  if (!res.ok) throw new Error(`Indicators fetch failed: ${res.status}`);
+  const data = await res.json();
+  return {
+    field_id: data.field_id || fieldId,
+    indicators: Array.isArray(data.indicators)
+      ? data.indicators
+      : Array.isArray(data)
+        ? data
+        : [],
+    overall_score: data.overall_score,
+    timestamp: data.timestamp,
+  };
+}
+
+/**
+ * Fire-and-forget vegetation analysis trigger after field creation
+ * تشغيل تحليل الغطاء النباتي بعد إنشاء الحقل مباشرة
+ */
+export async function triggerVegetationAnalysis(
+  fieldId: string,
+  polygon: GeoPolygon
+): Promise<void> {
+  const ring = polygon?.coordinates?.[0];
+  if (!ring || ring.length < 3) return;
+
+  const lngs = ring.map((c) => c[0]);
+  const lats = ring.map((c) => c[1]);
+  const lat = (Math.min(...lats) + Math.max(...lats)) / 2;
+  const lng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+
+  await fetch('/api/satellite', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'analyze',
+      fieldId,
+      analysisType: 'ndvi',
+      latitude: lat,
+      longitude: lng,
+      coordinates: ring,
+    }),
+  });
+}

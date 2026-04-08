@@ -16,6 +16,42 @@ import { logger } from '@/lib/logger';
 // Weather service URL from environment, fallback to docker service name
 const WEATHER_SERVICE_URL = process.env.WEATHER_SERVICE_URL || 'http://weather-service:8092';
 
+// Open-Meteo is a free public API (no key, no auth) used as a fallback when
+// the backend weather-service is unreachable (e.g. pure frontend dev mode).
+const OPEN_METEO_URL = 'https://api.open-meteo.com/v1/forecast';
+
+async function fetchOpenMeteoFallback(lat: number, lon: number): Promise<NextResponse> {
+  const params = new URLSearchParams({
+    latitude: lat.toFixed(6),
+    longitude: lon.toFixed(6),
+    current:
+      'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,cloud_cover,uv_index,weather_code',
+    wind_speed_unit: 'kmh',
+    timezone: 'auto',
+  });
+  const res = await fetch(`${OPEN_METEO_URL}?${params}`, {
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
+  const data = await res.json();
+  const c = data.current ?? {};
+  // Map to the same shape as weather-service `/weather/current`
+  return NextResponse.json({
+    temperature: c.temperature_2m ?? 0,
+    temperature_c: c.temperature_2m ?? 0,
+    humidity: c.relative_humidity_2m ?? 0,
+    humidity_pct: c.relative_humidity_2m ?? 0,
+    wind_speed: c.wind_speed_10m ?? 0,
+    wind_speed_kmh: c.wind_speed_10m ?? 0,
+    precipitation_mm: c.precipitation ?? 0,
+    cloud_cover: c.cloud_cover ?? 0,
+    uv_index: c.uv_index,
+    condition: 'N/A',
+    condition_ar: 'غير متاح',
+    source: 'open-meteo-fallback',
+  });
+}
+
 const RATE_LIMIT_CONFIG = {
   windowMs: 60000, // 1 minute
   maxRequests: 60, // Weather queries per minute
@@ -170,12 +206,35 @@ export async function POST(request: NextRequest) {
       payload.days = Math.max(1, Math.min(30, Math.floor(days)));
     }
 
-    const response = await fetch(`${WEATHER_SERVICE_URL}${pathMap[action]}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(15000),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${WEATHER_SERVICE_URL}${pathMap[action]}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000),
+      });
+    } catch {
+      // Backend unreachable — fall back to Open-Meteo for current weather
+      if (action === 'current') {
+        logger.debug('weather-service unreachable, falling back to Open-Meteo');
+        return fetchOpenMeteoFallback(lat, lon);
+      }
+      return NextResponse.json(
+        { error: 'Weather service unavailable', error_ar: 'خدمة الطقس غير متاحة' },
+        { status: 502 }
+      );
+    }
+
+    // Backend returned a 5xx — fall back to Open-Meteo for current weather
+    if (response.status >= 500 && action === 'current') {
+      logger.debug(`weather-service returned ${response.status}, falling back to Open-Meteo`);
+      try {
+        return await fetchOpenMeteoFallback(lat, lon);
+      } catch {
+        // Open-Meteo also failed — fall through to return the original error
+      }
+    }
 
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {

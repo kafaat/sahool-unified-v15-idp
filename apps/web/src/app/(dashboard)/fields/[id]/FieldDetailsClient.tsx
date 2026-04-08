@@ -5,7 +5,7 @@
  * مكون تفاصيل الحقل
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -27,13 +27,27 @@ import {
   BarChart3,
   Loader2,
   RefreshCw,
+  Satellite,
+  CloudRain,
 } from 'lucide-react';
 import { useField, useDeleteField, useUpdateField } from '@/features/fields/hooks/useFields';
 import { useToast } from '@/components/ui/toast';
 import { FieldForm } from '@/features/fields/components/FieldForm';
 import { Modal } from '@/components/ui/modal';
-import type { FieldFormData } from '@/features/fields/types';
+import type { FieldFormData, FieldWeatherData, SatelliteIndices } from '@/features/fields/types';
+import { fetchFieldWeather, fetchSatelliteIndices } from '@/features/fields/api';
 import { logger } from '@/lib/logger';
+
+/** Compute polygon centroid from a GeoJSON ring [[lng,lat],...] */
+function polygonCentroid(ring: number[][]): { lat: number; lng: number } | null {
+  if (!ring || ring.length < 3) return null;
+  const lats = ring.map((p) => p[1]!);
+  const lngs = ring.map((p) => p[0]!);
+  return {
+    lat: lats.reduce((s, v) => s + v, 0) / lats.length,
+    lng: lngs.reduce((s, v) => s + v, 0) / lngs.length,
+  };
+}
 
 interface FieldDetailsClientProps {
   fieldId: string;
@@ -47,6 +61,29 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
   const { showToast } = useToast();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Live KPI state
+  const [weather, setWeather] = useState<FieldWeatherData | null>(null);
+  const [satellite, setSatellite] = useState<SatelliteIndices | null>(null);
+  const [kpiLoading, setKpiLoading] = useState(false);
+
+  // Fetch weather + satellite once the field polygon is available
+  useEffect(() => {
+    if (!field) return;
+    const ring = field.polygon?.coordinates?.[0];
+    const centroid = ring ? polygonCentroid(ring) : null;
+    if (!centroid) return;
+
+    setKpiLoading(true);
+    Promise.all([
+      fetchFieldWeather(centroid.lat, centroid.lng, field.id).catch(() => null),
+      fetchSatelliteIndices(field.id, centroid.lat, centroid.lng).catch(() => null),
+    ]).then(([w, s]) => {
+      if (w) setWeather(w);
+      if (s) setSatellite(s);
+      setKpiLoading(false);
+    });
+  }, [field]);
 
   const handleDelete = async () => {
     try {
@@ -436,37 +473,108 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
             </div>
           </div>
 
-          {/* Weather Card */}
+          {/* Weather Card — live data */}
           <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <Sun className="w-5 h-5 text-yellow-500" />
-                الطقس الحالي
+                الطقس الحالي | Live Weather
               </h2>
+              {kpiLoading && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
             </div>
             <div className="p-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-orange-50 rounded-lg">
-                  <Thermometer className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-gray-900">28°C</p>
-                  <p className="text-xs text-gray-500">درجة الحرارة</p>
+              {!field?.polygon ? (
+                <p className="text-sm text-gray-400 text-center py-4">
+                  أضف حدود الحقل لعرض بيانات الطقس
+                  <br />
+                  Add field boundary to view weather data
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-3 bg-orange-50 rounded-lg">
+                    <Thermometer className="w-6 h-6 text-orange-500 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-gray-900">
+                      {weather ? `${weather.temperature_c.toFixed(1)}°C` : '—'}
+                    </p>
+                    <p className="text-xs text-gray-500">درجة الحرارة</p>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <Droplets className="w-6 h-6 text-blue-500 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-gray-900">
+                      {weather ? `${weather.humidity_pct}%` : '—'}
+                    </p>
+                    <p className="text-xs text-gray-500">الرطوبة</p>
+                  </div>
+                  <div className="text-center p-3 bg-cyan-50 rounded-lg">
+                    <Wind className="w-6 h-6 text-cyan-500 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-gray-900">
+                      {weather ? `${weather.wind_speed_kmh} كم/س` : '—'}
+                    </p>
+                    <p className="text-xs text-gray-500">سرعة الرياح</p>
+                  </div>
+                  <div className="text-center p-3 bg-indigo-50 rounded-lg">
+                    <CloudRain className="w-6 h-6 text-indigo-500 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-gray-900">
+                      {weather ? `${weather.precipitation_mm} مم` : '—'}
+                    </p>
+                    <p className="text-xs text-gray-500">التساقط</p>
+                  </div>
+                  {weather?.uv_index !== undefined && (
+                    <div className="col-span-2 text-center p-2 bg-yellow-50 rounded-lg">
+                      <p className="text-xs text-gray-500">مؤشر UV</p>
+                      <p className="text-base font-bold text-yellow-600">{weather.uv_index}</p>
+                    </div>
+                  )}
                 </div>
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <Droplets className="w-6 h-6 text-blue-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-gray-900">65%</p>
-                  <p className="text-xs text-gray-500">الرطوبة</p>
+              )}
+            </div>
+          </div>
+
+          {/* Satellite Indices Card */}
+          <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Satellite className="w-5 h-5 text-green-600" />
+                مؤشرات الأقمار الصناعية | Satellite Indices
+              </h2>
+              {kpiLoading && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+            </div>
+            <div className="p-4">
+              {!field?.polygon ? (
+                <p className="text-sm text-gray-400 text-center py-4">
+                  أضف حدود الحقل لعرض مؤشرات الأقمار الصناعية
+                  <br />
+                  Add field boundary to view satellite indices
+                </p>
+              ) : !satellite && !kpiLoading ? (
+                <p className="text-sm text-gray-400 text-center py-4">
+                  المؤشرات غير متاحة — تأكد من تشغيل خدمة التحليل
+                  <br />
+                  Indices unavailable — ensure vegetation-analysis-service is running
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { key: 'ndvi', label: 'NDVI', color: 'text-green-600', bg: 'bg-green-50', hint: 'Vegetation Index' },
+                    { key: 'evi', label: 'EVI', color: 'text-emerald-600', bg: 'bg-emerald-50', hint: 'Enhanced Vegetation' },
+                    { key: 'lai', label: 'LAI', color: 'text-teal-600', bg: 'bg-teal-50', hint: 'Leaf Area Index' },
+                    { key: 'savi', label: 'SAVI', color: 'text-lime-600', bg: 'bg-lime-50', hint: 'Soil-Adj Vegetation' },
+                    { key: 'ndwi', label: 'NDWI', color: 'text-blue-600', bg: 'bg-blue-50', hint: 'Water Index' },
+                    { key: 'ndmi', label: 'NDMI', color: 'text-sky-600', bg: 'bg-sky-50', hint: 'Moisture Index' },
+                  ].map(({ key, label, color, bg, hint }) => {
+                    const val = satellite?.[key];
+                    return (
+                      <div key={key} className={`${bg} rounded-lg p-3 text-center`}>
+                        <p className={`text-lg font-bold ${color}`}>
+                          {val !== undefined && val !== null ? val.toFixed(3) : '—'}
+                        </p>
+                        <p className="text-xs font-medium text-gray-700">{label}</p>
+                        <p className="text-xs text-gray-400">{hint}</p>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="text-center p-3 bg-cyan-50 rounded-lg">
-                  <Wind className="w-6 h-6 text-cyan-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-gray-900">12 كم/س</p>
-                  <p className="text-xs text-gray-500">سرعة الرياح</p>
-                </div>
-                <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                  <Sun className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
-                  <p className="text-lg font-bold text-gray-900">مشمس</p>
-                  <p className="text-xs text-gray-500">الحالة</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

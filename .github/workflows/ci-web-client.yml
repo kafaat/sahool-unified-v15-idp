@@ -1,0 +1,48 @@
+name: CI — web-client
+
+on:
+  push:
+    paths: ["apps/web-client/**", "packages/agri-core/**"]
+  pull_request:
+    paths: ["apps/web-client/**", "packages/agri-core/**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web-client
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: "file:./prisma/test.db"
+          NEXTAUTH_SECRET: "ci-test-secret-min-32-chars-here-ok"
+          NEXTAUTH_URL: "http://localhost:3000"
+          NEXT_PUBLIC_MAPBOX_TOKEN: "pk.dummy"
+          SENTINEL_HUB_CLIENT_ID: "dummy"
+          SENTINEL_HUB_CLIENT_SECRET: "dummy"
+          SENTINEL_HUB_API_URL: "https://services.sentinel-hub.com/api/v1"
+          SENTINEL_HUB_AUTH_URL: "https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token"
+          OPENWEATHERMAP_API_KEY: "dummy"

@@ -13,14 +13,14 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Core Web Framework
 # ─────────────────────────────────────────────────────────────────────────────
-fastapi==0.135.2
+fastapi==0.135.3
 starlette>=0.49.1,<1.0.0
 # Note: uvicorn extras removed for constraints compatibility - install separately
 uvicorn>=0.30.0,<1.0.0
 pydantic==2.12.5
 pydantic-settings==2.13.1
 httpx==0.28.1
-python-multipart==0.0.22  # CVE-2024-53981 fix
+python-multipart==0.0.24  # CVE-2024-53981 fix
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LangChain Framework (Security Updates)

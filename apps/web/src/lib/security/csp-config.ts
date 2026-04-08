@@ -14,6 +14,7 @@ export interface CSPDirectives {
   'default-src'?: string[];
   'script-src'?: string[];
   'style-src'?: string[];
+  'style-src-elem'?: string[];
   'style-src-attr'?: string[];
   'img-src'?: string[];
   'font-src'?: string[];

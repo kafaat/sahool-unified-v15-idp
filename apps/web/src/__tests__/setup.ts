@@ -15,6 +15,50 @@ afterEach(() => {
   cleanup();
 });
 
+// ---------------------------------------------------------------------------
+// Global Next.js module mocks
+// next is a workspace dependency (apps/web) and may not resolve from root
+// node_modules where vitest runs. Individual tests can override these mocks.
+// ---------------------------------------------------------------------------
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/',
+  useParams: () => ({}),
+  redirect: vi.fn(),
+  notFound: vi.fn(),
+}));
+
+vi.mock('next/link', () => ({
+  default: ({ href, children, ...props }: Record<string, unknown>) => {
+    const { createElement } = require('react');
+    return createElement('a', { href, ...props }, children);
+  },
+}));
+
+vi.mock('next/image', () => ({
+  default: (props: Record<string, unknown>) => {
+    const { createElement } = require('react');
+    return createElement('img', props);
+  },
+}));
+
+vi.mock('next/dynamic', () => ({
+  default: (loader: () => Promise<unknown>) => {
+    const { lazy } = require('react');
+    return lazy(loader);
+  },
+}));
+
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+  useLocale: () => 'ar',
+  useMessages: () => ({}),
+  useNow: () => new Date(),
+  useTimeZone: () => 'Asia/Riyadh',
+  useFormatter: () => ({ dateTime: vi.fn(), number: vi.fn(), relativeTime: vi.fn() }),
+}));
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

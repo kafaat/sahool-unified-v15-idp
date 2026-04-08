@@ -96,7 +96,7 @@ export class KpiSnapshotService {
   async getLatest(fieldId: string, tenantId: string) {
     // Verify field belongs to tenant
     const field = await this.prisma.field.findFirst({
-      where: { id: fieldId, tenantId, deletedAt: null },
+      where: { id: fieldId, tenantId, isDeleted: false },
       select: { id: true },
     });
     if (!field) {
@@ -122,7 +122,7 @@ export class KpiSnapshotService {
   ) {
     // Verify field belongs to tenant
     const field = await this.prisma.field.findFirst({
-      where: { id: fieldId, tenantId, deletedAt: null },
+      where: { id: fieldId, tenantId, isDeleted: false },
       select: { id: true },
     });
     if (!field) {

@@ -4,11 +4,9 @@ try {
   withSentryConfig = require("@sentry/nextjs").withSentryConfig;
   sentryInstalled = true;
 } catch (/** @type {any} */ err) {
-  // Only swallow when @sentry/nextjs itself is missing; rethrow transitive failures
-  const isSentryMissing =
-    err?.code === "MODULE_NOT_FOUND" &&
-    /['"]@sentry\/nextjs['"]/.test(err?.message ?? "");
-  if (!isSentryMissing) throw err;
+  // Swallow MODULE_NOT_FOUND for @sentry/nextjs or any of its transitive deps
+  // (e.g. next/constants when next is not hoisted to root in monorepo)
+  if (err?.code !== "MODULE_NOT_FOUND") throw err;
   // Fail fast when Sentry is expected (DSN configured) but the package is missing.
   // This prevents silently disabling source-map upload / instrumentation in CI/prod.
   if (process.env.NEXT_PUBLIC_SENTRY_DSN) {

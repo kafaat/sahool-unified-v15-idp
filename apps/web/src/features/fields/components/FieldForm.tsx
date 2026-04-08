@@ -105,7 +105,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   const handleBoundaryChange = (geojson: GeoPolygon | null) => {
     if (geojson) {
       // Compute area from polygon using Haversine
-      const coords = geojson.coordinates[0];
+      const coords = geojson.coordinates[0] ?? [];
       const area = computeAreaHectares(coords);
       setFormData((prev) => ({ ...prev, polygon: geojson, area }));
       setErrors((prev) => { const e = { ...prev }; delete e.polygon; return e; });
@@ -311,9 +311,9 @@ function computeAreaHectares(coords: number[][]): number {
   const R = 6371000; // Earth radius in meters
   let area = 0;
   for (let i = 0; i < coords.length - 1; i++) {
-    const [lng1, lat1] = coords[i];
-    const [lng2, lat2] = coords[(i + 1) % coords.length];
-    area += toRad(lng2 - lng1) * (2 + Math.sin(toRad(lat1)) + Math.sin(toRad(lat2)));
+    const c1 = coords[i] as [number, number];
+    const c2 = coords[(i + 1) % coords.length] as [number, number];
+    area += toRad(c2[0] - c1[0]) * (2 + Math.sin(toRad(c1[1])) + Math.sin(toRad(c2[1])));
   }
   area = Math.abs((area * R * R) / 2);
   return area / 10000; // m² → hectares

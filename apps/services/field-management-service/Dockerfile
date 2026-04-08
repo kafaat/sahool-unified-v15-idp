@@ -105,7 +105,7 @@ WORKDIR /app
 
 # Create non-root user for security
 RUN groupadd --system sahool && \
-    useradd --system --gid sahool --shell /bin/bash sahool
+    useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Upgrade system packages and install runtime dependencies
 COPY docker/apt-update.sh /usr/local/bin/

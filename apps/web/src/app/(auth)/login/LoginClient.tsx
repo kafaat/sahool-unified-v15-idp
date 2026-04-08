@@ -68,9 +68,12 @@ export default function LoginClient() {
         messageAr: 'تم تسجيل الدخول بنجاح',
         message: 'Login successful',
       });
-      // Gap #16: respect ?returnTo= set by middleware on 401 redirect
+      // Hard redirect so the browser sends the freshly-set httpOnly cookie
+      // in a full HTTP request — router.push (RSC soft-nav) does not always
+      // carry cookies that were just set by the session API route.
       const returnTo = searchParams.get('returnTo');
-      router.push(isSafeReturnTo(returnTo) ? returnTo : '/dashboard');
+      const destination = isSafeReturnTo(returnTo) ? returnTo : '/dashboard';
+      window.location.href = destination;
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 

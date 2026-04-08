@@ -41,10 +41,6 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     await this.publish('sahool.field.boundary.changed', { tenantId, fieldId, ...data });
   }
 
-  async publishCropPlanted(tenantId: string, fieldId: string, cropType: string) {
-    await this.publish('sahool.crop.planted', { tenantId, fieldId, cropType });
-  }
-
   private async publish(subject: string, payload: Record<string, unknown>) {
     if (!this.nc || this.nc.isClosed()) {
       this.logger.warn(`NATS unavailable, skipping ${subject}`);

@@ -5,6 +5,7 @@
 
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { CacheService, CACHE_KEYS } from "../cache/cache.service";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -87,7 +88,10 @@ export class CreateKpiSnapshotDto {
 
 @Injectable()
 export class KpiSnapshotService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cacheService: CacheService,
+  ) {}
 
   /**
    * Get the latest KPI snapshot for a field
@@ -103,8 +107,8 @@ export class KpiSnapshotService {
       throw new NotFoundException(`Field ${fieldId} not found`);
     }
 
-    const snapshot = await (this.prisma as any).fieldKpiSnapshot.findFirst({
-      where: { fieldId },
+    const snapshot = await this.prisma.fieldKpiSnapshot.findFirst({
+      where: { fieldId, tenantId },
       orderBy: { fetchedAt: "desc" },
     });
 
@@ -130,7 +134,7 @@ export class KpiSnapshotService {
     }
 
     // Create snapshot
-    const snapshot = await (this.prisma as any).fieldKpiSnapshot.create({
+    const snapshot = await this.prisma.fieldKpiSnapshot.create({
       data: {
         fieldId,
         tenantId,
@@ -162,6 +166,11 @@ export class KpiSnapshotService {
           updatedAt: new Date(),
         },
       });
+      // Invalidate service-level cache and HTTP interceptor cache keys
+      await this.cacheService.del(CACHE_KEYS.FIELD(fieldId));
+      // HTTP interceptor key format: {tenantId}:{path}:{hash("{}") = "31e"}
+      await this.cacheService.del(`${tenantId}:/api/v1/fields/${fieldId}:31e`);
+      await this.cacheService.del(`${tenantId}:/api/v1/fields/${fieldId}/kpi-snapshot:31e`);
     }
 
     return snapshot;

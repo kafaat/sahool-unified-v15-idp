@@ -8,6 +8,8 @@ plugins:
     - https://admin.sahool.io
     - https://sahool.io
     - http://localhost:3000
+    - http://localhost:3001
+    - http://localhost:3002
     - http://localhost:8080
     methods:
     - GET
@@ -51,7 +53,13 @@ services:
     - /api/v1/fields
     - /api/v1/field
     - /field
-    strip_path: true
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    strip_path: false
     protocols:
     - http
     - https
@@ -81,6 +89,12 @@ services:
     - /api/v1/auth/send-otp
     - /api/v1/auth/verify-otp
     - /api/v1/auth/refresh
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
     strip_path: false
     protocols:
     - http
@@ -103,6 +117,12 @@ services:
     - /api/v1/auth/logout-all
     - /api/v1/auth/me
     - /api/v1/users
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
     strip_path: false
     protocols:
     - http
@@ -156,11 +176,7 @@ services:
     config:
       minute: 60
       hour: 1000
-      policy: redis
-      redis_host: redis
-      redis_port: 6379
-      redis_timeout: 2000
-      redis_password: ${REDIS_PASSWORD}
+      policy: local
       fault_tolerant: true
       hide_client_headers: false
 - name: research-core
@@ -292,11 +308,7 @@ services:
     config:
       minute: 20
       hour: 200
-      policy: redis
-      redis_host: redis
-      redis_port: 6379
-      redis_timeout: 2000
-      redis_password: ${REDIS_PASSWORD}
+      policy: local
       fault_tolerant: true
       hide_client_headers: false
 - name: vegetation-analysis-service
@@ -605,11 +617,7 @@ services:
     config:
       minute: 100
       hour: 5000
-      policy: redis
-      redis_host: redis
-      redis_port: 6379
-      redis_timeout: 2000
-      redis_password: ${REDIS_PASSWORD}
+      policy: local
       fault_tolerant: true
       hide_client_headers: false
 - name: notification-service
@@ -2217,3 +2225,10 @@ services:
     config:
       claims_to_verify:
       - exp
+
+consumers:
+- username: sahool-platform-service
+  jwt_secrets:
+  - key: sahool-platform
+    algorithm: HS256
+    secret: change_this_jwt_secret_min_32_characters

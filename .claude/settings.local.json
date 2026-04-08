@@ -16,7 +16,27 @@
       "Bash(python3 -c \":*)",
       "Bash(/dev/null cat:*)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''prisma:'''', d.get\\(''''dependencies'''',{}\\).get\\(''''prisma''''\\) or d.get\\(''''devDependencies'''',{}\\).get\\(''''prisma'''',''''N/A''''\\)\\)\")",
-      "Bash(npx prisma@5 db push --accept-data-loss)"
+      "Bash(npx prisma@5 db push --accept-data-loss)",
+      "Bash(docker rm:*)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s http://localhost:8001/routes)",
+      "Bash(curl -v http://localhost:8001/routes)",
+      "Read(//d/projects/v88/sahool-adel-5/**)",
+      "Bash(python3 /tmp/e2e_test.py)",
+      "Bash(/dev/null grep:*)",
+      "Bash(head -10 grep -n \"imports.*Cache\\\\|CacheModule\" D:/projects/v88/sahool-adel-5/apps/services/field-management-service/src/fields/fields.module.ts)",
+      "Bash(head -5 grep -n \"imports.*Cache\\\\|CacheModule\" D:/projects/v88/sahool-adel-5/apps/services/field-management-service/src/app.module.ts)",
+      "Bash(grep -n \"redirect\\\\|notFound\\\\|router.push\\\\|permanentRedirect\" D:/projects/v88/sahool-adel-5/apps/web/src/app/\\\\\\(dashboard\\\\\\)/fields/[id]/FieldDetailsClient.tsx)",
+      "Bash(curl -s http://localhost:3001 -o /dev/null -w \"3001: %{http_code}\")",
+      "Bash(curl -s http://localhost:3002 -o /dev/null -w \" | 3002: %{http_code}\")",
+      "Bash(node apps/web/playwright-gui-test/gui-test.js)",
+      "Bash(find D:/projects/v88/sahool-adel-5/apps/web/src/stores -name *.ts -o -name *.tsx)",
+      "Bash(curl -s http://localhost:8001/)",
+      "Bash(grep -E '^\\\\s*- /$|paths:.*\\\\[$')",
+      "Bash(curl:*)",
+      "Bash(netstat -ano)",
+      "Bash(docker cp:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

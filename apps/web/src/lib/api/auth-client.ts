@@ -132,7 +132,7 @@ class AuthApiClient {
         };
       }
 
-      return typeof data === 'object' && data !== null ? data : { success: true, data: data as T };
+      return { success: true as const, data: data as T };
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         return { success: false, error: 'Request timeout' };
@@ -149,21 +149,32 @@ class AuthApiClient {
   // Auth endpoints
   // -------------------------------------------------------------------------
 
-  async login(email: string, password: string) {
-    // Basic email validation (avoids importing the full validation.ts)
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+  async login(identifier: string, password: string) {
+    const trimmed = identifier.trim().toLowerCase();
+    if (!trimmed) {
+      return { success: false as const, error: 'Email or phone is required' };
+    }
+    // Validate email format only when the identifier contains '@'.
+    // Phone numbers are forwarded to the server for backend validation.
+    if (trimmed.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
       return { success: false as const, error: 'Invalid email format' };
     }
 
     return this.request<LoginResponse>('/api/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email: trimmedEmail, password }),
+      body: JSON.stringify({ email: trimmed, password }),
     });
   }
 
   async getCurrentUser() {
-    return this.request<AuthUser>('/api/v1/auth/me');
+    // Use the Next.js server-side proxy which decodes the httpOnly cookie.
+    // The backend POST /api/v1/auth/me endpoint is not reliably reachable
+    // from the browser (Kong routing + httpOnly cookie constraints).
+    const response = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!response.ok) {
+      return { success: false as const, error: 'No active session' };
+    }
+    return response.json() as Promise<{ success: boolean; data?: AuthUser; error?: string }>;
   }
 
   /**

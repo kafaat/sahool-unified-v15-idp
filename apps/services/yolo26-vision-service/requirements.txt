@@ -28,7 +28,7 @@ matplotlib>=3.7.0,<4.0.0
 
 # Logging & Monitoring
 structlog>=24.1.0,<26.0.0
-python-json-logger>=3.2.0,<4.0.0
+python-json-logger>=3.2.0,<5.0.0
 
 # Database (Optional - for result storage)
 asyncpg>=0.31.0,<1.0.0

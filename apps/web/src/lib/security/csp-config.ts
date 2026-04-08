@@ -123,6 +123,18 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       'https://maps.googleapis.com',
     ],
 
+    // Style elements (<style> and <link rel="stylesheet">) — do NOT include
+    // nonce here. In CSP Level 3 a nonce causes browsers to ignore
+    // 'unsafe-inline', but Next.js / Tailwind inject inline <style> tags that
+    // cannot carry a nonce — creating the same catch-22 as style-src-attr.
+    'style-src-elem': [
+      "'self'",
+      "'unsafe-inline'",
+      'https://fonts.googleapis.com',
+      'https://unpkg.com',
+      'https://maps.googleapis.com',
+    ],
+
     // Style attributes (inline style="...") - needed by UI component libraries
     // NOTE: Do NOT include nonce here. In CSP Level 3, a nonce causes browsers
     // to ignore 'unsafe-inline', but nonces cannot be applied to style=""

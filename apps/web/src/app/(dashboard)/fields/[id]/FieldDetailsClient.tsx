@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import {
   ArrowRight,
   MapPin,
@@ -17,9 +18,6 @@ import {
   Edit2,
   Trash2,
   Droplets,
-  Sun,
-  Thermometer,
-  Wind,
   Activity,
   AlertTriangle,
   CheckCircle,
@@ -29,12 +27,25 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useField, useDeleteField, useUpdateField } from '@/features/fields/hooks/useFields';
-import { useCurrentWeather } from '@/features/weather/hooks/useWeather';
 import { useToast } from '@/components/ui/toast';
 import { FieldForm } from '@/features/fields/components/FieldForm';
+import { FieldKPITiles } from '@/features/fields/components/FieldKPITiles';
 import { Modal } from '@/components/ui/modal';
 import type { FieldFormData } from '@/features/fields/types';
 import { logger } from '@/lib/logger';
+
+// Dynamic import — no SSR for Google Maps
+const GoogleMapsFieldDrawer = dynamic(
+  () => import('@/components/maps/GoogleMapsFieldDrawer'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-72 bg-gray-100 rounded animate-pulse flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+      </div>
+    ),
+  }
+);
 
 interface FieldDetailsClientProps {
   fieldId: string;
@@ -49,16 +60,9 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Extract field coordinates for weather query (centroid is [lng, lat])
-  const fieldLat = field?.centroid?.coordinates?.[1];
+  // Centroid: GeoPoint coordinates are [lng, lat]
   const fieldLng = field?.centroid?.coordinates?.[0];
-  const hasCoordinates = fieldLat !== undefined && fieldLng !== undefined;
-
-  const { data: weatherData, isLoading: weatherLoading } = useCurrentWeather({
-    lat: fieldLat,
-    lon: fieldLng,
-    enabled: hasCoordinates && !isLoading && !error,
-  });
+  const fieldLat = field?.centroid?.coordinates?.[1];
 
   const handleDelete = async () => {
     try {
@@ -128,45 +132,14 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
     );
   }
 
-  // Calculate health status
   const healthScore = field.healthScore ?? field.ndviValue ?? 0;
   const healthStatus =
-    healthScore >= 0.7
-      ? 'excellent'
-      : healthScore >= 0.5
-        ? 'good'
-        : healthScore >= 0.3
-          ? 'fair'
-          : 'poor';
+    healthScore >= 0.7 ? 'excellent' : healthScore >= 0.5 ? 'good' : healthScore >= 0.3 ? 'fair' : 'poor';
   const healthConfig = {
-    excellent: {
-      label: 'ممتاز',
-      labelEn: 'Excellent',
-      color: 'text-green-600',
-      bg: 'bg-green-100',
-      icon: CheckCircle,
-    },
-    good: {
-      label: 'جيد',
-      labelEn: 'Good',
-      color: 'text-blue-600',
-      bg: 'bg-blue-100',
-      icon: CheckCircle,
-    },
-    fair: {
-      label: 'متوسط',
-      labelEn: 'Fair',
-      color: 'text-yellow-600',
-      bg: 'bg-yellow-100',
-      icon: AlertTriangle,
-    },
-    poor: {
-      label: 'ضعيف',
-      labelEn: 'Poor',
-      color: 'text-red-600',
-      bg: 'bg-red-100',
-      icon: AlertTriangle,
-    },
+    excellent: { label: 'ممتاز', color: 'text-green-600', bg: 'bg-green-100', icon: CheckCircle },
+    good: { label: 'جيد', color: 'text-blue-600', bg: 'bg-blue-100', icon: CheckCircle },
+    fair: { label: 'متوسط', color: 'text-yellow-600', bg: 'bg-yellow-100', icon: AlertTriangle },
+    poor: { label: 'ضعيف', color: 'text-red-600', bg: 'bg-red-100', icon: AlertTriangle },
   };
   const currentHealth = healthConfig[healthStatus];
   const HealthIcon = currentHealth.icon;
@@ -288,96 +261,51 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
                 خريطة الحقل
               </h2>
             </div>
-            <div className="h-72 bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+            <div className="overflow-hidden">
               {field.polygon ? (
-                <div className="text-center">
-                  <MapPin className="w-16 h-16 text-green-400 mx-auto mb-3" />
-                  <p className="text-gray-600">الخريطة التفاعلية</p>
-                  <p className="text-sm text-gray-500">Interactive Map View</p>
-                </div>
+                <GoogleMapsFieldDrawer
+                  readOnly
+                  initialPolygon={field.polygon}
+                  height="288px"
+                  initialCenter={
+                    fieldLat != null && fieldLng != null
+                      ? [fieldLat, fieldLng]
+                      : [15.5527, 48.5164]
+                  }
+                  initialZoom={fieldLat != null ? 14 : 7}
+                />
               ) : (
-                <div className="text-center">
-                  <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">لم يتم تحديد حدود الحقل</p>
-                  <button className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
-                    رسم حدود الحقل
-                  </button>
+                <div className="h-72 bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+                  <div className="text-center">
+                    <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">لم يتم تحديد حدود الحقل</p>
+                    <button
+                      onClick={() => setShowEditModal(true)}
+                      className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                    >
+                      رسم حدود الحقل
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Health Metrics */}
+          {/* KPI Tiles — Sentinel Hub + OpenWeather */}
           <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-blue-600" />
-                مؤشرات صحة المحصول
+                مؤشرات الحقل
               </h2>
+              <p className="text-xs text-gray-400 mt-0.5">Sentinel Hub + OpenWeather KPIs</p>
             </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* NDVI Progress */}
-                <div className="text-center">
-                  <div className="relative w-24 h-24 mx-auto mb-3">
-                    <svg className="w-24 h-24 transform -rotate-90">
-                      <circle cx="48" cy="48" r="40" fill="none" stroke="#e5e7eb" strokeWidth="8" />
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        fill="none"
-                        stroke="#22c55e"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray={`${(field.ndviValue || 0) * 251} 251`}
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xl font-bold text-gray-900">
-                        {((field.ndviValue || 0) * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-sm font-medium text-gray-900">مؤشر NDVI</p>
-                  <p className="text-xs text-gray-500">Vegetation Index</p>
-                </div>
-
-                {/* Health Score */}
-                <div className="text-center">
-                  <div className="relative w-24 h-24 mx-auto mb-3">
-                    <svg className="w-24 h-24 transform -rotate-90">
-                      <circle cx="48" cy="48" r="40" fill="none" stroke="#e5e7eb" strokeWidth="8" />
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        fill="none"
-                        stroke="#3b82f6"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray={`${healthScore * 251} 251`}
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xl font-bold text-gray-900">
-                        {(healthScore * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-sm font-medium text-gray-900">صحة المحصول</p>
-                  <p className="text-xs text-gray-500">Crop Health</p>
-                </div>
-
-                {/* Growth Stage */}
-                <div className="text-center">
-                  <div className="w-24 h-24 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
-                    <Sprout className="w-10 h-10 text-green-600" />
-                  </div>
-                  <p className="text-sm font-medium text-gray-900">مرحلة النمو</p>
-                  <p className="text-xs text-gray-500">Growing Stage</p>
-                </div>
-              </div>
+            <div className="p-4">
+              <FieldKPITiles
+                fieldId={fieldId}
+                centroidLat={fieldLat}
+                centroidLng={fieldLng}
+              />
             </div>
           </div>
         </div>
@@ -395,9 +323,7 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
                 <div>
                   <p className="text-xs text-gray-500">تاريخ الإنشاء</p>
                   <p className="text-sm font-medium">
-                    {field.createdAt
-                      ? new Date(field.createdAt).toLocaleDateString('ar-SA')
-                      : 'N/A'}
+                    {field.createdAt ? new Date(field.createdAt).toLocaleDateString('ar-SA') : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -442,52 +368,6 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
                   <div>
                     <p className="text-xs text-gray-500">نظام الري</p>
                     <p className="text-sm font-medium">{field.irrigationType}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Weather Card */}
-          <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <Sun className="w-5 h-5 text-yellow-500" />
-                الطقس الحالي
-              </h2>
-            </div>
-            <div className="p-4">
-              {weatherLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
-                </div>
-              ) : !hasCoordinates || !weatherData ? (
-                <div className="text-center py-6 text-gray-500">
-                  <Sun className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm font-medium">غير متاح</p>
-                  <p className="text-xs text-gray-400 mt-1">Weather data unavailable</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-orange-50 rounded-lg">
-                    <Thermometer className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-gray-900">{Math.round(weatherData.temperature)}°C</p>
-                    <p className="text-xs text-gray-500">درجة الحرارة</p>
-                  </div>
-                  <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <Droplets className="w-6 h-6 text-blue-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-gray-900">{Math.round(weatherData.humidity)}%</p>
-                    <p className="text-xs text-gray-500">الرطوبة</p>
-                  </div>
-                  <div className="text-center p-3 bg-cyan-50 rounded-lg">
-                    <Wind className="w-6 h-6 text-cyan-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-gray-900">{Math.round(weatherData.windSpeed)} كم/س</p>
-                    <p className="text-xs text-gray-500">سرعة الرياح</p>
-                  </div>
-                  <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                    <Sun className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-gray-900">{weatherData.conditionAr}</p>
-                    <p className="text-xs text-gray-500">الحالة</p>
                   </div>
                 </div>
               )}

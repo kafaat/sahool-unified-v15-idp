@@ -15,4 +15,5 @@ export const fieldKeys = {
   list: (filters?: FieldFilters) => [...fieldKeys.lists(), filters] as const,
   detail: (id: string) => [...fieldKeys.all, 'detail', id] as const,
   stats: (farmId?: string) => [...fieldKeys.all, 'stats', farmId] as const,
+  kpi: (fieldId: string) => [...fieldKeys.all, 'kpi', fieldId] as const,
 };

@@ -4,11 +4,9 @@ try {
   withSentryConfig = require("@sentry/nextjs").withSentryConfig;
   sentryInstalled = true;
 } catch (/** @type {any} */ err) {
-  // Only swallow when @sentry/nextjs itself is missing; rethrow transitive failures
-  const isSentryMissing =
-    err?.code === "MODULE_NOT_FOUND" &&
-    /['"]@sentry\/nextjs['"]/.test(err?.message ?? "");
-  if (!isSentryMissing) throw err;
+  // Swallow MODULE_NOT_FOUND for @sentry/nextjs or any of its transitive deps
+  // (e.g. next/constants when next is not hoisted to root in monorepo)
+  if (err?.code !== "MODULE_NOT_FOUND") throw err;
   // Fail fast when Sentry is expected (DSN configured) but the package is missing.
   // This prevents silently disabling source-map upload / instrumentation in CI/prod.
   if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
@@ -77,6 +75,14 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "sentinel-hub.com",
+      },
+      {
+        protocol: "https",
+        hostname: "maps.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "maps.gstatic.com",
       },
     ],
     formats: ["image/avif", "image/webp"],
@@ -204,6 +210,7 @@ const nextConfig = {
       "@sahool/shared-types",
       "@sahool/api-client",
       "react-leaflet",
+      "@react-google-maps/api",
       "jose",
       "axios",
     ],
@@ -269,9 +276,9 @@ const nextConfig = {
               chunks: "all",
               priority: 30,
             },
-            // Separate mapping libraries (leaflet, maplibre) into their own chunk
+            // Separate mapping libraries (leaflet, maplibre, google-maps) into their own chunk
             maps: {
-              test: /[\\/]node_modules[\\/](leaflet|react-leaflet|maplibre-gl)[\\/]/,
+              test: /[\\/]node_modules[\\/](leaflet|react-leaflet|maplibre-gl|@react-google-maps)[\\/]/,
               name: "maps",
               chunks: "all",
               priority: 30,

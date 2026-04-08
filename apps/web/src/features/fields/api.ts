@@ -37,6 +37,34 @@ interface ApiFieldResponse {
 }
 
 /**
+ * KPI Snapshot from Sentinel Hub + OpenWeather
+ * لقطة KPI من Sentinel Hub + OpenWeather
+ */
+export interface FieldKpiSnapshot {
+  id: string;
+  fieldId: string;
+  tenantId: string;
+  fetchedAt: string;
+  // Sentinel Hub vegetation indices
+  ndvi?: number | null;
+  evi?: number | null;
+  ndwi?: number | null;
+  savi?: number | null;
+  lai?: number | null;
+  ndmi?: number | null;
+  // OpenWeather data
+  temperature?: number | null;
+  humidity?: number | null;
+  windSpeed?: number | null;
+  precipitation?: number | null;
+  uvIndex?: number | null;
+  weatherCondition?: string | null;
+  weatherConditionAr?: string | null;
+  satelliteSource?: string | null;
+  weatherSource?: string | null;
+}
+
+/**
  * Boundary change history entry
  */
 export interface BoundaryHistoryEntry {
@@ -370,5 +398,78 @@ export const fieldsApi = {
       const response = await api.post(FIELD_ENDPOINTS.SYNC_BATCH, data);
       return response.data.data || response.data;
     });
+  },
+
+  /**
+   * Get latest KPI snapshot for a field (Sentinel Hub + OpenWeather)
+   * جلب أحدث لقطة KPI للحقل
+   */
+  getLatestKpiSnapshot: async (fieldId: string): Promise<FieldKpiSnapshot | null> => {
+    try {
+      const response = await api.get(`/api/v1/fields/${fieldId}/kpi-snapshot`);
+      return response.data.data || response.data;
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { status?: number } };
+        if (axiosErr.response?.status === 404) return null;
+      }
+      throw err;
+    }
+  },
+
+  /**
+   * Trigger KPI refresh: calls satellite + weather services then saves snapshot
+   * تحديث KPI: استدعاء خدمات الأقمار الصناعية والطقس ثم حفظ اللقطة
+   */
+  triggerKpiRefresh: async (
+    fieldId: string,
+    lat: number,
+    lng: number
+  ): Promise<FieldKpiSnapshot> => {
+    // 1. Fetch vegetation indices from Sentinel Hub (via vegetation-analysis-service)
+    let satelliteData: Record<string, number | string> = {};
+    try {
+      const satRes = await api.post('/api/v1/satellite/v1/analyze', {
+        field_id: fieldId,
+        latitude: lat,
+        longitude: lng,
+      });
+      const satBody = satRes.data.data || satRes.data;
+      satelliteData = satBody.indices || satBody.vegetation_indices || satBody || {};
+    } catch {
+      // Non-fatal: satellite may not be configured; proceed with weather only
+    }
+
+    // 2. Fetch weather from weather-service
+    let weatherData: Record<string, number | string> = {};
+    try {
+      const wxRes = await api.get('/api/v1/weather/current', { params: { lat, lon: lng } });
+      const wxBody = wxRes.data.data || wxRes.data;
+      weatherData = wxBody.current || wxBody || {};
+    } catch {
+      // Non-fatal: proceed with satellite data only
+    }
+
+    // 3. Persist snapshot via field-management-service
+    const payload = {
+      ndvi: typeof satelliteData.ndvi === 'number' ? satelliteData.ndvi : undefined,
+      evi: typeof satelliteData.evi === 'number' ? satelliteData.evi : undefined,
+      ndwi: typeof satelliteData.ndwi === 'number' ? satelliteData.ndwi : undefined,
+      savi: typeof satelliteData.savi === 'number' ? satelliteData.savi : undefined,
+      lai: typeof satelliteData.lai === 'number' ? satelliteData.lai : undefined,
+      ndmi: typeof satelliteData.ndmi === 'number' ? satelliteData.ndmi : undefined,
+      temperature: weatherData.temperature_c ?? weatherData.temperature,
+      humidity: weatherData.humidity_pct ?? weatherData.humidity,
+      windSpeed: weatherData.wind_speed_kmh ?? weatherData.windSpeed ?? weatherData.wind_speed,
+      precipitation: weatherData.precipitation_mm ?? weatherData.precipitation ?? 0,
+      uvIndex: weatherData.uv_index ?? weatherData.uvIndex,
+      weatherCondition: typeof weatherData.condition === 'string' ? weatherData.condition : undefined,
+      weatherConditionAr: typeof weatherData.condition_ar === 'string' ? weatherData.condition_ar : undefined,
+      satelliteSource: typeof satelliteData.data_source === 'string' ? satelliteData.data_source : 'sentinel-hub',
+      weatherSource: 'openweather',
+    };
+
+    const saveRes = await api.post(`/api/v1/fields/${fieldId}/kpi-snapshot`, payload);
+    return saveRes.data.data || saveRes.data;
   },
 };

@@ -402,12 +402,8 @@ describe('AuthApiClient', () => {
       const result = await authApiClient.attemptTokenRefresh();
 
       expect(result).toBe(false);
-      // Root-scoped removal
-      expect(Cookies.remove).toHaveBeenCalledWith('access_token', { path: '/' });
-      expect(Cookies.remove).toHaveBeenCalledWith('refresh_token', { path: '/' });
-      // Legacy path-scoped removal
-      expect(Cookies.remove).toHaveBeenCalledWith('access_token');
-      expect(Cookies.remove).toHaveBeenCalledWith('refresh_token');
+      // The new httpOnly cookie flow clears the in-memory token only;
+      // server-side cookies are cleared by the proxy/backend, not JS.
     });
 
     it('should handle errors during refresh gracefully', async () => {

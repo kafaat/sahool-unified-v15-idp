@@ -1,7 +1,7 @@
 # SAHOOL Testing Requirements
 # ============================
 # Testing dependencies for all services
-# Updated: March 2026
+# Updated: April 2026
 # Synced with constraints.txt
 
 # Pytest Framework
@@ -18,5 +18,11 @@ pytest-mock==3.15.1
 
 # Integration test dependencies (imported by test modules)
 pydantic>=2.10.0
+pydantic-settings>=2.0.0
 PyJWT>=2.7.0
 PyYAML>=6.0.0
+
+# Required by shared modules used in integration tests
+structlog>=24.0.0
+fastapi>=0.110.0
+Pillow>=10.0.0

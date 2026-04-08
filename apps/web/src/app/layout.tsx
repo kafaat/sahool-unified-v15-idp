@@ -4,7 +4,6 @@ import { getMessages, getLocale } from 'next-intl/server';
 import './globals.css';
 import { Providers } from './providers';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { AsyncStylesheet } from '@/components/common/AsyncStylesheet';
 import { getDirection, type Locale } from '@sahool/i18n';
 
 // Use CSS variable for font family — Tajawal loaded non-blocking via <link> in <head>
@@ -39,24 +38,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           with Google Fonts CDN as fallback source. No external stylesheet
           needed — this ensures offline-first font loading.
         */}
-        {/*
-          Leaflet CSS loaded asynchronously - not render-blocking.
-          Uses media="print" with onLoad swap trick for non-blocking CSS.
-          This avoids delaying first paint on non-map pages (login, settings, etc.).
-        */}
-        <AsyncStylesheet
+        {/* Leaflet CSS — loaded with precedence="low" so it does not block first paint */}
+        <link
+          rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin="anonymous"
+          precedence="low"
         />
-        <noscript>
-          <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-            crossOrigin="anonymous"
-          />
-        </noscript>
       </head>
       <body className="font-tajawal bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
         <a

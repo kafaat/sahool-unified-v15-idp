@@ -29,6 +29,10 @@ const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
 const nextConfig = {
   reactStrictMode: true,
 
+  // Allow cross-origin requests from local network in development
+  // (prevents "Cross origin request detected" warning)
+  allowedDevOrigins: ["10.2.0.2", "localhost", "127.0.0.1"],
+
   // Security: Remove X-Powered-By header
   poweredByHeader: false,
 

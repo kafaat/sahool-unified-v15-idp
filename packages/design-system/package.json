@@ -1,77 +1,78 @@
 {
-  "name": "@sahool/design-system",
-  "version": "16.0.0",
-  "description": "SAHOOL Design System - Unified design tokens, components, and themes",
-  "main": "dist/src/index.js",
-  "module": "dist/src/index.mjs",
-  "types": "dist/src/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/src/index.d.ts",
-      "import": "./dist/src/index.mjs",
-      "require": "./dist/src/index.js"
+    "name": "@sahool/design-system",
+    "version": "16.0.0",
+    "description": "SAHOOL Design System - Unified design tokens, components, and themes",
+    "main": "dist/src/index.js",
+    "source": "src/index.ts",
+    "module": "dist/src/index.mjs",
+    "types": "dist/src/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/src/index.d.ts",
+            "import": "./dist/src/index.mjs",
+            "require": "./dist/src/index.js"
+        },
+        "./themes": {
+            "types": "./dist/src/themes/index.d.ts",
+            "import": "./dist/src/themes/index.mjs",
+            "require": "./dist/src/themes/index.js",
+            "default": "./dist/src/themes/index.js"
+        },
+        "./themes/dark": {
+            "types": "./dist/src/themes/dark.d.ts",
+            "import": "./dist/src/themes/dark.mjs",
+            "require": "./dist/src/themes/dark.js",
+            "default": "./dist/src/themes/dark.js"
+        },
+        "./themes/light": {
+            "types": "./dist/src/themes/light.d.ts",
+            "import": "./dist/src/themes/light.mjs",
+            "require": "./dist/src/themes/light.js",
+            "default": "./dist/src/themes/light.js"
+        },
+        "./tokens": {
+            "types": "./dist/tokens/tokens.d.ts",
+            "import": "./dist/tokens/tokens.mjs",
+            "require": "./dist/tokens/tokens.js",
+            "default": "./dist/tokens/tokens.js"
+        },
+        "./tokens/css": "./tokens/tokens.css",
+        "./tokens/tailwind": "./tokens/tailwind.tokens.js"
     },
-    "./themes": {
-      "types": "./dist/src/themes/index.d.ts",
-      "import": "./dist/src/themes/index.mjs",
-      "require": "./dist/src/themes/index.js",
-      "default": "./dist/src/themes/index.js"
+    "scripts": {
+        "build": "tsup src/index.ts src/themes/index.ts src/themes/dark.ts src/themes/light.ts tokens/tokens.ts --format cjs,esm --dts",
+        "dev": "tsup src/index.ts src/themes/index.ts src/themes/dark.ts src/themes/light.ts tokens/tokens.ts --format cjs,esm --dts --watch",
+        "typecheck": "tsc --noEmit"
     },
-    "./themes/dark": {
-      "types": "./dist/src/themes/dark.d.ts",
-      "import": "./dist/src/themes/dark.mjs",
-      "require": "./dist/src/themes/dark.js",
-      "default": "./dist/src/themes/dark.js"
+    "dependencies": {
+        "clsx": "^2.1.1",
+        "tailwind-merge": "^2.6.0"
     },
-    "./themes/light": {
-      "types": "./dist/src/themes/light.d.ts",
-      "import": "./dist/src/themes/light.mjs",
-      "require": "./dist/src/themes/light.js",
-      "default": "./dist/src/themes/light.js"
+    "devDependencies": {
+        "@types/react": "19.2.7",
+        "@types/react-dom": "19.2.3",
+        "react": "^19.2.4",
+        "tsup": "^8.0.1",
+        "typescript": "5.9.3"
     },
-    "./tokens": {
-      "types": "./dist/tokens/tokens.d.ts",
-      "import": "./dist/tokens/tokens.mjs",
-      "require": "./dist/tokens/tokens.js",
-      "default": "./dist/tokens/tokens.js"
+    "peerDependencies": {
+        "react": ">=18.0.0",
+        "tailwindcss": ">=3.0.0"
     },
-    "./tokens/css": "./tokens/tokens.css",
-    "./tokens/tailwind": "./tokens/tailwind.tokens.js"
-  },
-  "scripts": {
-    "build": "tsup src/index.ts src/themes/index.ts src/themes/dark.ts src/themes/light.ts tokens/tokens.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts src/themes/index.ts src/themes/dark.ts src/themes/light.ts tokens/tokens.ts --format cjs,esm --dts --watch",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.6.0"
-  },
-  "devDependencies": {
-    "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3",
-    "react": "^19.2.4",
-    "tsup": "^8.0.1",
-    "typescript": "5.9.3"
-  },
-  "peerDependencies": {
-    "react": ">=18.0.0",
-    "tailwindcss": ">=3.0.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
+    "peerDependenciesMeta": {
+        "react": {
+            "optional": true
+        },
+        "tailwindcss": {
+            "optional": true
+        }
     },
-    "tailwindcss": {
-      "optional": true
-    }
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "files": [
-    "dist",
-    "tokens",
-    "src"
-  ]
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "files": [
+        "dist",
+        "tokens",
+        "src"
+    ]
 }

@@ -29,7 +29,8 @@ import { UserStatus } from "../utils/validation";
 import { BCRYPT_ROUNDS, DEFAULT_TENANT_ID, splitFullName } from "../utils/security.config";
 
 export interface LoginDto {
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
 }
 
@@ -80,10 +81,13 @@ export interface TokenResponse {
   user: {
     id: string;
     email: string;
+    name: string;
+    name_ar?: string;
     firstName: string;
     lastName: string;
     role: string;
     tenantId: string;
+    tenant_id: string;
   };
 }
 
@@ -131,27 +135,34 @@ export class AuthService {
    */
   async login(loginDto: LoginDto): Promise<TokenResponse> {
     const { password } = loginDto;
-    const email = loginDto.email.toLowerCase().trim();
 
-    // Find user by email
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    // Find user by email or phone
+    let user;
+    if (loginDto.email) {
+      const email = loginDto.email.toLowerCase().trim();
+      user = await this.prisma.user.findUnique({ where: { email } });
+    } else if (loginDto.phone) {
+      const phone = loginDto.phone.trim();
+      user = await this.prisma.user.findFirst({ where: { phone } });
+    }
 
     if (!user) {
+      const identifier = loginDto.email || loginDto.phone || 'unknown';
       this.logger.warn(
         `Login attempt failed: User not found`,
-        { email: this.sanitizeForLog(email) },
+        { identifier: this.sanitizeForLog(identifier) },
       );
       throw new UnauthorizedException("Invalid email or password");
     }
+
+    const identifier = loginDto.email || loginDto.phone || user.email;
 
     // Check if account is locked
     const lockoutStatus = await this.checkAccountLockout(user.id);
     if (lockoutStatus.isLocked) {
       this.logger.warn(
         `Login attempt blocked: Account is locked`,
-        { email: this.sanitizeForLog(email), remainingMinutes: lockoutStatus.remainingMinutes },
+        { identifier: this.sanitizeForLog(identifier), remainingMinutes: lockoutStatus.remainingMinutes },
       );
       throw new UnauthorizedException(
         `Account is temporarily locked due to too many failed login attempts. Please try again in ${lockoutStatus.remainingMinutes} minutes.`,
@@ -173,7 +184,7 @@ export class AuthService {
       this.logger.warn(
         `Login attempt failed: Invalid password`,
         {
-          email: this.sanitizeForLog(email),
+          identifier: this.sanitizeForLog(identifier),
           attemptsRemaining: lockResult.attemptsRemaining,
           isNowLocked: lockResult.isNowLocked,
         },
@@ -196,7 +207,7 @@ export class AuthService {
     if (user.status !== UserStatus.ACTIVE) {
       this.logger.warn(
         `Login attempt failed: User status is ${user.status}`,
-        { email: this.sanitizeForLog(email) },
+        { identifier: this.sanitizeForLog(identifier) },
       );
       throw new UnauthorizedException(
         'Account is not available. Please contact support.',
@@ -207,7 +218,7 @@ export class AuthService {
     if (!user.emailVerified) {
       this.logger.warn(
         `Login attempt: Email not verified`,
-        { email: this.sanitizeForLog(email) },
+        { identifier: this.sanitizeForLog(identifier) },
       );
       // You can either throw an error or allow login
       // throw new UnauthorizedException('Email not verified');
@@ -227,7 +238,7 @@ export class AuthService {
 
     this.logger.log(`User logged in successfully`, {
       userId: user.id,
-      email: this.sanitizeForLog(email),
+      identifier: this.sanitizeForLog(identifier),
     });
 
     return {
@@ -235,10 +246,13 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        name_ar: user.nameAr || undefined,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
         tenantId: user.tenantId,
+        tenant_id: user.tenantId,
       },
     };
   }
@@ -671,10 +685,13 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        name_ar: user.nameAr || undefined,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
         tenantId: user.tenantId,
+        tenant_id: user.tenantId,
       },
     };
   }

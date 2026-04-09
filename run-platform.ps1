@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    SAHOOL Platform Launcher - starts backend services and the web app
+    SAHOOL Platform Launcher - starts backend services
 
 .PARAMETER InfraOnly
     Start only infrastructure (postgres, redis, nats, kong) without app services
@@ -33,8 +33,7 @@ function Write-Ok     { param($m) Write-Host "  [OK] $m" -ForegroundColor Green 
 function Write-Warn   { param($m) Write-Host "  [WARN] $m" -ForegroundColor Yellow }
 function Write-Err    { param($m) Write-Host "  [ERR] $m" -ForegroundColor Red }
 
-$Root   = $PSScriptRoot
-$WebDir = Join-Path $Root "apps\web"
+$Root    = $PSScriptRoot
 $EnvFile = Join-Path $Root ".env"
 
 Set-Location $Root
@@ -44,14 +43,6 @@ if ($Down) {
     Write-Header "Stopping SAHOOL Platform"
     Write-Step "Stopping Docker services..."
     docker compose down
-    Write-Step "Killing any Next.js dev servers on ports 3001-3009..."
-    3001..3009 | ForEach-Object {
-        $procs = Get-NetTCPConnection -LocalPort $_ -ErrorAction SilentlyContinue |
-                 Select-Object -ExpandProperty OwningProcess -Unique
-        foreach ($p in $procs) {
-            Stop-Process -Id $p -Force -ErrorAction SilentlyContinue
-        }
-    }
     Write-Ok "Platform stopped."
     exit 0
 }
@@ -199,62 +190,9 @@ if ($svcReady) {
     Write-Warn "user-service not responding yet -- web app may show auth errors initially"
 }
 
-# ---- Next.js Web App ---------------------------------------------------------
-Write-Header "Starting Next.js Web App"
-
-# Port 3000 is used by field-management-service Docker container -- find a free port
-$webPort = 3001
-$detectedWebPort = $webPort
-while ((Get-NetTCPConnection -LocalPort $webPort -ErrorAction SilentlyContinue) -and $webPort -lt 3010) {
-    # Check if the existing process is already a Next.js web app
-    try {
-        $check = Invoke-WebRequest -Uri "http://localhost:${webPort}" -TimeoutSec 2 -ErrorAction Stop
-        if ($check.Content -match "SAHOOL") {
-            Write-Ok "Web app already running at http://localhost:${webPort}"
-            $detectedWebPort = $webPort
-            $webPort = -1  # signal: already running
-            break
-        }
-    } catch { }
-    $webPort++
-}
-if ($webPort -eq -1) {
-    # Already handled above
-} elseif (Get-NetTCPConnection -LocalPort $webPort -ErrorAction SilentlyContinue) {
-    Write-Warn "Port ${webPort} already in use -- web app may already be running"
-    Write-Ok "Web Dashboard: http://localhost:${webPort}"
-} else {
-    Write-Step "Launching Next.js dev server on port ${webPort} in new window..."
-    $webCmd = "Set-Location '$WebDir'; npx next dev -p $webPort"
-    Start-Process powershell -ArgumentList "-NoExit", "-Command", $webCmd -WindowStyle Normal
-
-    Write-Step "Waiting for web app to start..."
-    $webWait  = 0
-    $webReady = $false
-    do {
-        Start-Sleep -Seconds 3
-        $webWait += 3
-        try {
-            $r = Invoke-WebRequest -Uri "http://localhost:${webPort}" -TimeoutSec 2 -ErrorAction Stop
-            if ($r.StatusCode -lt 500) { $webReady = $true; break }
-        } catch {
-            if ($_.Exception.Response.StatusCode.value__ -gt 0) { $webReady = $true; break }
-        }
-        Write-Host "    ... waiting (${webWait}s)" -ForegroundColor DarkGray
-    } while ($webWait -lt 120)
-
-    if ($webReady) {
-        Write-Ok "Web app is ready!"
-    } else {
-        Write-Warn "Web app taking longer than expected -- check the new terminal window"
-    }
-}
-
 # ---- Summary -----------------------------------------------------------------
 Write-Header "SAHOOL Platform is Running"
 Write-Host ""
-$webDisplayPort = if ($webPort -eq -1) { $detectedWebPort } else { $webPort }
-Write-Host "  Web Dashboard     : " -NoNewline; Write-Host "http://localhost:${webDisplayPort}" -ForegroundColor Cyan
 Write-Host "  Kong API Gateway  : " -NoNewline; Write-Host "http://localhost:8000" -ForegroundColor Cyan
 Write-Host "  Kong Admin        : " -NoNewline; Write-Host "http://localhost:8001" -ForegroundColor Cyan
 Write-Host "  WebSocket Gateway : " -NoNewline; Write-Host "ws://localhost:8081"   -ForegroundColor Cyan

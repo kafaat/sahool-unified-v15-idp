@@ -13,7 +13,7 @@ import type { Field, FieldFormData, GeoPolygon } from '../types';
 // Dynamic import – no SSR for Google Maps
 const GoogleMapsFieldDrawer = dynamic(
   () => import('@/components/maps/GoogleMapsFieldDrawer'),
-  { ssr: false, loading: () => <div className="h-[400px] bg-gray-100 rounded-lg animate-pulse" /> }
+  { ssr: false, loading: () => <div className="h-[calc(100vh-320px)] min-h-[400px] bg-gray-100 rounded-lg animate-pulse" /> }
 );
 
 interface FieldFormProps {
@@ -115,7 +115,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200">
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 flex flex-col h-full">
       <div className="px-6 pt-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           {field ? 'تعديل الحقل' : 'إضافة حقل جديد'}
@@ -249,12 +249,9 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
       {/* Tab: Boundary */}
       {tab === 'boundary' && (
-        <div className="px-6">
-          <p className="text-sm text-gray-500 mb-3">
-            انقر على الخريطة لتحديد نقاط حدود الحقل، ثم اضغط &quot;إكمال&quot; لإغلاق المضلع.
-          </p>
+        <div className="px-6 flex flex-col flex-1 min-h-0">
           <GoogleMapsFieldDrawer
-            height="400px"
+            height="calc(100vh - 320px)"
             initialCenter={[15.5527, 48.5164]}
             initialZoom={7}
             initialPolygon={formData.polygon}

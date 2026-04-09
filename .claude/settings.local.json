@@ -36,7 +36,24 @@
       "Bash(curl:*)",
       "Bash(netstat -ano)",
       "Bash(docker cp:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(python3:*)",
+      "Bash(__NEW_LINE_37bcbaf101d30258__ echo:*)",
+      "Bash(head -30 echo \"---\" grep \"ADMIN_USER_EMAIL\\\\|ADMIN_EMAIL\\\\|SEED_ADMIN\\\\|admin@\" .env)",
+      "Bash(TOKEN=\"eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAidGVzdC11c2VyIiwgInRpZCI6ICJ0ZXN0LXRlbmFudCIsICJleHAiOiAxNzc1Njg2MDg2LCAiaXNzIjogInNhaG9vbC1wbGF0Zm9ybSJ9.jnE-8sFG4sJRcH16Nb4erNxrUml8xfaWhmf5d_BsoPI\")",
+      "Bash(/dev/null docker:*)",
+      "Bash(head -3 grep -r \"admin@sahool\\\\|Admin@\\\\|password.*hash\\\\|bcrypt\" D:/projects/v88/sahool-adel-5/apps/services/user-service/src/ --include=*.ts -l)",
+      "Bash(grep -r admin@sahool D:/projects/v88/sahool-adel-5/apps/services/user-service/src/ --include=*.ts)",
+      "Bash(docker restart:*)",
+      "Bash(grep -rn \"boundary\\\\|GeoJSON\\\\|geometry\\\\|coordinates\" D:/projects/v88/sahool-adel-5/apps/services/field-management-service/src/ --include=*.ts)",
+      "Bash(taskkill /PID 40824 /F)",
+      "Bash(wmic process:*)",
+      "Bash(grep -v \"^$\")",
+      "Bash(cmd /c 'taskkill /PID 40824 /F')",
+      "Bash(kill -9 4497)",
+      "Bash(find D:/projects/v88/sahool-adel-5/apps/web -name sw.js -not -path */node_modules/* -not -path */.next/*)",
+      "Bash(taskkill /F /IM node.exe /T)",
+      "Bash(head -20 grep -rn \"class JWTConfig\\\\|ISSUER\\\\|AUDIENCE\\\\|SECRET\" \"D:/projects/v88/sahool-adel-5/apps/services/user-service/src\" --include=\"*.ts\")"
     ]
   }
 }

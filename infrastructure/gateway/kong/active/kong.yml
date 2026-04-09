@@ -383,10 +383,16 @@ services:
     paths:
     - /api/v1/weather
     - /weather
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
   plugins:
   - name: proxy-cache
     config:
@@ -2231,4 +2237,4 @@ consumers:
   jwt_secrets:
   - key: sahool-platform
     algorithm: HS256
-    secret: change_this_jwt_secret_min_32_characters
+    secret: a536c02289731f8bdeeff26a9057ce44

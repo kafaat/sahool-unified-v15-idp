@@ -265,7 +265,6 @@ export default function RegisterClient() {
             firstName: formData.firstName.trim(),
             lastName: formData.lastName.trim(),
             phone: normalizedPhone || undefined,
-            registerMethod,
           }),
           credentials: 'include',
           signal: controller.signal,

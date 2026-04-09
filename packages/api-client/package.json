@@ -1,52 +1,53 @@
 {
-  "name": "@sahool/api-client",
-  "version": "16.0.0",
-  "description": "SAHOOL Unified API Client - \u0645\u0648\u062d\u062f \u0644\u0644\u0627\u062a\u0635\u0627\u0644 \u0628\u0627\u0644\u062e\u0648\u0627\u062f\u0645",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+    "name": "@sahool/api-client",
+    "version": "16.0.0",
+    "description": "SAHOOL Unified API Client - موحد للاتصال بالخوادم",
+    "main": "dist/index.js",
+    "source": "src/index.ts",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        },
+        "./types": {
+            "types": "./dist/types.d.ts",
+            "import": "./dist/types.mjs",
+            "require": "./dist/types.js"
+        },
+        "./errors": {
+            "types": "./dist/errors.d.ts",
+            "import": "./dist/errors.mjs",
+            "require": "./dist/errors.js"
+        }
     },
-    "./types": {
-      "types": "./dist/types.d.ts",
-      "import": "./dist/types.mjs",
-      "require": "./dist/types.js"
+    "scripts": {
+        "build": "tsup src/index.ts src/types.ts src/errors.ts --format cjs,esm --dts --external @sahool/shared-types",
+        "dev": "tsup src/index.ts src/types.ts src/errors.ts --format cjs,esm --dts --watch",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
-    "./errors": {
-      "types": "./dist/errors.d.ts",
-      "import": "./dist/errors.mjs",
-      "require": "./dist/errors.js"
+    "dependencies": {
+        "@sahool/shared-types": "^16.0.0",
+        "axios": "^1.13.6"
+    },
+    "devDependencies": {
+        "@types/node": "^20.19.37",
+        "tsup": "^8.0.1",
+        "typescript": "5.9.3"
+    },
+    "peerDependencies": {
+        "react": ">=18.0.0"
+    },
+    "peerDependenciesMeta": {
+        "react": {
+            "optional": true
+        }
+    },
+    "engines": {
+        "node": ">=20.0.0"
     }
-  },
-  "scripts": {
-    "build": "tsup src/index.ts src/types.ts src/errors.ts --format cjs,esm --dts --external @sahool/shared-types",
-    "dev": "tsup src/index.ts src/types.ts src/errors.ts --format cjs,esm --dts --watch",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest"
-  },
-  "dependencies": {
-    "@sahool/shared-types": "^16.0.0",
-    "axios": "^1.13.6"
-  },
-  "devDependencies": {
-    "@types/node": "^20.19.37",
-    "tsup": "^8.0.1",
-    "typescript": "5.9.3"
-  },
-  "peerDependencies": {
-    "react": ">=18.0.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    }
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  }
 }

@@ -170,7 +170,21 @@ export async function middleware(request: NextRequest) {
   // Allow API routes through with security headers but skip
   // locale detection, CSRF, and JWT checks (API routes handle auth themselves)
   if (pathname.startsWith('/api')) {
-    const response = NextResponse.next();
+    // For /api/v1/* requests (forwarded to Kong via next.config.js rewrite),
+    // inject the access_token cookie as an Authorization: Bearer header.
+    // Kong's JWT plugin expects the token in the Authorization header; the
+    // httpOnly cookie is invisible to client-side JS, so the middleware must
+    // bridge the gap before the rewrite forwards the request to Kong.
+    let responseInit: Parameters<typeof NextResponse.next>[0] | undefined;
+    if (pathname.startsWith('/api/v1/')) {
+      const accessToken = request.cookies.get('access_token')?.value;
+      if (accessToken) {
+        const requestHeaders = new Headers(request.headers);
+        requestHeaders.set('Authorization', `Bearer ${accessToken}`);
+        responseInit = { request: { headers: requestHeaders } };
+      }
+    }
+    const response = NextResponse.next(responseInit);
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');

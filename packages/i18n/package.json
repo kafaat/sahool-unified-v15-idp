@@ -1,41 +1,42 @@
 {
-  "name": "@sahool/i18n",
-  "version": "16.0.0",
-  "description": "Internationalization package for SAHOOL platform",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+    "name": "@sahool/i18n",
+    "version": "16.0.0",
+    "description": "Internationalization package for SAHOOL platform",
+    "main": "dist/index.js",
+    "source": "src/index.ts",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        },
+        "./config": {
+            "types": "./dist/config.d.ts",
+            "import": "./dist/config.js",
+            "default": "./dist/config.js"
+        }
     },
-    "./config": {
-      "types": "./dist/config.d.ts",
-      "import": "./dist/config.js",
-      "default": "./dist/config.js"
-    }
-  },
-  "scripts": {
-    "build": "rm -f tsconfig.tsbuildinfo && tsc",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "next-intl": "3.26.5"
-  },
-  "devDependencies": {
-    "typescript": "5.9.3"
-  },
-  "peerDependencies": {
-    "next": ">=14.0.0",
-    "react": ">=18.0.0"
-  },
-  "peerDependenciesMeta": {
-    "next": {
-      "optional": true
+    "scripts": {
+        "build": "rm -f tsconfig.tsbuildinfo && tsc",
+        "typecheck": "tsc --noEmit"
     },
-    "react": {
-      "optional": true
+    "dependencies": {
+        "next-intl": "3.26.5"
+    },
+    "devDependencies": {
+        "typescript": "5.9.3"
+    },
+    "peerDependencies": {
+        "next": ">=14.0.0",
+        "react": ">=18.0.0"
+    },
+    "peerDependenciesMeta": {
+        "next": {
+            "optional": true
+        },
+        "react": {
+            "optional": true
+        }
     }
-  }
 }

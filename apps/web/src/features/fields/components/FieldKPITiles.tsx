@@ -272,6 +272,16 @@ export function FieldKPITiles({ fieldId, centroidLat, centroidLng }: FieldKPITil
 
   const isWorking = isLoading || refresh.isPending;
 
+  // No centroid — show a prompt instead of silent empty tiles
+  if (!isWorking && kpi === null && (centroidLat == null || centroidLng == null)) {
+    return (
+      <div className="text-center py-8 text-gray-500 text-sm">
+        <p>لا تتوفر بيانات KPI — يرجى رسم حدود الحقل أولاً لتفعيل التحليل.</p>
+        <p className="text-xs text-gray-400 mt-1">KPI data unavailable — draw the field boundary first to enable analysis.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <SatelliteSection kpi={kpi} loading={isWorking} onRefresh={handleRefresh} />

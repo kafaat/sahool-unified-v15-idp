@@ -33,6 +33,7 @@ import { FieldKPITiles } from '@/features/fields/components/FieldKPITiles';
 import { Modal } from '@/components/ui/modal';
 import type { FieldFormData } from '@/features/fields/types';
 import { logger } from '@/lib/logger';
+import { useAuth } from '@/stores/auth.store';
 
 // Dynamic import — no SSR for Google Maps
 const GoogleMapsFieldDrawer = dynamic(
@@ -57,6 +58,7 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
   const deleteField = useDeleteField();
   const updateField = useUpdateField();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -75,7 +77,7 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
 
   const handleEditSubmit = async (data: FieldFormData) => {
     try {
-      await updateField.mutateAsync({ id: fieldId, data });
+      await updateField.mutateAsync({ id: fieldId, data, tenantId: user?.tenant_id });
       setShowEditModal(false);
       showToast({
         type: 'success',

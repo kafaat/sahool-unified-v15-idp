@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Phone, Smartphone } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -45,7 +45,6 @@ function isSafeReturnTo(value: string | null): value is string {
 }
 
 export default function LoginClient() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
   const { showToast } = useToast();
@@ -95,12 +94,12 @@ export default function LoginClient() {
             <div className="w-12 h-12 bg-sahool-green-600 rounded-full" />
           </div>
           <CardTitle className="text-2xl">
-            <div>تسجيل الدخول إلى سهول</div>
-            <div className="text-base text-gray-600 mt-1">Login to SAHOOL</div>
+            <span className="block">تسجيل الدخول إلى سهول</span>
+            <span className="block text-base text-gray-600 mt-1">Login to SAHOOL</span>
           </CardTitle>
           <CardDescription>
-            <div className="text-gray-600">منصة الإدارة الزراعية المتكاملة</div>
-            <div className="text-xs text-gray-500">Integrated Agricultural Management Platform</div>
+            <span className="block text-gray-600">منصة الإدارة الزراعية المتكاملة</span>
+            <span className="block text-xs text-gray-500">Integrated Agricultural Management Platform</span>
           </CardDescription>
         </CardHeader>
         <CardContent>

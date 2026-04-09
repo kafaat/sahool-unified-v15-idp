@@ -76,16 +76,27 @@ export const sahoolClient = new SahoolApiClient({
   },
 });
 
-// ─── CSRF Interceptor ────────────────────────────────────────────────────────
-// The shared @sahool/api-client doesn't include CSRF protection.
+// ─── CSRF + Tenant Interceptor ──────────────────────────────────────────────
+// The shared @sahool/api-client doesn't include CSRF or tenant-ID protection.
 // Web app uses double-submit cookie: httpOnly `csrf_token` + readable `_csrf`.
+// The readable `tenant_id` cookie is set alongside the session by /api/auth/session.
 
 sahoolClient.axiosInstance.interceptors.request.use((config) => {
   const method = config.method?.toLowerCase();
-  if (typeof window !== 'undefined' && method && method !== 'get') {
-    const csrfToken = Cookies.get('_csrf');
-    if (csrfToken) {
-      config.headers.set('X-CSRF-Token', csrfToken);
+  if (typeof window !== 'undefined') {
+    // CSRF: attach for all state-changing methods
+    if (method && method !== 'get') {
+      const csrfToken = Cookies.get('_csrf');
+      if (csrfToken) {
+        config.headers.set('X-CSRF-Token', csrfToken);
+      }
+    }
+    // Tenant ID: attach on every request so Python services can resolve the tenant
+    // without parsing the JWT (the httpOnly access_token cookie carries the same
+    // value as the `tid` claim, but some services prefer the explicit header).
+    const tenantId = Cookies.get('tenant_id');
+    if (tenantId) {
+      config.headers.set('X-Tenant-ID', tenantId);
     }
   }
   return config;

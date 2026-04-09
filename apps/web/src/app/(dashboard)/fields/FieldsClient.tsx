@@ -17,6 +17,7 @@ import { Plus } from 'lucide-react';
 import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 import { useToast } from '@/components/ui/toast';
 import { fieldsApi } from '@/features/fields/api';
+import { useAuth } from '@/stores/auth.store';
 
 export default function FieldsClient() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function FieldsClient() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { showToast } = useToast();
   const createField = useCreateField();
+  const { user } = useAuth();
 
   const handleFieldClick = (fieldId: string) => {
     ErrorTracking.addBreadcrumb({
@@ -54,7 +56,7 @@ export default function FieldsClient() {
         data: { fieldName: data?.name },
       });
 
-      const createdField = await createField.mutateAsync({ data });
+      const createdField = await createField.mutateAsync({ data, tenantId: user?.tenant_id });
 
       showToast({
         type: 'success',
@@ -65,7 +67,7 @@ export default function FieldsClient() {
       // Fire-and-forget KPI fetch — non-blocking
       if (createdField?.centroid?.coordinates) {
         const [lng, lat] = createdField.centroid.coordinates;
-        fieldsApi.triggerKpiRefresh(createdField.id, lat, lng).catch(() => {/* silent */});
+        fieldsApi.triggerKpiRefresh(createdField.id, lat, lng, user?.tenant_id).catch(() => {/* silent */});
       }
 
       router.push(`/fields/${createdField.id}`);
@@ -123,6 +125,7 @@ export default function FieldsClient() {
         onClose={handleCloseModal}
         titleAr={t('addNewField')}
         title={t('createNewField')}
+        size="full"
       >
         <FieldForm
           onSubmit={handleSubmit}

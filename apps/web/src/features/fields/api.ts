@@ -177,7 +177,6 @@ interface ApiFieldRequest {
   cropType: string;
   cropTypeAr?: string;
   coordinates?: number[][];
-  boundary?: GeoPolygon;
   areaHectares: number;
   metadata: {
     description?: string;
@@ -195,8 +194,9 @@ function mapFieldToApiField(field: FieldFormData, tenantId?: string): ApiFieldRe
     tenantId: tenantId || 'default-tenant',
     cropType: field.crop || 'unknown',
     cropTypeAr: field.cropAr,
+    // Send flat ring as coordinates (service handles GeoJSON wrapping internally)
+    // Sending full boundary GeoJSON object causes ST_GeomFromGeoJSON parse errors
     coordinates: field.polygon?.coordinates?.[0],
-    boundary: field.polygon,
     areaHectares: field.area,
     metadata: {
       description: field.description,
@@ -424,7 +424,8 @@ export const fieldsApi = {
   triggerKpiRefresh: async (
     fieldId: string,
     lat: number,
-    lng: number
+    lng: number,
+    tenantId?: string
   ): Promise<FieldKpiSnapshot> => {
     // 1. Fetch vegetation indices from Sentinel Hub (via vegetation-analysis-service)
     let satelliteData: Record<string, number | string> = {};
@@ -433,6 +434,7 @@ export const fieldsApi = {
         field_id: fieldId,
         latitude: lat,
         longitude: lng,
+        ...(tenantId ? { tenant_id: tenantId } : {}),
       });
       const satBody = satRes.data.data || satRes.data;
       satelliteData = satBody.indices || satBody.vegetation_indices || satBody || {};
@@ -441,9 +443,16 @@ export const fieldsApi = {
     }
 
     // 2. Fetch weather from weather-service
+    // Kong route: /api/v1/weather with strip_path:true → service receives /weather/current
+    // So frontend must call /api/v1/weather/weather/current (extra /weather/ prefix)
     let weatherData: Record<string, number | string> = {};
     try {
-      const wxRes = await api.get('/api/v1/weather/current', { params: { lat, lon: lng } });
+      const wxRes = await api.post('/api/v1/weather/weather/current', {
+        lat,
+        lon: lng,
+        tenant_id: tenantId || 'default-tenant',
+        field_id: fieldId,
+      });
       const wxBody = wxRes.data.data || wxRes.data;
       weatherData = wxBody.current || wxBody || {};
     } catch {

@@ -28,8 +28,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const THEME_STORAGE_KEY = 'sahool-web-theme';
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('system');
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setThemeState] = useState<Theme>('dark');
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
   const [mounted, setMounted] = useState(false);
 
   const getSystemTheme = useCallback((): 'light' | 'dark' => {
@@ -61,7 +61,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
     const VALID_THEMES: ReadonlySet<string> = new Set(['light', 'dark', 'system']);
-    const initialTheme: Theme = stored && VALID_THEMES.has(stored) ? (stored as Theme) : 'system';
+    const initialTheme: Theme = stored && VALID_THEMES.has(stored) ? (stored as Theme) : 'dark';
     setThemeState(initialTheme);
     const resolved = resolveTheme(initialTheme);
     setResolvedTheme(resolved);

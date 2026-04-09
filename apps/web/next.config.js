@@ -235,6 +235,28 @@ const nextConfig = {
     // factory function, which crashes at runtime with
     // "Cannot read properties of undefined (reading 'call')".
     const path = require("path");
+    const fs = require("fs");
+
+    // Build alias map: resolve @sahool/* to their TypeScript source when dist/ is missing.
+    // Same pattern as the @sentry/nextjs shim below — using `false` or a missing path
+    // causes webpack to register a module without a factory, crashing with
+    // "Cannot read properties of undefined (reading 'call')".
+    const sahoolPackages = [
+      "shared-ui", "shared-utils", "shared-hooks", "shared-types",
+      "api-client", "i18n", "design-system",
+    ];
+    const sahoolAliases = {};
+    for (const pkg of sahoolPackages) {
+      const distEntry = path.resolve(__dirname, `../../packages/${pkg}/dist/index.js`);
+      const srcEntry = path.resolve(__dirname, `../../packages/${pkg}/src/index.ts`);
+      if (!fs.existsSync(distEntry) && fs.existsSync(srcEntry)) {
+        sahoolAliases[`@sahool/${pkg}`] = srcEntry;
+      }
+    }
+    if (Object.keys(sahoolAliases).length > 0) {
+      config.resolve.alias = { ...config.resolve.alias, ...sahoolAliases };
+    }
+
     if (!sentryInstalled) {
       config.resolve.alias = {
         ...config.resolve.alias,
@@ -287,14 +309,10 @@ const nextConfig = {
               chunks: "all",
               priority: 30,
             },
-            // Group framework-level dependencies that rarely change
-            framework: {
-              test: /[\\/]node_modules[\\/](react|react-dom|next|scheduler)[\\/]/,
-              name: "framework",
-              chunks: "all",
-              priority: 40,
-              enforce: true,
-            },
+            // NOTE: Do NOT add a "framework" cacheGroup here — Next.js has its own
+            // built-in "framework" chunk for React/React-DOM/scheduler. Overriding it
+            // breaks the chunk loading order and causes
+            // "Cannot read properties of undefined (reading 'call')" at runtime.
           },
         },
       };

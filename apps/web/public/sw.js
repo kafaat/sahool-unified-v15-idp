@@ -208,8 +208,9 @@ async function staleWhileRevalidate(request, cacheName) {
   const fetchPromise = fetch(request)
     .then((networkResponse) => {
       if (networkResponse.ok) {
-        const cache = caches.open(cacheName);
-        cache.then((c) => c.put(request, networkResponse.clone()));
+        // Clone synchronously before the response body is consumed
+        const responseClone = networkResponse.clone();
+        caches.open(cacheName).then((c) => c.put(request, responseClone));
       }
       return networkResponse;
     })
@@ -251,8 +252,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const cache = caches.open(DYNAMIC_CACHE);
-          cache.then((c) => c.put(request, response.clone()));
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((c) => c.put(request, responseClone));
+          }
           return response;
         })
         .catch(async () => {

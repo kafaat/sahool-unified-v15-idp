@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const direction = getDirection(locale);
 
   return (
-    <html lang={locale} dir={direction} className={tajawal.variable} suppressHydrationWarning>
+    <html lang={locale} dir={direction} className={`${tajawal.variable} dark`} suppressHydrationWarning>
       <head>
         {/*
           Tajawal Arabic font is self-hosted via @font-face in globals.css
@@ -47,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           precedence="low"
         />
       </head>
-      <body className="font-tajawal bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+      <body className="font-tajawal bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors" suppressHydrationWarning>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg"

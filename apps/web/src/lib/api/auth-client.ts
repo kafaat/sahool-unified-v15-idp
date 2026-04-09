@@ -36,7 +36,9 @@ export interface AuthUser {
 interface LoginResponse {
   access_token: string;
   refresh_token?: string;
-  user: AuthUser;
+  expires_in?: number;
+  token_type?: string;
+  user: AuthUser & { firstName?: string; lastName?: string; tenantId?: string };
 }
 
 // ---------------------------------------------------------------------------
@@ -150,19 +152,24 @@ class AuthApiClient {
   // -------------------------------------------------------------------------
 
   async login(identifier: string, password: string) {
-    const trimmed = identifier.trim().toLowerCase();
+    const trimmed = identifier.trim();
     if (!trimmed) {
       return { success: false as const, error: 'Email or phone is required' };
     }
-    // Validate email format only when the identifier contains '@'.
-    // Phone numbers are forwarded to the server for backend validation.
-    if (trimmed.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+
+    const isEmail = trimmed.includes('@');
+    if (isEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
       return { success: false as const, error: 'Invalid email format' };
     }
 
+    // Send email or phone as the appropriate field so backend validation passes
+    const body = isEmail
+      ? { email: trimmed.toLowerCase(), password }
+      : { phone: trimmed, password };
+
     return this.request<LoginResponse>('/api/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email: trimmed, password }),
+      body: JSON.stringify(body),
     });
   }
 

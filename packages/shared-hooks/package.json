@@ -1,50 +1,51 @@
 {
-  "name": "@sahool/shared-hooks",
-  "version": "16.0.0",
-  "description": "SAHOOL Shared React Hooks - خطافات React الموحدة",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+    "name": "@sahool/shared-hooks",
+    "version": "16.0.0",
+    "description": "SAHOOL Shared React Hooks - خطافات React الموحدة",
+    "main": "dist/index.js",
+    "source": "src/index.ts",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsup src/index.ts --format cjs,esm --dts --external react",
+        "dev": "tsup src/index.ts --format cjs,esm --dts --external react --watch",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@sahool/api-client": "^16.0.0",
+        "js-cookie": "^3.0.5"
+    },
+    "devDependencies": {
+        "@tanstack/react-query": "5.90.21",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "16.3.2",
+        "@types/js-cookie": "^3.0.6",
+        "@types/node": "^20.19.37",
+        "@types/react": "19.2.7",
+        "@vitejs/plugin-react": "4.7.0",
+        "jsdom": "^27.3.0",
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4",
+        "tsup": "^8.0.1",
+        "typescript": "5.9.3",
+        "vitest": "3.2.4"
+    },
+    "peerDependencies": {
+        "react": ">=18.0.0"
+    },
+    "peerDependenciesMeta": {
+        "react": {
+            "optional": true
+        }
+    },
+    "engines": {
+        "node": ">=20.0.0"
     }
-  },
-  "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --external react",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --external react --watch",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@sahool/api-client": "^16.0.0",
-    "js-cookie": "^3.0.5"
-  },
-  "devDependencies": {
-    "@tanstack/react-query": "5.90.21",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "16.3.2",
-    "@types/js-cookie": "^3.0.6",
-    "@types/node": "^20.19.37",
-    "@types/react": "19.2.7",
-    "@vitejs/plugin-react": "4.7.0",
-    "jsdom": "^27.3.0",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "tsup": "^8.0.1",
-    "typescript": "5.9.3",
-    "vitest": "3.2.4"
-  },
-  "peerDependencies": {
-    "react": ">=18.0.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    }
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  }
 }

@@ -44,13 +44,25 @@ interface AuthenticatedRequest extends Request {
 
 // DTOs
 class LoginRequestDto implements LoginDto {
-  @ApiProperty({
-    description: "User email address",
+  @ApiPropertyOptional({
+    description: "User email address (required if phone not provided)",
     example: "user@sahool.com",
   })
+  @IsOptional()
+  @ValidateIf((o) => !o.phone)
+  @IsNotEmpty({ message: "Email is required when phone is not provided" })
   @IsEmail({}, { message: "Invalid email format" })
-  @IsNotEmpty({ message: "Email is required" })
-  email: string;
+  email?: string;
+
+  @ApiPropertyOptional({
+    description: "User phone number (required if email not provided)",
+    example: "+967712345678",
+  })
+  @IsOptional()
+  @ValidateIf((o) => !o.email)
+  @IsNotEmpty({ message: "Phone is required when email is not provided" })
+  @IsString()
+  phone?: string;
 
   @ApiProperty({
     description: "User password",

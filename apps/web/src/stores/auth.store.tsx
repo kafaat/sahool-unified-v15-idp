@@ -144,6 +144,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Note: Subsequent requests will use the httpOnly cookie automatically
       authApiClient.setToken(access_token);
 
+      // Set readable tenant_id cookie so unified-client.ts can inject X-Tenant-ID header
+      // API returns tenantId (camelCase) or tenant_id (snake_case)
+      const tenantId = (user as unknown as Record<string, unknown>)?.tenantId as string || user?.tenant_id;
+      if (tenantId) {
+        Cookies.set('tenant_id', tenantId, { path: '/', sameSite: 'Strict' });
+      }
+
       // User type from API matches our User interface
       setUser(sanitizeUser(user));
 

@@ -45,7 +45,7 @@ def _resolve_jwt_secret() -> str:
     - development/test: generates a random per-process secret to prevent using
       a known hardcoded constant that would allow token forgery
     """
-    value = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
+    value = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or os.getenv("AUTH_SECRET_KEY")
     if value:
         return value
 

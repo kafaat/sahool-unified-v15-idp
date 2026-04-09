@@ -238,7 +238,7 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
         return TokenData(
             user_id=payload.get("sub"),
             email=payload.get("email"),
-            tenant_id=payload.get("tenant_id"),
+            tenant_id=payload.get("tenant_id") or payload.get("tid"),
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
             token_type=payload.get("type", "access"),

@@ -95,12 +95,14 @@ export function Modal({
 
   if (!isOpen) return null;
 
+  const isFullscreen = size === 'full';
+
   const sizes = {
     sm: 'max-w-md',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
-    full: 'max-w-full mx-4',
+    full: 'w-full h-full rounded-none',
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -112,7 +114,10 @@ export function Modal({
   return (
     <FocusLock returnFocus>
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+        className={clsx(
+          'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm',
+          !isFullscreen && 'p-4'
+        )}
         onClick={handleOverlayClick}
         role="presentation"
       >
@@ -124,10 +129,10 @@ export function Modal({
           aria-describedby={descriptionId}
           tabIndex={-1}
           className={clsx(
-            'relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full',
-            sizes[size],
-            'max-h-[90vh] flex flex-col',
-            'focus:outline-none',
+            'relative bg-white dark:bg-gray-800 shadow-xl w-full flex flex-col focus:outline-none',
+            isFullscreen ? 'h-full rounded-none' : 'rounded-lg max-h-[90vh]',
+            !isFullscreen && sizes[size],
+            isFullscreen && sizes[size],
             className
           )}
           {...props}

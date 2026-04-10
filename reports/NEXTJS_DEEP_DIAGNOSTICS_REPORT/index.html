@@ -1,0 +1,1440 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Next.js Deep Diagnostics Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nextjs-deep-diagnostics-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Next.js Deep Diagnostics Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="nextjs-deep-diagnostics-report">Next.js Deep Diagnostics Report<a class="headerlink" href="#nextjs-deep-diagnostics-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-04-10
+<strong>Branch</strong>: <code>claude/nextjs-deep-diagnostics-4mwfe</code>
+<strong>Scope</strong>: <code>apps/admin</code> (port 3002) + <code>apps/web</code> (port 3000)
+<strong>Stack</strong>: Next.js 15.5.14, React 19.2.4, TypeScript 5.9.3, App Router
+<strong>Files audited</strong>: 1,148 TS/TSX files, 349 route files
+<strong>Method</strong>: 10 parallel specialized diagnostic agents</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Count</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CRITICAL</strong></td>
+<td>11</td>
+<td>Framework cacheGroup override, react-leaflet peer dep, JWT algo not pinned, 219 uncached fetch(), hardcoded internal IP, X-XSS-Protection, missing global-error.tsx</td>
+</tr>
+<tr>
+<td><strong>HIGH</strong></td>
+<td>24</td>
+<td>Missing <code>outputFileTracingRoot</code>, empty sentry-shim, <code>force-dynamic</code> on admin root, Providers <code>"use client"</code> cascades, X-Forwarded-For spoofable, <code>role="button"</code> on divs, Sentry tunnel route missing</td>
+</tr>
+<tr>
+<td><strong>MEDIUM</strong></td>
+<td>38</td>
+<td>RTL Tailwind plugin missing, <code>React.FC</code> × 125, <code>any</code> × 174, hydration <code>Date.now()</code> in render, no MSW, ioredis module-level singleton</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>19</td>
+<td>Stale test thresholds, <code>console.log</code> in web ×83, <code>next-env.d.ts</code> committed, PWA SW not registered</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: 92 distinct findings across 10 diagnostic domains.</strong></p>
+<hr />
+<h2 id="diagnostic-domains-10-parallel-agents">Diagnostic Domains (10 Parallel Agents)<a class="headerlink" href="#diagnostic-domains-10-parallel-agents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Config &amp; Build</strong> — <code>next.config.js</code>, Turbopack/webpack, Sentry shim, standalone output</li>
+<li><strong>App Router &amp; RSC</strong> — async params, <code>"use client"</code> boundaries, route groups, metadata</li>
+<li><strong>Data Fetching &amp; Caching</strong> — Next 15 cache behavior changes, 219 uncached fetches</li>
+<li><strong>API Routes &amp; Middleware</strong> — CSRF, CSP nonce, rate limit, cookies, trusted proxy</li>
+<li><strong>Security</strong> — JWT, XSS, CSRF, env leaks, open redirect, SSRF</li>
+<li><strong>Performance &amp; Bundle</strong> — chunk splitting, map libs, <code>"use client"</code> cascade</li>
+<li><strong>TypeScript &amp; Lint</strong> — strict flags, <code>any</code> usage, ESLint rules</li>
+<li><strong>Dependencies</strong> — React 19 peer deps, CVEs, duplicate map libs</li>
+<li><strong>i18n / a11y / Error Handling</strong> — next-intl, RTL, error boundaries, Sentry tunnel</li>
+<li><strong>Testing &amp; CI</strong> — Vitest, Playwright, MSW, coverage thresholds</li>
+</ol>
+<hr />
+<h2 id="critical-findings">CRITICAL Findings<a class="headerlink" href="#critical-findings" title="Permanent link">&para;</a></h2>
+<h3 id="c1-admin-framework-cachegroup-override-will-break-production-builds">C1. Admin: <code>framework</code> cacheGroup override will break production builds<a class="headerlink" href="#c1-admin-framework-cachegroup-override-will-break-production-builds" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/admin/next.config.js:264-270</code>
+Admin defines a <code>framework</code> splitChunks cacheGroup with <code>enforce: true</code>. Next 15 has its own built-in framework chunk and overriding it breaks chunk load order → runtime <code>"Cannot read properties of undefined (reading 'call')"</code> on <code>next build</code> (webpack). Web config explicitly comments against this (line 312-315) and does NOT include one.
+<strong>Fix</strong>: Delete the <code>framework</code> cacheGroup block.</p>
+<h3 id="c2-219-uncached-fetch-calls-assume-next-1314-caching-semantics">C2. 219 uncached <code>fetch()</code> calls assume Next 13/14 caching semantics<a class="headerlink" href="#c2-219-uncached-fetch-calls-assume-next-1314-caching-semantics" title="Permanent link">&para;</a></h3>
+<p><strong>Files</strong>: 219 total — admin 136, web 83. Hotspots: <code>apps/admin/src/lib/api/services.ts</code>, <code>apps/web/src/app/api/weather/route.ts</code>, <code>apps/admin/src/lib/api-client.ts</code>
+Next 15 flipped <code>fetch</code> default to no-cache. Every server-side call now hits origin every request.
+<strong>Fix</strong>: Add explicit <code>{ next: { revalidate: N } }</code> or <code>{ cache: 'force-cache' }</code>, define tagging scheme, add per-route <code>revalidate</code> exports where appropriate.</p>
+<h3 id="c3-react-leaflet421-peer-dep-failure-with-react-19">C3. <code>react-leaflet@4.2.1</code> peer dep failure with React 19<a class="headerlink" href="#c3-react-leaflet421-peer-dep-failure-with-react-19" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: both <code>package.json</code>
+react-leaflet 4.x supports React 17-18 only. React 19 requires 5.x.
+<strong>Fix</strong>: Upgrade to <code>react-leaflet@^5.0.0</code> and verify <code>DrawableMap.tsx</code>, <code>MapView.tsx</code>, <code>FieldBoundaryMap.tsx</code>.</p>
+<h3 id="c4-web-bundles-four-map-engines-simultaneously">C4. Web bundles FOUR map engines simultaneously<a class="headerlink" href="#c4-web-bundles-four-map-engines-simultaneously" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/web/package.json</code>
+<code>leaflet + react-leaflet + maplibre-gl + @react-google-maps/api</code> = ~400-500KB uncompressed bloat.
+<strong>Fix</strong>: Consolidate to one provider. Recommendation: keep Google Maps, remove the other three.</p>
+<h3 id="c5-jwt-algorithm-not-pinned-in-josejwtverify">C5. JWT algorithm not pinned in <code>jose.jwtVerify()</code><a class="headerlink" href="#c5-jwt-algorithm-not-pinned-in-josejwtverify" title="Permanent link">&para;</a></h3>
+<p><strong>Files</strong>: <code>apps/admin/src/lib/auth/jwt-verify.ts:65</code>, <code>apps/web/src/lib/security/jwt-middleware.ts:101</code>, <code>apps/web/src/app/api/weather/route.ts:82</code>, <code>apps/web/src/app/api/satellite/route.ts:56</code>
+Without <code>algorithms: ['HS256']</code>, attackers can perform algorithm confusion attacks.
+<strong>Fix</strong>: Add <code>algorithms: ['HS256']</code> (or the expected algorithm) to every <code>jwtVerify()</code> call.</p>
+<h3 id="c6-hardcoded-internal-ip-10202-committed-to-source">C6. Hardcoded internal IP <code>10.2.0.2</code> committed to source<a class="headerlink" href="#c6-hardcoded-internal-ip-10202-committed-to-source" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/web/next.config.js:34</code> — <code>allowedDevOrigins: ["10.2.0.2", ...]</code>
+Leaks internal network topology.
+<strong>Fix</strong>: Move to <code>process.env.ALLOWED_DEV_ORIGINS?.split(',')</code>.</p>
+<h3 id="c7-x-xss-protection-1-modeblock-deprecated-and-harmful">C7. <code>X-XSS-Protection: 1; mode=block</code> deprecated and harmful<a class="headerlink" href="#c7-x-xss-protection-1-modeblock-deprecated-and-harmful" title="Permanent link">&para;</a></h3>
+<p><strong>Files</strong>: <code>apps/admin/src/middleware.ts:347</code>, <code>apps/web/src/middleware.ts:191</code>, plus both <code>next.config.js</code>
+Deprecated since 2020. MDN recommends removal — CSP supersedes it.
+<strong>Fix</strong>: Remove the header everywhere.</p>
+<h3 id="c8-web-missing-global-errortsx">C8. Web missing <code>global-error.tsx</code><a class="headerlink" href="#c8-web-missing-global-errortsx" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/web/src/app/</code>
+Next 15 requires <code>global-error.tsx</code> for root-layout-level crashes. Without it, layout errors render a blank page.
+<strong>Fix</strong>: Create <code>apps/web/src/app/global-error.tsx</code> (client component, logs to Sentry).</p>
+<h3 id="c9-admin-sentry-shimts-exports-empty-object">C9. Admin <code>sentry-shim.ts</code> exports empty object<a class="headerlink" href="#c9-admin-sentry-shimts-exports-empty-object" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/admin/src/lib/sentry-shim.ts:9</code> — <code>export {}</code>
+If <code>@sentry/nextjs</code> is missing and webpack aliases to this shim, calls like <code>Sentry.captureException()</code> crash at runtime. Web's version is correctly stubbed.
+<strong>Fix</strong>: Mirror web's sentry-shim with full stubs (<code>init</code>, <code>captureException</code>, <code>withSentryConfig</code>, <code>ErrorBoundary</code>, etc).</p>
+<h3 id="c10-use-client-useparams-on-dynamic-route-instead-of-async-params">C10. <code>"use client"</code> + <code>useParams()</code> on dynamic route instead of async params<a class="headerlink" href="#c10-use-client-useparams-on-dynamic-route-instead-of-async-params" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/admin/src/app/farms/[id]/page.tsx:1-9</code>
+Bypasses Next 15 async params pattern and blocks SSR for dynamic data.
+<strong>Fix</strong>: Convert to server component, destructure <code>const { id } = await params</code>, pass to a client wrapper.</p>
+<h3 id="c11-output-standalone-without-outputfiletracingroot-in-monorepo">C11. <code>output: "standalone"</code> without <code>outputFileTracingRoot</code> in monorepo<a class="headerlink" href="#c11-output-standalone-without-outputfiletracingroot-in-monorepo" title="Permanent link">&para;</a></h3>
+<p><strong>Files</strong>: <code>apps/admin/next.config.js:34</code>, <code>apps/web/next.config.js:186</code>
+In a workspace, standalone build misses <code>packages/*</code> transitive deps → runtime "module not found" in Docker image.
+<strong>Fix</strong>: Add <code>outputFileTracingRoot: path.resolve(__dirname, '../../')</code>.</p>
+<hr />
+<h2 id="high-findings-selected">HIGH Findings (selected)<a class="headerlink" href="#high-findings-selected" title="Permanent link">&para;</a></h2>
+<h3 id="h1-force-dynamic-on-admin-root-layout-kills-static-optimization">H1. <code>force-dynamic</code> on admin root layout kills static optimization<a class="headerlink" href="#h1-force-dynamic-on-admin-root-layout-kills-static-optimization" title="Permanent link">&para;</a></h3>
+<p><code>apps/admin/src/app/layout.tsx:25</code> → entire admin app is dynamic. Move to specific routes only.</p>
+<h3 id="h2-force-dynamic-unnecessarily-on-web-auth-pages">H2. <code>force-dynamic</code> unnecessarily on web auth pages<a class="headerlink" href="#h2-force-dynamic-unnecessarily-on-web-auth-pages" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/src/app/(auth)/login/page.tsx:6</code>, <code>register/page.tsx</code> — comment says "next-intl requires headers" but next-intl 3.26.5 supports static rendering.</p>
+<h3 id="h3-providerstsx-use-client-cascades-to-auth-pages">H3. <code>Providers.tsx</code> <code>"use client"</code> cascades to auth pages<a class="headerlink" href="#h3-providerstsx-use-client-cascades-to-auth-pages" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/src/app/providers.tsx:1</code> → login/register ship ~300KB of React runtime unnecessarily. Scope providers to <code>(dashboard)</code> route group.</p>
+<h3 id="h4-x-forwarded-for-trusted-blindly-rate-limit-bypass">H4. X-Forwarded-For trusted blindly → rate-limit bypass<a class="headerlink" href="#h4-x-forwarded-for-trusted-blindly-rate-limit-bypass" title="Permanent link">&para;</a></h3>
+<p><code>apps/admin/src/app/api/log-error/route.ts:156</code>, <code>csp-report/route.ts:139</code>, <code>rate-limit.ts:70</code>, plus web equivalents. Add trusted proxy allowlist.</p>
+<h3 id="h5-rolebutton-on-div-elements">H5. <code>role="button"</code> on <code>&lt;div&gt;</code> elements<a class="headerlink" href="#h5-rolebutton-on-div-elements" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/src/components/dashboard/KPICard.tsx:59</code>, <code>TaskCard.tsx:82</code> — WCAG 2.1 AA fail. Use native <code>&lt;button type="button"&gt;</code>.</p>
+<h3 id="h6-sentry-tunnel-route-monitoring-doesnt-exist">H6. Sentry tunnel route <code>/monitoring</code> doesn't exist<a class="headerlink" href="#h6-sentry-tunnel-route-monitoring-doesnt-exist" title="Permanent link">&para;</a></h3>
+<p>Both <code>next.config.js</code> set <code>tunnelRoute: "/monitoring"</code> but there is no <code>app/api/monitoring/route.ts</code>. Tunnel silently fails → events blocked by ad-blockers.</p>
+<h3 id="h7-axios1136-ssrf-redos-advisories">H7. <code>axios@1.13.6</code> SSRF / ReDoS advisories<a class="headerlink" href="#h7-axios1136-ssrf-redos-advisories" title="Permanent link">&para;</a></h3>
+<p>Both apps. Upgrade to <code>1.7.7+</code> (actually, re-evaluate 1.13.6 vs latest — the minor chain has CVEs).</p>
+<h3 id="h8-date-fns410-major-version-default-import-api-removed">H8. <code>date-fns@4.1.0</code> major version — default-import API removed<a class="headerlink" href="#h8-date-fns410-major-version-default-import-api-removed" title="Permanent link">&para;</a></h3>
+<p>Audit for <code>import format from 'date-fns/format'</code> patterns.</p>
+<h3 id="h9-admin-instrumentationts-no-instrumentation-clientts-on-web">H9. Admin <code>instrumentation.ts</code> + no instrumentation-client.ts on web<a class="headerlink" href="#h9-admin-instrumentationts-no-instrumentation-clientts-on-web" title="Permanent link">&para;</a></h3>
+<p>Next 15 Sentry setup pattern requires both.</p>
+<h3 id="h10-ioredis-client-module-level-singleton">H10. ioredis client module-level singleton<a class="headerlink" href="#h10-ioredis-client-module-level-singleton" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/src/lib/rate-limiter.ts:84-128</code> — connection pool exhaustion risk on serverless.</p>
+<h3 id="h11-no-main-landmark-in-layouts">H11. No <code>&lt;main&gt;</code> landmark in layouts<a class="headerlink" href="#h11-no-main-landmark-in-layouts" title="Permanent link">&para;</a></h3>
+<p>Skip-link target broken — <code>apps/web/src/app/layout.tsx</code>, <code>apps/admin/src/app/layout.tsx</code>.</p>
+<h3 id="h12-transpilepackages-duplicated-by-webpack-alias-loop-in-web-config">H12. <code>transpilePackages</code> duplicated by webpack alias loop in web config<a class="headerlink" href="#h12-transpilepackages-duplicated-by-webpack-alias-loop-in-web-config" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/next.config.js:244-258</code> — redundant with <code>transpilePackages</code> and only runs under webpack, not Turbopack.</p>
+<h3 id="h13-jose-in-optimizepackageimports-but-not-installed">H13. <code>jose</code> in <code>optimizePackageImports</code> but not installed<a class="headerlink" href="#h13-jose-in-optimizepackageimports-but-not-installed" title="Permanent link">&para;</a></h3>
+<p>Both <code>next.config.js</code> → wasted build time / warnings.</p>
+<h3 id="h14-no-msw-network-mocking">H14. No MSW / network mocking<a class="headerlink" href="#h14-no-msw-network-mocking" title="Permanent link">&para;</a></h3>
+<p>Tests rely on global <code>fetch</code> stub. No API contract validation.</p>
+<h3 id="h15-web-vitestconfigts-missing-coverage-thresholds">H15. Web <code>vitest.config.ts</code> missing coverage thresholds<a class="headerlink" href="#h15-web-vitestconfigts-missing-coverage-thresholds" title="Permanent link">&para;</a></h3>
+<p>Admin has 15% (too low). Web has none.</p>
+<h3 id="h16-admin-playwright-chromium-only">H16. Admin Playwright — Chromium only<a class="headerlink" href="#h16-admin-playwright-chromium-only" title="Permanent link">&para;</a></h3>
+<p>Single browser coverage. Web has 5 projects.</p>
+<h3 id="h17-getlocale-getmessages-in-web-layout-lacks-fallback">H17. <code>getLocale()</code> / <code>getMessages()</code> in web layout lacks fallback<a class="headerlink" href="#h17-getlocale-getmessages-in-web-layout-lacks-fallback" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/src/app/layout.tsx:29-30</code> — throws crash entire site.</p>
+<h3 id="h18-large-monolithic-client-components">H18. Large monolithic client components<a class="headerlink" href="#h18-large-monolithic-client-components" title="Permanent link">&para;</a></h3>
+<p><code>IrrigationClient.tsx</code> 969 LOC, <code>SatelliteMonitorClient.tsx</code> 830 LOC, <code>InteractiveFieldMap.tsx</code> 791 LOC — slow hydration.</p>
+<h3 id="h19-csp-allows-unsafe-inline-script-without-strict-dynamic-in-web">H19. CSP allows <code>'unsafe-inline'</code> (script) without <code>'strict-dynamic'</code> in web<a class="headerlink" href="#h19-csp-allows-unsafe-inline-script-without-strict-dynamic-in-web" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/src/lib/security/csp-config.ts</code> — admin uses <code>strict-dynamic</code>; web does not.</p>
+<h3 id="h20-dev-only-jwt-decode-fallback-in-web-api-routes">H20. Dev-only JWT decode fallback in web API routes<a class="headerlink" href="#h20-dev-only-jwt-decode-fallback-in-web-api-routes" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/src/app/api/weather/route.ts:63-72</code>, <code>satellite/route.ts:37-49</code> — gated on <code>NODE_ENV === 'development'</code> but risky.</p>
+<h3 id="h21-hardcoded-next_locale-cookie-only-i18n-no-locale-segment">H21. Hardcoded <code>NEXT_LOCALE</code> cookie-only i18n (no <code>[locale]</code> segment)<a class="headerlink" href="#h21-hardcoded-next_locale-cookie-only-i18n-no-locale-segment" title="Permanent link">&para;</a></h3>
+<p><code>apps/web/src/middleware.ts:132-158</code> — Accept-Language fallback paths may strand English users in Arabic.</p>
+<h3 id="h22-next-envdts-committed-to-git">H22. <code>next-env.d.ts</code> committed to git<a class="headerlink" href="#h22-next-envdts-committed-to-git" title="Permanent link">&para;</a></h3>
+<p>Auto-generated file should be in <code>.gitignore</code>.</p>
+<h3 id="h23-typescript-eslintno-explicit-any-disabled-globally">H23. <code>@typescript-eslint/no-explicit-any</code> disabled globally<a class="headerlink" href="#h23-typescript-eslintno-explicit-any-disabled-globally" title="Permanent link">&para;</a></h3>
+<p>Both apps. 174 <code>any</code> usages unchecked.</p>
+<h3 id="h24-reactfc-used-125-times-web-heavy">H24. <code>React.FC</code> used 125 times (web-heavy)<a class="headerlink" href="#h24-reactfc-used-125-times-web-heavy" title="Permanent link">&para;</a></h3>
+<p>Deprecated in React 19 — children inferred implicitly.</p>
+<hr />
+<h2 id="medium-low-findings">MEDIUM / LOW Findings<a class="headerlink" href="#medium-low-findings" title="Permanent link">&para;</a></h2>
+<p><strong>MEDIUM (38)</strong>: <code>Date.now()</code> / <code>Math.random()</code> in render paths (hydration mismatch), no Tailwind RTL plugin, <code>cookies()</code> cascading dynamic rendering across utility imports, missing <code>generateStaticParams</code> on dynamic routes, 8 axios calls on <code>/copilot/page.tsx</code> bypassing Next cache, <code>@opentelemetry/*</code> bundled in web runtime, Storybook Next 15 compat, non-null assertions × 21, duplicate <code>axios</code> pins, <code>force-dynamic</code> on admin layout cascading, CommandPalette not dynamic in web, leaflet CSS loaded via CDN in <code>&lt;head&gt;</code>, <code>Referrer-Policy</code> okay, IDOR delegation to backend on <code>/api/admin/sessions/[sessionId]</code>, missing <code>generateMetadata</code> on several routes, CSRF logic ordering in web middleware fragile, admin global-error uses uninitialized locale state, <code>suppressHydrationWarning</code> masking real issues, <code>react-focus-lock</code> installed but unused, service worker exists but not registered, admin coverage threshold 15% too low, no <code>deps.inline</code> in vitest for ESM packages, missing PWA for admin, no <code>revalidateTag</code> usage, no <code>generateStaticParams</code>, log-error payload size limits good but IP spoofable, missing <code>global-error.tsx</code> in web (also in CRITICAL), non-bilingual not-found in admin, <code>eslint-disable-next-line</code> × 23, stale <code>@ts-expect-error</code> × 3 in web, no <code>zod</code> for runtime validation, root layout async-header without error handling, CSS imports not explicitly configured in Vitest, locale hydration <code>suppressHydrationWarning</code> hiding bugs, no focus trap on modals, admin removeConsole NODE_ENV timing, etc.</p>
+<p><strong>LOW (19)</strong>: 5 <code>console.log</code> in admin / 83 in web, PWA SW not auto-registered, <code>tailwindcss 3.4.17</code> (not 4.x), single-browser Playwright admin, <code>ban-ts-comment</code> off, test secret inline vs env, Storybook preview docs, <code>optimizePackageImports</code> incl. <code>jose</code> (also HIGH), log typo in instrumentation, etc.</p>
+<hr />
+<h2 id="prioritized-remediation-plan">Prioritized Remediation Plan<a class="headerlink" href="#prioritized-remediation-plan" title="Permanent link">&para;</a></h2>
+<h3 id="wave-1-safe-mechanical-fixes-auto-applied">Wave 1 — Safe mechanical fixes (auto-applied)<a class="headerlink" href="#wave-1-safe-mechanical-fixes-auto-applied" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Remove admin framework cacheGroup (<code>next.config.js</code>)</li>
+<li>Remove <code>jose</code> from <code>optimizePackageImports</code> (both)</li>
+<li>Add <code>outputFileTracingRoot</code> (both)</li>
+<li>Remove hardcoded <code>10.2.0.2</code> (web)</li>
+<li>Remove <code>X-XSS-Protection</code> header (both middleware + both next.config.js)</li>
+<li>Pin JWT algorithm in all <code>jwtVerify()</code> calls</li>
+<li>Replace admin empty sentry-shim with full stubs</li>
+<li>Remove <code>force-dynamic</code> from admin root layout</li>
+<li>Remove <code>force-dynamic</code> from web auth pages</li>
+<li>Create <code>apps/web/src/app/global-error.tsx</code></li>
+<li>Create <code>/api/monitoring/route.ts</code> Sentry tunnel (both)</li>
+<li>Convert <code>KPICard</code> + <code>TaskCard</code> <code>div role="button"</code> → <code>&lt;button&gt;</code></li>
+<li>Add <code>&lt;main&gt;</code> landmark to both layouts</li>
+<li>Trusted proxy validation utility for <code>X-Forwarded-For</code></li>
+<li><code>vitest.config.ts</code> coverage thresholds (web)</li>
+<li>Playwright cross-browser projects (admin)</li>
+<li><code>getLocale()</code> fallback (web layout)</li>
+<li><code>.gitignore</code> <code>next-env.d.ts</code></li>
+</ol>
+<h3 id="wave-2-needs-manual-review">Wave 2 — Needs manual review<a class="headerlink" href="#wave-2-needs-manual-review" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>react-leaflet</code> 4 → 5 upgrade + API changes</li>
+<li>Remove 3 of 4 map libraries + rewrite components</li>
+<li>219 fetch calls → systematic caching strategy with tags</li>
+<li><code>farms/[id]/page.tsx</code> → server component refactor</li>
+<li><code>React.FC</code> mass removal (125 sites)</li>
+<li>Providers scope refactor (move to <code>(dashboard)</code>)</li>
+<li><code>any</code> cleanup in map/chart integrations</li>
+<li>next-intl <code>[locale]</code> segment routing</li>
+<li>MSW introduction for API contract tests</li>
+</ul>
+<hr />
+<h2 id="metrics-snapshot">Metrics Snapshot<a class="headerlink" href="#metrics-snapshot" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Admin</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TS/TSX files</td>
+<td>684</td>
+<td>464</td>
+</tr>
+<tr>
+<td><code>page.tsx</code> files</td>
+<td>68</td>
+<td>78</td>
+</tr>
+<tr>
+<td>Unit test files</td>
+<td>71</td>
+<td>53</td>
+</tr>
+<tr>
+<td><code>any</code> occurrences</td>
+<td>56</td>
+<td>118</td>
+</tr>
+<tr>
+<td><code>@ts-ignore</code></td>
+<td>0</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>eslint-disable-next-line</code></td>
+<td>8</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>React.FC</code></td>
+<td>2</td>
+<td>123</td>
+</tr>
+<tr>
+<td>Non-null <code>!</code></td>
+<td>10</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Uncached <code>fetch()</code></td>
+<td>136</td>
+<td>83</td>
+</tr>
+<tr>
+<td><code>"use client"</code> directives</td>
+<td>minimal</td>
+<td>minimal</td>
+</tr>
+<tr>
+<td><code>force-dynamic</code> exports</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Map libraries</td>
+<td>2 (leaflet + react-leaflet)</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Generated by 10 parallel specialized diagnostic agents on 2026-04-10.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

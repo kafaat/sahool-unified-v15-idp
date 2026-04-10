@@ -224,15 +224,12 @@ async def deprecation_headers_middleware(request, call_next):
     response = await call_next(request)
     response.headers["Deprecation"] = "true"
     response.headers["Sunset"] = _SUNSET_DATE
-    response.headers["Link"] = (
-        f'<{_SUCCESSOR_URL}>; rel="successor-version", '
-        f'<{_SUCCESSOR_URL}>; rel="deprecation"'
-    )
+    response.headers["Link"] = f'<{_SUCCESSOR_URL}>; rel="successor-version", <{_SUCCESSOR_URL}>; rel="deprecation"'
     response.headers["X-API-Deprecated"] = "true"
     response.headers["X-API-Successor"] = "vegetation-analysis-service:8090"
     response.headers["Warning"] = (
         f'299 - "ndvi-processor is deprecated and will be removed on '
-        f'{_SUNSET_DATE}. Migrate to vegetation-analysis-service (port 8090). '
+        f"{_SUNSET_DATE}. Migrate to vegetation-analysis-service (port 8090). "
         f'See {_SUCCESSOR_URL}"'
     )
     return response

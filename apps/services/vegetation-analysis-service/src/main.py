@@ -1370,8 +1370,7 @@ async def analyze_field_with_action(
                 tenant_id=request.tenant_id,
             )
             logger.info(
-                "NATS: Published satellite.ndvi.computed event "
-                f"for field {request.field_id} tenant={request.tenant_id}"
+                f"NATS: Published satellite.ndvi.computed event for field {request.field_id} tenant={request.tenant_id}"
             )
         except Exception as e:
             logger.error(f"Failed to publish NATS event: {e}")

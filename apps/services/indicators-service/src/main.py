@@ -301,9 +301,7 @@ async def lifespan(app: FastAPI):
         # NATS wildcard `*` matches exactly one token, so this catches every
         # tenant. Tenant isolation is still enforced by the handler via the
         # `tenant_id` field in the payload.
-        await app.state.nc.subscribe(
-            "sahool.tenant.*.satellite.ndvi.computed", cb=handle_ndvi_calculated
-        )
+        await app.state.nc.subscribe("sahool.tenant.*.satellite.ndvi.computed", cb=handle_ndvi_calculated)
         logger.info("nats_subscriptions_registered", count=3)
 
     yield

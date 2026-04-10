@@ -3,8 +3,20 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - '**/Dockerfile*'
+      - 'apps/services/**'
+      - 'docker/**'
+      - '.dockerignore'
+      - '.github/workflows/docker-image.yml'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - '**/Dockerfile*'
+      - 'apps/services/**'
+      - 'docker/**'
+      - '.dockerignore'
+      - '.github/workflows/docker-image.yml'
 
 concurrency:
   group: docker-image-${{ github.ref }}

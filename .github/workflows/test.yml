@@ -75,7 +75,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: changes
-    if: needs.changes.outputs.frontend == 'true' || github.event_name == 'push'
+    # Bypass paths-filter only on push to long-lived branches (main/develop);
+    # on claude/** feature branches, trust the paths-filter so unrelated
+    # jobs don't run on every push.
+    if: >-
+      needs.changes.outputs.frontend == 'true' ||
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
     steps:
       - uses: actions/checkout@v6
 
@@ -130,7 +136,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: changes
-    if: needs.changes.outputs.python == 'true' || github.event_name == 'push'
+    if: >-
+      needs.changes.outputs.python == 'true' ||
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
     steps:
       - uses: actions/checkout@v6
 
@@ -249,7 +258,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: changes
-    if: needs.changes.outputs.mobile == 'true' || github.event_name == 'push'
+    if: >-
+      needs.changes.outputs.mobile == 'true' ||
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
     defaults:
       run:
         working-directory: apps/mobile
@@ -318,7 +330,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: changes
-    if: needs.changes.outputs.shared == 'true' || github.event_name == 'push'
+    if: >-
+      needs.changes.outputs.shared == 'true' ||
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
     steps:
       - uses: actions/checkout@v6
 

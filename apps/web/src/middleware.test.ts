@@ -72,7 +72,8 @@ describe('Middleware Security', () => {
       expect(response.headers.get('X-Frame-Options')).toBe('DENY');
       expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
       expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
-      expect(response.headers.get('X-XSS-Protection')).toBe('1; mode=block');
+      // X-XSS-Protection removed — deprecated (MDN 2020+), replaced by CSP + nonce
+      expect(response.headers.get('X-XSS-Protection')).toBeNull();
     });
 
     it('should apply security headers to /fields/map.view', async () => {
@@ -123,12 +124,14 @@ describe('Middleware Security', () => {
       expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
     });
 
-    it('should set X-XSS-Protection: 1; mode=block on API routes', async () => {
+    it('should NOT set deprecated X-XSS-Protection on API routes', async () => {
+      // X-XSS-Protection was deprecated by MDN in 2020. CSP + nonce supersedes it.
+      // https://developer.mozilla.org/docs/Web/HTTP/Headers/X-XSS-Protection
       const { middleware } = await import('./middleware');
       const request = createRequest('/api/weather');
       const response = await middleware(request);
 
-      expect(response.headers.get('X-XSS-Protection')).toBe('1; mode=block');
+      expect(response.headers.get('X-XSS-Protection')).toBeNull();
     });
 
     it('should set Cache-Control: no-store on API routes', async () => {
@@ -139,7 +142,7 @@ describe('Middleware Security', () => {
       expect(response.headers.get('Cache-Control')).toBe('no-store');
     });
 
-    it('should include all five security headers together on API routes', async () => {
+    it('should include modern security headers together on API routes (no deprecated X-XSS-Protection)', async () => {
       const { middleware } = await import('./middleware');
       const request = createRequest('/api/irrigation/schedule');
       const response = await middleware(request);
@@ -147,7 +150,7 @@ describe('Middleware Security', () => {
       expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
       expect(response.headers.get('X-Frame-Options')).toBe('DENY');
       expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
-      expect(response.headers.get('X-XSS-Protection')).toBe('1; mode=block');
+      expect(response.headers.get('X-XSS-Protection')).toBeNull();
       expect(response.headers.get('Cache-Control')).toBe('no-store');
     });
   });

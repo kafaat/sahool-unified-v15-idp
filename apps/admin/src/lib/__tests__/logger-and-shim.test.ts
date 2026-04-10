@@ -210,29 +210,38 @@ describe('Sentry Shim', () => {
     expect(fs.existsSync(sentryShimPath)).toBe(true);
   });
 
-  it('is a valid module with empty export', () => {
+  it('exports the full Sentry API surface as no-ops', () => {
+    // Previously `export {}` — this caused runtime crashes whenever consuming
+    // code called `Sentry.captureException()` and friends. The shim now mirrors
+    // the web app's shim and exports every method `@sentry/nextjs` exposes.
     const content = fs.readFileSync(sentryShimPath, 'utf-8');
-    expect(content).toContain('export {}');
+    expect(content).toMatch(/export\s+(function|const)\s+init\b/);
+    expect(content).toMatch(/export\s+(function|const)\s+captureException\b/);
+    expect(content).toMatch(/export\s+(function|const)\s+captureMessage\b/);
+    expect(content).toMatch(/export\s+(function|const)\s+withSentryConfig\b/);
   });
 
   it('has documentation explaining its purpose', () => {
     const content = fs.readFileSync(sentryShimPath, 'utf-8');
-    expect(content).toContain('shim');
+    expect(content).toMatch(/shim/i);
     expect(content).toContain('@sentry/nextjs');
   });
 
   it('explains webpack alias usage', () => {
     const content = fs.readFileSync(sentryShimPath, 'utf-8');
-    expect(content).toMatch(/webpack|resolve\.alias/i);
+    expect(content).toMatch(/webpack|resolve\.alias|alias/i);
   });
 
   it('can be imported without errors', async () => {
     await expect(import('../sentry-shim')).resolves.toBeDefined();
   });
 
-  it('is a minimal file (under 20 lines)', () => {
+  it('is a lean no-op module (under 200 lines)', () => {
+    // Was `< 20` when shim was `export {}`. New shim exports ~20 no-op
+    // functions; should still stay small. Ceiling bumped to 200 to allow
+    // growth while preventing the shim from turning into real Sentry code.
     const content = fs.readFileSync(sentryShimPath, 'utf-8');
     const lines = content.split('\n').length;
-    expect(lines).toBeLessThan(20);
+    expect(lines).toBeLessThan(200);
   });
 });

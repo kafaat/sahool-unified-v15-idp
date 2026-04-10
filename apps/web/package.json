@@ -37,7 +37,7 @@
     "@sahool/i18n": "^16.0.0",
     "@sahool/shared-types": "^16.0.0",
     "@tanstack/react-query": "5.90.21",
-    "axios": "1.13.6",
+    "axios": "1.15.0",
     "clsx": "2.1.1",
     "date-fns": "4.1.0",
     "forwarded-parse": "^2.1.2",
@@ -48,8 +48,8 @@
     "leaflet": "1.9.4",
     "lucide-react": "0.577.0",
     "maplibre-gl": "4.7.1",
-    "next": "15.5.14",
-    "next-intl": "3.26.5",
+    "next": "15.5.15",
+    "next-intl": "4.9.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-focus-lock": "^2.13.7",
@@ -86,7 +86,7 @@
     "postcss": "8.5.8",
     "tailwindcss": "3.4.17",
     "typescript": "5.9.3",
-    "vite": "^6.4.1",
+    "vite": "^8.0.8",
     "vitest": "3.2.4"
   },
   "optionalDependencies": {

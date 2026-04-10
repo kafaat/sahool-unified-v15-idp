@@ -1,3 +1,5 @@
+const path = require("path");
+
 let withSentryConfig;
 let sentryInstalled = false;
 try {
@@ -32,6 +34,7 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  outputFileTracingRoot: path.resolve(__dirname, "../../"),
 
   // Security: Remove X-Powered-By header
   poweredByHeader: false,
@@ -59,10 +62,6 @@ const nextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
           },
           {
             key: "X-Frame-Options",
@@ -207,7 +206,6 @@ const nextConfig = {
     // factory function, which crashes at runtime with
     // "Cannot read properties of undefined (reading 'call')".
     if (!sentryInstalled) {
-      const path = require("path");
       config.resolve.alias = {
         ...config.resolve.alias,
         "@sentry/nextjs": path.resolve(__dirname, "src/lib/sentry-shim.ts"),
@@ -216,7 +214,6 @@ const nextConfig = {
 
     // Add parent node_modules to module resolution for workspace dependencies
     // This allows Next.js to find dependencies hoisted to the root in npm workspaces
-    const path = require("path");
     const parentNodeModules = path.resolve(__dirname, "../../node_modules");
     config.resolve.modules = [
       ...(config.resolve.modules || ["node_modules"]),
@@ -260,14 +257,9 @@ const nextConfig = {
               chunks: "all",
               priority: 30,
             },
-            // Group framework-level dependencies that rarely change
-            framework: {
-              test: /[\\/]node_modules[\\/](react|react-dom|next|scheduler)[\\/]/,
-              name: "framework",
-              chunks: "all",
-              priority: 40,
-              enforce: true,
-            },
+            // Note: no `framework` cacheGroup here — Next.js 15 ships its own
+            // framework chunk (react, react-dom, next, scheduler) and overriding
+            // it via splitChunks breaks production builds.
           },
         },
       };
@@ -291,7 +283,6 @@ const nextConfig = {
       "@sahool/shared-types",
       "@sahool/api-client",
       "react-leaflet",
-      "jose",
       "axios",
     ],
   },

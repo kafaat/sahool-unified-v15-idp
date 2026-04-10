@@ -1,3 +1,5 @@
+const path = require("path");
+
 let withSentryConfig;
 let sentryInstalled = false;
 try {
@@ -31,7 +33,7 @@ const nextConfig = {
 
   // Allow cross-origin requests from local network in development
   // (prevents "Cross origin request detected" warning)
-  allowedDevOrigins: ["10.2.0.2", "localhost", "127.0.0.1"],
+  allowedDevOrigins: (process.env.ALLOWED_DEV_ORIGINS?.split(",").map(s => s.trim()).filter(Boolean)) || ["localhost", "127.0.0.1"],
 
   // Security: Remove X-Powered-By header
   poweredByHeader: false,
@@ -117,10 +119,6 @@ const nextConfig = {
             value: "nosniff",
           },
           {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
-          {
             key: "Referrer-Policy",
             value: "strict-origin-when-cross-origin",
           },
@@ -184,6 +182,7 @@ const nextConfig = {
   // Output configuration for Docker/standalone deployments
   // Always use standalone for optimal Docker image size (copies only needed files)
   output: "standalone",
+  outputFileTracingRoot: path.resolve(__dirname, "../../"),
 
   // Compiler optimizations
   compiler: {
@@ -215,7 +214,6 @@ const nextConfig = {
       "@sahool/api-client",
       "react-leaflet",
       "@react-google-maps/api",
-      "jose",
       "axios",
     ],
   },
@@ -234,29 +232,6 @@ const nextConfig = {
     // Using `false` causes webpack to generate a module reference without a
     // factory function, which crashes at runtime with
     // "Cannot read properties of undefined (reading 'call')".
-    const path = require("path");
-    const fs = require("fs");
-
-    // Build alias map: resolve @sahool/* to their TypeScript source when dist/ is missing.
-    // Same pattern as the @sentry/nextjs shim below — using `false` or a missing path
-    // causes webpack to register a module without a factory, crashing with
-    // "Cannot read properties of undefined (reading 'call')".
-    const sahoolPackages = [
-      "shared-ui", "shared-utils", "shared-hooks", "shared-types",
-      "api-client", "i18n", "design-system",
-    ];
-    const sahoolAliases = {};
-    for (const pkg of sahoolPackages) {
-      const distEntry = path.resolve(__dirname, `../../packages/${pkg}/dist/index.js`);
-      const srcEntry = path.resolve(__dirname, `../../packages/${pkg}/src/index.ts`);
-      if (!fs.existsSync(distEntry) && fs.existsSync(srcEntry)) {
-        sahoolAliases[`@sahool/${pkg}`] = srcEntry;
-      }
-    }
-    if (Object.keys(sahoolAliases).length > 0) {
-      config.resolve.alias = { ...config.resolve.alias, ...sahoolAliases };
-    }
-
     if (!sentryInstalled) {
       config.resolve.alias = {
         ...config.resolve.alias,

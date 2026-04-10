@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isValidCSPReport, sanitizeCSPReport, type CSPReportBody } from '@/lib/security/csp-config';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import { getClientIP } from '@/lib/security/client-ip';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -20,26 +21,6 @@ const RATE_LIMIT_CONFIG = {
   maxRequests: 100,
   keyPrefix: 'csp-report',
 };
-
-/**
- * Get client IP address
- * الحصول على عنوان IP للعميل
- */
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
-
-  if (forwarded) {
-    const firstIp = forwarded.split(',')[0];
-    return firstIp ? firstIp.trim() : 'unknown';
-  }
-
-  if (realIp) {
-    return realIp;
-  }
-
-  return 'unknown';
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CSP Report Handler

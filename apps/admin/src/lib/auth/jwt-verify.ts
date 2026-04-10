@@ -65,6 +65,7 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
     const result = await jwtVerify(token, new TextEncoder().encode(secret), {
       issuer,
       audience,
+      algorithms: ['HS256'],
     });
     payload = result.payload;
   } catch (error) {

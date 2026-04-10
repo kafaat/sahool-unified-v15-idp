@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { getClientIP } from '@/lib/security/client-ip';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -136,10 +137,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Get client IP
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown';
+  const ip = getClientIP(request);
 
   // Rate limit check
   if (!checkRateLimit(ip)) {

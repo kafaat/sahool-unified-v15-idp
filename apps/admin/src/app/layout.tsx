@@ -21,13 +21,16 @@ export const metadata: Metadata = {
   },
 };
 
-// Force dynamic rendering to prevent static generation issues
-export const dynamic = 'force-dynamic';
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Get nonce from headers for CSP (set by middleware)
-  const headersList = await headers();
-  const nonce = headersList.get('X-Nonce') || '';
+  let nonce = '';
+  try {
+    const headersList = await headers();
+    nonce = headersList.get('X-Nonce') || '';
+  } catch (error) {
+    // Rare edge case: headers() may throw at build-time. Fall back gracefully.
+    console.error('[RootLayout] Failed to read headers(), falling back to default locale:', error);
+  }
 
   const locale = getLocale();
   const direction = getDirection(locale);
@@ -56,7 +59,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </noscript>
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen" suppressHydrationWarning>
-        <Providers>{children}</Providers>
+        <Providers>
+          <main id="main-content">{children}</main>
+        </Providers>
       </body>
     </html>
   );

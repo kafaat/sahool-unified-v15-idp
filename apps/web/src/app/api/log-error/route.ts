@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import { getClientIP } from '@/lib/security/client-ip';
 
 interface ErrorLogPayload {
   type: string;
@@ -31,26 +32,6 @@ const RATE_LIMIT_CONFIG = {
   maxRequests: 10,
   keyPrefix: 'error-log',
 };
-
-/**
- * Get client IP address
- * الحصول على عنوان IP للعميل
- */
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
-
-  if (forwarded) {
-    const firstIp = forwarded.split(',')[0];
-    return firstIp ? firstIp.trim() : 'unknown';
-  }
-
-  if (realIp) {
-    return realIp;
-  }
-
-  return 'unknown';
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Log Handler

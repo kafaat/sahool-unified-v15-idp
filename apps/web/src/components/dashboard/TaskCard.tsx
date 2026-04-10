@@ -60,9 +60,10 @@ const TaskCard = React.memo<TaskCardProps>(function TaskCard({ task, onComplete,
 
   // Memoized class names
   const cardClassName = useMemo(() => {
-    const baseClasses =
-      'p-3 rounded-lg border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500';
-    const stateClasses = isCompleted ? 'bg-gray-50 opacity-60' : 'bg-white hover:shadow-md';
+    const baseClasses = 'relative p-3 rounded-lg border transition-all';
+    const stateClasses = isCompleted
+      ? 'bg-gray-50 opacity-60'
+      : `bg-white ${onSelect ? 'hover:shadow-md' : ''}`;
     const priorityClasses =
       {
         high: 'border-e-4 border-e-red-400',
@@ -72,19 +73,24 @@ const TaskCard = React.memo<TaskCardProps>(function TaskCard({ task, onComplete,
       }[task.priority] || '';
 
     return `${baseClasses} ${stateClasses} ${priorityClasses}`;
-  }, [isCompleted, task.priority]);
+  }, [isCompleted, task.priority, onSelect]);
+
+  const ariaLabel = `مهمة: ${task.title} - الحالة: ${STATUS_LABELS[task.status]} - الأولوية: ${PRIORITY_LABELS[task.priority]}`;
 
   return (
-    <div
-      onClick={handleClick}
-      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
-      tabIndex={0}
-      role="button"
-      aria-label={`مهمة: ${task.title} - الحالة: ${STATUS_LABELS[task.status]} - الأولوية: ${PRIORITY_LABELS[task.priority]}`}
-      className={cardClassName}
-    >
+    <div className={cardClassName}>
+      {/* Stretched overlay button for selection (native button handles Enter/Space) */}
+      {onSelect && (
+        <button
+          type="button"
+          onClick={handleClick}
+          aria-label={ariaLabel}
+          className="absolute inset-0 w-full h-full appearance-none bg-transparent rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        />
+      )}
+
       {/* Header */}
-      <div className="flex items-start justify-between gap-2">
+      <div className="relative pointer-events-none flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-lg">{PRIORITY_ICONS[task.priority]}</span>
           <h4
@@ -110,11 +116,13 @@ const TaskCard = React.memo<TaskCardProps>(function TaskCard({ task, onComplete,
 
       {/* Description */}
       {task.description && (
-        <p className="text-xs text-gray-500 mt-2 line-clamp-2">{task.description}</p>
+        <p className="relative pointer-events-none text-xs text-gray-500 mt-2 line-clamp-2">
+          {task.description}
+        </p>
       )}
 
       {/* Meta */}
-      <div className="flex items-center justify-between mt-3 text-xs text-gray-400">
+      <div className="relative pointer-events-none flex items-center justify-between mt-3 text-xs text-gray-400">
         <div className="flex items-center gap-3">
           {/* Due date */}
           {dueDate && (
@@ -140,9 +148,10 @@ const TaskCard = React.memo<TaskCardProps>(function TaskCard({ task, onComplete,
         {/* Complete button */}
         {!isCompleted && (
           <button
+            type="button"
             onClick={handleComplete}
             aria-label={`إنهاء مهمة: ${task.title}`}
-            className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="pointer-events-auto relative z-10 px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             ✓ إنهاء
           </button>

@@ -2,9 +2,6 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import LoginClient from './LoginClient';
 
-// Force dynamic rendering since this page uses next-intl which requires headers
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: 'Login | SAHOOL - Smart Agriculture Platform',
   description: 'تسجيل الدخول إلى منصة سهول الزراعية - Login to SAHOOL Smart Agricultural Platform',

@@ -40,26 +40,10 @@ export const KPICard = React.memo<KPICardProps>(function KPICard({ kpi, onClick 
   const icon = kpi.icon && iconMap[kpi.icon] ? iconMap[kpi.icon] : '📊';
   const trend = kpi.trend || 'stable';
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onClick?.();
-    }
-  };
+  const ariaLabel = `مؤشر ${kpi.labelAr}: ${kpi.value} ${kpi.unit}, الاتجاه: ${kpi.trendValue > 0 ? 'صاعد' : kpi.trendValue < 0 ? 'نازل' : 'مستقر'}`;
 
-  return (
-    <div
-      className={`
-        p-4 rounded-xl border-2 cursor-pointer
-        transition-all duration-200 hover:shadow-lg hover:scale-[1.02]
-        ${statusColors[kpi.status] || statusColors.good}
-      `}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label={`مؤشر ${kpi.labelAr}: ${kpi.value} ${kpi.unit}, الاتجاه: ${kpi.trendValue > 0 ? 'صاعد' : kpi.trendValue < 0 ? 'نازل' : 'مستقر'}`}
-    >
+  const content = (
+    <>
       <div className="flex items-start justify-between">
         <div className="p-2 rounded-lg bg-white/50 text-2xl" aria-hidden="true">
           {icon}
@@ -80,6 +64,37 @@ export const KPICard = React.memo<KPICardProps>(function KPICard({ kpi, onClick 
           <span className="text-sm text-gray-500">{kpi.unit}</span>
         </div>
       </div>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={`
+          w-full text-left appearance-none bg-transparent
+          p-4 rounded-xl border-2 cursor-pointer
+          transition-all duration-200 hover:shadow-lg hover:scale-[1.02]
+          ${statusColors[kpi.status] || statusColors.good}
+        `}
+        onClick={onClick}
+        aria-label={ariaLabel}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className={`
+        p-4 rounded-xl border-2
+        transition-all duration-200
+        ${statusColors[kpi.status] || statusColors.good}
+      `}
+      aria-label={ariaLabel}
+    >
+      {content}
     </div>
   );
 });

@@ -59,6 +59,16 @@ function makeFieldRow(overrides: Record<string, any> = {}) {
 // ---------------------------------------------------------------------------
 
 function createMockPrisma() {
+  // `innerExecuteRaw` is hoisted so tests can inspect the raw SQL emitted
+  // inside a `$transaction(...)` callback (normally each tx call would
+  // create a fresh mock, making the calls invisible to assertions). The
+  // `strings` argument is the TemplateStringsArray Prisma passes to
+  // `$executeRaw`, so tests can join it and check for e.g. `ST_Centroid`.
+  const innerExecuteRaw = jest.fn().mockResolvedValue(1);
+  const innerTxFieldCreate = jest.fn().mockResolvedValue(makeFieldRow());
+  const innerTxFieldUpdate = jest
+    .fn()
+    .mockResolvedValue(makeFieldRow({ version: 2 }));
   return {
     field: {
       create: jest.fn(),
@@ -75,19 +85,26 @@ function createMockPrisma() {
       findUnique: jest.fn(),
       findMany: jest.fn(),
     },
-    $transaction: jest.fn((cb: any) => cb({
-      field: {
-        create: jest.fn().mockResolvedValue(makeFieldRow()),
-        update: jest.fn().mockResolvedValue(makeFieldRow({ version: 2 })),
-      },
-      fieldBoundaryHistory: {
-        create: jest.fn().mockResolvedValue({}),
-      },
-      $executeRaw: jest.fn().mockResolvedValue(1),
-      $queryRaw: jest.fn().mockResolvedValue([{ boundary: null }]),
-    })),
+    $transaction: jest.fn((cb: any) =>
+      cb({
+        field: {
+          create: innerTxFieldCreate,
+          update: innerTxFieldUpdate,
+        },
+        fieldBoundaryHistory: {
+          create: jest.fn().mockResolvedValue({}),
+        },
+        $executeRaw: innerExecuteRaw,
+        $queryRaw: jest.fn().mockResolvedValue([{ boundary: null }]),
+      }),
+    ),
     $queryRaw: jest.fn(),
+    $queryRawUnsafe: jest.fn().mockResolvedValue([]),
     $executeRaw: jest.fn(),
+    // exposed for assertions ↓
+    __innerExecuteRaw: innerExecuteRaw,
+    __innerTxFieldCreate: innerTxFieldCreate,
+    __innerTxFieldUpdate: innerTxFieldUpdate,
   };
 }
 
@@ -219,6 +236,80 @@ describe('FieldsService', () => {
       // Verify transaction was called (boundary path)
       expect(prisma.$transaction).toHaveBeenCalled();
     });
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Regression: centroid and bbox must be derived in-database from the
+    // boundary on INSERT. Previously the service computed the centroid in
+    // JS (double-counting the closing vertex) and never populated a bbox
+    // at all. See fix in fields.service.ts `create()`.
+    // ─────────────────────────────────────────────────────────────────────
+
+    it('persists centroid via PostGIS ST_Centroid(boundary) on create', async () => {
+      const dto = {
+        ...baseDto,
+        coordinates: [
+          [46.7, 24.7],
+          [46.8, 24.7],
+          [46.8, 24.8],
+          [46.7, 24.8],
+        ],
+      };
+      prisma.field.findUnique.mockResolvedValue(makeFieldRow());
+
+      await service.create(dto as any);
+
+      // Inspect the raw SQL the service emitted inside the transaction.
+      const rawCalls = prisma.__innerExecuteRaw.mock.calls;
+      expect(rawCalls.length).toBeGreaterThan(0);
+      const sqlFragments: string[] = rawCalls.map((call) => {
+        // Prisma's $executeRaw receives a TemplateStringsArray as the first
+        // argument. `.raw` gives us the static parts without the
+        // interpolated values so we can match on SQL keywords.
+        const tpl = call[0] as { raw?: readonly string[] } | readonly string[];
+        return Array.isArray(tpl)
+          ? (tpl as readonly string[]).join(' ')
+          : ((tpl as { raw?: readonly string[] }).raw ?? []).join(' ');
+      });
+      const combined = sqlFragments.join('\n');
+
+      expect(combined).toMatch(/ST_Centroid\s*\(/);
+      expect(combined).toMatch(/centroid\s*=\s*ST_Centroid/);
+      // The boundary itself must still be set, and area computed.
+      expect(combined).toMatch(/boundary\s*=\s*ST_SetSRID/);
+      expect(combined).toMatch(/area_hectares\s*=\s*ST_Area/);
+    });
+
+    it('does NOT emit a JS-precomputed centroid GeoJSON point to the SQL layer', async () => {
+      // The old implementation interpolated `{"type":"Point","coordinates":[…]}`
+      // as the centroid value — that path is now replaced by an
+      // in-database `ST_Centroid(boundary)` call. Regression-guard it so a
+      // later refactor can't silently reintroduce the stale-centroid bug.
+      const dto = {
+        ...baseDto,
+        coordinates: [
+          [46.7, 24.7],
+          [46.8, 24.7],
+          [46.8, 24.8],
+          [46.7, 24.8],
+        ],
+      };
+      prisma.field.findUnique.mockResolvedValue(makeFieldRow());
+
+      await service.create(dto as any);
+
+      const rawCalls = prisma.__innerExecuteRaw.mock.calls;
+      for (const call of rawCalls) {
+        // Every positional parameter after index 0 is an interpolated value
+        // (boundary / centroid / …). None of them should be a JSON-serialised
+        // Point geometry.
+        for (let i = 1; i < call.length; i++) {
+          const value = call[i];
+          if (typeof value === 'string') {
+            expect(value).not.toMatch(/"type"\s*:\s*"Point"/);
+          }
+        }
+      }
+    });
   });
 
   // =========================================================================
@@ -241,12 +332,18 @@ describe('FieldsService', () => {
     });
 
     it('should return cached field on cache hit', async () => {
+      // The `bbox` key signals that this cache entry was written by the
+      // current version of the service. findById short-circuits the DB
+      // round-trip only when the entry contains `bbox`; entries cached
+      // before the bbox rollout are intentionally ignored so the next
+      // read produces a fresh, bbox-populated object.
       const cachedField = {
         id: FIELD_ID,
         name: 'Cached Field',
         tenantId: TENANT_A,
         version: 1,
         etag: `"${FIELD_ID}-v1"`,
+        bbox: [46.7, 24.7, 46.8, 24.8] as [number, number, number, number],
       };
       cache.get.mockResolvedValue(cachedField);
 
@@ -272,12 +369,50 @@ describe('FieldsService', () => {
       ).rejects.toThrow(ForbiddenException);
     });
 
+    it('exposes bbox + centroid from PostGIS when present on the row', async () => {
+      // Regression-guard: findById must query `ST_XMin/ST_YMin/ST_XMax/
+      // ST_YMax(boundary)` alongside `ST_X/ST_Y(centroid)` and surface
+      // the bounding box on the response DTO. Before the fix, `bbox` was
+      // never exposed at all and the centroid-only query hard-coded the
+      // column name without the bbox bounds.
+      prisma.field.findUnique.mockResolvedValue(makeFieldRow());
+      prisma.$queryRawUnsafe.mockResolvedValueOnce([
+        {
+          centroid_lng: 46.75,
+          centroid_lat: 24.75,
+          min_lng: 46.7,
+          min_lat: 24.7,
+          max_lng: 46.8,
+          max_lat: 24.8,
+        },
+      ]);
+
+      const result = await service.findById(FIELD_ID);
+
+      expect(result.centroidLng).toBeCloseTo(46.75);
+      expect(result.centroidLat).toBeCloseTo(24.75);
+      expect(result.bbox).toEqual([46.7, 24.7, 46.8, 24.8]);
+
+      // Verify the SQL actually uses ST_Envelope-style min/max extractors
+      // (not a hard-coded `bbox` column) so this stays in sync with the
+      // in-database derivation on write.
+      const sql = prisma.$queryRawUnsafe.mock.calls[0][0] as string;
+      expect(sql).toMatch(/ST_XMin\s*\(\s*boundary/);
+      expect(sql).toMatch(/ST_YMin\s*\(\s*boundary/);
+      expect(sql).toMatch(/ST_XMax\s*\(\s*boundary/);
+      expect(sql).toMatch(/ST_YMax\s*\(\s*boundary/);
+      expect(sql).toMatch(/ST_X\s*\(\s*centroid/);
+      expect(sql).toMatch(/ST_Y\s*\(\s*centroid/);
+    });
+
     it('should enforce tenant isolation on cached results', async () => {
       cache.get.mockResolvedValue({
         id: FIELD_ID,
         tenantId: TENANT_A,
         version: 1,
         etag: `"${FIELD_ID}-v1"`,
+        // Present so findById uses the cache-hit short-circuit path.
+        bbox: [46.7, 24.7, 46.8, 24.8] as [number, number, number, number],
       });
 
       await expect(
@@ -467,6 +602,63 @@ describe('FieldsService', () => {
       const result = await service.update(FIELD_ID, { name: 'Test' }, TENANT_A, etag);
 
       expect(result).toBeDefined();
+    });
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Regression: when the boundary is updated the centroid MUST be
+    // recomputed in the same statement. Previously only boundary +
+    // area_hectares were updated, leaving the stored centroid stale.
+    // ─────────────────────────────────────────────────────────────────────
+    it('recomputes centroid from new boundary on update', async () => {
+      prisma.field.findUnique
+        .mockResolvedValueOnce(makeFieldRow({ version: 1 }))
+        .mockResolvedValueOnce(makeFieldRow({ version: 2 }));
+
+      const capturedRawCalls: unknown[][] = [];
+      prisma.$transaction.mockImplementation(async (cb: any) => {
+        await cb({
+          field: { update: jest.fn() },
+          $executeRaw: jest.fn((...args: unknown[]) => {
+            capturedRawCalls.push(args);
+            return Promise.resolve(1);
+          }),
+        });
+      });
+
+      await service.update(
+        FIELD_ID,
+        {
+          boundary: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [46.7, 24.7],
+                [46.8, 24.7],
+                [46.8, 24.8],
+                [46.7, 24.8],
+                [46.7, 24.7],
+              ],
+            ],
+          },
+        } as any,
+        TENANT_A,
+      );
+
+      // Collate every SQL fragment that was executed inside the tx.
+      const combined = capturedRawCalls
+        .map((call) => {
+          const tpl = call[0] as
+            | { raw?: readonly string[] }
+            | readonly string[];
+          return Array.isArray(tpl)
+            ? (tpl as readonly string[]).join(' ')
+            : ((tpl as { raw?: readonly string[] }).raw ?? []).join(' ');
+        })
+        .join('\n');
+
+      expect(combined).toMatch(/boundary\s*=\s*ST_SetSRID/);
+      expect(combined).toMatch(/centroid\s*=\s*ST_Centroid/);
+      expect(combined).toMatch(/area_hectares\s*=\s*ST_Area/);
     });
   });
 

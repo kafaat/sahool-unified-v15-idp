@@ -89,7 +89,11 @@ function getSessionId(): string {
 }
 
 function generateId(): string {
-  return `${Date.now()}-${globalThis.crypto.randomUUID()}`;
+  const uuid =
+    typeof globalThis.crypto?.randomUUID === 'function'
+      ? globalThis.crypto.randomUUID()
+      : `${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+  return `${Date.now()}-${uuid}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

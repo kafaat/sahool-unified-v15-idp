@@ -5,7 +5,7 @@
  * مكون تفاصيل الحقل
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -27,6 +27,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useField, useDeleteField, useUpdateField } from '@/features/fields/hooks/useFields';
+import { useFieldKpiSnapshot, useTriggerKpiRefresh } from '@/features/fields/hooks/useFieldKPIs';
 import { useToast } from '@/components/ui/toast';
 import { FieldForm } from '@/features/fields/components/FieldForm';
 import { FieldKPITiles } from '@/features/fields/components/FieldKPITiles';
@@ -65,6 +66,30 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
   // Centroid: GeoPoint coordinates are [lng, lat]
   const fieldLng = field?.centroid?.coordinates?.[0];
   const fieldLat = field?.centroid?.coordinates?.[1];
+
+  // Polygon ring for satellite analysis (improves index accuracy vs point-only)
+  const polygonCoordinates = field?.polygon?.coordinates?.[0] as number[][] | undefined;
+
+  // KPI snapshot + refresh — owned here so we can show a page-level overlay
+  const { data: kpiSnapshot, isLoading: kpiSnapshotLoading } = useFieldKpiSnapshot(
+    fieldId,
+    !isLoading && !!field
+  );
+  const kpiRefresh = useTriggerKpiRefresh(fieldId);
+
+  // Auto-trigger KPI fetch when the field loads and has no saved snapshot yet
+  useEffect(() => {
+    if (
+      field &&
+      !kpiSnapshotLoading &&
+      kpiSnapshot === null &&
+      fieldLat != null &&
+      fieldLng != null &&
+      !kpiRefresh.isPending
+    ) {
+      kpiRefresh.mutate({ lat: fieldLat, lng: fieldLng, polygonCoordinates });
+    }
+  }, [field, kpiSnapshotLoading, kpiSnapshot, fieldLat, fieldLng]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async () => {
     try {
@@ -147,7 +172,28 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
   const HealthIcon = currentHealth.icon;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* KPI Loading Overlay — shows while fetching Sentinel Hub + OpenWeather data */}
+      {kpiRefresh.isPending && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <Loader2 className="w-20 h-20 text-green-500 animate-spin absolute inset-0" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Activity className="w-8 h-8 text-green-600" />
+              </div>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">جاري جلب المؤشرات</h3>
+            <p className="text-gray-600 text-sm mb-1">جاري جلب المؤشرات الزراعية والمناخية</p>
+            <p className="text-xs text-gray-400 mb-4">Fetching Sentinel Hub &amp; OpenWeather indicators…</p>
+            <div className="flex justify-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-bounce [animation-delay:0ms]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-bounce [animation-delay:150ms]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-bounce [animation-delay:300ms]" />
+            </div>
+          </div>
+        </div>
+      )}
       {/* Breadcrumb & Actions */}
       <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
         <div className="flex items-center justify-between flex-wrap gap-4">
@@ -307,6 +353,8 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
                 fieldId={fieldId}
                 centroidLat={fieldLat}
                 centroidLng={fieldLng}
+                polygonCoordinates={polygonCoordinates}
+                disableAutoTrigger
               />
             </div>
           </div>

@@ -114,12 +114,10 @@ export function Modal({
   return (
     <FocusLock returnFocus>
       <div
-        className={clsx(
-          'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm',
-          !isFullscreen && 'p-4'
-        )}
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
         onClick={handleOverlayClick}
         role="presentation"
+        style={isFullscreen ? {} : { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
       >
         <div
           ref={modalRef}
@@ -129,10 +127,10 @@ export function Modal({
           aria-describedby={descriptionId}
           tabIndex={-1}
           className={clsx(
-            'relative bg-white dark:bg-gray-800 shadow-xl w-full flex flex-col focus:outline-none',
-            isFullscreen ? 'h-full rounded-none' : 'rounded-lg max-h-[90vh]',
-            !isFullscreen && sizes[size],
-            isFullscreen && sizes[size],
+            'bg-white dark:bg-gray-800 shadow-xl flex flex-col focus:outline-none',
+            isFullscreen
+              ? 'absolute inset-0 rounded-none'
+              : `relative rounded-lg max-h-[90vh] w-full ${sizes[size]}`,
             className
           )}
           {...props}
@@ -161,7 +159,7 @@ export function Modal({
           )}
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">{children}</div>
+          <div className={clsx('flex-1 overflow-y-auto', isFullscreen ? 'p-0' : 'p-6')}>{children}</div>
         </div>
       </div>
     </FocusLock>

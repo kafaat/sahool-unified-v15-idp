@@ -25,6 +25,8 @@ interface ApiFieldResponse {
   farmId?: string;
   boundary?: GeoPolygon;
   polygon?: GeoPolygon;
+  centroidLat?: number;
+  centroidLng?: number;
   description?: string;
   descriptionAr?: string;
   metadata?: {
@@ -151,6 +153,12 @@ export const ERROR_MESSAGES = {
  * Map API field to feature field
  */
 function mapApiFieldToField(apiField: ApiFieldResponse): Field {
+  // Build centroid GeoPoint from flat lat/lng fields returned by the backend
+  let centroid: import('./types').GeoPoint | undefined;
+  if (apiField.centroidLat != null && apiField.centroidLng != null) {
+    centroid = { type: 'Point', coordinates: [apiField.centroidLng, apiField.centroidLat] };
+  }
+
   return {
     id: apiField.id,
     name: apiField.name || '',
@@ -160,6 +168,7 @@ function mapApiFieldToField(apiField: ApiFieldResponse): Field {
     cropAr: apiField.cropTypeAr || apiField.cropAr || apiField.cropType || apiField.crop || '',
     farmId: apiField.farmId || apiField.tenantId || '',
     polygon: apiField.boundary || apiField.polygon,
+    centroid,
     description: apiField.metadata?.description || apiField.description,
     descriptionAr: apiField.metadata?.descriptionAr || apiField.descriptionAr,
     createdAt: apiField.createdAt || new Date().toISOString(),
@@ -418,43 +427,59 @@ export const fieldsApi = {
   },
 
   /**
-   * Trigger KPI refresh: calls satellite + weather services then saves snapshot
-   * تحديث KPI: استدعاء خدمات الأقمار الصناعية والطقس ثم حفظ اللقطة
+   * Trigger KPI refresh: calls satellite + weather Next.js proxies then saves snapshot
+   * تحديث KPI: استدعاء وكيل الأقمار الصناعية والطقس ثم حفظ اللقطة
    */
   triggerKpiRefresh: async (
     fieldId: string,
     lat: number,
     lng: number,
-    tenantId?: string
+    _tenantId?: string,
+    polygonCoordinates?: number[][]
   ): Promise<FieldKpiSnapshot> => {
-    // 1. Fetch vegetation indices from Sentinel Hub (via vegetation-analysis-service)
+    // 1. Fetch vegetation indices via Next.js proxy at /api/satellite
+    //    (proxy handles tenant auth server-side from httpOnly cookie)
     let satelliteData: Record<string, number | string> = {};
     try {
-      const satRes = await api.post('/api/v1/satellite/v1/analyze', {
-        field_id: fieldId,
-        latitude: lat,
-        longitude: lng,
-        ...(tenantId ? { tenant_id: tenantId } : {}),
+      const satRes = await fetch('/api/satellite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          action: 'analyze',
+          fieldId,
+          latitude: lat,
+          longitude: lng,
+          ...(polygonCoordinates ? { coordinates: polygonCoordinates } : {}),
+        }),
       });
-      const satBody = satRes.data.data || satRes.data;
-      satelliteData = satBody.indices || satBody.vegetation_indices || satBody || {};
+      if (satRes.ok) {
+        const satBody = await satRes.json();
+        satelliteData = satBody.indices || satBody.vegetation_indices || satBody || {};
+      }
     } catch {
       // Non-fatal: satellite may not be configured; proceed with weather only
     }
 
-    // 2. Fetch weather from weather-service
-    // Kong route: /api/v1/weather with strip_path:true → service receives /weather/current
-    // So frontend must call /api/v1/weather/weather/current (extra /weather/ prefix)
+    // 2. Fetch weather via Next.js proxy at /api/weather
+    //    (proxy handles tenant auth server-side from httpOnly cookie)
     let weatherData: Record<string, number | string> = {};
     try {
-      const wxRes = await api.post('/api/v1/weather/weather/current', {
-        lat,
-        lon: lng,
-        tenant_id: tenantId || 'default-tenant',
-        field_id: fieldId,
+      const wxRes = await fetch('/api/weather', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          action: 'current',
+          lat,
+          lon: lng,
+          field_id: fieldId,
+        }),
       });
-      const wxBody = wxRes.data.data || wxRes.data;
-      weatherData = wxBody.current || wxBody || {};
+      if (wxRes.ok) {
+        const wxBody = await wxRes.json();
+        weatherData = wxBody.current || wxBody || {};
+      }
     } catch {
       // Non-fatal: proceed with satellite data only
     }

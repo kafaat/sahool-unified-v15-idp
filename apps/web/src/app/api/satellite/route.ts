@@ -23,10 +23,10 @@ function isValidUUID(str: string): boolean {
 }
 
 /**
- * Extract tenant_id from httpOnly cookie server-side.
- * Uses jose library to decode the JWT from the web app's access_token cookie.
+ * Extract tenant_id and raw JWT from httpOnly cookie server-side.
+ * Returns both so the Bearer token can be forwarded to backend services.
  */
-async function getTenantId(): Promise<string | null> {
+async function getAuthContext(): Promise<{ tenantId: string; token: string } | null> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access_token')?.value;
@@ -39,7 +39,7 @@ async function getTenantId(): Promise<string | null> {
           const payload = jose.decodeJwt(token);
           const tenantId = (payload as Record<string, unknown>).tid ?? payload.tenant_id;
           if (typeof tenantId === 'string' && isValidUUID(tenantId)) {
-            return tenantId;
+            return { tenantId, token };
           }
         } catch {
           return null;
@@ -56,7 +56,7 @@ async function getTenantId(): Promise<string | null> {
     const { payload } = await jose.jwtVerify(token, secret, verifyOptions);
     const tenantId = (payload as Record<string, unknown>).tid ?? payload.tenant_id;
     if (typeof tenantId === 'string' && isValidUUID(tenantId)) {
-      return tenantId;
+      return { tenantId, token };
     }
     return null;
   } catch {
@@ -84,10 +84,11 @@ export async function GET(request: NextRequest) {
     const lon = searchParams.get('lon');
 
     // Auth enforcement
-    const tenantId = await getTenantId();
-    if (!tenantId) {
+    const auth = await getAuthContext();
+    if (!auth) {
       return NextResponse.json({ error: 'Authentication required', error_ar: 'المصادقة مطلوبة' }, { status: 401 });
     }
+    const { tenantId, token } = auth;
 
     // Validate fieldId format if provided
     if (fieldId && !FIELD_ID_PATTERN.test(fieldId)) {
@@ -183,6 +184,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'X-Tenant-Id': tenantId,
+        'Authorization': `Bearer ${token}`,
       },
       signal: AbortSignal.timeout(30000),
     });
@@ -213,10 +215,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Auth enforcement (same as GET handler)
-    const tenantId = await getTenantId();
-    if (!tenantId) {
+    const auth = await getAuthContext();
+    if (!auth) {
       return NextResponse.json({ error: 'Authentication required', error_ar: 'المصادقة مطلوبة' }, { status: 401 });
     }
+    const { tenantId, token } = auth;
 
     const body = await request.json();
     const { action, fieldId, analysisType } = body;
@@ -237,7 +240,7 @@ export async function POST(request: NextRequest) {
     const { latitude, longitude, coordinates } = body;
     const response = await fetch(`${VEGETATION_SERVICE_URL}/v1/analyze`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Tenant-Id': tenantId },
+      headers: { 'Content-Type': 'application/json', 'X-Tenant-Id': tenantId, 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({
         field_id: fieldId,
         analysis_type: analysisType || 'ndvi',

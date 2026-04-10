@@ -251,22 +251,25 @@ interface FieldKPITilesProps {
   fieldId: string;
   centroidLat?: number;
   centroidLng?: number;
+  polygonCoordinates?: number[][];
+  /** When true, suppresses auto-trigger so the parent page can control it */
+  disableAutoTrigger?: boolean;
 }
 
-export function FieldKPITiles({ fieldId, centroidLat, centroidLng }: FieldKPITilesProps) {
+export function FieldKPITiles({ fieldId, centroidLat, centroidLng, polygonCoordinates, disableAutoTrigger = false }: FieldKPITilesProps) {
   const { data: kpi, isLoading } = useFieldKpiSnapshot(fieldId);
   const refresh = useTriggerKpiRefresh(fieldId);
 
-  // Auto-trigger when no snapshot and centroid is available
+  // Auto-trigger when no snapshot and centroid is available (unless parent handles it)
   useEffect(() => {
-    if (!isLoading && kpi === null && centroidLat != null && centroidLng != null && !refresh.isPending) {
-      refresh.mutate({ lat: centroidLat, lng: centroidLng });
+    if (!disableAutoTrigger && !isLoading && kpi === null && centroidLat != null && centroidLng != null && !refresh.isPending) {
+      refresh.mutate({ lat: centroidLat, lng: centroidLng, polygonCoordinates });
     }
-  }, [isLoading, kpi, centroidLat, centroidLng]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoading, kpi, centroidLat, centroidLng, disableAutoTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRefresh = () => {
     if (centroidLat != null && centroidLng != null) {
-      refresh.mutate({ lat: centroidLat, lng: centroidLng });
+      refresh.mutate({ lat: centroidLat, lng: centroidLng, polygonCoordinates });
     }
   };
 

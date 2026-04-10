@@ -29,8 +29,8 @@ export function useTriggerKpiRefresh(fieldId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ lat, lng }: { lat: number; lng: number }) =>
-      fieldsApi.triggerKpiRefresh(fieldId, lat, lng),
+    mutationFn: ({ lat, lng, polygonCoordinates }: { lat: number; lng: number; polygonCoordinates?: number[][] }) =>
+      fieldsApi.triggerKpiRefresh(fieldId, lat, lng, undefined, polygonCoordinates),
     onSuccess: (data) => {
       queryClient.setQueryData(fieldKeys.kpi(fieldId), data);
       queryClient.invalidateQueries({ queryKey: fieldKeys.detail(fieldId) });

@@ -115,7 +115,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 flex flex-col h-full">
+    <form onSubmit={handleSubmit} className="bg-white flex flex-col h-full">
       <div className="px-6 pt-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           {field ? 'تعديل الحقل' : 'إضافة حقل جديد'}
@@ -269,7 +269,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-3 mt-8 mx-6 mb-6 pt-6 border-t-2 border-gray-200">
+      <div className="flex items-center justify-end gap-3 mt-auto mx-6 mb-6 pt-6 border-t-2 border-gray-200">
         {onCancel && (
           <button
             type="button"

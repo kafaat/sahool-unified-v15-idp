@@ -66,7 +66,11 @@ Ask me any agricultural question!`,
 // ---------------------------------------------------------------------------
 
 function generateId(): string {
-  return `msg-${Date.now()}-${globalThis.crypto.randomUUID().substring(0, 7)}`;
+  const rand =
+    typeof globalThis.crypto?.randomUUID === 'function'
+      ? globalThis.crypto.randomUUID().substring(0, 7)
+      : Math.random().toString(36).slice(2, 9);
+  return `msg-${Date.now()}-${rand}`;
 }
 
 function generateSessionId(): string {

@@ -190,7 +190,7 @@ export class FieldsService {
     const cached = await this.cacheService.get<FieldResponseDto>(
       CACHE_KEYS.FIELD(id),
     );
-    if (cached) {
+    if (cached && 'centroidLat' in cached) {
       // Verify tenant ownership even for cached results
       if (tenantId) {
         assertTenantOwnership(cached.tenantId, tenantId, "field");
@@ -231,6 +231,22 @@ export class FieldsService {
       assertTenantOwnership(field.tenantId, tenantId, "field");
     }
 
+    // Fetch centroid from PostGIS (not available via Prisma select)
+    let centroidLat: number | undefined;
+    let centroidLng: number | undefined;
+    try {
+      const centroidRows = await this.prisma.$queryRawUnsafe<Array<{ centroid_lng: number | null; centroid_lat: number | null }>>(
+        'SELECT ST_X(centroid::geometry) AS centroid_lng, ST_Y(centroid::geometry) AS centroid_lat FROM fields WHERE id=$1::uuid AND centroid IS NOT NULL',
+        id,
+      );
+      if (centroidRows.length > 0 && centroidRows[0].centroid_lat != null) {
+        centroidLat = Number(centroidRows[0].centroid_lat);
+        centroidLng = Number(centroidRows[0].centroid_lng);
+      }
+    } catch {
+      // centroid column may not exist on older DB schemas — ignore
+    }
+
     const etag = generateETag(field.id, field.version);
     const result: FieldResponseDto = {
       id: field.id,
@@ -243,6 +259,8 @@ export class FieldsService {
       areaHectares: toNumber(field.areaHectares),
       healthScore: toNumber(field.healthScore),
       ndviValue: toNumber(field.ndviValue),
+      centroidLat,
+      centroidLng,
       irrigationType: field.irrigationType ?? undefined,
       soilType: field.soilType ?? undefined,
       plantingDate: field.plantingDate ?? undefined,

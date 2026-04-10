@@ -497,6 +497,12 @@ export class FieldResponseDto {
   @ApiPropertyOptional()
   ndviValue?: number;
 
+  @ApiPropertyOptional({ description: 'Centroid latitude (WGS84)' })
+  centroidLat?: number;
+
+  @ApiPropertyOptional({ description: 'Centroid longitude (WGS84)' })
+  centroidLng?: number;
+
   @ApiPropertyOptional()
   irrigationType?: string;
 

@@ -462,7 +462,11 @@ export function useRecommendationEvaluation() {
  * Generate unique ID for evaluation
  */
 function generateEvaluationId(): string {
-  return `eval_${Date.now()}_${globalThis.crypto.randomUUID().substring(0, 9)}`;
+  const rand =
+    typeof globalThis.crypto?.randomUUID === 'function'
+      ? globalThis.crypto.randomUUID().substring(0, 9)
+      : Math.random().toString(36).slice(2, 11);
+  return `eval_${Date.now()}_${rand}`;
 }
 
 /**

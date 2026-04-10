@@ -53,7 +53,27 @@
       "Bash(kill -9 4497)",
       "Bash(find D:/projects/v88/sahool-adel-5/apps/web -name sw.js -not -path */node_modules/* -not -path */.next/*)",
       "Bash(taskkill /F /IM node.exe /T)",
-      "Bash(head -20 grep -rn \"class JWTConfig\\\\|ISSUER\\\\|AUDIENCE\\\\|SECRET\" \"D:/projects/v88/sahool-adel-5/apps/services/user-service/src\" --include=\"*.ts\")"
+      "Bash(head -20 grep -rn \"class JWTConfig\\\\|ISSUER\\\\|AUDIENCE\\\\|SECRET\" \"D:/projects/v88/sahool-adel-5/apps/services/user-service/src\" --include=\"*.ts\")",
+      "WebFetch(domain:developers.google.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:googlemaps.github.io)",
+      "Bash(find D:/projects/v88/sahool-adel-5 -name ar.json -not -path */node_modules/* -not -path */.next/*)",
+      "Bash(head -10 find D:/projects/v88/sahool-adel-5 -name en.json -not -path */node_modules/* -not -path */.next/*)",
+      "Bash(find /d/projects/v88/sahool-adel-5/apps/web/src/app/api -type f -name *.ts)",
+      "Bash(cd:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MmM4NjI0Mi05MzM1LTRmMzYtOGI4ZC03M2Y4M2NjYjM5NDEiLCJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsInJvbGVzIjpbIkZBUk1FUiJdLCJ0aWQiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiI3MWFlYmU2Yy0yYzY5LTQzMGQtYjhkNy02ZjM1ZGEzMDYxM2YiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzc1NzY2MzM0LCJleHAiOjE3NzU3Njk5MzQsImF1ZCI6InNhaG9vbC1hcGkiLCJpc3MiOiJzYWhvb2wtcGxhdGZvcm0ifQ.1NQQLJJxNPz0Cn_DE1RtHgigHHzcEfJfrYL37gU8SXU\" FIELD_ID=\"1173ca64-f7cb-4537-9614-2915d4a9f1bc\" TENANT_ID=\"a0000000-0000-0000-0000-000000000001\" __NEW_LINE_b5e47714b527d911__ echo \"=== Boundary via field-core ===\" curl -s \"http://localhost:8000/api/v1/field-core/fields/$FIELD_ID/boundary\" -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(/dev/null __NEW_LINE_b5e47714b527d911__ echo echo '=== KPI snapshot ===' curl -s http://localhost:8000/api/v1/fields/$FIELD_ID/kpi-snapshot -H 'Authorization: Bearer $TOKEN')",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\)[0]; nets=d[''''NetworkSettings''''][''''Networks'''']; print\\(list\\(nets.keys\\(\\)\\)\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\)[0]; nets=d[''''NetworkSettings''''][''''Networks'''']; [print\\(k, v[''''IPAddress'''']\\) for k,v in nets.items\\(\\)]\" docker inspect sahool-field-management-service)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\)[0]; nets=d[''''NetworkSettings''''][''''Networks'''']; [print\\(k, v[''''IPAddress'''']\\) for k,v in nets.items\\(\\)]\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec sahool-kong cat /etc/resolv.conf)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec sahool-kong sh -c \"getent hosts sahool-field-management-service\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec sahool-kong sh -c \"timeout 3 bash -c 'echo > /dev/tcp/172.18.0.11/3000' && echo 'PORT OPEN' || echo 'PORT CLOSED/TIMEOUT'\" 2>&1)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(s.get\\(''''name''''\\), s.get\\(''''host''''\\), s.get\\(''''port''''\\)\\) for s in d.get\\(''''data'''',[]\\)]\")",
+      "Bash(python -c \":*)",
+      "Bash(TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2Njc3Y2M2Yy1iOTk2LTQ4MWMtYjYyNi0zYTFiNWJkYTc2OWIiLCJlbWFpbCI6ImZhcm1lckBzYWhvb2wuaW8iLCJyb2xlcyI6WyJGQVJNRVIiXSwidGlkIjoiYTAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAxIiwianRpIjoiOTFjNmZiNTItYmJiOS00MjYxLTkzZjYtNTVlMmYzMWIyZDQyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc3NTc3NTM2NiwiZXhwIjoxNzc1Nzc4OTY2LCJhdWQiOiJzYWhvb2wtYXBpIiwiaXNzIjoic2Fob29sLXBsYXRmb3JtIn0.FbZCvZyOjn16W_aGDDzGqVKtEUyF6m-diq7iAUhtpF8 __NEW_LINE_96d7030e4db7008c__ curl -s http://127.0.0.1:8000/api/v1/fields/1173ca64-f7cb-4537-9614-2915d4a9f1bc -H 'Authorization: Bearer $TOKEN')",
+      "Bash(TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2Njc3Y2M2Yy1iOTk2LTQ4MWMtYjYyNi0zYTFiNWJkYTc2OWIiLCJlbWFpbCI6ImZhcm1lckBzYWhvb2wuaW8iLCJyb2xlcyI6WyJGQVJNRVIiXSwidGlkIjoiYTAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAxIiwianRpIjoiOTFjNmZiNTItYmJiOS00MjYxLTkzZjYtNTVlMmYzMWIyZDQyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc3NTc3NTM2NiwiZXhwIjoxNzc1Nzc4OTY2LCJhdWQiOiJzYWhvb2wtYXBpIiwiaXNzIjoic2Fob29sLXBsYXRmb3JtIn0.FbZCvZyOjn16W_aGDDzGqVKtEUyF6m-diq7iAUhtpF8 __NEW_LINE_c7780816936009ba__ curl -s http://127.0.0.1:8000/api/v1/fields/1173ca64-f7cb-4537-9614-2915d4a9f1bc -H 'Authorization: Bearer $TOKEN')"
     ]
   }
 }

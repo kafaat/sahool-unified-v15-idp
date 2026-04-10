@@ -146,7 +146,11 @@ export class SahoolApiClient {
 
       // Add unique request ID for traceability (preserve caller-provided ID)
       if (!config.headers.has(CUSTOM_HEADERS.REQUEST_ID)) {
-        config.headers.set(CUSTOM_HEADERS.REQUEST_ID, crypto.randomUUID());
+        const requestId =
+          typeof crypto?.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+        config.headers.set(CUSTOM_HEADERS.REQUEST_ID, requestId);
       }
 
       const token = this.config.getToken?.();

@@ -478,10 +478,11 @@ export default function SahoolV2() {
                     // limits across file ingestion endpoints). Real upload
                     // wiring is handled by the feature-specific mutation
                     // elsewhere — this is a catalog placeholder.
-                    const files = Array.from(e.target.files ?? []);
+                    const fileList = e.target.files as FileList | null;
+                    const files: File[] = fileList ? Array.from(fileList) : [];
                     if (files.length === 0) return;
                     const MAX_BYTES = 50 * 1024 * 1024;
-                    const oversize = files.find((f) => f.size > MAX_BYTES);
+                    const oversize: File | undefined = files.find((f: File) => f.size > MAX_BYTES);
                     if (oversize) {
                       // eslint-disable-next-line no-alert
                       alert(`الملف "${oversize.name}" يتجاوز الحد الأقصى 50 ميجابايت`);

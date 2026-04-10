@@ -34,9 +34,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
   const [formData, setFormData] = useState<TaskFormData>({
     title: task?.title || '',
-    title_ar: task?.title || '', // Use title as fallback
+    // Use the Arabic field as-is; do NOT fall back to the English `title`,
+    // which previously leaked English text into the Arabic field on edit
+    // and caused it to be persisted back to the server.
+    title_ar: task?.title_ar || '',
     description: task?.description || '',
-    description_ar: task?.description || '', // Use description as fallback
+    description_ar: task?.description_ar || '',
     due_date: task?.due_date ? (task.due_date.split('T')[0] ?? '') : '',
     priority: task?.priority || 'medium',
     status: task?.status || 'open',

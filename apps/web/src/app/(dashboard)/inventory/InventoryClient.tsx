@@ -250,6 +250,11 @@ export default function InventoryClient() {
             </button>
             <h2 className="text-lg font-bold text-gray-900 mb-1">إضافة عنصر جديد</h2>
             <p className="text-sm text-gray-500 mb-4">Add New Item</p>
+            {createError && (
+              <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {createError}
+              </div>
+            )}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">اسم العنصر (عربي)</label>
@@ -439,7 +444,7 @@ export default function InventoryClient() {
                       {categories.find((c) => c.value === item.category)?.labelAr ?? item.category}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {item.quantity} {item.unitAr || item.unit}
+                      {formatQuantity(item.quantity)} {item.unitAr || item.unit || ''}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {item.locationAr || item.location}

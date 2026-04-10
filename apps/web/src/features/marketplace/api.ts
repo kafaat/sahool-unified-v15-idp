@@ -209,8 +209,18 @@ export const marketplaceApi = {
     shippingAddress: Order['shippingAddress'];
     notes?: string;
   }): Promise<Order> {
+    // Generate an Idempotency-Key per order submission so retries caused by
+    // transient network failures or double-clicks do not create duplicate
+    // orders. The key is stable across the single createOrder() call only;
+    // a fresh key is generated on each new attempt.
+    const idempotencyKey =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `order-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
     return safeFetch(MARKETPLACE_ENDPOINTS.ORDERS, async () => {
-      const response = await api.post(MARKETPLACE_ENDPOINTS.ORDERS, data);
+      const response = await api.post(MARKETPLACE_ENDPOINTS.ORDERS, data, {
+        headers: { 'Idempotency-Key': idempotencyKey },
+      });
       return response.data.data || response.data;
     });
   },

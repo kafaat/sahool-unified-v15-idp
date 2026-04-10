@@ -220,9 +220,17 @@ export default function FarmsClient() {
         ) : (
           filteredFarms.map((farm) => {
             // Defensive lookup: backend Farm model may not return a status
-            // field (it's a UI-only convention), so fall back to 'active'.
+            // field (it's a UI-only convention), so narrow at runtime and
+            // fall back to 'active'. Using the narrowed key removes the
+            // prior TS7053 implicit-any on the index expression.
             // استعلام آمن للحالة مع قيمة افتراضية عند عدم إرجاع الحقل من الخلفية
-            const st = statusConfig[farm.status] ?? statusConfig.active;
+            const statusKey: FarmStatus =
+              farm.status === 'active' ||
+              farm.status === 'inactive' ||
+              farm.status === 'seasonal'
+                ? farm.status
+                : 'active';
+            const st = statusConfig[statusKey];
             return (
               <div
                 key={farm.id}

@@ -264,8 +264,24 @@ export async function POST(request: NextRequest) {
     const tenantId = extractTenantId(token);
 
     // --- Parse body ---
-    const body = await request.json();
-    const { action, fieldId } = body;
+    // Guard against non-JSON bodies that would otherwise throw inside the
+    // generic try/catch and surface as a 502.
+    let body: Record<string, unknown>;
+    try {
+      const parsed = await request.json();
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('body must be a JSON object');
+      }
+      body = parsed as Record<string, unknown>;
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid JSON body', error_ar: 'نص JSON غير صالح' },
+        { status: 400 }
+      );
+    }
+
+    const action = body.action;
+    const fieldId = body.fieldId;
 
     if (!action || typeof action !== 'string') {
       return NextResponse.json({ error: 'action is required', error_ar: 'الإجراء مطلوب' }, { status: 400 });
@@ -281,7 +297,73 @@ export async function POST(request: NextRequest) {
     switch (action) {
       case 'analyze': {
         path = `/api/v1/terrain/analyze`;
-        const { coordinates, analysis_types, resolution, include_drainage } = body;
+
+        // Validate optional coordinates: must be a GeoJSON-like Polygon ring
+        // [[lon, lat], ...] with lon ∈ [-180,180] and lat ∈ [-90,90]. This
+        // prevents malformed or out-of-range polygons from hitting rasterio
+        // where they cause long-running failures.
+        const coordinates = body.coordinates;
+        if (coordinates !== undefined && coordinates !== null) {
+          if (!Array.isArray(coordinates) || coordinates.length < 3) {
+            return NextResponse.json(
+              { error: 'coordinates must be a ring of at least 3 [lon, lat] pairs', error_ar: 'يجب أن تكون الإحداثيات حلقة مكونة من 3 أزواج على الأقل' },
+              { status: 400 }
+            );
+          }
+          for (const pt of coordinates) {
+            if (
+              !Array.isArray(pt) ||
+              pt.length < 2 ||
+              typeof pt[0] !== 'number' ||
+              typeof pt[1] !== 'number' ||
+              !Number.isFinite(pt[0]) ||
+              !Number.isFinite(pt[1]) ||
+              pt[0] < -180 ||
+              pt[0] > 180 ||
+              pt[1] < -90 ||
+              pt[1] > 90
+            ) {
+              return NextResponse.json(
+                { error: 'Invalid coordinate pair (expected [lon, lat] in WGS84)', error_ar: 'زوج إحداثيات غير صالح (المتوقع [lon, lat] في WGS84)' },
+                { status: 400 }
+              );
+            }
+          }
+        }
+
+        // Validate optional resolution (meters): backend clamps 1 .. 1000.
+        const resolution = body.resolution;
+        if (resolution !== undefined && resolution !== null) {
+          if (typeof resolution !== 'number' || !Number.isFinite(resolution) || resolution < 1 || resolution > 1000) {
+            return NextResponse.json(
+              { error: 'resolution must be a number between 1 and 1000 meters', error_ar: 'يجب أن تكون الدقة رقمًا بين 1 و 1000 متر' },
+              { status: 400 }
+            );
+          }
+        }
+
+        // Validate analysis_types is an array of strings if supplied.
+        const analysis_types = body.analysis_types;
+        if (analysis_types !== undefined && analysis_types !== null) {
+          if (
+            !Array.isArray(analysis_types) ||
+            !analysis_types.every((t) => typeof t === 'string')
+          ) {
+            return NextResponse.json(
+              { error: 'analysis_types must be an array of strings', error_ar: 'يجب أن تكون analysis_types مصفوفة من السلاسل' },
+              { status: 400 }
+            );
+          }
+        }
+
+        const include_drainage = body.include_drainage;
+        if (include_drainage !== undefined && include_drainage !== null && typeof include_drainage !== 'boolean') {
+          return NextResponse.json(
+            { error: 'include_drainage must be a boolean', error_ar: 'يجب أن تكون include_drainage قيمة منطقية' },
+            { status: 400 }
+          );
+        }
+
         payload = {
           field_id: fieldId,
           ...(coordinates != null && { coordinates }),

@@ -42,11 +42,17 @@ const roleLabelsAr: Record<UserRole, string> = {
   agronomist: 'مهندس زراعي',
 };
 
+// RFC 5322 simplified email check — server enforces the real validation.
+const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// Accept optional leading + and 8-15 digits (tolerant of international formats).
+const PHONE_RX = /^\+?[0-9]{8,15}$/;
+
 export default function UsersClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newUser, setNewUser] = useState<UserFormData>({ name: '', nameAr: '', email: '', role: 'farmer' as UserRole, phone: '' });
+  const [createErrors, setCreateErrors] = useState<Partial<Record<keyof UserFormData | 'submit', string>>>({});
 
   const {
     data: users = [],
@@ -56,11 +62,35 @@ export default function UsersClient() {
   const { data: stats } = useUserStats();
   const createUser = useCreateUser();
 
+  const validateNewUser = (): boolean => {
+    const errs: Partial<Record<keyof UserFormData | 'submit', string>> = {};
+    if (!newUser.name.trim()) errs.name = 'الاسم (EN) مطلوب';
+    if (!newUser.nameAr.trim()) errs.nameAr = 'الاسم (AR) مطلوب';
+    if (!newUser.email.trim()) {
+      errs.email = 'البريد الإلكتروني مطلوب';
+    } else if (!EMAIL_RX.test(newUser.email.trim())) {
+      errs.email = 'البريد الإلكتروني غير صالح';
+    }
+    if (newUser.phone && !PHONE_RX.test(newUser.phone.replace(/\s/g, ''))) {
+      errs.phone = 'رقم الهاتف غير صالح';
+    }
+    setCreateErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleCreateUser = () => {
+    if (!validateNewUser()) return;
     createUser.mutate(newUser, {
       onSuccess: () => {
         setShowCreateDialog(false);
         setNewUser({ name: '', nameAr: '', email: '', role: 'farmer', phone: '' });
+        setCreateErrors({});
+      },
+      onError: () => {
+        setCreateErrors((prev) => ({
+          ...prev,
+          submit: 'فشل في إنشاء المستخدم. الرجاء المحاولة مرة أخرى.',
+        }));
       },
     });
   };

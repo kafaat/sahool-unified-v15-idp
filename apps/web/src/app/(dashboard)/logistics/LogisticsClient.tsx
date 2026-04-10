@@ -252,7 +252,7 @@ export default function LogisticsClient() {
                       <div className="text-gray-500">التسليم المتوقع</div>
                       <div className="font-medium flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        {shipment.estimatedDelivery}
+                        {shipment.estimatedDelivery || '—'}
                       </div>
                     </div>
                     {shipment.driver && (

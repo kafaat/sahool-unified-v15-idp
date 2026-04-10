@@ -66,9 +66,14 @@ export default function ComplianceClient() {
         : 0;
     const compliantCount = compliance.filter((c) => c.status === 'compliant').length;
     const activeCerts = certifications.filter((c) => c.status === 'active').length;
-    const firstItem = compliance[0];
-    const nextAudit = firstItem
-      ? compliance.reduce((min, c) => (c.nextAudit < min ? c.nextAudit : min), firstItem.nextAudit)
+    // Compute min next audit using Date parsing so mixed ISO/locale strings
+    // don't cause incorrect string-compare ordering. Skip items with an
+    // invalid or past date (null-safe).
+    const auditTimestamps = compliance
+      .map((c) => Date.parse(c.nextAudit))
+      .filter((t): t is number => Number.isFinite(t));
+    const nextAudit = auditTimestamps.length
+      ? new Date(Math.min(...auditTimestamps)).toISOString().slice(0, 10)
       : 'N/A';
     return { overallScore, compliantCount, activeCerts, nextAudit };
   }, [compliance, certifications]);
@@ -209,8 +214,10 @@ export default function ComplianceClient() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-gray-900">{item.requirementAr}</div>
-                        {item.notes && (
-                          <div className="text-xs text-amber-600 mt-1">{item.notes}</div>
+                        {(item.notesAr ?? item.notes) && (
+                          <div className="text-xs text-amber-600 mt-1">
+                            {item.notesAr ?? item.notes}
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">

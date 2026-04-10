@@ -27,6 +27,10 @@ interface FAQ {
   category: string;
 }
 
+// Client-side caps for ticket body (defense-in-depth; backend MUST enforce).
+const TICKET_SUBJECT_MAX = 200;
+const TICKET_MESSAGE_MAX = 5000;
+
 const faqs: FAQ[] = [
   {
     id: '1',
@@ -110,15 +114,17 @@ export default function SupportClient() {
   }, [fetchTickets]);
 
   const handleSubmitTicket = async () => {
-    if (!newTicketSubject.trim() || !newTicketMessage.trim()) return;
+    const safeSubject = newTicketSubject.trim().slice(0, TICKET_SUBJECT_MAX);
+    const safeMessage = newTicketMessage.trim().slice(0, TICKET_MESSAGE_MAX);
+    if (!safeSubject || !safeMessage) return;
 
     setSubmitting(true);
     setSubmitSuccess(false);
     setSubmitError(null);
     try {
       const newTicket = await supportApi.createTicket({
-        subject: newTicketSubject,
-        message: newTicketMessage,
+        subject: safeSubject,
+        message: safeMessage,
       });
       setTickets((prev) => [newTicket, ...prev]);
       setNewTicketSubject('');
@@ -151,6 +157,13 @@ export default function SupportClient() {
         {labels[status]}
       </span>
     );
+  };
+
+  const formatSafeDate = (value?: string): string => {
+    if (!value) return '—';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('ar-SA');
   };
 
   const getPriorityBadge = (priority: Ticket['priority']) => {
@@ -342,11 +355,11 @@ export default function SupportClient() {
                 <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    أُنشئت: {new Date(ticket.createdAt).toLocaleDateString('ar-SA')}
+                    أُنشئت: {formatSafeDate(ticket.createdAt)}
                   </span>
                   <span className="flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
-                    آخر تحديث: {new Date(ticket.updatedAt).toLocaleDateString('ar-SA')}
+                    آخر تحديث: {formatSafeDate(ticket.updatedAt)}
                   </span>
                 </div>
               </div>

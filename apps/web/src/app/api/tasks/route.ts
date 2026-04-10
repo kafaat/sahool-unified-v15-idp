@@ -323,6 +323,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF: middleware skips /api/*, so enforce at the route level for
+    // state-changing methods.
+    const csrfError = enforceCsrf(request);
+    if (csrfError) return csrfError;
+
     const clientIP = getClientIP(request);
     if (await isRateLimited(clientIP, RATE_LIMIT_CONFIG)) {
       return bilingualError(
@@ -341,30 +346,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const bodyResult = await readJsonBody(request);
+    if (!bodyResult.ok) return bodyResult.response;
+    const body = bodyResult.data;
 
     // Validate required fields
-    if (!body.title || typeof body.title !== 'string' || body.title.trim().length === 0) {
+    const title = body.title;
+    if (typeof title !== 'string' || title.trim().length === 0) {
       return bilingualError(
         'Task title is required',
         'عنوان المهمة مطلوب',
         400,
       );
     }
+    if (title.length > 200) {
+      return bilingualError(
+        'Task title exceeds maximum length (200)',
+        'عنوان المهمة يتجاوز الحد الأقصى (200)',
+        400,
+      );
+    }
 
-    // Validate optional fieldId if provided
-    if (body.fieldId) {
-      const fieldError = validateId(body.fieldId, 'fieldId', 'معرف الحقل');
+    // Validate optional fieldId if provided (accept both snake_case and camelCase)
+    const fieldId = (body.field_id ?? body.fieldId) as string | undefined;
+    if (fieldId) {
+      const fieldError = validateId(fieldId, 'field_id', 'معرف الحقل');
       if (fieldError) return fieldError;
     }
 
-    // Validate optional assignee if provided
-    if (body.assignee) {
-      const assigneeError = validateId(body.assignee, 'assignee', 'المكلف');
-      if (assigneeError) return assigneeError;
+    // Validate optional assignee if provided. The backend requires a strict
+    // UUID to prevent cross-tenant assignment with arbitrary strings.
+    const assignee = (body.assigned_to ?? body.assignee ?? body.assignee_id) as
+      | string
+      | undefined;
+    if (assignee !== undefined && assignee !== null && assignee !== '') {
+      if (typeof assignee !== 'string' || !UUID_PATTERN.test(assignee)) {
+        return bilingualError(
+          'assigned_to must be a valid UUID',
+          'يجب أن يكون المكلف UUID صالح',
+          400,
+        );
+      }
     }
 
-    const upstream = new URL('/api/v1/tasks', TASK_SERVICE_URL);
+    const upstream = buildUpstreamUrl('/api/v1/tasks');
+    if (!upstream) {
+      logger.error('[Tasks API] Upstream URL blocked by SSRF allowlist');
+      return bilingualError(
+        'Service configuration error',
+        'خطأ في تكوين الخدمة',
+        500,
+      );
+    }
 
     const response = await fetch(upstream.toString(), {
       method: 'POST',
@@ -413,6 +446,9 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const csrfError = enforceCsrf(request);
+    if (csrfError) return csrfError;
+
     const clientIP = getClientIP(request);
     if (await isRateLimited(clientIP, RATE_LIMIT_CONFIG)) {
       return bilingualError(
@@ -431,7 +467,9 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const bodyResult = await readJsonBody(request);
+    if (!bodyResult.ok) return bodyResult.response;
+    const body = bodyResult.data;
 
     // Validate task ID
     const taskId = body.taskId as string | undefined;
@@ -448,10 +486,16 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Validate assignee for 'assign' action
+    // Validate assignee for 'assign' action (must match backend UUID pattern).
     if (action === 'assign') {
-      const assigneeError = validateId(body.assignee, 'assignee', 'المكلف');
-      if (assigneeError) return assigneeError;
+      const assignee = (body.assigned_to ?? body.assignee) as string | undefined;
+      if (typeof assignee !== 'string' || !UUID_PATTERN.test(assignee)) {
+        return bilingualError(
+          'assigned_to must be a valid UUID',
+          'يجب أن يكون المكلف UUID صالح',
+          400,
+        );
+      }
     }
 
     // Map action to upstream endpoint
@@ -460,13 +504,20 @@ export async function PATCH(request: NextRequest) {
       assign: `/api/v1/tasks/${encodeURIComponent(taskId!)}/assign`,
     };
 
-    const upstream = new URL(
-      actionPathMap[action as PatchAction],
-      TASK_SERVICE_URL,
-    );
+    const upstream = buildUpstreamUrl(actionPathMap[action as PatchAction]);
+    if (!upstream) {
+      logger.error('[Tasks API] Upstream URL blocked by SSRF allowlist');
+      return bilingualError(
+        'Service configuration error',
+        'خطأ في تكوين الخدمة',
+        500,
+      );
+    }
 
     // Forward the payload (excluding proxy-level fields)
     const { taskId: _taskId, action: _action, ...payload } = body;
+    void _taskId;
+    void _action;
 
     const response = await fetch(upstream.toString(), {
       method: 'PATCH',

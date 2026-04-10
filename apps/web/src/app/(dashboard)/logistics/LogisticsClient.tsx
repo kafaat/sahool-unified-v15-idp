@@ -12,7 +12,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useShipments, useLogisticsStats } from '@/features/logistics';
-import type { Shipment, ShipmentStatus } from '@/features/logistics';
+import type { ShipmentStatus } from '@/features/logistics';
 
 export default function LogisticsClient() {
   const [filterStatus, setFilterStatus] = useState<ShipmentStatus | 'all'>('all');

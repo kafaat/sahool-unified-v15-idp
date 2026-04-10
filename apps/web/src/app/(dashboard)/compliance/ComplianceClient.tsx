@@ -228,18 +228,35 @@ export default function ComplianceClient() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full ${item.score >= 90 ? 'bg-green-500' : item.score >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                              style={{ width: `${item.score}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium">{item.score}%</span>
-                        </div>
+                        {(() => {
+                          // Clamp score to 0..100 so backend data can't blow
+                          // out the UI layout via an out-of-range percentage.
+                          const raw = Number(item.score);
+                          const score = Number.isFinite(raw)
+                            ? Math.max(0, Math.min(100, raw))
+                            : 0;
+                          return (
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full ${score >= 90 ? 'bg-green-500' : score >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                  style={{ width: `${score}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium">{score}%</span>
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3 text-center text-sm text-gray-500">
-                        {item.nextAudit}
+                        {item.nextAudit
+                          ? (() => {
+                              const t = Date.parse(item.nextAudit);
+                              return Number.isFinite(t)
+                                ? new Date(t).toLocaleDateString('ar-SA')
+                                : '—';
+                            })()
+                          : '—'}
                       </td>
                     </tr>
                   ))

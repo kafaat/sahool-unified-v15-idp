@@ -42,10 +42,16 @@ const actionLabels: Record<AuditAction, string> = {
   config_change: 'تغيير إعدادات',
 };
 
+// Cap rows rendered at once to keep the DOM bounded. Full export lives behind
+// the (currently disabled) export button. The backend already paginates the
+// query, but we still enforce a client-side guard for safety.
+const MAX_VISIBLE_ROWS = 100;
+
 export default function AuditClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState<AuditSeverity | 'all'>('all');
   const [actionFilter, setActionFilter] = useState<AuditAction | 'all'>('all');
+  const [page, setPage] = useState(0);
 
   const filters: AuditFilters = useMemo(() => {
     const f: AuditFilters = {};
@@ -70,6 +76,17 @@ export default function AuditClient() {
       return matchesSearch && matchesAction;
     });
   }, [auditLogs, searchTerm, actionFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / MAX_VISIBLE_ROWS));
+  const safePage = Math.min(page, totalPages - 1);
+  const pagedLogs = useMemo(
+    () =>
+      filteredLogs.slice(
+        safePage * MAX_VISIBLE_ROWS,
+        safePage * MAX_VISIBLE_ROWS + MAX_VISIBLE_ROWS
+      ),
+    [filteredLogs, safePage]
+  );
 
   const getActionColor = (action: AuditAction) => {
     const colors: Record<AuditAction, string> = {
@@ -247,7 +264,7 @@ export default function AuditClient() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {filteredLogs.map((entry: AuditLog) => {
+                {pagedLogs.map((entry: AuditLog) => {
                   const action = (entry.action ?? 'update') as AuditAction;
                   return (
                     <tr key={entry.id} className="hover:bg-gray-50">
@@ -274,6 +291,38 @@ export default function AuditClient() {
                 })}
               </tbody>
             </table>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
+                <div className="text-xs text-gray-500">
+                  عرض {safePage * MAX_VISIBLE_ROWS + 1}
+                  {' - '}
+                  {Math.min((safePage + 1) * MAX_VISIBLE_ROWS, filteredLogs.length)}
+                  {' من '}
+                  {filteredLogs.length}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={safePage === 0}
+                    className="px-3 py-1 border rounded text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    السابق
+                  </button>
+                  <span className="text-xs text-gray-600">
+                    {safePage + 1} / {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={safePage >= totalPages - 1}
+                    className="px-3 py-1 border rounded text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    التالي
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

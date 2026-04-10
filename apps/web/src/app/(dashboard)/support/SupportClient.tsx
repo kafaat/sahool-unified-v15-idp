@@ -279,7 +279,10 @@ export default function SupportClient() {
               <input
                 type="text"
                 value={newTicketSubject}
-                onChange={(e) => setNewTicketSubject(e.target.value)}
+                maxLength={TICKET_SUBJECT_MAX}
+                onChange={(e) =>
+                  setNewTicketSubject(e.target.value.slice(0, TICKET_SUBJECT_MAX))
+                }
                 placeholder="اكتب موضوع المشكلة..."
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
               />
@@ -288,7 +291,10 @@ export default function SupportClient() {
               <label className="block text-sm font-medium text-gray-700 mb-1">الرسالة</label>
               <textarea
                 value={newTicketMessage}
-                onChange={(e) => setNewTicketMessage(e.target.value)}
+                maxLength={TICKET_MESSAGE_MAX}
+                onChange={(e) =>
+                  setNewTicketMessage(e.target.value.slice(0, TICKET_MESSAGE_MAX))
+                }
                 placeholder="اشرح مشكلتك بالتفصيل..."
                 rows={4}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"

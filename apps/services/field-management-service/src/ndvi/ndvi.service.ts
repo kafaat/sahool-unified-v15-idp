@@ -48,7 +48,14 @@ export class NdviService {
     // Enforce tenant isolation
     assertTenantOwnership(field.tenantId, tenantId, "field");
 
-    // Get NDVI readings (tenant-scoped for defense-in-depth)
+    // Get NDVI readings (tenant-scoped for defense-in-depth).
+    //
+    // Noisy readings are excluded from the statistics (average / min / max /
+    // trend) to avoid poisoning the summary with cloudy pixels:
+    //   * cloudCover > MAX_CLOUD_COVER_FOR_STATS  → skipped
+    //   * quality === 'poor'                       → skipped
+    // The full raw `readings` list is still shipped in `history` so the UI
+    // can render everything and let the user see what was filtered.
     const readings = await this.prisma.ndviReading.findMany({
       where: { fieldId, tenantId: field.tenantId },
       orderBy: { capturedAt: "desc" },
@@ -63,7 +70,13 @@ export class NdviService {
       },
     });
 
-    const values: number[] = readings.map((r) => Number((r as { value: unknown }).value));
+    const MAX_CLOUD_COVER_FOR_STATS = 30; // percent — matches save-time threshold
+    const usable = readings.filter((r: { cloudCover: unknown; quality: string | null }) => {
+      if (r.quality === "poor") return false;
+      if (r.cloudCover == null) return true; // cloudCover unknown → assume ok
+      return Number(r.cloudCover) <= MAX_CLOUD_COVER_FOR_STATS;
+    });
+    const values: number[] = usable.map((r) => Number((r as { value: unknown }).value));
     const current = field.ndviValue ? Number(field.ndviValue) : values[0] || 0;
 
     // Calculate statistics

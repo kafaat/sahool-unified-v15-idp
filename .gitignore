@@ -50,6 +50,9 @@ firebase-credentials.json
 # ─────────────────────────────────────────────────────────────────────────────
 .next/
 out/
+# Next.js auto-generated types (do not commit)
+next-env.d.ts
+apps/*/next-env.d.ts
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Node.js

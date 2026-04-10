@@ -13,6 +13,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getClientIP } from '@/lib/security/client-ip';
 
 interface RateLimitEntry {
   timestamps: number[];
@@ -67,8 +68,8 @@ export function checkRateLimit(
   const { limit = 60, windowMs = 60000 } = config;
 
   // Extract client identifier
-  const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded?.split(',')[0]?.trim() || 'anonymous';
+  const resolvedIp = getClientIP(request);
+  const ip = resolvedIp === 'unknown' ? 'anonymous' : resolvedIp;
   const key = `${ip}:${request.nextUrl.pathname}`;
 
   const now = Date.now();
@@ -124,8 +125,8 @@ export function rateLimitHeaders(
 ): Record<string, string> {
   const { limit = 60, windowMs = 60000 } = config;
 
-  const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded?.split(',')[0]?.trim() || 'anonymous';
+  const resolvedIp = getClientIP(request);
+  const ip = resolvedIp === 'unknown' ? 'anonymous' : resolvedIp;
   const key = `${ip}:${request.nextUrl.pathname}`;
 
   const entry = store.get(key);

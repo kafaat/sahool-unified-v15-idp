@@ -60,6 +60,7 @@ async function getAuthContext(): Promise<{ tenantId: string; token: string } | n
 
     const secretKey = process.env.JWT_SECRET_KEY;
     if (!secretKey) {
+      // WARNING: dev-only, MUST never run in production — guarded by NODE_ENV check.
       if (process.env.NODE_ENV === 'development') {
         try {
           const payload = jose.decodeJwt(token);
@@ -75,7 +76,7 @@ async function getAuthContext(): Promise<{ tenantId: string; token: string } | n
     }
 
     const secret = new TextEncoder().encode(secretKey);
-    const verifyOptions: jose.JWTVerifyOptions = {};
+    const verifyOptions: jose.JWTVerifyOptions = { algorithms: ["HS256"] };
     if (process.env.JWT_ISSUER) verifyOptions.issuer = process.env.JWT_ISSUER;
     if (process.env.JWT_AUDIENCE) verifyOptions.audience = process.env.JWT_AUDIENCE;
 

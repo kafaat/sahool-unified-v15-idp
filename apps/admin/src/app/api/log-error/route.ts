@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '../../../lib/logger';
+import { getClientIP } from '@/lib/security/client-ip';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Validation Schema (lightweight Zod-like runtime validation without extra dep)
@@ -147,26 +148,6 @@ function isRateLimited(ip: string): boolean {
 
   entry.count++;
   return false;
-}
-
-/**
- * Get client IP address
- * الحصول على عنوان IP للعميل
- */
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
-
-  if (forwarded) {
-    const firstIp = forwarded.split(',')[0];
-    return firstIp ? firstIp.trim() : 'unknown';
-  }
-
-  if (realIp) {
-    return realIp;
-  }
-
-  return 'unknown';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

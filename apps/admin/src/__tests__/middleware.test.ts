@@ -152,9 +152,10 @@ describe('middleware.ts — security headers', () => {
     expect(middlewareSource).toContain("'strict-origin-when-cross-origin'");
   });
 
-  it('sets X-XSS-Protection header', () => {
-    expect(middlewareSource).toContain("'X-XSS-Protection'");
-    expect(middlewareSource).toContain("'1; mode=block'");
+  it('does NOT set deprecated X-XSS-Protection header', () => {
+    // X-XSS-Protection was deprecated (MDN, 2020+) and removed in favor of CSP + nonce.
+    // https://developer.mozilla.org/docs/Web/HTTP/Headers/X-XSS-Protection
+    expect(middlewareSource).not.toContain("'X-XSS-Protection'");
   });
 
   it('sets HSTS in production only', () => {

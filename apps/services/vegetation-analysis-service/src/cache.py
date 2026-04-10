@@ -74,30 +74,62 @@ async def is_cache_available() -> bool:
 # =============================================================================
 
 
-def _generate_cache_key(prefix: str, **kwargs) -> str:
-    """Generate a unique cache key from parameters."""
+# ─── Tenant scoping ─────────────────────────────────────────────────────────
+#
+# All satellite cache keys MUST embed `tenant_id`. A missing or empty tenant
+# falls back to the literal `"global"` bucket, which is reserved for truly
+# shared lookups (provider catalog, public reference data). Field-scoped
+# data (NDVI, timeseries, analysis) must NEVER use the global bucket —
+# callers should always pass the authenticated `tenant_id`.
+#
+# The scoped-key shape is:
+#   satellite:t:{tenant}:{kind}:{field}:{…}
+# so existing `satellite:ndvi:*` entries from the pre-fix deployment are
+# automatically orphaned and expired by TTL (no manual flush required).
+
+
+def _ns(tenant_id: str | None) -> str:
+    return (tenant_id or "global").strip() or "global"
+
+
+def _generate_cache_key(prefix: str, *, tenant_id: str | None = None, **kwargs) -> str:
+    """Generate a unique, tenant-scoped cache key from parameters."""
     # Sort kwargs for consistent key generation
     sorted_items = sorted(kwargs.items())
     key_data = json.dumps(sorted_items, sort_keys=True, default=str)
     # MD5 used only for cache key generation, not for security
     key_hash = hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()[:12]
-    return f"satellite:{prefix}:{key_hash}"
+    return f"satellite:t:{_ns(tenant_id)}:{prefix}:{key_hash}"
 
 
-def _ndvi_cache_key(field_id: str, date: str, satellite: str) -> str:
+def _ndvi_cache_key(
+    field_id: str,
+    date: str,
+    satellite: str,
+    tenant_id: str | None = None,
+) -> str:
     """Generate cache key for NDVI data."""
-    return f"satellite:ndvi:{field_id}:{date}:{satellite}"
+    return f"satellite:t:{_ns(tenant_id)}:ndvi:{field_id}:{date}:{satellite}"
 
 
-def _analysis_cache_key(field_id: str, satellite: str) -> str:
+def _analysis_cache_key(
+    field_id: str,
+    satellite: str,
+    tenant_id: str | None = None,
+) -> str:
     """Generate cache key for field analysis."""
     date_str = datetime.now(UTC).strftime("%Y-%m-%d")
-    return f"satellite:analysis:{field_id}:{date_str}:{satellite}"
+    return f"satellite:t:{_ns(tenant_id)}:analysis:{field_id}:{date_str}:{satellite}"
 
 
-def _timeseries_cache_key(field_id: str, days: int, satellite: str) -> str:
+def _timeseries_cache_key(
+    field_id: str,
+    days: int,
+    satellite: str,
+    tenant_id: str | None = None,
+) -> str:
     """Generate cache key for time series."""
-    return f"satellite:timeseries:{field_id}:{days}:{satellite}"
+    return f"satellite:t:{_ns(tenant_id)}:timeseries:{field_id}:{days}:{satellite}"
 
 
 # =============================================================================
@@ -173,14 +205,30 @@ async def cache_delete(key: str) -> bool:
         return False
 
 
-async def cache_invalidate_field(field_id: str) -> int:
-    """Invalidate all cache entries for a field using SCAN (non-blocking)."""
+async def cache_invalidate_field(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> int:
+    """Invalidate all cache entries for a field using SCAN (non-blocking).
+
+    When `tenant_id` is provided, only that tenant's keys are purged — this
+    is the secure default. When it is omitted, the helper falls back to a
+    cross-tenant wildcard (`satellite:t:*:*:{field_id}:*`) which should only
+    be used by administrative / background jobs that already know they are
+    operating on a globally-unique field UUID.
+    """
     client = await _get_redis_client()
     if not client:
         return 0
 
     try:
-        pattern = f"satellite:*:{field_id}:*"
+        if tenant_id:
+            pattern = f"satellite:t:{_ns(tenant_id)}:*:{field_id}:*"
+        else:
+            # Admin / background path. Field UUIDs are globally unique, so
+            # this still targets the correct rows — but callers should
+            # prefer the tenant-scoped form when possible.
+            pattern = f"satellite:t:*:*:{field_id}:*"
         deleted = 0
         cursor = 0
 
@@ -193,7 +241,12 @@ async def cache_invalidate_field(field_id: str) -> int:
                 break
 
         if deleted > 0:
-            logger.info(f"Cache INVALIDATE: {deleted} keys for field {field_id}")
+            logger.info(
+                "Cache INVALIDATE: %d keys for field %s (tenant=%s)",
+                deleted,
+                field_id,
+                tenant_id or "*",
+            )
         return deleted
     except Exception as e:
         logger.error(f"Cache invalidate error: {e}")
@@ -209,9 +262,10 @@ async def get_cached_ndvi(
     field_id: str,
     date: str,
     satellite: str,
+    tenant_id: str | None = None,
 ) -> dict[str, Any] | None:
-    """Get cached NDVI data for a field."""
-    key = _ndvi_cache_key(field_id, date, satellite)
+    """Get cached NDVI data for a field (tenant-scoped)."""
+    key = _ndvi_cache_key(field_id, date, satellite, tenant_id=tenant_id)
     return await cache_get(key)
 
 
@@ -220,9 +274,10 @@ async def cache_ndvi(
     date: str,
     satellite: str,
     ndvi_data: dict[str, Any],
+    tenant_id: str | None = None,
 ) -> bool:
-    """Cache NDVI data for a field."""
-    key = _ndvi_cache_key(field_id, date, satellite)
+    """Cache NDVI data for a field (tenant-scoped)."""
+    key = _ndvi_cache_key(field_id, date, satellite, tenant_id=tenant_id)
     return await cache_set(key, ndvi_data, CacheTTL.NDVI)
 
 

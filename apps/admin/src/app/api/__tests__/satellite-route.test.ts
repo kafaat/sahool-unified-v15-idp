@@ -16,18 +16,53 @@ import { NextRequest } from 'next/server';
 // Mocks
 // ═══════════════════════════════════════════════════════════════════════════
 
+// The satellite proxy was hardened (satellite flow audit, C1) to require a
+// verified JWT and forward tenant/user ids to the backend. Each test below
+// therefore attaches an `Authorization: Bearer …` header, and this mock
+// stands in for the real `verifyToken()` so test runs don't need a
+// signing key.
+vi.mock('@/lib/auth/jwt-verify', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/auth/jwt-verify')>();
+  return {
+    ...actual,
+    verifyToken: vi.fn(async () => ({
+      sub: 'user-test-123',
+      tid: 'tenant-test-456',
+      email: 'test@sahool.app',
+      role: 'admin',
+    })),
+  };
+});
+
+// Disable the in-memory rate limiter for test runs. The helper returns
+// `null` when a request is under the limit, which is what the hardened
+// satellite route expects before auth.
+vi.mock('@/lib/rate-limit', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/rate-limit')>();
+  return {
+    ...actual,
+    checkRateLimit: vi.fn(() => null),
+  };
+});
+
 // Store the original fetch
 const originalFetch = globalThis.fetch;
 
+// Every request to the hardened satellite proxy must carry an auth header.
+// This is the bearer token the mocked `verifyToken` above accepts.
+const AUTH_HEADERS = { Authorization: 'Bearer test-token' };
+
 // Helper to create NextRequest
 function createGetRequest(url: string): NextRequest {
-  return new NextRequest(new URL(url, 'http://localhost:3002'));
+  return new NextRequest(new URL(url, 'http://localhost:3002'), {
+    headers: AUTH_HEADERS,
+  });
 }
 
 function createPostRequest(body: Record<string, unknown>): NextRequest {
   return new NextRequest(new URL('http://localhost:3002/api/satellite'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...AUTH_HEADERS },
     body: JSON.stringify(body),
   });
 }
@@ -417,7 +452,10 @@ describe('POST /api/satellite', () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe('fieldId required');
+    // The hardened proxy emits the stricter message
+    // "fieldId required and must be a UUID or alphanumeric slug" — match
+    // the stable prefix so minor wording changes don't break the test.
+    expect(data.error).toMatch(/^fieldId required/);
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 

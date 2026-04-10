@@ -38,8 +38,45 @@ export function useServiceWorker() {
     };
   }, []);
 
-  // Register service worker
+  // Register service worker.
+  //
+  // Chrome-specific note: once a service worker is installed, Chrome will
+  // keep serving cached responses for `/` and `/dashboard` (see `sw.js`)
+  // until the cache version is bumped OR the user manually clears site
+  // data. Firefox is less aggressive. During active development that
+  // manifests as "works in other browsers, broken in Chrome" because
+  // Chrome is pinning an old bundle hash while Firefox refetches.
+  //
+  // To avoid that class of bug we only register the SW when:
+  //   1. NODE_ENV === 'production', AND
+  //   2. `NEXT_PUBLIC_ENABLE_PWA !== 'false'` (kill switch).
+  // Development builds actively UNREGISTER any previously installed SW
+  // and purge its caches so a broken / stale SW cannot linger across
+  // dev sessions.
   useEffect(() => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const pwaKillSwitchOff = process.env.NEXT_PUBLIC_ENABLE_PWA === 'false';
+    const shouldRegister = isProduction && !pwaKillSwitchOff;
+
+    const unregisterAll = async () => {
+      if (!('serviceWorker' in navigator)) return;
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((r) => r.unregister()));
+        if ('caches' in window) {
+          const names = await caches.keys();
+          await Promise.all(
+            names.filter((n) => n.startsWith('sahool-')).map((n) => caches.delete(n))
+          );
+        }
+        if (registrations.length > 0) {
+          logger.log('[PWA] Unregistered stale service worker(s) and cleared sahool-* caches');
+        }
+      } catch (error) {
+        logger.error('[PWA] Failed to unregister existing service worker:', error);
+      }
+    };
+
     const registerSW = async () => {
       if (!('serviceWorker' in navigator)) {
         setStatus((prev) => ({ ...prev, isSupported: false }));
@@ -48,9 +85,22 @@ export function useServiceWorker() {
 
       setStatus((prev) => ({ ...prev, isSupported: true }));
 
+      if (!shouldRegister) {
+        // Kill switch or non-production build: actively purge any SW that a
+        // prior visit may have installed. This is the "escape hatch" for
+        // Chrome users who already have a stale SW pinned.
+        await unregisterAll();
+        return;
+      }
+
       try {
         const registration = await navigator.serviceWorker.register('/sw.js', {
           scope: '/',
+          // `updateViaCache: 'none'` forces the browser to bypass HTTP cache
+          // when checking for a new `/sw.js`, so a deploy is always picked
+          // up on the next navigation instead of waiting for the HTTP cache
+          // to expire.
+          updateViaCache: 'none',
         });
 
         setStatus((prev) => ({

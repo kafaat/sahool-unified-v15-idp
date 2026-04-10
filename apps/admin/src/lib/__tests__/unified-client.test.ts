@@ -8,13 +8,35 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock dependencies before imports
+// Mock dependencies before imports. Mock must expose every symbol used by
+// lib/unified-client.ts — missing keys surface as
+// "No <X> export is defined on the '@/config/api' mock" errors at test time.
 vi.mock('@/config/api', () => ({
+  API_URL: 'http://localhost:8000',
   API_BASE_URL: 'http://localhost:8000',
   API_BASE_HOST: 'http://localhost',
   IS_PRODUCTION: false,
   IS_DEVELOPMENT: true,
   IS_TEST: true,
+  SERVICE_URLS: {
+    user: 'http://localhost:3025',
+    fieldManagement: 'http://localhost:3000',
+    weather: 'http://localhost:8092',
+    satellite: 'http://localhost:8090',
+  },
+  SERVICE_PORTS: {
+    USER: 3025,
+    FIELD_MANAGEMENT: 3000,
+    WEATHER: 8092,
+    SATELLITE: 8090,
+  },
+  API_PATHS: {},
+  API_ENDPOINTS: {},
+  DEFAULT_TIMEOUT: 30000,
+  MAX_RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000,
+  DEFAULT_HEADERS: {},
+  getServiceUrl: (port: number) => `http://localhost:${port}`,
   TIMEOUT_TIERS: {
     default: 30000,
     upload: 120000,

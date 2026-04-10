@@ -101,6 +101,7 @@ export async function validateJwtToken(
     const { payload } = await jose.jwtVerify(token, secretKey, {
       issuer: jwtConfig.issuer,
       audience: jwtConfig.audience,
+      algorithms: ["HS256"],
     });
 
     // Validate required payload fields

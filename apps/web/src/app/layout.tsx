@@ -26,8 +26,8 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Get locale from next-intl (configured in i18n.ts)
-  const locale = (await getLocale()) as Locale;
-  const messages = await getMessages();
+  const locale = (await getLocale().catch(() => "en")) as Locale;
+  const messages = await getMessages().catch(() => ({}));
   const direction = getDirection(locale);
 
   return (
@@ -56,7 +56,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </a>
         <ErrorBoundary>
           <NextIntlClientProvider messages={messages} locale={locale}>
-            <Providers>{children}</Providers>
+            <Providers><main id="main-content">{children}</main></Providers>
           </NextIntlClientProvider>
         </ErrorBoundary>
       </body>

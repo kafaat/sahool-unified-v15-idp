@@ -44,32 +44,36 @@ describe('AuthApiClient', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe('login', () => {
-    it('should reject invalid email format', async () => {
-      // Dynamically import to get fresh instance after mocks
+    it('should reject malformed email (contains @ but invalid shape)', async () => {
+      // Dynamically import to get fresh instance after mocks.
+      // Note: login() now accepts email OR phone. A string containing "@"
+      // is treated as an email candidate and validated; strings without "@"
+      // are forwarded as phone numbers.
       const { authApiClient } = await import('../auth-client');
 
-      const result = await authApiClient.login('not-an-email', 'password123');
+      const result = await authApiClient.login('not-an-email@', 'password123');
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid email format');
     });
 
-    it('should reject empty email', async () => {
+    it('should reject empty identifier', async () => {
       const { authApiClient } = await import('../auth-client');
 
       const result = await authApiClient.login('', 'password123');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Invalid email format');
+      // Message changed when login was extended to accept phone numbers.
+      expect(result.error).toBe('Email or phone is required');
     });
 
-    it('should reject whitespace-only email', async () => {
+    it('should reject whitespace-only identifier', async () => {
       const { authApiClient } = await import('../auth-client');
 
       const result = await authApiClient.login('   ', 'password123');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Invalid email format');
+      expect(result.error).toBe('Email or phone is required');
     });
 
     it('should trim and lowercase email before sending', async () => {
@@ -102,17 +106,18 @@ describe('AuthApiClient', () => {
     it('should return success with user data on valid login', async () => {
       const { authApiClient } = await import('../auth-client');
 
+      // The /api/v1/auth/login route returns the token/user payload directly
+      // (not wrapped in { success, data }). `request()` then returns
+      // `{ success: true, data: <parsedJson> }`, so the shape the test
+      // mocks here must be the raw backend payload.
       const mockResponse = {
-        success: true,
-        data: {
-          access_token: 'jwt-token',
-          refresh_token: 'refresh-token',
-          user: {
-            id: 'user-1',
-            email: 'farmer@sahool.com',
-            name: 'Ahmed',
-            role: 'farmer',
-          },
+        access_token: 'jwt-token',
+        refresh_token: 'refresh-token',
+        user: {
+          id: 'user-1',
+          email: 'farmer@sahool.com',
+          name: 'Ahmed',
+          role: 'farmer',
         },
       };
 
@@ -248,10 +253,20 @@ describe('AuthApiClient', () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe('token management', () => {
-    it('should include Authorization header when token is set', async () => {
+    // Note: `getCurrentUser()` was migrated off the bearer-token path. It
+    // now calls the Next.js proxy route `/api/auth/me` which reads the
+    // httpOnly cookie server-side, so these tests verify the cookie-flow
+    // contract instead of the (removed) `Authorization: Bearer …` header.
+
+    it('setToken/clearToken are accepted without throwing', async () => {
       const { authApiClient } = await import('../auth-client');
 
-      authApiClient.setToken('my-token');
+      expect(() => authApiClient.setToken('my-token')).not.toThrow();
+      expect(() => authApiClient.clearToken()).not.toThrow();
+    });
+
+    it('getCurrentUser calls the Next proxy with credentials: include (no Authorization header)', async () => {
+      const { authApiClient } = await import('../auth-client');
 
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
@@ -262,33 +277,14 @@ describe('AuthApiClient', () => {
       await authApiClient.getCurrentUser();
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            Authorization: 'Bearer my-token',
-          }),
-        })
+        '/api/auth/me',
+        expect.objectContaining({ credentials: 'include' })
       );
-
-      authApiClient.clearToken();
-    });
-
-    it('should not include Authorization header when no token', async () => {
-      const { authApiClient } = await import('../auth-client');
-
-      authApiClient.clearToken();
-
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        headers: new Headers({ 'content-type': 'application/json' }),
-        json: () => Promise.resolve({ success: true, data: {} }),
-      });
-
-      await authApiClient.getCurrentUser();
-
       const fetchCall = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-      const headers = fetchCall[1]?.headers as Record<string, string>;
-      expect(headers.Authorization).toBeUndefined();
+      const init = fetchCall[1] as RequestInit | undefined;
+      // Intentionally bearer-less — the httpOnly cookie is the authoritative
+      // token store.
+      expect((init?.headers as Record<string, string> | undefined)?.Authorization).toBeUndefined();
     });
   });
 

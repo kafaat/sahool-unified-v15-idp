@@ -10,7 +10,13 @@
  * - Background sync for offline actions
  */
 
-const CACHE_VERSION = "v1.0.0";
+// ─── Cache version ────────────────────────────────────────────────────────
+// BUMP THIS STRING on any change that should invalidate previously-cached
+// assets (new JS bundle hashes, HTML shell changes, etc). The SW install
+// handler activates immediately and the activate handler clears any cache
+// whose name doesn't match the current version, so bumping the version is
+// sufficient to unwedge a user whose Chrome has a stale SW pinned.
+const CACHE_VERSION = "v1.0.1-chrome-unwedge";
 const STATIC_CACHE = `sahool-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `sahool-dynamic-${CACHE_VERSION}`;
 const API_CACHE = `sahool-api-${CACHE_VERSION}`;

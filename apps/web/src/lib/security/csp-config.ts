@@ -210,8 +210,15 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     // Object sources - Block all
     'object-src': ["'none'"],
 
-    // Frame sources
-    'frame-src': ["'none'"],
+    // Frame sources — `'none'` was blocking the Google Maps embed iframe
+    // (`https://maps.google.com`) and Chrome enforces frame-src strictly.
+    // Allow only the specific third-parties we actually embed.
+    'frame-src': [
+      "'self'",
+      'https://maps.google.com',
+      'https://www.google.com',
+      'https://www.gstatic.com',
+    ],
 
     // Worker sources (for service workers, web workers)
     'worker-src': ["'self'", 'blob:'],

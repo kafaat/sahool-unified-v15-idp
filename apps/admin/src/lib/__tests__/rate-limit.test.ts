@@ -11,6 +11,11 @@ function createMockRequest(path: string = '/api/test', ip: string = '127.0.0.1')
   const url = `http://localhost:3001${path}`;
   const request = new NextRequest(url, {
     headers: {
+      // The rate limiter resolves the client IP via `getClientIP`, which only
+      // honors `X-Forwarded-For` when the direct peer is in TRUSTED_PROXIES.
+      // Cloudflare's `CF-Connecting-IP` header is always trusted, so we use it
+      // here to simulate a real client IP without standing up a proxy allowlist.
+      'cf-connecting-ip': ip,
       'x-forwarded-for': ip,
     },
   });

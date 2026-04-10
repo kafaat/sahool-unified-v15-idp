@@ -168,7 +168,14 @@ describe('Unified Client (Web)', () => {
 
       interceptorFn(config);
 
-      expect(mockHeaders.set).not.toHaveBeenCalled();
+      // The interceptor still sets `X-Tenant-ID` on every request (it's not
+      // state-changing — it's routing metadata), so we can't assert that
+      // `headers.set` was never called. Instead, assert specifically that
+      // X-CSRF-Token was NOT attached.
+      const csrfCalls = mockHeaders.set.mock.calls.filter(
+        ([name]: [string]) => name === 'X-CSRF-Token'
+      );
+      expect(csrfCalls).toHaveLength(0);
     });
 
     it('does NOT inject header when _csrf cookie is missing', async () => {

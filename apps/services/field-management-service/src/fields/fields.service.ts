@@ -96,8 +96,17 @@ export class FieldsService {
     }
 
     // Prepare boundary if coordinates provided
+    //
+    // Centroid + bbox are computed by PostGIS at INSERT time (not in JS):
+    //   * `ST_Centroid(boundary)` produces a mathematically correct
+    //     centroid — the old JS code took the arithmetic mean of the ring
+    //     vertices, which double-counts the closing vertex and skews the
+    //     point for non-convex polygons.
+    //   * The bounding box is always derivable from `boundary` via
+    //     `ST_Envelope(boundary)`, so we do not introduce a separate
+    //     denormalised `bbox` column — reading is cheap and avoids
+    //     drift between the two representations.
     let boundary: any = dto.boundary;
-    let centroid: any = null;
     let approximateArea: number | null = null;
 
     if (dto.coordinates && dto.coordinates.length >= 3) {
@@ -112,15 +121,6 @@ export class FieldsService {
       boundary = {
         type: "Polygon",
         coordinates: [coords],
-      };
-
-      // Calculate centroid
-      const centroidLng = coords.reduce((sum, c) => sum + c[0], 0) / coords.length;
-      const centroidLat = coords.reduce((sum, c) => sum + c[1], 0) / coords.length;
-
-      centroid = {
-        type: "Point",
-        coordinates: [centroidLng, centroidLat],
       };
 
       approximateArea = calculatePolygonArea(coords);
@@ -145,14 +145,23 @@ export class FieldsService {
         },
       });
 
-      // Update with PostGIS boundary if exists
+      // Write PostGIS boundary, centroid, and area atomically.
+      // The centroid is derived in-database from the boundary so it can
+      // never drift out of sync with the polygon it describes.
       if (boundary) {
         await tx.$executeRaw`
           UPDATE fields
           SET
             boundary = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326),
-            centroid = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(centroid)}), 4326),
-            area_hectares = ST_Area(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326), 32637)) / 10000
+            centroid = ST_Centroid(
+              ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326)
+            ),
+            area_hectares = ST_Area(
+              ST_Transform(
+                ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(boundary)}), 4326),
+                32637
+              )
+            ) / 10000
           WHERE id = ${created.id}::uuid
         `;
       }
@@ -190,7 +199,11 @@ export class FieldsService {
     const cached = await this.cacheService.get<FieldResponseDto>(
       CACHE_KEYS.FIELD(id),
     );
-    if (cached && 'centroidLat' in cached) {
+    // Shortcut the DB round-trip only if the cached object was produced by
+    // this version of the code (i.e. contains the `bbox` key). Objects
+    // cached before the bbox rollout are ignored here so clients get the
+    // new field on next read without a manual cache flush.
+    if (cached && 'bbox' in cached) {
       // Verify tenant ownership even for cached results
       if (tenantId) {
         assertTenantOwnership(cached.tenantId, tenantId, "field");
@@ -231,20 +244,60 @@ export class FieldsService {
       assertTenantOwnership(field.tenantId, tenantId, "field");
     }
 
-    // Fetch centroid from PostGIS (not available via Prisma select)
+    // Fetch centroid + bbox from PostGIS (neither is representable via the
+    // Prisma select above). Both are derived in-database from the stored
+    // boundary, so they can never drift out of sync with the polygon:
+    //   centroid = ST_Centroid(boundary)
+    //   bbox     = ST_Envelope(boundary)'s min/max lat/lng
+    // The query uses a single row-trip so we don't pay two round-trips.
     let centroidLat: number | undefined;
     let centroidLng: number | undefined;
+    let bbox: [number, number, number, number] | undefined;
     try {
-      const centroidRows = await this.prisma.$queryRawUnsafe<Array<{ centroid_lng: number | null; centroid_lat: number | null }>>(
-        'SELECT ST_X(centroid::geometry) AS centroid_lng, ST_Y(centroid::geometry) AS centroid_lat FROM fields WHERE id=$1::uuid AND centroid IS NOT NULL',
+      const geomRows = await this.prisma.$queryRawUnsafe<
+        Array<{
+          centroid_lng: number | null;
+          centroid_lat: number | null;
+          min_lng: number | null;
+          min_lat: number | null;
+          max_lng: number | null;
+          max_lat: number | null;
+        }>
+      >(
+        `SELECT
+           ST_X(centroid::geometry) AS centroid_lng,
+           ST_Y(centroid::geometry) AS centroid_lat,
+           ST_XMin(boundary::geometry) AS min_lng,
+           ST_YMin(boundary::geometry) AS min_lat,
+           ST_XMax(boundary::geometry) AS max_lng,
+           ST_YMax(boundary::geometry) AS max_lat
+         FROM fields
+         WHERE id = $1::uuid
+           AND boundary IS NOT NULL`,
         id,
       );
-      if (centroidRows.length > 0 && centroidRows[0].centroid_lat != null) {
-        centroidLat = Number(centroidRows[0].centroid_lat);
-        centroidLng = Number(centroidRows[0].centroid_lng);
+      if (geomRows.length > 0) {
+        const row = geomRows[0];
+        if (row.centroid_lat != null && row.centroid_lng != null) {
+          centroidLat = Number(row.centroid_lat);
+          centroidLng = Number(row.centroid_lng);
+        }
+        if (
+          row.min_lng != null &&
+          row.min_lat != null &&
+          row.max_lng != null &&
+          row.max_lat != null
+        ) {
+          bbox = [
+            Number(row.min_lng),
+            Number(row.min_lat),
+            Number(row.max_lng),
+            Number(row.max_lat),
+          ];
+        }
       }
     } catch {
-      // centroid column may not exist on older DB schemas — ignore
+      // centroid / boundary columns may not exist on older DB schemas — ignore
     }
 
     const etag = generateETag(field.id, field.version);
@@ -261,6 +314,7 @@ export class FieldsService {
       ndviValue: toNumber(field.ndviValue),
       centroidLat,
       centroidLng,
+      bbox,
       irrigationType: field.irrigationType ?? undefined,
       soilType: field.soilType ?? undefined,
       plantingDate: field.plantingDate ?? undefined,
@@ -320,28 +374,103 @@ export class FieldsService {
       this.prisma.field.count({ where }),
     ]);
 
+    // Fetch centroid + bbox for the page in a single batch query. Both are
+    // derived in-database from `boundary` so they never drift out of sync
+    // with the polygon. This is a single round-trip regardless of page
+    // size — avoids N+1 that a per-row lookup would incur.
+    const geomByFieldId = new Map<
+      string,
+      {
+        centroidLat?: number;
+        centroidLng?: number;
+        bbox?: [number, number, number, number];
+      }
+    >();
+    if (fields.length > 0) {
+      try {
+        const ids = fields.map((f: { id: string }) => f.id);
+        const geomRows = await this.prisma.$queryRawUnsafe<
+          Array<{
+            id: string;
+            centroid_lng: number | null;
+            centroid_lat: number | null;
+            min_lng: number | null;
+            min_lat: number | null;
+            max_lng: number | null;
+            max_lat: number | null;
+          }>
+        >(
+          `SELECT
+             id,
+             ST_X(centroid::geometry) AS centroid_lng,
+             ST_Y(centroid::geometry) AS centroid_lat,
+             ST_XMin(boundary::geometry) AS min_lng,
+             ST_YMin(boundary::geometry) AS min_lat,
+             ST_XMax(boundary::geometry) AS max_lng,
+             ST_YMax(boundary::geometry) AS max_lat
+           FROM fields
+           WHERE id = ANY($1::uuid[])
+             AND boundary IS NOT NULL`,
+          ids,
+        );
+        for (const row of geomRows) {
+          const entry: {
+            centroidLat?: number;
+            centroidLng?: number;
+            bbox?: [number, number, number, number];
+          } = {};
+          if (row.centroid_lat != null && row.centroid_lng != null) {
+            entry.centroidLat = Number(row.centroid_lat);
+            entry.centroidLng = Number(row.centroid_lng);
+          }
+          if (
+            row.min_lng != null &&
+            row.min_lat != null &&
+            row.max_lng != null &&
+            row.max_lat != null
+          ) {
+            entry.bbox = [
+              Number(row.min_lng),
+              Number(row.min_lat),
+              Number(row.max_lng),
+              Number(row.max_lat),
+            ];
+          }
+          geomByFieldId.set(row.id, entry);
+        }
+      } catch {
+        // centroid / boundary columns may not exist on older DB schemas — ignore
+      }
+    }
+
     const totalPages = Math.ceil(total / limit);
 
-    const data: FieldResponseDto[] = fields.map((f: any) => ({
-      id: f.id,
-      name: f.name,
-      tenantId: f.tenantId,
-      cropType: f.cropType,
-      ownerId: f.ownerId ?? undefined,
-      farmId: f.farmId ?? undefined,
-      status: f.status as unknown as FieldResponseDto["status"],
-      areaHectares: toNumber(f.areaHectares),
-      healthScore: toNumber(f.healthScore),
-      ndviValue: toNumber(f.ndviValue),
-      irrigationType: f.irrigationType ?? undefined,
-      soilType: f.soilType ?? undefined,
-      plantingDate: f.plantingDate ?? undefined,
-      expectedHarvest: f.expectedHarvest ?? undefined,
-      version: f.version,
-      createdAt: f.createdAt,
-      updatedAt: f.updatedAt,
-      etag: generateETag(f.id, f.version),
-    }));
+    const data: FieldResponseDto[] = fields.map((f: any) => {
+      const geom = geomByFieldId.get(f.id);
+      return {
+        id: f.id,
+        name: f.name,
+        tenantId: f.tenantId,
+        cropType: f.cropType,
+        ownerId: f.ownerId ?? undefined,
+        farmId: f.farmId ?? undefined,
+        status: f.status as unknown as FieldResponseDto["status"],
+        areaHectares: toNumber(f.areaHectares),
+        healthScore: toNumber(f.healthScore),
+        ndviValue: toNumber(f.ndviValue),
+        centroidLat: geom?.centroidLat,
+        centroidLng: geom?.centroidLng,
+        bbox: geom?.bbox,
+        irrigationType: f.irrigationType ?? undefined,
+        soilType: f.soilType ?? undefined,
+        plantingDate: f.plantingDate ?? undefined,
+        expectedHarvest: f.expectedHarvest ?? undefined,
+        version: f.version,
+        createdAt: f.createdAt,
+        updatedAt: f.updatedAt,
+        etag: generateETag(f.id, f.version),
+      };
+    });
 
     return {
       data,
@@ -409,13 +538,23 @@ export class FieldsService {
         },
       });
 
-      // Handle boundary update within the same transaction
+      // Handle boundary update within the same transaction. The centroid
+      // is recomputed from the new boundary — previously this was missed
+      // and the stored centroid would go stale after any boundary edit.
       if (dto.boundary) {
         await tx.$executeRaw`
           UPDATE fields
           SET
             boundary = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(dto.boundary)}), 4326),
-            area_hectares = ST_Area(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(dto.boundary)}), 4326), 32637)) / 10000
+            centroid = ST_Centroid(
+              ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(dto.boundary)}), 4326)
+            ),
+            area_hectares = ST_Area(
+              ST_Transform(
+                ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(dto.boundary)}), 4326),
+                32637
+              )
+            ) / 10000
           WHERE id = ${id}::uuid
         `;
       }
@@ -552,12 +691,22 @@ export class FieldsService {
         },
       });
 
-      // Update boundary with PostGIS
+      // Update boundary with PostGIS. The centroid is recomputed from the
+      // new geometry so it stays consistent with the boundary after every
+      // edit (without this the stored centroid would silently go stale).
       await tx.$executeRaw`
         UPDATE fields
         SET
           boundary = ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(newBoundary)}), 4326),
-          area_hectares = ST_Area(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(newBoundary)}), 4326), 32637)) / 10000,
+          centroid = ST_Centroid(
+            ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(newBoundary)}), 4326)
+          ),
+          area_hectares = ST_Area(
+            ST_Transform(
+              ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(newBoundary)}), 4326),
+              32637
+            )
+          ) / 10000,
           version = version + 1,
           server_updated_at = NOW()
         WHERE id = ${id}::uuid
@@ -676,7 +825,9 @@ export class FieldsService {
         },
       });
 
-      // Restore previous boundary
+      // Restore previous boundary. The centroid is recomputed from the
+      // restored geometry so rollback keeps centroid consistent with
+      // boundary (previously rollback left a stale centroid behind).
       // Defense-in-depth: tenant_id added to both UPDATE and subquery WHERE
       // clauses, even though field ownership and history entry are validated above.
       await tx.$executeRaw`
@@ -687,6 +838,11 @@ export class FieldsService {
             FROM field_boundary_history
             WHERE id = ${dto.historyId}::uuid
               AND tenant_id = ${field.tenantId}::uuid
+          ),
+          centroid = ST_Centroid(
+            (SELECT previous_boundary FROM field_boundary_history
+             WHERE id = ${dto.historyId}::uuid
+               AND tenant_id = ${field.tenantId}::uuid)
           ),
           area_hectares = ST_Area(ST_Transform(
             (SELECT previous_boundary FROM field_boundary_history WHERE id = ${dto.historyId}::uuid AND tenant_id = ${field.tenantId}::uuid),

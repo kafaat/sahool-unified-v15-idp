@@ -503,6 +503,14 @@ export class FieldResponseDto {
   @ApiPropertyOptional({ description: 'Centroid longitude (WGS84)' })
   centroidLng?: number;
 
+  @ApiPropertyOptional({
+    description:
+      'Axis-aligned bounding box in WGS84, in GeoJSON RFC 7946 order: [minLng, minLat, maxLng, maxLat]. Derived from `boundary` via PostGIS `ST_Envelope` at read time, so it is always in sync with the polygon.',
+    type: [Number],
+    example: [46.71, 24.71, 46.79, 24.79],
+  })
+  bbox?: [number, number, number, number];
+
   @ApiPropertyOptional()
   irrigationType?: string;
 

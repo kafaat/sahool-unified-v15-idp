@@ -188,7 +188,6 @@ export async function middleware(request: NextRequest) {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-    response.headers.set('X-XSS-Protection', '1; mode=block');
     response.headers.set('Cache-Control', 'no-store');
     if (process.env.NODE_ENV === 'production') {
       response.headers.set(
@@ -382,8 +381,8 @@ function addSecurityHeaders(response: NextResponse): void {
   // Control referrer information
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  // Legacy XSS protection (modern browsers use CSP)
-  response.headers.set('X-XSS-Protection', '1; mode=block');
+  // Note: X-XSS-Protection removed — deprecated since 2020 (MDN). CSP + nonce
+  // is the modern replacement and is already applied via the main middleware flow.
 
   // Permissions Policy - restrict browser features
   response.headers.set(

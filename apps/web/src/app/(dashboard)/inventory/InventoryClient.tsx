@@ -15,6 +15,30 @@ const categories: Array<{ value: InventoryCategory | 'all'; label: string; label
   { value: 'other', label: 'Other', labelAr: 'أخرى' },
 ];
 
+/**
+ * Parse a numeric input guarding against empty string (NaN), negatives,
+ * and float precision drift. Returns a clamped, rounded, non-negative number.
+ * Prevents the common bug where `Number('')` yields NaN and bleeds into
+ * the API payload as a silent data-quality error.
+ */
+function parseNonNegativeNumber(raw: string): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || Number.isNaN(n) || n < 0) {
+    return 0;
+  }
+  // Clamp to 4 decimal places to avoid 0.1 + 0.2 style drift
+  return Math.round(n * 10000) / 10000;
+}
+
+/**
+ * Safely format a quantity for display. Shows em-dash for missing values
+ * and localizes thousands separators.
+ */
+function formatQuantity(qty: number | undefined | null): string {
+  if (qty === null || qty === undefined || !Number.isFinite(qty)) return '—';
+  return qty.toLocaleString();
+}
+
 export default function InventoryClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<InventoryCategory | 'all'>('all');
@@ -32,6 +56,7 @@ export default function InventoryClient() {
   const [newPurchasePrice, setNewPurchasePrice] = useState(0);
   const [newLocation, setNewLocation] = useState('');
   const [newLocationAr, setNewLocationAr] = useState('');
+  const [createError, setCreateError] = useState<string | null>(null);
 
   // Fetch data using React Query hooks
   const {
@@ -59,19 +84,33 @@ export default function InventoryClient() {
   };
 
   const handleCreate = () => {
-    if (!newNameAr) return;
+    setCreateError(null);
+    const trimmedNameAr = newNameAr.trim();
+    const trimmedName = newName.trim();
+    if (!trimmedNameAr) {
+      setCreateError('اسم العنصر بالعربية مطلوب');
+      return;
+    }
+    // Require a unit so the backend can interpret quantity correctly
+    // (e.g. kg vs ton). Without a unit, stock math is ambiguous and
+    // unit-conversion bugs surface later.
+    const hasUnit = newUnit.trim().length > 0 || newUnitAr.trim().length > 0;
+    if (!hasUnit) {
+      setCreateError('الوحدة مطلوبة (مثال: kg, ton)');
+      return;
+    }
     const data: InventoryFormData = {
-      name: newName,
-      nameAr: newNameAr,
+      name: trimmedName,
+      nameAr: trimmedNameAr,
       category: newCategory,
       sku: '',
       quantity: newQuantity,
-      unit: newUnit,
-      unitAr: newUnitAr,
+      unit: newUnit.trim(),
+      unitAr: newUnitAr.trim(),
       minQuantity: 0,
       purchasePrice: newPurchasePrice,
-      location: newLocation || undefined,
-      locationAr: newLocationAr || undefined,
+      location: newLocation.trim() || undefined,
+      locationAr: newLocationAr.trim() || undefined,
     };
     createInventory.mutate(data, {
       onSuccess: () => {
@@ -85,17 +124,29 @@ export default function InventoryClient() {
         setNewPurchasePrice(0);
         setNewLocation('');
         setNewLocationAr('');
+        setCreateError(null);
+      },
+      onError: (err: unknown) => {
+        setCreateError(
+          err instanceof Error ? err.message : 'فشل في إضافة العنصر'
+        );
       },
     });
   };
 
-  // Filter inventory based on search term
+  // Filter inventory based on search term. Includes SKU so barcode/QR
+  // scans can locate items directly. Lowercases both sides for EN matching;
+  // Arabic normalization is handled by String.includes naturally.
   const filteredInventory = useMemo(() => {
-    if (!searchTerm) return inventory;
-    const term = searchTerm.toLowerCase();
-    return inventory.filter(
-      (item) => item.name.toLowerCase().includes(term) || item.nameAr.includes(searchTerm)
-    );
+    const rawTerm = searchTerm.trim();
+    if (!rawTerm) return inventory;
+    const term = rawTerm.toLowerCase();
+    return inventory.filter((item) => {
+      const nameMatch = item.name?.toLowerCase().includes(term) ?? false;
+      const nameArMatch = item.nameAr?.includes(rawTerm) ?? false;
+      const skuMatch = item.sku?.toLowerCase().includes(term) ?? false;
+      return nameMatch || nameArMatch || skuMatch;
+    });
   }, [inventory, searchTerm]);
 
   const getStatusBadge = (status: InventoryItem['status']) => {
@@ -155,11 +206,25 @@ export default function InventoryClient() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">الكمية ({editingItem.unitAr || editingItem.unit})</label>
-                <input type="number" value={editQuantity} onChange={(e) => setEditQuantity(Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                <input
+                  type="number"
+                  min={0}
+                  step="0.0001"
+                  value={editQuantity}
+                  onChange={(e) => setEditQuantity(parseNonNegativeNumber(e.target.value))}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">سعر الشراء (ريال)</label>
-                <input type="number" value={editPurchasePrice} onChange={(e) => setEditPurchasePrice(Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={editPurchasePrice}
+                  onChange={(e) => setEditPurchasePrice(parseNonNegativeNumber(e.target.value))}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">ملاحظات</label>
@@ -205,11 +270,25 @@ export default function InventoryClient() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">الكمية</label>
-                  <input type="number" value={newQuantity} onChange={(e) => setNewQuantity(Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.0001"
+                    value={newQuantity}
+                    onChange={(e) => setNewQuantity(parseNonNegativeNumber(e.target.value))}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">سعر الشراء (ريال)</label>
-                  <input type="number" value={newPurchasePrice} onChange={(e) => setNewPurchasePrice(Number(e.target.value))} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={newPurchasePrice}
+                    onChange={(e) => setNewPurchasePrice(parseNonNegativeNumber(e.target.value))}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">

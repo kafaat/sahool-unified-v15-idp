@@ -49,8 +49,17 @@ export default function WalletClient() {
 
   const handleDepositSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(depositAmount);
-    if (Number.isNaN(amount) || amount <= 0) return;
+    // Use Number() instead of parseFloat() to reject mixed input like "12abc"
+    // which parseFloat would silently accept as 12. Also reject NaN/Infinity.
+    const amount = Number(depositAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showToast({
+        type: 'error',
+        message: 'Please enter a valid amount.',
+        messageAr: 'يرجى إدخال مبلغ صحيح.',
+      });
+      return;
+    }
     deposit.mutate(
       {
         amount,
@@ -81,8 +90,17 @@ export default function WalletClient() {
 
   const handleWithdrawSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(withdrawAmount);
-    if (Number.isNaN(amount) || amount <= 0) return;
+    // Use Number() instead of parseFloat() to reject mixed input like "12abc"
+    // which parseFloat would silently accept as 12. Also reject NaN/Infinity.
+    const amount = Number(withdrawAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showToast({
+        type: 'error',
+        message: 'Please enter a valid amount.',
+        messageAr: 'يرجى إدخال مبلغ صحيح.',
+      });
+      return;
+    }
     withdraw.mutate(
       {
         amount,

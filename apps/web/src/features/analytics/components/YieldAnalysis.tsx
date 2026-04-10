@@ -165,7 +165,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
                 <div>
                   <p className="text-sm text-gray-600">{t('actualYield')}</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {field.totalYield.toLocaleString('ar-SA')} {t('kg')}
+                    {totalYield.toLocaleString('ar-SA')} {t('kg')}
                   </p>
                 </div>
 
@@ -174,7 +174,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
                     {t('productivity')} ({t('kgPerHectare')})
                   </p>
                   <p className="text-xl font-semibold text-gray-900">
-                    {field.yieldPerHectare.toLocaleString('ar-SA')}
+                    {yieldPerHectare.toLocaleString('ar-SA')}
                   </p>
                 </div>
 
@@ -196,10 +196,10 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
 
                 <div className="pt-3 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
-                    {t('totalArea')}: {field.area.toLocaleString('ar-SA')} {t('hectare')}
+                    {t('totalArea')}: {area.toLocaleString('ar-SA')} {t('hectare')}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {t('season')}: {field.season}
+                    {t('season')}: {field.season || '-'}
                   </p>
                 </div>
               </div>

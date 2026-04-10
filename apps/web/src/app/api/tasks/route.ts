@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import { validateCsrfRequest } from '@/lib/security/csrf-server';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -23,7 +24,22 @@ import { logger } from '@/lib/logger';
 const TASK_SERVICE_URL =
   process.env.TASK_SERVICE_URL || 'http://task-service:8103';
 
+// Allowlist the upstream host to prevent SSRF via tampered env at runtime.
+// We reject anything whose parsed hostname does not match a known good value.
+const ALLOWED_UPSTREAM_HOSTS = new Set(
+  (process.env.TASK_SERVICE_ALLOWED_HOSTS || 'task-service,localhost,127.0.0.1')
+    .split(',')
+    .map((h) => h.trim())
+    .filter(Boolean),
+);
+
+// Generic identifier pattern for task/field IDs.
 const SAFE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
+
+// Strict UUID pattern for user-facing references (assignees). Matches the
+// task-service backend's `_UUID_PATTERN` to avoid submitting values that
+// will be rejected by the upstream validator.
+const UUID_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
 const VALID_TASK_STATUSES = [
   'pending',
@@ -36,6 +52,9 @@ const VALID_PATCH_ACTIONS = ['complete', 'assign'] as const;
 type PatchAction = (typeof VALID_PATCH_ACTIONS)[number];
 
 const REQUEST_TIMEOUT_MS = 15_000;
+
+// Cap request body size to prevent memory abuse.
+const MAX_BODY_BYTES = 128 * 1024; // 128 KB
 
 const RATE_LIMIT_CONFIG = {
   windowMs: 60_000,
@@ -89,6 +108,100 @@ async function extractToken(): Promise<string | null> {
 function validateContentType(response: Response): boolean {
   const ct = response.headers.get('content-type') || '';
   return ct.includes('application/json');
+}
+
+/**
+ * Build the upstream URL while enforcing an allowlist on the host.
+ * Returns null if TASK_SERVICE_URL is malformed or points at a disallowed host.
+ * This protects against SSRF via accidental/malicious env misconfiguration.
+ */
+function buildUpstreamUrl(path: string): URL | null {
+  let base: URL;
+  try {
+    base = new URL(TASK_SERVICE_URL);
+  } catch {
+    return null;
+  }
+  if (base.protocol !== 'http:' && base.protocol !== 'https:') return null;
+  if (!ALLOWED_UPSTREAM_HOSTS.has(base.hostname)) return null;
+  return new URL(path, base);
+}
+
+/**
+ * Read and size-check the JSON request body. Prevents memory exhaustion
+ * from oversize payloads and returns a bilingual 413 on overflow.
+ */
+async function readJsonBody(request: NextRequest): Promise<
+  | { ok: true; data: Record<string, unknown> }
+  | { ok: false; response: NextResponse }
+> {
+  const contentLength = request.headers.get('content-length');
+  if (contentLength && Number(contentLength) > MAX_BODY_BYTES) {
+    return {
+      ok: false,
+      response: bilingualError(
+        'Request body too large',
+        'حجم الطلب كبير جدا',
+        413,
+      ),
+    };
+  }
+  let text: string;
+  try {
+    text = await request.text();
+  } catch {
+    return {
+      ok: false,
+      response: bilingualError('Invalid request body', 'نص الطلب غير صالح', 400),
+    };
+  }
+  if (text.length > MAX_BODY_BYTES) {
+    return {
+      ok: false,
+      response: bilingualError(
+        'Request body too large',
+        'حجم الطلب كبير جدا',
+        413,
+      ),
+    };
+  }
+  try {
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {
+        ok: false,
+        response: bilingualError(
+          'Expected JSON object',
+          'متوقع كائن JSON',
+          400,
+        ),
+      };
+    }
+    return { ok: true, data: parsed as Record<string, unknown> };
+  } catch {
+    return {
+      ok: false,
+      response: bilingualError('Invalid JSON body', 'تنسيق JSON غير صالح', 400),
+    };
+  }
+}
+
+/**
+ * Enforce CSRF double-submit cookie on state-changing methods.
+ * The global middleware skips `/api/*`, so the protection must be applied
+ * explicitly at the route level for write operations.
+ */
+function enforceCsrf(request: NextRequest): NextResponse | null {
+  const result = validateCsrfRequest(request);
+  if (!result.valid) {
+    logger.error('[Tasks API] CSRF validation failed:', result.error);
+    return bilingualError(
+      'CSRF validation failed',
+      'فشل التحقق من CSRF',
+      403,
+    );
+  }
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -153,7 +266,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const upstream = new URL('/api/v1/tasks', TASK_SERVICE_URL);
+    const upstream = buildUpstreamUrl('/api/v1/tasks');
+    if (!upstream) {
+      logger.error('[Tasks API] Upstream URL blocked by SSRF allowlist');
+      return bilingualError(
+        'Service configuration error',
+        'خطأ في تكوين الخدمة',
+        500,
+      );
+    }
     const qsStr = qs.toString();
     if (qsStr) upstream.search = qsStr;
 

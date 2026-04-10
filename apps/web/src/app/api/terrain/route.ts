@@ -94,10 +94,22 @@ function buildHeaders(token: string, tenantId: string | null): Record<string, st
 // GET /api/terrain
 // ═══════════════════════════════════════════════════════════════════════════
 
+/** Allowed DEM source identifiers (mirrors backend DEMSourceType enum). */
+const ALLOWED_DEM_SOURCES = new Set(['copernicus', 'srtm', 'aster', 'alos', 'local']);
+
+/** Allowed slope unit identifiers (mirrors backend SlopeUnit enum). */
+const ALLOWED_SLOPE_UNITS = new Set(['degrees', 'percent', 'radians']);
+
 /**
  * GET /api/terrain?action=dem&fieldId=xxx
  * GET /api/terrain?action=slope&fieldId=xxx
- * GET /api/terrain?action=aspect&fieldId=xxx
+ * GET /api/terrain?action=flow&fieldId=xxx
+ * GET /api/terrain?action=twi&fieldId=xxx
+ * GET /api/terrain?action=contours&fieldId=xxx
+ *
+ * Note: `aspect` is NOT a standalone backend endpoint — aspect data is
+ * returned as part of the POST /analyze response. Callers should POST
+ * `action=analyze` to obtain aspect.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -128,10 +140,17 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const params = new URLSearchParams();
-        const resolution = searchParams.get('resolution');
-        const format = searchParams.get('format');
-        if (resolution) params.set('resolution', resolution);
-        if (format) params.set('format', format);
+        const demSource = searchParams.get('dem_source');
+        const resolution = searchParams.get('resolution_m') || searchParams.get('resolution');
+        if (demSource && ALLOWED_DEM_SOURCES.has(demSource.toLowerCase())) {
+          params.set('dem_source', demSource.toLowerCase());
+        }
+        if (resolution) {
+          const n = Number(resolution);
+          if (Number.isFinite(n) && n >= 1 && n <= 1000) {
+            params.set('resolution_m', String(n));
+          }
+        }
         const qs = params.toString();
         path = `/api/v1/terrain/dem/${encodeURIComponent(fieldId)}${qs ? `?${qs}` : ''}`;
         break;
@@ -141,22 +160,52 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
         const params = new URLSearchParams();
-        const units = searchParams.get('units');
-        if (units) params.set('units', units);
+        const units = (searchParams.get('slope_unit') || searchParams.get('units') || '').toLowerCase();
+        if (units && ALLOWED_SLOPE_UNITS.has(units)) {
+          params.set('slope_unit', units);
+        }
         const qs = params.toString();
         path = `/api/v1/terrain/slope/${encodeURIComponent(fieldId)}${qs ? `?${qs}` : ''}`;
         break;
       }
-      case 'aspect': {
+      case 'flow': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
-        path = `/api/v1/terrain/aspect/${encodeURIComponent(fieldId)}`;
+        path = `/api/v1/terrain/flow/${encodeURIComponent(fieldId)}`;
         break;
+      }
+      case 'twi': {
+        if (!fieldId) {
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
+        }
+        path = `/api/v1/terrain/twi/${encodeURIComponent(fieldId)}`;
+        break;
+      }
+      case 'contours': {
+        if (!fieldId) {
+          return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
+        }
+        path = `/api/v1/terrain/contours/${encodeURIComponent(fieldId)}`;
+        break;
+      }
+      case 'aspect': {
+        // Backend has no standalone /aspect endpoint; aspect is only produced
+        // by POST /analyze. Return 400 to surface the misuse clearly.
+        return NextResponse.json(
+          {
+            error: 'aspect is only available via POST /api/terrain with action=analyze',
+            error_ar: 'الاتجاه متاح فقط عبر POST /api/terrain مع action=analyze',
+          },
+          { status: 400 }
+        );
       }
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: dem, slope, aspect', error_ar: 'إجراء غير صالح. استخدم: dem, slope, aspect' },
+          {
+            error: 'Invalid action. Use: dem, slope, flow, twi, contours',
+            error_ar: 'إجراء غير صالح. استخدم: dem, slope, flow, twi, contours',
+          },
           { status: 400 }
         );
     }
@@ -164,7 +213,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${TERRAIN_SERVICE_URL}${path}`, {
       method: 'GET',
       headers: buildHeaders(token, tenantId),
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      signal: AbortSignal.timeout(GET_TIMEOUT_MS),
     });
 
     const contentType = response.headers.get('content-type') || '';
@@ -253,7 +302,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: buildHeaders(token, tenantId),
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
     });
 
     const contentType = response.headers.get('content-type') || '';

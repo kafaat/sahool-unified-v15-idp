@@ -34,8 +34,16 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
       newErrors.recipientId = 'معرف المستلم مطلوب | Recipient ID is required';
     }
 
-    if (!formData.amount || formData.amount <= 0) {
+    // Reject NaN, Infinity, zero, negative, and unreasonably large amounts.
+    // The server remains authoritative but this blocks obvious bad input early.
+    if (
+      typeof formData.amount !== 'number' ||
+      !Number.isFinite(formData.amount) ||
+      formData.amount <= 0
+    ) {
       newErrors.amount = 'المبلغ يجب أن يكون أكبر من صفر | Amount must be greater than zero';
+    } else if (formData.amount > 1_000_000_000) {
+      newErrors.amount = 'المبلغ كبير جداً | Amount is too large';
     }
 
     setErrors(newErrors);
@@ -65,7 +73,10 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
     }
   };
 
-  const fee = formData.amount * 0.01; // 1% fee
+  // DISPLAY-ONLY estimate. The server computes and enforces the authoritative
+  // fee; this 1% is shown as a rough preview to the user so they can gauge
+  // the transfer cost. Do not rely on this value for business logic.
+  const fee = formData.amount * 0.01; // 1% fee (estimate)
   const total = formData.amount + fee;
 
   return (
@@ -115,7 +126,17 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
             step="0.01"
             min="0"
             value={formData.amount || ''}
-            onChange={(e) => handleChange('amount', parseFloat(e.target.value) || 0)}
+            onChange={(e) => {
+              // Use Number() for strict parsing; reject NaN/Infinity so state
+              // never holds an invalid numeric value that could reach the server.
+              const raw = e.target.value;
+              if (raw === '') {
+                handleChange('amount', 0);
+                return;
+              }
+              const parsed = Number(raw);
+              handleChange('amount', Number.isFinite(parsed) && parsed >= 0 ? parsed : 0);
+            }}
             placeholder="0.00"
             className={`w-full pr-10 pl-4 py-3 border-2 rounded-lg focus:outline-none ${
               errors.amount

@@ -22,7 +22,23 @@ import { logger } from '@/lib/logger';
 const EQUIPMENT_SERVICE_URL =
   process.env.EQUIPMENT_SERVICE_URL || 'http://equipment-service:8101';
 
+// SSRF guard: validate the configured upstream URL once at module load and
+// reject non http(s) schemes (e.g. file://, gopher://, data:).
+function resolveUpstreamBase(): URL | null {
+  try {
+    const u = new URL(EQUIPMENT_SERVICE_URL);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    return u;
+  } catch {
+    return null;
+  }
+}
+const UPSTREAM_BASE = resolveUpstreamBase();
+
+// Equipment IDs may be UUIDs or slug-style identifiers but must never contain
+// characters that could manipulate the upstream path (`/`, `..`, whitespace).
 const SAFE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
+const MAX_ID_LENGTH = 128;
 
 const VALID_POST_ACTIONS = ['log-maintenance', 'report-issue'] as const;
 type EquipmentPostAction = (typeof VALID_POST_ACTIONS)[number];
@@ -66,7 +82,7 @@ function validateId(value: string | null | undefined, label: string, labelAr: st
       400,
     );
   }
-  if (!SAFE_ID_PATTERN.test(value)) {
+  if (value.length > MAX_ID_LENGTH || !SAFE_ID_PATTERN.test(value)) {
     return bilingualError(
       `Invalid ${label} format`,
       `تنسيق ${labelAr} غير صالح`,
@@ -92,6 +108,16 @@ function validateContentType(response: Response): boolean {
 
 export async function GET(request: NextRequest) {
   try {
+    // Fail closed if the upstream URL is misconfigured (SSRF defence).
+    if (!UPSTREAM_BASE) {
+      logger.error('[Equipment API] Invalid EQUIPMENT_SERVICE_URL');
+      return bilingualError(
+        'Equipment service misconfigured',
+        'تكوين خدمة المعدات غير صالح',
+        500,
+      );
+    }
+
     const clientIP = getClientIP(request);
     if (await isRateLimited(clientIP, RATE_LIMIT_CONFIG)) {
       return bilingualError(

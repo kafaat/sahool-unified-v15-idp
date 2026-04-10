@@ -15,6 +15,12 @@ interface CreatePostProps {
   onClose: () => void;
 }
 
+// Client-side input caps (defense-in-depth; backend MUST enforce too).
+const TITLE_MAX = 200;
+const CONTENT_MAX = 5000;
+const TAG_MAX_LEN = 32;
+const MAX_TAGS = 10;
+
 export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
   const [type, setType] = useState<PostType>('discussion');
   const [title, setTitle] = useState('');
@@ -33,10 +39,12 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
   ];
 
   const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput('');
-    }
+    const trimmed = tagInput.trim().slice(0, TAG_MAX_LEN);
+    if (!trimmed) return;
+    if (tags.length >= MAX_TAGS) return;
+    if (tags.includes(trimmed)) return;
+    setTags([...tags, trimmed]);
+    setTagInput('');
   };
 
   const handleRemoveTag = (tag: string) => {
@@ -44,13 +52,15 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !content.trim()) return;
+    const safeTitle = title.trim().slice(0, TITLE_MAX);
+    const safeContent = content.trim().slice(0, CONTENT_MAX);
+    if (!safeTitle || !safeContent) return;
 
     try {
       await createMutation.mutateAsync({
         type,
-        titleAr: title,
-        contentAr: content,
+        titleAr: safeTitle,
+        contentAr: safeContent,
         tagsAr: tags,
         status: 'active',
       });
@@ -99,7 +109,8 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              maxLength={TITLE_MAX}
+              onChange={(e) => setTitle(e.target.value.slice(0, TITLE_MAX))}
               placeholder="أدخل عنوان المنشور..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
@@ -110,11 +121,15 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">المحتوى</label>
             <textarea
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              maxLength={CONTENT_MAX}
+              onChange={(e) => setContent(e.target.value.slice(0, CONTENT_MAX))}
               placeholder="شارك سؤالك أو تجربتك أو نصيحتك..."
               rows={8}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
             />
+            <p className="mt-1 text-xs text-gray-400">
+              {content.length}/{CONTENT_MAX}
+            </p>
           </div>
 
           {/* Tags */}
@@ -124,7 +139,8 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
               <input
                 type="text"
                 value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
+                maxLength={TAG_MAX_LEN}
+                onChange={(e) => setTagInput(e.target.value.slice(0, TAG_MAX_LEN))}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
                 placeholder="أضف وسماً..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"

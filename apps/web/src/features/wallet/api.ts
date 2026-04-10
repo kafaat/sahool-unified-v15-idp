@@ -270,11 +270,26 @@ export const walletApi = {
   /**
    * Transfer money to another user
    * تحويل الأموال إلى مستخدم آخر
+   *
+   * Sends an `Idempotency-Key` header so the server can deduplicate retries
+   * of the same logical transfer (prevents double-transfer on network retry).
    */
   async transfer(data: TransferFormData): Promise<Transaction> {
+    assertValidAmount(data?.amount, BILLING_ENDPOINTS.WALLET_TRANSFER);
+    if (!data?.recipientId || typeof data.recipientId !== 'string' || !data.recipientId.trim()) {
+      throw new ApiError({
+        message: 'Recipient ID is required',
+        messageAr: 'معرف المستلم مطلوب',
+        statusCode: 400,
+        endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER,
+      });
+    }
+    const idempotencyKey = newIdempotencyKey();
     return safeFetch(BILLING_ENDPOINTS.WALLET_TRANSFER, async () => {
       try {
-        const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data);
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data, {
+          headers: { 'Idempotency-Key': idempotencyKey },
+        });
         const result = response.data.data || response.data;
 
         if (result && typeof result === 'object' && 'id' in result) {

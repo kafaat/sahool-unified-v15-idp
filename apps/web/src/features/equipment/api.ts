@@ -50,19 +50,41 @@ export const equipmentApi = {
   /**
    * Get all equipment with filters
    * جلب جميع المعدات مع الفلاتر
+   *
+   * NOTE: equipment-service expects the query parameter `equipment_type`
+   * (not `type`) and returns an envelope of shape:
+   *   { equipment: [...], total, limit, offset }
+   * See apps/services/equipment-service/src/main.py::list_equipment. We must
+   * send the parameter names it expects and extract the correct envelope key.
    */
   getEquipment: async (filters?: EquipmentFilters): Promise<Equipment[]> => {
     return safeFetch(EQUIPMENT_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
-      if (filters?.type) params.set('type', filters.type);
+      if (filters?.type) params.set('equipment_type', filters.type);
       if (filters?.status) params.set('status', filters.status);
       if (filters?.fieldId) params.set('field_id', filters.fieldId);
       if (filters?.search) params.set('search', filters.search);
 
       const response = await api.get(`${EQUIPMENT_ENDPOINTS.LIST}?${params.toString()}`);
-      const data = response.data.data || response.data;
+      const body = response.data as
+        | { equipment?: unknown; data?: unknown }
+        | Equipment[]
+        | null
+        | undefined;
 
-      if (Array.isArray(data)) return data;
+      // Equipment-service envelope: { equipment, total, limit, offset }
+      if (
+        body &&
+        typeof body === 'object' &&
+        !Array.isArray(body) &&
+        Array.isArray((body as { equipment?: unknown }).equipment)
+      ) {
+        return (body as { equipment: Equipment[] }).equipment;
+      }
+      // Legacy / gateway-wrapped shapes: { data: [...] } or bare [...]
+      if (Array.isArray(body)) return body;
+      const nested = (body as { data?: unknown } | null | undefined)?.data;
+      if (Array.isArray(nested)) return nested as Equipment[];
       return [];
     });
   },

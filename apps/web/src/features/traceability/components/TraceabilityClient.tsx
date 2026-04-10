@@ -21,7 +21,17 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { traceabilityApi } from '../api';
-import type { TraceabilityBatch, TraceabilityEvent } from '../api';
+import type { TraceabilityBatch, TraceabilityEvent, TraceabilityBatchStatus } from '../api';
+
+/**
+ * Strip bidi/control/zero-width characters from user-supplied strings
+ * before rendering to prevent visual spoofing of batch codes and locations.
+ */
+function sanitizeDisplay(input: string | null | undefined): string {
+  if (!input) return '';
+  // eslint-disable-next-line no-control-regex
+  return String(input).replace(/[\u0000-\u001F\u007F\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '').slice(0, 300);
+}
 
 // ---------------------------------------------------------------------------
 // Query Keys
@@ -38,28 +48,28 @@ const traceabilityKeys = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const statusColors: Record<string, string> = {
+const statusColors: Record<TraceabilityBatchStatus, string> = {
   harvested: 'bg-amber-100 text-amber-700',
   processing: 'bg-blue-100 text-blue-700',
   in_transit: 'bg-purple-100 text-purple-700',
-  'in-transit': 'bg-purple-100 text-purple-700',
   delivered: 'bg-green-100 text-green-700',
+  recalled: 'bg-red-100 text-red-700',
 };
 
-const statusLabels: Record<string, string> = {
+const statusLabels: Record<TraceabilityBatchStatus, string> = {
   harvested: 'تم الحصاد',
   processing: 'قيد المعالجة',
   in_transit: 'قيد النقل',
-  'in-transit': 'قيد النقل',
   delivered: 'تم التسليم',
+  recalled: 'تم الاسترجاع',
 };
 
-const statusIcons: Record<string, React.ReactNode> = {
+const statusIcons: Record<TraceabilityBatchStatus, React.ReactNode> = {
   harvested: <Package className="w-4 h-4" />,
   processing: <Clock className="w-4 h-4" />,
   in_transit: <Truck className="w-4 h-4" />,
-  'in-transit': <Truck className="w-4 h-4" />,
   delivered: <CheckCircle className="w-4 h-4" />,
+  recalled: <AlertTriangle className="w-4 h-4" />,
 };
 
 const eventLabels: Record<string, string> = {

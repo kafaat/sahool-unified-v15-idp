@@ -397,9 +397,17 @@ describe('csp-config — directive configuration', () => {
     expect(directives['object-src']).toContain("'none'");
   });
 
-  it('blocks frame-src (none)', () => {
+  it('restricts frame-src to self + Google embeds only (no wildcard)', () => {
+    // `'none'` was over-restrictive and broke Google Maps / reCAPTCHA in
+    // Chrome. We now allow only the specific third-party iframes we embed.
+    // Clickjacking protection is still enforced by `frame-ancestors: 'none'`.
     const directives = getCSPDirectives();
-    expect(directives['frame-src']).toContain("'none'");
+    const frameSrc = directives['frame-src'] ?? [];
+    expect(frameSrc).toContain("'self'");
+    expect(frameSrc).toContain('https://maps.google.com');
+    expect(frameSrc).toContain('https://www.google.com');
+    expect(frameSrc).not.toContain('*');
+    expect(frameSrc.some((s) => /unsafe/i.test(s))).toBe(false);
   });
 
   it('blocks frame-ancestors (none) to prevent clickjacking', () => {

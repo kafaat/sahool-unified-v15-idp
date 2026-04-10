@@ -144,8 +144,15 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     // Object sources - Block all
     'object-src': ["'none'"],
 
-    // Frame sources
-    'frame-src': ["'none'"],
+    // Frame sources — Chrome enforces frame-src strictly; `'none'` was
+    // blocking legitimate Google Maps / reCAPTCHA iframes. Allow only the
+    // specific embeds actually used.
+    'frame-src': [
+      "'self'",
+      'https://maps.google.com',
+      'https://www.google.com',
+      'https://www.gstatic.com',
+    ],
 
     // Worker sources (for service workers, web workers)
     'worker-src': ["'self'", 'blob:'],

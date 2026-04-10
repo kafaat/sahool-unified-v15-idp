@@ -50,51 +50,77 @@ const nextConfig = {
   ],
 
   // Security Headers
+  //
+  // IMPORTANT (Chrome compatibility):
+  // Chrome enforces HSTS, COEP, COOP, and CORP more aggressively than other
+  // browsers. Sending them unconditionally — including in development over
+  // plain HTTP on a LAN IP — is exactly how you get "works in Firefox, broken
+  // in Chrome" reports:
+  //   - HSTS pins https:// for 2 years on first visit.
+  //   - COEP: credentialless blocks third-party map tiles / icons that don't
+  //     set CORP headers.
+  //   - COOP: same-origin breaks window.open popups (OAuth).
+  //
+  // We therefore emit these headers ONLY when NODE_ENV === 'production'.
+  // CSP is still applied via middleware.ts in every environment (with nonce).
   async headers() {
-    return [
+    const isProd = process.env.NODE_ENV === "production";
+
+    const baseHeaders = [
       {
-        source: "/:path*",
-        headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
+        key: "X-DNS-Prefetch-Control",
+        value: "on",
+      },
+      {
+        key: "X-Frame-Options",
+        value: "DENY",
+      },
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value:
+          "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
+      },
+    ];
+
+    const productionOnlyHeaders = isProd
+      ? [
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value:
-              "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
-          },
-          // CSP is now handled by middleware with nonce-based security
+          // CSP is handled by middleware with nonce-based security.
           // See: src/middleware.ts and src/lib/security/csp-config.ts
           {
             key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
+            // Explicit `unsafe-none` documents the intentional opt-out of
+            // cross-origin isolation. Flip to `credentialless` only after
+            // confirming every third-party tile/image origin sets CORP.
+            value: "unsafe-none",
           },
           {
             key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
+            // Keeps COOP's process isolation but still permits OAuth popups.
+            value: "same-origin-allow-popups",
           },
           {
             key: "Cross-Origin-Resource-Policy",
-            value: "same-origin",
+            value: "cross-origin",
           },
-        ],
+        ]
+      : [];
+
+    return [
+      {
+        source: "/:path*",
+        headers: [...baseHeaders, ...productionOnlyHeaders],
       },
       // Static assets - long-term caching (content-hashed, immutable)
       {

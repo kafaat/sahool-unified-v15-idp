@@ -97,51 +97,90 @@ const nextConfig = {
   },
 
   // Security headers
+  //
+  // IMPORTANT (Chrome compatibility):
+  // Chrome enforces Strict-Transport-Security, Cross-Origin-Embedder-Policy,
+  // Cross-Origin-Opener-Policy, and Cross-Origin-Resource-Policy more
+  // aggressively than other browsers. In particular:
+  //
+  //   - HSTS on http://<lan-ip>:3000 will make Chrome pin HTTPS for 2 years
+  //     the first time it sees it, breaking local/dev access thereafter.
+  //   - COEP: credentialless blocks third-party images/tiles (OpenStreetMap,
+  //     Google Maps, Sentinel Hub) unless they explicitly set CORP.
+  //   - COOP: same-origin breaks window.open() popups (OAuth, social login).
+  //   - CORP: same-origin marks the document itself as same-origin-only.
+  //
+  // To keep those headers' security benefit in production without wedging
+  // Chrome during development, we only emit them when NODE_ENV=production.
+  // `async headers()` is evaluated once at next build/start time, so
+  // reading NODE_ENV here captures the build environment — exactly what
+  // we want.
   async headers() {
-    return [
+    const isProd = process.env.NODE_ENV === "production";
+
+    const baseHeaders = [
       {
-        source: "/:path*",
-        headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
+        key: "X-DNS-Prefetch-Control",
+        value: "on",
+      },
+      {
+        key: "X-Frame-Options",
+        value: "DENY",
+      },
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value:
+          "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
+      },
+    ];
+
+    const productionOnlyHeaders = isProd
+      ? [
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value:
-              "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
-          },
-          // Note: CSP headers are set in middleware.ts with nonce support
-          // CSP headers here are for static assets that bypass middleware
+          // Note: CSP headers are set in middleware.ts with nonce support.
+          // These cross-origin isolation headers are prod-only so Chrome
+          // doesn't block third-party map tiles / OAuth popups in dev.
           {
             key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
+            // `unsafe-none` is the browser default; we keep the header
+            // explicit so it's obvious in devtools that we've intentionally
+            // opted OUT of cross-origin isolation. Switch to `credentialless`
+            // or `require-corp` only if / when every third-party tile /
+            // image / OAuth endpoint the app loads is CORP-compliant.
+            value: "unsafe-none",
           },
           {
             key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
+            // `same-origin-allow-popups` keeps the isolation benefit of
+            // COOP while still letting `window.open()` succeed for OAuth
+            // and social-login popups.
+            value: "same-origin-allow-popups",
           },
           {
             key: "Cross-Origin-Resource-Policy",
-            value: "same-origin",
+            // `cross-origin` lets legitimate CDNs and tile servers embed
+            // this document's resources; the document itself is still
+            // protected by CSP + SameSite cookies.
+            value: "cross-origin",
           },
-        ],
+        ]
+      : [];
+
+    return [
+      {
+        source: "/:path*",
+        headers: [...baseHeaders, ...productionOnlyHeaders],
       },
       // Static assets - long-term caching (content-hashed, immutable)
       {

@@ -1,0 +1,3209 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>توثيق الخدمات والحاويات والوحدات المشتركة - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              توثيق الخدمات والحاويات والوحدات المشتركة
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">توثيق الخدمات والحاويات والوحدات المشتركة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>المشروع</strong>: منصة سهول للاستخبارات الزراعية الوطنية (SAHOOL)
+<strong>الإصدار</strong>: 16.0.0
+<strong>تاريخ التوثيق</strong>: 2026-04-10
+<strong>الفرع</strong>: <code>claude/document-services-containers-x39YJ</code>
+<strong>المالك</strong>: KAFAAT</p>
+<hr />
+<h2 id="_2">نظرة عامة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>يوفّر هذا المستند توثيقاً شاملاً باللغة العربية لمنصة SAHOOL يغطي ثلاثة محاور رئيسية:</p>
+<ol>
+<li><strong>الخدمات المصغرة</strong> — 73 خدمة مصغرة موزّعة بين Python (FastAPI) و Node.js (NestJS)</li>
+<li><strong>الحاويات والبنية التحتية</strong> — 15 ملف <code>docker-compose</code> بالإضافة إلى صور Docker الأساسية وخدمات البنية التحتية المشتركة</li>
+<li><strong>الوحدات المشتركة</strong> — 89 وحدة Python في مجلد <code>shared/</code> تُستخدم من قِبل جميع الخدمات</li>
+</ol>
+<h3 id="_3">ملخص الأرقام<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>العنصر</th>
+<th>العدد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الخدمات المصغرة النشطة</td>
+<td>73</td>
+</tr>
+<tr>
+<td>الخدمات المؤرشفة (مُلغاة)</td>
+<td>15</td>
+</tr>
+<tr>
+<td>التطبيقات الأمامية (Admin, Web, Mobile, Kernel)</td>
+<td>4</td>
+</tr>
+<tr>
+<td>ملفات Docker Compose</td>
+<td>15</td>
+</tr>
+<tr>
+<td>صور Docker الأساسية</td>
+<td>4</td>
+</tr>
+<tr>
+<td>الوحدات المشتركة في <code>shared/</code></td>
+<td>89</td>
+</tr>
+<tr>
+<td>الحزم في <code>packages/</code></td>
+<td>27</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">التقنيات الرئيسية<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Backend Python</strong>: FastAPI 0.135.1, Tortoise ORM, asyncpg, Pydantic v2, Python 3.11+</li>
+<li><strong>Backend Node.js</strong>: NestJS 10.x, Prisma 5.x, TypeScript 5.9.x, Node 20+</li>
+<li><strong>قاعدة البيانات</strong>: PostgreSQL 16 + PostGIS 3.4</li>
+<li><strong>ناقل الأحداث</strong>: NATS 2.10 مع JetStream</li>
+<li><strong>بوابة API</strong>: Kong 3.x (105 مسار)</li>
+<li><strong>التخزين المؤقت</strong>: Redis 7.x مع Sentinel HA</li>
+<li><strong>تجميع الاتصالات</strong>: PgBouncer (transaction mode, 250 اتصال)</li>
+</ul>
+<hr />
+<h1 id="microservices">الخدمات المصغرة (Microservices)<a class="headerlink" href="#microservices" title="Permanent link">&para;</a></h1>
+<p>تحتوي منصة SAHOOL على <strong>73 خدمة مصغرة</strong> نشطة موزعة بين Python (FastAPI) و Node.js (NestJS)، تخدم جميع مجالات الذكاء الزراعي.</p>
+<p><strong>ملخص التوزيع</strong>: ~54 خدمة Python FastAPI + 17 خدمة Node.js NestJS + 2 خدمة Python متخصصة.</p>
+<hr />
+<h2 id="1-core-infrastructure">1. الخدمات الأساسية (Core Infrastructure)<a class="headerlink" href="#1-core-infrastructure" title="Permanent link">&para;</a></h2>
+<p>الخدمات التي توفر القدرات الأساسية للمنصة: المصادقة، الإشعارات، الفوترة، المهام، والتدقيق.</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>user-service</strong></td>
+<td>Node.js / NestJS</td>
+<td>3025</td>
+<td>إدارة الهوية والمصادقة: تسجيل، دخول، JWT، 2FA، RBAC، إدارة الجلسات</td>
+</tr>
+<tr>
+<td><strong>notification-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8110</td>
+<td>تسليم إشعارات متعدد القنوات: بريد، SMS، Push، WebSocket</td>
+</tr>
+<tr>
+<td><strong>billing-core</strong></td>
+<td>Python / FastAPI</td>
+<td>8089</td>
+<td>إدارة الاشتراكات والفواتير والمدفوعات للمنصة</td>
+</tr>
+<tr>
+<td><strong>task-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8103</td>
+<td>إدارة مهام زراعية (ري، تسميد، رش، تفتيش)</td>
+</tr>
+<tr>
+<td><strong>equipment-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8101</td>
+<td>تتبع المعدات والأصول (جرارات، مضخات، طائرات مسيرة)</td>
+</tr>
+<tr>
+<td><strong>alert-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8113</td>
+<td>إدارة التنبيهات والتحذيرات الزراعية (طقس، آفات، ري)</td>
+</tr>
+<tr>
+<td><strong>provider-config</strong></td>
+<td>Python / FastAPI</td>
+<td>8104</td>
+<td>إدارة إعدادات مزوّدي الخدمات الخارجية (خرائط، طقس، أقمار صناعية)</td>
+</tr>
+<tr>
+<td><strong>audit-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8114</td>
+<td>تسجيل مركزي للتدقيق مع سلسلة هاش للسلامة وتقارير الامتثال</td>
+</tr>
+<tr>
+<td><strong>ws-gateway</strong></td>
+<td>Python / FastAPI</td>
+<td>8081</td>
+<td>بوابة WebSocket للاتصالات الفورية وربط NATS بالعملاء</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-field-operations">2. إدارة الحقول والعمليات (Field &amp; Operations)<a class="headerlink" href="#2-field-operations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>field-management-service</strong></td>
+<td>Node.js / NestJS</td>
+<td>3000</td>
+<td>النظام الموحّد لإدارة الحقول مع تحليلات المناطق وتتبع المحاصيل (الخدمة الأكبر)</td>
+</tr>
+<tr>
+<td><strong>field-intelligence</strong></td>
+<td>Python / FastAPI</td>
+<td>8120</td>
+<td>تحليل شامل للحقول ودعم القرار مع تجميع البيانات</td>
+</tr>
+<tr>
+<td><strong>inventory-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8116</td>
+<td>إدارة المخزون الزراعي المتقدمة مع التنبؤ والإشعارات</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-analytics-intelligence">3. التحليلات والذكاء (Analytics &amp; Intelligence)<a class="headerlink" href="#3-analytics-intelligence" title="Permanent link">&para;</a></h2>
+<p>الخدمات المتعلقة بتحليل الصور الفضائية، نماذج الذكاء الاصطناعي للمحاصيل، واكتشاف الآفات.</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>vegetation-analysis-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8090</td>
+<td>تحليل موحّد للغطاء النباتي يشمل LAI و NDVI من الصور الفضائية</td>
+</tr>
+<tr>
+<td><strong>crop-intelligence-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8095</td>
+<td>تحليل موحّد للمحاصيل، نمذجة النمو، وذكاء الحقول القائم على المناطق</td>
+</tr>
+<tr>
+<td><strong>indicators-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8091</td>
+<td>حساب وتحليل مؤشرات الأداء الزراعي</td>
+</tr>
+<tr>
+<td><strong>ndvi-processor</strong></td>
+<td>Python / FastAPI</td>
+<td>8118</td>
+<td>معالجة الصور الفضائية وحساب NDVI (قيد الإلغاء لصالح vegetation-analysis-service)</td>
+</tr>
+<tr>
+<td><strong>virtual-sensors</strong></td>
+<td>Python / FastAPI</td>
+<td>8119</td>
+<td>تقدير القياسات الزراعية باستخدام نماذج ML وبيانات الأقمار الصناعية</td>
+</tr>
+<tr>
+<td><strong>lai-estimation</strong></td>
+<td>Node.js / NestJS</td>
+<td>3022</td>
+<td>تقدير مؤشر مساحة الأوراق (مُدمج في vegetation-analysis-service)</td>
+</tr>
+<tr>
+<td><strong>skills-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8121</td>
+<td>تتبع مهارات المزارع وتقييم القدرات</td>
+</tr>
+<tr>
+<td><strong>soil-analysis-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8134</td>
+<td>اختبار وتحليل شامل للتربة مع تصنيفات الشرق الأوسط</td>
+</tr>
+<tr>
+<td><strong>pest-detection-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8125</td>
+<td>اكتشاف الآفات والأمراض بالذكاء الاصطناعي مع توصيات IPM</td>
+</tr>
+<tr>
+<td><strong>digital-twin-engine</strong></td>
+<td>Python / FastAPI</td>
+<td>8253</td>
+<td>محاكاة توأم رقمي متقدم لنمذجة ظروف الحقل</td>
+</tr>
+<tr>
+<td><strong>yield-prediction-service</strong></td>
+<td>Node.js / NestJS</td>
+<td>8152</td>
+<td>التنبؤ الموحّد بالإنتاجية باستخدام نماذج مجمّعة (ensemble)</td>
+</tr>
+<tr>
+<td><strong>yield-prediction</strong></td>
+<td>Node.js / NestJS</td>
+<td>3021</td>
+<td>خدمة التنبؤ بالإنتاجية القديمة (مُدمجة في yield-prediction-service)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-decision-advisory">4. القرارات والاستشارات (Decision &amp; Advisory)<a class="headerlink" href="#4-decision-advisory" title="Permanent link">&para;</a></h2>
+<p>الخدمات المسؤولة عن تقديم التوصيات الزراعية وجدولة العمليات.</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>crop-growth-model</strong></td>
+<td>Node.js / NestJS</td>
+<td>3023</td>
+<td>محاكاة نمو المحاصيل (مُدمجة في crop-intelligence-service)</td>
+</tr>
+<tr>
+<td><strong>advisory-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8093</td>
+<td>تشخيص موحّد للأمراض، تقييم المغذيات، تخطيط التسميد، توصيات المحاصيل</td>
+</tr>
+<tr>
+<td><strong>irrigation-smart</strong></td>
+<td>Python / FastAPI</td>
+<td>8094</td>
+<td>جدولة الري الذكية وتحسين استخدام المياه</td>
+</tr>
+<tr>
+<td><strong>agro-rules</strong></td>
+<td>Python / FastAPI</td>
+<td>-</td>
+<td>محرك قواعد قائم على الأحداث لتوليد المهام تلقائياً من NDVI/الطقس/IoT</td>
+</tr>
+<tr>
+<td><strong>irrigation-cycle-engine</strong></td>
+<td>Python / FastAPI</td>
+<td>8250</td>
+<td>إدارة دورات الري ومحرك التحسين</td>
+</tr>
+<tr>
+<td><strong>fertigation-engine</strong></td>
+<td>Python / FastAPI</td>
+<td>8252</td>
+<td>تكامل جدولة التسميد مع الري (fertigation)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-iot-integration">5. إنترنت الأشياء والتكامل (IoT &amp; Integration)<a class="headerlink" href="#5-iot-integration" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>iot-service</strong></td>
+<td>Node.js / NestJS</td>
+<td>8117</td>
+<td>إدارة أجهزة الاستشعار والمشغّلات الذكية للري والمراقبة</td>
+</tr>
+<tr>
+<td><strong>iot-gateway</strong></td>
+<td>Python / FastAPI</td>
+<td>8106</td>
+<td>جسر MQTT ↔ NATS لأجهزة IoT وأجهزة الاستشعار</td>
+</tr>
+<tr>
+<td><strong>iot-sensor-hub</strong></td>
+<td>Python / FastAPI</td>
+<td>8251</td>
+<td>بوابة LoRaWAN + MQTT مع قدرات حوسبة طرفية</td>
+</tr>
+<tr>
+<td><strong>weather-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8092</td>
+<td>تقييم موحّد للطقس مع التنبؤ والتنبيهات</td>
+</tr>
+<tr>
+<td><strong>astronomical-calendar</strong></td>
+<td>Python / FastAPI</td>
+<td>8111</td>
+<td>التقويم الفلكي اليمني التقليدي للتخطيط الزراعي</td>
+</tr>
+<tr>
+<td><strong>drone-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8126</td>
+<td>تكامل شامل للطائرات المسيرة مع تخطيط الرحلات وخرائط VRA</td>
+</tr>
+<tr>
+<td><strong>ussd-gateway</strong></td>
+<td>Python / FastAPI</td>
+<td>8183</td>
+<td>دعم SMS/USSD/WhatsApp للهواتف الأساسية</td>
+</tr>
+<tr>
+<td><strong>whatsapp-bot-service</strong></td>
+<td>Python / FastAPI</td>
+<td>-</td>
+<td>بوت WhatsApp ذكي لمحادثات المزارعين</td>
+</tr>
+<tr>
+<td><strong>wechat-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8135</td>
+<td>تكامل WeChat لمراسلة المزارعين (profile: deprecated)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-community-business">6. الأعمال والمجتمع (Community &amp; Business)<a class="headerlink" href="#6-community-business" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>marketplace-service</strong></td>
+<td>Node.js / NestJS</td>
+<td>3010</td>
+<td>سوق زراعي لبيع وشراء المنتجات والمستلزمات</td>
+</tr>
+<tr>
+<td><strong>chat-service</strong></td>
+<td>Node.js / NestJS</td>
+<td>8115</td>
+<td>مراسلة فورية بين المشتري والبائع باستخدام Socket.IO</td>
+</tr>
+<tr>
+<td><strong>community-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8133</td>
+<td>تكامل Rocket.Chat لمجتمعات المزارعين وبوتات الاستشارة</td>
+</tr>
+<tr>
+<td><strong>research-core</strong></td>
+<td>Node.js / NestJS</td>
+<td>3015</td>
+<td>إدارة الأبحاث الزراعية للتجارب والدراسات الحقلية</td>
+</tr>
+<tr>
+<td><strong>disaster-assessment</strong></td>
+<td>Node.js / NestJS</td>
+<td>3020</td>
+<td>تقييم أضرار المحاصيل من الكوارث الطبيعية</td>
+</tr>
+<tr>
+<td><strong>cooperative-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8127</td>
+<td>إدارة التعاونيات الزراعية لتجميع الموارد والشراء الجماعي</td>
+</tr>
+<tr>
+<td><strong>crm-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8131</td>
+<td>إدارة علاقات العملاء للعمليات الزراعية</td>
+</tr>
+<tr>
+<td><strong>logistics-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8167</td>
+<td>إدارة اللوجستيات الزراعية وتنسيق سلسلة التوريد</td>
+</tr>
+<tr>
+<td><strong>supply-chain-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8230</td>
+<td>ربط المزارعين بالموردين مع شراء تلقائي حسب التوصيات</td>
+</tr>
+<tr>
+<td><strong>traceability-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8123</td>
+<td>تتبّع سلسلة التوريد من المزرعة إلى المائدة مع QR و blockchain</td>
+</tr>
+<tr>
+<td><strong>globalgap-compliance</strong></td>
+<td>Python / FastAPI</td>
+<td>8128</td>
+<td>تتبع شهادات المزارع لمعايير GlobalGAP IFA v6</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-ai-agents">7. الذكاء الاصطناعي والوكلاء (AI &amp; Agents)<a class="headerlink" href="#7-ai-agents" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>agent-registry</strong></td>
+<td>Python / FastAPI</td>
+<td>8160</td>
+<td>سجل وكلاء بروتوكول A2A مع الاكتشاف ومراقبة الصحة</td>
+</tr>
+<tr>
+<td><strong>code-fix-agent</strong></td>
+<td>Python / FastAPI</td>
+<td>8162</td>
+<td>وكيل ذكاء اصطناعي لتحليل وإصلاح أخطاء الكود</td>
+</tr>
+<tr>
+<td><strong>code-review-agent</strong></td>
+<td>Node.js / NestJS</td>
+<td>-</td>
+<td>مراجعة الكود باستخدام Claude Agent SDK لتحليل الأخطاء والثغرات الأمنية</td>
+</tr>
+<tr>
+<td><strong>code-review-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8102</td>
+<td>مراجعة كود فورية باستخدام DeepSeek/Ollama مع التركيز الأمني</td>
+</tr>
+<tr>
+<td><strong>ai-advisor</strong></td>
+<td>Python / FastAPI</td>
+<td>8112</td>
+<td>نظام متعدد الوكلاء للاستشارات الزراعية الشاملة عبر Claude/LangChain</td>
+</tr>
+<tr>
+<td><strong>ai-agents-core</strong></td>
+<td>Python / FastAPI</td>
+<td>8161</td>
+<td>نظام وكلاء هرمي متعدد الطبقات (4 طبقات) للزراعة الذكية مع معالجة طرفية</td>
+</tr>
+<tr>
+<td><strong>ai-agents-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8130</td>
+<td>وكلاء مستقلون للذكاء الزراعي في الوقت الفعلي</td>
+</tr>
+<tr>
+<td><strong>ai-chat-assistant</strong></td>
+<td>Python / FastAPI</td>
+<td>8260</td>
+<td>تكامل محادثة ذكاء اصطناعي خفيف مع استشارات زراعية فورية</td>
+</tr>
+<tr>
+<td><strong>llm-orchestrator-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8164</td>
+<td>تنسيق LLM مركزي وتوجيه الوكلاء</td>
+</tr>
+<tr>
+<td><strong>copilot-api</strong></td>
+<td>Python / FastAPI</td>
+<td>8088</td>
+<td>API المساعد الذكي لـ SAHOOL متعدد-LLM مع RAG</td>
+</tr>
+<tr>
+<td><strong>knowledge-graph</strong></td>
+<td>Python / FastAPI</td>
+<td>8140</td>
+<td>قاعدة معرفة دلالية لاسترجاع المعلومات الزراعية</td>
+</tr>
+<tr>
+<td><strong>mcp-server</strong></td>
+<td>Python / FastAPI</td>
+<td>8201</td>
+<td>خادم Model Context Protocol لتنسيق الوكلاء المتعددين</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-vision-terrain-edge">8. الرؤية والتضاريس والحافة (Vision, Terrain &amp; Edge)<a class="headerlink" href="#8-vision-terrain-edge" title="Permanent link">&para;</a></h2>
+<p>خدمات متخصصة في رؤية الحاسوب، تحليل التضاريس، وإدارة أجهزة الحافة.</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>yolo26-vision-service</strong></td>
+<td>Python / FastAPI + CUDA</td>
+<td>8150</td>
+<td>رؤية حاسوب YOLO26 لاكتشاف الآفات والأمراض والأعشاب (22 آفة، 34 مرض، 12 عُشب)</td>
+</tr>
+<tr>
+<td><strong>ground-vision-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8182</td>
+<td>مراقبة بكاميرات مثبتة على الأبراج متكاملة مع الأقمار الصناعية و IoT</td>
+</tr>
+<tr>
+<td><strong>terrain-core-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8185</td>
+<td>معالجة DEM وتحليل التضاريس</td>
+</tr>
+<tr>
+<td><strong>hydrology-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8165</td>
+<td>تحليل الهيدرولوجيا والصرف لتخطيط الري</td>
+</tr>
+<tr>
+<td><strong>leveling-optimizer-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8170</td>
+<td>تحليل الطبوغرافيا وتحسين تسوية الحقول</td>
+</tr>
+<tr>
+<td><strong>edge-orchestrator-service</strong></td>
+<td>Python / FastAPI</td>
+<td>8180</td>
+<td>تنسيق أجهزة الحافة (Jetson Orin) وإدارة النماذج</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-specialized">9. الخدمات المتخصصة (Specialized)<a class="headerlink" href="#9-specialized" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>التقنية</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>lowcode-engine</strong></td>
+<td>Python / FastAPI</td>
+<td>8132</td>
+<td>منشئ تطبيقات زراعية مرئي بدون كود</td>
+</tr>
+<tr>
+<td><strong>demo-data</strong></td>
+<td>Python / FastAPI</td>
+<td>-</td>
+<td>مولّد بيانات تجريبية واقعية للاختبار</td>
+</tr>
+<tr>
+<td><strong>vllm-deepseek</strong></td>
+<td>Python / vLLM</td>
+<td>-</td>
+<td>خادم استدلال vLLM لـ DeepSeek Coder 6.7B مع تسريع GPU (profile: gpu)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-api">10. نقاط نهاية API القياسية<a class="headerlink" href="#10-api" title="Permanent link">&para;</a></h2>
+<p>كل خدمة Python أو Node.js تلتزم بنقاط النهاية التالية:</p>
+<table>
+<thead>
+<tr>
+<th>النقطة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /healthz</code></td>
+<td>فحص الحياة (liveness probe)</td>
+</tr>
+<tr>
+<td><code>GET /readyz</code></td>
+<td>فحص الجاهزية (readiness probe)</td>
+</tr>
+<tr>
+<td><code>GET /health</code></td>
+<td>حالة مجمّعة</td>
+</tr>
+<tr>
+<td><code>GET /metrics</code></td>
+<td>مقاييس Prometheus</td>
+</tr>
+<tr>
+<td><code>GET /docs</code></td>
+<td>توثيق Swagger/OpenAPI (خدمات Python)</td>
+</tr>
+</tbody>
+</table>
+<p>بنية API موحّدة: <code>/api/v1/{resource}</code> مع إصدارات مسار واضحة.</p>
+<hr />
+<h2 id="11">11. أنماط الاتصال بين الخدمات<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<h3 id="111-nats">11.1 الأحداث (NATS)<a class="headerlink" href="#111-nats" title="Permanent link">&para;</a></h3>
+<p>جميع الخدمات تتواصل عبر NATS JetStream باستخدام بنية أحداث من 4 طبقات:</p>
+<table>
+<thead>
+<tr>
+<th>الطبقة</th>
+<th>الخدمات النموذجية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الاستحواذ</strong></td>
+<td><code>vegetation-analysis-service</code>, <code>iot-service</code>, <code>weather-service</code>, <code>virtual-sensors</code>, <code>iot-gateway</code>, <code>edge-orchestrator-service</code></td>
+</tr>
+<tr>
+<td><strong>الذكاء</strong></td>
+<td><code>indicators-service</code>, <code>crop-intelligence-service</code>, <code>ndvi-processor</code>, <code>field-intelligence</code>, <code>skills-service</code>, <code>yolo26-vision-service</code>, <code>terrain-core-service</code></td>
+</tr>
+<tr>
+<td><strong>القرار</strong></td>
+<td><code>crop-growth-model</code>, <code>advisory-service</code>, <code>irrigation-smart</code>, <code>yield-prediction-service</code>, <code>hydrology-service</code>, <code>leveling-optimizer-service</code></td>
+</tr>
+<tr>
+<td><strong>الأعمال</strong></td>
+<td><code>notification-service</code>, <code>marketplace-service</code>, <code>billing-core</code>, <code>chat-service</code>, <code>task-service</code>, <code>equipment-service</code>, <code>ws-gateway</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-nats">11.2 أنماط موضوعات NATS<a class="headerlink" href="#112-nats" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>sahool.{domain}.{action}                    # الأساسي
+sahool.tenant.{tenant_id}.{domain}.{action}  # معزول حسب المستأجر
+</code></pre></div>
+
+<h3 id="113-kong">11.3 بوابة Kong<a class="headerlink" href="#113-kong" title="Permanent link">&para;</a></h3>
+<p>جميع طلبات HTTP الخارجية تمر عبر <strong>Kong API Gateway</strong> (المنفذ 8000/8001) الذي يوفر:
+- المصادقة (JWT, OAuth2)
+- Rate limiting حسب المستوى (Starter, Professional, Enterprise)
+- CORS وأمن الرأس
+- التوجيه عبر 105 مسار
+- التتبع والمقاييس</p>
+<hr />
+<h2 id="12">12. ملخص إحصائي<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>عدد الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>البنية التحتية الأساسية</td>
+<td>9</td>
+</tr>
+<tr>
+<td>إدارة الحقول والعمليات</td>
+<td>3</td>
+</tr>
+<tr>
+<td>التحليلات والذكاء</td>
+<td>12</td>
+</tr>
+<tr>
+<td>القرارات والاستشارات</td>
+<td>6</td>
+</tr>
+<tr>
+<td>IoT والتكامل</td>
+<td>9</td>
+</tr>
+<tr>
+<td>الأعمال والمجتمع</td>
+<td>11</td>
+</tr>
+<tr>
+<td>الذكاء الاصطناعي والوكلاء</td>
+<td>12</td>
+</tr>
+<tr>
+<td>الرؤية والتضاريس والحافة</td>
+<td>6</td>
+</tr>
+<tr>
+<td>متخصصة</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>المجموع النشط</strong></td>
+<td><strong>71+</strong></td>
+</tr>
+<tr>
+<td>الخدمات المُلغاة المؤرشفة</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>ملاحظة</strong>: بعض الخدمات القديمة (مثل <code>crop-growth-model</code>, <code>lai-estimation</code>, <code>yield-prediction</code>) لا تزال موجودة كـ Node.js في <code>docker-compose.yml</code> لكنها في طور الإلغاء لصالح الخدمات الموحّدة الأحدث.</p>
+</blockquote>
+<hr />
+<h1 id="containers-infrastructure">الحاويات والبنية التحتية (Containers &amp; Infrastructure)<a class="headerlink" href="#containers-infrastructure" title="Permanent link">&para;</a></h1>
+<p>يوثّق هذا القسم جميع حاويات Docker المستخدَمة في منصة SAHOOL، بما في ذلك ملفات <code>docker-compose</code>، وصور Docker الأساسية، وخدمات البنية التحتية المشتركة.</p>
+<hr />
+<h2 id="1-docker-compose">1. ملفات Docker Compose<a class="headerlink" href="#1-docker-compose" title="Permanent link">&para;</a></h2>
+<p>تحتوي المنصة على <strong>15 ملف <code>docker-compose</code></strong> موزّعة بين جذر المشروع ومجلد <code>docker/</code>. كل ملف يخدم غرضاً محدداً (تطوير، إنتاج، HA، اختبارات، إلخ).</p>
+<h3 id="11_1">1.1 الملفات في جذر المشروع<a class="headerlink" href="#11_1" title="Permanent link">&para;</a></h3>
+<h4 id="docker-composeyml-197-kb"><code>docker-compose.yml</code> — الملف الرئيسي (197 KB)<a class="headerlink" href="#docker-composeyml-197-kb" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: التنسيق الأساسي لكامل المنصة (تطوير وإنتاج). يحتوي على جميع الخدمات المصغرة والبنية التحتية المتكاملة.</li>
+<li><strong>عدد الخدمات</strong>: أكثر من <strong>85 حاوية</strong> (72 خدمة مصغرة + 13 خدمة بنية تحتية).</li>
+<li><strong>الخدمات الرئيسية</strong> (مختارة):</li>
+<li><strong>البنية التحتية</strong>: <code>postgres</code> (PostGIS 16)، <code>pgbouncer</code>، <code>redis</code>، <code>vault</code>، <code>nats</code>، <code>nats-prometheus-exporter</code>، <code>mlflow</code>، <code>mqtt</code>، <code>qdrant</code>، <code>mongo</code>، <code>rocketchat</code>، <code>ollama</code>، <code>vllm-deepseek</code>، <code>etcd</code>، <code>minio</code>، <code>milvus</code>، <code>kong</code></li>
+<li><strong>خدمات الأعمال</strong> (Node.js): <code>field-management-service</code>، <code>marketplace-service</code>، <code>research-core</code>، <code>disaster-assessment</code>، <code>yield-prediction</code>، <code>lai-estimation</code>، <code>crop-growth-model</code>، <code>chat-service</code>، <code>iot-service</code>، <code>user-service</code>، <code>yield-prediction-service</code>، <code>code-review-agent</code></li>
+<li><strong>خدمات Python FastAPI</strong>: <code>ws-gateway</code>، <code>billing-core</code>، <code>vegetation-analysis-service</code>، <code>indicators-service</code>، <code>weather-service</code>، <code>advisory-service</code>، <code>irrigation-smart</code>، <code>crop-intelligence-service</code>، <code>virtual-sensors</code>، <code>equipment-service</code>، <code>task-service</code>، <code>notification-service</code>، وغيرها كثير</li>
+<li><strong>الشبكات</strong>: <code>sahool-network</code> (bridge)</li>
+<li><strong>التخزين (Volumes)</strong>: <code>postgres_data</code>، <code>nats_data</code>، <code>vault_data</code>، <code>mlflow_artifacts</code>، <code>redis_data</code>، <code>qdrant_data</code>، <code>mqtt_data</code>، <code>mqtt_logs</code>، <code>kong_logs</code>، <code>ollama_data</code>، <code>vllm_models</code>، <code>vllm_hf_cache</code>، <code>etcd_data</code>، <code>minio_data</code>، <code>milvus_data</code>، <code>mongo_data</code>، <code>rocketchat_uploads</code>، <code>terrain-dem-data</code></li>
+<li><strong>Profiles</strong>:</li>
+<li><code>deprecated</code>: تفعيل الخدمات المُلغاة (rocketchat، wechat-service)</li>
+<li><code>gpu</code>: تفعيل خدمات GPU (vllm-deepseek)</li>
+<li><code>etcd-auth</code>: تفعيل مصادقة etcd</li>
+<li><strong>التسجيل</strong>: محرك <code>json-file</code> بحجم أقصى 50MB وتدوير 3 ملفات</li>
+</ul>
+<h4 id="docker-compose-coreyml-125-kb"><code>docker-compose-core.yml</code> (125 KB)<a class="headerlink" href="#docker-compose-coreyml-125-kb" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: بنية تحتية أساسية مخففة للتطوير السريع، بدون خدمات مصغرة غير ضرورية.</li>
+<li><strong>الخدمات الرئيسية</strong>: PostgreSQL، PgBouncer، Redis، NATS، Kong فقط</li>
+<li><strong>التحسينات</strong>: PgBouncer بوضع <code>transaction mode</code> مع 250 اتصالاً كحد أقصى وحجم pool = 30</li>
+</ul>
+<h4 id="docker-composeprodyml"><code>docker-compose.prod.yml</code><a class="headerlink" href="#docker-composeprodyml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: تجاوزات (overrides) خاصة بالإنتاج لتطبيق حدود الموارد وتحسينات الأداء.</li>
+<li><strong>التطبيقات</strong>:</li>
+<li>PostgreSQL: حد أقصى 2 CPU / 2 GB RAM</li>
+<li>Kong: حد أقصى 1 CPU / 512 MB مع 4 عمليات عاملة و8192 اتصالاً</li>
+<li>NATS: فرض TLS باستخدام <code>nats-secure.conf</code></li>
+<li><strong>التسجيل</strong>: 100 MB بحجم أقصى وتدوير 5 ملفات (أكثر حزماً من التطوير)</li>
+<li><strong>الأمان</strong>: يتطلب أسرار KONG_JWT لواجهات Web/Mobile/Internal</li>
+</ul>
+<h4 id="docker-composehayml-high-availability"><code>docker-compose.ha.yml</code> (High Availability)<a class="headerlink" href="#docker-composehayml-high-availability" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: النسخ المتماثل (replication) لـ PostgreSQL مع دعم الفشل التلقائي.</li>
+<li><strong>الخدمات</strong>: <code>postgres</code> (أساسي) + <code>postgres-replica</code> مع أرشفة WAL</li>
+<li><strong>النسخ المتماثل</strong>: مستخدم مخصص <code>postgres_replication_user</code>، ودعم الاسترداد لنقطة زمنية (PITR)</li>
+<li><strong>التخزين</strong>: <code>postgres_wal_archive</code> لتخزين WAL و<code>postgres_logs</code> للسجلات</li>
+<li><strong>TLS</strong>: يدعم شهادات العميل والـ CA للاتصالات الآمنة</li>
+</ul>
+<h4 id="docker-composeredis-hayml"><code>docker-compose.redis-ha.yml</code><a class="headerlink" href="#docker-composeredis-hayml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: Redis عالي التوفر مع Sentinel.</li>
+<li><strong>البنية</strong>: 1 Redis master + 2 replicas + 3 Sentinels (quorum = 2)</li>
+<li><strong>المزايا</strong>: فشل تلقائي، دعم ACL (app/admin/kong/readonly)</li>
+<li><strong>الصورة</strong>: <code>redis:7.4-alpine</code></li>
+</ul>
+<h4 id="docker-composetelemetryyml-opentelemetry"><code>docker-compose.telemetry.yml</code> (مجموعة OpenTelemetry)<a class="headerlink" href="#docker-composetelemetryyml-opentelemetry" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: التتبع الموزع والمراقبة لأكثر من 44 خدمة.</li>
+<li><strong>الخدمات</strong>: Jaeger (all-in-one)، OpenTelemetry Collector، Prometheus، Grafana</li>
+<li><strong>التخزين</strong>: Jaeger يستخدم Badger لتخزين مؤقت، و Prometheus كخلفية للمقاييس</li>
+<li><strong>الشبكات</strong>: <code>sahool-network</code> + <code>telemetry-network</code> (شبكة معزولة)</li>
+<li><strong>حدود الموارد</strong>: Jaeger = 2 CPU / 2 GB</li>
+</ul>
+<h4 id="docker-composetestyml"><code>docker-compose.test.yml</code><a class="headerlink" href="#docker-composetestyml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: بيئة اختبار معزولة مع بيانات اعتماد افتراضية.</li>
+<li><strong>الخدمات</strong>:</li>
+<li><code>postgres_test</code> (port 5433)</li>
+<li><code>redis_test</code> (port 6380)</li>
+<li><code>nats_test</code> (port 4223)</li>
+<li><code>qdrant_test</code> (port 6335)</li>
+<li><strong>الشبكة</strong>: <code>sahool-test-network</code> (منفصلة)</li>
+<li><strong>الأمان</strong>: بيانات اعتماد اختبار فقط (ليست للإنتاج)</li>
+</ul>
+<h4 id="docker-composetlsyml"><code>docker-compose.tls.yml</code><a class="headerlink" href="#docker-composetlsyml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: طبقة تغطية (overlay) لفرض TLS على اتصالات الخدمات الداخلية.</li>
+<li><strong>تجاوزات</strong>:</li>
+<li>PostgreSQL: وضع TLS</li>
+<li>PgBouncer: فرض TLS باستخدام <code>pgbouncer-tls.ini</code></li>
+<li>etcd: شهادات يدوية</li>
+<li><strong>الشهادات</strong>: يتوقع وجودها في <code>./config/certs/postgres</code>، <code>./config/certs/pgbouncer</code>، <code>./config/certs/etcd</code></li>
+</ul>
+<h4 id="docker-composewalgyml"><code>docker-compose.walg.yml</code> (النسخ الاحتياطي)<a class="headerlink" href="#docker-composewalgyml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: أرشفة WAL إلى S3/MinIO للاسترداد لنقطة زمنية.</li>
+<li><strong>الصورة المخصصة</strong>: <code>sahool/postgres-walg:16-3.4</code></li>
+<li><strong>الإعدادات</strong>:</li>
+<li>ضغط Brotli</li>
+<li>6 خطوات delta كحد أقصى</li>
+<li>4 عمليات رفع/تنزيل متزامنة</li>
+<li>احتفاظ لمدة 7 أيام</li>
+<li><strong>الأرشفة</strong>: بادئة S3 مع بيانات اعتماد AWS</li>
+</ul>
+<h4 id="docker-composewsl2yml"><code>docker-compose.wsl2.yml</code><a class="headerlink" href="#docker-composewsl2yml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: إصلاحات خاصة بـ Windows Subsystem for Linux 2 (حل مشكلة انحراف الساعة).</li>
+<li><strong>الخدمات المتأثرة</strong>: <code>etcd</code>، <code>milvus</code> (مع قدرة <code>SYS_TIME</code>)</li>
+<li><strong>تحذير</strong>: للتطوير فقط، ليس للإنتاج</li>
+</ul>
+<h3 id="12-docker">1.2 الملفات في مجلد <code>docker/</code><a class="headerlink" href="#12-docker" title="Permanent link">&para;</a></h3>
+<h4 id="dockerdocker-composeinfrayml"><code>docker/docker-compose.infra.yml</code><a class="headerlink" href="#dockerdocker-composeinfrayml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: نشر مستقل لخدمات البنية التحتية (قابل للتشغيل بشكل مستقل).</li>
+<li><strong>الخدمات</strong>: PostgreSQL، <code>db-migrator</code> (تشغيل تلقائي للهجرات)، Redis، NATS، Kong، Vault</li>
+<li><strong>الاستخدام</strong>: يمكن استخدامه كملف رئيسي للنشر الأدنى</li>
+</ul>
+<h4 id="dockerdocker-composedlqyml"><code>docker/docker-compose.dlq.yml</code><a class="headerlink" href="#dockerdocker-composedlqyml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: إدارة ومراقبة رسائل قائمة الانتظار الميتة (Dead Letter Queue).</li>
+<li><strong>الخدمة</strong>: <code>dlq-service</code> (FastAPI على المنفذ 8190)</li>
+<li><strong>الإعدادات</strong>: 3 محاولات إعادة كحد أقصى، حد تنبيه 100 رسالة، احتفاظ 30 يوماً</li>
+</ul>
+<h4 id="dockerdocker-composeiotyml"><code>docker/docker-compose.iot.yml</code> (ملغى)<a class="headerlink" href="#dockerdocker-composeiotyml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: اختبار IoT مستقل (مُلغى — الوظائف مُدمجة في الملف الرئيسي).</li>
+<li><strong>الخدمات</strong>:</li>
+<li><code>mqtt-broker-test</code> (eclipse-mosquitto على 11883)</li>
+<li><code>iot-gateway-test</code></li>
+<li><strong>ملاحظة</strong>: استخدم الملف الرئيسي في الإنتاج</li>
+</ul>
+<h4 id="dockerdocker-composeloggingyml"><code>docker/docker-compose.logging.yml</code><a class="headerlink" href="#dockerdocker-composeloggingyml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: تجميع السجلات باستخدام Loki + Promtail.</li>
+<li><strong>الخدمات</strong>:</li>
+<li><code>loki</code> (port 3100)</li>
+<li><code>promtail</code> (شاحن السجلات)</li>
+<li><strong>نقاط التركيب</strong>: <code>/var/log</code> و socket لـ Docker daemon لسجلات الحاويات</li>
+<li><strong>حدود الموارد</strong>: Loki = 1 CPU / 1 GB، Promtail = 0.5 CPU / 512 MB</li>
+</ul>
+<h4 id="dockerdocker-composesecretsyml"><code>docker/docker-compose.secrets.yml</code><a class="headerlink" href="#dockerdocker-composesecretsyml" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الغرض</strong>: قالب لإدارة الأسرار (Docker Swarm/Compose Secrets).</li>
+<li><strong>الأسرار المعرفة</strong>:</li>
+<li>قاعدة البيانات (<code>postgres</code>, <code>replication</code>)</li>
+<li>Redis</li>
+<li>NATS</li>
+<li>JWT (secret / private / public)</li>
+<li>مفاتيح التشفير</li>
+<li>MinIO</li>
+<li>شهادات TLS</li>
+<li><strong>مواقع الملفات</strong>: <code>./secrets/</code> و <code>./certs/</code></li>
+</ul>
+<hr />
+<h2 id="2-docker-base-images">2. صور Docker الأساسية (Base Images)<a class="headerlink" href="#2-docker-base-images" title="Permanent link">&para;</a></h2>
+<p>تقع الملفات الأساسية في <code>docker/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>الصورة الأساسية</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dockerfile.python.base</code></td>
+<td><code>python:3.11-slim-bookworm</code></td>
+<td>الصورة الأساسية لكل خدمات Python FastAPI</td>
+</tr>
+<tr>
+<td><code>Dockerfile.node.base</code></td>
+<td><code>node:20-slim</code></td>
+<td>الصورة الأساسية لكل خدمات Node.js / NestJS</td>
+</tr>
+<tr>
+<td><code>Dockerfile.ai-base</code></td>
+<td>Python 3.11 مع تبعيات ML</td>
+<td>للخدمات المتعلقة بالذكاء الاصطناعي مع مرايا Aliyun + Tsinghua</td>
+</tr>
+<tr>
+<td><code>Dockerfile.etcd-init</code></td>
+<td>مُهيِّئ مخصص</td>
+<td>تهيئة كتلة etcd</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">خصائص مشتركة لجميع الصور الأساسية:<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>مستخدم غير root</strong>: <code>sahool</code> (UID 1000, GID 1000)</li>
+<li><strong>دعم إشارات النظام</strong>: يستخدم <code>tini</code> (Node.js) لمعالجة SIGTERM</li>
+<li><strong>متغيرات Python</strong>: <code>PYTHONDONTWRITEBYTECODE=1</code>, <code>PYTHONUNBUFFERED=1</code></li>
+<li><strong>متغيرات pip</strong>: <code>PIP_NO_CACHE_DIR=1</code>, <code>PIP_DEFAULT_TIMEOUT=300</code>, <code>PIP_RETRIES=10</code></li>
+<li><strong>مرايا pip</strong> (متعددة المستويات): PyPI الرسمي → Aliyun → Tsinghua → Tencent</li>
+<li><strong>تقوية أمنية</strong>: إزالة صلاحيات setuid، نظام ملفات للقراءة فقط حيث أمكن</li>
+</ul>
+<h3 id="yolo26-vision-service">استثناء: <code>yolo26-vision-service</code><a class="headerlink" href="#yolo26-vision-service" title="Permanent link">&para;</a></h3>
+<p>يستخدم صورة مختلفة: <code>nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04</code> لدعم GPU وتسريع الاستدلال بـ TensorRT.</p>
+<hr />
+<h2 id="3">3. خدمات البنية التحتية المشتركة<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<p>توفّر هذه الخدمات الأساس التشغيلي لكامل المنصة:</p>
+<h3 id="31">3.1 قواعد البيانات والتخزين<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الصورة</th>
+<th>المنفذ</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>postgres</strong></td>
+<td><code>postgis/postgis:16-3.4</code></td>
+<td>5432</td>
+<td>قاعدة البيانات الرئيسية مع PostGIS للعمليات الجغرافية</td>
+</tr>
+<tr>
+<td><strong>pgbouncer</strong></td>
+<td><code>edoburu/pgbouncer</code></td>
+<td>6432</td>
+<td>تجميع الاتصالات (transaction mode، 250 اتصال كحد أقصى)</td>
+</tr>
+<tr>
+<td><strong>redis</strong></td>
+<td><code>redis:7.4-alpine</code></td>
+<td>6379</td>
+<td>التخزين المؤقت، إدارة الجلسات، rate limiting</td>
+</tr>
+<tr>
+<td><strong>mongo</strong></td>
+<td><code>mongo:7</code></td>
+<td>27017</td>
+<td>قاعدة بيانات NoSQL (لـ RocketChat وبعض الخدمات)</td>
+</tr>
+<tr>
+<td><strong>minio</strong></td>
+<td><code>minio/minio</code></td>
+<td>9000/9001</td>
+<td>تخزين كائنات متوافق مع S3</td>
+</tr>
+<tr>
+<td><strong>milvus</strong></td>
+<td><code>milvusdb/milvus</code></td>
+<td>19530</td>
+<td>قاعدة بيانات متجهات للبحث الدلالي</td>
+</tr>
+<tr>
+<td><strong>qdrant</strong></td>
+<td><code>qdrant/qdrant</code></td>
+<td>6333</td>
+<td>قاعدة بيانات متجهات بديلة للـ RAG</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 المراسلة والأحداث<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الصورة</th>
+<th>المنفذ</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>nats</strong></td>
+<td><code>nats:2.10-alpine</code></td>
+<td>4222</td>
+<td>ناقل الأحداث مع JetStream للاستمرارية</td>
+</tr>
+<tr>
+<td><strong>nats-prometheus-exporter</strong></td>
+<td><code>natsio/prometheus-nats-exporter</code></td>
+<td>7777</td>
+<td>تصدير مقاييس NATS إلى Prometheus</td>
+</tr>
+<tr>
+<td><strong>nats-stream-init</strong></td>
+<td>مخصص</td>
+<td>-</td>
+<td>تهيئة تدفقات JetStream عند الإقلاع</td>
+</tr>
+<tr>
+<td><strong>mqtt</strong></td>
+<td><code>eclipse-mosquitto:2.0</code></td>
+<td>1883/9001</td>
+<td>وسيط MQTT لأجهزة IoT</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-api">3.3 بوابة API والأمان<a class="headerlink" href="#33-api" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الصورة</th>
+<th>المنفذ</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>kong</strong></td>
+<td><code>kong:3.x-alpine</code></td>
+<td>8000/8001</td>
+<td>بوابة API مع 105 مسارات، مصادقة، rate limiting</td>
+</tr>
+<tr>
+<td><strong>vault</strong></td>
+<td><code>hashicorp/vault</code></td>
+<td>8200</td>
+<td>إدارة الأسرار والتشفير</td>
+</tr>
+<tr>
+<td><strong>etcd</strong></td>
+<td><code>bitnami/etcd</code></td>
+<td>2379/2380</td>
+<td>مخزن key-value موزع (لـ Milvus)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-ml">3.4 الذكاء الاصطناعي والـ ML<a class="headerlink" href="#34-ml" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الصورة</th>
+<th>المنفذ</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ollama</strong></td>
+<td><code>ollama/ollama</code></td>
+<td>11434</td>
+<td>استضافة LLMs محلياً (CodeLlama, Mistral, DeepSeek)</td>
+</tr>
+<tr>
+<td><strong>ollama-model-loader</strong></td>
+<td>مخصص</td>
+<td>-</td>
+<td>تحميل النماذج المطلوبة عند الإقلاع</td>
+</tr>
+<tr>
+<td><strong>vllm-deepseek</strong></td>
+<td><code>vllm/vllm-openai</code></td>
+<td>8270</td>
+<td>خادم استدلال GPU لـ DeepSeek Coder (profile: gpu)</td>
+</tr>
+<tr>
+<td><strong>mlflow</strong></td>
+<td><code>ghcr.io/mlflow/mlflow</code></td>
+<td>5000</td>
+<td>تتبع تجارب ML وتسجيل النماذج</td>
+</tr>
+</tbody>
+</table>
+<h3 id="35-overlay">3.5 المراقبة والسجلات (من ملفات overlay)<a class="headerlink" href="#35-overlay" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الصورة</th>
+<th>المنفذ</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>prometheus</strong></td>
+<td><code>prom/prometheus</code></td>
+<td>9090</td>
+<td>جمع المقاييس</td>
+</tr>
+<tr>
+<td><strong>grafana</strong></td>
+<td><code>grafana/grafana</code></td>
+<td>3000</td>
+<td>لوحات تحكم المراقبة (4 لوحات)</td>
+</tr>
+<tr>
+<td><strong>jaeger</strong></td>
+<td><code>jaegertracing/all-in-one</code></td>
+<td>16686</td>
+<td>التتبع الموزع (OpenTelemetry)</td>
+</tr>
+<tr>
+<td><strong>otel-collector</strong></td>
+<td><code>otel/opentelemetry-collector-contrib</code></td>
+<td>4317/4318</td>
+<td>جمع ونقل بيانات التتبع</td>
+</tr>
+<tr>
+<td><strong>loki</strong></td>
+<td><code>grafana/loki</code></td>
+<td>3100</td>
+<td>تجميع السجلات</td>
+</tr>
+<tr>
+<td><strong>promtail</strong></td>
+<td><code>grafana/promtail</code></td>
+<td>-</td>
+<td>شحن سجلات الحاويات إلى Loki</td>
+</tr>
+</tbody>
+</table>
+<h3 id="36">3.6 التواصل والدردشة<a class="headerlink" href="#36" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الصورة</th>
+<th>المنفذ</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>rocketchat</strong></td>
+<td><code>rocket.chat</code></td>
+<td>3000</td>
+<td>منصة دردشة لمجتمعات المزارعين (profile: deprecated)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4">4. الشبكات والتخزين<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="_6">الشبكات المعرفة<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الشبكة</th>
+<th>النوع</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool-network</code></td>
+<td>bridge</td>
+<td>الشبكة الرئيسية لجميع الخدمات</td>
+</tr>
+<tr>
+<td><code>telemetry-network</code></td>
+<td>bridge</td>
+<td>شبكة معزولة لمكونات المراقبة</td>
+</tr>
+<tr>
+<td><code>sahool-test-network</code></td>
+<td>bridge</td>
+<td>بيئة الاختبار (منفصلة تماماً)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="named-volumes">الأحجام المُسماة (Named Volumes)<a class="headerlink" href="#named-volumes" title="Permanent link">&para;</a></h3>
+<p>الأحجام الرئيسية من <code>docker-compose.yml</code>:</p>
+<table>
+<thead>
+<tr>
+<th>الحجم</th>
+<th>المحتوى</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>postgres_data</code></td>
+<td>بيانات PostgreSQL</td>
+</tr>
+<tr>
+<td><code>redis_data</code></td>
+<td>بيانات Redis</td>
+</tr>
+<tr>
+<td><code>nats_data</code></td>
+<td>تخزين JetStream</td>
+</tr>
+<tr>
+<td><code>vault_data</code></td>
+<td>أسرار Vault</td>
+</tr>
+<tr>
+<td><code>mlflow_artifacts</code></td>
+<td>قطع نماذج MLflow</td>
+</tr>
+<tr>
+<td><code>qdrant_data</code></td>
+<td>مؤشرات Qdrant</td>
+</tr>
+<tr>
+<td><code>milvus_data</code></td>
+<td>مؤشرات Milvus</td>
+</tr>
+<tr>
+<td><code>minio_data</code></td>
+<td>كائنات MinIO (S3)</td>
+</tr>
+<tr>
+<td><code>etcd_data</code></td>
+<td>حالة etcd</td>
+</tr>
+<tr>
+<td><code>mongo_data</code>, <code>mongo_configdb</code></td>
+<td>بيانات MongoDB</td>
+</tr>
+<tr>
+<td><code>mqtt_data</code>, <code>mqtt_logs</code>, <code>mqtt_passwd</code></td>
+<td>بيانات Mosquitto</td>
+</tr>
+<tr>
+<td><code>kong_logs</code></td>
+<td>سجلات Kong</td>
+</tr>
+<tr>
+<td><code>ollama_data</code></td>
+<td>نماذج Ollama</td>
+</tr>
+<tr>
+<td><code>vllm_models</code>, <code>vllm_hf_cache</code></td>
+<td>نماذج vLLM و HuggingFace cache</td>
+</tr>
+<tr>
+<td><code>rocketchat_uploads</code></td>
+<td>مرفقات RocketChat</td>
+</tr>
+<tr>
+<td><code>terrain-dem-data</code></td>
+<td>بيانات DEM للتضاريس</td>
+</tr>
+<tr>
+<td><code>code_review_logs</code></td>
+<td>سجلات خدمة مراجعة الكود</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-makefile">5. الأوامر الشائعة (Makefile)<a class="headerlink" href="#5-makefile" title="Permanent link">&para;</a></h2>
+<p>فيما يلي الأوامر الأكثر استخداماً لإدارة الحاويات:</p>
+<h3 id="_7">تشغيل البيئات<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>dev<span class="w">                    </span><span class="c1"># بدء البيئة الكاملة</span>
+make<span class="w"> </span>dev-starter<span class="w">            </span><span class="c1"># حزمة البداية فقط</span>
+make<span class="w"> </span>dev-professional<span class="w">       </span><span class="c1"># حزمة المحترفين</span>
+make<span class="w"> </span>dev-enterprise<span class="w">         </span><span class="c1"># جميع خدمات المؤسسات</span>
+make<span class="w"> </span>infra-up<span class="w">               </span><span class="c1"># البنية التحتية فقط (postgres، redis، nats، kong)</span>
+make<span class="w"> </span>dev-vision<span class="w">             </span><span class="c1"># تشغيل خدمات الرؤية (yolo26-vision-service)</span>
+make<span class="w"> </span>dev-terrain<span class="w">            </span><span class="c1"># تشغيل خدمات التضاريس</span>
+make<span class="w"> </span>dev-edge<span class="w">               </span><span class="c1"># تشغيل edge-orchestrator</span>
+make<span class="w"> </span>dev-ai<span class="w">                 </span><span class="c1"># تشغيل خدمات الذكاء الاصطناعي</span>
+make<span class="w"> </span>dev-agents<span class="w">             </span><span class="c1"># تشغيل خدمات الوكلاء</span>
+make<span class="w"> </span>dev-mcp<span class="w">                </span><span class="c1"># تشغيل خادم MCP</span>
+</code></pre></div>
+
+<h3 id="_8">البناء والإدارة<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>build<span class="w">                  </span><span class="c1"># بناء كل صور Docker (بالتوازي)</span>
+make<span class="w"> </span>build-python<span class="w">           </span><span class="c1"># خدمات Python فقط</span>
+make<span class="w"> </span>build-node<span class="w">             </span><span class="c1"># خدمات Node.js فقط</span>
+make<span class="w"> </span>build-ai<span class="w">               </span><span class="c1"># صور خدمات الذكاء الاصطناعي</span>
+make<span class="w"> </span>up<span class="w">                     </span><span class="c1"># بدء كل الخدمات</span>
+make<span class="w"> </span>down<span class="w">                   </span><span class="c1"># إيقاف كل الخدمات</span>
+make<span class="w"> </span>down-volumes<span class="w">           </span><span class="c1"># إيقاف وحذف الأحجام</span>
+make<span class="w"> </span>restart<span class="w">                </span><span class="c1"># إعادة التشغيل</span>
+</code></pre></div>
+
+<h3 id="_9">السجلات والحالة<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>logs<span class="w">                   </span><span class="c1"># سجلات كل الخدمات</span>
+make<span class="w"> </span>logs-service<span class="w"> </span><span class="nv">SERVICE</span><span class="o">=</span>field_ops<span class="w">   </span><span class="c1"># سجلات خدمة محددة</span>
+make<span class="w"> </span>ps<span class="w">                     </span><span class="c1"># قائمة الحاويات قيد التشغيل</span>
+make<span class="w"> </span>stats<span class="w">                  </span><span class="c1"># إحصائيات المشروع</span>
+make<span class="w"> </span>status<span class="w">                 </span><span class="c1"># حالة الخدمات وعناوينها</span>
+make<span class="w"> </span>health<span class="w">                 </span><span class="c1"># فحص صحة جميع الخدمات</span>
+make<span class="w"> </span>shell<span class="w"> </span><span class="nv">SERVICE</span><span class="o">=</span>name<span class="w">     </span><span class="c1"># فتح shell داخل حاوية</span>
+</code></pre></div>
+
+<h3 id="_10">قاعدة البيانات<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>db-migrate<span class="w">             </span><span class="c1"># تشغيل الهجرات (Prisma)</span>
+make<span class="w"> </span>db-seed<span class="w">                </span><span class="c1"># بيانات تجريبية</span>
+make<span class="w"> </span>db-reset<span class="w">               </span><span class="c1"># إعادة تعيين (تحذير: يحذف البيانات)</span>
+make<span class="w"> </span>db-shell<span class="w">               </span><span class="c1"># اتصال PostgreSQL</span>
+make<span class="w"> </span>db-backup<span class="w">              </span><span class="c1"># نسخة احتياطية</span>
+</code></pre></div>
+
+<h3 id="_11">المراقبة والتنظيف<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>monitoring-up<span class="w">          </span><span class="c1"># تشغيل مجموعة Prometheus/Grafana</span>
+make<span class="w"> </span>monitoring-down<span class="w">        </span><span class="c1"># إيقاف المراقبة</span>
+make<span class="w"> </span>monitoring-logs<span class="w">        </span><span class="c1"># سجلات المراقبة</span>
+make<span class="w"> </span>clean<span class="w">                  </span><span class="c1"># تنظيف الحاويات والأحجام</span>
+</code></pre></div>
+
+<h3 id="_12">تشغيل الخدمات المُلغاة (للاختبار فقط)<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>deprecated<span class="w"> </span>up
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>legacy<span class="w"> </span>up
+</code></pre></div>
+
+<hr />
+<h2 id="6">6. أنماط الأمان والصحة<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="health-checks">فحوصات الصحة (Health Checks)<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<p>كل حاوية تعرّف <code>HEALTHCHECK</code> مع:
+- <code>interval: 30s</code>
+- <code>timeout: 10s</code>
+- <code>retries: 3</code>
+- <code>start_period: 10s-60s</code> (حسب الخدمة)</p>
+<h3 id="_13">نقاط النهاية القياسية للصحة<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET /healthz    # liveness probe
+GET /readyz     # readiness probe  
+GET /health     # حالة مجمّعة
+GET /metrics    # مقاييس Prometheus
+</code></pre></div>
+
+<h3 id="_14">ممارسات الأمان<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>مستخدم غير root</strong>: جميع الحاويات تعمل باسم <code>sahool</code> (UID 1000)</li>
+<li><strong>نظام ملفات للقراءة فقط</strong>: حيث أمكن</li>
+<li><strong>بناء متعدد المراحل</strong>: 35+ خدمة تستخدم multi-stage builds</li>
+<li><strong>حدود الموارد</strong>: CPU/RAM محددة في الإنتاج</li>
+<li><strong>شبكة معزولة</strong>: الخدمات تتحدث فقط عبر <code>sahool-network</code></li>
+<li><strong>TLS اختياري</strong>: عبر <code>docker-compose.tls.yml</code></li>
+<li><strong>إدارة الأسرار</strong>: عبر Vault + Docker secrets</li>
+</ul>
+<hr />
+<h1 id="shared-modules">الوحدات المشتركة (Shared Modules)<a class="headerlink" href="#shared-modules" title="Permanent link">&para;</a></h1>
+<p>يحتوي مجلد <code>shared/</code> على <strong>89 وحدة Python مشتركة</strong> تُستخدم بواسطة جميع الخدمات المصغرة في منصة SAHOOL للاستخبارات الزراعية الوطنية. توفر هذه الوحدات طبقة موحدة للبنية التحتية، الأمان، الذكاء الاصطناعي، ومنطق المجال الزراعي.</p>
+<blockquote>
+<p><strong>إجمالي المحتويات</strong>: 81 وحدة فرعية (مجلدات Python) + 6 ملفات Python على المستوى الأعلى + <code>README.md</code> + <code>__init__.py</code>.</p>
+</blockquote>
+<hr />
+<h2 id="1-core-infrastructure_1">1. البنية التحتية الأساسية (Core Infrastructure)<a class="headerlink" href="#1-core-infrastructure_1" title="Permanent link">&para;</a></h2>
+<p>الوحدات الأساسية لتشغيل الخدمات (المصادقة، التخزين المؤقت، قاعدة البيانات، الأحداث، الوسيطات).</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth</code></td>
+<td>المصادقة JWT، التحقق بخطوتين (2FA)، إبطال الرموز، Dependencies لـ FastAPI</td>
+</tr>
+<tr>
+<td><code>cache</code></td>
+<td>طبقة التخزين المؤقت مع Redis Sentinel عالي التوفر (HA)</td>
+</tr>
+<tr>
+<td><code>contracts</code></td>
+<td>عقود الـ API ومخططات الأحداث (Event Schemas) - مصدر الحقيقة الموحد</td>
+</tr>
+<tr>
+<td><code>db</code></td>
+<td>أدوات قاعدة البيانات وإدارة الاتصالات (asyncpg، Tortoise ORM)</td>
+</tr>
+<tr>
+<td><code>domain</code></td>
+<td>نماذج المجال الأساسية (المصادقة، المستخدمون، تعدد المستأجرين)</td>
+</tr>
+<tr>
+<td><code>events</code></td>
+<td>تعريفات أحداث NATS، موضوعات (Subjects)، Dead Letter Queue (DLQ)</td>
+</tr>
+<tr>
+<td><code>file_validation</code></td>
+<td>التحقق من صحة الملفات المرفوعة وفحص الفيروسات</td>
+</tr>
+<tr>
+<td><code>libs</code></td>
+<td>مكتبات مشتركة (Outbox pattern، التدقيق، التخزين المؤقت)</td>
+</tr>
+<tr>
+<td><code>middleware</code></td>
+<td>وسيطات HTTP (حدود المعدل، CORS، التسجيل، تتبع الطلبات)</td>
+</tr>
+<tr>
+<td><code>monitoring</code></td>
+<td>مقاييس Prometheus ومؤشرات SLI/SLO</td>
+</tr>
+<tr>
+<td><code>observability</code></td>
+<td>OpenTelemetry وJaeger للتتبع الموزع</td>
+</tr>
+<tr>
+<td><code>telemetry</code></td>
+<td>أدوات التتبع الموزع الإضافية</td>
+</tr>
+<tr>
+<td><code>secrets</code></td>
+<td>تكامل HashiCorp Vault لإدارة الأسرار</td>
+</tr>
+<tr>
+<td><code>security</code></td>
+<td>RBAC، JWT، محرك السياسات، تشفير البيانات</td>
+</tr>
+<tr>
+<td><code>versioning</code></td>
+<td>أدوات إدارة إصدارات الـ API</td>
+</tr>
+<tr>
+<td><code>audit_trail</code></td>
+<td>سجل التدقيق الموحد للعمليات الحساسة</td>
+</tr>
+<tr>
+<td><code>notification_preferences</code></td>
+<td>إدارة تفضيلات الإشعارات للمستخدمين</td>
+</tr>
+<tr>
+<td><code>service_enhancements</code></td>
+<td>وحدات تحسين الخدمات المشتركة</td>
+</tr>
+<tr>
+<td><code>design-system</code></td>
+<td>رموز نظام التصميم (Design Tokens) والأدوات المساعدة</td>
+</tr>
+<tr>
+<td><code>templates</code></td>
+<td>قوالب التهيئة والكود القابلة لإعادة الاستخدام</td>
+</tr>
+<tr>
+<td><code>integrations</code></td>
+<td>تكاملات الأنظمة الخارجية</td>
+</tr>
+<tr>
+<td><code>python-lib</code></td>
+<td>أدوات مكتبة Python العامة</td>
+</tr>
+<tr>
+<td><code>channel_adapter</code></td>
+<td>محوّل القنوات المتعددة - توحيد الرسائل من WhatsApp، USSD، WeChat، Web</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-ai-intelligence">2. الذكاء الاصطناعي والتحليلات (AI &amp; Intelligence)<a class="headerlink" href="#2-ai-intelligence" title="Permanent link">&para;</a></h2>
+<p>الوحدات المتعلقة بالذكاء الاصطناعي، نماذج اللغة الكبيرة (LLM)، ومعالجة اللغة الطبيعية.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ai</code></td>
+<td>محرك الذكاء الاصطناعي الشامل - Auto-Fix Engine، هندسة السياق، الوكلاء، الحراسات، سجل النماذج، قاعدة المعرفة، UltraRAG</td>
+</tr>
+<tr>
+<td><code>a2a</code></td>
+<td>بروتوكول الوكيل-إلى-الوكيل (Agent-to-Agent) من Linux Foundation</td>
+</tr>
+<tr>
+<td><code>agents</code></td>
+<td>تنسيق الوكلاء المتعددين عبر CrewAI (مستشار محاصيل، خبير ري، مشخّص أمراض)</td>
+</tr>
+<tr>
+<td><code>llm</code></td>
+<td>إعداد مزودي نماذج اللغة الكبيرة والتوجيه (Claude، OpenAI، Gemini، DeepSeek، Ollama)</td>
+</tr>
+<tr>
+<td><code>mcp</code></td>
+<td>بروتوكول سياق النموذج (Model Context Protocol)</td>
+</tr>
+<tr>
+<td><code>nlp</code></td>
+<td>معالجة اللغة العربية باستخدام AraBERT (تصنيف النوايا، استخراج الكيانات، تحليل المشاعر)</td>
+</tr>
+<tr>
+<td><code>satellite</code></td>
+<td>تكامل Sentinel Hub لتحليل NDVI والصور الفضائية</td>
+</tr>
+<tr>
+<td><code>ml</code></td>
+<td>مجموعات بيانات AgML الزراعية القياسية (PlantVillage، Wheat Rust، DeepWeeds)</td>
+</tr>
+<tr>
+<td><code>guardrails</code></td>
+<td>حراسات أمان الذكاء الاصطناعي (تصفية المدخلات والمخرجات)</td>
+</tr>
+<tr>
+<td><code>crm</code></td>
+<td>وحدة إدارة علاقات المزارعين (Farmer CRM)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-crop-field-management">3. إدارة المحاصيل والحقول (Crop &amp; Field Management)<a class="headerlink" href="#3-crop-field-management" title="Permanent link">&para;</a></h2>
+<p>وحدات منطق المجال الزراعي الأساسية لإدارة المحاصيل والحقول.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agri_calendar</code></td>
+<td>التقويم الزراعي، التقويم الإسلامي، توقيت الزراعة والحصاد</td>
+</tr>
+<tr>
+<td><code>crop_rotation</code></td>
+<td>تخطيط تدوير المحاصيل لتحسين صحة التربة</td>
+</tr>
+<tr>
+<td><code>field_boundaries</code></td>
+<td>هندسة الحقل والعمليات الجغرافية المكانية (PostGIS، Shapely)</td>
+</tr>
+<tr>
+<td><code>geofencing</code></td>
+<td>التنبيهات القائمة على الحدود الجغرافية ومراقبة الوصول للحقول</td>
+</tr>
+<tr>
+<td><code>terrain</code></td>
+<td>معالجة نماذج الارتفاع الرقمية (DEM)، تحليل التضاريس، المعالجة الدفعية</td>
+</tr>
+<tr>
+<td><code>harvest_quality</code></td>
+<td>إدارة جودة ما بعد الحصاد، التصنيف، والتسعير</td>
+</tr>
+<tr>
+<td><code>farm_documents</code></td>
+<td>توثيق المزرعة، الامتثال، والتنبيهات</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-irrigation-water">4. الري والمياه (Irrigation &amp; Water)<a class="headerlink" href="#4-irrigation-water" title="Permanent link">&para;</a></h2>
+<p>وحدات إدارة الري الذكي وكفاءة استخدام المياه.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>irrigation</code></td>
+<td>جدولة الري الذكي، محرك التعاون، قوائم التحقق</td>
+</tr>
+<tr>
+<td><code>water_management</code></td>
+<td>مراقبة استخدام المياه وتقارير الكفاءة</td>
+</tr>
+<tr>
+<td><code>ml_irrigation</code></td>
+<td>تحسين الري القائم على التعلم الآلي والتنبؤ</td>
+</tr>
+<tr>
+<td><code>salinity</code></td>
+<td>مراقبة ملوحة التربة وإدارة التخفيف</td>
+</tr>
+<tr>
+<td><code>pivot_management</code></td>
+<td>إدارة ري المحور المركزي (Center Pivot)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-soil-nutrients">5. التربة والمغذيات (Soil &amp; Nutrients)<a class="headerlink" href="#5-soil-nutrients" title="Permanent link">&para;</a></h2>
+<p>وحدات تحليل التربة وإدارة الأسمدة.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>soil_testing</code></td>
+<td>تفسير اختبار التربة والتوصيات</td>
+</tr>
+<tr>
+<td><code>soil_sensors</code></td>
+<td>معالجة بيانات حساسات التربة IoT والمحولات</td>
+</tr>
+<tr>
+<td><code>fertilizer_management</code></td>
+<td>توصيات المغذيات، تتبع المخزون، إدارة الأسمدة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-pest-disease">6. الآفات والأمراض (Pest &amp; Disease)<a class="headerlink" href="#6-pest-disease" title="Permanent link">&para;</a></h2>
+<p>وحدات اكتشاف الآفات وإدارة الأمراض والطقس.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pest_scouting</code></td>
+<td>تحديد الآفات، الإدارة المتكاملة للآفات (IPM)، التحكم القائم على العتبات</td>
+</tr>
+<tr>
+<td><code>pesticide_compliance</code></td>
+<td>فترة ما قبل الحصاد (PHI)، تسجيل المبيدات، تنبيهات السلامة</td>
+</tr>
+<tr>
+<td><code>weather_alerts</code></td>
+<td>مراقبة الطقس، تحسين نافذة الرش، تنبيهات الظروف الخطرة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-business-operations">7. الأعمال والعمليات (Business &amp; Operations)<a class="headerlink" href="#7-business-operations" title="Permanent link">&para;</a></h2>
+<p>وحدات دعم العمليات التجارية للمزرعة والعمال والمعدات.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mobile_sync</code></td>
+<td>المزامنة دون اتصال، حل التعارضات، المزامنة التدريجية (Delta Sync)</td>
+</tr>
+<tr>
+<td><code>batch_operations</code></td>
+<td>المعالجة الدفعية غير المتزامنة والجدولة</td>
+</tr>
+<tr>
+<td><code>labor_management</code></td>
+<td>جدولة القوى العاملة وإدارة السلامة</td>
+</tr>
+<tr>
+<td><code>equipment_maintenance</code></td>
+<td>دورة حياة المعدات والصيانة التنبؤية</td>
+</tr>
+<tr>
+<td><code>cooperatives</code></td>
+<td>إدارة الجمعيات التعاونية متعددة المزارع وتجميع الموارد</td>
+</tr>
+<tr>
+<td><code>market_prices</code></td>
+<td>تتبع أسعار السوق وتحليل الاتجاهات</td>
+</tr>
+<tr>
+<td><code>traceability</code></td>
+<td>تتبع سلسلة التوريد ورموز QR</td>
+</tr>
+<tr>
+<td><code>drone_integration</code></td>
+<td>تخطيط رحلات الطائرات المسيّرة وتطبيق المعدل المتغير (VRA)</td>
+</tr>
+<tr>
+<td><code>crop_insurance</code></td>
+<td>تأمين المحاصيل وتقييم المخاطر</td>
+</tr>
+<tr>
+<td><code>learning_marketplace</code></td>
+<td>تعليم المزارعين وتتبع التقدم</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-advanced-technology">8. التقنية المتقدمة (Advanced Technology)<a class="headerlink" href="#8-advanced-technology" title="Permanent link">&para;</a></h2>
+<p>الوحدات المبتكرة مثل Blockchain، الحافة السحابية، والأتمتة منخفضة الكود.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smart_agriculture</code></td>
+<td>تتبع Blockchain، أتمتة IFTTT، وحدات التحكم PID</td>
+</tr>
+<tr>
+<td><code>edge_cloud</code></td>
+<td>بنية الحافة السحابية، الأنظمة التعاونية</td>
+</tr>
+<tr>
+<td><code>lowcode</code></td>
+<td>محرك أتمتة سير العمل منخفض/بدون كود</td>
+</tr>
+<tr>
+<td><code>scraping</code></td>
+<td>استخراج البيانات لأسعار السوق وبيانات الطقس</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-precision-agriculture">9. الزراعة الدقيقة (Precision Agriculture)<a class="headerlink" href="#9-precision-agriculture" title="Permanent link">&para;</a></h2>
+<p>وحدات الزراعة الدقيقة، المعايرة، والتوائم الرقمية.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>calibration</code></td>
+<td>معايرة الحساسات والمعدات</td>
+</tr>
+<tr>
+<td><code>digital_twin</code></td>
+<td>نماذج محاكاة التوأم الرقمي للمزارع والحقول</td>
+</tr>
+<tr>
+<td><code>drift_detection</code></td>
+<td>اكتشاف انحراف النموذج والبيانات</td>
+</tr>
+<tr>
+<td><code>vra_maps</code></td>
+<td>إنشاء خرائط تطبيق المعدل المتغير (Variable Rate Application)</td>
+</tr>
+<tr>
+<td><code>geospatial_metadata</code></td>
+<td>إدارة البيانات الوصفية الجغرافية المكانية</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-analytics-monitoring">10. التحليلات والمراقبة (Analytics &amp; Monitoring)<a class="headerlink" href="#10-analytics-monitoring" title="Permanent link">&para;</a></h2>
+<p>وحدات لوحات التحكم والتقارير المالية ومراقبة الاستقرار.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dashboard</code></td>
+<td>أدوات وأدوات مساعدة للوحات التحكم</td>
+</tr>
+<tr>
+<td><code>financial_reports</code></td>
+<td>التقارير المالية والتحليل</td>
+</tr>
+<tr>
+<td><code>iot_dashboard</code></td>
+<td>أدوات لوحة تحكم حساسات IoT</td>
+</tr>
+<tr>
+<td><code>marketplace_enhanced</code></td>
+<td>ميزات السوق المحسّنة</td>
+</tr>
+<tr>
+<td><code>stability</code></td>
+<td>مراقبة استقرار النظام والتنبيهات</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-configuration-routing">11. الإعدادات والتوجيه (Configuration &amp; Routing)<a class="headerlink" href="#11-configuration-routing" title="Permanent link">&para;</a></h2>
+<p>وحدات إعداد الجوال، توجيه الإشعارات، وتعريفات العمليات.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mobile_config</code></td>
+<td>إدارة إعدادات تطبيق الجوال</td>
+</tr>
+<tr>
+<td><code>notification_routing</code></td>
+<td>منطق توجيه الإشعارات والتسليم</td>
+</tr>
+<tr>
+<td><code>process_models</code></td>
+<td>تعريفات نماذج العمليات التجارية</td>
+</tr>
+<tr>
+<td><code>regional</code></td>
+<td>الملفات الشخصية الزراعية الإقليمية والبيانات</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="12-regional-compliance">12. الوحدات الإقليمية والامتثال (Regional &amp; Compliance)<a class="headerlink" href="#12-regional-compliance" title="Permanent link">&para;</a></h2>
+<p>الوحدات الخاصة بمناطق جغرافية محددة وشهادات الامتثال.</p>
+<table>
+<thead>
+<tr>
+<th>الوحدة</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>yemen</code></td>
+<td>البيانات الزراعية الخاصة باليمن (أصناف المحاصيل، المناخ، التربة)</td>
+</tr>
+<tr>
+<td><code>globalgap</code></td>
+<td>امتثال GlobalGAP IFA v6 وقوائم التحقق</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-top-level-files">13. ملفات المستوى العلوي (Top-Level Files)<a class="headerlink" href="#13-top-level-files" title="Permanent link">&para;</a></h2>
+<p>ملفات Python في جذر مجلد <code>shared/</code> تُستخدم بشكل مباشر عبر الخدمات.</p>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>الغرض</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__.py</code></td>
+<td>ملف تهيئة الحزمة الرئيسية</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>توثيق نظرة عامة على الوحدات المشتركة</td>
+</tr>
+<tr>
+<td><code>cors_config.py</code></td>
+<td>إعداد CORS موحد لجميع خدمات FastAPI</td>
+</tr>
+<tr>
+<td><code>devops.py</code></td>
+<td>أدوات DevOps ومساعدات النشر</td>
+</tr>
+<tr>
+<td><code>errors_py.py</code></td>
+<td>معالجة الأخطاء الموحدة لـ FastAPI (<code>setup_exception_handlers</code>، <code>add_request_id_middleware</code>)</td>
+</tr>
+<tr>
+<td><code>logging_config.py</code></td>
+<td>إعداد التسجيل المهيكل (JSON) باستخدام structlog</td>
+</tr>
+<tr>
+<td><code>platform.py</code></td>
+<td>طبقة منصة متعددة المستأجرين v16.0.0 - عزل المستأجر الكامل عبر جميع طبقات البنية التحتية</td>
+</tr>
+<tr>
+<td><code>startup_checks.py</code></td>
+<td>فحوصات بدء تشغيل الخدمة (الاتصال بقاعدة البيانات، NATS، Redis)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_15">ملاحظات الاستخدام<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h2>
+<h3 id="_16">نمط الاستيراد القياسي<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># المصادقة</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_user</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+
+<span class="c1"># الأحداث</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.subjects</span><span class="w"> </span><span class="kn">import</span> <span class="n">SAHOOL_FIELD_CREATED</span><span class="p">,</span> <span class="n">get_tenant_subject</span>
+
+<span class="c1"># معالجة الأخطاء</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.errors_py</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_request_id_middleware</span><span class="p">,</span> <span class="n">setup_exception_handlers</span>
+
+<span class="c1"># التسجيل</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.logging_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_logging</span>
+
+<span class="c1"># منصة المستأجر</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">TenantContext</span>
+</code></pre></div>
+
+<h3 id="_17">التقسيم حسب الطبقة المعمارية<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>طبقة البنية التحتية</strong> (23 وحدة): المصادقة، التخزين المؤقت، قاعدة البيانات، الأحداث، المراقبة، الأمان</li>
+<li><strong>طبقة الذكاء الاصطناعي</strong> (10 وحدات): الذكاء الاصطناعي، LLM، NLP، الأقمار الصناعية، الوكلاء، ML</li>
+<li><strong>طبقة منطق المجال الزراعي</strong> (35+ وحدة): المحاصيل، الري، التربة، الآفات، الطقس، المعدات</li>
+<li><strong>طبقة التحليلات والأعمال</strong> (15+ وحدة): لوحات التحكم، التقارير، العمليات، الأسواق</li>
+<li><strong>طبقة التكوين والأدوات</strong> (6 ملفات علوية): CORS، DevOps، الأخطاء، التسجيل، المنصة، الفحوصات</li>
+</ul>
+<h3 id="_18">الترميز والتدويل<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ul>
+<li>جميع الوحدات تدعم <strong>العربية/الإنجليزية</strong> (ثنائية اللغة) في الرسائل والتوصيات</li>
+<li>جميع الوحدات تعتمد <strong>عزل المستأجر</strong> (Tenant Isolation) عبر <code>tenant_id</code> من مطالبة <code>tid</code> في JWT</li>
+<li>جميع الوحدات تتبع <strong>بنية موجهة بالأحداث</strong> عبر NATS مع أنماط <code>sahool.{domain}.{action}</code></li>
+</ul>
+<hr />
+<p><em>آخر تحديث: أبريل 2026</em></p>
+<p><em>إصدار المنصة: 16.0.0</em></p>
+<hr />
+<h2 id="_19">مراجع إضافية<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h2>
+<h3 id="_20">المستندات ذات الصلة في المشروع<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المستند</th>
+<th>المسار</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الخريطة الرئيسية للخدمات</td>
+<td><code>docs/SERVICES_MAP.md</code></td>
+</tr>
+<tr>
+<td>توثيق خدمات Backend</td>
+<td><code>docs/BACKEND_SERVICES_DOCUMENTATION.md</code></td>
+</tr>
+<tr>
+<td>مرجع خدمات Docker</td>
+<td><code>docs/DOCKER_SERVICES_REFERENCE.md</code></td>
+</tr>
+<tr>
+<td>بوابة API</td>
+<td><code>docs/API_GATEWAY.md</code></td>
+</tr>
+<tr>
+<td>الأمان</td>
+<td><code>docs/SECURITY.md</code></td>
+</tr>
+<tr>
+<td>النشر</td>
+<td><code>docs/DEPLOYMENT.md</code></td>
+</tr>
+<tr>
+<td>الرصد والملاحظة</td>
+<td><code>docs/OBSERVABILITY.md</code></td>
+</tr>
+<tr>
+<td>كتاب التشغيل (Runbooks)</td>
+<td><code>docs/RUNBOOKS.md</code></td>
+</tr>
+<tr>
+<td>سجل الخدمات (Source of Truth)</td>
+<td><code>governance/services.yaml</code></td>
+</tr>
+<tr>
+<td>تعريف الوكلاء</td>
+<td><code>governance/agents.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_21">أوامر التشغيل السريع<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># البدء السريع للمطوّرين الجدد</span>
+make<span class="w"> </span>quickstart
+
+<span class="c1"># تشغيل البيئة الكاملة</span>
+make<span class="w"> </span>dev
+
+<span class="c1"># البنية التحتية فقط</span>
+make<span class="w"> </span>infra-up
+
+<span class="c1"># حالة الخدمات</span>
+make<span class="w"> </span>status
+make<span class="w"> </span>health
+
+<span class="c1"># بناء كل الصور</span>
+make<span class="w"> </span>build
+
+<span class="c1"># السجلات</span>
+make<span class="w"> </span>logs
+make<span class="w"> </span>logs-service<span class="w"> </span><span class="nv">SERVICE</span><span class="o">=</span>&lt;service-name&gt;
+</code></pre></div>
+
+<h3 id="_22">هيكل المستودع على مستوى عالٍ<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">sahool</span><span class="o">-</span><span class="nx">unified</span><span class="o">-</span><span class="nx">v15</span><span class="o">-</span><span class="nx">idp</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">apps</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">admin</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">بوابة</span><span class="w"> </span><span class="nx">الإدارة</span><span class="w"> </span><span class="p">(</span><span class="nx">React</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">web</span><span class="o">/</span><span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nx">لوحة</span><span class="w"> </span><span class="nx">Web</span><span class="w"> </span><span class="p">(</span><span class="nx">Next</span><span class="p">.</span><span class="nx">js</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">mobile</span><span class="o">/</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">تطبيق</span><span class="w"> </span><span class="nx">Flutter</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">kernel</span><span class="o">/</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">وحدات</span><span class="w"> </span><span class="nx">Python</span><span class="w"> </span><span class="nx">الأساسية</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">services</span><span class="o">/</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="mi">73</span><span class="w"> </span><span class="nx">خدمة</span><span class="w"> </span><span class="nx">مصغرة</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">packages</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="mi">27</span><span class="w"> </span><span class="nx">حزمة</span><span class="w"> </span><span class="nx">npm</span><span class="w"> </span><span class="nx">مشتركة</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">shared</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="mi">89</span><span class="w"> </span><span class="nx">وحدة</span><span class="w"> </span><span class="nx">Python</span><span class="w"> </span><span class="nx">مشتركة</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">docker</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">ملفات</span><span class="w"> </span><span class="nx">Docker</span><span class="w"> </span><span class="kd">base</span><span class="w"> </span><span class="nx">وأدوات</span><span class="w"> </span><span class="nx">compose</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">helm</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">Helm</span><span class="w"> </span><span class="nx">charts</span><span class="w"> </span><span class="p">(</span><span class="mi">24</span><span class="w"> </span><span class="nx">chart</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">infrastructure</span><span class="o">/</span><span class="w">     </span><span class="err">#</span><span class="w"> </span><span class="nx">IaC</span><span class="err">،</span><span class="w"> </span><span class="nx">مراقبة</span><span class="err">،</span><span class="w"> </span><span class="nx">Terraform</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">governance</span><span class="o">/</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">سجل</span><span class="w"> </span><span class="nx">الخدمات</span><span class="w"> </span><span class="nx">والسياسات</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">idp</span><span class="o">/</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">منصة</span><span class="w"> </span><span class="nx">المطو</span><span class="err">ّ</span><span class="nx">ر</span><span class="w"> </span><span class="nx">الداخلية</span><span class="w"> </span><span class="p">(</span><span class="nx">Backstage</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">docs</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="mi">537</span><span class="o">+</span><span class="w"> </span><span class="nx">ملف</span><span class="w"> </span><span class="nx">توثيق</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">tests</span><span class="o">/</span><span class="w">              </span><span class="err">#</span><span class="w"> </span><span class="mi">19</span><span class="w"> </span><span class="nx">فئة</span><span class="w"> </span><span class="nx">اختبارات</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_23">خاتمة<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h2>
+<p>هذا المستند يمثّل خريطة مرجعية شاملة لجميع مكوّنات منصة SAHOOL على مستوى الخدمات والحاويات والوحدات المشتركة. يُرجى الرجوع إلى المستندات المتخصصة المذكورة أعلاه للحصول على تفاصيل أعمق حول كل مكوّن على حدة.</p>
+<p><strong>آخر تحديث</strong>: 2026-04-10</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

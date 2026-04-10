@@ -1425,7 +1425,7 @@ Suitable for release notes, audit reviews, and compliance reporting.</p>
 <td>عدم حماية <code>verify_signature=False</code></td>
 <td>🔴 Critical</td>
 <td>✅ Closed</td>
-<td><code>shared/platform.py</code> — Gated behind <code>TRUST_GATEWAY_JWT</code> env var + <code># nosemgrep:</code></td>
+<td><code>shared/platform.py:ContextMiddleware._decode_jwt</code> — Defense-in-depth: signature is ALWAYS verified locally when <code>JWT_SECRET_KEY</code> is set, regardless of <code>TRUST_GATEWAY_JWT</code>. The unverified fallback path uses manual base64 claim decoding (not <code>jwt.decode(verify_signature=False)</code>) and still enforces <code>exp</code>.</td>
 </tr>
 <tr>
 <td>SEC-004</td>

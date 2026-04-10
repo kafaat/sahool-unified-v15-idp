@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Shield,
@@ -76,6 +76,11 @@ export default function AuditClient() {
       return matchesSearch && matchesAction;
     });
   }, [auditLogs, searchTerm, actionFilter]);
+
+  // Reset to first page whenever the filter scope changes.
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm, actionFilter, severityFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / MAX_VISIBLE_ROWS));
   const safePage = Math.min(page, totalPages - 1);

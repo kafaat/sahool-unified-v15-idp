@@ -213,6 +213,10 @@ export const teamApi = {
    */
   inviteMember: async (data: InviteRequest): Promise<TeamMember> => {
     return safeFetch(USER_ENDPOINTS.CREATE, async () => {
+      // Do NOT send tenantId from the client — the unified API client attaches
+      // X-Tenant-ID from the httpOnly-paired `tenant_id` cookie, and the
+      // backend also reads the tid claim from the JWT. A client-supplied
+      // tenantId would be a cross-tenant privilege escalation vector.
       const payload = {
         email: data.email,
         firstName: data.firstName,
@@ -220,7 +224,6 @@ export const teamApi = {
         phone: data.phone,
         role: data.role,
         password: generateTempPassword(), // Temporary password (crypto-safe)
-        tenantId: 'default-tenant', // Should come from context
         status: 'PENDING',
         emailVerified: false,
         phoneVerified: false,

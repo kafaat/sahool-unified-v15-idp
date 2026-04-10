@@ -26,11 +26,11 @@ const TASK_SERVICE_URL =
 
 // Allowlist the upstream host to prevent SSRF via tampered env at runtime.
 // We reject anything whose parsed hostname does not match a known good value.
-const ALLOWED_UPSTREAM_HOSTS = new Set(
+const ALLOWED_UPSTREAM_HOSTS = new Set<string>(
   (process.env.TASK_SERVICE_ALLOWED_HOSTS || 'task-service,localhost,127.0.0.1')
     .split(',')
-    .map((h) => h.trim())
-    .filter(Boolean),
+    .map((h: string) => h.trim())
+    .filter((h: string) => h.length > 0),
 );
 
 // Generic identifier pattern for task/field IDs.

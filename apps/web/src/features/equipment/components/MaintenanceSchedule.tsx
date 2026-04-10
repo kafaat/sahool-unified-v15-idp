@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { useMaintenanceRecords, useCompleteMaintenance } from '../hooks/useEquipment';
-import type { MaintenanceRecord, MaintenanceStatus } from '../types';
+import type { MaintenanceRecord } from '../types';
 import { Calendar, CheckCircle, AlertCircle, Loader2, Plus } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -16,26 +16,41 @@ interface MaintenanceScheduleProps {
   limit?: number;
 }
 
-const statusColors: Record<MaintenanceStatus, string> = {
+const statusColors: Record<string, string> = {
   scheduled: 'bg-blue-100 text-blue-800',
   in_progress: 'bg-yellow-100 text-yellow-800',
   completed: 'bg-green-100 text-green-800',
   overdue: 'bg-red-100 text-red-800',
 };
 
-const statusLabels: Record<MaintenanceStatus, string> = {
+const statusLabels: Record<string, string> = {
   scheduled: 'مجدولة',
   in_progress: 'قيد التنفيذ',
   completed: 'مكتملة',
   overdue: 'متأخرة',
 };
 
-const typeLabels = {
+const typeLabels: Record<string, string> = {
   routine: 'دورية',
   repair: 'إصلاح',
   inspection: 'فحص',
   emergency: 'طارئة',
 };
+
+const UNKNOWN_STATUS_CLASS = 'bg-gray-100 text-gray-700';
+const UNKNOWN_LABEL = 'غير محدد';
+
+/** Parse a maintenance date safely — returns null when invalid. */
+function safeParseDate(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatDateAr(value: string | null | undefined): string {
+  const d = safeParseDate(value);
+  return d ? d.toLocaleDateString('ar-YE') : UNKNOWN_LABEL;
+}
 
 export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleProps) {
   const [showForm, setShowForm] = useState(false);
@@ -67,11 +82,20 @@ export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleP
     );
   }
 
+  const now = new Date();
   const upcomingRecords = records
-    ?.filter((r) => r.status === 'scheduled' && new Date(r.scheduledDate) >= new Date())
+    ?.filter((r) => {
+      if (r.status !== 'scheduled') return false;
+      const d = safeParseDate(r.scheduledDate);
+      return d !== null && d >= now;
+    })
     .slice(0, limit);
   const overdueRecords = records
-    ?.filter((r) => r.status === 'scheduled' && new Date(r.scheduledDate) < new Date())
+    ?.filter((r) => {
+      if (r.status !== 'scheduled') return false;
+      const d = safeParseDate(r.scheduledDate);
+      return d !== null && d < now;
+    })
     .slice(0, limit);
   const completedRecords = records?.filter((r) => r.status === 'completed').slice(0, limit || 5);
 
@@ -196,13 +220,13 @@ function MaintenanceRecordItem({
             <h4 className="font-medium text-gray-900">{record.descriptionAr}</h4>
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${
-                statusColors[record.status]
+                statusColors[record.status] ?? UNKNOWN_STATUS_CLASS
               }`}
             >
-              {statusLabels[record.status]}
+              {statusLabels[record.status] ?? UNKNOWN_LABEL}
             </span>
             <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
-              {typeLabels[record.type]}
+              {typeLabels[record.type] ?? UNKNOWN_LABEL}
             </span>
           </div>
 
@@ -211,17 +235,17 @@ function MaintenanceRecordItem({
           <div className="flex flex-wrap gap-4 text-sm text-gray-500">
             <span className="flex items-center">
               <Calendar className="w-4 h-4 ml-1" />
-              {new Date(record.scheduledDate).toLocaleDateString('ar-YE')}
+              {formatDateAr(record.scheduledDate)}
             </span>
 
             {record.completedDate && (
               <span className="flex items-center text-green-600">
                 <CheckCircle className="w-4 h-4 ml-1" />
-                أُكملت في {new Date(record.completedDate).toLocaleDateString('ar-YE')}
+                أُكملت في {formatDateAr(record.completedDate)}
               </span>
             )}
 
-            {record.cost && (
+            {typeof record.cost === 'number' && Number.isFinite(record.cost) && (
               <span className="font-medium">
                 التكلفة: {record.cost.toLocaleString('ar-YE')} ريال
               </span>

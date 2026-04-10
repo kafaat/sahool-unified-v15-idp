@@ -34,13 +34,13 @@ export interface PivotStats {
 
 /**
  * Pivot-specific endpoints under the irrigation-smart service (port 8094).
- * These are not in the shared contracts yet, so we define them locally.
+ * Pivot control uses the shared contract; speed control is not yet exposed
+ * in the shared contracts (pending backend implementation).
  */
 const PIVOT_ENDPOINTS = {
   LIST: `${IRRIGATION_ENDPOINTS.SCHEDULES_LIST}?type=pivot`,
   STATS: IRRIGATION_ENDPOINTS.EFFICIENCY,
-  /** TODO: Pivot control endpoint does not exist yet in the backend. Pending implementation in irrigation-smart service. */
-  CONTROL: '/api/v1/irrigation/pivot/control',
+  CONTROL: IRRIGATION_ENDPOINTS.PIVOT_CONTROL,
   /** TODO: Pivot speed endpoint — pending implementation in irrigation-smart service. */
   SPEED: '/api/v1/irrigation/pivot/speed',
 } as const;

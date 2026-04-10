@@ -14,8 +14,59 @@ import {
   Clock,
   X,
 } from 'lucide-react';
-import { useDocuments, useDocumentStats, useUploadDocument } from '@/features/documents';
+import {
+  useDocuments,
+  useDocumentStats,
+  useUploadDocument,
+  useDeleteDocument,
+  documentsApi,
+} from '@/features/documents';
 import type { DocumentCategory, DocumentStatus } from '@/features/documents';
+
+// File upload validation constants
+const MAX_UPLOAD_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
+const ALLOWED_MIME_TYPES = new Set<string>([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+  'application/msword', // .doc
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+  'application/vnd.ms-excel', // .xls
+  'text/csv',
+  'text/plain',
+]);
+const ALLOWED_EXTENSIONS = new Set<string>([
+  'pdf', 'jpg', 'jpeg', 'png', 'webp', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt',
+]);
+const MAX_TITLE_LENGTH = 200;
+
+/** Strip control chars and common XSS-prone characters from user-supplied titles. */
+function sanitizeTitle(input: string): string {
+  // Remove control characters (0x00-0x1F, 0x7F), zero-width chars, and trim
+  // eslint-disable-next-line no-control-regex
+  return input.replace(/[\u0000-\u001F\u007F\u200B-\u200F\u2028-\u202F]/g, '').trim().slice(0, MAX_TITLE_LENGTH);
+}
+
+/** Validate file extension, MIME, and size. Returns error message (Arabic) or null if valid. */
+function validateUploadFile(file: File | null): string | null {
+  if (!file) return 'يرجى اختيار ملف';
+  if (file.size === 0) return 'الملف فارغ';
+  if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+    return `حجم الملف يتجاوز الحد المسموح (${MAX_UPLOAD_SIZE_BYTES / (1024 * 1024)} MB)`;
+  }
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+  if (!ALLOWED_EXTENSIONS.has(ext)) {
+    return `امتداد الملف غير مسموح (.${ext})`;
+  }
+  // MIME type check — some browsers leave it empty; allow empty only if extension matches
+  if (file.type && !ALLOWED_MIME_TYPES.has(file.type)) {
+    return `نوع الملف غير مسموح (${file.type})`;
+  }
+  return null;
+}
 
 const categoryConfig: Record<
   DocumentCategory,
@@ -50,9 +101,21 @@ const categoryOptions: Array<{ value: DocumentCategory | 'all'; labelAr: string 
 ];
 
 function formatFileSize(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes < 0) return '0 B';
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
+ * Strip bidi overrides, zero-width chars, and control characters from strings
+ * shown in the document table to prevent filename/title spoofing attacks.
+ * React already escapes HTML — this guards against visual deception, not XSS.
+ */
+function sanitizeDisplay(input: string | undefined | null): string {
+  if (!input) return '';
+  // eslint-disable-next-line no-control-regex
+  return input.replace(/[\u0000-\u001F\u007F\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '').slice(0, 300);
 }
 
 export default function DocumentsClient() {
@@ -63,14 +126,32 @@ export default function DocumentsClient() {
   const [uploadTitleAr, setUploadTitleAr] = useState('');
   const [uploadCategory, setUploadCategory] = useState<DocumentCategory>('reports');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const uploadDocument = useUploadDocument();
+  const deleteDocument = useDeleteDocument();
+
+  const handleFileChange = (file: File | null) => {
+    setUploadFile(file);
+    const err = file ? validateUploadFile(file) : null;
+    setUploadError(err);
+  };
 
   const handleUpload = () => {
-    if (!uploadFile || !uploadTitleAr) return;
+    const cleanTitleAr = sanitizeTitle(uploadTitleAr);
+    const cleanTitle = sanitizeTitle(uploadTitle);
+    if (!uploadFile || !cleanTitleAr) {
+      setUploadError('يرجى إكمال الحقول المطلوبة');
+      return;
+    }
+    const fileError = validateUploadFile(uploadFile);
+    if (fileError) {
+      setUploadError(fileError);
+      return;
+    }
     const formData = new FormData();
-    formData.append('title', uploadTitle);
-    formData.append('titleAr', uploadTitleAr);
+    formData.append('title', cleanTitle);
+    formData.append('titleAr', cleanTitleAr);
     formData.append('category', uploadCategory);
     formData.append('file', uploadFile);
     uploadDocument.mutate(formData, {
@@ -80,8 +161,37 @@ export default function DocumentsClient() {
         setUploadTitleAr('');
         setUploadCategory('reports');
         setUploadFile(null);
+        setUploadError(null);
+      },
+      onError: (err) => {
+        setUploadError(err instanceof Error ? err.message : 'فشل في رفع الملف');
       },
     });
+  };
+
+  const handleDownload = async (id: string, fileName: string) => {
+    try {
+      const blob = await documentsApi.downloadDocument(id);
+      // Sanitize filename before using in href/download to avoid injection
+      const safeName = fileName.replace(/[\u0000-\u001F\u007F<>:"/\\|?*]/g, '_').slice(0, 200);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = safeName || 'document';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Swallowed; the hook/query layer surfaces errors globally
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (typeof window !== 'undefined' && !window.confirm('هل أنت متأكد من حذف هذه الوثيقة؟')) {
+      return;
+    }
+    deleteDocument.mutate(id);
   };
 
   const {
@@ -156,12 +266,23 @@ export default function DocumentsClient() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">الملف</label>
-                <input type="file" onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 text-sm" />
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.doc,.docx,.xls,.xlsx,.csv,.txt,application/pdf,image/*"
+                  onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 text-sm"
+                />
+                <p className="text-xs text-gray-500 mt-1">الحد الأقصى: 20 ميجابايت | PDF, JPG, PNG, DOCX, XLSX, CSV</p>
               </div>
+              {uploadError && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+                  {uploadError}
+                </div>
+              )}
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowUploadDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleUpload} disabled={uploadDocument.isPending || !uploadFile || !uploadTitleAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+              <button onClick={() => { setShowUploadDialog(false); setUploadError(null); }} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleUpload} disabled={uploadDocument.isPending || !uploadFile || !uploadTitleAr || !!uploadError} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
                 {uploadDocument.isPending ? 'جاري الرفع...' : 'رفع'}
               </button>
             </div>
@@ -282,8 +403,12 @@ export default function DocumentsClient() {
                         <div className="flex items-center gap-3">
                           <CatIcon className={`w-5 h-5 ${cat.color}`} />
                           <div>
-                            <div className="font-medium text-gray-900">{doc.titleAr}</div>
-                            <div className="text-xs text-gray-500">{doc.fileName}</div>
+                            <div className="font-medium text-gray-900" title={sanitizeDisplay(doc.titleAr)}>
+                              {sanitizeDisplay(doc.titleAr)}
+                            </div>
+                            <div className="text-xs text-gray-500 truncate max-w-[260px]" title={sanitizeDisplay(doc.fileName)}>
+                              {sanitizeDisplay(doc.fileName)}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -304,10 +429,21 @@ export default function DocumentsClient() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <button className="p-1.5 text-sahool-green-600 hover:bg-sahool-green-50 rounded">
+                          <button
+                            type="button"
+                            aria-label="تنزيل الوثيقة"
+                            onClick={() => handleDownload(doc.id, doc.fileName)}
+                            className="p-1.5 text-sahool-green-600 hover:bg-sahool-green-50 rounded disabled:opacity-50"
+                          >
                             <Download className="w-4 h-4" />
                           </button>
-                          <button className="p-1.5 text-red-500 hover:bg-red-50 rounded">
+                          <button
+                            type="button"
+                            aria-label="حذف الوثيقة"
+                            onClick={() => handleDelete(doc.id)}
+                            disabled={deleteDocument.isPending}
+                            className="p-1.5 text-red-500 hover:bg-red-50 rounded disabled:opacity-50"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>

@@ -90,7 +90,9 @@ function buildRecentCases(epidemics: Epidemic[]) {
       disease: e.nameAr || e.name,
       governorate: e.region,
       severity: e.severity,
-      confidence: Math.round(90 + Math.random() * 8),
+      // Confidence is not returned by the epidemics endpoint — display "--"
+      // instead of fabricating a random value.
+      confidence: null as number | null,
       date: e.reportedAt?.split('T')[0] ?? '',
       farm: '-',
     }));
@@ -439,15 +441,19 @@ export default function EpidemicClient() {
                         <td className="p-4 text-gray-600">{c.governorate}</td>
                         <td className="p-4 text-gray-600">{c.farm}</td>
                         <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-green-500 rounded-full"
-                                style={{ width: `${c.confidence}%` }}
-                              />
+                          {c.confidence != null ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-green-500 rounded-full"
+                                  style={{ width: `${c.confidence}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium">{c.confidence}%</span>
                             </div>
-                            <span className="text-sm font-medium">{c.confidence}%</span>
-                          </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">--</span>
+                          )}
                         </td>
                         <td className="p-4 text-gray-500">{c.date}</td>
                       </tr>

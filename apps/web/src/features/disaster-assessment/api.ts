@@ -49,8 +49,9 @@ export const disasterApi = {
   },
 
   getRiskById: async (id: string): Promise<RiskAssessment> => {
-    return safeFetch(`${DISASTER_ENDPOINTS.ASSESS}/risks/${id}`, async () => {
-      const response = await api.get(`${DISASTER_ENDPOINTS.ASSESS}/risks/${id}`);
+    const safeId = encodeURIComponent(id);
+    return safeFetch(`${DISASTER_ENDPOINTS.ASSESS}/risks/${safeId}`, async () => {
+      const response = await api.get(`${DISASTER_ENDPOINTS.ASSESS}/risks/${safeId}`);
       return response.data.data || response.data;
     });
   },

@@ -132,17 +132,35 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
 
   // GeoJSON hover/interaction handlers
   const onEachFeature = (feature: GeoJSON.Feature, layer: L.Layer) => {
-    const props = feature.properties ?? {};
+    const props = (feature.properties ?? {}) as Record<string, unknown>;
 
     if (typeof (layer as L.Path).bindPopup === 'function') {
-      // Sanitize values to prevent XSS from external GeoJSON properties
-      const esc = (v: unknown) => String(v ?? '').replace(/[<>&"']/g, (c) => `&#${c.charCodeAt(0)};`);
+      // Sanitize values to prevent XSS from external GeoJSON properties.
+      // All interpolated values (including numbers) are coerced to string via esc()
+      // BEFORE any formatting, and undefined fields are rendered as "—".
+      const esc = (v: unknown) =>
+        v === undefined || v === null
+          ? '—'
+          : String(v).replace(/[<>&"']/g, (c) => `&#${c.charCodeAt(0)};`);
+      const fmt = (v: unknown, digits: number): string =>
+        typeof v === 'number' && Number.isFinite(v) ? esc(v.toFixed(digits)) : '—';
+
+      const zoneName = esc(props.zoneName);
+      const zoneNameAr = esc(props.zoneNameAr);
+      const unit = esc(props.unit);
+      const ndviRange = `${fmt(props.ndviMin, 2)} – ${fmt(props.ndviMax, 2)}`;
+      const rate = fmt(props.recommendedRate, 2);
+      const total = fmt(props.totalProduct, 2);
+      const areaHa = fmt(props.areaHa, 2);
+      const pct = fmt(props.percentage, 1);
+
       const safeContent = `
-        <div style="direction:rtl;font-family:Tajawal,sans-serif;min-width:180px">
-          <h4 style="margin:0 0 6px;font-size:14px">${esc(props.zone)} — ${esc(props.crop)}</h4>
-          <p><strong>NDVI:</strong> ${esc(props.ndvi.toFixed(3))}</p>
-          <p><strong>Rate | المعدل:</strong> ${esc(props.rate.toFixed(1))} ${esc(props.unit)}/ha</p>
-          <p><strong>Total Product | إجمالي المنتج:</strong> ${esc(props.totalProduct.toFixed(2))} ${esc(props.unit)}</p>
+        <div style="direction:rtl;font-family:Tajawal,sans-serif;min-width:200px">
+          <h4 style="margin:0 0 6px;font-size:14px">${zoneName} — ${zoneNameAr}</h4>
+          <p><strong>NDVI:</strong> ${ndviRange}</p>
+          <p><strong>Rate | المعدل:</strong> ${rate} ${unit}</p>
+          <p><strong>Total Product | إجمالي المنتج:</strong> ${total} ${unit}</p>
+          <p><strong>Area | المساحة:</strong> ${areaHa} ha (${pct}%)</p>
         </div>
       `;
       (layer as L.Path).bindPopup(safeContent);

@@ -255,23 +255,40 @@ export const vegetationIndicesApi = {
   },
 
   /**
-   * Get interpreted indices with recommendations for a field
+   * Get interpreted indices with recommendations for a field.
    * الحصول على تفسير المؤشرات مع التوصيات لحقل
    *
+   * NOTE: the vegetation-analysis-service /v1/indices/interpret endpoint is
+   * POST with a JSON body `{ field_id, indices, crop_type, growth_stage }`.
+   * Prior versions of this client called it as GET with query params which
+   * silently failed with 405. Callers must supply a map of already-computed
+   * index values (typically fetched via `getFieldIndices` first).
+   *
    * @param fieldId - Field identifier
-   * @param date - Optional specific date (ISO 8601)
+   * @param indices - Pre-computed vegetation index values (e.g. {ndvi: 0.65})
+   * @param cropType - Crop type (e.g. "wheat", "date_palm")
+   * @param growthStage - Growth stage (e.g. "vegetative", "reproductive")
    */
   interpretIndices: async (
     fieldId: string,
-    date?: string
+    indices: Record<string, number>,
+    cropType: string = 'unknown',
+    growthStage: string = 'vegetative',
   ): Promise<IndicesInterpretation> => {
     const endpoint = `${API_PREFIX}/satellite/v1/indices/interpret`;
     return safeFetch(endpoint, async () => {
-      const params = new URLSearchParams();
-      params.set('field_id', fieldId);
-      if (date) params.set('date', date);
-
-      const response = await api.get(`${endpoint}?${params.toString()}`);
+      if (!fieldId || typeof fieldId !== 'string') {
+        throw new Error('fieldId is required for interpretIndices');
+      }
+      if (!indices || typeof indices !== 'object' || Object.keys(indices).length === 0) {
+        throw new Error('At least one index value is required for interpretIndices');
+      }
+      const response = await api.post(endpoint, {
+        field_id: fieldId,
+        indices,
+        crop_type: cropType,
+        growth_stage: growthStage,
+      });
       return response.data;
     });
   },

@@ -67,13 +67,29 @@ export async function getToday(): Promise<DailyAstronomicalData> {
 }
 
 /**
+ * التحقق من صيغة التاريخ YYYY-MM-DD لمنع حقن المسار
+ * Validate YYYY-MM-DD date format to prevent path injection.
+ */
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function assertIsoDate(date: string, label: string): void {
+  if (!ISO_DATE_RE.test(date)) {
+    throw new Error(
+      `Invalid ${label}: expected YYYY-MM-DD, got "${date}"`,
+    );
+  }
+}
+
+/**
  * الحصول على البيانات الفلكية لتاريخ محدد
  * Get astronomical data for a specific date
  * @param date - التاريخ بصيغة YYYY-MM-DD
  */
 export async function getDate(date: string): Promise<DailyAstronomicalData> {
-  return safeFetch(`${ASTRONOMICAL_API_BASE}/date/${date}`, async () => {
-    const response = await api.get(`${ASTRONOMICAL_API_BASE}/date/${date}`);
+  assertIsoDate(date, 'date');
+  const safe = encodeURIComponent(date);
+  return safeFetch(`${ASTRONOMICAL_API_BASE}/date/${safe}`, async () => {
+    const response = await api.get(`${ASTRONOMICAL_API_BASE}/date/${safe}`);
     return response.data.data || response.data;
   });
 }
@@ -84,7 +100,8 @@ export async function getDate(date: string): Promise<DailyAstronomicalData> {
  * @param startDate - تاريخ البداية (اختياري) بصيغة YYYY-MM-DD
  */
 export async function getWeeklyForecast(startDate?: string): Promise<WeeklyForecast> {
-  const params = startDate ? `?start_date=${startDate}` : '';
+  if (startDate) assertIsoDate(startDate, 'startDate');
+  const params = startDate ? `?start_date=${encodeURIComponent(startDate)}` : '';
   return safeFetch(`${ASTRONOMICAL_API_BASE}/week`, async () => {
     const response = await api.get(`${ASTRONOMICAL_API_BASE}/week${params}`);
     return response.data.data || response.data;
@@ -97,7 +114,8 @@ export async function getWeeklyForecast(startDate?: string): Promise<WeeklyForec
  * @param date - التاريخ (اختياري) بصيغة YYYY-MM-DD
  */
 export async function getMoonPhase(date?: string): Promise<MoonPhase> {
-  const params = date ? `?date_str=${date}` : '';
+  if (date) assertIsoDate(date, 'date');
+  const params = date ? `?date_str=${encodeURIComponent(date)}` : '';
   return safeFetch(`${ASTRONOMICAL_API_BASE}/moon-phase`, async () => {
     const response = await api.get(`${ASTRONOMICAL_API_BASE}/moon-phase${params}`);
     return response.data.data || response.data;
@@ -110,7 +128,8 @@ export async function getMoonPhase(date?: string): Promise<MoonPhase> {
  * @param date - التاريخ (اختياري) بصيغة YYYY-MM-DD
  */
 export async function getLunarMansion(date?: string): Promise<LunarMansion> {
-  const params = date ? `?date_str=${date}` : '';
+  if (date) assertIsoDate(date, 'date');
+  const params = date ? `?date_str=${encodeURIComponent(date)}` : '';
   return safeFetch(`${ASTRONOMICAL_API_BASE}/lunar-mansion`, async () => {
     const response = await api.get(`${ASTRONOMICAL_API_BASE}/lunar-mansion${params}`);
     return response.data.data || response.data;
@@ -123,7 +142,8 @@ export async function getLunarMansion(date?: string): Promise<LunarMansion> {
  * @param date - التاريخ الميلادي (اختياري) بصيغة YYYY-MM-DD
  */
 export async function getHijriDate(date?: string): Promise<HijriDate> {
-  const params = date ? `?date_str=${date}` : '';
+  if (date) assertIsoDate(date, 'date');
+  const params = date ? `?date_str=${encodeURIComponent(date)}` : '';
   return safeFetch(`${ASTRONOMICAL_API_BASE}/hijri`, async () => {
     const response = await api.get(`${ASTRONOMICAL_API_BASE}/hijri${params}`);
     return response.data.data || response.data;

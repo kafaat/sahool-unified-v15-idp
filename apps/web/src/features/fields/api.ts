@@ -15,8 +15,9 @@ interface ApiFieldResponse {
   id: string;
   name?: string;
   nameAr?: string;
-  areaHectares?: number;
-  area?: number;
+  // Prisma Decimal fields are serialized as strings; accept either.
+  areaHectares?: number | string;
+  area?: number | string;
   cropType?: string;
   crop?: string;
   cropTypeAr?: string;
@@ -150,6 +151,25 @@ export const ERROR_MESSAGES = {
 };
 
 /**
+ * Coerce a Prisma Decimal-ish value to a plain JS number.
+ * Prisma serializes Decimal as a string (or object) over JSON, so the
+ * UI must normalize before arithmetic (`.toFixed`, comparisons, etc.).
+ * تحويل قيم Decimal القادمة من قاعدة البيانات إلى أرقام عادية
+ */
+function toNumber(value: unknown): number {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  if (typeof value === 'string') {
+    const n = parseFloat(value);
+    return Number.isFinite(n) ? n : 0;
+  }
+  if (value && typeof value === 'object' && 'toString' in value) {
+    const n = parseFloat((value as { toString: () => string }).toString());
+    return Number.isFinite(n) ? n : 0;
+  }
+  return 0;
+}
+
+/**
  * Map API field to feature field
  */
 function mapApiFieldToField(apiField: ApiFieldResponse): Field {
@@ -159,11 +179,16 @@ function mapApiFieldToField(apiField: ApiFieldResponse): Field {
     centroid = { type: 'Point', coordinates: [apiField.centroidLng, apiField.centroidLat] };
   }
 
+  // Backend returns Decimal columns (areaHectares, healthScore, ndviValue)
+  // as JSON strings. Coerce to numbers so UI arithmetic/formatters don't
+  // silently produce NaN or throw (e.g. `.toFixed` on a string).
+  const area = toNumber(apiField.areaHectares ?? apiField.area);
+
   return {
     id: apiField.id,
     name: apiField.name || '',
     nameAr: apiField.nameAr || apiField.name || '',
-    area: apiField.areaHectares || apiField.area || 0,
+    area,
     crop: apiField.cropType || apiField.crop || '',
     cropAr: apiField.cropTypeAr || apiField.cropAr || apiField.cropType || apiField.crop || '',
     farmId: apiField.farmId || apiField.tenantId || '',
@@ -285,19 +310,29 @@ export const fieldsApi = {
   },
 
   /**
-   * Get field statistics
+   * Get field statistics.
+   *
+   * Backend route is `GET /api/v1/fields/stats/:tenantId` (tenantId as
+   * a path param). The request is always scoped to the authenticated
+   * tenant server-side, so we only need to pass a non-empty string to
+   * satisfy the NestJS route matcher — the server overrides it with
+   * the JWT's `tid` claim via `assertTenantOwnership`.
+   * تم تصحيح الاستدعاء ليطابق مسار الخدمة الخلفية
    */
   getStats: async (
-    farmId?: string
+    tenantId?: string
   ): Promise<{
     total: number;
     totalArea: number;
     byCrop: Record<string, number>;
   }> => {
-    return safeFetch(`${FIELD_ENDPOINTS.LIST}/stats`, async () => {
-      const params = new URLSearchParams();
-      if (farmId) params.set('tenantId', farmId);
-      const response = await api.get(`${FIELD_ENDPOINTS.LIST}/stats?${params.toString()}`);
+    // Use a placeholder when tenantId is not supplied; the backend will
+    // reject any mismatch via assertTenantOwnership and always scope the
+    // statistics to the authenticated user's tenant.
+    const tenantSegment = tenantId && tenantId.length > 0 ? tenantId : 'current';
+    const url = `${FIELD_ENDPOINTS.LIST}/stats/${encodeURIComponent(tenantSegment)}`;
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },

@@ -149,7 +149,7 @@ export default function SeedsClient() {
               <div className="text-sm text-gray-500">متوسط سعر الكيلو</div>
               <div className="text-xl font-bold text-blue-600">
                 {isLoading ? '...' : allSeeds.length > 0
-                  ? (allSeeds.reduce((s: number, v: Seed) => s + v.pricePerKg, 0) / allSeeds.length).toFixed(0)
+                  ? (allSeeds.reduce((s: number, v: Seed) => s + (Number(v.pricePerKg) || 0), 0) / allSeeds.length).toFixed(0)
                   : 0} ريال
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function SeedsClient() {
                 </div>
                 <span className="font-medium">{seed.origin}</span>
               </div>
-              {seed.recommendedRegions.length > 0 && (
+              {Array.isArray(seed.recommendedRegions) && seed.recommendedRegions.length > 0 && (
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500">المناطق</span>
                   <span className="font-medium text-xs">{seed.recommendedRegions.join(', ')}</span>

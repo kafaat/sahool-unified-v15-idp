@@ -56,7 +56,7 @@ export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) 
               <div>
                 <p className="text-sm text-gray-600">رطوبة التربة</p>
                 <p className="text-3xl font-bold text-blue-600 mt-2">
-                  {stats.byType.soil_moisture || 0}
+                  {stats.byType?.soil_moisture ?? 0}
                 </p>
               </div>
               <div className="text-4xl opacity-50">💧</div>
@@ -68,7 +68,7 @@ export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) 
               <div>
                 <p className="text-sm text-gray-600">درجة الحرارة</p>
                 <p className="text-3xl font-bold text-orange-600 mt-2">
-                  {stats.byType.temperature || 0}
+                  {stats.byType?.temperature ?? 0}
                 </p>
               </div>
               <div className="text-4xl opacity-50">🌡️</div>
@@ -83,20 +83,26 @@ export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) 
           <h3 className="text-lg font-semibold text-gray-900 mb-4">حالة المستشعرات</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{stats.byStatus.active || 0}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {(stats.byStatus?.active ?? 0) + (stats.byStatus?.online ?? 0)}
+              </div>
               <div className="text-sm text-gray-600">نشط</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-600">{stats.byStatus.inactive || 0}</div>
+              <div className="text-2xl font-bold text-gray-600">
+                {(stats.byStatus?.inactive ?? 0) + (stats.byStatus?.offline ?? 0)}
+              </div>
               <div className="text-sm text-gray-600">غير نشط</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{stats.byStatus.error || 0}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {stats.byStatus?.error ?? 0}
+              </div>
               <div className="text-sm text-gray-600">خطأ</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">
-                {stats.byStatus.maintenance || 0}
+                {stats.byStatus?.maintenance ?? 0}
               </div>
               <div className="text-sm text-gray-600">صيانة</div>
             </div>

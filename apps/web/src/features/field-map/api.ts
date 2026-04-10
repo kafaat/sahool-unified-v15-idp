@@ -98,10 +98,14 @@ export const fieldMapApi = {
   },
 
   /**
-   * Update field
+   * Update field.
+   *
+   * Backend route is `@Put(":id")` — not PATCH. Using PATCH here
+   * produced a 404 from the NestJS router.
+   * تم تصحيح أسلوب HTTP ليطابق مسار الخدمة الخلفية (PUT بدل PATCH)
    */
   updateField: async (id: string, data: FieldUpdate): Promise<Field> => {
-    const response = await api.patch(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), data);
+    const response = await api.put(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), data);
     return response.data;
   },
 

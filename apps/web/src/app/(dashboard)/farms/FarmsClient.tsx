@@ -219,7 +219,10 @@ export default function FarmsClient() {
           <div className="col-span-full text-center py-12 text-gray-500">لا توجد مزارع</div>
         ) : (
           filteredFarms.map((farm) => {
-            const st = statusConfig[farm.status];
+            // Defensive lookup: backend Farm model may not return a status
+            // field (it's a UI-only convention), so fall back to 'active'.
+            // استعلام آمن للحالة مع قيمة افتراضية عند عدم إرجاع الحقل من الخلفية
+            const st = statusConfig[farm.status] ?? statusConfig.active;
             return (
               <div
                 key={farm.id}

@@ -14,10 +14,32 @@ import { logger } from '@/lib/logger';
 // Constants
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TERRAIN_SERVICE_URL =
-  process.env.TERRAIN_SERVICE_URL || 'http://terrain-core-service:8185';
+/**
+ * Upstream terrain service base URL. Validated at module load to prevent
+ * accidental SSRF via mis-configured env vars. Must be an http(s):// URL.
+ */
+function resolveTerrainServiceUrl(): string {
+  const raw = process.env.TERRAIN_SERVICE_URL || 'http://terrain-core-service:8185';
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+      throw new Error('unsupported protocol');
+    }
+    // Strip trailing slash so we can safely concatenate paths.
+    return raw.replace(/\/+$/, '');
+  } catch {
+    // Fall back to a safe default rather than exposing the malformed value.
+    return 'http://terrain-core-service:8185';
+  }
+}
 
-const REQUEST_TIMEOUT_MS = 15_000;
+const TERRAIN_SERVICE_URL = resolveTerrainServiceUrl();
+
+// Terrain analysis (DEM acquisition + slope/aspect/flow) can take 30-60s for
+// large fields. GET lookups are faster. Differentiate so slow analyses do not
+// time out prematurely while still bounding GETs to keep the event loop healthy.
+const GET_TIMEOUT_MS = 20_000;
+const ANALYZE_TIMEOUT_MS = 90_000;
 
 /** Validate IDs to prevent path traversal */
 const SAFE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;

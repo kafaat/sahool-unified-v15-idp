@@ -127,21 +127,42 @@ export const tasksApi = {
   /**
    * Get all tasks with optional filters
    * جلب جميع المهام مع فلاتر اختيارية
+   *
+   * Backend contract: GET /api/v1/tasks
+   *   - Query params: field_id, status, priority, assigned_to, due_before,
+   *     due_after, limit (1-100), offset (>=0)
+   *   - Response shape: { tasks: [...], total, limit, offset }
+   *
+   * Note: backend list endpoint does not support free-text search; the
+   * `search` filter is intentionally ignored to avoid 422 errors.
    */
   getTasks: async (filters?: TaskFilters): Promise<Task[]> => {
     return safeFetch(TASK_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
-      if (filters?.field_id) params.set('fieldId', filters.field_id);
+      // Use backend snake_case param names (see task-service/src/routes/tasks.py)
+      if (filters?.field_id) params.set('field_id', filters.field_id);
       if (filters?.status) params.set('status', mapStatusToBackend(filters.status));
-      if (filters?.assigned_to) params.set('userId', filters.assigned_to);
+      if (filters?.assigned_to) params.set('assigned_to', filters.assigned_to);
       if (filters?.priority) params.set('priority', filters.priority);
-      if (filters?.search) params.set('search', filters.search);
-      if (filters?.due_date_from) params.set('dueDateFrom', filters.due_date_from);
-      if (filters?.due_date_to) params.set('dueDateTo', filters.due_date_to);
+      if (filters?.due_date_from) params.set('due_after', filters.due_date_from);
+      if (filters?.due_date_to) params.set('due_before', filters.due_date_to);
+      if (filters?.limit !== undefined) params.set('limit', String(filters.limit));
+      if (filters?.offset !== undefined) params.set('offset', String(filters.offset));
 
       const response = await api.get(`${TASK_ENDPOINTS.LIST}?${params.toString()}`);
-      const data = response.data.data || response.data;
-      if (Array.isArray(data)) return data.map(mapApiTaskToTask);
+      // Backend returns { tasks: [...], total, limit, offset }. Also tolerate a
+      // flat array or an envelope { data: [...] } from upstream variants.
+      const body = response.data;
+      const envelopeData = body && typeof body === 'object' ? (body as Record<string, unknown>).data : undefined;
+      const tasksField = body && typeof body === 'object' ? (body as Record<string, unknown>).tasks : undefined;
+      const raw = Array.isArray(body)
+        ? body
+        : Array.isArray(tasksField)
+          ? tasksField
+          : Array.isArray(envelopeData)
+            ? envelopeData
+            : null;
+      if (raw) return raw.map((t) => mapApiTaskToTask(t as ApiTask));
       throw new Error('Invalid response format for tasks | تنسيق الاستجابة غير صالح للمهام');
     });
   },
@@ -165,18 +186,24 @@ export const tasksApi = {
    */
   createTask: async (data: TaskFormData): Promise<Task> => {
     return safeFetch(TASK_ENDPOINTS.CREATE, async () => {
-      const payload = {
+      // Backend contract (task-service TaskCreateRequest):
+      //   title, title_ar, description, description_ar, task_type (enum),
+      //   priority (enum), field_id, assigned_to (UUID), due_date (ISO)
+      // NOTE: status is NOT accepted on create; the backend defaults to
+      // PENDING. Also the previous `assignee_id`/`taskType: 'general'` fields
+      // were silently dropped (Pydantic extra=ignore) and 'general' is not a
+      // valid TaskType enum value.
+      const payload: Record<string, unknown> = {
         title: data.title,
         title_ar: data.title_ar,
         description: data.description,
         description_ar: data.description_ar,
-        field_id: data.field_id || '',
-        assignee_id: data.assigned_to,
-        due_date: data.due_date,
         priority: data.priority,
-        status: data.status ? mapStatusToBackend(data.status) : 'pending',
-        taskType: 'general',
+        task_type: 'other',
       };
+      if (data.field_id) payload.field_id = data.field_id;
+      if (data.assigned_to) payload.assigned_to = data.assigned_to;
+      if (data.due_date) payload.due_date = data.due_date;
 
       const response = await api.post(TASK_ENDPOINTS.CREATE, payload);
       const taskData = response.data.data || response.data;
@@ -191,6 +218,9 @@ export const tasksApi = {
    */
   updateTask: async (id: string, data: Partial<TaskFormData>): Promise<Task> => {
     return safeFetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), async () => {
+      // Backend contract (task-service TaskUpdateRequest) expects snake_case
+      // `assigned_to` (not `assignee_id`). Previously the wrong field name
+      // caused silent data loss via Pydantic extra=ignore.
       const payload: Record<string, unknown> = {};
       if (data.title !== undefined) payload.title = data.title;
       if (data.title_ar !== undefined) payload.title_ar = data.title_ar;
@@ -199,7 +229,7 @@ export const tasksApi = {
       if (data.status !== undefined) payload.status = mapStatusToBackend(data.status);
       if (data.priority !== undefined) payload.priority = data.priority;
       if (data.due_date !== undefined) payload.due_date = data.due_date;
-      if (data.assigned_to !== undefined) payload.assignee_id = data.assigned_to;
+      if (data.assigned_to !== undefined) payload.assigned_to = data.assigned_to;
       if (data.field_id !== undefined) payload.field_id = data.field_id;
 
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
@@ -228,11 +258,14 @@ export const tasksApi = {
     evidence?: { notes?: string; photos?: string[] }
   ): Promise<Task> => {
     return safeFetch(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), async () => {
-      const payload = {
-        evidence_notes: evidence?.notes,
-        evidence_photos: evidence?.photos || [],
-        completed_at: new Date().toISOString(),
-      };
+      // Backend contract (task-service TaskCompleteRequest):
+      //   notes, notes_ar, photo_urls, actual_duration_minutes, completion_metadata
+      // The old `evidence_notes`/`evidence_photos`/`completed_at` fields were
+      // silently dropped (Pydantic extra=ignore). `completed_at` is set
+      // server-side from the trusted clock to prevent client clock abuse.
+      const payload: Record<string, unknown> = {};
+      if (evidence?.notes) payload.notes = evidence.notes;
+      if (evidence?.photos && evidence.photos.length > 0) payload.photo_urls = evidence.photos;
       const response = await api.post(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), payload);
       const taskData = response.data.data || response.data;
       if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
@@ -260,7 +293,8 @@ export const tasksApi = {
    */
   assignTask: async (id: string, userId: string): Promise<Task> => {
     return safeFetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), async () => {
-      const payload = { assignee_id: userId };
+      // Backend expects `assigned_to` snake_case (previously sent wrong key).
+      const payload = { assigned_to: userId };
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
       const taskData = response.data.data || response.data;
       if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);

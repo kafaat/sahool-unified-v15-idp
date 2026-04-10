@@ -5,7 +5,7 @@
  * التأمين الزراعي
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Shield,
   AlertTriangle,
@@ -16,7 +16,14 @@ import {
   XCircle,
   DollarSign,
   Wheat,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
+import { usePolicies, useClaims } from '../hooks/useCropInsurance';
+import type {
+  InsurancePolicy as ApiInsurancePolicy,
+  InsuranceClaim as ApiInsuranceClaim,
+} from '../types';
 
 interface InsurancePolicy {
   id: string;
@@ -49,6 +56,100 @@ interface Claim {
   filedDate: string;
   status: 'pending' | 'approved' | 'rejected' | 'under-review';
   statusAr: string;
+}
+
+// ── API → UI mappers ─────────────────────────────────────────────────────
+
+const POLICY_STATUS_MAP: Record<string, InsurancePolicy['status']> = {
+  active: 'active',
+  expired: 'expired',
+  draft: 'pending',
+  pending_approval: 'pending',
+  suspended: 'pending',
+  cancelled: 'expired',
+  claimed: 'claimed',
+};
+
+const POLICY_STATUS_AR: Record<InsurancePolicy['status'], string> = {
+  active: 'نشط',
+  expired: 'منتهي',
+  pending: 'قيد المراجعة',
+  claimed: 'تمت المطالبة',
+};
+
+const CLAIM_STATUS_MAP: Record<string, Claim['status']> = {
+  draft: 'pending',
+  submitted: 'pending',
+  under_review: 'under-review',
+  field_inspection: 'under-review',
+  approved: 'approved',
+  partially_approved: 'approved',
+  rejected: 'rejected',
+  paid: 'approved',
+  appealed: 'under-review',
+  closed: 'approved',
+};
+
+const CLAIM_STATUS_AR: Record<Claim['status'], string> = {
+  pending: 'قيد الانتظار',
+  approved: 'تمت الموافقة',
+  rejected: 'مرفوض',
+  'under-review': 'قيد الدراسة',
+};
+
+const CLAIM_TYPE_AR: Record<string, string> = {
+  crop_loss: 'خسارة محصول',
+  yield_shortfall: 'نقص إنتاج',
+  weather_event: 'حدث جوي',
+  pest_damage: 'أضرار آفات',
+  disease_damage: 'أضرار أمراض',
+  hail_damage: 'أضرار البرد',
+  flood_damage: 'أضرار فيضان',
+  drought_damage: 'أضرار جفاف',
+  frost_damage: 'أضرار صقيع',
+  fire_damage: 'أضرار حريق',
+  equipment_failure: 'عطل معدات',
+  parametric_trigger: 'مؤشر بارامتري',
+};
+
+function mapApiPolicyToUi(p: ApiInsurancePolicy): InsurancePolicy {
+  const status: InsurancePolicy['status'] = POLICY_STATUS_MAP[p.status] ?? 'pending';
+  return {
+    id: p.id,
+    policyNumber: p.policyNumber,
+    fieldName: p.fieldName ?? '',
+    fieldNameAr: p.fieldNameAr ?? p.fieldName ?? '',
+    crop: p.cropType ?? '',
+    cropAr: p.cropTypeAr ?? p.cropType ?? '',
+    area: Number(p.coverageAreaHa ?? 0),
+    coverageType: p.coverageDetails?.coverageType ?? '',
+    coverageTypeAr: p.coverageDetails?.coverageType ?? '',
+    premiumAmount: Number(p.premium?.totalPremium ?? 0),
+    coverageAmount: Number(p.coverageDetails?.sumInsured ?? 0),
+    startDate: p.policyStartDate ?? '',
+    endDate: p.policyEndDate ?? '',
+    status,
+    statusAr: POLICY_STATUS_AR[status],
+    // Risk isn't served on the policy; default to medium.
+    riskLevel: 'medium',
+    riskLevelAr: 'متوسط',
+  };
+}
+
+function mapApiClaimToUi(c: ApiInsuranceClaim): Claim {
+  const status: Claim['status'] = CLAIM_STATUS_MAP[c.claimStatus] ?? 'pending';
+  return {
+    id: c.claimNumber ?? c.id,
+    policyNumber: c.policyId,
+    type: c.claimType,
+    typeAr: CLAIM_TYPE_AR[c.claimType] ?? c.claimType,
+    description: c.lossDescription ?? '',
+    descriptionAr: c.lossDescriptionAr ?? c.lossDescription ?? '',
+    amount: Number(c.approvedAmount ?? c.estimatedLossAmount ?? 0),
+    filedDate: (c.claimDate ?? c.createdAt ?? '').split('T')[0] ?? '',
+    status,
+    statusAr: CLAIM_STATUS_AR[status],
+  };
 }
 
 const MOCK_POLICIES: InsurancePolicy[] = [
@@ -95,11 +196,55 @@ const claimStatusIcons: Record<string, React.ReactNode> = {
 export default function CropInsuranceClient() {
   const [activeTab, setActiveTab] = useState<'policies' | 'claims'>('policies');
 
-  const stats = {
-    activePolicies: MOCK_POLICIES.filter(p => p.status === 'active').length,
-    totalCoverage: MOCK_POLICIES.filter(p => p.status === 'active').reduce((s, p) => s + p.coverageAmount, 0),
-    pendingClaims: MOCK_CLAIMS.filter(c => c.status === 'pending' || c.status === 'under-review').length,
-    totalPremiums: MOCK_POLICIES.filter(p => p.status === 'active').reduce((s, p) => s + p.premiumAmount, 0),
+  const {
+    data: apiPolicies,
+    isLoading: policiesLoading,
+    isError: policiesError,
+    refetch: refetchPolicies,
+  } = usePolicies();
+  const {
+    data: apiClaims,
+    isLoading: claimsLoading,
+    isError: claimsError,
+    refetch: refetchClaims,
+  } = useClaims();
+
+  const isLoading = policiesLoading || claimsLoading;
+  const isError = policiesError || claimsError;
+
+  // Prefer live data; fall back to mocks only if both API calls fail (so the
+  // page still renders something useful in dev/offline mode).
+  const policies: InsurancePolicy[] = useMemo(() => {
+    if (apiPolicies && apiPolicies.length > 0) return apiPolicies.map(mapApiPolicyToUi);
+    if (isError) return MOCK_POLICIES;
+    return apiPolicies ? apiPolicies.map(mapApiPolicyToUi) : [];
+  }, [apiPolicies, isError]);
+
+  const claims: Claim[] = useMemo(() => {
+    if (apiClaims && apiClaims.length > 0) return apiClaims.map(mapApiClaimToUi);
+    if (isError) return MOCK_CLAIMS;
+    return apiClaims ? apiClaims.map(mapApiClaimToUi) : [];
+  }, [apiClaims, isError]);
+
+  const stats = useMemo(
+    () => ({
+      activePolicies: policies.filter((p) => p.status === 'active').length,
+      totalCoverage: policies
+        .filter((p) => p.status === 'active')
+        .reduce((s, p) => s + p.coverageAmount, 0),
+      pendingClaims: claims.filter(
+        (c) => c.status === 'pending' || c.status === 'under-review',
+      ).length,
+      totalPremiums: policies
+        .filter((p) => p.status === 'active')
+        .reduce((s, p) => s + p.premiumAmount, 0),
+    }),
+    [policies, claims],
+  );
+
+  const handleRetry = () => {
+    refetchPolicies();
+    refetchClaims();
   };
 
   return (
@@ -173,6 +318,26 @@ export default function CropInsuranceClient() {
           </button>
         </div>
 
+        {/* Loading / error banner */}
+        {isLoading && (
+          <div className="flex items-center justify-center gap-2 p-6 text-gray-500">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="text-sm">جاري تحميل بيانات التأمين...</span>
+          </div>
+        )}
+        {!isLoading && isError && (
+          <div className="mx-6 mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between text-sm text-yellow-800">
+            <span>تعذر تحميل البيانات من الخادم. يتم عرض بيانات تجريبية.</span>
+            <button
+              onClick={handleRetry}
+              className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200"
+            >
+              <RefreshCw className="w-3 h-3" />
+              إعادة المحاولة
+            </button>
+          </div>
+        )}
+
         <div className="p-6 overflow-x-auto">
           {activeTab === 'policies' ? (
             <table className="w-full text-right">
@@ -190,7 +355,7 @@ export default function CropInsuranceClient() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_POLICIES.map(policy => (
+                {policies.map(policy => (
                   <tr key={policy.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-4 pr-4 text-sm font-mono font-semibold text-gray-900">{policy.policyNumber}</td>
                     <td className="py-4 pr-4 text-sm text-gray-700">{policy.fieldNameAr}</td>
@@ -227,7 +392,7 @@ export default function CropInsuranceClient() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_CLAIMS.map(claim => (
+                {claims.map(claim => (
                   <tr key={claim.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-4 pr-4 text-sm font-semibold text-gray-900">{claim.id}</td>
                     <td className="py-4 pr-4 text-sm font-mono text-gray-700">{claim.policyNumber}</td>

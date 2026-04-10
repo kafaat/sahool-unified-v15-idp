@@ -67,6 +67,22 @@ const missionTypeLabels: Record<string, string> = {
   'vra': 'رش متغير المعدل',
 };
 
+/** Safely clamp a telemetry number from the backend (e.g. battery %). */
+function clampPercent(value: unknown): number {
+  const n = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(n)) return 0;
+  if (n < 0) return 0;
+  if (n > 100) return 100;
+  return Math.round(n);
+}
+
+/** Format a drone-flight timestamp safely — guards Invalid Date. */
+function formatDroneDate(value: string | null | undefined, locale = 'ar-SA'): string {
+  if (!value) return '-';
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString(locale);
+}
+
 export default function DroneClient() {
   const [activeTab, setActiveTab] = useState<'fleet' | 'missions'>('fleet');
 
@@ -124,10 +140,11 @@ export default function DroneClient() {
     );
   }
 
+  // Backend may emit either 'in_flight' / 'in-flight' and 'available' / 'idle'.
   const stats = {
     total: devices.length,
-    inFlight: devices.filter((d) => d.status === 'in_flight').length,
-    idle: devices.filter((d) => d.status === 'available').length,
+    inFlight: devices.filter((d) => d.status === 'in_flight' || (d.status as string) === 'in-flight').length,
+    idle: devices.filter((d) => d.status === 'available' || (d.status as string) === 'idle').length,
     totalMissions: flights.length,
   };
 
@@ -223,32 +240,40 @@ export default function DroneClient() {
                   </tr>
                 </thead>
                 <tbody>
-                  {devices.map((drone) => (
-                    <tr key={drone.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4 pr-4">
-                        <p className="font-semibold text-gray-900">{drone.nameAr}</p>
-                        <p className="text-xs text-gray-500">{drone.id}</p>
-                      </td>
-                      <td className="py-4 pr-4 text-sm text-gray-700">
-                        {drone.manufacturer} {drone.model}
-                      </td>
-                      <td className="py-4 pr-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[drone.status] ?? 'bg-gray-100 text-gray-700'}`}>
-                          {statusLabels[drone.status] ?? drone.status}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4">
-                        <div className="flex items-center gap-2">
-                          <Battery className={`w-4 h-4 ${drone.battery > 50 ? 'text-green-600' : drone.battery > 20 ? 'text-orange-500' : 'text-red-500'}`} />
-                          <span className="text-sm">{drone.battery}%</span>
-                        </div>
-                      </td>
-                      <td className="py-4 pr-4 text-sm text-gray-700">{drone.totalFlightHours} س</td>
-                      <td className="py-4">
-                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">تفاصيل</button>
-                      </td>
-                    </tr>
-                  ))}
+                  {devices.map((drone) => {
+                    const battery = clampPercent(drone.battery);
+                    const flightHours =
+                      typeof drone.totalFlightHours === 'number' &&
+                      Number.isFinite(drone.totalFlightHours)
+                        ? drone.totalFlightHours
+                        : 0;
+                    return (
+                      <tr key={drone.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-4 pr-4">
+                          <p className="font-semibold text-gray-900">{drone.nameAr}</p>
+                          <p className="text-xs text-gray-500">{drone.id}</p>
+                        </td>
+                        <td className="py-4 pr-4 text-sm text-gray-700">
+                          {drone.manufacturer} {drone.model}
+                        </td>
+                        <td className="py-4 pr-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[drone.status] ?? 'bg-gray-100 text-gray-700'}`}>
+                            {statusLabels[drone.status] ?? drone.status}
+                          </span>
+                        </td>
+                        <td className="py-4 pr-4">
+                          <div className="flex items-center gap-2">
+                            <Battery className={`w-4 h-4 ${battery > 50 ? 'text-green-600' : battery > 20 ? 'text-orange-500' : 'text-red-500'}`} />
+                            <span className="text-sm">{battery}%</span>
+                          </div>
+                        </td>
+                        <td className="py-4 pr-4 text-sm text-gray-700">{flightHours} س</td>
+                        <td className="py-4">
+                          <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">تفاصيل</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )
@@ -288,12 +313,18 @@ export default function DroneClient() {
                         {missionStatusLabels[flight.status] ?? flight.status}
                       </span>
                     </td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{flight.coverage ?? '-'}</td>
-                    <td className="py-4 pr-4 text-sm text-gray-700">{flight.duration ?? '-'}</td>
+                    <td className="py-4 pr-4 text-sm text-gray-700">
+                      {typeof flight.coverage === 'number' && Number.isFinite(flight.coverage)
+                        ? flight.coverage
+                        : '-'}
+                    </td>
+                    <td className="py-4 pr-4 text-sm text-gray-700">
+                      {typeof flight.duration === 'number' && Number.isFinite(flight.duration)
+                        ? flight.duration
+                        : '-'}
+                    </td>
                     <td className="py-4 text-sm text-gray-700">
-                      {flight.startedAt
-                        ? new Date(flight.startedAt).toLocaleDateString('ar-SA')
-                        : new Date(flight.createdAt).toLocaleDateString('ar-SA')}
+                      {formatDroneDate(flight.startedAt ?? flight.createdAt)}
                     </td>
                   </tr>
                 ))}

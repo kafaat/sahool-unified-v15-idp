@@ -111,101 +111,103 @@ export const ERROR_MESSAGES = {
 
 export const visionApi = {
   detectPest: async (image: File, confidence?: number, includeVisualization = false): Promise<PestDetection> => {
+    validateImageFile(image);
     return safeFetch(VISION_ENDPOINTS.DETECT_PEST, async () => {
       const formData = new FormData();
-      formData.append('image', image);
-      if (confidence !== undefined) formData.append('confidence', confidence.toString());
-      const url = includeVisualization
-        ? `${VISION_ENDPOINTS.DETECT_PEST}?return_visualization=true`
-        : VISION_ENDPOINTS.DETECT_PEST;
-      const response = await api.post(url, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      // Backend (yolo26-vision-service) expects the upload field to be named "file"
+      formData.append('file', image);
+      const url = buildDetectionUrl(VISION_ENDPOINTS.DETECT_PEST, {
+        confidence,
+        includeVisualization,
       });
+      // Let axios/browser set the multipart boundary automatically; forcing a
+      // literal Content-Type drops the boundary and breaks the upload.
+      const response = await api.post(url, formData);
       return response.data.data || response.data;
     });
   },
 
   detectDisease: async (image: File, confidence?: number, includeVisualization = false): Promise<DiseaseDetection> => {
+    validateImageFile(image);
     return safeFetch(VISION_ENDPOINTS.DETECT_DISEASE, async () => {
       const formData = new FormData();
-      formData.append('image', image);
-      if (confidence !== undefined) formData.append('confidence', confidence.toString());
-      const url = includeVisualization
-        ? `${VISION_ENDPOINTS.DETECT_DISEASE}?return_visualization=true`
-        : VISION_ENDPOINTS.DETECT_DISEASE;
-      const response = await api.post(url, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      formData.append('file', image);
+      const url = buildDetectionUrl(VISION_ENDPOINTS.DETECT_DISEASE, {
+        confidence,
+        includeVisualization,
       });
+      const response = await api.post(url, formData);
       return response.data.data || response.data;
     });
   },
 
   detectWeed: async (image: File, confidence?: number, includeVisualization = false): Promise<WeedDetection> => {
+    validateImageFile(image);
     return safeFetch(VISION_ENDPOINTS.DETECT_WEED, async () => {
       const formData = new FormData();
-      formData.append('image', image);
-      if (confidence !== undefined) formData.append('confidence', confidence.toString());
-      const url = includeVisualization
-        ? `${VISION_ENDPOINTS.DETECT_WEED}?return_visualization=true`
-        : VISION_ENDPOINTS.DETECT_WEED;
-      const response = await api.post(url, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      formData.append('file', image);
+      const url = buildDetectionUrl(VISION_ENDPOINTS.DETECT_WEED, {
+        confidence,
+        includeVisualization,
       });
+      const response = await api.post(url, formData);
       return response.data.data || response.data;
     });
   },
 
   countPlants: async (image: File): Promise<PlantCount> => {
+    validateImageFile(image);
     return safeFetch(VISION_ENDPOINTS.COUNT_PLANTS, async () => {
       const formData = new FormData();
-      formData.append('image', image);
-      const response = await api.post(VISION_ENDPOINTS.COUNT_PLANTS, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      formData.append('file', image);
+      const response = await api.post(VISION_ENDPOINTS.COUNT_PLANTS, formData);
       return response.data.data || response.data;
     });
   },
 
   classifyRipeness: async (image: File): Promise<RipenessResult> => {
+    validateImageFile(image);
     return safeFetch(VISION_ENDPOINTS.CLASSIFY_RIPENESS, async () => {
       const formData = new FormData();
-      formData.append('image', image);
-      const response = await api.post(VISION_ENDPOINTS.CLASSIFY_RIPENESS, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      formData.append('file', image);
+      const response = await api.post(VISION_ENDPOINTS.CLASSIFY_RIPENESS, formData);
       return response.data.data || response.data;
     });
   },
 
   segmentLeaf: async (image: File): Promise<LeafSegmentation> => {
+    validateImageFile(image);
     return safeFetch(VISION_ENDPOINTS.SEGMENT_LEAF, async () => {
       const formData = new FormData();
-      formData.append('image', image);
-      const response = await api.post(VISION_ENDPOINTS.SEGMENT_LEAF, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      formData.append('file', image);
+      const response = await api.post(VISION_ENDPOINTS.SEGMENT_LEAF, formData);
       return response.data.data || response.data;
     });
   },
 
   batchDetectPest: async (images: File[]): Promise<PestDetection[]> => {
+    if (!Array.isArray(images) || images.length === 0) {
+      throw new ImageValidationError('No images provided for batch', 'لم يتم توفير صور للدفعة');
+    }
+    images.forEach(validateImageFile);
     return safeFetch(VISION_ENDPOINTS.BATCH_PEST, async () => {
       const formData = new FormData();
-      images.forEach((img) => formData.append('images', img));
-      const response = await api.post(VISION_ENDPOINTS.BATCH_PEST, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // Backend batch endpoint expects `files` (matches singular `file` convention)
+      images.forEach((img) => formData.append('files', img));
+      const response = await api.post(VISION_ENDPOINTS.BATCH_PEST, formData);
       return response.data.data || response.data;
     });
   },
 
   batchDetectDisease: async (images: File[]): Promise<DiseaseDetection[]> => {
+    if (!Array.isArray(images) || images.length === 0) {
+      throw new ImageValidationError('No images provided for batch', 'لم يتم توفير صور للدفعة');
+    }
+    images.forEach(validateImageFile);
     return safeFetch(VISION_ENDPOINTS.BATCH_DISEASE, async () => {
       const formData = new FormData();
-      images.forEach((img) => formData.append('images', img));
-      const response = await api.post(VISION_ENDPOINTS.BATCH_DISEASE, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      images.forEach((img) => formData.append('files', img));
+      const response = await api.post(VISION_ENDPOINTS.BATCH_DISEASE, formData);
       return response.data.data || response.data;
     });
   },

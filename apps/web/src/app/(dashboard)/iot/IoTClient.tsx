@@ -62,8 +62,13 @@ export default function IoTClient() {
   const { data: actuators } = useActuators();
   const { data: alertRules } = useAlertRules();
 
-  const activeSensors = sensors?.filter((s) => s.status === 'active').length || 0;
-  const activeActuators = actuators?.filter((a) => a.status === 'on').length || 0;
+  // Backend may return either 'active' or 'online' for a connected sensor.
+  const activeSensors =
+    sensors?.filter((s) => s.status === 'active' || s.status === 'online').length || 0;
+  // Actuators may report 'on' (discrete) or 'online' (connected) depending on
+  // transport; treat both as "active" in the dashboard metric.
+  const activeActuators =
+    actuators?.filter((a) => a.status === 'on' || a.status === 'online').length || 0;
   const activeAlerts = alertRules?.filter((r) => r.enabled).length || 0;
 
   return (

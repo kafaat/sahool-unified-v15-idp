@@ -20,30 +20,45 @@ interface EquipmentCardProps {
   equipment: Equipment;
 }
 
-const statusColors = {
+// Include backend-side statuses (operational, inactive) as aliases so that
+// responses from equipment-service (which emits EquipmentStatus.OPERATIONAL /
+// INACTIVE) render without falling back to an undefined lookup.
+const statusColors: Record<string, string> = {
   active: 'bg-green-100 text-green-800',
+  operational: 'bg-green-100 text-green-800',
   maintenance: 'bg-yellow-100 text-yellow-800',
   repair: 'bg-orange-100 text-orange-800',
   idle: 'bg-gray-100 text-gray-800',
+  inactive: 'bg-gray-100 text-gray-800',
   retired: 'bg-red-100 text-red-800',
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   active: 'نشط',
+  operational: 'نشط',
   maintenance: 'صيانة',
   repair: 'إصلاح',
   idle: 'خامل',
+  inactive: 'خامل',
   retired: 'متوقف',
 };
 
-const typeLabels = {
+const typeLabels: Record<string, string> = {
   tractor: 'جرار',
   harvester: 'حصادة',
   irrigation_system: 'نظام ري',
   sprayer: 'رشاش',
   planter: 'آلة زراعة',
+  pump: 'مضخة',
+  drone: 'طائرة بدون طيار',
+  pivot: 'محور ري',
+  sensor: 'مستشعر',
+  vehicle: 'مركبة',
   other: 'أخرى',
 };
+
+const UNKNOWN_STATUS_CLASS = 'bg-gray-100 text-gray-700';
+const UNKNOWN_LABEL = 'غير محدد';
 
 const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => {
   // Memoize maintenance check to avoid Date recreation on every render
@@ -55,8 +70,8 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => 
 
   // Memoize ARIA label for accessibility
   const ariaLabel = useMemo(() => {
-    const status = statusLabels[equipment.status];
-    const type = typeLabels[equipment.type];
+    const status = statusLabels[equipment.status] ?? UNKNOWN_LABEL;
+    const type = typeLabels[equipment.type] ?? UNKNOWN_LABEL;
     return `${equipment.nameAr}, ${type}, الحالة: ${status}${maintenanceDue ? ', تنبيه: الصيانة متأخرة' : ''}`;
   }, [equipment.nameAr, equipment.status, equipment.type, maintenanceDue]);
 
@@ -75,10 +90,10 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => 
           </div>
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${
-              statusColors[equipment.status]
+              statusColors[equipment.status] ?? UNKNOWN_STATUS_CLASS
             }`}
           >
-            {statusLabels[equipment.status]}
+            {statusLabels[equipment.status] ?? UNKNOWN_LABEL}
           </span>
         </div>
 
@@ -104,7 +119,7 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => 
         <div className="space-y-2">
           <div className="flex items-center text-sm text-gray-600">
             <TrendingUp className="w-4 h-4 ml-2" />
-            <span>{typeLabels[equipment.type]}</span>
+            <span>{typeLabels[equipment.type] ?? UNKNOWN_LABEL}</span>
           </div>
 
           {equipment.location && (
@@ -128,11 +143,12 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => 
             </div>
           )}
 
-          {equipment.totalOperatingHours && (
-            <div className="text-sm text-gray-600">
-              ساعات التشغيل: {equipment.totalOperatingHours.toLocaleString('ar-YE')} ساعة
-            </div>
-          )}
+          {typeof equipment.totalOperatingHours === 'number' &&
+            Number.isFinite(equipment.totalOperatingHours) && (
+              <div className="text-sm text-gray-600">
+                ساعات التشغيل: {equipment.totalOperatingHours.toLocaleString('ar-YE')} ساعة
+              </div>
+            )}
         </div>
 
         {/* Footer */}

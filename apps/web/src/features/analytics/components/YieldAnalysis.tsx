@@ -52,12 +52,12 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
     );
   }
 
-  // Prepare chart data
+  // Prepare chart data (coerce numeric fields to avoid NaN rendering)
   const chartData = yieldData.map((field) => ({
-    name: field.fieldNameAr,
-    actual: field.totalYield,
-    expected: field.expectedYield,
-    yieldPerHectare: field.yieldPerHectare,
+    name: field.fieldNameAr || field.fieldName || '',
+    actual: Number(field.totalYield) || 0,
+    expected: Number(field.expectedYield) || 0,
+    yieldPerHectare: Number(field.yieldPerHectare) || 0,
   }));
 
   return (
@@ -134,7 +134,10 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
       {/* Detailed Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {yieldData.map((field) => {
-          const variance = field.variance;
+          const variance = Number(field.variance) || 0;
+          const totalYield = Number(field.totalYield) || 0;
+          const yieldPerHectare = Number(field.yieldPerHectare) || 0;
+          const area = Number(field.area) || 0;
           const isUnderperforming = variance < -10;
           const isOverperforming = variance > 10;
 

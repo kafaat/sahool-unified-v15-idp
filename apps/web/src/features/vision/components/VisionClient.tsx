@@ -49,6 +49,33 @@ interface DetectionResult {
 // Helpers — map API responses to unified DetectionResult
 // ---------------------------------------------------------------------------
 
+const SEVERITY_LABELS_AR: Record<string, string> = {
+  low: 'منخفض',
+  medium: 'متوسط',
+  high: 'عالي',
+  critical: 'حرج',
+};
+
+/** Read the Arabic label from either backend snake_case or legacy camelCase. */
+function pickLabelAr(
+  d: { class_name_ar?: string; classAr?: string; speciesAr?: string; diseaseAr?: string },
+): string {
+  return d.class_name_ar || d.classAr || d.speciesAr || d.diseaseAr || 'غير معروف';
+}
+
+/** Read the English label from either backend snake_case or legacy camelCase. */
+function pickLabelEn(
+  d: { class_name_en?: string; class?: string; species?: string; disease?: string },
+): string {
+  return d.class_name_en || d.class || d.species || d.disease || 'Unknown';
+}
+
+function getDateStr(): string {
+  // Mapping is now produced on the client; backend DetectionResponse uses
+  // `timestamp` (ISO 8601) but it isn't needed for the list view date column.
+  return new Date().toISOString().split('T')[0]!;
+}
+
 function mapPestDetection(data: PestDetection): DetectionResult[] {
   return data.detections.map((d, i) => ({
     id: `pest-${i}`,
@@ -56,16 +83,16 @@ function mapPestDetection(data: PestDetection): DetectionResult[] {
     fieldName: '-',
     detectionType: 'pest',
     detectionTypeAr: 'آفة',
-    label: d.species || d.class,
-    labelAr: d.speciesAr || d.classAr,
+    label: pickLabelEn(d),
+    labelAr: pickLabelAr(d),
     confidence: d.confidence,
     severity: d.severity ?? 'medium',
     severityAr: SEVERITY_LABELS_AR[d.severity ?? 'medium'],
-    date: data.processedAt?.split('T')[0] ?? new Date().toISOString().split('T')[0],
+    date: getDateStr(),
     status: 'new',
     statusAr: 'جديد',
-    recommendation: d.recommendation ?? '',
-    recommendationAr: d.recommendationAr ?? '',
+    recommendation: d.recommended_action_en ?? d.recommendation ?? '',
+    recommendationAr: d.recommended_action_ar ?? d.recommendationAr ?? '',
   }));
 }
 
@@ -76,45 +103,44 @@ function mapDiseaseDetection(data: DiseaseDetection): DetectionResult[] {
     fieldName: '-',
     detectionType: 'disease',
     detectionTypeAr: 'مرض',
-    label: d.disease || d.class,
-    labelAr: d.diseaseAr || d.classAr,
+    label: pickLabelEn(d),
+    labelAr: pickLabelAr(d),
     confidence: d.confidence,
-    severity: 'medium',
-    severityAr: 'متوسط',
-    date: data.processedAt?.split('T')[0] ?? new Date().toISOString().split('T')[0],
+    severity: d.severity ?? 'medium',
+    severityAr: SEVERITY_LABELS_AR[d.severity ?? 'medium'],
+    date: getDateStr(),
     status: 'new',
     statusAr: 'جديد',
-    recommendation: d.treatment ?? '',
-    recommendationAr: d.treatmentAr ?? '',
+    recommendation: d.recommended_treatment_en ?? d.treatment ?? '',
+    recommendationAr: d.recommended_treatment_ar ?? d.treatmentAr ?? '',
   }));
 }
 
 function mapWeedDetection(data: WeedDetection): DetectionResult[] {
-  return data.detections.map((d, i) => ({
-    id: `weed-${i}`,
-    imageId: '-',
-    fieldName: '-',
-    detectionType: 'weed',
-    detectionTypeAr: 'حشائش',
-    label: d.species || d.class,
-    labelAr: d.speciesAr || d.classAr,
-    confidence: d.confidence,
-    severity: data.totalCoverage > 30 ? 'high' : data.totalCoverage > 10 ? 'medium' : 'low',
-    severityAr: data.totalCoverage > 30 ? 'عالي' : data.totalCoverage > 10 ? 'متوسط' : 'منخفض',
-    date: data.processedAt?.split('T')[0] ?? new Date().toISOString().split('T')[0],
-    status: 'new',
-    statusAr: 'جديد',
-    recommendation: '',
-    recommendationAr: `تغطية ${d.coverage}%`,
-  }));
+  const totalCoverage = data.total_coverage_percent ?? data.totalCoverage ?? 0;
+  const severity: DetectionResult['severity'] =
+    totalCoverage > 30 ? 'high' : totalCoverage > 10 ? 'medium' : 'low';
+  return data.detections.map((d, i) => {
+    const coverage = d.coverage_percent ?? d.coverage ?? 0;
+    return {
+      id: `weed-${i}`,
+      imageId: '-',
+      fieldName: '-',
+      detectionType: 'weed',
+      detectionTypeAr: 'حشائش',
+      label: pickLabelEn(d),
+      labelAr: pickLabelAr(d),
+      confidence: d.confidence,
+      severity,
+      severityAr: SEVERITY_LABELS_AR[severity],
+      date: getDateStr(),
+      status: 'new',
+      statusAr: 'جديد',
+      recommendation: '',
+      recommendationAr: `تغطية ${coverage.toFixed(1)}%`,
+    };
+  });
 }
-
-const SEVERITY_LABELS_AR: Record<string, string> = {
-  low: 'منخفض',
-  medium: 'متوسط',
-  high: 'عالي',
-  critical: 'حرج',
-};
 
 const severityColors: Record<string, string> = {
   low: 'bg-green-100 text-green-700',

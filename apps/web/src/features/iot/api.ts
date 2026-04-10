@@ -151,10 +151,14 @@ export const sensorsApi = {
   /**
    * Subscribe to real-time sensor readings (returns EventSource URL)
    * الاشتراك في قراءات المستشعر في الوقت الفعلي
+   *
+   * Encodes sensor_id to avoid URL injection and falls back to a relative URL
+   * when the axios instance has no explicit baseURL configured.
    */
   getStreamUrl: (sensorId?: string): string => {
-    const params = sensorId ? `?sensor_id=${sensorId}` : '';
-    return `${api.defaults.baseURL}${IOT_SENSORS_BASE}/stream${params}`;
+    const params = sensorId ? `?sensor_id=${encodeURIComponent(sensorId)}` : '';
+    const baseURL = api.defaults.baseURL ?? '';
+    return `${baseURL}${IOT_SENSORS_BASE}/stream${params}`;
   },
 };
 

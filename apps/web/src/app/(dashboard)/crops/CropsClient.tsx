@@ -56,6 +56,16 @@ export default function CropsClient() {
   const createCrop = useCreateCrop();
 
   const handleCreateCrop = () => {
+    // Basic required-field guard — backend CropFormData expects these populated
+    if (
+      !newCrop.name.trim() ||
+      !newCrop.nameAr.trim() ||
+      !newCrop.fieldId.trim() ||
+      !newCrop.plantingDate ||
+      newCrop.areaHa <= 0
+    ) {
+      return;
+    }
     createCrop.mutate(
       { ...newCrop, expectedHarvestDate: '', irrigationType: '', irrigationTypeAr: '' },
       {
@@ -148,7 +158,7 @@ export default function CropsClient() {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleCreateCrop} disabled={createCrop.isPending || !newCrop.name || !newCrop.nameAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+              <button onClick={handleCreateCrop} disabled={createCrop.isPending || !newCrop.name.trim() || !newCrop.nameAr.trim() || !newCrop.fieldId.trim() || !newCrop.plantingDate || newCrop.areaHa <= 0} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
                 {createCrop.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
               </button>
             </div>

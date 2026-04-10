@@ -16,9 +16,24 @@ interface ReportGeneratorProps {
   filters?: AnalyticsFilters;
 }
 
+// Restrict download filename to safe characters to prevent path traversal/injection
+// when the backend echoes an attacker-controlled report id.
+const SAFE_FILENAME_CHARS = /[^a-zA-Z0-9_-]/g;
+const sanitizeFilenamePart = (part: string, fallback: string): string => {
+  const cleaned = (part || '').replace(SAFE_FILENAME_CHARS, '').slice(0, 64);
+  return cleaned || fallback;
+};
+
+// Map format choice to actual file extension (excel -> xlsx).
+const formatToExtension = (format: 'pdf' | 'excel' | 'csv'): string => {
+  if (format === 'excel') return 'xlsx';
+  return format;
+};
+
 export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
   const t = useTranslations('analytics');
   const tSections = useTranslations('reportSections');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const reportSections: Array<{
     type: ReportSectionType;
@@ -89,6 +104,19 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
   };
 
   const handleGenerate = async () => {
+    // Validate date range before submitting - start must be <= end and not future.
+    setValidationError(null);
+    const startMs = Date.parse(config.period.start);
+    const endMs = Date.parse(config.period.end);
+    if (Number.isNaN(startMs) || Number.isNaN(endMs)) {
+      setValidationError('الرجاء اختيار نطاق تاريخ صالح | Please pick a valid date range');
+      return;
+    }
+    if (startMs > endMs) {
+      setValidationError('يجب أن يكون تاريخ البداية قبل تاريخ النهاية | Start date must be before end date');
+      return;
+    }
+
     try {
       const result = await generateMutation.mutateAsync(config);
 
@@ -97,7 +125,9 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `sahool-report-${result.reportId}.${config.format}`;
+      // Sanitize reportId before using as filename part.
+      const safeId = sanitizeFilenamePart(result.reportId, 'report');
+      a.download = `sahool-report-${safeId}.${formatToExtension(config.format)}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -122,7 +152,8 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
             <input
               type="text"
               value={config.titleAr}
-              onChange={(e) => setConfig({ ...config, titleAr: e.target.value })}
+              maxLength={200}
+              onChange={(e) => setConfig({ ...config, titleAr: e.target.value.slice(0, 200) })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
@@ -270,6 +301,13 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
           )}
         </button>
       </div>
+
+      {/* Validation Error (client-side date range) */}
+      {validationError && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+          <p className="text-yellow-800 font-medium">{validationError}</p>
+        </div>
+      )}
 
       {/* Success Message */}
       {generateMutation.isSuccess && !downloadMutation.isPending && (

@@ -277,8 +277,8 @@ export const SensorChart: React.FC<SensorChartProps> = ({
       {/* Time Range Info */}
       {chartData.length > 0 && (
         <div className="text-center text-sm text-gray-500">
-          {chartData.length} قراءة من {chartData[0]!.time} إلى{' '}
-          {chartData[chartData.length - 1]!.time}
+          {chartData.length} قراءة من {chartData[0]?.time ?? '-'} إلى{' '}
+          {chartData[chartData.length - 1]?.time ?? '-'}
         </div>
       )}
     </div>

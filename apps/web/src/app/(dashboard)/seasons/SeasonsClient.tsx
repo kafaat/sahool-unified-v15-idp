@@ -62,6 +62,16 @@ export default function SeasonsClient() {
   const createSeason = useCreateSeason();
 
   const handleCreateSeason = () => {
+    // Guard: start/end dates must be valid and ordered correctly
+    if (!formData.name.trim() || !formData.nameAr.trim() || !formData.farmId.trim()) {
+      return;
+    }
+    if (!formData.startDate || !formData.endDate) {
+      return;
+    }
+    if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      return;
+    }
     createSeason.mutate(formData, {
       onSuccess: () => {
         setShowCreateDialog(false);
@@ -164,7 +174,19 @@ export default function SeasonsClient() {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleCreateSeason} disabled={createSeason.isPending || !formData.name || !formData.nameAr || !formData.farmId || !formData.startDate || !formData.endDate} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+              <button
+                onClick={handleCreateSeason}
+                disabled={
+                  createSeason.isPending ||
+                  !formData.name.trim() ||
+                  !formData.nameAr.trim() ||
+                  !formData.farmId.trim() ||
+                  !formData.startDate ||
+                  !formData.endDate ||
+                  new Date(formData.endDate) < new Date(formData.startDate)
+                }
+                className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50"
+              >
                 {createSeason.isPending ? 'جاري الإنشاء...' : 'إنشاء الموسم'}
               </button>
             </div>

@@ -630,7 +630,10 @@ describe('POST /api/log-error', () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toContain('Missing required fields');
+    // The route reports per-field validation errors (e.g.
+    // "Missing or invalid field: message (non-empty string required)")
+    // rather than a single combined message. Match the stable prefix.
+    expect(data.error).toMatch(/Missing or invalid field: (message|timestamp)/);
   });
 });
 

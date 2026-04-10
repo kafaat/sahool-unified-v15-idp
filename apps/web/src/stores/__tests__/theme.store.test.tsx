@@ -72,22 +72,27 @@ describe('ThemeProvider', () => {
     expect(screen.getByText('child')).toBeInTheDocument();
   });
 
-  it('defaults to system theme', () => {
+  it("defaults to 'dark' when no theme is persisted", () => {
+    // ThemeProvider defaults to 'dark' instead of 'system' to avoid a
+    // hydration mismatch — server/SSR has no window.matchMedia so resolving
+    // 'system' at render time would diverge from the client. Persisting a
+    // user choice in localStorage or explicit setTheme('system') is still
+    // supported (see tests below).
     render(
       <ThemeProvider>
         <ThemeConsumer />
       </ThemeProvider>
     );
-    expect(screen.getByTestId('theme').textContent).toBe('system');
+    expect(screen.getByTestId('theme').textContent).toBe('dark');
   });
 
-  it('resolves system theme to light when prefers-color-scheme is light', () => {
+  it("resolves to 'dark' by default (matches the seeded theme)", () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
       </ThemeProvider>
     );
-    expect(screen.getByTestId('resolved').textContent).toBe('light');
+    expect(screen.getByTestId('resolved').textContent).toBe('dark');
   });
 
   it("sets dark theme when setTheme('dark') is called", () => {

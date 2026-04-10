@@ -39,10 +39,8 @@ export default function GlobalError({
           log.error('Global error boundary triggered:', error);
           return;
         }
-        // eslint-disable-next-line no-console
         console.error('Global error boundary triggered:', error);
       } catch {
-        // eslint-disable-next-line no-console
         console.error('Global error boundary triggered:', error);
       }
     })();

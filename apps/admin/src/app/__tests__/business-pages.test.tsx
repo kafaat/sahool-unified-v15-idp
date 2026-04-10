@@ -631,14 +631,16 @@ describe('Audit Page (audit/page.tsx)', () => {
     expect(source).toContain('سجل التدقيق');
     expect(source).toContain('إجمالي الأحداث');
     expect(source).toContain('أحداث اليوم');
-    expect(source).toContain('أحداث حرجة');
     expect(source).toContain('مستخدمون نشطون');
+    // The page was migrated from a placeholder with "أحداث حرجة" to real API
+    // data that shows a failure-rate card instead.
+    expect(source).toContain('نسبة الفشل');
   });
 
   it('imports lucide-react icons', () => {
     const source = readPage(pagePath);
     expect(source).toMatch(/from\s+['"]lucide-react['"]/);
-    expect(source).toContain('Shield');
+    // Icons used by the API-connected page (Shield was only in the old mock).
     expect(source).toContain('FileText');
     expect(source).toContain('AlertTriangle');
     expect(source).toContain('Users');
@@ -650,17 +652,27 @@ describe('Audit Page (audit/page.tsx)', () => {
     expect(source).toMatch(/import\s+Header\s+from/);
   });
 
-  it('has stats cards with hardcoded values', () => {
+  it('renders live stats from auditService (not hardcoded values)', () => {
+    // The page used to ship with hardcoded mock values (12,847 / 324 / 7 / 48).
+    // It now reads from `stats?.total_logs`, `stats?.actions_today`,
+    // `stats?.unique_users`, and `stats.failure_rate` supplied by
+    // `auditService.getStats()`.
     const source = readPage(pagePath);
-    expect(source).toContain('12,847');
-    expect(source).toContain('324');
-    expect(source).toContain('7');
-    expect(source).toContain('48');
+    expect(source).toMatch(/auditService\.getStats\s*\(/);
+    expect(source).toContain('stats?.total_logs');
+    expect(source).toContain('stats?.actions_today');
+    expect(source).toContain('stats?.unique_users');
+    expect(source).toContain('failure_rate');
+    // Ensure the legacy hardcoded values are gone.
+    expect(source).not.toContain('12,847');
   });
 
-  it('has placeholder content section', () => {
+  it('renders audit logs in a DataTable', () => {
+    // The placeholder "سيتم عرض سجل أحداث التدقيق هنا" was replaced by a real
+    // DataTable component fed from `auditService.getAll(...)`.
     const source = readPage(pagePath);
-    expect(source).toContain('سيتم عرض سجل أحداث التدقيق هنا');
+    expect(source).toMatch(/import\s+DataTable\s+from/);
+    expect(source).toMatch(/auditService\.getAll\s*\(/);
   });
 });
 

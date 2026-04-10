@@ -1,3 +1,10 @@
+-- drift:safe reason=Every CREATE INDEX in this migration targets one of the three
+-- tables (farmer_profiles, farmer_crops, farmer_fields) that are CREATE TABLE'd
+-- in this same file. At CREATE INDEX time those tables have zero rows, so the
+-- non-CONCURRENTLY builds are instantaneous and cannot lock production data.
+-- This migration was run inside a transaction when farmer data was first moved
+-- from in-memory storage to PostgreSQL, making CREATE INDEX CONCURRENTLY
+-- unusable by design.
 -- SAHOOL Notification Service - Farmer Profile Tables Migration
 -- Migration: Add farmer_profiles, farmer_crops, and farmer_fields tables
 -- Date: 2026-01-08

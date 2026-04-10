@@ -1,3 +1,10 @@
+-- drift:safe reason=Every CREATE INDEX in this file targets a table that is
+-- CREATE TABLE'd in this same migration (YOLO26 detections, terrain analyses,
+-- hydrology results, leveling plans, edge device registrations). At CREATE INDEX
+-- time those tables have zero rows, so the non-CONCURRENTLY builds are
+-- instantaneous and cannot lock any production data. This file is executed
+-- through the SAHOOL migration runner inside a single transaction, so
+-- CREATE INDEX CONCURRENTLY is unusable here by design.
 -- ============================================================================
 -- SAHOOL Platform - Integration Tables Migration
 -- Version: V20260131

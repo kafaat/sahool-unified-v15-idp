@@ -1,3 +1,8 @@
+-- drift:safe reason=Indexes target the field_kpi_snapshots table that is CREATED in the
+-- same migration above. At CREATE INDEX time the table has zero rows, so the non-
+-- CONCURRENTLY index build is instantaneous and cannot lock any existing data.
+-- Prisma wraps migrations in a transaction, which makes CREATE INDEX CONCURRENTLY
+-- unusable; the standard CREATE INDEX form is the correct choice for new empty tables.
 -- Migration: Add FieldKpiSnapshot table
 -- الهجرة: إضافة جدول لقطات KPI للحقول (Sentinel Hub + OpenWeather)
 -- Created: 2026-04-07

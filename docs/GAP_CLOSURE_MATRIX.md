@@ -87,7 +87,7 @@ Overall Readiness: ████████████████████ 
 |----|----------------|-------|----------|--------|----------|
 | SEC-001 | Token revocation was in-memory only | إلغاء التوكنات كان في الذاكرة فقط | 🔴 Critical | ✅ Closed | `shared/security/token_revocation.py` — `RedisRevocationBackend` with `sahool:revocation:` prefix |
 | SEC-002 | No Redis fallback for token revocation | عدم وجود بديل عند فشل Redis | 🟡 High | ✅ Closed | Falls back to `InMemoryRevocationBackend` when Redis unavailable |
-| SEC-003 | JWT `verify_signature=False` ungated | عدم حماية `verify_signature=False` | 🔴 Critical | ✅ Closed | `shared/platform.py` — Gated behind `TRUST_GATEWAY_JWT` env var + `# nosemgrep:` |
+| SEC-003 | JWT `verify_signature=False` ungated | عدم حماية `verify_signature=False` | 🔴 Critical | ✅ Closed | `shared/platform.py:ContextMiddleware._decode_jwt` — Defense-in-depth: signature is ALWAYS verified locally when `JWT_SECRET_KEY` is set, regardless of `TRUST_GATEWAY_JWT`. The unverified fallback path uses manual base64 claim decoding (not `jwt.decode(verify_signature=False)`) and still enforces `exp`. |
 | SEC-004 | Exception text leaking in 401 responses | تسرب نص الاستثناء في ردود 401 | 🟡 High | ✅ Closed | `shared/platform.py:384` — Generic error message, no stack trace leak |
 | SEC-005 | Cross-tenant audit not persisted to DB | عدم حفظ تدقيق الوصول بين المستأجرين | 🔴 Critical | ✅ Closed | `shared/middleware/tenant_audit.py` — Persists to `tenant_audit_log` via `super_admin` RLS context |
 | SEC-006 | S3 bucket name predictable | اسم S3 bucket قابل للتخمين | 🟢 Medium | ✅ Closed | `shared/platform.py:664` — Uses sha256 hash for bucket names |

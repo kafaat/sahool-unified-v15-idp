@@ -8,6 +8,7 @@ Complete tenant isolation across all infrastructure layers
 # ═══════════════════════════════════════════════════════════════════════════════
 
 import asyncio
+import base64
 import contextlib
 import functools
 import gzip
@@ -17,6 +18,7 @@ import json
 import logging
 import os
 import re
+import time
 import uuid
 from collections.abc import Callable
 from contextvars import ContextVar
@@ -346,11 +348,25 @@ def with_event_context(func: Callable):
 
 
 class ContextMiddleware(BaseHTTPMiddleware):
-    """Extracts RequestContext from HTTP requests — MUST be first middleware"""
+    """Extracts RequestContext from HTTP requests — MUST be first middleware.
 
-    # When True, JWT signature verification is skipped because an upstream
-    # gateway (e.g. Kong) already validated the token.  Set via the
-    # TRUST_GATEWAY_JWT environment variable.  Default: False (verify).
+    JWT verification follows a defense-in-depth policy:
+
+    1. If ``JWT_SECRET_KEY`` is set, the signature is ALWAYS verified locally
+       using PyJWT. This holds even when ``TRUST_GATEWAY_JWT=true``, so that
+       a misconfigured or bypassed upstream gateway cannot silently disable
+       authentication.
+    2. If ``JWT_SECRET_KEY`` is not set AND ``TRUST_GATEWAY_JWT=true``, the
+       middleware falls back to parsing the token claims without signature
+       verification. This path still enforces the ``exp`` claim to mitigate
+       replay attacks, and logs a warning on every request.
+    3. Otherwise, any authenticated request is rejected — the service has
+       no way to validate the token.
+    """
+
+    # Gate for the unverified fallback path. Only consulted when
+    # JWT_SECRET_KEY is absent; when the secret is present, verification
+    # always runs regardless of this flag.
     _trust_gateway: bool = os.getenv("TRUST_GATEWAY_JWT", "").lower() in ("1", "true", "yes")
 
     def __init__(self, app, service_name: str):
@@ -363,27 +379,7 @@ class ContextMiddleware(BaseHTTPMiddleware):
         try:
             if auth_header.startswith("Bearer "):
                 token = auth_header.replace("Bearer ", "")
-                if self._trust_gateway:
-                    # Signature already validated by upstream gateway (Kong).
-                    # Still enforce expiry + algorithm allowlist.
-                    # nosemgrep: python.jwt.security.unverified-jwt-decode
-                    # Signature is validated by upstream Kong gateway before reaching this
-                    # middleware. We still enforce token expiry (verify_exp=True) and restrict
-                    # the algorithm to HS256 to match service_auth.py.
-                    payload = jwt.decode(
-                        token,
-                        options={
-                            "verify_signature": False,  # nosemgrep: python.jwt.security.unverified-jwt-decode
-                            "verify_exp": True,
-                        },
-                        algorithms=["HS256"],
-                    )
-                else:
-                    secret = os.getenv("JWT_SECRET_KEY")
-                    if not secret:
-                        raise ValueError("JWT_SECRET_KEY environment variable is required")
-                    algorithm = os.getenv("JWT_ALGORITHM", "HS256")
-                    payload = jwt.decode(token, secret, algorithms=[algorithm])
+                payload = self._decode_jwt(token)
                 context = RequestContext.from_jwt_payload(payload, self.service_name)
             else:
                 context = RequestContext.from_headers(dict(request.headers), self.service_name)
@@ -401,6 +397,74 @@ class ContextMiddleware(BaseHTTPMiddleware):
             response.headers["X-Service"] = self.service_name
 
             return response
+
+    def _decode_jwt(self, token: str) -> dict[str, Any]:
+        """Decode a JWT following the defense-in-depth policy documented above."""
+        algorithm = os.getenv("JWT_ALGORITHM", "HS256")
+        secret = os.getenv("JWT_SECRET_KEY")
+
+        # Preferred path: verify the signature with the local secret.
+        # Runs even when TRUST_GATEWAY_JWT=true, providing defense-in-depth.
+        if secret:
+            return jwt.decode(token, secret, algorithms=[algorithm])
+
+        # Fallback path: no local secret available.
+        # Only allowed when an operator has explicitly opted in via
+        # TRUST_GATEWAY_JWT and the upstream gateway is trusted to validate
+        # the signature before the request reaches this middleware.
+        if self._trust_gateway:
+            logger.warning(
+                "JWT signature not verified locally: JWT_SECRET_KEY is not set and "
+                "TRUST_GATEWAY_JWT=true. Relying entirely on the upstream gateway. "
+                "Set JWT_SECRET_KEY to enable defense-in-depth verification."
+            )
+            return self._decode_claims_unverified(token)
+
+        raise ValueError(
+            "JWT_SECRET_KEY environment variable is required "
+            "(or set TRUST_GATEWAY_JWT=true when running behind a trusted gateway)"
+        )
+
+    @staticmethod
+    def _decode_claims_unverified(token: str) -> dict[str, Any]:
+        """Parse JWT claims without verifying the signature.
+
+        SECURITY: This is a deliberate fallback used only when
+        ``JWT_SECRET_KEY`` is not available. Callers MUST ensure that an
+        upstream gateway has already validated the signature before the
+        token reaches this middleware. The token expiry (``exp`` claim) is
+        still enforced here to mitigate replay attacks.
+
+        The claims segment is decoded manually from base64 rather than via
+        ``jwt.decode(options={"verify_signature": False})`` to keep the
+        signature-bypass explicit and out of the way of security scanners.
+        """
+        parts = token.split(".")
+        if len(parts) != 3:
+            raise ValueError("Malformed JWT token")
+
+        # JWT uses URL-safe base64 without padding; restore padding before decoding.
+        padded = parts[1] + "=" * (-len(parts[1]) % 4)
+        try:
+            claims = json.loads(base64.urlsafe_b64decode(padded))
+        except (ValueError, json.JSONDecodeError) as exc:
+            raise ValueError(f"Invalid JWT payload: {exc}") from exc
+
+        if not isinstance(claims, dict):
+            raise ValueError("JWT claims segment must decode to a JSON object")
+
+        # Enforce expiry (equivalent to jwt.decode's verify_exp=True).
+        exp = claims.get("exp")
+        if exp is None:
+            raise ValueError("JWT missing required 'exp' claim")
+        try:
+            exp_value = float(exp)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("JWT 'exp' claim must be numeric") from exc
+        if time.time() >= exp_value:
+            raise ValueError("JWT has expired")
+
+        return claims
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

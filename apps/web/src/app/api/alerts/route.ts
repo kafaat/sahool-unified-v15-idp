@@ -27,6 +27,11 @@ const VALID_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 const VALID_ACTIONS = ['acknowledge', 'resolve', 'dismiss'] as const;
 type AlertAction = (typeof VALID_ACTIONS)[number];
 
+// Allow-listed enum values for query param forwarding (must match shared contracts).
+const VALID_SEVERITIES = new Set(['info', 'warning', 'critical', 'emergency']);
+const VALID_STATUSES = new Set(['active', 'acknowledged', 'resolved', 'dismissed']);
+const VALID_SORT_FIELDS = new Set(['createdAt', 'severity', 'status']);
+
 const RATE_LIMIT_CONFIG = {
   windowMs: 60000,
   maxRequests: 60,
@@ -133,13 +138,73 @@ export async function GET(request: NextRequest) {
     const backendParams = new URLSearchParams();
     backendParams.set('tenant_id', tenantId);
 
-    // Forward supported query params
-    const allowedParams = ['status', 'severity', 'page', 'limit', 'sort', 'field_id'];
-    for (const param of allowedParams) {
-      const value = searchParams.get(param);
-      if (value !== null) {
-        backendParams.set(param, value);
+    // Validate & forward supported query params (enum allow-listing + numeric bounds)
+    const severityParam = searchParams.get('severity');
+    if (severityParam !== null) {
+      if (!VALID_SEVERITIES.has(severityParam)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid severity value', error_ar: 'قيمة الشدة غير صالحة' },
+          { status: 400 }
+        );
       }
+      backendParams.set('severity', severityParam);
+    }
+
+    const statusParam = searchParams.get('status');
+    if (statusParam !== null) {
+      if (!VALID_STATUSES.has(statusParam)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid status value', error_ar: 'قيمة الحالة غير صالحة' },
+          { status: 400 }
+        );
+      }
+      backendParams.set('status', statusParam);
+    }
+
+    const pageParam = searchParams.get('page');
+    if (pageParam !== null) {
+      const parsedPage = parseInt(pageParam, 10);
+      if (!Number.isFinite(parsedPage) || parsedPage < 1 || parsedPage > 10000) {
+        return NextResponse.json(
+          { success: false, error: 'page must be an integer between 1 and 10000', error_ar: 'يجب أن يكون رقم الصفحة بين 1 و 10000' },
+          { status: 400 }
+        );
+      }
+      backendParams.set('page', String(parsedPage));
+    }
+
+    const limitParam = searchParams.get('limit');
+    if (limitParam !== null) {
+      const parsedLimit = parseInt(limitParam, 10);
+      if (!Number.isFinite(parsedLimit) || parsedLimit < 1 || parsedLimit > 200) {
+        return NextResponse.json(
+          { success: false, error: 'limit must be an integer between 1 and 200', error_ar: 'يجب أن يكون الحد بين 1 و 200' },
+          { status: 400 }
+        );
+      }
+      backendParams.set('limit', String(parsedLimit));
+    }
+
+    const sortParam = searchParams.get('sort');
+    if (sortParam !== null) {
+      if (!VALID_SORT_FIELDS.has(sortParam)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid sort field', error_ar: 'حقل الفرز غير صالح' },
+          { status: 400 }
+        );
+      }
+      backendParams.set('sort', sortParam);
+    }
+
+    const fieldIdParam = searchParams.get('field_id');
+    if (fieldIdParam !== null) {
+      if (!VALID_ID_PATTERN.test(fieldIdParam)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid field_id format', error_ar: 'تنسيق معرف الحقل غير صالح' },
+          { status: 400 }
+        );
+      }
+      backendParams.set('field_id', fieldIdParam);
     }
 
     const backendUrl = `${ALERT_SERVICE_URL}/api/v1/alerts?${backendParams.toString()}`;
@@ -294,6 +359,16 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
+    }
+
+    // Validate optional comment (bound length to prevent large payload forwarding)
+    if (comment !== undefined) {
+      if (typeof comment !== 'string' || comment.length > 2000) {
+        return NextResponse.json(
+          { success: false, error: 'comment must be a string up to 2000 characters', error_ar: 'يجب أن يكون التعليق نصاً بحد أقصى 2000 حرف' },
+          { status: 400 }
+        );
+      }
     }
 
     const backendUrl = `${ALERT_SERVICE_URL}/api/v1/alerts/${encodeURIComponent(alert_id)}/${encodeURIComponent(action)}`;

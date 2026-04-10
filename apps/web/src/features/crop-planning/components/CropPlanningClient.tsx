@@ -200,12 +200,22 @@ export default function CropPlanningClient() {
     [plan.cropCode],
   );
 
-  const harvestDate = useMemo(() => {
+  // ISO date for API payloads (YYYY-MM-DD) — must not be a localized string
+  const harvestDateIso = useMemo(() => {
     if (!plan.plantingDate || !selectedCrop) return null;
     const d = new Date(plan.plantingDate);
+    if (Number.isNaN(d.getTime())) return null;
     d.setDate(d.getDate() + selectedCrop.daysToHarvest);
-    return d.toLocaleDateString('ar-YE', { year: 'numeric', month: 'long', day: 'numeric' });
+    return d.toISOString().slice(0, 10);
   }, [plan.plantingDate, selectedCrop]);
+
+  // Localized date for display only — do NOT send to API
+  const harvestDateDisplay = useMemo(() => {
+    if (!harvestDateIso) return null;
+    const d = new Date(harvestDateIso);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('ar-YE', { year: 'numeric', month: 'long', day: 'numeric' });
+  }, [harvestDateIso]);
 
   const expectedYield = useMemo(() => {
     if (!selectedCrop || !selectedField) return 0;
@@ -218,13 +228,13 @@ export default function CropPlanningClient() {
   }, [plan.prepChecklist]);
 
   const handleSavePlan = () => {
-    if (!plan.fieldId || !plan.cropCode) return;
+    if (!plan.fieldId || !plan.cropCode || !plan.plantingDate) return;
     createPlanMutation.mutate({
       fieldId: plan.fieldId,
       cropType: plan.cropCode,
       season: selectedCrop?.season ?? '',
       plantingDate: plan.plantingDate,
-      harvestDate: harvestDate ?? undefined,
+      harvestDate: harvestDateIso ?? undefined,
     });
   };
 
@@ -583,7 +593,7 @@ export default function CropPlanningClient() {
                   <div className="grid grid-cols-3 gap-4">
                     <div className="p-4 bg-green-50 rounded-xl text-center border border-green-200">
                       <p className="text-sm text-gray-600">تاريخ الحصاد</p>
-                      <p className="text-xl font-bold text-green-700 mt-1">{harvestDate}</p>
+                      <p className="text-xl font-bold text-green-700 mt-1">{harvestDateDisplay}</p>
                     </div>
                     <div className="p-4 bg-amber-50 rounded-xl text-center border border-amber-200">
                       <p className="text-sm text-gray-600">الإنتاج المتوقع</p>

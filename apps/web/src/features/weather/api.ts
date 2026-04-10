@@ -113,8 +113,13 @@ export const weatherApi = {
    */
   getCurrentWeather: async (lat?: number, lon?: number): Promise<WeatherData> => {
     const params = new URLSearchParams();
-    if (lat !== undefined) params.set('lat', String(lat));
-    if (lon !== undefined) params.set('lon', String(lon));
+    // Validate lat/lon bounds to prevent sending invalid values to the backend
+    if (lat !== undefined && Number.isFinite(lat) && lat >= -90 && lat <= 90) {
+      params.set('lat', String(lat));
+    }
+    if (lon !== undefined && Number.isFinite(lon) && lon >= -180 && lon <= 180) {
+      params.set('lon', String(lon));
+    }
 
     return safeFetch(WEATHER_ENDPOINTS.CURRENT, async () => {
       const qs = params.toString();
@@ -148,9 +153,11 @@ export const weatherApi = {
     days: number = 7
   ): Promise<ForecastDataPoint[]> => {
     const params = new URLSearchParams();
-    if (lat !== undefined) params.set('lat', String(lat));
-    if (lon !== undefined) params.set('lon', String(lon));
-    params.set('days', String(days));
+    if (lat !== undefined && Number.isFinite(lat)) params.set('lat', String(lat));
+    if (lon !== undefined && Number.isFinite(lon)) params.set('lon', String(lon));
+    // Clamp days to backend-accepted range [1, 30] to prevent 400 errors
+    const safeDays = Number.isFinite(days) ? Math.max(1, Math.min(30, Math.floor(days))) : 7;
+    params.set('days', String(safeDays));
 
     return safeFetch(WEATHER_ENDPOINTS.FORECAST, async () => {
       const fqs = params.toString();
@@ -181,8 +188,12 @@ export const weatherApi = {
    */
   getAlerts: async (lat?: number, lon?: number): Promise<WeatherAlert[]> => {
     const params = new URLSearchParams();
-    if (lat !== undefined) params.set('lat', String(lat));
-    if (lon !== undefined) params.set('lon', String(lon));
+    if (lat !== undefined && Number.isFinite(lat) && lat >= -90 && lat <= 90) {
+      params.set('lat', String(lat));
+    }
+    if (lon !== undefined && Number.isFinite(lon) && lon >= -180 && lon <= 180) {
+      params.set('lon', String(lon));
+    }
 
     return safeFetch(WEATHER_ENDPOINTS.ALERTS, async () => {
       const aqs = params.toString();

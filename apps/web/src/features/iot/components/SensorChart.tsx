@@ -54,12 +54,17 @@ export const SensorChart: React.FC<SensorChartProps> = ({
 
   // Calculate statistics
   const stats = useMemo(() => {
-    if (readings.length === 0) {
+    // Filter to finite numeric values only — defensive against API
+    // responses that include null/undefined/NaN readings.
+    const values = readings
+      .map((r) => r.value)
+      .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+
+    if (values.length === 0) {
       return { current: 0, average: 0, min: 0, max: 0, trend: 0 };
     }
 
-    const values = readings.map((r) => r.value);
-    const current = values[0]; // Most recent reading
+    const current = values[0] ?? 0; // Most recent reading
     const average = values.reduce((sum, v) => sum + v, 0) / values.length;
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -118,7 +123,7 @@ export const SensorChart: React.FC<SensorChartProps> = ({
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-600 mb-1">الحالي | Current</p>
             <p className="text-xl font-bold" style={{ color }}>
-              {stats.current!.toFixed(2)}
+              {stats.current.toFixed(2)}
               <span className="text-sm text-gray-600 mr-1">{sensorUnitAr}</span>
             </p>
           </div>

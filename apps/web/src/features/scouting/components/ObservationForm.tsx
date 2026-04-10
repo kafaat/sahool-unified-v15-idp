@@ -55,6 +55,21 @@ interface PhotoPreview {
   url: string;
 }
 
+// Allowed image MIME types (SVG excluded — XSS risk via embedded scripts)
+const ALLOWED_PHOTO_MIME_TYPES = new Set<string>([
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+]);
+
+// Max photo size per file
+const MAX_PHOTO_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+// Max photos per observation
+const MAX_PHOTOS_PER_OBSERVATION = 10;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Icon Map
 // ═══════════════════════════════════════════════════════════════════════════
@@ -93,6 +108,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
   const [createTask, setCreateTask] = useState(initialData?.createTask || false);
   const [isDragging, setIsDragging] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   // Get selected category option
   const selectedCategoryOption = CATEGORY_OPTIONS.find((opt) => opt.value === category);
@@ -126,22 +142,76 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
     await onSubmit(formData);
   };
 
-  const handlePhotoSelect = useCallback((files: FileList | null) => {
-    if (!files) return;
+  const handlePhotoSelect = useCallback(
+    (files: FileList | null) => {
+      if (!files) return;
 
-    const newPhotos: PhotoPreview[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file && file.type.startsWith('image/')) {
+      setPhotoError(null);
+
+      const newPhotos: PhotoPreview[] = [];
+      let rejectedTypeCount = 0;
+      let rejectedSizeCount = 0;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!file) continue;
+        if (!ALLOWED_PHOTO_MIME_TYPES.has(file.type)) {
+          rejectedTypeCount++;
+          continue;
+        }
+        if (file.size > MAX_PHOTO_SIZE_BYTES) {
+          rejectedSizeCount++;
+          continue;
+        }
         newPhotos.push({
           file,
           url: URL.createObjectURL(file),
         });
       }
-    }
 
-    setPhotos((prev) => [...prev, ...newPhotos]);
-  }, []);
+      // Enforce total photo limit
+      const availableSlots = Math.max(0, MAX_PHOTOS_PER_OBSERVATION - photos.length);
+      const accepted = newPhotos.slice(0, availableSlots);
+      const rejectedLimit = newPhotos.length - accepted.length;
+
+      // Release object URLs for photos we discarded due to the limit
+      for (let i = availableSlots; i < newPhotos.length; i++) {
+        const discarded = newPhotos[i];
+        if (discarded) URL.revokeObjectURL(discarded.url);
+      }
+
+      if (accepted.length > 0) {
+        setPhotos((prev) => [...prev, ...accepted]);
+      }
+
+      if (rejectedTypeCount > 0 || rejectedSizeCount > 0 || rejectedLimit > 0) {
+        const messages: string[] = [];
+        if (rejectedTypeCount > 0) {
+          messages.push(
+            isArabic
+              ? `تم رفض ${rejectedTypeCount} ملف (نوع غير مدعوم)`
+              : `${rejectedTypeCount} file(s) rejected (unsupported type)`,
+          );
+        }
+        if (rejectedSizeCount > 0) {
+          messages.push(
+            isArabic
+              ? `تم رفض ${rejectedSizeCount} ملف (الحجم > 10 ميجابايت)`
+              : `${rejectedSizeCount} file(s) rejected (size > 10 MB)`,
+          );
+        }
+        if (rejectedLimit > 0) {
+          messages.push(
+            isArabic
+              ? `تم تجاوز الحد الأقصى (${MAX_PHOTOS_PER_OBSERVATION} صور)`
+              : `Photo limit exceeded (max ${MAX_PHOTOS_PER_OBSERVATION})`,
+          );
+        }
+        setPhotoError(messages.join(' • '));
+      }
+    },
+    [isArabic, photos.length],
+  );
 
   const handleRemovePhoto = useCallback((index: number) => {
     setPhotos((prev) => {
@@ -382,6 +452,13 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
                 {isArabic ? 'اختر الصور' : 'Choose Photos'}
               </Button>
             </div>
+
+            {/* Photo validation error */}
+            {photoError && (
+              <div className="mt-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                {photoError}
+              </div>
+            )}
 
             {/* Photo Previews */}
             {photos.length > 0 && (

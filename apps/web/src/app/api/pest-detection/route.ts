@@ -22,6 +22,55 @@ const REQUEST_TIMEOUT_MS = 15_000;
 /** Validate IDs to prevent path traversal */
 const SAFE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
+/** Validate free-form filter enum values (region, season, severity) */
+const SAFE_ENUM_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
+
+/**
+ * Maximum raw JSON body size for POST requests (bytes).
+ * Base64 images can be large, so we allow up to 10 MB raw → ~7.5 MB decoded.
+ */
+const MAX_JSON_BODY_BYTES = 10 * 1024 * 1024;
+
+/** Maximum allowed base64 image payload length (characters). */
+const MAX_BASE64_IMAGE_LENGTH = 10 * 1024 * 1024; // ~7.5 MB decoded
+
+/**
+ * Validate an outbound image_url to block SSRF against internal targets.
+ * Only https URLs to non-loopback/non-private addresses are permitted.
+ */
+function isSafeImageUrl(raw: unknown): raw is string {
+  if (typeof raw !== 'string' || raw.length === 0 || raw.length > 2048) return false;
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return false;
+  // Reject userinfo (no credentials in URLs)
+  if (url.username || url.password) return false;
+  const host = url.hostname.toLowerCase();
+  // Block loopback, private, link-local, and metadata endpoints
+  if (
+    host === 'localhost' ||
+    host === '0.0.0.0' ||
+    host === '::1' ||
+    host.endsWith('.localhost') ||
+    host.endsWith('.local') ||
+    host.endsWith('.internal') ||
+    /^127\./.test(host) ||
+    /^10\./.test(host) ||
+    /^192\.168\./.test(host) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+    /^169\.254\./.test(host) || // AWS/GCP metadata link-local
+    /^fc00:/.test(host) ||
+    /^fe80:/.test(host)
+  ) {
+    return false;
+  }
+  return true;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Helper Functions
 // ═══════════════════════════════════════════════════════════════════════════
@@ -100,9 +149,24 @@ export async function GET(request: NextRequest) {
         const region = searchParams.get('region');
         const season = searchParams.get('season');
         const severity = searchParams.get('severity');
-        if (region) params.set('region', region);
-        if (season) params.set('season', season);
-        if (severity) params.set('severity', severity);
+        if (region) {
+          if (!SAFE_ENUM_PATTERN.test(region)) {
+            return NextResponse.json({ error: 'Invalid region format' }, { status: 400 });
+          }
+          params.set('region', region);
+        }
+        if (season) {
+          if (!SAFE_ENUM_PATTERN.test(season)) {
+            return NextResponse.json({ error: 'Invalid season format' }, { status: 400 });
+          }
+          params.set('season', season);
+        }
+        if (severity) {
+          if (!SAFE_ENUM_PATTERN.test(severity)) {
+            return NextResponse.json({ error: 'Invalid severity format' }, { status: 400 });
+          }
+          params.set('severity', severity);
+        }
         const qs = params.toString();
         path = `/api/v1/pests${qs ? `?${qs}` : ''}`;
         break;
@@ -117,7 +181,12 @@ export async function GET(request: NextRequest) {
         }
         const params = new URLSearchParams();
         const region = searchParams.get('region');
-        if (region) params.set('region', region);
+        if (region) {
+          if (!SAFE_ENUM_PATTERN.test(region)) {
+            return NextResponse.json({ error: 'Invalid region format' }, { status: 400 });
+          }
+          params.set('region', region);
+        }
         const qs = params.toString();
         path = `/api/v1/pests/crop/${encodeURIComponent(cropType)}${qs ? `?${qs}` : ''}`;
         break;
@@ -183,9 +252,29 @@ export async function POST(request: NextRequest) {
     }
     const tenantId = extractTenantId(token);
 
+    // --- Body size guard (defense against huge base64 payloads) ---
+    const contentLengthHeader = request.headers.get('content-length');
+    if (contentLengthHeader) {
+      const contentLength = Number(contentLengthHeader);
+      if (Number.isFinite(contentLength) && contentLength > MAX_JSON_BODY_BYTES) {
+        return NextResponse.json(
+          { error: `Request body too large (max ${MAX_JSON_BODY_BYTES} bytes)` },
+          { status: 413 }
+        );
+      }
+    }
+
     // --- Parse body ---
-    const body = await request.json();
-    const { action } = body;
+    let body: Record<string, unknown>;
+    try {
+      body = (await request.json()) as Record<string, unknown>;
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const { action } = body as { action?: unknown };
 
     if (!action || typeof action !== 'string') {
       return NextResponse.json({ error: 'action is required' }, { status: 400 });
@@ -196,15 +285,65 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case 'identify': {
-        const { fieldId, image, image_url, crop_type, confidence_threshold } = body;
+        const { fieldId, image, image_url, crop_type, confidence_threshold } =
+          body as {
+            fieldId?: unknown;
+            image?: unknown;
+            image_url?: unknown;
+            crop_type?: unknown;
+            confidence_threshold?: unknown;
+          };
 
-        if (fieldId && (typeof fieldId !== 'string' || !SAFE_ID_PATTERN.test(fieldId))) {
+        if (fieldId !== undefined && (typeof fieldId !== 'string' || !SAFE_ID_PATTERN.test(fieldId))) {
           return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
         }
 
-        if (!image && !image_url) {
+        if (image == null && image_url == null) {
           return NextResponse.json(
             { error: 'Either image (base64) or image_url is required' },
+            { status: 400 }
+          );
+        }
+
+        if (image !== undefined) {
+          if (typeof image !== 'string') {
+            return NextResponse.json({ error: 'image must be a base64 string' }, { status: 400 });
+          }
+          if (image.length > MAX_BASE64_IMAGE_LENGTH) {
+            return NextResponse.json(
+              { error: `image too large (max ${MAX_BASE64_IMAGE_LENGTH} chars)` },
+              { status: 413 }
+            );
+          }
+          // Sanity-check base64 (allow data URLs and raw base64)
+          const base64Body = image.startsWith('data:')
+            ? image.slice(image.indexOf(',') + 1)
+            : image;
+          if (!/^[A-Za-z0-9+/=\s]*$/.test(base64Body)) {
+            return NextResponse.json({ error: 'image is not valid base64' }, { status: 400 });
+          }
+        }
+
+        if (image_url !== undefined && !isSafeImageUrl(image_url)) {
+          return NextResponse.json(
+            { error: 'image_url must be a public https/http URL' },
+            { status: 400 }
+          );
+        }
+
+        if (crop_type !== undefined && (typeof crop_type !== 'string' || !SAFE_ID_PATTERN.test(crop_type))) {
+          return NextResponse.json({ error: 'Invalid crop_type format' }, { status: 400 });
+        }
+
+        if (
+          confidence_threshold !== undefined &&
+          (typeof confidence_threshold !== 'number' ||
+            !Number.isFinite(confidence_threshold) ||
+            confidence_threshold < 0 ||
+            confidence_threshold > 1)
+        ) {
+          return NextResponse.json(
+            { error: 'confidence_threshold must be a number between 0 and 1' },
             { status: 400 }
           );
         }
@@ -220,17 +359,33 @@ export async function POST(request: NextRequest) {
         break;
       }
       case 'treatment': {
-        const { pestId, fieldId, crop_type: cropType, severity: sev } = body;
+        const { pestId, fieldId, crop_type: cropType, severity: sev } = body as {
+          pestId?: unknown;
+          fieldId?: unknown;
+          crop_type?: unknown;
+          severity?: unknown;
+        };
 
         if (!pestId || typeof pestId !== 'string' || !SAFE_ID_PATTERN.test(pestId)) {
           return NextResponse.json({ error: 'Valid pestId is required' }, { status: 400 });
         }
 
-        if (fieldId && (typeof fieldId !== 'string' || !SAFE_ID_PATTERN.test(fieldId))) {
+        if (fieldId !== undefined && (typeof fieldId !== 'string' || !SAFE_ID_PATTERN.test(fieldId))) {
           return NextResponse.json({ error: 'Invalid fieldId format' }, { status: 400 });
         }
 
-        path = `/api/v1/pests/treatment`;
+        if (cropType !== undefined && (typeof cropType !== 'string' || !SAFE_ID_PATTERN.test(cropType))) {
+          return NextResponse.json({ error: 'Invalid crop_type format' }, { status: 400 });
+        }
+
+        if (sev !== undefined && (typeof sev !== 'string' || !SAFE_ENUM_PATTERN.test(sev))) {
+          return NextResponse.json({ error: 'Invalid severity format' }, { status: 400 });
+        }
+
+        // NOTE (contract mismatch): the pest-detection-service only exposes
+        // POST /api/v1/treatments/recommend — there is no /api/v1/pests/treatment
+        // endpoint. We forward to the canonical backend route.
+        path = `/api/v1/treatments/recommend`;
         payload = {
           pest_id: pestId,
           ...(fieldId != null && { field_id: fieldId }),

@@ -20,6 +20,21 @@ const typeLabels = {
   wind: 'الرياح',
 };
 
+/**
+ * Escape HTML special characters to prevent XSS when injecting
+ * user-controlled sensor data into Leaflet popup HTML templates.
+ * هروب أحرف HTML لمنع هجمات XSS عند إدراج بيانات المستشعرات
+ */
+function escapeHtml(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function SensorMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -91,6 +106,26 @@ export function SensorMap() {
             iconAnchor: [16, 16],
           });
 
+          // Sanitize all user-controlled fields before injecting into HTML
+          // to prevent stored XSS via sensor name/field name/unit values.
+          const safeNameAr = escapeHtml(sensor.nameAr);
+          const safeName = escapeHtml(sensor.name);
+          const safeTypeLabel = escapeHtml(
+            (typeLabels as Record<string, string>)[sensor.type] ?? sensor.type
+          );
+          const safeFieldName = escapeHtml(sensor.location.fieldName);
+          const readingValue = sensor.lastReading?.value;
+          const safeReadingValue = escapeHtml(
+            typeof readingValue === 'number' && Number.isFinite(readingValue)
+              ? readingValue.toFixed(1)
+              : '-'
+          );
+          const safeReadingUnit = escapeHtml(sensor.lastReading?.unit ?? '');
+          const safeReadingTime = sensor.lastReading
+            ? escapeHtml(new Date(sensor.lastReading.timestamp).toLocaleString('ar-YE'))
+            : '';
+          const safeBattery = escapeHtml(sensor.battery);
+
           const marker = L.marker([sensor.location.latitude, sensor.location.longitude], {
             icon: customIcon,
           })
@@ -98,14 +133,14 @@ export function SensorMap() {
             .bindPopup(
               `
               <div style="direction: rtl; text-align: right; min-width: 200px;">
-                <h3 style="font-weight: bold; margin-bottom: 8px;">${sensor.nameAr}</h3>
-                <p style="margin: 4px 0; font-size: 0.875rem;">${sensor.name}</p>
+                <h3 style="font-weight: bold; margin-bottom: 8px;">${safeNameAr}</h3>
+                <p style="margin: 4px 0; font-size: 0.875rem;">${safeName}</p>
                 <p style="margin: 4px 0; font-size: 0.875rem; color: #666;">
-                  النوع: ${typeLabels[sensor.type]}
+                  النوع: ${safeTypeLabel}
                 </p>
                 ${
                   sensor.location.fieldName
-                    ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${sensor.location.fieldName}</p>`
+                    ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${safeFieldName}</p>`
                     : ''
                 }
                 ${
@@ -113,10 +148,10 @@ export function SensorMap() {
                     ? `
                   <div style="margin-top: 8px; padding: 8px; background: #f0fdf4; border-radius: 4px;">
                     <p style="margin: 0; font-weight: 600; color: #16a34a;">
-                      ${sensor.lastReading.value.toFixed(1)} ${sensor.lastReading.unit}
+                      ${safeReadingValue} ${safeReadingUnit}
                     </p>
                     <p style="margin: 4px 0 0 0; font-size: 0.75rem; color: #666;">
-                      ${new Date(sensor.lastReading.timestamp).toLocaleString('ar-YE')}
+                      ${safeReadingTime}
                     </p>
                   </div>
                 `
@@ -124,7 +159,7 @@ export function SensorMap() {
                 }
                 ${
                   sensor.battery !== undefined
-                    ? `<p style="margin: 4px 0; font-size: 0.75rem; color: #666;">البطارية: ${sensor.battery}%</p>`
+                    ? `<p style="margin: 4px 0; font-size: 0.75rem; color: #666;">البطارية: ${safeBattery}%</p>`
                     : ''
                 }
               </div>

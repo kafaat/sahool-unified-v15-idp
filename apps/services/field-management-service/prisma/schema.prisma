@@ -307,12 +307,31 @@ model NdviReading {
   satelliteName String? @map("satellite_name") @db.VarChar(50)
   bandInfo      Json?   @map("band_info") @db.JsonB
 
+  // Provider provenance (satellite flow audit H12).
+  // `provider` records which upstream client was used (e.g. `sentinel_hub_s2l2a`,
+  // `planet_labs`, `copernicus_stac`, `simulated`). `sceneId` is the provider's
+  // scene / tile / order identifier so we can re-fetch or audit any row.
+  // `requestId` correlates the reading back to the HTTP request that produced it.
+  provider  String? @db.VarChar(64)
+  sceneId   String? @map("scene_id") @db.VarChar(255)
+  requestId String? @map("request_id") @db.Uuid
+
+  // Soft-delete flag (satellite flow audit) — kept in sync with the parent
+  // Field's `is_deleted` so readings for removed fields can be filtered
+  // without losing the history.
+  isDeleted Boolean @default(false) @map("is_deleted")
+
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   // Indexes
   @@index([tenantId], name: "idx_ndvi_tenant")
   @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
+  @@index([provider, sceneId], name: "idx_ndvi_provider_scene")
+  // Idempotent import guard (satellite flow audit H17).
+  // Replaying the same satellite scene must NOT create duplicate rows —
+  // upserts in the write path should ON CONFLICT on this key.
+  @@unique([fieldId, capturedAt, satelliteName], name: "uq_ndvi_field_source_date")
   @@map("ndvi_readings")
 }
 

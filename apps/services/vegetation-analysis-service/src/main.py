@@ -1347,11 +1347,20 @@ async def analyze_field_with_action(
         tenant_id=request.tenant_id,
     )
 
-    # Publish event to NATS (in background)
+    # Publish event to NATS (in background).
+    #
+    # The subject is `satellite.ndvi.computed` — this matches the subject
+    # that `indicators-service` actually subscribes to (see satellite flow
+    # audit, H13). The previous `satellite.analysis_completed` subject had
+    # no subscriber, so every event was silently dropped.
+    #
+    # `publish_analysis_event()` will tenant-scope the subject when
+    # `tenant_id` is present (H14), becoming:
+    #     sahool.tenant.{tenant}.satellite.ndvi.computed
     if request.publish_event and _nats_available and publish_analysis_completed_sync:
         try:
             publish_analysis_completed_sync(
-                event_type="satellite.analysis_completed",
+                event_type="satellite.ndvi.computed",
                 source_service="vegetation-analysis-service",
                 field_id=request.field_id,
                 data=action_template.get("data", {}),
@@ -1360,7 +1369,10 @@ async def analyze_field_with_action(
                 farmer_id=request.farmer_id,
                 tenant_id=request.tenant_id,
             )
-            logger.info(f"NATS: Published satellite analysis event for field {request.field_id}")
+            logger.info(
+                "NATS: Published satellite.ndvi.computed event "
+                f"for field {request.field_id} tenant={request.tenant_id}"
+            )
         except Exception as e:
             logger.error(f"Failed to publish NATS event: {e}")
 

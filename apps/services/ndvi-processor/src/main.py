@@ -194,6 +194,50 @@ except ImportError:
     pass
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# Deprecation headers (RFC 8594)
+# ──────────────────────────────────────────────────────────────────────────
+# ndvi-processor is superseded by vegetation-analysis-service (port 8090).
+# Per CLAUDE.md this service is marked deprecated but continues to serve
+# traffic during the migration window. Every response now carries RFC 8594
+# deprecation metadata so API clients can plan their cutover.
+
+# Sunset date may be overridden via env var for staged rollouts.
+_SUNSET_DATE = os.getenv("NDVI_PROCESSOR_SUNSET", "2026-06-01")
+_SUCCESSOR_URL = os.getenv(
+    "NDVI_PROCESSOR_SUCCESSOR",
+    "https://docs.sahool.app/migrations/NDVI_PROCESSOR_TO_VEGETATION_ANALYSIS",
+)
+
+
+@app.middleware("http")
+async def deprecation_headers_middleware(request, call_next):
+    """Attach RFC 8594 deprecation headers to every response.
+
+    - `Deprecation: true`           — signals the resource is deprecated.
+    - `Sunset: <HTTP-date>`         — scheduled removal date.
+    - `Link: <successor>; rel=…`    — points clients at the replacement.
+    - `X-API-Deprecated: true`      — custom header for internal dashboards
+                                      and governance CI checks.
+    - `Warning: 299 …`              — human-readable explanation.
+    """
+    response = await call_next(request)
+    response.headers["Deprecation"] = "true"
+    response.headers["Sunset"] = _SUNSET_DATE
+    response.headers["Link"] = (
+        f'<{_SUCCESSOR_URL}>; rel="successor-version", '
+        f'<{_SUCCESSOR_URL}>; rel="deprecation"'
+    )
+    response.headers["X-API-Deprecated"] = "true"
+    response.headers["X-API-Successor"] = "vegetation-analysis-service:8090"
+    response.headers["Warning"] = (
+        f'299 - "ndvi-processor is deprecated and will be removed on '
+        f'{_SUNSET_DATE}. Migrate to vegetation-analysis-service (port 8090). '
+        f'See {_SUCCESSOR_URL}"'
+    )
+    return response
+
+
 # ============== Background Processing ==============
 
 

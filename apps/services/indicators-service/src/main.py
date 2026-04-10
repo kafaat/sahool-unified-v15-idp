@@ -293,8 +293,18 @@ async def lifespan(app: FastAPI):
                 logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))
 
         await app.state.nc.subscribe("sahool.field.created", cb=handle_field_created)
+        # Legacy (untenanted) subject — kept for backward compatibility with
+        # publishers that have not yet been upgraded to tenant-scoped subjects.
         await app.state.nc.subscribe("sahool.satellite.ndvi.computed", cb=handle_ndvi_calculated)
-        logger.info("nats_subscriptions_registered", count=2)
+        # Tenant-scoped subject: sahool.tenant.{tenant_id}.satellite.ndvi.computed
+        # This is what vegetation-analysis-service now publishes (H13+H14).
+        # NATS wildcard `*` matches exactly one token, so this catches every
+        # tenant. Tenant isolation is still enforced by the handler via the
+        # `tenant_id` field in the payload.
+        await app.state.nc.subscribe(
+            "sahool.tenant.*.satellite.ndvi.computed", cb=handle_ndvi_calculated
+        )
+        logger.info("nats_subscriptions_registered", count=3)
 
     yield
 

@@ -132,22 +132,25 @@ export default function UsersClient() {
       {showCreateDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+            <button onClick={() => { setShowCreateDialog(false); setCreateErrors({}); }} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
               <X className="w-5 h-5" />
             </button>
             <h2 className="text-lg font-bold text-gray-900 mb-4">إضافة مستخدم جديد</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (EN)</label>
-                <input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                <input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} maxLength={120} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 ${createErrors.name ? 'border-red-500' : ''}`} />
+                {createErrors.name && <p className="text-red-500 text-xs mt-1">{createErrors.name}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (AR)</label>
-                <input value={newUser.nameAr} onChange={(e) => setNewUser({ ...newUser, nameAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+                <input value={newUser.nameAr} onChange={(e) => setNewUser({ ...newUser, nameAr: e.target.value })} maxLength={120} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 ${createErrors.nameAr ? 'border-red-500' : ''}`} dir="rtl" />
+                {createErrors.nameAr && <p className="text-red-500 text-xs mt-1">{createErrors.nameAr}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
-                <input type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                <input type="email" autoComplete="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} maxLength={254} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 ${createErrors.email ? 'border-red-500' : ''}`} />
+                {createErrors.email && <p className="text-red-500 text-xs mt-1">{createErrors.email}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">الدور</label>
@@ -159,12 +162,18 @@ export default function UsersClient() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">رقم الهاتف (اختياري)</label>
-                <input type="tel" value={newUser.phone ?? ''} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                <input type="tel" autoComplete="tel" value={newUser.phone ?? ''} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} maxLength={20} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 ${createErrors.phone ? 'border-red-500' : ''}`} />
+                {createErrors.phone && <p className="text-red-500 text-xs mt-1">{createErrors.phone}</p>}
               </div>
             </div>
+            {createErrors.submit && (
+              <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+                {createErrors.submit}
+              </div>
+            )}
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleCreateUser} disabled={createUser.isPending || !newUser.name || !newUser.nameAr || !newUser.email} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+              <button onClick={() => { setShowCreateDialog(false); setCreateErrors({}); }} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreateUser} disabled={createUser.isPending} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
                 {createUser.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
               </button>
             </div>

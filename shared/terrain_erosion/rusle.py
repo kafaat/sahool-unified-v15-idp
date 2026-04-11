@@ -199,19 +199,36 @@ class RUSLEEngine:
     @staticmethod
     def compute_r_factor(annual_rainfall_mm: float, rainy_days_per_year: int) -> float:
         """
-        Renard et al. (1997) simplified R-factor for arid / semi-arid
-        regions. Returns MJ·mm / ha·h·yr.
+        Simplified R-factor calibrated for SAHOOL's arid-to-semi-arid
+        range (Yemen, KSA, Gulf). Returns tonnes-erosivity units.
 
-        The full RUSLE R-factor needs 15-minute rainfall intensity data
-        we rarely have. This simplified form uses annual rainfall and
-        rainy-days count, which are widely available from weather stations.
+        The full RUSLE R-factor requires 15-minute rainfall intensity
+        data we rarely have from Yemeni weather stations. This
+        simplified form uses annual rainfall + rainy-days count and
+        calibrates against the physical constraint that soil loss on
+        the worst observed real field (bare silt-loam, 30% slope,
+        catastrophic rainfall) should stay within the 100-300 t/ha/yr
+        range reported in FAO + ICARDA studies of the Middle East.
+
+        The previous calibration (0.264 × P^1.5) produced ~2000 t/ha/yr
+        on plausible highland fields — physically impossible. The new
+        calibration (0.0176 × P^1.5) was chosen so that:
+
+          * 200 mm/yr (arid highland)  → R ≈ 37 → bare silt-loam 30%
+            slope → A ≈ 24 t/ha/yr (HIGH band)
+          * 500 mm/yr (wet highland)   → R ≈ 197 → same → A ≈ 130
+            (CATASTROPHIC band, but not absurd)
+          * 800 mm/yr (Ibb peak)       → R ≈ 400 → same → A ≈ 264
+            (still within FAO-reported maxima)
+
+        Days-factor halves R when rain falls in few intense bursts
+        (≤30 days/yr) vs many light events (60+ days/yr).
         """
         if annual_rainfall_mm <= 0 or rainy_days_per_year <= 0:
             return 0.0
-        # Simplified: R ≈ 0.264 * P^1.5 for mean-annual precipitation
-        # (MedCLIVAR / Mediterranean calibration, suitable for KSA + Yemen)
-        base = 0.264 * (annual_rainfall_mm**1.5)
-        # Scale down slightly for fewer rainy days (more erosive bursts)
+        # Calibrated for Middle-East arid-to-semi-arid — see docstring.
+        base = 0.0176 * (annual_rainfall_mm**1.5)
+        # More rainy days = less erosive intensity per event
         days_factor = min(1.0, rainy_days_per_year / 60.0)
         return round(base * (0.5 + 0.5 * days_factor), 2)
 

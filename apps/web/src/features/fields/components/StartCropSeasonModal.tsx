@@ -39,8 +39,13 @@ import {
   Calendar,
   Tractor,
   Layers,
+  Clock,
+  DollarSign,
+  Wrench,
 } from 'lucide-react';
 import type { CropHistoryEntry } from './CropHistoryTimeline';
+import { useEquipment } from '@/features/equipment/hooks/useEquipment';
+import type { Equipment } from '@/features/equipment/types';
 
 // ---------------------------------------------------------------------------
 // Option lists (bilingual)
@@ -142,7 +147,15 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
   const [cropType, setCropType] = useState<string>(initialCropType);
   const [season, setSeason] = useState<string>('');
   const [plowingDate, setPlowingDate] = useState<string>('');
+  const [plowingEquipmentId, setPlowingEquipmentId] = useState<string>('');
+  const [plowingDurationHours, setPlowingDurationHours] = useState<string>('');
+  const [plowingCost, setPlowingCost] = useState<string>('');
   const [landPreparationDate, setLandPreparationDate] = useState<string>('');
+  const [landPreparationEquipmentId, setLandPreparationEquipmentId] =
+    useState<string>('');
+  const [landPreparationDurationHours, setLandPreparationDurationHours] =
+    useState<string>('');
+  const [landPreparationCost, setLandPreparationCost] = useState<string>('');
   const [startDate, setStartDate] = useState<string>(today());
   const [estimatedHarvestDate, setEstimatedHarvestDate] = useState<string>('');
   const [seedVariety, setSeedVariety] = useState<string>('');
@@ -150,6 +163,21 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
   const [irrigationType, setIrrigationType] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+
+  // Pull active equipment list from the existing equipment feature so the
+  // user can link a specific tractor / plow / harrow to each operation.
+  // The hook is a plain react-query fetch — no backend change needed.
+  const { data: equipmentList } = useEquipment();
+  const tillageCandidates = useMemo<Equipment[]>(() => {
+    if (!equipmentList) return [];
+    return equipmentList.filter(
+      (e) =>
+        (e.type === 'tractor' ||
+          e.type === 'planter' ||
+          e.type === 'other') &&
+        e.status !== 'retired',
+    );
+  }, [equipmentList]);
 
   const cropLabelAr = useMemo(
     () => CROP_OPTIONS.find((c) => c.value === cropType)?.labelAr,
@@ -159,6 +187,20 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
     () => IRRIGATION_OPTIONS.find((c) => c.value === irrigationType)?.labelAr,
     [irrigationType],
   );
+
+  // Live preview of the total pre-sowing operation cost + hours so the
+  // user can see the rollup before saving (same formula used by the
+  // timeline when rendering existing entries).
+  const totalCost = useMemo(() => {
+    const p = Number(plowingCost);
+    const l = Number(landPreparationCost);
+    return (Number.isFinite(p) ? p : 0) + (Number.isFinite(l) ? l : 0);
+  }, [plowingCost, landPreparationCost]);
+  const totalHours = useMemo(() => {
+    const p = Number(plowingDurationHours);
+    const l = Number(landPreparationDurationHours);
+    return (Number.isFinite(p) ? p : 0) + (Number.isFinite(l) ? l : 0);
+  }, [plowingDurationHours, landPreparationDurationHours]);
 
   if (!open) return null;
 
@@ -219,6 +261,22 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
         ? Number(plantingDensityKgHa)
         : undefined;
 
+    // Resolve the chosen equipment objects so we can snapshot the
+    // display names at save-time (timeline fallback if the equipment
+    // is later renamed or deleted).
+    const plowingEq = plowingEquipmentId
+      ? tillageCandidates.find((e) => e.id === plowingEquipmentId)
+      : undefined;
+    const landPrepEq = landPreparationEquipmentId
+      ? tillageCandidates.find((e) => e.id === landPreparationEquipmentId)
+      : undefined;
+
+    const parsePositive = (raw: string): number | undefined => {
+      if (!raw.trim()) return undefined;
+      const n = Number(raw);
+      return Number.isFinite(n) && n >= 0 ? n : undefined;
+    };
+
     const entry: CropHistoryEntry = {
       cropType,
       cropTypeAr: cropLabelAr,
@@ -226,9 +284,19 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
       plowingDate: plowingDate
         ? new Date(plowingDate).toISOString()
         : undefined,
+      plowingDurationHours: parsePositive(plowingDurationHours),
+      plowingCost: parsePositive(plowingCost),
+      plowingEquipmentId: plowingEq?.id,
+      plowingEquipmentName: plowingEq?.name,
+      plowingEquipmentNameAr: plowingEq?.nameAr,
       landPreparationDate: landPreparationDate
         ? new Date(landPreparationDate).toISOString()
         : undefined,
+      landPreparationDurationHours: parsePositive(landPreparationDurationHours),
+      landPreparationCost: parsePositive(landPreparationCost),
+      landPreparationEquipmentId: landPrepEq?.id,
+      landPreparationEquipmentName: landPrepEq?.name,
+      landPreparationEquipmentNameAr: landPrepEq?.nameAr,
       startDate: new Date(startDate).toISOString(),
       estimatedHarvestDate: estimatedHarvestDate
         ? new Date(estimatedHarvestDate).toISOString()
@@ -320,44 +388,201 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
             </div>
           </div>
 
-          {/* Row 2a: plowing + land preparation (both optional, pre-sowing) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium text-gray-700 mb-1 block">
-                <Tractor className="w-3 h-3 inline ml-1" />
-                تاريخ الحراثة
-              </label>
-              <input
-                type="date"
-                value={plowingDate}
-                onChange={(e) => setPlowingDate(e.target.value)}
-                max={startDate || today()}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                dir="ltr"
-              />
-              <p className="mt-1 text-[10px] text-gray-500">
-                الحراثة الأولية (قلب التربة، تكسير الطبقات)
-              </p>
+          {/* Section: Plowing (date + equipment + duration + cost) */}
+          <fieldset className="rounded-md border border-yellow-200 bg-yellow-50/30 p-3">
+            <legend className="text-xs font-semibold text-gray-800 px-2 flex items-center gap-1">
+              <Tractor className="w-3.5 h-3.5 text-yellow-700" />
+              عملية الحراثة
+            </legend>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  تاريخ الحراثة
+                </label>
+                <input
+                  type="date"
+                  value={plowingDate}
+                  onChange={(e) => setPlowingDate(e.target.value)}
+                  max={startDate || today()}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  dir="ltr"
+                />
+                <p className="mt-1 text-[10px] text-gray-500">
+                  الحراثة الأولية (قلب التربة، تكسير الطبقات)
+                </p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <Wrench className="w-3 h-3 inline ml-1" />
+                  المعدة المستخدمة
+                </label>
+                <select
+                  value={plowingEquipmentId}
+                  onChange={(e) => setPlowingEquipmentId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">— اختر من قائمة المعدات —</option>
+                  {tillageCandidates.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.nameAr || e.name}
+                      {e.manufacturer ? ` — ${e.manufacturer}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-[10px] text-gray-500">
+                  مربوطة بصفحة إدارة المعدات
+                </p>
+              </div>
             </div>
-            <div>
-              <label className="text-xs font-medium text-gray-700 mb-1 block">
-                <Layers className="w-3 h-3 inline ml-1" />
-                تاريخ تهيئة الأرض
-              </label>
-              <input
-                type="date"
-                value={landPreparationDate}
-                onChange={(e) => setLandPreparationDate(e.target.value)}
-                min={plowingDate || undefined}
-                max={startDate || today()}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                dir="ltr"
-              />
-              <p className="mt-1 text-[10px] text-gray-500">
-                تسوية وتهيئة مهد البذرة قبل الزراعة
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <Clock className="w-3 h-3 inline ml-1" />
+                  مدة الحراثة (ساعة)
+                </label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  max="1000"
+                  step="0.1"
+                  value={plowingDurationHours}
+                  onChange={(e) =>
+                    setPlowingDurationHours(clampPositive(e.target.value))
+                  }
+                  placeholder="مثال: 6"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  dir="ltr"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <DollarSign className="w-3 h-3 inline ml-1" />
+                  تكلفة الحراثة (ريال)
+                </label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="1"
+                  value={plowingCost}
+                  onChange={(e) => setPlowingCost(clampPositive(e.target.value))}
+                  placeholder="مثال: 1200"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  dir="ltr"
+                />
+              </div>
             </div>
-          </div>
+          </fieldset>
+
+          {/* Section: Land Preparation (date + equipment + duration + cost) */}
+          <fieldset className="rounded-md border border-stone-200 bg-stone-50/30 p-3">
+            <legend className="text-xs font-semibold text-gray-800 px-2 flex items-center gap-1">
+              <Layers className="w-3.5 h-3.5 text-stone-600" />
+              عملية تهيئة الأرض
+            </legend>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  تاريخ تهيئة الأرض
+                </label>
+                <input
+                  type="date"
+                  value={landPreparationDate}
+                  onChange={(e) => setLandPreparationDate(e.target.value)}
+                  min={plowingDate || undefined}
+                  max={startDate || today()}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  dir="ltr"
+                />
+                <p className="mt-1 text-[10px] text-gray-500">
+                  تسوية وتهيئة مهد البذرة قبل الزراعة
+                </p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <Wrench className="w-3 h-3 inline ml-1" />
+                  المعدة المستخدمة
+                </label>
+                <select
+                  value={landPreparationEquipmentId}
+                  onChange={(e) => setLandPreparationEquipmentId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">— اختر من قائمة المعدات —</option>
+                  {tillageCandidates.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.nameAr || e.name}
+                      {e.manufacturer ? ` — ${e.manufacturer}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-[10px] text-gray-500">
+                  مربوطة بصفحة إدارة المعدات
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <Clock className="w-3 h-3 inline ml-1" />
+                  مدة التهيئة (ساعة)
+                </label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  max="1000"
+                  step="0.1"
+                  value={landPreparationDurationHours}
+                  onChange={(e) =>
+                    setLandPreparationDurationHours(clampPositive(e.target.value))
+                  }
+                  placeholder="مثال: 4"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  dir="ltr"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <DollarSign className="w-3 h-3 inline ml-1" />
+                  تكلفة التهيئة (ريال)
+                </label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="1"
+                  value={landPreparationCost}
+                  onChange={(e) =>
+                    setLandPreparationCost(clampPositive(e.target.value))
+                  }
+                  placeholder="مثال: 800"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  dir="ltr"
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          {/* Live rollup of pre-sowing operation totals */}
+          {(totalCost > 0 || totalHours > 0) && (
+            <div className="rounded-md bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-900 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span className="font-semibold">الإجمالي قبل البذار:</span>
+              {totalHours > 0 && (
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  <strong>{totalHours.toLocaleString('ar-SA')}</strong> ساعة
+                </span>
+              )}
+              {totalCost > 0 && (
+                <span className="inline-flex items-center gap-1">
+                  <DollarSign className="w-3.5 h-3.5" />
+                  <strong>{totalCost.toLocaleString('ar-SA')}</strong> ريال
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Row 2b: sowing + expected harvest */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

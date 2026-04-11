@@ -31,6 +31,7 @@
  */
 
 import React from 'react';
+import Link from 'next/link';
 import {
   Wheat,
   Calendar,
@@ -40,6 +41,9 @@ import {
   PlusCircle,
   Tractor,
   Layers,
+  Clock,
+  DollarSign,
+  Wrench,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -73,11 +77,44 @@ export interface CropHistoryEntry {
    */
   plowingDate?: string;
   /**
+   * Plowing operation duration in hours. Feeds the total "field
+   * operation hours" metric and, when an equipment record is linked,
+   * lets the equipment-management page accrue wear/maintenance cycles.
+   */
+  plowingDurationHours?: number;
+  /**
+   * Plowing operation cost in local currency (SAR). Sum of fuel +
+   * labour + equipment rental. Surfaces in per-season totals.
+   */
+  plowingCost?: number;
+  /**
+   * Equipment id from the equipment-management feature
+   * (`useEquipment()`). Linking a tractor/plow here lets the timeline
+   * render a clickable chip that deep-links to `/equipment/[id]` and
+   * enables per-equipment cost roll-ups across seasons.
+   */
+  plowingEquipmentId?: string;
+  /** Cached equipment display name at link-time (fallback label). */
+  plowingEquipmentName?: string;
+  /** Cached Arabic equipment display name at link-time. */
+  plowingEquipmentNameAr?: string;
+
+  /**
    * Land-preparation completion date — ISO 8601. Records when the
    * seedbed was finalised (harrowing, levelling, bed-making). Comes
    * AFTER plowing and BEFORE sowing (`startDate`).
    */
   landPreparationDate?: string;
+  /** Land-preparation duration in hours. */
+  landPreparationDurationHours?: number;
+  /** Land-preparation cost in local currency (SAR). */
+  landPreparationCost?: number;
+  /** Equipment id used for land preparation (harrow / leveller / ...). */
+  landPreparationEquipmentId?: string;
+  /** Cached equipment display name for land-prep equipment. */
+  landPreparationEquipmentName?: string;
+  /** Cached Arabic display name for land-prep equipment. */
+  landPreparationEquipmentNameAr?: string;
   /** Seed variety / cultivar, e.g. "Sakha 95", "Pioneer P1415". */
   seedVariety?: string;
   /** Arabic label for seed variety. */
@@ -192,7 +229,17 @@ function readCropHistoryFromMetadata(
       yieldKgHa: num(obj.yieldKgHa),
       notes: str(obj.notes),
       plowingDate: str(obj.plowingDate),
+      plowingDurationHours: num(obj.plowingDurationHours),
+      plowingCost: num(obj.plowingCost),
+      plowingEquipmentId: str(obj.plowingEquipmentId),
+      plowingEquipmentName: str(obj.plowingEquipmentName),
+      plowingEquipmentNameAr: str(obj.plowingEquipmentNameAr),
       landPreparationDate: str(obj.landPreparationDate),
+      landPreparationDurationHours: num(obj.landPreparationDurationHours),
+      landPreparationCost: num(obj.landPreparationCost),
+      landPreparationEquipmentId: str(obj.landPreparationEquipmentId),
+      landPreparationEquipmentName: str(obj.landPreparationEquipmentName),
+      landPreparationEquipmentNameAr: str(obj.landPreparationEquipmentNameAr),
       seedVariety: str(obj.seedVariety),
       seedVarietyAr: str(obj.seedVarietyAr),
       plantingDensityKgHa: num(obj.plantingDensityKgHa),
@@ -348,23 +395,130 @@ export const CropHistoryTimeline: React.FC<CropHistoryTimelineProps> = ({
                       </span>
                     </div>
                     {entry.plowingDate && (
-                      <div className="mt-1 text-xs text-gray-700 flex items-center gap-1">
-                        <Tractor className="w-3 h-3 text-yellow-700" aria-hidden="true" />
-                        <span>
-                          تاريخ الحراثة:{' '}
-                          <strong>{formatDateAr(entry.plowingDate)}</strong>
-                        </span>
+                      <div className="mt-2 rounded-md border border-yellow-200 bg-yellow-50/60 p-2 space-y-1">
+                        <div className="text-xs text-gray-800 flex items-center gap-1">
+                          <Tractor className="w-3 h-3 text-yellow-700" aria-hidden="true" />
+                          <span>
+                            تاريخ الحراثة:{' '}
+                            <strong>{formatDateAr(entry.plowingDate)}</strong>
+                          </span>
+                        </div>
+                        {entry.plowingEquipmentId && (
+                          <div className="text-[11px] text-gray-700 flex items-center gap-1">
+                            <Wrench className="w-3 h-3 text-gray-500" aria-hidden="true" />
+                            <span>المعدة:</span>
+                            <Link
+                              href={`/equipment/${entry.plowingEquipmentId}`}
+                              className="font-medium text-blue-700 hover:text-blue-900 hover:underline"
+                            >
+                              {entry.plowingEquipmentNameAr ??
+                                entry.plowingEquipmentName ??
+                                entry.plowingEquipmentId}
+                            </Link>
+                          </div>
+                        )}
+                        {typeof entry.plowingDurationHours === 'number' && (
+                          <div className="text-[11px] text-gray-700 flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-gray-500" aria-hidden="true" />
+                            <span>
+                              المدة:{' '}
+                              <strong>
+                                {entry.plowingDurationHours.toLocaleString('ar-SA')}
+                              </strong>{' '}
+                              ساعة
+                            </span>
+                          </div>
+                        )}
+                        {typeof entry.plowingCost === 'number' && (
+                          <div className="text-[11px] text-gray-700 flex items-center gap-1">
+                            <DollarSign className="w-3 h-3 text-gray-500" aria-hidden="true" />
+                            <span>
+                              التكلفة:{' '}
+                              <strong>
+                                {entry.plowingCost.toLocaleString('ar-SA')}
+                              </strong>{' '}
+                              ريال
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                     {entry.landPreparationDate && (
-                      <div className="mt-1 text-xs text-gray-700 flex items-center gap-1">
-                        <Layers className="w-3 h-3 text-stone-600" aria-hidden="true" />
-                        <span>
-                          تهيئة الأرض:{' '}
-                          <strong>{formatDateAr(entry.landPreparationDate)}</strong>
-                        </span>
+                      <div className="mt-2 rounded-md border border-stone-200 bg-stone-50/60 p-2 space-y-1">
+                        <div className="text-xs text-gray-800 flex items-center gap-1">
+                          <Layers className="w-3 h-3 text-stone-600" aria-hidden="true" />
+                          <span>
+                            تهيئة الأرض:{' '}
+                            <strong>{formatDateAr(entry.landPreparationDate)}</strong>
+                          </span>
+                        </div>
+                        {entry.landPreparationEquipmentId && (
+                          <div className="text-[11px] text-gray-700 flex items-center gap-1">
+                            <Wrench className="w-3 h-3 text-gray-500" aria-hidden="true" />
+                            <span>المعدة:</span>
+                            <Link
+                              href={`/equipment/${entry.landPreparationEquipmentId}`}
+                              className="font-medium text-blue-700 hover:text-blue-900 hover:underline"
+                            >
+                              {entry.landPreparationEquipmentNameAr ??
+                                entry.landPreparationEquipmentName ??
+                                entry.landPreparationEquipmentId}
+                            </Link>
+                          </div>
+                        )}
+                        {typeof entry.landPreparationDurationHours === 'number' && (
+                          <div className="text-[11px] text-gray-700 flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-gray-500" aria-hidden="true" />
+                            <span>
+                              المدة:{' '}
+                              <strong>
+                                {entry.landPreparationDurationHours.toLocaleString('ar-SA')}
+                              </strong>{' '}
+                              ساعة
+                            </span>
+                          </div>
+                        )}
+                        {typeof entry.landPreparationCost === 'number' && (
+                          <div className="text-[11px] text-gray-700 flex items-center gap-1">
+                            <DollarSign className="w-3 h-3 text-gray-500" aria-hidden="true" />
+                            <span>
+                              التكلفة:{' '}
+                              <strong>
+                                {entry.landPreparationCost.toLocaleString('ar-SA')}
+                              </strong>{' '}
+                              ريال
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
+                    {/* Per-entry rollup: total land-prep operation cost + hours */}
+                    {(() => {
+                      const plowCost = entry.plowingCost ?? 0;
+                      const prepCost = entry.landPreparationCost ?? 0;
+                      const plowHrs = entry.plowingDurationHours ?? 0;
+                      const prepHrs = entry.landPreparationDurationHours ?? 0;
+                      const totalCost = plowCost + prepCost;
+                      const totalHrs = plowHrs + prepHrs;
+                      if (totalCost === 0 && totalHrs === 0) return null;
+                      return (
+                        <div className="mt-2 pt-2 border-t border-dashed border-gray-200 text-[11px] text-gray-800 flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className="font-semibold">الإجمالي قبل البذار:</span>
+                          {totalHrs > 0 && (
+                            <span className="inline-flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-gray-500" aria-hidden="true" />
+                              <strong>{totalHrs.toLocaleString('ar-SA')}</strong> ساعة
+                            </span>
+                          )}
+                          {totalCost > 0 && (
+                            <span className="inline-flex items-center gap-1">
+                              <DollarSign className="w-3 h-3 text-gray-500" aria-hidden="true" />
+                              <strong>{totalCost.toLocaleString('ar-SA')}</strong> ريال
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                     {/* Rich Stage-2 details (only render when present) */}
                     {(entry.seedVariety || entry.seedVarietyAr) && (
                       <div className="mt-1 text-xs text-gray-700 flex items-center gap-1">

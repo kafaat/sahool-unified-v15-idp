@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.7.0
+/// Contract version: 4.8.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
@@ -206,6 +206,10 @@ abstract final class ErrorCodes {
   static const String visionAuthInvalidToken = 'E8001';
   static const String visionAuthTokenExpired = 'E8002';
   static const String visionPermissionDenied = 'E8003';
+  static const String erosionEngineUnavailable = 'ER1001';
+  static const String erosionInvalidSoilTexture = 'ER1002';
+  static const String erosionTenantMismatch = 'ER1003';
+  static const String erosionComputeFailed = 'ER1004';
 }
 
 /// Bilingual error message.
@@ -1548,6 +1552,34 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 500,
     en: 'Failed to sign object storage URL',
     ar: 'فشل في توقيع عنوان التخزين',
+    retryable: true,
+  ),
+  'ER1001': ErrorMessage(
+    code: 'ER1001',
+    httpStatus: 503,
+    en: 'Soil erosion (RUSLE) engine is not available',
+    ar: 'محرك تقييم تعرية التربة (RUSLE) غير متاح',
+    retryable: true,
+  ),
+  'ER1002': ErrorMessage(
+    code: 'ER1002',
+    httpStatus: 400,
+    en: 'Unknown soil texture class',
+    ar: 'نوع تربة غير معروف',
+    retryable: false,
+  ),
+  'ER1003': ErrorMessage(
+    code: 'ER1003',
+    httpStatus: 403,
+    en: 'Tenant identifier does not match the authenticated caller',
+    ar: 'معرّف المستأجر لا يتطابق مع المتصل الموثّق',
+    retryable: false,
+  ),
+  'ER1004': ErrorMessage(
+    code: 'ER1004',
+    httpStatus: 500,
+    en: 'RUSLE soil loss computation failed',
+    ar: 'فشل حساب فقد التربة RUSLE',
     retryable: true,
   ),
   'UNKNOWN': ErrorMessage(

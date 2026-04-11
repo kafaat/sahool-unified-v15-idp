@@ -20,13 +20,14 @@ import {
 } from 'lucide-react';
 import { useCreateField } from '@/features/satellite-monitor';
 
-// Dynamically load the Leaflet drawing map — it pulls in `react-leaflet`
-// and raw `leaflet` which require a browser `window`, so SSR must be
-// disabled. Keeping the import next to the client page (instead of a
-// barrel `index.ts`) ensures Next tree-shakes the Leaflet bundle off the
-// server build entirely.
-const DrawableMap = dynamic(
-  () => import('@/components/maps/DrawableMap').then((m) => m.default),
+// Dynamically load the Google Maps drawing surface — it pulls in
+// `@react-google-maps/api` which requires a browser `window`, so SSR
+// must be disabled. We swapped away from the Leaflet-only
+// `DrawableMap` because that component only supported polygon +
+// rectangle, and this page needs the circle tool the native Google
+// Maps DrawingManager provides (see commit history).
+const GoogleMapsFieldDrawer = dynamic(
+  () => import('@/components/maps/GoogleMapsFieldDrawer'),
   {
     ssr: false,
     loading: () => (
@@ -155,13 +156,17 @@ export default function AddFieldClient() {
   };
 
   /**
-   * Receive a GeoJSON polygon from <DrawableMap> and flatten it into the
-   * `FieldBoundary[]` shape the rest of this client already consumes.
+   * Receive a GeoJSON polygon from <GoogleMapsFieldDrawer> and flatten
+   * it into the `FieldBoundary[]` shape the rest of this client already
+   * consumes.
    *
    * GeoJSON polygon rings are closed (first coordinate == last); we drop
    * the duplicate closing vertex so `boundaryPoints.length` reflects the
    * number of user-placed points and the existing `length < 3` guard in
-   * `validateStep` still works.
+   * `validateStep` still works. Circles are emitted by
+   * GoogleMapsFieldDrawer as a 72-vertex approximation via the
+   * `circlePolygon()` helper, so they flow through this same path with
+   * no special-casing.
    */
   const handleDrawnBoundary = useCallback(
     (geojson: GeoJSON.Polygon | null) => {
@@ -188,8 +193,8 @@ export default function AddFieldClient() {
   /**
    * Center the drawing map on the form-entered lat/lng if the user
    * provided one in step 1, otherwise default to Yemen's centroid.
-   * The tuple is memoised so <DrawableMap> does not re-mount on every
-   * unrelated re-render.
+   * The tuple is memoised so <GoogleMapsFieldDrawer> does not re-mount
+   * on every unrelated re-render.
    */
   const drawInitialCenter = useMemo<[number, number]>(() => {
     const lat = parseFloat(formData.lat);
@@ -437,14 +442,17 @@ export default function AddFieldClient() {
             <div className="space-y-3">
               <div className="rounded-lg border-2 border-green-300 bg-green-50 p-3 text-sm text-green-800">
                 <p className="font-medium inline-flex items-center gap-1.5">
-                  <Pencil className="w-4 h-4" /> انقر على الخريطة لإضافة نقطة جديدة
+                  <Pencil className="w-4 h-4" /> اختر أداة الرسم من شريط الأدوات أعلى الخريطة
                 </p>
                 <p className="text-green-700 text-xs mt-1">
-                  بعد إضافة 3 نقاط على الأقل سيظهر زر «إكمال» لإغلاق المضلع.
-                  يتم توصيل كل نقطة بالتي تليها بخط مباشر.
+                  الأدوات المتاحة: <strong>مضلع</strong> (انقر لإضافة نقطة
+                  وخط بين كل نقطتين متتاليتين)، <strong>مستطيل</strong>{' '}
+                  (اسحب لرسم إطار)، <strong>دائرة</strong> (انقر المركز
+                  واسحب لتحديد الشعاع). يمكنك تحريك الرؤوس أو السحب لتعديل
+                  الشكل بعد الرسم.
                 </p>
               </div>
-              <DrawableMap
+              <GoogleMapsFieldDrawer
                 onBoundaryChange={handleDrawnBoundary}
                 initialCenter={drawInitialCenter}
                 initialZoom={drawInitialZoom}

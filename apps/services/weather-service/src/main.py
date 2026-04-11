@@ -14,6 +14,7 @@ import sys
 from contextlib import asynccontextmanager
 from enum import StrEnum
 from pathlib import Path
+from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException
 

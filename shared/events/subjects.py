@@ -574,6 +574,9 @@ SAHOOL_TRACEABILITY_HARVEST_RECORDED = "sahool.traceability.harvest_recorded"
 SAHOOL_TRACEABILITY_PROCESSING_RECORDED = "sahool.traceability.processing_recorded"
 SAHOOL_TRACEABILITY_STORAGE_RECORDED = "sahool.traceability.storage_recorded"
 SAHOOL_TRACEABILITY_TRANSPORT_RECORDED = "sahool.traceability.transport_recorded"
+# Blockchain-style anchor published by the traceability subscriber whenever
+# a `sahool.field.*` event is hashed and added to the field's trace chain.
+SAHOOL_TRACEABILITY_ANCHOR_CREATED = "sahool.traceability.anchor.created"
 
 SAHOOL_TRACEABILITY_ALL = "sahool.traceability.*"
 
@@ -997,6 +1000,7 @@ SUBJECT_REGISTRY = {
     "traceability.processing_recorded": SAHOOL_TRACEABILITY_PROCESSING_RECORDED,
     "traceability.storage_recorded": SAHOOL_TRACEABILITY_STORAGE_RECORDED,
     "traceability.transport_recorded": SAHOOL_TRACEABILITY_TRANSPORT_RECORDED,
+    "traceability.anchor.created": SAHOOL_TRACEABILITY_ANCHOR_CREATED,
     # Compliance
     "compliance.updated": SAHOOL_COMPLIANCE_UPDATED,
     "compliance.audit.completed": SAHOOL_COMPLIANCE_AUDIT_COMPLETED,

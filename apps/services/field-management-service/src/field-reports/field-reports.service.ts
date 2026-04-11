@@ -22,6 +22,7 @@
  */
 
 import {
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -34,7 +35,8 @@ import {
   type ReportInputSnapshot,
   type ReportRenderType,
 } from "./renderers/html-report.renderer";
-import { InMemoryReportStorage } from "./storage/inmemory-storage.adapter";
+import type { IReportStorageProvider } from "./storage/report-storage.provider";
+import { REPORT_STORAGE_TOKEN } from "./storage/storage.token";
 import type {
   CreateFieldReportDto,
   QueryFieldReportsDto,
@@ -48,7 +50,8 @@ export class FieldReportsService {
     private readonly prisma: PrismaService,
     private readonly outbox: OutboxService,
     private readonly renderer: HtmlReportRenderer,
-    private readonly storage: InMemoryReportStorage,
+    @Inject(REPORT_STORAGE_TOKEN)
+    private readonly storage: IReportStorageProvider,
   ) {}
 
   private uuidOrNull(value: string): string {

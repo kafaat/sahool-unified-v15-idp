@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.6.0
+/// Contract version: 4.7.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
@@ -143,6 +143,30 @@ abstract final class ErrorCodes {
   static const String vegetationAnomalyDetectionFailed = 'V1006';
   static const String vegetationIndicatorNotFound = 'V1007';
   static const String vegetationIndicatorValueInvalid = 'V1008';
+  static const String advisoryComprehensiveDegraded = 'A1009';
+  static const String advisoryComprehensiveAllSourcesDown = 'A1010';
+  static const String advisoryComprehensiveTimeout = 'A1011';
+  static const String loanFieldNotFound = 'L1001';
+  static const String loanCropNotVerified = 'L1002';
+  static const String loanAreaMismatch = 'L1003';
+  static const String loanRiskTooHigh = 'L1004';
+  static const String loanNdviDataUnavailable = 'L1005';
+  static const String loanRequestedAmountExceedsSafe = 'L1006';
+  static const String weatherGraphRenderFailed = 'W1009';
+  static const String weatherGraphNotFound = 'W1010';
+  static const String weatherGraphInvalidSignature = 'W1011';
+  static const String weatherGraphExpired = 'W1012';
+  static const String weatherGraphNoHistory = 'W1013';
+  static const String traceabilityChainTampered = 'T1001';
+  static const String traceabilityAnchorPersistFailed = 'T1002';
+  static const String traceabilitySubscriberUnavailable = 'T1003';
+  static const String geofenceNoFieldMapping = 'G1001';
+  static const String geofenceEquipmentTenantMismatch = 'G1002';
+  static const String geofenceAutodraftRetry = 'G1003';
+  static const String geofenceAlertNotActionable = 'G1004';
+  static const String reportStorageUploadFailed = 'R1001';
+  static const String reportStorageCredentialsMissing = 'R1002';
+  static const String reportStorageSigningFailed = 'R1003';
   static const String unknown = 'UNKNOWN';
 
   // Vision Service (E-codes)
@@ -1357,6 +1381,174 @@ const Map<String, ErrorMessage> errorMessages = {
     en: 'Permission denied for this vision operation',
     ar: 'تم رفض الإذن لهذه العملية في خدمة الرؤية',
     retryable: false,
+  ),
+  'A1009': ErrorMessage(
+    code: 'A1009',
+    httpStatus: 200,
+    en: 'Some advisory sources returned degraded results',
+    ar: 'بعض مصادر الاستشارة أعادت نتائج ناقصة',
+    retryable: true,
+  ),
+  'A1010': ErrorMessage(
+    code: 'A1010',
+    httpStatus: 503,
+    en: 'All advisory downstream services are unavailable',
+    ar: 'جميع خدمات الاستشارة التابعة غير متاحة',
+    retryable: true,
+  ),
+  'A1011': ErrorMessage(
+    code: 'A1011',
+    httpStatus: 504,
+    en: 'Comprehensive advisory orchestration timed out',
+    ar: 'انتهت مهلة تنسيق الاستشارة الشاملة',
+    retryable: true,
+  ),
+  'L1001': ErrorMessage(
+    code: 'L1001',
+    httpStatus: 404,
+    en: 'Field not found for loan verification',
+    ar: 'لم يُعثر على الحقل للتحقق من القرض',
+    retryable: false,
+  ),
+  'L1002': ErrorMessage(
+    code: 'L1002',
+    httpStatus: 200,
+    en: 'Crop could not be verified via satellite NDVI',
+    ar: 'لا يمكن التحقق من المحصول عبر مؤشر NDVI الفضائي',
+    retryable: false,
+  ),
+  'L1003': ErrorMessage(
+    code: 'L1003',
+    httpStatus: 200,
+    en: 'Declared area does not match GIS-measured area',
+    ar: 'المساحة المُعلنة لا تطابق المساحة المقاسة بنظم المعلومات الجغرافية',
+    retryable: false,
+  ),
+  'L1004': ErrorMessage(
+    code: 'L1004',
+    httpStatus: 200,
+    en: 'Field risk profile exceeds safe loan threshold',
+    ar: 'مستوى مخاطر الحقل يتجاوز الحد الآمن للإقراض',
+    retryable: false,
+  ),
+  'L1005': ErrorMessage(
+    code: 'L1005',
+    httpStatus: 503,
+    en: 'NDVI history unavailable for loan verification',
+    ar: 'بيانات NDVI غير متاحة للتحقق من القرض',
+    retryable: true,
+  ),
+  'L1006': ErrorMessage(
+    code: 'L1006',
+    httpStatus: 200,
+    en: 'Requested loan amount exceeds the recommended safe limit',
+    ar: 'مبلغ القرض المطلوب يتجاوز الحد الآمن الموصى به',
+    retryable: false,
+  ),
+  'W1009': ErrorMessage(
+    code: 'W1009',
+    httpStatus: 500,
+    en: 'Failed to render weather graph SVG',
+    ar: 'فشل في توليد الرسم البياني للطقس',
+    retryable: true,
+  ),
+  'W1010': ErrorMessage(
+    code: 'W1010',
+    httpStatus: 404,
+    en: 'Weather graph not found',
+    ar: 'لم يُعثر على الرسم البياني للطقس',
+    retryable: false,
+  ),
+  'W1011': ErrorMessage(
+    code: 'W1011',
+    httpStatus: 403,
+    en: 'Invalid weather graph signature',
+    ar: 'توقيع الرسم البياني للطقس غير صالح',
+    retryable: false,
+  ),
+  'W1012': ErrorMessage(
+    code: 'W1012',
+    httpStatus: 410,
+    en: 'Weather graph has expired',
+    ar: 'انتهت صلاحية الرسم البياني للطقس',
+    retryable: true,
+  ),
+  'W1013': ErrorMessage(
+    code: 'W1013',
+    httpStatus: 200,
+    en: 'No historical weather data for the requested range',
+    ar: 'لا توجد بيانات طقس تاريخية للفترة المطلوبة',
+    retryable: false,
+  ),
+  'T1001': ErrorMessage(
+    code: 'T1001',
+    httpStatus: 409,
+    en: 'Traceability chain integrity check failed',
+    ar: 'فشل التحقق من سلامة سلسلة التتبع',
+    retryable: false,
+  ),
+  'T1002': ErrorMessage(
+    code: 'T1002',
+    httpStatus: 500,
+    en: 'Failed to persist traceability anchor',
+    ar: 'فشل حفظ مرساة التتبع',
+    retryable: true,
+  ),
+  'T1003': ErrorMessage(
+    code: 'T1003',
+    httpStatus: 503,
+    en: 'Traceability anchoring subscriber is not running',
+    ar: 'مشترك تتبع المراسي غير مُفعَّل',
+    retryable: true,
+  ),
+  'G1001': ErrorMessage(
+    code: 'G1001',
+    httpStatus: 200,
+    en: 'Geofence has no field mapping; auto-draft skipped',
+    ar: 'السياج الجغرافي لا يرتبط بحقل؛ تم تخطي المسودة التلقائية',
+    retryable: false,
+  ),
+  'G1002': ErrorMessage(
+    code: 'G1002',
+    httpStatus: 404,
+    en: 'Equipment not found for this tenant',
+    ar: 'المعدة غير موجودة لهذا المستأجر',
+    retryable: false,
+  ),
+  'G1003': ErrorMessage(
+    code: 'G1003',
+    httpStatus: 202,
+    en: 'Auto-draft queued for retry',
+    ar: 'تمت جدولة المسودة التلقائية لإعادة المحاولة',
+    retryable: true,
+  ),
+  'G1004': ErrorMessage(
+    code: 'G1004',
+    httpStatus: 200,
+    en: 'Geofence alert type is not actionable',
+    ar: 'نوع تنبيه السياج الجغرافي غير قابل للتنفيذ',
+    retryable: false,
+  ),
+  'R1001': ErrorMessage(
+    code: 'R1001',
+    httpStatus: 500,
+    en: 'Failed to upload report to object storage',
+    ar: 'فشل في رفع التقرير إلى التخزين',
+    retryable: true,
+  ),
+  'R1002': ErrorMessage(
+    code: 'R1002',
+    httpStatus: 500,
+    en: 'Object storage credentials are not configured',
+    ar: 'بيانات اعتماد التخزين غير مُهيَّأة',
+    retryable: false,
+  ),
+  'R1003': ErrorMessage(
+    code: 'R1003',
+    httpStatus: 500,
+    en: 'Failed to sign object storage URL',
+    ar: 'فشل في توقيع عنوان التخزين',
+    retryable: true,
   ),
   'UNKNOWN': ErrorMessage(
     code: 'UNKNOWN',

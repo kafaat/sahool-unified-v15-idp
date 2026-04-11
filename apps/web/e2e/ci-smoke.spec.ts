@@ -11,11 +11,24 @@ import { test, expect } from "@playwright/test";
  * Tests use .first() on text locators to avoid strict-mode failures
  * when multiple elements match (e.g. heading + button both contain
  * "تسجيل الدخول").
+ *
+ * Wait strategy: we use `waitUntil: "domcontentloaded"` instead of
+ * `"networkidle"`. Playwright's own docs warn against `networkidle`
+ * because it is prone to flakiness — in our stack the Service Worker
+ * registration, RSC prefetch, and analytics beacons keep the network
+ * active well beyond first paint, so `networkidle` never fires within
+ * the 20s navigation timeout on the heavier `/register` form. The
+ * individual `.toBeVisible({ timeout: ... })` assertions below are
+ * what actually gate each test — they auto-retry until the element
+ * is ready, which is the pattern Playwright recommends for
+ * post-hydration content.
+ *
+ * See https://playwright.dev/docs/api/class-page#page-goto-option-wait-until
  */
 
 test.describe("CI Smoke Tests (no backend required)", () => {
   test("login page renders with bilingual content", async ({ page }) => {
-    await page.goto("/login", { waitUntil: "networkidle" });
+    await page.goto("/login", { waitUntil: "domcontentloaded" });
 
     // Verify Arabic content is present
     await expect(page.getByText("تسجيل الدخول").first()).toBeVisible({
@@ -38,7 +51,7 @@ test.describe("CI Smoke Tests (no backend required)", () => {
   });
 
   test("register page renders with form fields", async ({ page }) => {
-    await page.goto("/register", { waitUntil: "networkidle" });
+    await page.goto("/register", { waitUntil: "domcontentloaded" });
 
     // Verify Arabic heading
     await expect(page.getByText("إنشاء حساب جديد").first()).toBeVisible({
@@ -59,7 +72,7 @@ test.describe("CI Smoke Tests (no backend required)", () => {
   });
 
   test("forgot-password page renders", async ({ page }) => {
-    await page.goto("/forgot-password", { waitUntil: "networkidle" });
+    await page.goto("/forgot-password", { waitUntil: "domcontentloaded" });
 
     // Verify page loaded with password recovery content
     // Match any of the bilingual heading variants
@@ -69,7 +82,7 @@ test.describe("CI Smoke Tests (no backend required)", () => {
 
   test("navigation between auth pages works", async ({ page }) => {
     // Start at login
-    await page.goto("/login", { waitUntil: "networkidle" });
+    await page.goto("/login", { waitUntil: "domcontentloaded" });
     await expect(page.getByText("تسجيل الدخول").first()).toBeVisible({
       timeout: 15000,
     });
@@ -93,7 +106,7 @@ test.describe("CI Smoke Tests (no backend required)", () => {
   });
 
   test("login form has required fields", async ({ page }) => {
-    await page.goto("/login", { waitUntil: "networkidle" });
+    await page.goto("/login", { waitUntil: "domcontentloaded" });
     await expect(page.locator('button[type="submit"]')).toBeVisible({
       timeout: 15000,
     });
@@ -112,7 +125,7 @@ test.describe("CI Smoke Tests (no backend required)", () => {
   });
 
   test("page has correct accessibility structure", async ({ page }) => {
-    await page.goto("/login", { waitUntil: "networkidle" });
+    await page.goto("/login", { waitUntil: "domcontentloaded" });
 
     // Default is phone — verify phone autocomplete
     const phoneInput = page.locator('input[type="tel"]');

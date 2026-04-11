@@ -205,6 +205,10 @@ export const WEATHER_ENDPOINTS = {
   ALERTS_BY_FIELD: `${API_PREFIX}/weather/alerts/field/{fieldId}`,
   LOCATIONS: `${API_PREFIX}/weather/locations`,
   AGRICULTURAL_CALENDAR: `${API_PREFIX}/weather/agricultural-calendar`,
+  /** @since 4.7.0 — Generate a signed SVG weather graph URL for a field (Farmonaut-style get-past-weather-graph) */
+  FIELD_GRAPH_GENERATE: `${API_PREFIX}/weather/fields/{fieldId}/graph`,
+  /** @since 4.7.0 — Fetch a previously generated weather graph by signed id */
+  FIELD_GRAPH_FETCH: `${API_PREFIX}/weather/graphs/{graphId}`,
   /** @deprecated Use WEATHER_ENDPOINTS.CURRENT instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
   WEATHER_CORE_CURRENT: `${API_PREFIX}/weather-core/weather/current`,
   /** @deprecated Use WEATHER_ENDPOINTS.FORECAST instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
@@ -292,6 +296,19 @@ export const ADVISORY_ENDPOINTS = {
   AGRO_ADVICE: `${API_PREFIX}/agro-advisor/advice`,
   AGRO_DISEASE: `${API_PREFIX}/agro-advisor/disease`,
   AGRO_NUTRIENTS: `${API_PREFIX}/agro-advisor/nutrients`,
+  /** @since 4.7.0 — Jeevn-style unified per-field advisory (one call → comprehensive answer) */
+  COMPREHENSIVE: `${API_PREFIX}/advisory/comprehensive/{fieldId}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Crop Loan Verification Endpoints - نقاط التحقق من القروض الزراعية
+// Satellite-backed verification surfaced by advisory-service; banks use
+// this to confirm farmer declarations against real NDVI before lending.
+// ---------------------------------------------------------------------------
+
+export const LOAN_VERIFICATION_ENDPOINTS = {
+  /** @since 4.7.0 — Satellite-backed crop loan verification for a field */
+  VERIFY: `${API_PREFIX}/loans/crop-loan-verification/{fieldId}`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -323,6 +340,8 @@ export const EQUIPMENT_ENDPOINTS = {
   QR_LOOKUP: `${API_PREFIX}/equipment/qr/{qrCode}`,
   STATS: `${API_PREFIX}/equipment/stats`,
   MAINTENANCE_ALERTS: `${API_PREFIX}/equipment/maintenance/alerts`,
+  /** @since 4.7.0 — Geofence event ingest (auto-drafts FieldOperation on entry into a field zone) */
+  GEOFENCE_EVENT: `${API_PREFIX}/equipment/geofence/event`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -631,6 +650,12 @@ export const TRACEABILITY_ENDPOINTS = {
   QR_CODE: `${API_PREFIX}/traceability/batches/{batchId}/qr`,
   /** @since 4.3.0 - Events nested under a specific batch */
   BATCH_EVENTS: `${API_PREFIX}/traceability/batches/{batchId}/events`,
+  /** @since 4.7.0 - List blockchain-style anchors for a field */
+  ANCHORS_LIST: `${API_PREFIX}/traceability/anchors/{tenantId}/{fieldId}`,
+  /** @since 4.7.0 - Verify the anchor chain for a field */
+  ANCHORS_VERIFY: `${API_PREFIX}/traceability/anchors/{tenantId}/{fieldId}/verify`,
+  /** @since 4.7.0 - Subscriber stats (messages consumed, anchors created) */
+  ANCHORS_STATS: `${API_PREFIX}/traceability/anchors/stats`,
 } as const;
 
 export const PROVIDER_ENDPOINTS = {

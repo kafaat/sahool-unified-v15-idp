@@ -16,6 +16,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { OutboxService } from "../../outbox/outbox.service";
 import { HtmlReportRenderer } from "../renderers/html-report.renderer";
 import { InMemoryReportStorage } from "../storage/inmemory-storage.adapter";
+import { REPORT_STORAGE_TOKEN } from "../storage/storage.token";
 
 const TENANT = "tenant-aaa-1111";
 const OTHER = "tenant-bbb-2222";
@@ -85,7 +86,7 @@ describe("FieldReportsService", () => {
         { provide: PrismaService, useValue: prisma },
         { provide: OutboxService, useValue: outbox },
         { provide: HtmlReportRenderer, useValue: renderer },
-        { provide: InMemoryReportStorage, useValue: storage },
+        { provide: REPORT_STORAGE_TOKEN, useValue: storage },
       ],
     }).compile();
 

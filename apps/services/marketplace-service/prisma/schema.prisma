@@ -695,3 +695,31 @@ model ReviewResponse {
   @@index([sellerId])
   @@map("review_responses")
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Idempotency keys for money-moving endpoints
+// جدول مفاتيح منع التكرار للعمليات المالية
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Used by IdempotencyService (src/fintech/idempotency.service.ts) to cache
+// responses of deposit/withdraw/transfer/createOrder so a client that retries
+// the same Idempotency-Key header receives the original response verbatim
+// instead of executing the money-movement twice.
+//
+// NOTE: the service reads/writes this table via parameterized $queryRaw so
+// it keeps working when `prisma generate` has not been re-run yet.
+
+model IdempotencyKey {
+  key          String   @id
+  tenantId     String   @map("tenant_id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  operation    String
+  requestHash  String   @map("request_hash")
+  responseBody Json?    @map("response_body")
+  statusCode   Int?     @map("status_code")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, createdAt(sort: Desc)], name: "idx_idempotency_keys_tenant_created")
+  @@index([operation], name: "idx_idempotency_keys_operation")
+  @@map("idempotency_keys")
+}

@@ -539,6 +539,59 @@ class DeviceRegisterRequest(BaseModel):
     metadata: dict | None = None
 
 
+# ---------------------------------------------------------------------------
+# Response normalization (snake_case -> camelCase)
+# ---------------------------------------------------------------------------
+# Mapping between internal snake_case keys produced by Device.to_dict() and
+# the public camelCase keys we want to expose in HTTP responses. We keep a
+# deny-by-default strategy: any unknown key is passed through unchanged to
+# avoid accidentally dropping data.
+
+_SNAKE_TO_CAMEL_KEYS: dict[str, str] = {
+    "device_id": "deviceId",
+    "tenant_id": "tenantId",
+    "field_id": "fieldId",
+    "device_type": "deviceType",
+    "name_ar": "nameAr",
+    "name_en": "nameEn",
+    "last_seen": "lastSeen",
+    "last_reading": "lastReading",
+    "firmware_version": "firmwareVersion",
+    "battery_level": "batteryLevel",
+    "signal_strength": "signalStrength",
+    "created_at": "createdAt",
+    "updated_at": "updatedAt",
+    "sensor_type": "sensorType",
+    "event_id": "eventId",
+    "is_online": "isOnline",
+}
+
+
+def _camelize(key: str) -> str:
+    """Convert a snake_case key to camelCase (cached lookup first)."""
+    if key in _SNAKE_TO_CAMEL_KEYS:
+        return _SNAKE_TO_CAMEL_KEYS[key]
+    if "_" not in key:
+        return key
+    parts = key.split("_")
+    return parts[0] + "".join(p.title() for p in parts[1:] if p)
+
+
+def normalize_response(data):
+    """
+    Recursively convert snake_case dict keys to camelCase for HTTP responses.
+
+    Leaves list order and scalar values unchanged. This is applied only to
+    public HTTP responses from the gateway; internal event payloads keep
+    their event-contract casing (see ``publish_sensor_reading``).
+    """
+    if isinstance(data, dict):
+        return {_camelize(k): normalize_response(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [normalize_response(item) for item in data]
+    return data
+
+
 # ============== Authorization & Validation Functions ==============
 
 
@@ -695,13 +748,15 @@ async def post_sensor_reading(req: SensorReadingRequest, user: User = Depends(ge
 
     logger.info(f"Sensor reading published. Event: {safe_event_id}, Device: {safe_device_id}, Type: {safe_sensor_type}")
 
-    return {
-        "status": "ok",
-        "event_id": event_id,
-        "device_id": req.device_id,
-        "sensor_type": req.sensor_type,
-        "value": req.value,
-    }
+    return normalize_response(
+        {
+            "status": "ok",
+            "event_id": event_id,
+            "device_id": req.device_id,
+            "sensor_type": req.sensor_type,
+            "value": req.value,
+        }
+    )
 
 
 @app.post("/sensor/batch")
@@ -793,12 +848,14 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
         f"Batch reading published. Device: {sanitize_log_value(req.device_id)}, Count: {validated_count}, Events: {len(event_ids)}"
     )
 
-    return {
-        "status": "ok",
-        "count": len(event_ids),
-        "validated_count": validated_count,
-        "event_ids": event_ids,
-    }
+    return normalize_response(
+        {
+            "status": "ok",
+            "count": len(event_ids),
+            "validated_count": validated_count,
+            "event_ids": event_ids,
+        }
+    )
 
 
 # ============== Device Endpoints ==============
@@ -845,10 +902,12 @@ async def register_device(req: DeviceRegisterRequest, user: User = Depends(get_c
             name_en=req.name_en,
         )
 
-    return {
-        "status": "ok",
-        "device": device.to_dict(),
-    }
+    return normalize_response(
+        {
+            "status": "ok",
+            "device": device.to_dict(),
+        }
+    )
 
 
 @app.get("/device/{device_id}")
@@ -861,7 +920,7 @@ def get_device(device_id: str, user: User = Depends(get_current_user)):
     # Enforce tenant isolation
     _enforce_tenant(user, device.tenant_id)
 
-    return device.to_dict()
+    return normalize_response(device.to_dict())
 
 
 @app.get("/device/{device_id}/status")
@@ -874,15 +933,17 @@ def get_device_status(device_id: str, user: User = Depends(get_current_user)):
     # Enforce tenant isolation
     _enforce_tenant(user, device.tenant_id)
 
-    return {
-        "device_id": device_id,
-        "status": device.status,
-        "is_online": device.is_online(),
-        "last_seen": device.last_seen,
-        "last_reading": device.last_reading,
-        "battery_level": device.battery_level,
-        "signal_strength": device.signal_strength,
-    }
+    return normalize_response(
+        {
+            "device_id": device_id,
+            "status": device.status,
+            "is_online": device.is_online(),
+            "last_seen": device.last_seen,
+            "last_reading": device.last_reading,
+            "battery_level": device.battery_level,
+            "signal_strength": device.signal_strength,
+        }
+    )
 
 
 @app.get("/devices")
@@ -909,13 +970,15 @@ async def list_devices(
     total = len(all_devices)
     paginated_devices = all_devices[offset : offset + limit]
 
-    return {
-        "devices": [d.to_dict() for d in paginated_devices],
-        "total": total,
-        "limit": limit,
-        "offset": offset,
-        "has_more": (offset + limit) < total,
-    }
+    return normalize_response(
+        {
+            "devices": [d.to_dict() for d in paginated_devices],
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+            "has_more": (offset + limit) < total,
+        }
+    )
 
 
 @app.delete("/device/{device_id}")
@@ -937,7 +1000,7 @@ async def delete_device(device_id: str, user: User = Depends(get_current_user)):
         if not registry.delete(device_id):
             raise HTTPException(status_code=404, detail="Device not found")
 
-    return {"status": "ok", "device_id": device_id}
+    return normalize_response({"status": "ok", "device_id": device_id})
 
 
 # ============== Field Endpoints ==============
@@ -948,11 +1011,13 @@ def get_field_devices(field_id: str, user: User = Depends(get_current_user)):
     """Get all devices for a field"""
     tenant_id = user.tenant_id or ""
     devices = registry.get_by_field(field_id, tenant_id=tenant_id)
-    return {
-        "field_id": field_id,
-        "devices": [d.to_dict() for d in devices],
-        "count": len(devices),
-    }
+    return normalize_response(
+        {
+            "field_id": field_id,
+            "devices": [d.to_dict() for d in devices],
+            "count": len(devices),
+        }
+    )
 
 
 @app.get("/field/{field_id}/latest")
@@ -973,11 +1038,13 @@ def get_field_latest_readings(field_id: str, user: User = Depends(get_current_us
                 }
             )
 
-    return {
-        "field_id": field_id,
-        "readings": readings,
-        "count": len(readings),
-    }
+    return normalize_response(
+        {
+            "field_id": field_id,
+            "readings": readings,
+            "count": len(readings),
+        }
+    )
 
 
 # ============== Stats ==============

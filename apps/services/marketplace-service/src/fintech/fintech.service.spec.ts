@@ -9,7 +9,30 @@ import { WalletService } from "./wallet.service";
 import { CreditService } from "./credit.service";
 import { LoanService } from "./loan.service";
 import { EscrowService } from "./escrow.service";
+import { IdempotencyService } from "./idempotency.service";
 import { PrismaService } from "../prisma/prisma.service";
+
+/**
+ * No-op IdempotencyService stub — see idempotency.service.ts.
+ *
+ * Runs the work function immediately, mirroring the production path
+ * when no Idempotency-Key header is present. The facade tests below
+ * care only about delegation to WalletService/CreditService/etc., so
+ * the idempotency layer should be fully transparent here.
+ */
+const mockIdempotencyService = {
+  executeIdempotent: jest.fn(
+    async (
+      _key: string | undefined,
+      _tenant: string,
+      _user: string,
+      _op: string,
+      _payload: unknown,
+      fn: () => Promise<unknown>,
+    ) => ({ value: await fn(), replayed: false, statusCode: 200 }),
+  ),
+  hashRequest: jest.fn(() => "stub-hash"),
+};
 
 describe("FintechService (Facade)", () => {
   let service: FintechService;
@@ -76,6 +99,7 @@ describe("FintechService (Facade)", () => {
         { provide: LoanService, useValue: mockLoanService },
         { provide: EscrowService, useValue: mockEscrowService },
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: IdempotencyService, useValue: mockIdempotencyService },
       ],
     }).compile();
 

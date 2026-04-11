@@ -17,6 +17,9 @@ numpy>=1.26.0,<2.5.0
 nats-py==2.14.0
 redis>=7.1.0,<8.0.0
 
+# Server-Sent Events for /sensors/stream
+sse-starlette>=2.1.0,<3.0.0
+
 # Observability
 structlog>=24.1.0
 prometheus-client>=0.21.0

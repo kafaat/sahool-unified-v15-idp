@@ -34,7 +34,6 @@ from fastapi import (
     BackgroundTasks,
     Depends,
     FastAPI,
-    Header,
     HTTPException,
     Path,
     Query,
@@ -56,7 +55,7 @@ except ImportError:
     setup_cors = None
     ObservabilityMiddleware = None
 from nats.js.api import RetentionPolicy
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_serializer, field_validator
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -97,6 +96,27 @@ FREE_TIER_LIMITS = {
 def _sanitize_log(value: Any) -> str:
     """Sanitize user-provided values before logging to prevent log injection."""
     return str(value).replace("\r\n", " ").replace("\n", " ").replace("\r", " ")
+
+
+def _money_str(value: Any) -> str:
+    """
+    Serialize a monetary ``Decimal`` as a JSON-safe string.
+    تحويل القيمة النقدية (Decimal) إلى نص آمن لـ JSON
+
+    Using ``str(Decimal)`` preserves cents precision which would otherwise
+    be lost when marshalling through ``float`` (e.g. ``0.1 + 0.2``). All
+    billing, invoice, and payment amounts go through this helper before
+    being returned on the wire.
+    """
+    if value is None:
+        return "0"
+    if isinstance(value, Decimal):
+        return format(value, "f")
+    # Normalise other numeric types through Decimal to strip float noise.
+    try:
+        return format(Decimal(str(value)), "f")
+    except (ValueError, TypeError, ArithmeticError):
+        return str(value)
 
 
 try:
@@ -285,7 +305,8 @@ async def job_generate_invoices():
                                 "invoice_id": str(invoice.id),
                                 "invoice_number": invoice.invoice_number,
                                 "tenant_id": sub.tenant_id,
-                                "amount": float(invoice.total),
+                                # Use Decimal->str serialization to preserve cents precision.
+                                "amount": _money_str(invoice.total),
                             },
                         )
                 except Exception as e:
@@ -331,7 +352,8 @@ async def job_mark_overdue_invoices():
                             "invoice_id": str(invoice.id),
                             "invoice_number": invoice.invoice_number,
                             "tenant_id": invoice.tenant_id,
-                            "amount_due": float(invoice.amount_due),
+                            # Use Decimal->str serialization to preserve cents precision.
+                            "amount_due": _money_str(invoice.amount_due),
                             "due_date": invoice.due_date.isoformat(),
                         },
                     )
@@ -595,6 +617,72 @@ if SECURITY_HEADERS_AVAILABLE:
 if TenantContextMiddleware:
     app.add_middleware(TenantContextMiddleware)
 
+
+# =============================================================================
+# Wallet Deprecation Middleware (RFC 8594)
+# =============================================================================
+# The wallet endpoints previously declared under BILLING_ENDPOINTS.WALLET_*
+# have been moved to marketplace-service:3010 (fintech wallet). This service
+# no longer implements them. Any request hitting the legacy paths receives a
+# 410 Gone with the full RFC 8594 deprecation/sunset header set so clients can
+# migrate without guesswork.
+#
+# وسيط ترحيل مسارات المحفظة (RFC 8594) - تم نقل الواجهة إلى خدمة الأسواق
+
+WALLET_SUNSET_DATE = "2026-09-01"
+WALLET_SUCCESSOR_URL = "marketplace-service:3010/api/v1/fintech/wallet"
+_WALLET_DEPRECATED_PREFIXES: tuple[str, ...] = (
+    "/api/v1/wallet",
+    "/api/v1/billing/wallet",
+)
+
+
+def _is_wallet_deprecated_path(path: str) -> bool:
+    """Check whether a request path targets a deprecated wallet route."""
+    return any(path == prefix or path.startswith(prefix + "/") for prefix in _WALLET_DEPRECATED_PREFIXES)
+
+
+@app.middleware("http")
+async def wallet_deprecation_middleware(request: Request, call_next):
+    """
+    Emit RFC 8594 ``Deprecation`` / ``Sunset`` / ``Link`` headers for legacy
+    wallet routes and short-circuit the request with HTTP 410 Gone.
+    """
+    path = request.url.path
+    if _is_wallet_deprecated_path(path):
+        from fastapi.responses import JSONResponse
+
+        successor_path = path.replace("/api/v1/billing/wallet", "/api/v1/fintech/wallet", 1)
+        successor_path = successor_path.replace("/api/v1/wallet", "/api/v1/fintech/wallet", 1)
+        successor_link = f"</api/v1/fintech/wallet{successor_path.split('/api/v1/fintech/wallet', 1)[-1]}>"
+
+        headers = {
+            # RFC 8594 deprecation signalling.
+            "Deprecation": "true",
+            "Sunset": WALLET_SUNSET_DATE,
+            "Link": f'{successor_link}; rel="successor-version"',
+            # Platform-specific convenience headers (matches other deprecated services).
+            "X-API-Deprecated": "true",
+            "X-API-Successor": WALLET_SUCCESSOR_URL,
+            "Warning": ('299 - "billing-core wallet routes are deprecated; use marketplace-service fintech wallet"'),
+        }
+        return JSONResponse(
+            status_code=410,
+            headers=headers,
+            content={
+                "error": (
+                    "wallet_endpoint_gone: billing-core no longer hosts wallet routes. "
+                    f"Use {WALLET_SUCCESSOR_URL} instead."
+                ),
+                "error_ar": (f"نقاط نهاية المحفظة لم تعد متاحة في billing-core. يرجى استخدام {WALLET_SUCCESSOR_URL}."),
+                "sunset": WALLET_SUNSET_DATE,
+                "successor": WALLET_SUCCESSOR_URL,
+            },
+        )
+
+    return await call_next(request)
+
+
 # Environment configuration
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
@@ -728,8 +816,48 @@ class PaymentStatus(StrEnum):
 
 
 class Currency(StrEnum):
+    """
+    Accepted currencies for billing.
+    العملات المقبولة للفوترة
+
+    Note: The underlying DB enum (models.Currency) currently stores only
+    USD / YER. Other currencies are accepted at the API layer and must be
+    converted to USD before persistence. When a new database-backed
+    currency is required, add it to models.Currency and ship a migration.
+    """
+
     USD = "USD"
     YER = "YER"
+    SAR = "SAR"
+    AED = "AED"
+    EUR = "EUR"
+
+
+# Currency allow-list for inbound API validation (RFC ISO 4217 subset).
+# قائمة العملات المسموح بها على مستوى الواجهة البرمجية
+ALLOWED_CURRENCIES: frozenset[str] = frozenset({"SAR", "YER", "USD", "AED", "EUR"})
+
+
+def _validate_currency_code(value: Any) -> str:
+    """
+    Validate an inbound currency code against the billing allow-list.
+    التحقق من رمز العملة مقابل قائمة العملات المسموح بها
+
+    Raises HTTPException(400) with a bilingual body on rejection so
+    callers get a consistent error shape. Returns the uppercased code
+    on success.
+    """
+    code = str(value or "").strip().upper()
+    if code not in ALLOWED_CURRENCIES:
+        allowed = ", ".join(sorted(ALLOWED_CURRENCIES))
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": f"unsupported_currency: '{code}'. Allowed: {allowed}",
+                "error_ar": f"عملة غير مدعومة: '{code}'. المسموح: {allowed}",
+            },
+        )
+    return code
 
 
 # =============================================================================
@@ -753,6 +881,13 @@ class PlanPricing(BaseModel):
     quarterly_usd: Decimal
     yearly_usd: Decimal
     setup_fee_usd: Decimal = Decimal("0")
+
+    # Serialize Decimal fields as strings to preserve cents precision. Pydantic
+    # would otherwise fall back to Python's JSON encoder (which rejects Decimal)
+    # or — if a float is ever set — leak binary float noise on the wire.
+    @field_serializer("monthly_usd", "quarterly_usd", "yearly_usd", "setup_fee_usd", when_used="always")
+    def _serialize_price(self, value: Decimal) -> str:
+        return _money_str(value)
 
 
 class Plan(BaseModel):
@@ -836,6 +971,11 @@ class InvoiceLineItem(BaseModel):
     amount: Decimal
     is_usage_based: bool = False
 
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("unit_price", "amount", when_used="always")
+    def _serialize_money(self, value: Decimal) -> str:
+        return _money_str(value)
+
 
 class Invoice(BaseModel):
     """الفاتورة"""
@@ -873,6 +1013,20 @@ class Invoice(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     stripe_invoice_id: str | None = None
 
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer(
+        "subtotal",
+        "tax_rate",
+        "tax_amount",
+        "discount_amount",
+        "total",
+        "amount_paid",
+        "amount_due",
+        when_used="always",
+    )
+    def _serialize_money(self, value: Decimal) -> str:
+        return _money_str(value)
+
 
 class Payment(BaseModel):
     """الدفعة"""
@@ -896,6 +1050,11 @@ class Payment(BaseModel):
 
     # Metadata
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("amount", when_used="always")
+    def _serialize_money(self, value: Decimal) -> str:
+        return _money_str(value)
 
 
 class UsageRecord(BaseModel):
@@ -965,6 +1124,11 @@ class CreatePlanRequest(BaseModel):
     limits: dict[str, int]
     trial_days: int = Field(default=14, ge=0, le=365)
 
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("monthly_price_usd", when_used="always")
+    def _serialize_price(self, value: Decimal) -> str:
+        return _money_str(value)
+
 
 class CreateTenantRequest(BaseModel):
     name: str = Field(min_length=1, max_length=200)
@@ -973,6 +1137,10 @@ class CreateTenantRequest(BaseModel):
     phone: str = Field(min_length=1, max_length=20)
     plan_id: str = Field(min_length=1, max_length=100)
     billing_cycle: BillingCycle = BillingCycle.MONTHLY
+    # Optional currency override. When omitted the platform default is used.
+    # Validated against ALLOWED_CURRENCIES ({SAR, YER, USD, AED, EUR}) to
+    # reject unsupported codes before they reach the billing pipeline.
+    currency: str | None = Field(default=None, min_length=3, max_length=3)
 
     @field_validator("plan_id")
     @classmethod
@@ -988,6 +1156,19 @@ class CreateTenantRequest(BaseModel):
         if not re.match(r"^\+?[0-9]{7,15}$", cleaned):
             raise ValueError("Invalid phone number format")
         return v
+
+    @field_validator("currency")
+    @classmethod
+    def currency_must_be_allowed(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        code = v.strip().upper()
+        if code not in ALLOWED_CURRENCIES:
+            allowed = ", ".join(sorted(ALLOWED_CURRENCIES))
+            raise ValueError(
+                f"Unsupported currency: '{code}'. Allowed: {allowed} | عملة غير مدعومة. المسموح: {allowed}"
+            )
+        return code
 
 
 class UpdateSubscriptionRequest(BaseModel):
@@ -1028,6 +1209,11 @@ class CreatePaymentRequest(BaseModel):
     # failed or timed-out request.  Clients SHOULD supply a stable UUID per
     # payment attempt; the value is forwarded to Stripe's idempotency header.
     idempotency_key: str | None = Field(default=None, max_length=100)
+
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("amount", when_used="always")
+    def _serialize_amount(self, value: Decimal) -> str:
+        return _money_str(value)
 
     @field_validator("invoice_id")
     @classmethod
@@ -1853,8 +2039,9 @@ async def generate_invoice_for_subscription(
             "description": f"{plan.name} - {subscription.billing_cycle.value.title()}",
             "description_ar": f"{plan.name_ar} - {cycle_label_ar}",
             "quantity": 1,
-            "unit_price": float(price),
-            "amount": float(price),
+            # Decimal->str preserves cents precision on the wire.
+            "unit_price": _money_str(price),
+            "amount": _money_str(price),
             "is_usage_based": False,
         }
     ]
@@ -1871,8 +2058,8 @@ async def generate_invoice_for_subscription(
                 "description": item.description,
                 "description_ar": item.description_ar,
                 "quantity": item.quantity,
-                "unit_price": float(item.unit_price),
-                "amount": float(item.amount),
+                "unit_price": _money_str(item.unit_price),
+                "amount": _money_str(item.amount),
                 "is_usage_based": True,
             }
         )
@@ -1883,6 +2070,10 @@ async def generate_invoice_for_subscription(
 
     # Get next invoice number from database sequence
     invoice_number = await get_next_invoice_number()
+
+    # Validate currency against the billing allow-list before persistence.
+    # التحقق من العملة قبل حفظ الفاتورة
+    _validate_currency_code(subscription.currency.value)
 
     invoice = await repo.invoices.create(
         invoice_number=invoice_number,
@@ -2046,10 +2237,11 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
                 "name_ar": p.name_ar,
                 "tier": p.tier.value,
                 "pricing": {
-                    "monthly_usd": float(Decimal(str(p.pricing.get("monthly_usd", "0")))),
-                    "monthly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))),
-                    "yearly_usd": float(Decimal(str(p.pricing.get("yearly_usd", "0")))),
-                    "yearly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))),
+                    # Decimal->str preserves cents precision on the wire.
+                    "monthly_usd": _money_str(Decimal(str(p.pricing.get("monthly_usd", "0")))),
+                    "monthly_yer": _money_str(convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))),
+                    "yearly_usd": _money_str(Decimal(str(p.pricing.get("yearly_usd", "0")))),
+                    "yearly_yer": _money_str(convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))),
                 },
                 "limits": p.limits,
                 "trial_days": p.trial_days,
@@ -2086,9 +2278,10 @@ async def get_plan(plan_id: str = Path(min_length=1, max_length=100), db: AsyncS
             "created_at": plan.created_at.isoformat(),
         },
         "pricing_yer": {
-            "monthly": float(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
-            "quarterly": float(convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))),
-            "yearly": float(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
+            # Decimal->str preserves cents precision on the wire.
+            "monthly": _money_str(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
+            "quarterly": _money_str(convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))),
+            "yearly": _money_str(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
         },
     }
 
@@ -2419,8 +2612,9 @@ async def update_subscription(
                     "description": f"Credit for unused days on {old_plan.name if old_plan else subscription.plan_id}",
                     "description_ar": f"رصيد الأيام المتبقية من {old_plan.name_ar if old_plan else subscription.plan_id}",
                     "quantity": 1,
-                    "unit_price": float(-proration_credit),
-                    "amount": float(-proration_credit),
+                    # Decimal->str preserves cents precision on the wire.
+                    "unit_price": _money_str(-proration_credit),
+                    "amount": _money_str(-proration_credit),
                     "is_usage_based": False,
                 }
             )
@@ -2430,14 +2624,17 @@ async def update_subscription(
                     "description": f"Charge for remaining days on {new_plan.name if new_plan else request.plan_id}",
                     "description_ar": f"رسوم الأيام المتبقية على {new_plan.name_ar if new_plan else request.plan_id}",
                     "quantity": 1,
-                    "unit_price": float(proration_charge),
-                    "amount": float(proration_charge),
+                    # Decimal->str preserves cents precision on the wire.
+                    "unit_price": _money_str(proration_charge),
+                    "amount": _money_str(proration_charge),
                     "is_usage_based": False,
                 }
             )
 
         if net_proration > 0:
             invoice_number = await get_next_invoice_number()
+            # Validate currency against the billing allow-list before persistence.
+            _validate_currency_code(subscription.currency.value)
             proration_invoice = await repo.invoices.create(
                 invoice_number=invoice_number,
                 tenant_id=tenant_id,
@@ -2464,9 +2661,10 @@ async def update_subscription(
                 "tenant_id": tenant_id,
                 "old_plan": old_plan.plan_id if old_plan else None,
                 "new_plan": request.plan_id,
-                "proration_credit": float(proration_credit),
-                "proration_charge": float(proration_charge),
-                "net_proration": float(net_proration),
+                # Decimal->str preserves cents precision on the wire.
+                "proration_credit": _money_str(proration_credit),
+                "proration_charge": _money_str(proration_charge),
+                "net_proration": _money_str(net_proration),
             },
         )
 
@@ -2480,7 +2678,7 @@ async def update_subscription(
                     "tenant_id": tenant_id,
                     "old_plan": old_plan.plan_id if old_plan else None,
                     "new_plan": request.plan_id,
-                    "net_proration": float(net_proration),
+                    "net_proration": _money_str(net_proration),
                 },
             )
 
@@ -2496,9 +2694,10 @@ async def update_subscription(
         },
         "proration": (
             {
-                "credit": float(proration_credit),
-                "charge": float(proration_charge),
-                "net": float(net_proration),
+                # Decimal->str preserves cents precision on the wire.
+                "credit": _money_str(proration_credit),
+                "charge": _money_str(proration_charge),
+                "net": _money_str(net_proration),
                 "invoice_id": str(proration_invoice.id) if proration_invoice else None,
             }
             if proration_credit or proration_charge
@@ -2647,20 +2846,42 @@ async def get_quota(
 
 @app.get("/api/v1/enforce")
 async def enforce_quota(
-    x_tenant_id: str | None = Header(default=None),
     metric: str = Query(..., min_length=1, max_length=100),
-    api_key: str = Depends(api_key_auth),  # Service-to-service auth
+    current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """التحقق من الصلاحيات (للـ Gateway)"""
-    if not x_tenant_id:
-        raise HTTPException(400, "Missing x-tenant-id header")
+    """
+    التحقق من الصلاحيات (للـ Gateway)
 
-    validate_tenant_id(x_tenant_id)
+    Security: the tenant is resolved exclusively from the verified JWT
+    (``user.tid`` / ``user.tenant_id``) rather than an untrusted
+    ``X-Tenant-Id`` request header. A tenant without a JWT claim cannot
+    impersonate another tenant on this endpoint.
+    """
+    # Extract tenant_id from the verified JWT claim (tid) or user.tenant_id.
+    # استخراج معرف المستأجر من رمز JWT المُتحقق منه
+    if isinstance(current_user, dict):
+        tenant_id = current_user.get("tenant_id") or current_user.get("tid")
+    else:
+        tenant_id = getattr(current_user, "tenant_id", None) or getattr(current_user, "tid", None)
+
+    if not tenant_id:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error": "missing_tenant_claim: JWT token does not include a tenant (tid) claim",
+                "error_ar": "رمز JWT لا يحتوي على معرّف المستأجر",
+            },
+        )
+
+    tenant_id = validate_tenant_id(str(tenant_id))
 
     # Validate metric name format
     if not _METRIC_PATTERN.match(metric):
         raise HTTPException(400, "Invalid metric name format")
+
+    # Preserve the old response field name (x_tenant_id) for back-compat.
+    x_tenant_id = tenant_id
 
     check = await check_usage_limit_db(db, x_tenant_id, metric)
 
@@ -2733,8 +2954,9 @@ async def list_invoices(
                 "tenant_id": inv.tenant_id,
                 "status": inv.status.value,
                 "currency": inv.currency.value,
-                "total": float(inv.total),
-                "amount_due": float(inv.amount_due),
+                # Decimal->str preserves cents precision on the wire.
+                "total": _money_str(inv.total),
+                "amount_due": _money_str(inv.amount_due),
                 "issue_date": inv.issue_date.isoformat(),
                 "due_date": inv.due_date.isoformat(),
                 "paid_date": inv.paid_date.isoformat() if inv.paid_date else None,
@@ -2782,12 +3004,13 @@ async def get_invoice(
             "issue_date": invoice.issue_date.isoformat(),
             "due_date": invoice.due_date.isoformat(),
             "paid_date": invoice.paid_date.isoformat() if invoice.paid_date else None,
-            "subtotal": float(invoice.subtotal),
-            "tax_amount": float(invoice.tax_amount),
-            "discount_amount": float(invoice.discount_amount),
-            "total": float(invoice.total),
-            "amount_paid": float(invoice.amount_paid),
-            "amount_due": float(invoice.amount_due),
+            # Decimal->str preserves cents precision on the wire.
+            "subtotal": _money_str(invoice.subtotal),
+            "tax_amount": _money_str(invoice.tax_amount),
+            "discount_amount": _money_str(invoice.discount_amount),
+            "total": _money_str(invoice.total),
+            "amount_paid": _money_str(invoice.amount_paid),
+            "amount_due": _money_str(invoice.amount_due),
             "line_items": invoice.line_items,
             "notes": invoice.notes,
             "notes_ar": invoice.notes_ar,
@@ -2803,7 +3026,9 @@ async def get_invoice(
             else None
         ),
         "amount_yer": (
-            float(convert_to_yer(invoice.total)) if invoice.currency == db_models.Currency.USD else float(invoice.total)
+            _money_str(convert_to_yer(invoice.total))
+            if invoice.currency == db_models.Currency.USD
+            else _money_str(invoice.total)
         ),
     }
 
@@ -2838,8 +3063,9 @@ async def generate_tenant_invoice(
             "description": f"{plan.name} - {subscription.billing_cycle.value.title()}",
             "description_ar": f"{plan.name_ar} - {'شهري' if subscription.billing_cycle == BillingCycle.MONTHLY else 'ربع سنوي' if subscription.billing_cycle == BillingCycle.QUARTERLY else 'سنوي'}",
             "quantity": 1,
-            "unit_price": float(price),
-            "amount": float(price),
+            # Decimal->str preserves cents precision on the wire.
+            "unit_price": _money_str(price),
+            "amount": _money_str(price),
             "is_usage_based": False,
         }
     ]
@@ -2850,6 +3076,10 @@ async def generate_tenant_invoice(
 
     # Create invoice in database using database sequence for invoice number
     invoice_number = await get_next_invoice_number()
+
+    # Validate currency against the billing allow-list before persistence.
+    _validate_currency_code(subscription.currency.value)
+
     invoice = await repo.invoices.create(
         invoice_number=invoice_number,
         tenant_id=tenant_id,
@@ -2876,8 +3106,9 @@ async def generate_tenant_invoice(
             "subscription_id": str(invoice.subscription_id),
             "status": invoice.status.value,
             "currency": invoice.currency.value,
-            "total": float(invoice.total),
-            "amount_due": float(invoice.amount_due),
+            # Decimal->str preserves cents precision on the wire.
+            "total": _money_str(invoice.total),
+            "amount_due": _money_str(invoice.amount_due),
             "issue_date": invoice.issue_date.isoformat(),
             "due_date": invoice.due_date.isoformat(),
         },
@@ -3051,7 +3282,8 @@ async def create_payment(
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
             "tenant_id": payment.tenant_id,
-            "amount": float(payment.amount),
+            # Decimal->str preserves cents precision on the wire.
+            "amount": _money_str(payment.amount),
             "currency": payment.currency.value,
             "method": payment.method.value,
             "status": payment.status.value,
@@ -3067,7 +3299,7 @@ async def create_payment(
                 "payment_id": str(payment.id),
                 "invoice_id": str(payment.invoice_id),
                 "tenant_id": payment.tenant_id,
-                "amount": float(payment.amount),
+                "amount": _money_str(payment.amount),
                 "currency": payment.currency.value,
                 "method": payment.method.value,
             },
@@ -3082,7 +3314,8 @@ async def create_payment(
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
             "tenant_id": payment.tenant_id,
-            "amount": float(payment.amount),
+            # Decimal->str preserves cents precision on the wire.
+            "amount": _money_str(payment.amount),
             "currency": payment.currency.value,
             "method": payment.method.value,
             "status": payment.status.value,
@@ -3114,7 +3347,8 @@ async def list_payments(
                 "payment_id": str(p.id),
                 "invoice_id": str(p.invoice_id),
                 "tenant_id": p.tenant_id,
-                "amount": float(p.amount),
+                # Decimal->str preserves cents precision on the wire.
+                "amount": _money_str(p.amount),
                 "currency": p.currency.value,
                 "status": p.status.value,
                 "method": p.method.value,
@@ -3139,6 +3373,13 @@ class RefundRequest(BaseModel):
     amount: Decimal | None = Field(default=None, gt=0, max_digits=12, decimal_places=2)  # None = full refund
     reason: str = Field(min_length=1, max_length=1000)
     reason_ar: str | None = Field(default=None, max_length=1000)
+
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("amount", when_used="always")
+    def _serialize_amount(self, value: Decimal | None) -> str | None:
+        if value is None:
+            return None
+        return _money_str(value)
 
     @field_validator("payment_id")
     @classmethod
@@ -3277,7 +3518,8 @@ async def create_refund(
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
             "tenant_id": payment.tenant_id,
-            "refund_amount": float(refund_amount),
+            # Decimal->str preserves cents precision on the wire.
+            "refund_amount": _money_str(refund_amount),
             "is_full_refund": is_full_refund,
             "reason": request.reason,
             "external_refund_id": refund_external_id,
@@ -3289,8 +3531,9 @@ async def create_refund(
         "refund": {
             "payment_id": str(payment.id),
             "tenant_id": payment.tenant_id,
-            "original_amount": float(payment.amount),
-            "refund_amount": float(refund_amount),
+            # Decimal->str preserves cents precision on the wire.
+            "original_amount": _money_str(payment.amount),
+            "refund_amount": _money_str(refund_amount),
             "is_full_refund": is_full_refund,
             "reason": request.reason,
             "reason_ar": request.reason_ar or request.reason,
@@ -3420,7 +3663,8 @@ async def tharwatt_webhook(
                 "payment_id": str(payment.id),
                 "invoice_id": str(payment.invoice_id),
                 "tenant_id": payment.tenant_id,
-                "amount": float(payment.amount),
+                # Decimal->str preserves cents precision on the wire.
+                "amount": _money_str(payment.amount),
                 "method": "tharwatt",
                 "transaction_id": payload.transaction_id,
             },
@@ -3561,7 +3805,8 @@ async def stripe_webhook(
                         "payment_id": payment_id,
                         "invoice_id": str(payment.invoice_id),
                         "tenant_id": payment.tenant_id,
-                        "amount": float(payment.amount),
+                        # Decimal->str preserves cents precision on the wire.
+                        "amount": _money_str(payment.amount),
                         "method": "stripe",
                         "stripe_charge_id": data.get("id"),
                     },
@@ -3683,12 +3928,13 @@ async def get_revenue_report(
             "end": end_date.isoformat(),
         },
         "total_revenue": {
-            "usd": float(total_usd),
-            "yer": float(total_yer + convert_to_yer(total_usd)),
+            # Decimal->str preserves cents precision on the wire.
+            "usd": _money_str(total_usd),
+            "yer": _money_str(total_yer + convert_to_yer(total_usd)),
         },
         "invoices_count": len(invoices_in_period),
-        "by_plan": {k: float(v) for k, v in by_plan.items()},
-        "by_payment_method": {k: float(v) for k, v in by_method.items()},
+        "by_plan": {k: _money_str(v) for k, v in by_plan.items()},
+        "by_payment_method": {k: _money_str(v) for k, v in by_method.items()},
     }
 
 
@@ -3726,8 +3972,9 @@ async def get_subscriptions_report(
         "total_subscriptions": total_subscriptions,
         "by_status": by_status,
         "by_plan": by_plan,
-        "mrr_usd": float(mrr),
-        "mrr_yer": float(convert_to_yer(mrr)),
+        # Decimal->str preserves cents precision on the wire.
+        "mrr_usd": _money_str(mrr),
+        "mrr_yer": _money_str(convert_to_yer(mrr)),
         "total_tenants": total_tenants,
     }
 

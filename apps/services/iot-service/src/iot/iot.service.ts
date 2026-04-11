@@ -14,6 +14,7 @@ import {
   OnModuleInit,
   OnModuleDestroy,
   Logger,
+  BadRequestException,
 } from "@nestjs/common";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
@@ -1126,5 +1127,266 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       [SensorType.RAIN_GAUGE]: "كمية الأمطار",
     };
     return translations[type] || type;
+  }
+
+  // ==========================================================================
+  // Actuator & Alert Rule Query Methods
+  // (IOT_ENDPOINTS.ACTUATORS / IOT_ENDPOINTS.ALERT_RULES)
+  // ==========================================================================
+
+  /**
+   * List actuators registered for a tenant.
+   *
+   * Uses the Prisma ``Actuator`` model and joins the parent ``Device``
+   * row so the caller can see the device name, current state, last
+   * command, and the field the device is attached to.
+   */
+  async listActuators(
+    tenantId: string,
+    opts?: {
+      fieldId?: string;
+      actuatorType?: string;
+      limit?: number;
+      offset?: number;
+    },
+  ): Promise<{
+    actuators: Array<Record<string, unknown>>;
+    total: number;
+    limit: number;
+    offset: number;
+  }> {
+    const limit = opts?.limit ?? 50;
+    const offset = opts?.offset ?? 0;
+
+    if (!this.dbConnected) {
+      this.logger.warn("listActuators called but database is not connected");
+      return { actuators: [], total: 0, limit, offset };
+    }
+
+    const where: Record<string, unknown> = { tenantId };
+    if (opts?.actuatorType) {
+      where.actuatorType = opts.actuatorType.toUpperCase();
+    }
+    if (opts?.fieldId) {
+      // Filter via parent device relationship
+      where.device = { fieldId: opts.fieldId, tenantId };
+    }
+
+    try {
+      const [rows, total] = await Promise.all([
+        (this.prisma as any).actuator.findMany({
+          where,
+          include: { device: true },
+          orderBy: { createdAt: "desc" },
+          take: limit,
+          skip: offset,
+        }),
+        (this.prisma as any).actuator.count({ where }),
+      ]);
+
+      const actuators = rows.map((row: any) => ({
+        id: row.id,
+        actuatorType: row.actuatorType,
+        name: row.name ?? row.device?.name ?? null,
+        fieldId: row.device?.fieldId ?? null,
+        deviceId: row.deviceId,
+        deviceExternalId: row.device?.deviceId ?? null,
+        currentState: row.currentState ?? null,
+        lastCommand: row.lastCommand ?? null,
+        lastCommandAt: row.lastCommandAt ?? null,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      }));
+
+      return { actuators, total, limit, offset };
+    } catch (err) {
+      this.logger.error(
+        `listActuators failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return { actuators: [], total: 0, limit, offset };
+    }
+  }
+
+  /**
+   * Dispatch a command to an actuator.
+   *
+   * Creates an ``ActuatorCommand`` row (status=PENDING) and attempts
+   * to publish it to MQTT. Always returns the newly-created command
+   * id so the caller can poll for status.
+   */
+  async dispatchActuatorCommand(
+    tenantId: string,
+    actuatorId: string,
+    body: {
+      command: string;
+      parameters?: Record<string, unknown>;
+      durationSeconds?: number;
+    },
+  ): Promise<{
+    status: string;
+    commandId: string | null;
+    actuatorId: string;
+    command: string;
+    queuedAt: string;
+  }> {
+    const queuedAt = new Date().toISOString();
+
+    if (!this.dbConnected) {
+      return {
+        status: "accepted",
+        commandId: null,
+        actuatorId,
+        command: body.command,
+        queuedAt,
+      };
+    }
+
+    try {
+      const actuator = await (this.prisma as any).actuator.findFirst({
+        where: { id: actuatorId, tenantId },
+        include: { device: true },
+      });
+
+      if (!actuator) {
+        throw new BadRequestException({
+          error: "actuator_not_found",
+          message: `Actuator ${actuatorId} not found for tenant`,
+          message_ar: "المشغل غير موجود لهذا المستأجر",
+        });
+      }
+
+      const commandRow = await (this.prisma as any).actuatorCommand.create({
+        data: {
+          tenantId,
+          actuatorId,
+          command: body.command,
+          parameters: {
+            ...(body.parameters ?? {}),
+            ...(body.durationSeconds !== undefined
+              ? { durationSeconds: body.durationSeconds }
+              : {}),
+          },
+          status: "PENDING",
+        },
+      });
+
+      // Publish to tenant-scoped MQTT topic (best-effort, non-blocking)
+      try {
+        const fieldId = actuator.device?.fieldId ?? "unknown";
+        const topic = `sahool/${tenantId}/farm/${
+          process.env.DEFAULT_FARM_ID || "farm-1"
+        }/field/${fieldId}/actuator/${actuator.actuatorType.toLowerCase()}/command`;
+        this.client?.publish(
+          topic,
+          JSON.stringify({
+            commandId: commandRow.id,
+            actuatorId,
+            command: body.command,
+            parameters: body.parameters ?? {},
+            durationSeconds: body.durationSeconds,
+            queuedAt,
+          }),
+          { qos: 1 },
+        );
+      } catch (err) {
+        this.logger.warn(
+          `Failed to publish actuator command via MQTT: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+
+      return {
+        status: "accepted",
+        commandId: commandRow.id,
+        actuatorId,
+        command: body.command,
+        queuedAt,
+      };
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      this.logger.error(
+        `dispatchActuatorCommand failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return {
+        status: "error",
+        commandId: null,
+        actuatorId,
+        command: body.command,
+        queuedAt,
+      };
+    }
+  }
+
+  /**
+   * List alert rules for a tenant.
+   *
+   * Uses raw SQL against the new ``iot_alert_rules`` table. The table
+   * is defined in an additive Prisma migration under
+   * ``prisma/migrations/20260411000000_iot_alert_rules/migration.sql``.
+   */
+  async listAlertRules(
+    tenantId: string,
+    opts?: {
+      enabled?: boolean;
+      sensorId?: string;
+      fieldId?: string;
+    },
+  ): Promise<{
+    rules: Array<Record<string, unknown>>;
+    total: number;
+  }> {
+    if (!this.dbConnected) {
+      return { rules: [], total: 0 };
+    }
+
+    // Validate UUIDs to avoid SQL injection on raw query inputs.
+    const uuidRegex = /^[0-9a-fA-F-]{32,36}$/;
+    const sensorId =
+      opts?.sensorId && uuidRegex.test(opts.sensorId) ? opts.sensorId : null;
+    const fieldId =
+      opts?.fieldId && uuidRegex.test(opts.fieldId) ? opts.fieldId : null;
+    const enabledFilter = opts?.enabled;
+
+    try {
+      // All values are bound as $1/$2/… parameters (no string concatenation).
+      const rows: Array<Record<string, unknown>> = await (this.prisma as any)
+        .$queryRawUnsafe(
+          `SELECT id, tenant_id, sensor_id, field_id, metric, operator,
+                  threshold, duration_seconds, severity, enabled,
+                  created_at, version
+             FROM iot_alert_rules
+            WHERE tenant_id = $1::uuid
+              AND ($2::boolean IS NULL OR enabled = $2::boolean)
+              AND ($3::uuid IS NULL OR sensor_id = $3::uuid)
+              AND ($4::uuid IS NULL OR field_id = $4::uuid)
+            ORDER BY created_at DESC
+            LIMIT 200`,
+          tenantId,
+          enabledFilter === undefined ? null : enabledFilter,
+          sensorId,
+          fieldId,
+        );
+
+      const rules = rows.map((r) => ({
+        id: r.id,
+        tenantId: r.tenant_id,
+        sensorId: r.sensor_id,
+        fieldId: r.field_id,
+        metric: r.metric,
+        operator: r.operator,
+        threshold: r.threshold,
+        durationSeconds: r.duration_seconds,
+        severity: r.severity,
+        enabled: r.enabled,
+        createdAt: r.created_at,
+        version: r.version,
+      }));
+
+      return { rules, total: rules.length };
+    } catch (err) {
+      this.logger.error(
+        `listAlertRules failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return { rules: [], total: 0 };
+    }
   }
 }

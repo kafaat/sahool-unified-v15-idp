@@ -143,6 +143,16 @@ export class CreateOrderDto {
   @IsString()
   @IsOptional()
   paymentMethod?: string;
+
+  // Currency allow-list is shared with wallet DTOs below. When absent the
+  // service defaults to YER (Yemeni Rial) for backward compatibility with
+  // pre-currency order payloads.
+  @IsString()
+  @IsOptional()
+  @IsIn(["SAR", "YER", "USD", "AED", "EUR"], {
+    message: "currency must be one of SAR, YER, USD, AED, EUR",
+  })
+  currency?: "SAR" | "YER" | "USD" | "AED" | "EUR";
 }
 
 /**
@@ -406,7 +416,21 @@ export class RequestLoanDto {
 
 /**
  * Deposit/Withdraw DTO
+ *
+ * `currency` is optional but when supplied must belong to the allow-list
+ * enforced by the SAHOOL platform (SAR, YER, USD, AED, EUR). Rejecting
+ * unknown currency codes at the DTO boundary prevents upstream services
+ * from having to re-validate.
  */
+export const ALLOWED_CURRENCIES = [
+  "SAR",
+  "YER",
+  "USD",
+  "AED",
+  "EUR",
+] as const;
+export type AllowedCurrency = (typeof ALLOWED_CURRENCIES)[number];
+
 export class WalletTransactionDto {
   @IsMoneyValue()
   amount: number;
@@ -414,6 +438,48 @@ export class WalletTransactionDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsString()
+  @IsOptional()
+  @IsIn(ALLOWED_CURRENCIES as unknown as string[], {
+    message: `currency must be one of ${ALLOWED_CURRENCIES.join(", ")}`,
+  })
+  currency?: AllowedCurrency;
+}
+
+/**
+ * Wallet Transfer DTO
+ *
+ * Promotes the previously-inline transfer body to a typed DTO so we can
+ * apply `class-validator` constraints (including the currency allow-list)
+ * consistently with deposit/withdraw.
+ */
+export class WalletTransferDto {
+  @IsString()
+  @IsNotEmpty()
+  fromWalletId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  toWalletId: string;
+
+  @IsMoneyValue()
+  amount: number;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsString()
+  @IsOptional()
+  pin?: string;
+
+  @IsString()
+  @IsOptional()
+  @IsIn(ALLOWED_CURRENCIES as unknown as string[], {
+    message: `currency must be one of ${ALLOWED_CURRENCIES.join(", ")}`,
+  })
+  currency?: AllowedCurrency;
 }
 
 /**

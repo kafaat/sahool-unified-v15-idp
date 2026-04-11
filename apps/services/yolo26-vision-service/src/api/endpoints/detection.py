@@ -569,6 +569,7 @@ DISEASE_TREATMENTS: dict[int, dict[str, str]] = {
 @router.post(
     "/detect/pest",
     response_model=PestDetectionResponse,
+    response_model_by_alias=True,
     summary="Detect pests in agricultural images",
     description="Detect and classify agricultural pests (20+ species) with bilingual labels and treatment recommendations.",
 )
@@ -772,6 +773,7 @@ async def detect_pests(
 @router.post(
     "/detect/disease",
     response_model=DiseaseDetectionResponse,
+    response_model_by_alias=True,
     summary="Detect plant diseases in agricultural images",
     description="Detect and classify plant diseases (30+ diseases) with bilingual labels and treatment recommendations.",
 )
@@ -1016,6 +1018,7 @@ async def detect_diseases(
 @router.post(
     "/detect/weed",
     response_model=WeedDetectionResponse,
+    response_model_by_alias=True,
     summary="Detect weeds in agricultural images",
     description="Detect and classify weeds with bilingual labels and coverage estimation.",
 )

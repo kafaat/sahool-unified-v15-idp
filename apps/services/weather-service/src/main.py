@@ -1197,6 +1197,155 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
     }
 
 
+# ---------------------------------------------------------------------------
+# Weather Graph URL endpoints (Farmonaut-style get-past-weather-graph)
+# نقاط نهاية رسم الطقس — يعيد رابط URL للرسم بدل JSON
+# ---------------------------------------------------------------------------
+
+from src.graph import (  # noqa: E402
+    DailyPoint,
+    GraphRequest,
+    GraphStore,
+    WeatherGraphRenderer,
+)
+
+
+class WeatherGraphGenerateRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(min_length=1, max_length=100)
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
+    days: int = Field(default=14, ge=1, le=90)
+    metric: Literal["temperature", "precipitation", "humidity", "wind", "combined"] = (
+        "combined"
+    )
+    language: Literal["ar", "en"] = "ar"
+
+
+@app.post("/api/v1/weather/fields/{field_id}/graph")
+async def generate_weather_graph(
+    field_id: str,
+    req: WeatherGraphGenerateRequest,
+    user: User = Depends(get_current_user),
+):
+    """
+    Generate a weather history graph for a field and return its URL.
+
+    Farmonaut-style: the API returns a signed URL to a server-rendered
+    SVG chart. The client loads it as an <img src="..."> instead of
+    receiving JSON + rendering the chart in Dart/JS. This is much
+    lighter on the mobile client and gives identical visuals across
+    platforms.
+
+    Response:
+      {
+        "success": true,
+        "data": {
+          "graph_id": "...",
+          "url": "/api/v1/weather/graphs/{id}?tid=...&sig=...",
+          "expires_at": "2026-04-11T18:30:00Z",
+          "metric": "combined",
+          "days": 14
+        }
+      }
+    """
+    _enforce_tenant(user, req.tenant_id)
+
+    # Initialise lazy singletons on first call (one per process).
+    if not hasattr(app.state, "graph_renderer"):
+        app.state.graph_renderer = WeatherGraphRenderer()
+    if not hasattr(app.state, "graph_store"):
+        app.state.graph_store = GraphStore()
+
+    # Pull historical daily weather — the multi-provider service
+    # already exposes get_daily_forecast; for past data we use the
+    # provider's history method when available, else we gracefully
+    # fall back to an empty series so the SVG still renders.
+    daily_points: list[DailyPoint] = []
+    if app.state.multi_provider and hasattr(
+        app.state.multi_provider, "get_historical_daily"
+    ):
+        try:
+            history_result = await app.state.multi_provider.get_historical_daily(
+                req.lat, req.lon, req.days, tenant_id=req.tenant_id
+            )
+            if history_result and getattr(history_result, "success", False):
+                for row in history_result.data or []:
+                    daily_points.append(
+                        DailyPoint(
+                            date=row.get("date", ""),
+                            temp_min_c=row.get("temp_min_c"),
+                            temp_max_c=row.get("temp_max_c"),
+                            precipitation_mm=row.get("precipitation_mm"),
+                            humidity_pct=row.get("humidity_pct"),
+                            wind_speed_kmh=row.get("wind_speed_kmh"),
+                        )
+                    )
+        except Exception as e:  # pragma: no cover - provider-specific
+            logger.warning("Historical fetch failed, rendering empty graph", error=str(e))
+
+    svg = app.state.graph_renderer.render(
+        GraphRequest(
+            field_id=field_id,
+            tenant_id=req.tenant_id,
+            metric=req.metric,
+            points=daily_points,
+            language=req.language,
+        )
+    )
+    graph_id, url_path, expires_at = app.state.graph_store.store(
+        svg=svg, field_id=field_id, tenant_id=req.tenant_id
+    )
+
+    return {
+        "success": True,
+        "data": {
+            "graph_id": graph_id,
+            "url": url_path,
+            "expires_at": expires_at.isoformat(),
+            "metric": req.metric,
+            "days": req.days,
+            "points_count": len(daily_points),
+        },
+    }
+
+
+@app.get("/api/v1/weather/graphs/{graph_id}")
+async def fetch_weather_graph(graph_id: str, tid: str, sig: str):
+    """
+    Serve the rendered SVG for a previously-generated graph.
+
+    The URL is signed with HMAC-SHA256 (stored tenant + graph_id),
+    so only clients who went through POST /fields/:id/graph can
+    fetch the resulting SVG. No JWT required on this read — the
+    signature is the authorisation. Cache-Control: private so
+    proxies don't leak per-tenant graphs.
+    """
+    from starlette.responses import Response as StarletteResponse
+
+    if not hasattr(app.state, "graph_store"):
+        raise HTTPException(status_code=404, detail="Graph not found")
+
+    svg = app.state.graph_store.fetch(graph_id, tid, sig)
+    if svg is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": "Graph not found or expired",
+                "message_ar": "الرسم غير موجود أو انتهت صلاحيته",
+            },
+        )
+
+    return StarletteResponse(
+        content=svg,
+        media_type="image/svg+xml",
+        headers={
+            "Cache-Control": "private, max-age=3600",
+            "Content-Disposition": f'inline; filename="weather-{graph_id}.svg"',
+        },
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
 

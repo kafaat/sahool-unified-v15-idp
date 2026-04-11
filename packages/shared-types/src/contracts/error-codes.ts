@@ -239,6 +239,42 @@ export const ERROR_CODES = {
   VEGETATION_INDICATOR_NOT_FOUND: 'V1007',
   VEGETATION_INDICATOR_VALUE_INVALID: 'V1008',
 
+  // ── Advisory Comprehensive (A10xx) — @since 4.7.0 ─────────────────
+  ADVISORY_COMPREHENSIVE_DEGRADED: 'A1009',
+  ADVISORY_COMPREHENSIVE_ALL_SOURCES_DOWN: 'A1010',
+  ADVISORY_COMPREHENSIVE_TIMEOUT: 'A1011',
+
+  // ── Crop Loan Verification (L10xx) — @since 4.7.0 ─────────────────
+  LOAN_FIELD_NOT_FOUND: 'L1001',
+  LOAN_CROP_NOT_VERIFIED: 'L1002',
+  LOAN_AREA_MISMATCH: 'L1003',
+  LOAN_RISK_TOO_HIGH: 'L1004',
+  LOAN_NDVI_DATA_UNAVAILABLE: 'L1005',
+  LOAN_REQUESTED_AMOUNT_EXCEEDS_SAFE: 'L1006',
+
+  // ── Weather Graph (W10xx) — @since 4.7.0 ──────────────────────────
+  WEATHER_GRAPH_RENDER_FAILED: 'W1009',
+  WEATHER_GRAPH_NOT_FOUND: 'W1010',
+  WEATHER_GRAPH_INVALID_SIGNATURE: 'W1011',
+  WEATHER_GRAPH_EXPIRED: 'W1012',
+  WEATHER_GRAPH_NO_HISTORY: 'W1013',
+
+  // ── Traceability Anchoring (T1xxx) — @since 4.7.0 ─────────────────
+  TRACEABILITY_CHAIN_TAMPERED: 'T1001',
+  TRACEABILITY_ANCHOR_PERSIST_FAILED: 'T1002',
+  TRACEABILITY_SUBSCRIBER_UNAVAILABLE: 'T1003',
+
+  // ── Geofence Auto-Draft (G1xxx) — @since 4.7.0 ────────────────────
+  GEOFENCE_NO_FIELD_MAPPING: 'G1001',
+  GEOFENCE_EQUIPMENT_TENANT_MISMATCH: 'G1002',
+  GEOFENCE_AUTODRAFT_RETRY: 'G1003',
+  GEOFENCE_ALERT_NOT_ACTIONABLE: 'G1004',
+
+  // ── Report Storage (R1xxx) — @since 4.7.0 ─────────────────────────
+  REPORT_STORAGE_UPLOAD_FAILED: 'R1001',
+  REPORT_STORAGE_CREDENTIALS_MISSING: 'R1002',
+  REPORT_STORAGE_SIGNING_FAILED: 'R1003',
+
   // ── Generic ──────────────────────────────────────────────────────────
   UNKNOWN: 'UNKNOWN',
 } as const;
@@ -1457,6 +1493,186 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'Permission denied for this vision operation',
     ar: 'تم رفض الإذن لهذه العملية في خدمة الرؤية',
     retryable: false,
+  },
+
+  // ── Advisory Comprehensive (A1xxx) — @since 4.7.0 ─────────────────
+  [ERROR_CODES.ADVISORY_COMPREHENSIVE_DEGRADED]: {
+    code: ERROR_CODES.ADVISORY_COMPREHENSIVE_DEGRADED,
+    httpStatus: 200,
+    en: 'Some advisory sources returned degraded results',
+    ar: 'بعض مصادر الاستشارة أعادت نتائج ناقصة',
+    retryable: true,
+  },
+  [ERROR_CODES.ADVISORY_COMPREHENSIVE_ALL_SOURCES_DOWN]: {
+    code: ERROR_CODES.ADVISORY_COMPREHENSIVE_ALL_SOURCES_DOWN,
+    httpStatus: 503,
+    en: 'All advisory downstream services are unavailable',
+    ar: 'جميع خدمات الاستشارة التابعة غير متاحة',
+    retryable: true,
+  },
+  [ERROR_CODES.ADVISORY_COMPREHENSIVE_TIMEOUT]: {
+    code: ERROR_CODES.ADVISORY_COMPREHENSIVE_TIMEOUT,
+    httpStatus: 504,
+    en: 'Comprehensive advisory orchestration timed out',
+    ar: 'انتهت مهلة تنسيق الاستشارة الشاملة',
+    retryable: true,
+  },
+
+  // ── Crop Loan Verification (L1xxx) — @since 4.7.0 ─────────────────
+  [ERROR_CODES.LOAN_FIELD_NOT_FOUND]: {
+    code: ERROR_CODES.LOAN_FIELD_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Field not found for loan verification',
+    ar: 'لم يُعثر على الحقل للتحقق من القرض',
+    retryable: false,
+  },
+  [ERROR_CODES.LOAN_CROP_NOT_VERIFIED]: {
+    code: ERROR_CODES.LOAN_CROP_NOT_VERIFIED,
+    httpStatus: 200,
+    en: 'Crop could not be verified via satellite NDVI',
+    ar: 'لا يمكن التحقق من المحصول عبر مؤشر NDVI الفضائي',
+    retryable: false,
+  },
+  [ERROR_CODES.LOAN_AREA_MISMATCH]: {
+    code: ERROR_CODES.LOAN_AREA_MISMATCH,
+    httpStatus: 200,
+    en: 'Declared area does not match GIS-measured area',
+    ar: 'المساحة المُعلنة لا تطابق المساحة المقاسة بنظم المعلومات الجغرافية',
+    retryable: false,
+  },
+  [ERROR_CODES.LOAN_RISK_TOO_HIGH]: {
+    code: ERROR_CODES.LOAN_RISK_TOO_HIGH,
+    httpStatus: 200,
+    en: 'Field risk profile exceeds safe loan threshold',
+    ar: 'مستوى مخاطر الحقل يتجاوز الحد الآمن للإقراض',
+    retryable: false,
+  },
+  [ERROR_CODES.LOAN_NDVI_DATA_UNAVAILABLE]: {
+    code: ERROR_CODES.LOAN_NDVI_DATA_UNAVAILABLE,
+    httpStatus: 503,
+    en: 'NDVI history unavailable for loan verification',
+    ar: 'بيانات NDVI غير متاحة للتحقق من القرض',
+    retryable: true,
+  },
+  [ERROR_CODES.LOAN_REQUESTED_AMOUNT_EXCEEDS_SAFE]: {
+    code: ERROR_CODES.LOAN_REQUESTED_AMOUNT_EXCEEDS_SAFE,
+    httpStatus: 200,
+    en: 'Requested loan amount exceeds the recommended safe limit',
+    ar: 'مبلغ القرض المطلوب يتجاوز الحد الآمن الموصى به',
+    retryable: false,
+  },
+
+  // ── Weather Graph (W1xxx) — @since 4.7.0 ──────────────────────────
+  [ERROR_CODES.WEATHER_GRAPH_RENDER_FAILED]: {
+    code: ERROR_CODES.WEATHER_GRAPH_RENDER_FAILED,
+    httpStatus: 500,
+    en: 'Failed to render weather graph SVG',
+    ar: 'فشل في توليد الرسم البياني للطقس',
+    retryable: true,
+  },
+  [ERROR_CODES.WEATHER_GRAPH_NOT_FOUND]: {
+    code: ERROR_CODES.WEATHER_GRAPH_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Weather graph not found',
+    ar: 'لم يُعثر على الرسم البياني للطقس',
+    retryable: false,
+  },
+  [ERROR_CODES.WEATHER_GRAPH_INVALID_SIGNATURE]: {
+    code: ERROR_CODES.WEATHER_GRAPH_INVALID_SIGNATURE,
+    httpStatus: 403,
+    en: 'Invalid weather graph signature',
+    ar: 'توقيع الرسم البياني للطقس غير صالح',
+    retryable: false,
+  },
+  [ERROR_CODES.WEATHER_GRAPH_EXPIRED]: {
+    code: ERROR_CODES.WEATHER_GRAPH_EXPIRED,
+    httpStatus: 410,
+    en: 'Weather graph has expired',
+    ar: 'انتهت صلاحية الرسم البياني للطقس',
+    retryable: true,
+  },
+  [ERROR_CODES.WEATHER_GRAPH_NO_HISTORY]: {
+    code: ERROR_CODES.WEATHER_GRAPH_NO_HISTORY,
+    httpStatus: 200,
+    en: 'No historical weather data for the requested range',
+    ar: 'لا توجد بيانات طقس تاريخية للفترة المطلوبة',
+    retryable: false,
+  },
+
+  // ── Traceability Anchoring (T1xxx) — @since 4.7.0 ─────────────────
+  [ERROR_CODES.TRACEABILITY_CHAIN_TAMPERED]: {
+    code: ERROR_CODES.TRACEABILITY_CHAIN_TAMPERED,
+    httpStatus: 409,
+    en: 'Traceability chain integrity check failed',
+    ar: 'فشل التحقق من سلامة سلسلة التتبع',
+    retryable: false,
+  },
+  [ERROR_CODES.TRACEABILITY_ANCHOR_PERSIST_FAILED]: {
+    code: ERROR_CODES.TRACEABILITY_ANCHOR_PERSIST_FAILED,
+    httpStatus: 500,
+    en: 'Failed to persist traceability anchor',
+    ar: 'فشل حفظ مرساة التتبع',
+    retryable: true,
+  },
+  [ERROR_CODES.TRACEABILITY_SUBSCRIBER_UNAVAILABLE]: {
+    code: ERROR_CODES.TRACEABILITY_SUBSCRIBER_UNAVAILABLE,
+    httpStatus: 503,
+    en: 'Traceability anchoring subscriber is not running',
+    ar: 'مشترك تتبع المراسي غير مُفعَّل',
+    retryable: true,
+  },
+
+  // ── Geofence Auto-Draft (G1xxx) — @since 4.7.0 ────────────────────
+  [ERROR_CODES.GEOFENCE_NO_FIELD_MAPPING]: {
+    code: ERROR_CODES.GEOFENCE_NO_FIELD_MAPPING,
+    httpStatus: 200,
+    en: 'Geofence has no field mapping; auto-draft skipped',
+    ar: 'السياج الجغرافي لا يرتبط بحقل؛ تم تخطي المسودة التلقائية',
+    retryable: false,
+  },
+  [ERROR_CODES.GEOFENCE_EQUIPMENT_TENANT_MISMATCH]: {
+    code: ERROR_CODES.GEOFENCE_EQUIPMENT_TENANT_MISMATCH,
+    httpStatus: 404,
+    en: 'Equipment not found for this tenant',
+    ar: 'المعدة غير موجودة لهذا المستأجر',
+    retryable: false,
+  },
+  [ERROR_CODES.GEOFENCE_AUTODRAFT_RETRY]: {
+    code: ERROR_CODES.GEOFENCE_AUTODRAFT_RETRY,
+    httpStatus: 202,
+    en: 'Auto-draft queued for retry',
+    ar: 'تمت جدولة المسودة التلقائية لإعادة المحاولة',
+    retryable: true,
+  },
+  [ERROR_CODES.GEOFENCE_ALERT_NOT_ACTIONABLE]: {
+    code: ERROR_CODES.GEOFENCE_ALERT_NOT_ACTIONABLE,
+    httpStatus: 200,
+    en: 'Geofence alert type is not actionable',
+    ar: 'نوع تنبيه السياج الجغرافي غير قابل للتنفيذ',
+    retryable: false,
+  },
+
+  // ── Report Storage (R1xxx) — @since 4.7.0 ─────────────────────────
+  [ERROR_CODES.REPORT_STORAGE_UPLOAD_FAILED]: {
+    code: ERROR_CODES.REPORT_STORAGE_UPLOAD_FAILED,
+    httpStatus: 500,
+    en: 'Failed to upload report to object storage',
+    ar: 'فشل في رفع التقرير إلى التخزين',
+    retryable: true,
+  },
+  [ERROR_CODES.REPORT_STORAGE_CREDENTIALS_MISSING]: {
+    code: ERROR_CODES.REPORT_STORAGE_CREDENTIALS_MISSING,
+    httpStatus: 500,
+    en: 'Object storage credentials are not configured',
+    ar: 'بيانات اعتماد التخزين غير مُهيَّأة',
+    retryable: false,
+  },
+  [ERROR_CODES.REPORT_STORAGE_SIGNING_FAILED]: {
+    code: ERROR_CODES.REPORT_STORAGE_SIGNING_FAILED,
+    httpStatus: 500,
+    en: 'Failed to sign object storage URL',
+    ar: 'فشل في توقيع عنوان التخزين',
+    retryable: true,
   },
 
   // ── Generic ──────────────────────────────────────────────────────────

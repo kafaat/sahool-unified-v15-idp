@@ -1196,6 +1196,114 @@ async def delete_equipment(
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Geofence auto-draft bridge
+# جسر السياج الجغرافي → مسودة عملية حقلية
+# ═══════════════════════════════════════════════════════════════════════════
+
+from .geofence_autoop import (  # noqa: E402
+    GeofenceAutoOperationBridge,
+    GeofenceEvent,
+)
+
+
+class GeofenceEventPayload(BaseModel):
+    """Geofence entry/exit event consumed by the auto-op bridge."""
+
+    equipment_id: str = Field(min_length=1, max_length=128)
+    geofence_id: str = Field(min_length=1, max_length=128)
+    geofence_type: str = Field(default="field", max_length=64)
+    alert_type: str = Field(default="entry", max_length=32)
+    lat: float = Field(ge=-90, le=90)
+    lng: float = Field(ge=-180, le=180)
+    timestamp: datetime | None = None
+    field_id: str | None = Field(default=None, max_length=128)
+    crop_season_id: str | None = Field(default=None, max_length=128)
+    equipment_type: str = Field(default="other", max_length=32)
+    equipment_name: str = Field(default="", max_length=255)
+    operator_id: str | None = Field(default=None, max_length=128)
+
+
+@app.post("/api/v1/equipment/geofence/event", status_code=202)
+async def geofence_event(
+    payload: GeofenceEventPayload,
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
+    """
+    Handle a geofence entry event and, when appropriate, auto-draft
+    a FieldOperation in field-management-service.
+
+    Called by the fleet/geofencing worker whenever tracked equipment
+    crosses a geofence boundary. Returns:
+
+    * ``reason=drafted`` + ``operation_id`` — a draft FieldOperation
+      was created in field-management-service, status pending review.
+    * ``reason=skipped`` — the event was not actionable (wrong zone
+      type, not an entry, no field mapping).
+    * ``reason=pending_retry`` — field-management-service was
+      unreachable, the event is logged and should be retried.
+
+    The draft is NEVER auto-approved. A human operator must confirm
+    via the existing ``POST /api/v1/field-operations/:id/approve``
+    endpoint before it counts for cost rollup, ERP sync, or carbon.
+
+    Security: the equipment must exist and belong to the authenticated
+    tenant. Cross-tenant geofence events are rejected with 404.
+    """
+    # Verify equipment exists and belongs to tenant — this prevents
+    # a rogue caller from drafting operations on fields they don't own.
+    eq = repository.get_equipment(db, equipment_id=payload.equipment_id, tenant_id=tenant_id)
+    if not eq:
+        raise HTTPException(status_code=404, detail="Equipment not found")
+
+    # Prefer the payload's equipment_type but fall back to the DB
+    # record if the caller didn't supply one.
+    eq_type = payload.equipment_type or eq.equipment_type or "other"
+    eq_name = payload.equipment_name or eq.name or ""
+
+    event = GeofenceEvent(
+        equipment_id=payload.equipment_id,
+        tenant_id=tenant_id,
+        geofence_id=payload.geofence_id,
+        geofence_type=payload.geofence_type,
+        alert_type=payload.alert_type,
+        lat=payload.lat,
+        lng=payload.lng,
+        timestamp=payload.timestamp or datetime.now(UTC),
+        field_id=payload.field_id or eq.field_id,
+        crop_season_id=payload.crop_season_id,
+        equipment_type=eq_type,
+        equipment_name=eq_name,
+        operator_id=payload.operator_id or getattr(current_user, "id", None),
+    )
+
+    # Lazy-init the bridge once per process.
+    if not hasattr(app.state, "geofence_autoop_bridge"):
+        app.state.geofence_autoop_bridge = GeofenceAutoOperationBridge(
+            field_management_url=os.getenv(
+                "FIELD_MANAGEMENT_URL", "http://field-management-service:3000"
+            ),
+            nats_client=getattr(app.state, "nc", None),
+            timeout=float(os.getenv("GEOFENCE_AUTOOP_TIMEOUT_SEC", "4.0")),
+        )
+
+    bridge: GeofenceAutoOperationBridge = app.state.geofence_autoop_bridge
+    result = await bridge.handle(event)
+
+    logger.info(
+        "geofence_autoop_handled",
+        equipment_id=payload.equipment_id,
+        tenant_id=tenant_id,
+        field_id=event.field_id,
+        reason=result.reason,
+        operation_id=result.operation_id,
+    )
+
+    return {"success": True, "data": result.to_dict()}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Main Entry Point
 # ═══════════════════════════════════════════════════════════════════════════
 

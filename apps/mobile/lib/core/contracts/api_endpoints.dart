@@ -59,6 +59,14 @@ abstract final class WeatherEndpoints {
   static const String locations = '$apiPrefix/weather/locations';
   static const String agriculturalCalendar =
       '$apiPrefix/weather/agricultural-calendar';
+
+  /// @since 4.7.0 — Generate a signed SVG weather graph URL for a field
+  static String fieldGraphGenerate(String fieldId) =>
+      '$apiPrefix/weather/fields/$fieldId/graph';
+
+  /// @since 4.7.0 — Fetch a previously generated weather graph by signed id
+  static String fieldGraphFetch(String graphId) =>
+      '$apiPrefix/weather/graphs/$graphId';
 }
 
 /// Satellite & NDVI - الأقمار الصناعية
@@ -110,6 +118,17 @@ abstract final class AdvisoryEndpoints {
   static const String fertilizers = '$apiPrefix/fertilizer/fertilizers';
   static const String deficiencySymptoms =
       '$apiPrefix/fertilizer/deficiency/symptoms';
+
+  /// @since 4.7.0 — Jeevn-style unified per-field advisory
+  static String comprehensive(String fieldId) =>
+      '$apiPrefix/advisory/comprehensive/$fieldId';
+}
+
+/// Crop Loan Verification - التحقق من القروض الزراعية
+/// @since 4.7.0 — Satellite-backed crop loan verification for banks / lenders
+abstract final class LoanVerificationEndpoints {
+  static String verify(String fieldId) =>
+      '$apiPrefix/loans/crop-loan-verification/$fieldId';
 }
 
 /// Tasks - المهام
@@ -133,6 +152,32 @@ abstract final class EquipmentEndpoints {
       '$apiPrefix/equipment/$equipmentId/maintenance';
   static String qrLookup(String qrCode) => '$apiPrefix/equipment/qr/$qrCode';
   static const String stats = '$apiPrefix/equipment/stats';
+
+  /// @since 4.7.0 — Geofence event ingest (auto-drafts FieldOperation)
+  static const String geofenceEvent = '$apiPrefix/equipment/geofence/event';
+}
+
+/// Traceability - التتبع
+/// @since 4.7.0 — Blockchain-style anchor endpoints
+abstract final class TraceabilityEndpoints {
+  static const String batches = '$apiPrefix/traceability/batches';
+  static String batchGet(String batchId) =>
+      '$apiPrefix/traceability/batches/$batchId';
+  static String batchEvents(String batchId) =>
+      '$apiPrefix/traceability/batches/$batchId/events';
+  static String qrCode(String batchId) =>
+      '$apiPrefix/traceability/batches/$batchId/qr';
+
+  /// List anchors for a field's chain
+  static String anchorsList(String tenantId, String fieldId) =>
+      '$apiPrefix/traceability/anchors/$tenantId/$fieldId';
+
+  /// Verify the chain integrity for a field
+  static String anchorsVerify(String tenantId, String fieldId) =>
+      '$apiPrefix/traceability/anchors/$tenantId/$fieldId/verify';
+
+  /// Subscriber stats (messages consumed, anchors created)
+  static const String anchorsStats = '$apiPrefix/traceability/anchors/stats';
 }
 
 /// Alerts - التنبيهات

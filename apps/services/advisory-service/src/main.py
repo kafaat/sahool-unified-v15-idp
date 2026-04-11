@@ -1159,6 +1159,187 @@ def get_action(action_id: str, lang: str = "ar"):
 
 
 # ---------------------------------------------------------------------------
+# Comprehensive (Jeevn-style) advisory endpoint
+# نقطة استشارة شاملة — تجمع كل الخدمات في طلب واحد
+# ---------------------------------------------------------------------------
+
+from src.comprehensive import ComprehensiveAdvisoryOrchestrator, ServiceUrls  # noqa: E402
+
+
+@app.post("/api/v1/advisory/comprehensive/{field_id}")
+async def comprehensive_advisory(
+    field_id: str,
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    """
+    One-call comprehensive advisory for a field.
+
+    Aggregates per-field insights from the nutrient, pest, disease,
+    irrigation, weather, yield, carbon, and alert services into a
+    single response. Matches the UX of Farmonaut's Jeevn AI
+    ("one question → comprehensive answer") without forcing the
+    client to orchestrate ten downstream calls.
+
+    Graceful degradation: every downstream call is wrapped in its
+    own try/except with a per-call timeout. If a single service is
+    slow or down, that section comes back with `degraded: true` and
+    the rest of the payload still returns. The `overall_status`
+    field at the top of the response summarises the result:
+
+      * `healthy`  — all sections returned, no active alerts
+      * `degraded` — at least one section failed OR there are alerts
+      * `critical` — a critical alert exists OR >=4 sections failed
+
+    The endpoint is tenant-scoped: the caller's JWT provides the
+    tenant id, which is propagated to every downstream call via
+    the X-Tenant-Id header so cross-tenant access is impossible.
+    """
+    tenant_id = user.tenant_id or "default"
+
+    # Lazy-init the orchestrator once per process (not per request)
+    # — ServiceUrls resolves env vars which don't change at runtime.
+    if not hasattr(app.state, "comprehensive_orchestrator"):
+        app.state.comprehensive_orchestrator = ComprehensiveAdvisoryOrchestrator(
+            urls=ServiceUrls.from_env(os.environ),
+            timeout=float(os.getenv("COMPREHENSIVE_TIMEOUT_SEC", "8.0")),
+        )
+
+    orchestrator: ComprehensiveAdvisoryOrchestrator = (
+        app.state.comprehensive_orchestrator
+    )
+
+    # Pass the caller's auth header through so each downstream
+    # service can independently verify the JWT and enforce its own
+    # tenant guard (defense-in-depth).
+    auth_header = request.headers.get("authorization")
+
+    try:
+        result = await orchestrator.collect(
+            field_id=field_id,
+            tenant_id=tenant_id,
+            auth_header=auth_header,
+        )
+    except Exception as e:  # pragma: no cover - unexpected gather error
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Comprehensive advisory failed",
+                "message_ar": "فشل توليد الاستشارة الشاملة",
+                "error": str(e),
+            },
+        ) from e
+
+    return {"success": True, "data": result}
+
+
+# ---------------------------------------------------------------------------
+# Satellite-backed crop loan verification
+# تحقق من القرض الزراعي بالأقمار الاصطناعية
+# ---------------------------------------------------------------------------
+
+from src.loans import (  # noqa: E402
+    CropLoanVerificationEngine,
+    LoanVerificationRequest,
+)
+
+
+class CropLoanVerificationPayload(BaseModel):
+    """Bank / lender payload for a satellite-backed loan verification."""
+
+    declared_crop: str = Field(min_length=1, max_length=64)
+    declared_area_hectares: float = Field(gt=0, le=100_000)
+    requested_loan_amount_sar: float = Field(gt=0, le=1_000_000_000)
+    loan_term_months: int = Field(default=12, ge=1, le=120)
+    language: str = Field(default="ar", pattern="^(ar|en)$")
+
+
+@app.post("/api/v1/loans/crop-loan-verification/{field_id}")
+async def verify_crop_loan(
+    field_id: str,
+    payload: CropLoanVerificationPayload,
+    request: Request,
+    user: User = Depends(get_current_user),
+):
+    """
+    Satellite-backed crop loan verification for banks / lenders.
+
+    Farmonaut offers a "large-scale crop loan monitoring" product that
+    banks use to verify farmer declarations against real satellite
+    imagery. This endpoint is SAHOOL's equivalent, built on our own
+    field-management + vegetation-analysis + crop-intelligence stack.
+
+    Given a ``field_id`` and the bank's declared loan parameters, the
+    endpoint returns:
+
+      * ``eligibility_score`` — 0-100, based on NDVI health, area
+        match, crop verification, and risk profile.
+      * ``recommended_loan_amount_sar`` — bounded by expected gross
+        revenue and the eligibility score.
+      * ``max_safe_loan_amount_sar`` — the upper bound we'd comfortably
+        underwrite.
+      * ``loan_to_value_ratio`` — requested amount vs expected revenue.
+      * ``decision`` — ``approved`` | ``review`` | ``rejected``.
+      * ``satellite_evidence`` — full NDVI stats, area match, last pass.
+      * ``summary`` / ``summary_ar`` — bilingual one-liner the loan
+        officer can paste into their risk file.
+
+    SAHOOL does NOT underwrite loans. The endpoint surfaces agronomic
+    evidence; the bank's own credit scorecard makes the final call.
+
+    Tenant-scoped: the caller's JWT drives the tenant id, which is
+    propagated to every downstream call via ``X-Tenant-Id`` so cross-
+    tenant access is impossible.
+    """
+    tenant_id = user.tenant_id or "default"
+
+    if not hasattr(app.state, "loan_verification_engine"):
+        app.state.loan_verification_engine = CropLoanVerificationEngine(
+            field_management_url=os.getenv(
+                "FIELD_MANAGEMENT_URL", "http://field-management-service:3000"
+            ),
+            vegetation_analysis_url=os.getenv(
+                "VEGETATION_ANALYSIS_URL",
+                "http://vegetation-analysis-service:8090",
+            ),
+            crop_intelligence_url=os.getenv(
+                "CROP_INTELLIGENCE_URL",
+                "http://crop-intelligence-service:8095",
+            ),
+            timeout=float(os.getenv("LOAN_VERIFY_TIMEOUT_SEC", "6.0")),
+        )
+
+    engine: CropLoanVerificationEngine = app.state.loan_verification_engine
+
+    req = LoanVerificationRequest(
+        field_id=field_id,
+        tenant_id=tenant_id,
+        declared_crop=payload.declared_crop,
+        declared_area_hectares=payload.declared_area_hectares,
+        requested_loan_amount_sar=payload.requested_loan_amount_sar,
+        loan_term_months=payload.loan_term_months,
+        language=payload.language,
+    )
+
+    auth_header = request.headers.get("authorization")
+
+    try:
+        result = await engine.verify(req, auth_header=auth_header)
+    except Exception as e:  # pragma: no cover - defensive
+        logger.exception("crop_loan_verification_failed", field_id=field_id)
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Crop loan verification failed",
+                "message_ar": "فشل التحقق من القرض الزراعي",
+                "error": str(e),
+            },
+        ) from e
+
+    return {"success": True, "data": result.to_dict()}
+
+
+# ---------------------------------------------------------------------------
 # Backward-compatible route aliases (deprecated, remove in v17.0.0)
 # Original paths had no /v1/ prefix (e.g. /disease/assess, /nutrient/ndvi).
 # New integrations should use /api/v1/... paths.

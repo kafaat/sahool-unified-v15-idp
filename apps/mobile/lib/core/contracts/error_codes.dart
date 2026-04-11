@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.6.0
+/// Contract version: 4.7.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
@@ -182,6 +182,43 @@ abstract final class ErrorCodes {
   static const String visionAuthInvalidToken = 'E8001';
   static const String visionAuthTokenExpired = 'E8002';
   static const String visionPermissionDenied = 'E8003';
+
+  // ── Phase 2 additions (@since 4.7.0) ───────────────────────────────
+  // Advisory Comprehensive (A10xx)
+  static const String advisoryComprehensiveDegraded = 'A1009';
+  static const String advisoryComprehensiveAllSourcesDown = 'A1010';
+  static const String advisoryComprehensiveTimeout = 'A1011';
+
+  // Crop Loan Verification (L10xx)
+  static const String loanFieldNotFound = 'L1001';
+  static const String loanCropNotVerified = 'L1002';
+  static const String loanAreaMismatch = 'L1003';
+  static const String loanRiskTooHigh = 'L1004';
+  static const String loanNdviDataUnavailable = 'L1005';
+  static const String loanRequestedAmountExceedsSafe = 'L1006';
+
+  // Weather Graph (W10xx)
+  static const String weatherGraphRenderFailed = 'W1009';
+  static const String weatherGraphNotFound = 'W1010';
+  static const String weatherGraphInvalidSignature = 'W1011';
+  static const String weatherGraphExpired = 'W1012';
+  static const String weatherGraphNoHistory = 'W1013';
+
+  // Traceability Anchoring (T10xx)
+  static const String traceabilityChainTampered = 'T1001';
+  static const String traceabilityAnchorPersistFailed = 'T1002';
+  static const String traceabilitySubscriberUnavailable = 'T1003';
+
+  // Geofence Auto-Draft (G10xx)
+  static const String geofenceNoFieldMapping = 'G1001';
+  static const String geofenceEquipmentTenantMismatch = 'G1002';
+  static const String geofenceAutodraftRetry = 'G1003';
+  static const String geofenceAlertNotActionable = 'G1004';
+
+  // Report Storage (R10xx)
+  static const String reportStorageUploadFailed = 'R1001';
+  static const String reportStorageCredentialsMissing = 'R1002';
+  static const String reportStorageSigningFailed = 'R1003';
 }
 
 /// Bilingual error message.

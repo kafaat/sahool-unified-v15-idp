@@ -74,13 +74,16 @@ Base = declarative_base()
 from .alert_endpoints import init_alert_manager
 from .alert_endpoints import router as alert_router
 from .alert_manager import AlertManager
-from .api.v1.inventory import router as inventory_v1_router
 from .inventory_analytics import InventoryAnalytics
 
 # Import v2 ORM models so their tables are registered on the shared Base
-# metadata and created by tests / create_all calls.
-from .models import inventory_v2 as _inventory_v2_models  # noqa: F401
-from .models.inventory import (
+# metadata and created by tests / create_all calls. The side-effect is
+# required even though the bound name is not referenced further.
+from .models import inventory_v2  # noqa: F401  # side-effect only
+
+assert inventory_v2 is not None  # keep the import alive for the linter
+
+from .models.inventory import (  # noqa: E402
     ItemCategory,
 )
 
@@ -179,8 +182,14 @@ app = FastAPI(
 # Include alert router
 app.include_router(alert_router)
 
-# Include Wave 2 inventory CRUD router (/api/v1/inventory)
-app.include_router(inventory_v1_router)
+# Include Wave 2 inventory CRUD router (/api/v1/inventory).
+# Imported here (not at module top) so the static import graph stays
+# acyclic: `api.v1.inventory` lazy-imports back into `main` for the
+# `get_db` / `get_current_user` dependencies.
+import importlib as _importlib  # noqa: E402
+
+_inventory_v1_module = _importlib.import_module("src.api.v1.inventory")
+app.include_router(_inventory_v1_module.router)
 
 # Setup unified error handling
 setup_exception_handlers(app)

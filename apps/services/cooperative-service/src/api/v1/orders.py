@@ -16,11 +16,6 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
-try:
-    from shared.events.subjects import SAHOOL_NOTIFICATION_SEND
-except ImportError:  # pragma: no cover
-    SAHOOL_NOTIFICATION_SEND = "sahool.notification.send"
-
 # Purchase-order specific event subjects (not yet in shared.events.subjects)
 SAHOOL_COOPERATIVE_PURCHASE_ORDER_CREATED = "sahool.cooperative.purchase_order_created"
 SAHOOL_COOPERATIVE_PURCHASE_ORDER_UPDATED = "sahool.cooperative.purchase_order_updated"

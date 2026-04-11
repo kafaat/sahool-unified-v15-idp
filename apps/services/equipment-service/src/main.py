@@ -27,9 +27,7 @@ logger = structlog.get_logger()
 from . import repository
 from .api_models import (
     STATUS_IN_MAP,
-    STATUS_OUT_MAP,
     map_status_in,
-    map_status_out,
     serialize_equipment,
 )
 from .database import check_db_connection, get_db, init_db

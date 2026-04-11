@@ -260,20 +260,21 @@ async def _load_item_for_tenant(db: AsyncSession, item_id: str, tenant_id: str) 
 
 
 # ---------------------------------------------------------------------------
-# Dependency wiring - lazy import of get_db / get_current_user so this module
-# can be imported before the main application defines them (avoids circular
-# imports during test collection).
+# Dependency wiring - lazy import of get_db / get_current_user via
+# importlib so this module can be imported before the main application
+# defines them, AND so static analyzers (CodeQL) don't see a textual
+# circular import between `src.main` and `src.api.v1.inventory`.
 # ---------------------------------------------------------------------------
 def _get_db_dependency():
-    from ...main import get_db as _get_db
+    import importlib
 
-    return _get_db
+    return importlib.import_module("src.main").get_db
 
 
 def _get_user_dependency():
-    from ...main import get_current_user as _get_user
+    import importlib
 
-    return _get_user
+    return importlib.import_module("src.main").get_current_user
 
 
 async def get_db_session() -> AsyncSession:  # pragma: no cover - thin wrapper

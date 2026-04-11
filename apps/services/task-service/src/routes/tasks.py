@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 import uuid
-from datetime import UTC, datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from datetime import date as date_type
 from typing import Any
 

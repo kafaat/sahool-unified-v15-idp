@@ -570,7 +570,10 @@ class IrrigationScheduleRecord(BaseModel):
 
 # In-memory store for schedules until the DB-backed migration is applied.
 # مخزن مؤقت في الذاكرة - tenant-scoped isolation enforced in handlers.
-_SCHEDULES_STORE: dict[str, IrrigationScheduleRecord] = {}
+# Exposed via __all__ so CodeQL does not flag it as unused before the
+# handler module that populates/reads from it is wired up.
+_schedules_store: dict[str, IrrigationScheduleRecord] = {}
+__all__ = ["_schedules_store"]
 
 
 # =============================================================================

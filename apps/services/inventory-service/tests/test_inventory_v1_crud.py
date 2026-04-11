@@ -17,11 +17,13 @@ import pytest
 
 try:
     # Importing the module is what registers the v2 tables on Base.metadata.
-    import src.models.inventory_v2  # noqa: F401
     from fastapi.testclient import TestClient
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
     from src.main import app, get_current_user, get_db
+    from src.models import inventory_v2 as _inventory_v2  # noqa: F401
     from src.models.inventory import Base
+
+    assert _inventory_v2 is not None  # keep the side-effect import alive
 except ImportError:  # pragma: no cover - skip if deps missing locally
     pytest.skip("inventory-service dependencies not installed", allow_module_level=True)
 

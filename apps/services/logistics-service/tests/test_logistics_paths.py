@@ -61,7 +61,7 @@ def client():
     from src.main import get_tenant_id as real_get_tenant_id
 
     app.dependency_overrides[real_get_tenant_id] = _override_tenant_id
-    app.dependency_overrides[real_get_current_user] = lambda: _MockUser()
+    app.dependency_overrides[real_get_current_user] = _MockUser
     c = TestClient(app)
     yield c
     app.dependency_overrides.clear()

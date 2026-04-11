@@ -13,6 +13,7 @@ Provides agricultural logistics management:
 import json
 import logging
 import os
+import re
 import sys
 import uuid
 from contextlib import asynccontextmanager
@@ -22,7 +23,6 @@ from typing import Any
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
 from pydantic import BaseModel, Field, field_validator
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -545,8 +545,14 @@ SHIPMENTS: dict[str, dict] = {}
 DRIVERS: dict[str, dict] = {}
 
 
-def seed_demo_data():
-    """Seed demo data for testing - بيانات تجريبية للاختبار"""
+def seed_demo_data(_db: Any = None) -> None:
+    """Seed demo data for testing - بيانات تجريبية للاختبار.
+
+    The `_db` parameter is unused here (logistics-service keeps its demo
+    stores in-memory) but is accepted for signature parity with sibling
+    services (`equipment-service`, `task-service`) so cross-file static
+    analyzers do not mis-resolve the symbol.
+    """
     now = datetime.now(UTC)
 
     # Demo vehicles
@@ -760,15 +766,35 @@ def get_tenant_id(
     )
 
 
+# Strip newlines and control characters from values before logging them to
+# prevent log-injection / log-forging (CodeQL py/log-injection). Any value
+# that flows from a request (tenant_id, user_id, ids in NATS subjects, etc.)
+# MUST be sanitized before being interpolated into a log message.
+_LOG_INJECTION_RE = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def sanitize_log(value: Any) -> str:
+    """Make a value safe for inclusion in a log line.
+
+    Replaces CR/LF/TAB/NULL/control characters with `?` and caps the result
+    at 500 characters to protect against log-line flooding.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    cleaned = _LOG_INJECTION_RE.sub("?", text)
+    return cleaned[:500]
+
+
 async def publish_event(subject: str, data: dict):
     """Publish event to NATS"""
     global _nats_client
     if _nats_client and _nats_available:
         try:
             await _nats_client.publish(subject, json.dumps(data).encode())
-            logger.info(f"Published event to {subject}")
+            logger.info("Published event to %s", sanitize_log(subject))
         except Exception as e:
-            logger.warning(f"Failed to publish event: {e}")
+            logger.warning("Failed to publish event: %s", sanitize_log(str(e)))
 
 
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

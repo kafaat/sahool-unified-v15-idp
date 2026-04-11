@@ -13,7 +13,6 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
-
 from src.main import (
     DRIVERS,
     HARVEST_COLLECTIONS,

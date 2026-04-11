@@ -216,10 +216,7 @@ class EquipmentUpdate(BaseModel):
         # After normalization, ensure it is a recognised backend value.
         valid_backend = {s.value for s in EquipmentStatus}
         if normalized not in valid_backend:
-            raise ValueError(
-                f"Invalid status '{value}'. Allowed: "
-                f"{sorted(valid_backend | set(STATUS_IN_MAP.keys()))}"
-            )
+            raise ValueError(f"Invalid status '{value}'. Allowed: {sorted(valid_backend | set(STATUS_IN_MAP.keys()))}")
         return normalized
 
 
@@ -583,8 +580,7 @@ async def list_equipment(
     ),
     status: str | None = Query(
         None,
-        description="Filter by status. Accepts both backend (operational) and "
-        "frontend (active) canonical values.",
+        description="Filter by status. Accepts both backend (operational) and frontend (active) canonical values.",
     ),
     field_id: str | None = Query(None, description="Filter by field"),
     limit: int = Query(50, ge=1, le=100),
@@ -630,10 +626,7 @@ async def list_equipment(
         if backend_status not in valid_statuses:
             raise HTTPException(
                 status_code=422,
-                detail=(
-                    f"Invalid status '{status}'. Allowed: "
-                    f"{sorted(valid_statuses | set(STATUS_IN_MAP.keys()))}"
-                ),
+                detail=(f"Invalid status '{status}'. Allowed: {sorted(valid_statuses | set(STATUS_IN_MAP.keys()))}"),
             )
 
     equipment_list, total = repository.list_equipment(
@@ -942,15 +935,10 @@ async def update_equipment_status(
     if normalized not in valid_backend:
         raise HTTPException(
             status_code=422,
-            detail=(
-                f"Invalid status '{status}'. Allowed: "
-                f"{sorted(valid_backend | set(STATUS_IN_MAP.keys()))}"
-            ),
+            detail=(f"Invalid status '{status}'. Allowed: {sorted(valid_backend | set(STATUS_IN_MAP.keys()))}"),
         )
 
-    eq = repository.update_equipment(
-        db, equipment_id=equipment_id, tenant_id=tenant_id, status=normalized
-    )
+    eq = repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, status=normalized)
 
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")

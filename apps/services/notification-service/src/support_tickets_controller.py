@@ -386,10 +386,7 @@ async def update_ticket(
     if record["version"] != payload.version:
         raise HTTPException(
             status_code=409,
-            detail=(
-                f"Version conflict: expected {record['version']}, "
-                f"got {payload.version}"
-            ),
+            detail=(f"Version conflict: expected {record['version']}, got {payload.version}"),
         )
 
     updates = payload.model_dump(exclude_unset=True, exclude={"version"})

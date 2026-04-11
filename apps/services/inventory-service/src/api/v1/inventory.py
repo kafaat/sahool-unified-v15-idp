@@ -126,9 +126,7 @@ class InventoryAdjustRequest(BaseModel):
     def _validate_tx_type(cls, value: str) -> str:
         normalized = value.lower().strip()
         if normalized not in ALLOWED_TRANSACTION_TYPES:
-            raise ValueError(
-                f"transaction_type must be one of {sorted(ALLOWED_TRANSACTION_TYPES)}"
-            )
+            raise ValueError(f"transaction_type must be one of {sorted(ALLOWED_TRANSACTION_TYPES)}")
         return normalized
 
 
@@ -218,11 +216,7 @@ def _item_to_response(item: InventoryItemV2) -> InventoryItemResponse:
         unit=item.unit,
         unit_price=Decimal(str(item.unit_price)) if item.unit_price is not None else None,
         currency=item.currency or "SAR",
-        low_stock_threshold=(
-            Decimal(str(item.low_stock_threshold))
-            if item.low_stock_threshold is not None
-            else None
-        ),
+        low_stock_threshold=(Decimal(str(item.low_stock_threshold)) if item.low_stock_threshold is not None else None),
         supplier_id=item.supplier_id,
         location=item.location,
         created_at=item.created_at,
@@ -245,9 +239,7 @@ def _txn_to_response(txn: InventoryTransactionV2) -> InventoryTransactionRespons
     )
 
 
-async def _load_item_for_tenant(
-    db: AsyncSession, item_id: str, tenant_id: str
-) -> InventoryItemV2:
+async def _load_item_for_tenant(db: AsyncSession, item_id: str, tenant_id: str) -> InventoryItemV2:
     stmt = select(InventoryItemV2).where(
         InventoryItemV2.id == item_id,
         InventoryItemV2.tenant_id == tenant_id,
@@ -361,22 +353,14 @@ async def get_inventory_stats(
         InventoryItemV2.is_deleted.is_(False),
     )
 
-    total_items_result = await db.execute(
-        select(func.count(InventoryItemV2.id)).where(base)
-    )
+    total_items_result = await db.execute(select(func.count(InventoryItemV2.id)).where(base))
     total_items = int(total_items_result.scalar() or 0)
 
-    total_qty_result = await db.execute(
-        select(func.coalesce(func.sum(InventoryItemV2.quantity), 0)).where(base)
-    )
+    total_qty_result = await db.execute(select(func.coalesce(func.sum(InventoryItemV2.quantity), 0)).where(base))
     total_quantity = Decimal(str(total_qty_result.scalar() or 0))
 
     total_value_result = await db.execute(
-        select(
-            func.coalesce(
-                func.sum(InventoryItemV2.quantity * InventoryItemV2.unit_price), 0
-            )
-        ).where(base)
+        select(func.coalesce(func.sum(InventoryItemV2.quantity * InventoryItemV2.unit_price), 0)).where(base)
     )
     try:
         total_value = Decimal(str(total_value_result.scalar() or 0))
@@ -394,16 +378,12 @@ async def get_inventory_stats(
     low_stock_count = int(low_stock_result.scalar() or 0)
 
     out_of_stock_result = await db.execute(
-        select(func.count(InventoryItemV2.id)).where(
-            base, InventoryItemV2.quantity <= 0
-        )
+        select(func.count(InventoryItemV2.id)).where(base, InventoryItemV2.quantity <= 0)
     )
     out_of_stock_count = int(out_of_stock_result.scalar() or 0)
 
     categories_result = await db.execute(
-        select(func.count(func.distinct(InventoryItemV2.category))).where(
-            base, InventoryItemV2.category.isnot(None)
-        )
+        select(func.count(func.distinct(InventoryItemV2.category))).where(base, InventoryItemV2.category.isnot(None))
     )
     categories = int(categories_result.scalar() or 0)
 
@@ -496,11 +476,7 @@ async def list_inventory_items(
 
     offset = (page - 1) * limit
     items_stmt = (
-        select(InventoryItemV2)
-        .where(*filters)
-        .order_by(InventoryItemV2.created_at.desc())
-        .offset(offset)
-        .limit(limit)
+        select(InventoryItemV2).where(*filters).order_by(InventoryItemV2.created_at.desc()).offset(offset).limit(limit)
     )
     result = await db.execute(items_stmt)
     items = [_item_to_response(i) for i in result.scalars().all()]
@@ -547,17 +523,13 @@ async def update_inventory_item(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=_bilingual_detail(
-                f"Version conflict: expected {payload.if_match_version}, "
-                f"current {item.version}",
-                f"تعارض في الإصدار: متوقع {payload.if_match_version}, "
-                f"الحالي {item.version}",
+                f"Version conflict: expected {payload.if_match_version}, current {item.version}",
+                f"تعارض في الإصدار: متوقع {payload.if_match_version}, الحالي {item.version}",
                 code="E1005",
             ),
         )
 
-    update_data = payload.model_dump(
-        exclude_unset=True, exclude={"if_match_version"}
-    )
+    update_data = payload.model_dump(exclude_unset=True, exclude={"if_match_version"})
     for key, value in update_data.items():
         setattr(item, key, value)
     item.version = item.version + 1
@@ -661,10 +633,8 @@ async def adjust_inventory_item(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=_bilingual_detail(
-                f"Version conflict: expected {payload.if_match_version}, "
-                f"current {item.version}",
-                f"تعارض في الإصدار: متوقع {payload.if_match_version}, "
-                f"الحالي {item.version}",
+                f"Version conflict: expected {payload.if_match_version}, current {item.version}",
+                f"تعارض في الإصدار: متوقع {payload.if_match_version}, الحالي {item.version}",
                 code="E1005",
             ),
         )

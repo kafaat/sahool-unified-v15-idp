@@ -191,9 +191,7 @@ async def _breakdown_by_member(
         return []
 
 
-def _compute_distribution(
-    total_revenue: float, members: list[dict[str, Any]], method: str
-) -> list[dict[str, Any]]:
+def _compute_distribution(total_revenue: float, members: list[dict[str, Any]], method: str) -> list[dict[str, Any]]:
     if not members:
         return []
 

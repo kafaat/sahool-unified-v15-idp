@@ -542,7 +542,7 @@ async def deprecated_crops_middleware(request: Request, call_next):
         response.headers["Warning"] = (
             '299 - "advisory-service GET /api/v1/crops returns a crop-type '
             "catalog (not user-owned crops) and is deprecated; use "
-            f'{_DEPRECATED_CROPS_SUCCESSOR} for the taxonomy, or '
+            f"{_DEPRECATED_CROPS_SUCCESSOR} for the taxonomy, or "
             'field-management-service for user crop CRUD"'
         )
     return response

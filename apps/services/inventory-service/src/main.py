@@ -76,13 +76,13 @@ from .alert_endpoints import router as alert_router
 from .alert_manager import AlertManager
 from .api.v1.inventory import router as inventory_v1_router
 from .inventory_analytics import InventoryAnalytics
-from .models.inventory import (
-    ItemCategory,
-)
 
 # Import v2 ORM models so their tables are registered on the shared Base
 # metadata and created by tests / create_all calls.
 from .models import inventory_v2 as _inventory_v2_models  # noqa: F401
+from .models.inventory import (
+    ItemCategory,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

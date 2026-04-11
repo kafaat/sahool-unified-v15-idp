@@ -35,9 +35,7 @@ class InventoryItemV2(Base):
 
     __tablename__ = "inventory_items_v2"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
+    id: Mapped[uuid.UUID] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     tenant_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -45,9 +43,7 @@ class InventoryItemV2(Base):
     sku: Mapped[str | None] = mapped_column(String(120), nullable=True)
     category: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
 
-    quantity: Mapped[Decimal] = mapped_column(
-        Numeric(14, 4), nullable=False, default=Decimal("0")
-    )
+    quantity: Mapped[Decimal] = mapped_column(Numeric(14, 4), nullable=False, default=Decimal("0"))
     unit: Mapped[str] = mapped_column(String(32), nullable=False)
     unit_price: Mapped[Decimal | None] = mapped_column(Numeric(14, 4), nullable=True)
     currency: Mapped[str] = mapped_column(String(8), default="SAR")
@@ -58,9 +54,7 @@ class InventoryItemV2(Base):
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )
@@ -68,9 +62,7 @@ class InventoryItemV2(Base):
     # Optimistic concurrency control - قفل تفاؤلي
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
-    transactions = relationship(
-        "InventoryTransactionV2", back_populates="item", cascade="all,delete-orphan"
-    )
+    transactions = relationship("InventoryTransactionV2", back_populates="item", cascade="all,delete-orphan")
 
     __table_args__ = (
         Index("idx_inventory_items_v2_tenant_category_wave2", "tenant_id", "category"),
@@ -83,13 +75,9 @@ class InventoryTransactionV2(Base):
 
     __tablename__ = "inventory_transactions_v2"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
+    id: Mapped[uuid.UUID] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     tenant_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
-    item_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("inventory_items_v2.id"), nullable=False
-    )
+    item_id: Mapped[str] = mapped_column(String(36), ForeignKey("inventory_items_v2.id"), nullable=False)
 
     transaction_type: Mapped[str] = mapped_column(String(32), nullable=False)
     quantity_delta: Mapped[Decimal] = mapped_column(Numeric(14, 4), nullable=False)
@@ -97,9 +85,7 @@ class InventoryTransactionV2(Base):
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     performed_by: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     item = relationship("InventoryItemV2", back_populates="transactions")
 

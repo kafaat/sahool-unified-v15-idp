@@ -12,7 +12,8 @@ import logging
 import os
 import sys
 import uuid
-from datetime import UTC, date as date_type, datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta, timezone
+from datetime import date as date_type
 from typing import Any
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
@@ -242,9 +243,7 @@ def _normalize_due_date(value: Any) -> datetime | None:
         try:
             parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
         except ValueError as exc:
-            raise ValueError(
-                "due_date must be ISO-8601 (YYYY-MM-DD or full datetime with timezone)"
-            ) from exc
+            raise ValueError("due_date must be ISO-8601 (YYYY-MM-DD or full datetime with timezone)") from exc
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=UTC)
         return parsed
@@ -313,10 +312,7 @@ class TaskUpdateRequest(BaseModel):
     assigned_to: str | None = Field(None, max_length=100, pattern=_UUID_PATTERN)
     due_date: datetime | None = Field(
         None,
-        description=(
-            "ISO-8601 datetime with timezone OR bare YYYY-MM-DD "
-            "(interpreted as end-of-day UTC)."
-        ),
+        description=("ISO-8601 datetime with timezone OR bare YYYY-MM-DD (interpreted as end-of-day UTC)."),
     )
     scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)

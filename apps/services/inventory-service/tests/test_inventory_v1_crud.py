@@ -16,14 +16,12 @@ from unittest.mock import Mock
 import pytest
 
 try:
-    from fastapi.testclient import TestClient
-    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
-    from src.main import app, get_current_user, get_db
-    from src.models.inventory import Base
-
     # Importing the module is what registers the v2 tables on Base.metadata.
     import src.models.inventory_v2  # noqa: F401
+    from fastapi.testclient import TestClient
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+    from src.main import app, get_current_user, get_db
+    from src.models.inventory import Base
 except ImportError:  # pragma: no cover - skip if deps missing locally
     pytest.skip("inventory-service dependencies not installed", allow_module_level=True)
 
@@ -238,9 +236,7 @@ class TestTenantIsolation:
         # Seed item as tenant-a
         client_a = _make_client(session_maker, tenant_id="tenant-a")
         try:
-            resp = client_a.post(
-                "/api/v1/inventory", json=_sample_payload(sku="ISO-1")
-            )
+            resp = client_a.post("/api/v1/inventory", json=_sample_payload(sku="ISO-1"))
             assert resp.status_code == 201
             item_id = resp.json()["id"]
         finally:

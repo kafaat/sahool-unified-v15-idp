@@ -1055,7 +1055,7 @@ async def sensors_stream_alias(
 
     tenant_id = getattr(user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
     subject_pattern = f"sahool.tenant.{tenant_id}.iot.reading.*"
-    queue: asyncio.Queue = asyncio.Queue(maxsize=256)  # type: ignore[name-defined]
+    queue: asyncio.Queue = asyncio.Queue(maxsize=256)
 
     async def _cb(msg):
         try:
@@ -1069,7 +1069,7 @@ async def sensors_stream_alias(
             return
         try:
             queue.put_nowait({"event": "reading", "data": json.dumps(data)})
-        except asyncio.QueueFull:  # type: ignore[name-defined]
+        except asyncio.QueueFull:
             # Drop oldest when overwhelmed
             try:
                 _ = queue.get_nowait()

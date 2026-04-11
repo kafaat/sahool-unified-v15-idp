@@ -10,7 +10,7 @@ export type ReportFormat = 'pdf' | 'csv' | 'json';
 export type TimePeriod = '7d' | '30d' | '90d' | '6m' | '1y';
 
 // ---------------------------------------------------------------------------
-// Map Layer Types (16 satellite monitoring indices)
+// Map Layer Types (17 satellite monitoring indices)
 // ---------------------------------------------------------------------------
 export type MapLayerType =
   | 'hybrid'            // Hybrid Index - combined crop health + irrigation
@@ -21,6 +21,7 @@ export type MapLayerType =
   | 'evi'               // Enhanced Vegetation Index
   | 'savi'              // Soil Adjusted Vegetation Index
   | 'ndre'              // Normalized Difference Red Edge (late growth)
+  | 'vari'              // Visible Atmospherically Resistant Index (RGB-only)
   | 'ndwi'              // Normalized Difference Water Index
   | 'ndmi'              // Normalized Difference Moisture Index
   | 'evapotranspiration' // Evapotranspiration rate

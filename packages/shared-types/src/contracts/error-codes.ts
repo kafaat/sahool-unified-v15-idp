@@ -156,6 +156,22 @@ export const ERROR_CODES = {
   // Idempotency (F14xx)
   IDEMPOTENCY_KEY_CONFLICT: 'F1401',
   IDEMPOTENCY_KEY_EXPIRED: 'F1402',
+  // Field Sub-Zone (F15xx)
+  SUB_ZONE_NOT_FOUND: 'F1501',
+  SUB_ZONE_INVALID_POLYGON: 'F1502',
+  SUB_ZONE_OUTSIDE_FIELD: 'F1503',
+  SUB_ZONE_AREA_TOO_SMALL: 'F1504',
+  SUB_ZONE_SELF_INTERSECTION: 'F1505',
+  // Field Report (F16xx)
+  REPORT_NOT_FOUND: 'F1601',
+  REPORT_NOT_READY: 'F1602',
+  REPORT_RENDER_FAILED: 'F1603',
+  REPORT_CONTENT_UNAVAILABLE: 'F1604',
+  REPORT_EXPIRED: 'F1605',
+  // Carbon (F17xx)
+  CARBON_COMPUTATION_FAILED: 'F1701',
+  CARBON_NO_COMPUTABLE_INPUTS: 'F1702',
+  CARBON_INVALID_FACTOR: 'F1703',
 
   // ── Irrigation Service (I1xxx) ─────────────────────────────────────
   IRRIGATION_FIELD_NOT_FOUND: 'I1001',
@@ -763,6 +779,100 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 410,
     en: 'Idempotency-Key has expired',
     ar: 'انتهت صلاحية مفتاح Idempotency',
+    retryable: false,
+  },
+  // Field Sub-Zone (F15xx)
+  [ERROR_CODES.SUB_ZONE_NOT_FOUND]: {
+    code: ERROR_CODES.SUB_ZONE_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Sub-zone not found',
+    ar: 'المنطقة الفرعية غير موجودة',
+    retryable: false,
+  },
+  [ERROR_CODES.SUB_ZONE_INVALID_POLYGON]: {
+    code: ERROR_CODES.SUB_ZONE_INVALID_POLYGON,
+    httpStatus: 400,
+    en: 'Sub-zone polygon geometry is invalid',
+    ar: 'هندسة المنطقة الفرعية غير صالحة',
+    retryable: false,
+  },
+  [ERROR_CODES.SUB_ZONE_OUTSIDE_FIELD]: {
+    code: ERROR_CODES.SUB_ZONE_OUTSIDE_FIELD,
+    httpStatus: 400,
+    en: 'Sub-zone boundary must lie inside the parent field',
+    ar: 'يجب أن تكون حدود المنطقة الفرعية داخل حدود الحقل',
+    retryable: false,
+  },
+  [ERROR_CODES.SUB_ZONE_AREA_TOO_SMALL]: {
+    code: ERROR_CODES.SUB_ZONE_AREA_TOO_SMALL,
+    httpStatus: 400,
+    en: 'Sub-zone area is smaller than the minimum allowed (1 m²)',
+    ar: 'مساحة المنطقة الفرعية أصغر من الحد المسموح',
+    retryable: false,
+  },
+  [ERROR_CODES.SUB_ZONE_SELF_INTERSECTION]: {
+    code: ERROR_CODES.SUB_ZONE_SELF_INTERSECTION,
+    httpStatus: 400,
+    en: 'Sub-zone polygon has self-intersection',
+    ar: 'المنطقة الفرعية تحتوي على تقاطع ذاتي',
+    retryable: false,
+  },
+  // Field Report (F16xx)
+  [ERROR_CODES.REPORT_NOT_FOUND]: {
+    code: ERROR_CODES.REPORT_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Report not found',
+    ar: 'التقرير غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.REPORT_NOT_READY]: {
+    code: ERROR_CODES.REPORT_NOT_READY,
+    httpStatus: 400,
+    en: 'Report is not ready yet — poll until status=ready',
+    ar: 'التقرير غير جاهز بعد — انتظر حتى تصبح الحالة جاهز',
+    retryable: true,
+  },
+  [ERROR_CODES.REPORT_RENDER_FAILED]: {
+    code: ERROR_CODES.REPORT_RENDER_FAILED,
+    httpStatus: 500,
+    en: 'Report rendering failed',
+    ar: 'فشل توليد التقرير',
+    retryable: true,
+  },
+  [ERROR_CODES.REPORT_CONTENT_UNAVAILABLE]: {
+    code: ERROR_CODES.REPORT_CONTENT_UNAVAILABLE,
+    httpStatus: 404,
+    en: 'Report content not available',
+    ar: 'محتوى التقرير غير متوفر',
+    retryable: false,
+  },
+  [ERROR_CODES.REPORT_EXPIRED]: {
+    code: ERROR_CODES.REPORT_EXPIRED,
+    httpStatus: 410,
+    en: 'Report URL has expired — regenerate',
+    ar: 'انتهت صلاحية رابط التقرير — يرجى إعادة التوليد',
+    retryable: false,
+  },
+  // Carbon (F17xx)
+  [ERROR_CODES.CARBON_COMPUTATION_FAILED]: {
+    code: ERROR_CODES.CARBON_COMPUTATION_FAILED,
+    httpStatus: 500,
+    en: 'Carbon computation failed',
+    ar: 'فشل حساب البصمة الكربونية',
+    retryable: true,
+  },
+  [ERROR_CODES.CARBON_NO_COMPUTABLE_INPUTS]: {
+    code: ERROR_CODES.CARBON_NO_COMPUTABLE_INPUTS,
+    httpStatus: 400,
+    en: 'Operation has no inputs suitable for carbon computation',
+    ar: 'لا توجد مدخلات كافية لحساب البصمة الكربونية للعملية',
+    retryable: false,
+  },
+  [ERROR_CODES.CARBON_INVALID_FACTOR]: {
+    code: ERROR_CODES.CARBON_INVALID_FACTOR,
+    httpStatus: 500,
+    en: 'Invalid emission factor configuration',
+    ar: 'تهيئة معامل الانبعاث غير صالحة',
     retryable: false,
   },
 

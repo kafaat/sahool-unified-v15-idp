@@ -23,7 +23,7 @@ try:
     from src.models import inventory_v2 as _inventory_v2  # noqa: F401
     from src.models.inventory import Base
 
-    assert _inventory_v2 is not None  # keep the side-effect import alive
+    _ = _inventory_v2  # keep side-effect import alive (no assert — bandit B101)
 except ImportError:  # pragma: no cover - skip if deps missing locally
     pytest.skip("inventory-service dependencies not installed", allow_module_level=True)
 

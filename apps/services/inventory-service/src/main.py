@@ -77,11 +77,13 @@ from .alert_manager import AlertManager
 from .inventory_analytics import InventoryAnalytics
 
 # Import v2 ORM models so their tables are registered on the shared Base
-# metadata and created by tests / create_all calls. The side-effect is
-# required even though the bound name is not referenced further.
-from .models import inventory_v2  # noqa: F401  # side-effect only
+# metadata and created by tests / create_all calls. The binding is not
+# referenced again, so we explicitly ignore it via noqa. Bandit B101
+# forbids using `assert` in non-test production code, so the keep-alive
+# trick cannot rely on an assertion.
+from .models import inventory_v2 as _inventory_v2  # noqa: F401
 
-assert inventory_v2 is not None  # keep the import alive for the linter
+_ = _inventory_v2  # keep side-effect import alive without an assert
 
 from .models.inventory import (  # noqa: E402
     ItemCategory,

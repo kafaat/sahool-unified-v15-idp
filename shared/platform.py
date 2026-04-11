@@ -47,6 +47,7 @@ except ImportError:  # pragma: no cover - optional dep
     class ClientError(Exception):  # type: ignore[no-redef]
         """Fallback stub when botocore isn't installed."""
 
+
 import jwt
 import redis.asyncio as redis
 from fastapi import HTTPException, Request

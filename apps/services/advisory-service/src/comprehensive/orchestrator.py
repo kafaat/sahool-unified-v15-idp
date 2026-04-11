@@ -61,7 +61,7 @@ class ServiceUrls:
     alerts: str
 
     @classmethod
-    def from_env(cls, env: dict[str, str]) -> "ServiceUrls":
+    def from_env(cls, env: dict[str, str]) -> ServiceUrls:
         return cls(
             field_management=env.get(
                 "FIELD_MANAGEMENT_URL", "http://field-management-service:3000"

@@ -34,6 +34,7 @@ def _safe_log(value: Any) -> str:
         return ""
     return _LOG_INJECTION_RE.sub("?", str(value))[:200]
 
+
 # Create a router for report endpoints
 router = APIRouter(prefix="/api/v1", tags=["logistics-reports"])
 

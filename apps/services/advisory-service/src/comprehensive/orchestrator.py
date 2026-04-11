@@ -33,8 +33,10 @@ call because of one slow dependency.
 from __future__ import annotations
 
 import asyncio
+import re
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 import structlog
@@ -146,6 +148,17 @@ class ComprehensiveAdvisoryOrchestrator:
         """
         headers = self._headers(tenant_id, auth_header)
 
+        # SECURITY: defense-in-depth — even though the FastAPI endpoint
+        # already validates field_id against ^[A-Za-z0-9_-]+$, we also
+        # URL-encode it here so any future code path that bypasses the
+        # endpoint (direct orchestrator instantiation in tests, internal
+        # service-to-service calls, etc.) cannot accidentally construct
+        # an SSRF vector by injecting ``../`` or ``://host`` into the
+        # URL. ``quote(safe='')`` escapes everything including ``/`` and
+        # ``.``, so the ``field_id`` interpolation is guaranteed to stay
+        # within the intended path segment.
+        safe_field_id = self._safe_id(field_id)
+
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             # Parallel fan-out. Each helper wraps its own errors so
             # a single failure doesn't abort the whole gather().
@@ -159,14 +172,14 @@ class ComprehensiveAdvisoryOrchestrator:
                 carbon,
                 alerts,
             ) = await asyncio.gather(
-                self._call_nutrients(client, headers, field_id),
-                self._call_pests(client, headers, field_id),
-                self._call_diseases(client, headers, field_id),
-                self._call_irrigation(client, headers, field_id),
-                self._call_weather(client, headers, field_id),
-                self._call_yield(client, headers, field_id),
-                self._call_carbon(client, headers, field_id),
-                self._call_alerts(client, headers, field_id),
+                self._call_nutrients(client, headers, safe_field_id),
+                self._call_pests(client, headers, safe_field_id),
+                self._call_diseases(client, headers, safe_field_id),
+                self._call_irrigation(client, headers, safe_field_id),
+                self._call_weather(client, headers, safe_field_id),
+                self._call_yield(client, headers, safe_field_id),
+                self._call_carbon(client, headers, safe_field_id),
+                self._call_alerts(client, headers, safe_field_id),
             )
 
         sections = {
@@ -338,6 +351,26 @@ class ComprehensiveAdvisoryOrchestrator:
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    # Compiled once — ^[A-Za-z0-9_-]+$ is the same pattern FastAPI
+    # enforces at the endpoint boundary (see main.py). Keeping a local
+    # copy means the orchestrator stays safe even if it's used outside
+    # the FastAPI request lifecycle (tests, internal calls, scripts).
+    _ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,100}$")
+
+    @classmethod
+    def _safe_id(cls, field_id: str) -> str:
+        """
+        Validate + URL-encode an identifier before interpolating it
+        into a downstream URL. Raises ValueError on obviously bad
+        input so the caller fails loudly instead of emitting a
+        malformed request. The ``quote(safe='')`` wrapper is
+        belt-and-suspenders: even if the pattern changed to allow a
+        slash or dot, the URL encoding would still escape it.
+        """
+        if not isinstance(field_id, str) or not cls._ID_PATTERN.match(field_id):
+            raise ValueError(f"Invalid field identifier: {field_id!r}")
+        return quote(field_id, safe="")
 
     @staticmethod
     def _headers(tenant_id: str, auth_header: str | None) -> dict[str, str]:

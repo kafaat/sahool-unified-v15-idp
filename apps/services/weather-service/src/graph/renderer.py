@@ -159,7 +159,6 @@ class WeatherGraphRenderer:
             points.append(f"{x:.1f},{y:.1f}")
         if not points:
             return ""
-        path = " L ".join(points)
         return (
             f'<polyline points="{" ".join(points)}" fill="none" '
             f'stroke="{colour}" stroke-width="2.5" stroke-linecap="round" '

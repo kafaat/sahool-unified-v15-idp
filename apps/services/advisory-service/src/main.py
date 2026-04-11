@@ -14,8 +14,10 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
+from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from fastapi import Path as FastAPIPath
 
 # Shared middleware imports - add apps/services/ to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -1168,7 +1170,21 @@ from src.comprehensive import ComprehensiveAdvisoryOrchestrator, ServiceUrls  # 
 
 @app.post("/api/v1/advisory/comprehensive/{field_id}")
 async def comprehensive_advisory(
-    field_id: str,
+    field_id: Annotated[
+        str,
+        # SECURITY: reject path-traversal + URL-escape characters at
+        # the framework boundary so malicious field_ids (e.g. ``../admin``,
+        # ``http://evil/x``) never reach the orchestrator's URL builder.
+        # Matches platform convention: UUIDs, opaque IDs, and slug-style
+        # identifiers are all allowed; nothing else is. FastAPI returns
+        # 422 if the pattern fails — long before any URL is built.
+        FastAPIPath(
+            min_length=1,
+            max_length=100,
+            pattern=r"^[A-Za-z0-9_-]+$",
+            description="Opaque field identifier (alphanumeric, _ or -).",
+        ),
+    ],
     request: Request,
     user: User = Depends(get_current_user),
 ):

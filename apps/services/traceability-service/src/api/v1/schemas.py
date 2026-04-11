@@ -4,7 +4,7 @@ camelCase serialization via Field aliases for API consumers (TypeScript/Flutter 
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class BatchStatus(str, Enum):
+class BatchStatus(StrEnum):
     """Produce batch lifecycle status - حالة دورة حياة الدفعة.
 
     Must stay in sync with the `valid_batch_status` CHECK constraint in
@@ -33,7 +33,7 @@ class BatchStatus(str, Enum):
     RECALLED = "recalled"
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Supply chain event types - أنواع أحداث سلسلة التوريد."""
 
     HARVEST = "harvest"

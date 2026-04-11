@@ -304,7 +304,7 @@ jobs:
           ANALYZE=true npm run build || echo "Bundle analysis completed with some warnings"
 
       - name: Comment bundle size
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const comment = '## 📦 Bundle Size Analysis\n\n' +

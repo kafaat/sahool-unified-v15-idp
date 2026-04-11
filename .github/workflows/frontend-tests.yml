@@ -1489,7 +1489,7 @@ jobs:
 
       - name: Comment PR with Test Results
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -1609,7 +1609,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Comment Bundle Size
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const comment = '## 📦 Bundle Size Analysis\n\n' +

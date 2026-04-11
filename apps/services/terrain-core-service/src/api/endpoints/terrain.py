@@ -46,6 +46,29 @@ from ...algorithms.terrain_indicators import (
     SlopeUnit as CalcSlopeUnit,
 )
 from ...core.config import settings
+
+# RUSLE soil-erosion engine (pure, no I/O). Replaces the Phase-1
+# `erosion_risk = "low"` hard-coded stub with a proper multi-factor
+# model (Revised Universal Soil Loss Equation). See
+# `shared/terrain_erosion/rusle.py` for the full derivation.
+try:
+    from shared.terrain_erosion import (  # type: ignore
+        ErosionRiskLevel as _RUSLEErosionRiskLevel,
+    )
+    from shared.terrain_erosion import (
+        RUSLEEngine as _RUSLEEngine,
+    )
+    from shared.terrain_erosion import (
+        SoilTextureClass as _RUSLESoilTextureClass,
+    )
+
+    _RUSLE_AVAILABLE = True
+except ImportError:
+    _RUSLE_AVAILABLE = False
+    logger = structlog.get_logger()
+    logger.warning(
+        "shared.terrain_erosion not importable — /erosion endpoint will 503",
+    )
 from ..schemas import (
     AspectAnalysisResponse,
     AspectClassification,
@@ -64,13 +87,18 @@ from ..schemas import (
     DEMSourcesResponse,
     DEMSourceType,
     DEMStatistics,
+    ErosionAssessmentRequest,
+    ErosionAssessmentResponse,
+    ErosionRiskLevelEnum,
     FlowAnalysisRequest,
     FlowAnalysisResponse,
     FlowDirectionMethod,
     GeoJSONFeatureCollection,
+    RUSLEFactorsResponse,
     SlopeAnalysisRequest,
     SlopeAnalysisResponse,
     SlopeUnit,
+    SoilTextureEnum,
     TerrainAnalysisRequest,
     TerrainAnalysisResponse,
     TerrainCategory,
@@ -179,6 +207,49 @@ def generate_irrigation_recommendations(
     """
     recommendations = []
 
+    # --- Honest erosion classification ---
+    #
+    # Previously this helper hard-coded ``erosion_risk = "low" | "moderate" | "high"``
+    # using only slope thresholds — that's the Phase-1 stub we're removing.
+    # We now call the RUSLE engine with representative defaults for missing
+    # inputs (silt-loam soil, 200 mm/yr rainfall, bare soil, no conservation
+    # practice) which produces a classification consistent with the full
+    # /erosion endpoint below. Fields that want a tighter answer should
+    # call the dedicated endpoint with real soil + climate data.
+    def _quick_erosion_risk(slope: float) -> str:
+        if not _RUSLE_AVAILABLE:
+            # Defensive fallback — should only fire if the shared module
+            # can't be imported (e.g. during a broken deploy).
+            if slope > 10:
+                return "high"
+            if slope > 5:
+                return "moderate"
+            return "low"
+        engine = _RUSLEEngine()
+        factors = type(
+            "F",
+            (),
+            {
+                "r_factor": engine.compute_r_factor(200.0, 30),
+                "k_factor": engine.compute_k_factor(_RUSLESoilTextureClass.SILT_LOAM),
+                "ls_factor": engine.compute_ls_factor(slope),
+                "c_factor": engine.compute_c_factor("bare_soil"),
+                "p_factor": engine.compute_p_factor("none"),
+            },
+        )()
+        soil_loss = factors.r_factor * factors.k_factor * factors.ls_factor * factors.c_factor * factors.p_factor
+        level = engine._classify_risk(soil_loss)
+        # Collapse the six-band FAO classification to the 3-band schema
+        # the existing TerrainIrrigationRecommendation shape exposes.
+        if level in (
+            _RUSLEErosionRiskLevel.NONE,
+            _RUSLEErosionRiskLevel.LOW,
+        ):
+            return "low"
+        if level == _RUSLEErosionRiskLevel.MODERATE:
+            return "moderate"
+        return "high"
+
     # Zone classification based on TWI and slope
     if mean_twi > 10:
         # High moisture accumulation zones
@@ -193,7 +264,7 @@ def generate_irrigation_recommendations(
                 suitability_name=BilingualField(en="Excellent", ar="ممتاز"),
                 recommended_method=BilingualField(en="Drip Irrigation", ar="الري بالتنقيط"),
                 water_retention_capacity="high",
-                erosion_risk="low",
+                erosion_risk=_quick_erosion_risk(mean_slope_pct),
                 notes=BilingualField(
                     en="Natural water accumulation zone, ideal for water-intensive crops",
                     ar="منطقة تراكم مياه طبيعية، مثالية للمحاصيل كثيفة المياه",
@@ -213,7 +284,7 @@ def generate_irrigation_recommendations(
                 suitability_name=BilingualField(en="Good", ar="جيد"),
                 recommended_method=BilingualField(en="Sprinkler Irrigation", ar="الري بالرش"),
                 water_retention_capacity="moderate",
-                erosion_risk="moderate" if mean_slope_pct > 5 else "low",
+                erosion_risk=_quick_erosion_risk(mean_slope_pct),
                 notes=BilingualField(
                     en="Suitable for most crops with standard irrigation",
                     ar="مناسب لمعظم المحاصيل مع الري القياسي",
@@ -236,7 +307,7 @@ def generate_irrigation_recommendations(
                 ),
                 recommended_method=BilingualField(en="Micro-sprinkler or Drip", ar="الرش الدقيق أو التنقيط"),
                 water_retention_capacity="low",
-                erosion_risk="high" if mean_slope_pct > 10 else "moderate",
+                erosion_risk=_quick_erosion_risk(mean_slope_pct),
                 notes=BilingualField(
                     en="Requires careful water management, consider terracing",
                     ar="يتطلب إدارة مياه حذرة، ينصح بالمصاطب",
@@ -1086,3 +1157,139 @@ async def get_dem_data(
                 "message_ar": f"فشل جلب بيانات الارتفاعات: {str(e)}",
             },
         )
+
+
+# =============================================================================
+# Erosion (RUSLE) endpoint — Phase 3
+# =============================================================================
+
+
+@router.post(
+    "/erosion",
+    response_model=ErosionAssessmentResponse,
+    summary="Per-field soil erosion assessment (RUSLE) | تقييم تعرية التربة للحقل (RUSLE)",
+    description="""
+Compute the per-field annual soil loss using the RUSLE model:
+
+    A = R × K × LS × C × P
+
+Where:
+  * **R** — rainfall-runoff erosivity (from annual precipitation + rainy days)
+  * **K** — soil erodibility (from USDA texture class)
+  * **LS** — slope length × steepness (from the terrain-core slope endpoint)
+  * **C** — cover-management (from the field's crop / cover class)
+  * **P** — support practice (none, contour, terraces, bench terraces)
+
+Returns:
+  * `soil_loss_t_ha_yr` — annual soil loss in tonnes / hectare / year
+  * `risk_level` — FAO classification (none / low / moderate / high / severe / catastrophic)
+  * `factors` — per-factor breakdown so operators can see which factor drives the loss
+  * `factor_contributions_pct` — log-normalised contribution per factor
+  * `recommendations` — targeted mitigation actions (bilingual EN + AR)
+
+**Context**: this replaces the Phase-1 ``erosion_risk: "low"`` string
+that the /terrain/analyze response used to hard-code based on slope
+alone. That stub lied to farmers in Yemeni highland terraced fields
+(which frequently sit at slopes of 20-40%+ on silt-loam soils and
+run a catastrophic erosion risk). The RUSLE endpoint surfaces the
+honest answer plus actionable recommendations (bench terraces, cover
+crops, residue retention).
+
+The endpoint is a pure calculation — no DB, no satellite fetch. The
+caller supplies aggregated per-field inputs. For sub-field zonation,
+call once per management zone and compose on the client side.
+""",
+)
+async def assess_erosion(
+    request: ErosionAssessmentRequest,
+    current_user: User = Depends(get_current_user),
+) -> ErosionAssessmentResponse:
+    """
+    RUSLE soil-erosion assessment for a single field.
+    """
+    if not _RUSLE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": "EROSION_ENGINE_UNAVAILABLE",
+                "message": "shared.terrain_erosion engine is not importable",
+                "message_ar": "محرك تعرية التربة غير متاح",
+            },
+        )
+
+    # Tenant guard: the request's tenant_id must match the caller's.
+    # This is the same pattern used by every other endpoint in the
+    # service — defence against a tenant trying to assess a field they
+    # don't own.
+    caller_tenant = getattr(current_user, "tenant_id", None)
+    if caller_tenant and request.tenant_id != caller_tenant:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "EROSION_TENANT_MISMATCH",
+                "message": "tenant_id does not match the authenticated caller",
+                "message_ar": "معرف المستأجر لا يتطابق مع المتصل",
+            },
+        )
+
+    engine = _RUSLEEngine()
+
+    # Translate the API enum to the shared engine's enum — both use the
+    # same underlying strings so the lookup is trivial.
+    try:
+        texture = _RUSLESoilTextureClass(request.soil_texture.value)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "EROSION_INVALID_SOIL_TEXTURE",
+                "message": f"unknown soil texture: {request.soil_texture}",
+                "message_ar": f"نوع تربة غير معروف: {request.soil_texture}",
+            },
+        ) from exc
+
+    try:
+        result = engine.assess(
+            field_id=request.field_id,
+            tenant_id=request.tenant_id,
+            slope_pct=request.slope_pct,
+            soil_texture=texture,
+            annual_rainfall_mm=request.annual_rainfall_mm,
+            rainy_days_per_year=request.rainy_days_per_year,
+            cover_type=request.cover_type,
+            conservation_practice=request.conservation_practice,
+            slope_length_m=request.slope_length_m,
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "erosion_assessment_failed",
+            field_id=request.field_id,
+            error=str(exc),
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "EROSION_COMPUTE_FAILED",
+                "message": f"RUSLE compute failed: {exc}",
+                "message_ar": f"فشل حساب RUSLE: {exc}",
+            },
+        ) from exc
+
+    return ErosionAssessmentResponse(
+        field_id=result.field_id,
+        tenant_id=result.tenant_id,
+        soil_loss_t_ha_yr=result.soil_loss_t_ha_yr,
+        risk_level=ErosionRiskLevelEnum(result.risk_level.value),
+        risk_level_ar=result.risk_level_ar,
+        factors=RUSLEFactorsResponse(
+            r_factor=result.factors.r_factor,
+            k_factor=result.factors.k_factor,
+            ls_factor=result.factors.ls_factor,
+            c_factor=result.factors.c_factor,
+            p_factor=result.factors.p_factor,
+        ),
+        factor_contributions_pct=result.factor_contributions_pct,
+        recommendations=result.recommendations,
+        recommendations_ar=result.recommendations_ar,
+        assessed_at=datetime.now(UTC),
+    )

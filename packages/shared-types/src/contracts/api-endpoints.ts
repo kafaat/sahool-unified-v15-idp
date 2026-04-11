@@ -590,6 +590,8 @@ export const TERRAIN_ENDPOINTS = {
   LEVELING_CUT_FILL: `${API_PREFIX}/leveling/cut-fill`,
   /** @since 4.3.0 - Corrected to field-scoped path */
   LEVELING_COST: `${API_PREFIX}/leveling/cost/{fieldId}`,
+  /** @since 4.7.1 — RUSLE soil-erosion assessment (replaces hardcoded erosion_risk stub) */
+  EROSION: `${API_PREFIX}/terrain/erosion`,
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -401,6 +401,19 @@ abstract final class CarbonEndpoints {
       '$apiPrefix/carbon/crop-seasons/$cropSeasonId/summary';
 }
 
+/// Terrain — التضاريس
+/// Served by terrain-core-service (port 8185).
+///
+/// @since 4.8.0 — RUSLE erosion assessment replaces the Phase-1
+/// hardcoded `erosion_risk` stub with a proper multi-factor model.
+abstract final class TerrainEndpoints {
+  /// Full terrain analysis (slope + aspect + flow + TWI + contours)
+  static const String analyze = '$apiPrefix/terrain/analyze';
+
+  /// RUSLE soil-erosion assessment (A = R × K × LS × C × P)
+  static const String erosion = '$apiPrefix/terrain/erosion';
+}
+
 /// Public endpoints (no auth required)
 const List<String> publicEndpoints = [
   AuthEndpoints.login,

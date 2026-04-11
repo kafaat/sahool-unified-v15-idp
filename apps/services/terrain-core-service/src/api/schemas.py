@@ -677,3 +677,119 @@ class DEMDataResponse(BaseModel):
     )
     download_url: str | None = Field(None, description="URL to download full DEM data | رابط تنزيل البيانات الكاملة")
     analyzed_at: datetime = Field(..., description="Analysis timestamp | وقت التحليل")
+
+
+# =============================================================================
+# Erosion (RUSLE) Schemas — Phase 3
+# =============================================================================
+
+
+class SoilTextureEnum(StrEnum):
+    """USDA soil texture classes used by the RUSLE K-factor lookup."""
+
+    SAND = "sand"
+    LOAMY_SAND = "loamy_sand"
+    SANDY_LOAM = "sandy_loam"
+    LOAM = "loam"
+    SILT_LOAM = "silt_loam"
+    CLAY_LOAM = "clay_loam"
+    CLAY = "clay"
+
+
+class ErosionRiskLevelEnum(StrEnum):
+    """FAO Water Erosion Classification bands."""
+
+    NONE = "none"
+    LOW = "low"
+    MODERATE = "moderate"
+    HIGH = "high"
+    SEVERE = "severe"
+    CATASTROPHIC = "catastrophic"
+
+
+class ErosionAssessmentRequest(BaseModel):
+    """
+    Inputs for a RUSLE (Revised Universal Soil Loss Equation) assessment.
+
+    Every factor is an aggregated per-field value. For sub-field
+    variability, call this endpoint once per zone and compose the
+    results on the caller side.
+    """
+
+    field_id: str = Field(..., min_length=1, max_length=100, description="Field identifier")
+    tenant_id: str = Field(..., min_length=1, max_length=100, description="Tenant identifier")
+
+    # Topography — usually provided by the existing /terrain/slope endpoint
+    slope_pct: float = Field(..., ge=0, le=200, description="Mean slope percentage (0-200)")
+    slope_length_m: float | None = Field(
+        None,
+        ge=1,
+        le=1000,
+        description="Slope length in metres (default 22.13, the RUSLE reference)",
+    )
+
+    # Soil
+    soil_texture: SoilTextureEnum = Field(..., description="USDA soil texture class — drives the K factor")
+
+    # Climate
+    annual_rainfall_mm: float = Field(..., ge=0, le=5000, description="Mean annual precipitation (mm)")
+    rainy_days_per_year: int = Field(..., ge=0, le=365, description="Mean rainy days per year")
+
+    # Land cover
+    cover_type: str = Field(
+        "bare_soil",
+        max_length=64,
+        description=(
+            "Crop / cover class (bare_soil, fallow, wheat, barley, corn, date_palm, olive, citrus, grass, forest, ...)"
+        ),
+    )
+    conservation_practice: str = Field(
+        "none",
+        max_length=64,
+        description=("Support practice (none, contour_farming, strip_cropping, terraces, bench_terraces)"),
+    )
+
+    @field_validator("field_id", "tenant_id")
+    @classmethod
+    def _validate_identifier(cls, value: str) -> str:
+        # Match the platform-wide pattern used on other endpoints to
+        # harden against path-traversal and header injection.
+        import re
+
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", value):
+            raise ValueError("identifier must match [A-Za-z0-9_-]{1,100}")
+        return value
+
+
+class RUSLEFactorsResponse(BaseModel):
+    """The 5 RUSLE factors that multiply to produce A = RKLSCP."""
+
+    r_factor: float = Field(..., description="Rainfall-runoff erosivity (MJ·mm/ha·h·yr)")
+    k_factor: float = Field(..., description="Soil erodibility (tonnes·ha·h/ha·MJ·mm)")
+    ls_factor: float = Field(..., description="Slope length × steepness (dimensionless)")
+    c_factor: float = Field(..., description="Cover-management (dimensionless, 0-1)")
+    p_factor: float = Field(..., description="Support practice (dimensionless, 0-1)")
+
+
+class ErosionAssessmentResponse(BaseModel):
+    """
+    Full RUSLE assessment output — the honest answer that replaces the
+    Phase-1 ``erosion_risk: "low"`` stub in the irrigation recommendation
+    helper.
+    """
+
+    field_id: str
+    tenant_id: str
+    soil_loss_t_ha_yr: float = Field(..., description="Annual soil loss A = RKLSCP (tonnes / hectare / year)")
+    risk_level: ErosionRiskLevelEnum = Field(
+        ..., description="FAO risk band (none / low / moderate / high / severe / catastrophic)"
+    )
+    risk_level_ar: str = Field(..., description="Arabic label for the risk band")
+    factors: RUSLEFactorsResponse = Field(..., description="Per-factor breakdown")
+    factor_contributions_pct: dict[str, float] = Field(
+        default_factory=dict,
+        description="Log-normalised per-factor contribution (%) — which factor drives the loss",
+    )
+    recommendations: list[str] = Field(default_factory=list, description="Mitigation actions (English)")
+    recommendations_ar: list[str] = Field(default_factory=list, description="خطوات التخفيف (عربي)")
+    assessed_at: datetime = Field(..., description="Assessment timestamp")

@@ -275,6 +275,12 @@ export const ERROR_CODES = {
   REPORT_STORAGE_CREDENTIALS_MISSING: 'R1002',
   REPORT_STORAGE_SIGNING_FAILED: 'R1003',
 
+  // ── Erosion / RUSLE (ER1xxx) — @since 4.8.0 ───────────────────────
+  EROSION_ENGINE_UNAVAILABLE: 'ER1001',
+  EROSION_INVALID_SOIL_TEXTURE: 'ER1002',
+  EROSION_TENANT_MISMATCH: 'ER1003',
+  EROSION_COMPUTE_FAILED: 'ER1004',
+
   // ── Generic ──────────────────────────────────────────────────────────
   UNKNOWN: 'UNKNOWN',
 } as const;
@@ -1672,6 +1678,36 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 500,
     en: 'Failed to sign object storage URL',
     ar: 'فشل في توقيع عنوان التخزين',
+    retryable: true,
+  },
+
+  // ── Erosion / RUSLE (ER1xxx) — @since 4.8.0 ───────────────────────
+  [ERROR_CODES.EROSION_ENGINE_UNAVAILABLE]: {
+    code: ERROR_CODES.EROSION_ENGINE_UNAVAILABLE,
+    httpStatus: 503,
+    en: 'Soil erosion (RUSLE) engine is not available',
+    ar: 'محرك تقييم تعرية التربة (RUSLE) غير متاح',
+    retryable: true,
+  },
+  [ERROR_CODES.EROSION_INVALID_SOIL_TEXTURE]: {
+    code: ERROR_CODES.EROSION_INVALID_SOIL_TEXTURE,
+    httpStatus: 400,
+    en: 'Unknown soil texture class',
+    ar: 'نوع تربة غير معروف',
+    retryable: false,
+  },
+  [ERROR_CODES.EROSION_TENANT_MISMATCH]: {
+    code: ERROR_CODES.EROSION_TENANT_MISMATCH,
+    httpStatus: 403,
+    en: 'Tenant identifier does not match the authenticated caller',
+    ar: 'معرّف المستأجر لا يتطابق مع المتصل الموثّق',
+    retryable: false,
+  },
+  [ERROR_CODES.EROSION_COMPUTE_FAILED]: {
+    code: ERROR_CODES.EROSION_COMPUTE_FAILED,
+    httpStatus: 500,
+    en: 'RUSLE soil loss computation failed',
+    ar: 'فشل حساب فقد التربة RUSLE',
     retryable: true,
   },
 

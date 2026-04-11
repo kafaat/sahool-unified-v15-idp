@@ -172,7 +172,10 @@ export default function DocumentsClient() {
   const handleDownload = async (id: string, fileName: string) => {
     try {
       const blob = await documentsApi.downloadDocument(id);
-      // Sanitize filename before using in href/download to avoid injection
+      // Sanitize filename before using in href/download to avoid injection.
+      // The control-char range (U+0000–U+001F, U+007F) is intentional;
+      // disable the no-control-regex rule for this single literal.
+      // eslint-disable-next-line no-control-regex
       const safeName = fileName.replace(/[\u0000-\u001F\u007F<>:"/\\|?*]/g, '_').slice(0, 200);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

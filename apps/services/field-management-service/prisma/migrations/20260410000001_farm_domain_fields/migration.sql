@@ -26,7 +26,8 @@ ALTER TABLE "farms"
     ADD COLUMN IF NOT EXISTS "owner_name"              VARCHAR(255);
 
 -- Composite index for status-filtered farm listings
-CREATE INDEX IF NOT EXISTS "idx_farm_tenant_status"
+-- Use CONCURRENTLY so the migration does not lock the table on production data.
+CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_farm_tenant_status"
     ON "farms" ("tenant_id", "status");
 
 COMMENT ON COLUMN "farms"."name_ar"                 IS 'Arabic farm name';

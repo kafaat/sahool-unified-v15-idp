@@ -2,6 +2,7 @@
 -- NDVI provenance, provider lineage, idempotency guard, and soft-delete flag
 -- Satellite flow audit fixes: H12 (no provenance) + H17 (duplicate imports)
 -- ─────────────────────────────────────────────────────────────────────────────
+-- drift:safe reason=ndvi-provenance-additive-and-commented-dedup-snippet
 --
 -- Adds:
 --   * provider           : which upstream client produced the reading

@@ -96,7 +96,10 @@ void main() {
       expect(err.message, contains('permanently denied'));
       expect(err.message, contains('settings'));
       expect(err.messageAr, contains('الميكروفون'));
-      expect(err.messageAr, contains('الإعدادات'));
+      // Note: the actual Arabic text says "افتح إعدادات التطبيق" (open the
+      // app's settings) — so we match the bare noun "إعدادات" rather than
+      // "الإعدادات", because the definite article binds to "التطبيق" here.
+      expect(err.messageAr, contains('إعدادات'));
     });
 
     test('notAvailable remains permanent (unchanged)', () {

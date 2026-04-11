@@ -38,6 +38,8 @@ import {
   Droplets,
   Sprout,
   PlusCircle,
+  Tractor,
+  Layers,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -64,6 +66,18 @@ export interface CropHistoryEntry {
   // still render correctly — the timeline just hides the rows whose
   // value is absent.
 
+  /**
+   * Tillage / plowing date — ISO 8601. Records when primary tillage
+   * (disc, plow, chisel) was performed on the field. Comes BEFORE
+   * `landPreparationDate` in the typical workflow.
+   */
+  plowingDate?: string;
+  /**
+   * Land-preparation completion date — ISO 8601. Records when the
+   * seedbed was finalised (harrowing, levelling, bed-making). Comes
+   * AFTER plowing and BEFORE sowing (`startDate`).
+   */
+  landPreparationDate?: string;
   /** Seed variety / cultivar, e.g. "Sakha 95", "Pioneer P1415". */
   seedVariety?: string;
   /** Arabic label for seed variety. */
@@ -177,6 +191,8 @@ function readCropHistoryFromMetadata(
       isCurrent: obj.isCurrent === true,
       yieldKgHa: num(obj.yieldKgHa),
       notes: str(obj.notes),
+      plowingDate: str(obj.plowingDate),
+      landPreparationDate: str(obj.landPreparationDate),
       seedVariety: str(obj.seedVariety),
       seedVarietyAr: str(obj.seedVarietyAr),
       plantingDensityKgHa: num(obj.plantingDensityKgHa),
@@ -327,10 +343,28 @@ export const CropHistoryTimeline: React.FC<CropHistoryTimelineProps> = ({
                     <div className="mt-1 text-xs text-gray-600 flex items-center gap-1">
                       <Calendar className="w-3 h-3" aria-hidden="true" />
                       <span>
-                        {formatDateAr(entry.startDate)}
+                        تاريخ البذار: <strong>{formatDateAr(entry.startDate)}</strong>
                         {entry.endDate && ` — ${formatDateAr(entry.endDate)}`}
                       </span>
                     </div>
+                    {entry.plowingDate && (
+                      <div className="mt-1 text-xs text-gray-700 flex items-center gap-1">
+                        <Tractor className="w-3 h-3 text-yellow-700" aria-hidden="true" />
+                        <span>
+                          تاريخ الحراثة:{' '}
+                          <strong>{formatDateAr(entry.plowingDate)}</strong>
+                        </span>
+                      </div>
+                    )}
+                    {entry.landPreparationDate && (
+                      <div className="mt-1 text-xs text-gray-700 flex items-center gap-1">
+                        <Layers className="w-3 h-3 text-stone-600" aria-hidden="true" />
+                        <span>
+                          تهيئة الأرض:{' '}
+                          <strong>{formatDateAr(entry.landPreparationDate)}</strong>
+                        </span>
+                      </div>
+                    )}
                     {/* Rich Stage-2 details (only render when present) */}
                     {(entry.seedVariety || entry.seedVarietyAr) && (
                       <div className="mt-1 text-xs text-gray-700 flex items-center gap-1">

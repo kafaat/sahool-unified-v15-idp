@@ -30,7 +30,16 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { X, Save, Sprout, Droplets, Wheat, Calendar } from 'lucide-react';
+import {
+  X,
+  Save,
+  Sprout,
+  Droplets,
+  Wheat,
+  Calendar,
+  Tractor,
+  Layers,
+} from 'lucide-react';
 import type { CropHistoryEntry } from './CropHistoryTimeline';
 
 // ---------------------------------------------------------------------------
@@ -132,6 +141,8 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
 }) => {
   const [cropType, setCropType] = useState<string>(initialCropType);
   const [season, setSeason] = useState<string>('');
+  const [plowingDate, setPlowingDate] = useState<string>('');
+  const [landPreparationDate, setLandPreparationDate] = useState<string>('');
   const [startDate, setStartDate] = useState<string>(today());
   const [estimatedHarvestDate, setEstimatedHarvestDate] = useState<string>('');
   const [seedVariety, setSeedVariety] = useState<string>('');
@@ -166,6 +177,35 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
       setError('تاريخ البذر غير صالح');
       return;
     }
+    // Optional: plowing → land preparation → sowing must be in order.
+    let plowingMs: number | null = null;
+    if (plowingDate) {
+      plowingMs = new Date(plowingDate).getTime();
+      if (Number.isNaN(plowingMs)) {
+        setError('تاريخ الحراثة غير صالح');
+        return;
+      }
+      if (plowingMs > startMs) {
+        setError('تاريخ الحراثة يجب أن يكون قبل تاريخ البذر');
+        return;
+      }
+    }
+    let landPrepMs: number | null = null;
+    if (landPreparationDate) {
+      landPrepMs = new Date(landPreparationDate).getTime();
+      if (Number.isNaN(landPrepMs)) {
+        setError('تاريخ تهيئة الأرض غير صالح');
+        return;
+      }
+      if (landPrepMs > startMs) {
+        setError('تاريخ تهيئة الأرض يجب أن يكون قبل تاريخ البذر');
+        return;
+      }
+      if (plowingMs !== null && landPrepMs < plowingMs) {
+        setError('تاريخ تهيئة الأرض يجب أن يكون بعد تاريخ الحراثة');
+        return;
+      }
+    }
     if (estimatedHarvestDate) {
       const harvestMs = new Date(estimatedHarvestDate).getTime();
       if (Number.isNaN(harvestMs) || harvestMs < startMs) {
@@ -183,6 +223,12 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
       cropType,
       cropTypeAr: cropLabelAr,
       season: season || undefined,
+      plowingDate: plowingDate
+        ? new Date(plowingDate).toISOString()
+        : undefined,
+      landPreparationDate: landPreparationDate
+        ? new Date(landPreparationDate).toISOString()
+        : undefined,
       startDate: new Date(startDate).toISOString(),
       estimatedHarvestDate: estimatedHarvestDate
         ? new Date(estimatedHarvestDate).toISOString()
@@ -274,17 +320,57 @@ export const StartCropSeasonModal: React.FC<StartCropSeasonModalProps> = ({
             </div>
           </div>
 
-          {/* Row 2: sowing + expected harvest */}
+          {/* Row 2a: plowing + land preparation (both optional, pre-sowing) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-gray-700 mb-1 block">
+                <Tractor className="w-3 h-3 inline ml-1" />
+                تاريخ الحراثة
+              </label>
+              <input
+                type="date"
+                value={plowingDate}
+                onChange={(e) => setPlowingDate(e.target.value)}
+                max={startDate || today()}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                dir="ltr"
+              />
+              <p className="mt-1 text-[10px] text-gray-500">
+                الحراثة الأولية (قلب التربة، تكسير الطبقات)
+              </p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-700 mb-1 block">
+                <Layers className="w-3 h-3 inline ml-1" />
+                تاريخ تهيئة الأرض
+              </label>
+              <input
+                type="date"
+                value={landPreparationDate}
+                onChange={(e) => setLandPreparationDate(e.target.value)}
+                min={plowingDate || undefined}
+                max={startDate || today()}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                dir="ltr"
+              />
+              <p className="mt-1 text-[10px] text-gray-500">
+                تسوية وتهيئة مهد البذرة قبل الزراعة
+              </p>
+            </div>
+          </div>
+
+          {/* Row 2b: sowing + expected harvest */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-medium text-gray-700 mb-1 block">
                 <Calendar className="w-3 h-3 inline ml-1" />
-                تاريخ البذر <span className="text-red-500">*</span>
+                تاريخ البذار <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                min={landPreparationDate || plowingDate || undefined}
                 max={today()}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 dir="ltr"

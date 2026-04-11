@@ -215,9 +215,7 @@ class IoTPublisher:
 
         # Mirror to tenant-scoped sensor subject for per-tenant consumers.
         if tenant_id:
-            tenant_sensor_subject = (
-                f"sahool.tenant.{tenant_id}.iot.reading.{sensor_type}"
-            )
+            tenant_sensor_subject = f"sahool.tenant.{tenant_id}.iot.reading.{sensor_type}"
             try:
                 await self.nc.publish(tenant_sensor_subject, sensor_payload)
             except Exception:

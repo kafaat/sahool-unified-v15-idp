@@ -58,6 +58,7 @@ def _safe_log(value: Any) -> str:
         return ""
     return _LOG_INJ_RE.sub("?", str(value))[:200]
 
+
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
@@ -1036,8 +1037,7 @@ async def sensors_stream_alias(
                     "installed. Install it to enable /sensors/stream."
                 ),
                 "message_ar": (
-                    "المكتبة المطلوبة لدفق الأحداث 'sse-starlette' غير مثبتة. "
-                    "قم بتثبيتها لتفعيل بث المستشعرات."
+                    "المكتبة المطلوبة لدفق الأحداث 'sse-starlette' غير مثبتة. قم بتثبيتها لتفعيل بث المستشعرات."
                 ),
             },
         ) from exc

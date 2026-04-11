@@ -113,7 +113,6 @@ class TestInvoiceSerializationPrecision:
 
     def test_invoice_amounts_are_strings_not_floats(self):
         from fastapi.testclient import TestClient
-
         from src.main import app
 
         invoice = _make_invoice_with_decimals()
@@ -200,7 +199,6 @@ class TestWalletDeprecationMiddleware:
     )
     def test_legacy_wallet_routes_return_410(self, path: str):
         from fastapi.testclient import TestClient
-
         from src.main import app
 
         client = TestClient(app, raise_server_exceptions=False)
@@ -229,7 +227,6 @@ class TestWalletDeprecationMiddleware:
     def test_non_wallet_routes_still_work(self):
         """Regression: non-wallet routes must NOT be affected by the middleware."""
         from fastapi.testclient import TestClient
-
         from src.main import app
 
         client = TestClient(app, raise_server_exceptions=False)
@@ -258,7 +255,6 @@ class TestCurrencyAllowList:
     @pytest.mark.parametrize("bad_code", ["JPY", "GBP", "XYZ", "", "123"])
     def test_rejects_unknown_currency(self, bad_code: str):
         from fastapi import HTTPException
-
         from src.main import _validate_currency_code
 
         with pytest.raises(HTTPException) as exc_info:
@@ -273,7 +269,6 @@ class TestCurrencyAllowList:
 
     def test_create_tenant_request_rejects_unknown_currency(self):
         from pydantic import ValidationError
-
         from src.main import CreateTenantRequest
 
         with pytest.raises(ValidationError):

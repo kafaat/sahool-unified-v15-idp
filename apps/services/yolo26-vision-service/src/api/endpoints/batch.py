@@ -127,9 +127,7 @@ class BatchJobStatusResponse(BaseModel):
     created_at: float = Field(..., alias="createdAt")
     started_at: float | None = Field(default=None, alias="startedAt")
     completed_at: float | None = Field(default=None, alias="completedAt")
-    estimated_remaining_time_ms: float | None = Field(
-        default=None, alias="estimatedRemainingTimeMs"
-    )
+    estimated_remaining_time_ms: float | None = Field(default=None, alias="estimatedRemainingTimeMs")
 
 
 class BatchQueueStatusResponse(BaseModel):

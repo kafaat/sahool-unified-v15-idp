@@ -493,9 +493,7 @@ class DetectionBase(BaseModel):
     class_id: int = Field(..., alias="classId", ge=0, description="Class ID")
     class_name_en: str = Field(..., alias="classNameEn", description="Class name in English")
     class_name_ar: str = Field(..., alias="classNameAr", description="Class name in Arabic")
-    scientific_name: str | None = Field(
-        default=None, alias="scientificName", description="Scientific name"
-    )
+    scientific_name: str | None = Field(default=None, alias="scientificName", description="Scientific name")
     confidence: Annotated[float, Field(ge=0.0, le=1.0, description="Detection confidence")]
     bbox: BoundingBox = Field(..., description="Bounding box coordinates")
 
@@ -504,9 +502,7 @@ class PestDetection(DetectionBase):
     """Pest detection result with additional attributes."""
 
     severity: SeverityLevel = Field(default=SeverityLevel.MEDIUM, description="Pest severity level")
-    life_stage: str | None = Field(
-        default=None, alias="lifeStage", description="Life stage (egg, larva, adult)"
-    )
+    life_stage: str | None = Field(default=None, alias="lifeStage", description="Life stage (egg, larva, adult)")
     recommended_action_en: str | None = Field(
         default=None, alias="recommendedActionEn", description="Recommended action (English)"
     )
@@ -531,9 +527,7 @@ class DiseaseDetection(DetectionBase):
         le=100.0,
         description="Percentage of affected area",
     )
-    spread_risk: SeverityLevel = Field(
-        default=SeverityLevel.MEDIUM, alias="spreadRisk", description="Risk of spread"
-    )
+    spread_risk: SeverityLevel = Field(default=SeverityLevel.MEDIUM, alias="spreadRisk", description="Risk of spread")
     recommended_treatment_en: str | None = Field(
         default=None, alias="recommendedTreatmentEn", description="Recommended treatment (English)"
     )
@@ -557,9 +551,7 @@ class WeedDetection(DetectionBase):
         le=100.0,
         description="Weed coverage percentage in detected area",
     )
-    growth_stage: str | None = Field(
-        default=None, alias="growthStage", description="Weed growth stage"
-    )
+    growth_stage: str | None = Field(default=None, alias="growthStage", description="Weed growth stage")
     vlm_verification: VLMVerification | None = Field(
         default=None,
         alias="vlmVerification",
@@ -689,28 +681,20 @@ class DetectionResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
-    request_id: UUID = Field(
-        default_factory=uuid4, alias="requestId", description="Unique request identifier"
-    )
+    request_id: UUID = Field(default_factory=uuid4, alias="requestId", description="Unique request identifier")
     timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
     processing_time_ms: float = Field(
         ..., alias="processingTimeMs", ge=0.0, description="Processing time in milliseconds"
     )
-    model_variant: ModelVariant = Field(
-        ..., alias="modelVariant", description="Model variant used"
-    )
-    image_metadata: ImageMetadata = Field(
-        ..., alias="imageMetadata", description="Input image metadata"
-    )
+    model_variant: ModelVariant = Field(..., alias="modelVariant", description="Model variant used")
+    image_metadata: ImageMetadata = Field(..., alias="imageMetadata", description="Input image metadata")
 
 
 class PestDetectionResponse(DetectionResponse):
     """Response for pest detection."""
 
     detections: list[PestDetection] = Field(default_factory=list, description="List of pest detections")
-    total_count: int = Field(
-        default=0, alias="totalCount", ge=0, description="Total number of pests detected"
-    )
+    total_count: int = Field(default=0, alias="totalCount", ge=0, description="Total number of pests detected")
     severity_summary: dict[str, int] = Field(
         default_factory=dict, alias="severitySummary", description="Count by severity level"
     )
@@ -728,9 +712,7 @@ class DiseaseDetectionResponse(DetectionResponse):
     """Response for disease detection."""
 
     detections: list[DiseaseDetection] = Field(default_factory=list, description="List of disease detections")
-    total_count: int = Field(
-        default=0, alias="totalCount", ge=0, description="Total number of diseases detected"
-    )
+    total_count: int = Field(default=0, alias="totalCount", ge=0, description="Total number of diseases detected")
     overall_health_score: float = Field(
         default=100.0,
         alias="overallHealthScore",
@@ -755,9 +737,7 @@ class WeedDetectionResponse(DetectionResponse):
     """Response for weed detection."""
 
     detections: list[WeedDetection] = Field(default_factory=list, description="List of weed detections")
-    total_count: int = Field(
-        default=0, alias="totalCount", ge=0, description="Total number of weeds detected"
-    )
+    total_count: int = Field(default=0, alias="totalCount", ge=0, description="Total number of weeds detected")
     total_coverage_percent: float = Field(
         default=0.0,
         alias="totalCoveragePercent",
@@ -788,9 +768,7 @@ class PlantCountResponse(DetectionResponse):
     density_map_base64: str | None = Field(
         default=None, alias="densityMapBase64", description="Base64 encoded density heatmap"
     )
-    grid_counts: list[list[int]] | None = Field(
-        default=None, alias="gridCounts", description="Grid-based plant counts"
-    )
+    grid_counts: list[list[int]] | None = Field(default=None, alias="gridCounts", description="Grid-based plant counts")
     average_spacing_m: float | None = Field(
         default=None, alias="averageSpacingM", description="Average plant spacing in meters"
     )
@@ -815,9 +793,7 @@ class RipenessClassificationResponse(DetectionResponse):
     """Response for ripeness classification."""
 
     results: list[RipenessResult] = Field(default_factory=list, description="Individual classifications")
-    total_count: int = Field(
-        default=0, alias="totalCount", ge=0, description="Total fruits classified"
-    )
+    total_count: int = Field(default=0, alias="totalCount", ge=0, description="Total fruits classified")
     stage_distribution: dict[str, int] = Field(
         default_factory=dict, alias="stageDistribution", description="Count by ripeness stage"
     )
@@ -848,9 +824,7 @@ class LeafSegment(BaseModel):
     segment_id: int = Field(..., alias="segmentId", ge=0, description="Segment identifier")
     bbox: BoundingBox = Field(..., description="Leaf bounding box")
     area_pixels: int = Field(..., alias="areaPixels", ge=0, description="Leaf area in pixels")
-    area_sqm: float | None = Field(
-        default=None, alias="areaSqm", ge=0.0, description="Leaf area in square meters"
-    )
+    area_sqm: float | None = Field(default=None, alias="areaSqm", ge=0.0, description="Leaf area in square meters")
     perimeter_pixels: int | None = Field(
         default=None, alias="perimeterPixels", ge=0, description="Leaf perimeter in pixels"
     )
@@ -868,9 +842,7 @@ class LeafSegmentationResponse(DetectionResponse):
     """Response for leaf segmentation."""
 
     segments: list[LeafSegment] = Field(default_factory=list, description="Individual leaf segments")
-    total_leaves: int = Field(
-        default=0, alias="totalLeaves", ge=0, description="Total leaves detected"
-    )
+    total_leaves: int = Field(default=0, alias="totalLeaves", ge=0, description="Total leaves detected")
     total_leaf_area_pixels: int = Field(
         default=0, alias="totalLeafAreaPixels", ge=0, description="Total leaf area in pixels"
     )
@@ -880,12 +852,8 @@ class LeafSegmentationResponse(DetectionResponse):
         ge=0.0,
         description="Total leaf area in sq meters",
     )
-    leaf_area_index: float | None = Field(
-        default=None, alias="leafAreaIndex", ge=0.0, description="Estimated LAI"
-    )
-    mask_base64: str | None = Field(
-        default=None, alias="maskBase64", description="Base64 encoded segmentation mask"
-    )
+    leaf_area_index: float | None = Field(default=None, alias="leafAreaIndex", ge=0.0, description="Estimated LAI")
+    mask_base64: str | None = Field(default=None, alias="maskBase64", description="Base64 encoded segmentation mask")
     visualization_base64: str | None = Field(
         default=None, alias="visualizationBase64", description="Base64 encoded visualization"
     )
@@ -901,15 +869,9 @@ class TrackedObject(BaseModel):
     class_name: str = Field(..., alias="className", description="Object class name")
     bbox: BoundingBox = Field(..., description="Current bounding box")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Detection confidence")
-    velocity: tuple[float, float] | None = Field(
-        default=None, description="Velocity (vx, vy) pixels/frame"
-    )
-    track_length: int = Field(
-        default=1, alias="trackLength", ge=1, description="Number of frames tracked"
-    )
-    is_new: bool = Field(
-        default=False, alias="isNew", description="Whether this is a newly detected object"
-    )
+    velocity: tuple[float, float] | None = Field(default=None, description="Velocity (vx, vy) pixels/frame")
+    track_length: int = Field(default=1, alias="trackLength", ge=1, description="Number of frames tracked")
+    is_new: bool = Field(default=False, alias="isNew", description="Whether this is a newly detected object")
 
 
 class ObjectTrackingResponse(DetectionResponse):
@@ -919,15 +881,9 @@ class ObjectTrackingResponse(DetectionResponse):
     tracked_objects: list[TrackedObject] = Field(
         default_factory=list, alias="trackedObjects", description="Currently tracked objects"
     )
-    active_tracks: int = Field(
-        default=0, alias="activeTracks", ge=0, description="Number of active tracks"
-    )
-    new_tracks: int = Field(
-        default=0, alias="newTracks", ge=0, description="Number of new tracks this frame"
-    )
-    lost_tracks: int = Field(
-        default=0, alias="lostTracks", ge=0, description="Number of lost tracks this frame"
-    )
+    active_tracks: int = Field(default=0, alias="activeTracks", ge=0, description="Number of active tracks")
+    new_tracks: int = Field(default=0, alias="newTracks", ge=0, description="Number of new tracks this frame")
+    lost_tracks: int = Field(default=0, alias="lostTracks", ge=0, description="Number of lost tracks this frame")
     total_unique_objects: int = Field(
         default=0, alias="totalUniqueObjects", ge=0, description="Total unique objects seen"
     )

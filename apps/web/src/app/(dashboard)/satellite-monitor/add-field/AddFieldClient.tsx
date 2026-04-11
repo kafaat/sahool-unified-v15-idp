@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -18,6 +19,23 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useCreateField } from '@/features/satellite-monitor';
+
+// Dynamically load the Leaflet drawing map — it pulls in `react-leaflet`
+// and raw `leaflet` which require a browser `window`, so SSR must be
+// disabled. Keeping the import next to the client page (instead of a
+// barrel `index.ts`) ensures Next tree-shakes the Leaflet bundle off the
+// server build entirely.
+const DrawableMap = dynamic(
+  () => import('@/components/maps/DrawableMap').then((m) => m.default),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="aspect-video bg-gradient-to-br from-green-50 via-green-100 to-green-200 rounded-lg border-2 border-green-300 flex items-center justify-center">
+        <p className="text-green-700 text-sm">جاري تحميل أدوات الرسم...</p>
+      </div>
+    ),
+  },
+);
 import type { BoundaryInputMethod, FieldBoundary } from '@/features/satellite-monitor';
 
 const CROP_TYPES = [
@@ -135,6 +153,58 @@ export default function AddFieldClient() {
     };
     setBoundaryPoints(updated);
   };
+
+  /**
+   * Receive a GeoJSON polygon from <DrawableMap> and flatten it into the
+   * `FieldBoundary[]` shape the rest of this client already consumes.
+   *
+   * GeoJSON polygon rings are closed (first coordinate == last); we drop
+   * the duplicate closing vertex so `boundaryPoints.length` reflects the
+   * number of user-placed points and the existing `length < 3` guard in
+   * `validateStep` still works.
+   */
+  const handleDrawnBoundary = useCallback(
+    (geojson: GeoJSON.Polygon | null) => {
+      if (!geojson || !geojson.coordinates?.[0]) {
+        setBoundaryPoints([]);
+        return;
+      }
+      const ring = geojson.coordinates[0];
+      const closed =
+        ring.length > 1 &&
+        ring[0]?.[0] === ring[ring.length - 1]?.[0] &&
+        ring[0]?.[1] === ring[ring.length - 1]?.[1];
+      const openRing = closed ? ring.slice(0, -1) : ring;
+      setBoundaryPoints(
+        openRing.map(([lng, lat]) => ({
+          lat: typeof lat === 'number' ? lat : 0,
+          lng: typeof lng === 'number' ? lng : 0,
+        })),
+      );
+    },
+    [],
+  );
+
+  /**
+   * Center the drawing map on the form-entered lat/lng if the user
+   * provided one in step 1, otherwise default to Yemen's centroid.
+   * The tuple is memoised so <DrawableMap> does not re-mount on every
+   * unrelated re-render.
+   */
+  const drawInitialCenter = useMemo<[number, number]>(() => {
+    const lat = parseFloat(formData.lat);
+    const lng = parseFloat(formData.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      return [lat, lng];
+    }
+    return [15.5527, 48.5164];
+  }, [formData.lat, formData.lng]);
+
+  const drawInitialZoom = useMemo(() => {
+    const lat = parseFloat(formData.lat);
+    const lng = parseFloat(formData.lng);
+    return Number.isFinite(lat) && Number.isFinite(lng) ? 15 : 6;
+  }, [formData.lat, formData.lng]);
 
   // Handle file upload for KML/Shapefile. Enforces a 10 MB cap (KML/KMZ are
   // rarely larger) and accepts only the declared boundary file extensions.
@@ -364,12 +434,37 @@ export default function AddFieldClient() {
 
           {/* Method-specific content */}
           {boundaryMethod === 'draw' && (
-            <div className="aspect-video bg-gradient-to-br from-green-50 via-green-100 to-green-200 rounded-lg border-2 border-green-300 flex items-center justify-center">
-              <div className="text-center">
-                <Pencil className="w-12 h-12 text-green-600 mx-auto mb-2" />
-                <p className="text-green-800 font-medium">انقر على الخريطة لتحديد نقاط الحدود</p>
-                <p className="text-green-600 text-sm mt-1">سيتم ربط النقاط تلقائياً لإنشاء المضلع</p>
+            <div className="space-y-3">
+              <div className="rounded-lg border-2 border-green-300 bg-green-50 p-3 text-sm text-green-800">
+                <p className="font-medium inline-flex items-center gap-1.5">
+                  <Pencil className="w-4 h-4" /> انقر على الخريطة لإضافة نقطة جديدة
+                </p>
+                <p className="text-green-700 text-xs mt-1">
+                  بعد إضافة 3 نقاط على الأقل سيظهر زر «إكمال» لإغلاق المضلع.
+                  يتم توصيل كل نقطة بالتي تليها بخط مباشر.
+                </p>
               </div>
+              <DrawableMap
+                onBoundaryChange={handleDrawnBoundary}
+                initialCenter={drawInitialCenter}
+                initialZoom={drawInitialZoom}
+                height="480px"
+              />
+              {boundaryPoints.length > 0 && (
+                <div className="text-xs text-gray-600 flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
+                  <span>
+                    النقاط المرسومة:{' '}
+                    <span className="font-semibold text-gray-900">
+                      {boundaryPoints.length}
+                    </span>
+                  </span>
+                  {boundaryPoints.length < 3 && (
+                    <span className="text-amber-700">
+                      يلزم {3 - boundaryPoints.length} نقطة إضافية على الأقل
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

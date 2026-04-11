@@ -7,9 +7,16 @@ Exposes:
     GET  /api/v1/carbon/fields/{id}/summary           — field-level summary
     GET  /api/v1/carbon/crop-seasons/{id}/summary     — season-level summary
 
-All endpoints are tenant-scoped via the X-Tenant-Id header (same pattern
-used by other SAHOOL Python services). The business logic sits in
-`src.engine.ipcc_tier1.IpccTier1Engine`, a pure computation class.
+All endpoints are:
+  * Tenant-scoped via the X-Tenant-Id header (extracted by TenantGuard
+    middleware in production, validated here defensively).
+  * Authenticated via the shared JWT bearer dependency. Unauthenticated
+    requests get 401 before the handler runs. When `shared.auth` isn't
+    importable (local dev without the shared package), a stub raises
+    503 so the service never silently runs open.
+
+Business logic sits in `src.engine.ipcc_tier1.IpccTier1Engine`, a pure
+computation class that's trivially unit-testable.
 """
 
 from __future__ import annotations
@@ -17,10 +24,35 @@ from __future__ import annotations
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from src.engine import IpccTier1Engine, OperationInput
+
+# -------------------------------------------------------------------------
+# Authentication dependency (shared.auth when available, safe stub otherwise)
+# -------------------------------------------------------------------------
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:  # pragma: no cover - only hit in minimal local dev
+    from fastapi import HTTPException as _HTTPException
+
+    class User:  # type: ignore[no-redef]
+        """Stub user model used only when shared.auth isn't installed."""
+
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user() -> User:  # type: ignore[no-redef]
+        raise _HTTPException(
+            status_code=503,
+            detail={
+                "message": "Authentication backend unavailable",
+                "message_ar": "خدمة المصادقة غير متاحة",
+            },
+        )
+
 
 logger = structlog.get_logger()
 router = APIRouter(prefix="/api/v1/carbon", tags=["Carbon - الكربون"])
@@ -127,11 +159,17 @@ def _require_tenant(x_tenant_id: str | None) -> str:
 
 
 @router.post("/compute", response_model=ComputeResponse)
-async def compute_stateless(body: ComputeRequest) -> ComputeResponse:
+async def compute_stateless(
+    body: ComputeRequest,
+    current_user: User = Depends(get_current_user),
+) -> ComputeResponse:
     """
     Stateless compute — runs the engine on a fully-populated request
     without touching the DB. Useful for what-if analysis from the web
     client ("if I halve my fertiliser, what happens to my emissions?").
+
+    Requires a valid JWT; does NOT persist anything, so tenant header
+    isn't mandatory for this endpoint.
     """
     op = OperationInput(
         operation_id=body.operation_id,
@@ -181,6 +219,7 @@ async def compute_for_operation(
     operation_id: str,
     request: Request,
     x_tenant_id: str | None = Header(default=None),
+    current_user: User = Depends(get_current_user),
 ) -> ComputeResponse:
     """
     DB-backed compute — reads the FieldOperation row from the
@@ -284,6 +323,7 @@ async def field_summary(
     field_id: str,
     request: Request,
     x_tenant_id: str | None = Header(default=None),
+    current_user: User = Depends(get_current_user),
 ) -> FieldCarbonSummary:
     """Aggregate carbon data for a single field across all operations."""
     tenant_id = _require_tenant(x_tenant_id)
@@ -367,6 +407,7 @@ async def crop_season_summary(
     crop_season_id: str,
     request: Request,
     x_tenant_id: str | None = Header(default=None),
+    current_user: User = Depends(get_current_user),
 ) -> CropSeasonCarbonSummary:
     """Aggregate carbon data for all operations in a crop season."""
     tenant_id = _require_tenant(x_tenant_id)

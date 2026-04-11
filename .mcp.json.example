@@ -1,0 +1,68 @@
+{
+  "_comment": "Copy this file to .mcp.json to enable project-scoped MCP servers. .mcp.json IS committed to git so the whole team shares the same server set; put secrets in env vars, NOT in this file. See https://docs.claude.com/en/docs/claude-code/mcp for the full MCP reference.",
+
+  "mcpServers": {
+    "postgres": {
+      "_purpose": "Read-only SQL + PostGIS access for ad-hoc queries and schema inspection. Use a read-only role.",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${SAHOOL_PG_READONLY_URL}"],
+      "env": {
+        "SAHOOL_PG_READONLY_URL": "postgresql://sahool_ro:${SAHOOL_PG_RO_PASSWORD}@localhost:6432/sahool?sslmode=require"
+      }
+    },
+
+    "nats": {
+      "_purpose": "Subscribe to NATS subjects for live event observation. Keep this pointed at dev/staging only, never production.",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-nats"],
+      "env": {
+        "NATS_URL": "nats://localhost:4222",
+        "NATS_SUBJECTS": "sahool.>"
+      }
+    },
+
+    "sentry": {
+      "_purpose": "Query Sentry issues/events for SAHOOL web + mobile (@sentry/nextjs 8.x is already wired).",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@sentry/mcp-server"],
+      "env": {
+        "SENTRY_ORG": "kafaat",
+        "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}"
+      }
+    },
+
+    "playwright": {
+      "_purpose": "Browser automation for testing admin + web flows, especially RTL / Arabic layouts.",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+
+    "filesystem": {
+      "_purpose": "Scoped filesystem access to docs/knowledge-base (91 agricultural docs) for faster context retrieval.",
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${PWD}/docs/knowledge-base"
+      ]
+    }
+  },
+
+  "_setup_notes": [
+    "1. Copy this file: cp .mcp.json.example .mcp.json",
+    "2. Create a read-only Postgres role:",
+    "   CREATE ROLE sahool_ro LOGIN PASSWORD '...';",
+    "   GRANT CONNECT ON DATABASE sahool TO sahool_ro;",
+    "   GRANT USAGE ON SCHEMA public TO sahool_ro;",
+    "   GRANT SELECT ON ALL TABLES IN SCHEMA public TO sahool_ro;",
+    "   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO sahool_ro;",
+    "3. Set SAHOOL_PG_RO_PASSWORD and SENTRY_AUTH_TOKEN in your shell or .env (NOT in this file).",
+    "4. Restart Claude Code to pick up the new MCP servers.",
+    "5. Point NATS at dev/staging — NEVER at production."
+  ]
+}

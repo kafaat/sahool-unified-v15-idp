@@ -66,6 +66,11 @@ export interface FarmStats {
  * Field selection used across all list / get queries. We deliberately
  * exclude the PostGIS `locationGeom` / `boundary` geometry columns (they
  * are not plain-serialisable and not used by the Admin/Web UIs).
+ *
+ * NOTE: The Prisma column names `locationLabel` / `locationLabelAr` differ
+ * from the API-facing DTO names `location` / `locationAr`. Mapping happens
+ * in `serializeFarm` (read) and in `create`/`update` (write). See the
+ * schema.prisma comment on the Farm model for why the rename was needed.
  */
 const FARM_SELECT = {
   id: true,
@@ -82,8 +87,8 @@ const FARM_SELECT = {
   status: true,
   totalAreaHectares: true,
   cultivatedAreaHectares: true,
-  location: true,
-  locationAr: true,
+  locationLabel: true,
+  locationLabelAr: true,
   address: true,
   phone: true,
   email: true,
@@ -108,8 +113,9 @@ function serializeFarm(f: any): FarmResponse {
     status: f.status ?? "active",
     totalAreaHectares: toNumber(f.totalAreaHectares),
     cultivatedAreaHectares: toNumber(f.cultivatedAreaHectares),
-    location: f.location ?? null,
-    locationAr: f.locationAr ?? null,
+    // Prisma field → DTO field rename (see FARM_SELECT comment above).
+    location: f.locationLabel ?? null,
+    locationAr: f.locationLabelAr ?? null,
     address: f.address ?? null,
     phone: f.phone ?? null,
     email: f.email ?? null,
@@ -144,8 +150,9 @@ export class FarmsService {
         status: dto.status ?? FarmStatus.ACTIVE,
         totalAreaHectares: dto.totalAreaHectares,
         cultivatedAreaHectares: dto.cultivatedAreaHectares,
-        location: dto.location,
-        locationAr: dto.locationAr,
+        // DTO field → Prisma field rename (see FARM_SELECT comment above).
+        locationLabel: dto.location,
+        locationLabelAr: dto.locationAr,
         address: dto.address,
         phone: dto.phone,
         email: dto.email,
@@ -183,8 +190,8 @@ export class FarmsService {
       where.OR = [
         { name: { contains: query.search, mode: "insensitive" } },
         { nameAr: { contains: query.search, mode: "insensitive" } },
-        { location: { contains: query.search, mode: "insensitive" } },
-        { locationAr: { contains: query.search, mode: "insensitive" } },
+        { locationLabel: { contains: query.search, mode: "insensitive" } },
+        { locationLabelAr: { contains: query.search, mode: "insensitive" } },
       ];
     }
 
@@ -271,8 +278,11 @@ export class FarmsService {
         ...(dto.cultivatedAreaHectares !== undefined && {
           cultivatedAreaHectares: dto.cultivatedAreaHectares,
         }),
-        ...(dto.location !== undefined && { location: dto.location }),
-        ...(dto.locationAr !== undefined && { locationAr: dto.locationAr }),
+        // DTO field → Prisma field rename (see FARM_SELECT comment above).
+        ...(dto.location !== undefined && { locationLabel: dto.location }),
+        ...(dto.locationAr !== undefined && {
+          locationLabelAr: dto.locationAr,
+        }),
         ...(dto.address !== undefined && { address: dto.address }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
         ...(dto.email !== undefined && { email: dto.email }),

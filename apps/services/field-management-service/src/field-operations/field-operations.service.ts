@@ -112,6 +112,9 @@ export class FieldOperationsService {
         overheadCost: true,
         otherCost: true,
         taxAmount: true,
+        co2EmissionsKg: true,
+        co2SequestrationKg: true,
+        co2NetKg: true,
       },
     });
 
@@ -134,6 +137,9 @@ export class FieldOperationsService {
     let totalMaterials = 0;
     let totalOverhead = 0;
     let totalTax = 0;
+    let totalEmissions = 0;
+    let totalSequestration = 0;
+    let totalNet = 0;
 
     for (const r of rows) {
       const hrs = Number(r.durationHours ?? 0);
@@ -143,6 +149,9 @@ export class FieldOperationsService {
       const materials = Number(r.materialsCost ?? 0);
       const overhead = Number(r.overheadCost ?? 0);
       const tax = Number(r.taxAmount ?? 0);
+      const emit = Number(r.co2EmissionsKg ?? 0);
+      const seq = Number(r.co2SequestrationKg ?? 0);
+      const net = Number(r.co2NetKg ?? 0);
 
       totalHours += Number.isFinite(hrs) ? hrs : 0;
       totalCost += Number.isFinite(cost) ? cost : 0;
@@ -151,6 +160,9 @@ export class FieldOperationsService {
       totalMaterials += Number.isFinite(materials) ? materials : 0;
       totalOverhead += Number.isFinite(overhead) ? overhead : 0;
       totalTax += Number.isFinite(tax) ? tax : 0;
+      totalEmissions += Number.isFinite(emit) ? emit : 0;
+      totalSequestration += Number.isFinite(seq) ? seq : 0;
+      totalNet += Number.isFinite(net) ? net : 0;
 
       const bucket = (byType[r.operationType] ||= {
         count: 0,
@@ -170,14 +182,19 @@ export class FieldOperationsService {
       bucket.overheadCost += Number.isFinite(overhead) ? overhead : 0;
     }
 
-    // Update the materialised cache on the parent CropSeason row so
-    // dashboards can list 100 seasons without re-computing rollups.
+    // Update the materialised caches (cost + carbon) on the parent
+    // CropSeason row so dashboards can list 100 seasons without
+    // re-computing rollups on every request.
     await this.prisma.cropSeason.updateMany({
       where: { id: cropSeasonId, tenantId, deletedAt: null },
       data: {
         totalSeasonCost: totalCost as any,
         totalSeasonHours: totalHours as any,
         totalsUpdatedAt: new Date(),
+        totalCo2EmissionsKg: totalEmissions as any,
+        totalCo2SequestrationKg: totalSequestration as any,
+        totalCo2NetKg: totalNet as any,
+        carbonTotalsUpdatedAt: new Date(),
       },
     });
 
@@ -192,6 +209,11 @@ export class FieldOperationsService {
         materials: totalMaterials,
         overhead: totalOverhead,
         tax: totalTax,
+      },
+      carbonTotals: {
+        emissionsKg: totalEmissions,
+        sequestrationKg: totalSequestration,
+        netKg: totalNet,
       },
       currency: rows[0]?.costCurrency ?? "SAR",
       byType,
@@ -312,6 +334,19 @@ export class FieldOperationsService {
           equipmentNameAr: dto.equipmentNameAr,
           notes: dto.notes,
           createdBy,
+          // Optional client-seeded carbon values (carbon-service will
+          // recompute these later unless the row explicitly opts out
+          // via metadata.carbon_locked=true).
+          co2EmissionsKg: dto.co2EmissionsKg as any,
+          co2SequestrationKg: dto.co2SequestrationKg as any,
+          co2NetKg: dto.co2NetKg as any,
+          carbonMethodology: dto.carbonMethodology,
+          emissionSourceType: dto.emissionSourceType,
+          carbonComputedAt:
+            dto.co2EmissionsKg !== undefined ||
+            dto.co2SequestrationKg !== undefined
+              ? new Date()
+              : null,
           // Approval: by default `approved` so the existing flow keeps
           // working; admins can configure operation-level approval
           // workflow via env (not in this PR).

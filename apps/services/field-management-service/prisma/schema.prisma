@@ -147,6 +147,8 @@ model Field {
   farm            Farm?                   @relation(fields: [farmId], references: [id], onDelete: SetNull)
   cropSeasons     CropSeason[]
   operations      FieldOperation[]
+  subZones        FieldSubZone[]
+  reports         FieldReport[]
 
   // Indexes
   @@index([tenantId], name: "idx_field_tenant")
@@ -465,6 +467,14 @@ model CropSeason {
   totalSeasonHours   Decimal? @map("total_season_hours") @db.Decimal(10, 2)
   totalsUpdatedAt    DateTime? @map("totals_updated_at") @db.Timestamptz
 
+  // Cached carbon totals (materialised from field_operations CO2 rollup).
+  // Updated by carbon-service when it recomputes per-operation emissions
+  // or by the FieldOperationsService.rollupForCropSeason() helper.
+  totalCo2EmissionsKg     Decimal?  @map("total_co2_emissions_kg") @db.Decimal(14, 2)
+  totalCo2SequestrationKg Decimal?  @map("total_co2_sequestration_kg") @db.Decimal(14, 2)
+  totalCo2NetKg           Decimal?  @map("total_co2_net_kg") @db.Decimal(14, 2)
+  carbonTotalsUpdatedAt   DateTime? @map("carbon_totals_updated_at") @db.Timestamptz
+
   // Soft delete (audit compliance)
   deletedAt      DateTime? @map("deleted_at") @db.Timestamptz
   deletedBy      String?   @map("deleted_by") @db.VarChar(100)
@@ -575,6 +585,19 @@ model FieldOperation {
 
   // Free-form notes (max 2KB enforced at application layer)
   notes String? @db.Text
+
+  // ── Carbon footprint (IPCC Tier 1) ──────────────────────────────────
+  // Populated by carbon-service (port 8195) — computed from cost breakdown
+  // (fuel liters → combustion factor, fertiliser → N2O factor, machinery
+  // hours → embodied emissions). Sequestration applies to cover cropping,
+  // no-till, biochar, etc. Dashboards show net CO2e per season + per field.
+  co2EmissionsKg       Decimal?  @map("co2_emissions_kg") @db.Decimal(12, 2)
+  co2SequestrationKg   Decimal?  @map("co2_sequestration_kg") @db.Decimal(12, 2)
+  co2NetKg             Decimal?  @map("co2_net_kg") @db.Decimal(12, 2)
+  carbonCreditEligible Boolean   @default(false) @map("carbon_credit_eligible")
+  carbonMethodology    String?   @map("carbon_methodology") @db.VarChar(50)
+  emissionSourceType   String?   @map("emission_source_type") @db.VarChar(50)
+  carbonComputedAt     DateTime? @map("carbon_computed_at") @db.Timestamptz
 
   // ── Soft delete (SOX / IFRS audit compliance) ──────────────────────
   deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
@@ -694,6 +717,107 @@ model FieldOperationAudit {
   @@index([operationId, createdAt(sort: Desc)], name: "idx_field_op_audit_op")
   @@index([tenantId, action, createdAt], name: "idx_field_op_audit_action")
   @@map("field_operation_audit")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Sub-Zone - المناطق الفرعية للحقل
+// Represents sub-polygons inside a single Field record. Critical for
+// terraced Yemeni farms where a logical "field" is actually 10-30 small
+// terraces each with different elevation, slope, aspect, and crop
+// performance. One NDVI reading across the whole field would mask this
+// variability — we capture it per terrace instead.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldSubZone {
+  id       String @id @default(uuid()) @db.Uuid
+  tenantId String @map("tenant_id") @db.VarChar(100)
+  fieldId  String @map("field_id") @db.Uuid
+
+  // Identity
+  name        String  @db.VarChar(255)
+  nameAr      String? @map("name_ar") @db.VarChar(255)
+  description String? @db.Text
+
+  // PostGIS polygon for the sub-zone — must lie inside the parent field
+  // boundary (enforced at the application layer via ST_Contains).
+  boundary       Unsupported("geometry(Polygon, 4326)")?
+  areaHectares   Decimal? @map("area_hectares") @db.Decimal(10, 4)
+
+  // Topography (populated from terrain-core-service DEM lookup)
+  elevationM   Decimal? @map("elevation_m") @db.Decimal(8, 2)
+  slopeDegrees Decimal? @map("slope_degrees") @db.Decimal(5, 2)
+  aspect       String?  @db.VarChar(20)       // N | NE | E | SE | S | SW | W | NW | flat
+  isTerrace    Boolean  @default(false) @map("is_terrace")
+  terraceLevel Int?     @map("terrace_level") // 1 = lowest, N = highest
+
+  // UI ordering
+  displayOrder Int @default(0) @map("display_order")
+
+  // Soft delete
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  deletedBy String?   @map("deleted_by") @db.VarChar(100)
+
+  // Audit
+  createdBy String?  @map("created_by") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], name: "idx_field_sub_zone_tenant")
+  @@index([fieldId, displayOrder], name: "idx_field_sub_zone_field")
+  @@map("field_sub_zones")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Report - تقارير الحقل (PDF/HTML)
+// Async-generated per-field reports. Caller POSTs a "generate report"
+// request; a background worker renders HTML (Arabic RTL, charts), uploads
+// to object storage, and stamps the URL back on the row. Mirrors the
+// Farmonaut pattern of returning a URL instead of bytes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldReport {
+  id           String  @id @default(uuid()) @db.Uuid
+  tenantId     String  @map("tenant_id") @db.VarChar(100)
+  fieldId      String  @map("field_id") @db.Uuid
+  cropSeasonId String? @map("crop_season_id") @db.Uuid
+
+  // Report metadata
+  reportType String    @default("field_summary") @map("report_type") @db.VarChar(50)
+  language   String    @default("ar") @db.VarChar(8)
+  periodFrom DateTime? @map("period_from") @db.Date
+  periodTo   DateTime? @map("period_to") @db.Date
+
+  // Rendering state-machine: pending → rendering → ready | failed | expired
+  status          String    @default("pending") @db.VarChar(20)
+  renderedAt      DateTime? @map("rendered_at") @db.Timestamptz
+  errorMessage    String?   @map("error_message") @db.Text
+  renderAttempts  Int       @default(0) @map("render_attempts")
+
+  // Output
+  contentHtml      String?   @map("content_html") @db.Text
+  contentUrl       String?   @map("content_url") @db.VarChar(1000)
+  contentSizeBytes BigInt?   @map("content_size_bytes")
+  contentType      String?   @map("content_type") @db.VarChar(50)
+  expiresAt        DateTime? @map("expires_at") @db.Timestamptz
+
+  // Snapshot of input data at render time (for audit / debugging)
+  inputSnapshot Json? @map("input_snapshot") @db.JsonB
+
+  // Audit
+  requestedBy String?  @map("requested_by") @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], name: "idx_field_report_tenant")
+  @@index([fieldId, createdAt(sort: Desc)], name: "idx_field_report_field")
+  @@index([cropSeasonId], name: "idx_field_report_crop_season")
+  @@map("field_reports")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

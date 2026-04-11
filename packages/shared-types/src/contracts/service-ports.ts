@@ -176,6 +176,8 @@ export const SERVICE_PORTS = {
   DIGITAL_TWIN: 8253,
   /** MCP server - خادم MCP (changed from 8200 to avoid Vault conflict) */
   MCP_SERVER: 8201,
+  /** Carbon footprint (IPCC Tier 1) - البصمة الكربونية */
+  CARBON_SERVICE: 8195,
 
   // ── Applications ─────────────────────────────────────────────────────
   /** Admin portal - لوحة الإدارة */

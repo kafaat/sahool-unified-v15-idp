@@ -1,0 +1,17 @@
+# Core Framework
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
+pydantic>=2.10.0,<3.0.0
+pydantic-settings>=2.6.1,<3.0.0
+python-dotenv==1.2.2
+
+# Database (reads from field-management-service DB for now; writes via
+# HTTP to field-management-service or directly for performance)
+asyncpg==0.31.0
+
+# Messaging
+nats-py==2.14.0
+
+# Observability
+structlog==25.5.0
+prometheus-client==0.24.1

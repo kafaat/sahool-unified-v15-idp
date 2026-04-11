@@ -14,7 +14,7 @@
  * MINOR: addition (new endpoint, new error code)
  * PATCH: fix (typo in message, documentation)
  */
-export const CONTRACT_VERSION = "4.5.0" as const;
+export const CONTRACT_VERSION = "4.6.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

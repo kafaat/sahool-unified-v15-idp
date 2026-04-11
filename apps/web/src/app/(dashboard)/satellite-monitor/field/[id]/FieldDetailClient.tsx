@@ -33,9 +33,20 @@ import {
   useSatelliteMonitorIrrigationSchedule,
   useSatelliteMonitorYieldPrediction,
   useSatelliteMonitorHistorical,
+  useUpdateField,
 } from '@/features/satellite-monitor';
 import { MAP_LAYERS } from '@/features/satellite-monitor/api';
 import type { MapLayerType, TimePeriod, CropHealthStatus, NutrientLevel } from '@/features/satellite-monitor';
+import { useAuth } from '@/stores/auth.store';
+import {
+  CropHistoryTimeline,
+  type CropHistoryEntry,
+} from '@/features/fields/components/CropHistoryTimeline';
+import {
+  FieldAlertsLinkCard,
+  type FieldAlertsMetadata,
+} from '@/features/fields/components/FieldAlertsLinkCard';
+import { StartCropSeasonModal } from '@/features/fields/components/StartCropSeasonModal';
 
 const HEALTH_CONFIG: Record<CropHealthStatus, { color: string; bg: string; labelAr: string }> = {
   healthy: { color: 'text-green-700', bg: 'bg-green-100', labelAr: 'صحي' },
@@ -62,6 +73,83 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
   const [historicalEndDate, setHistoricalEndDate] = useState('2026-03-27');
 
   const { data: field, isLoading } = useSatelliteMonitorField(fieldId);
+  // Auth identity (used by FieldAlertsLinkCard to show "alerts go to Y").
+  const { user } = useAuth();
+  // Mutation for PATCHing field metadata when the user toggles alerts
+  // or edits the per-field phone override. The mutation only touches
+  // `metadata` so we avoid clobbering other server-owned columns.
+  const updateField = useUpdateField();
+  const handleAlertsChange = (next: FieldAlertsMetadata) => {
+    if (!field) return;
+    const mergedMetadata = {
+      ...(field.metadata ?? {}),
+      alerts: next,
+    };
+    updateField.mutate({
+      fieldId,
+      data: { metadata: mergedMetadata },
+    });
+  };
+
+  // ── Stage-2 "Start Crop Season" state ────────────────────────────────
+  const [seasonModalOpen, setSeasonModalOpen] = useState(false);
+
+  /**
+   * Append a new rich crop-season entry to `metadata.cropHistory`.
+   *
+   * Mutation policy:
+   *   1. Any previously-flagged `isCurrent: true` entry is marked
+   *      `isCurrent: false` and given an `endDate` of today, so the
+   *      timeline preserves the historical record of the previous
+   *      season instead of overwriting it.
+   *   2. The new entry is appended with `isCurrent: true`.
+   *   3. The whole metadata blob is PATCHed back via `useUpdateField`;
+   *      the backend persists it as-is inside the existing JSONB
+   *      column — no migration required.
+   */
+  const handleStartSeason = (newEntry: CropHistoryEntry) => {
+    if (!field) return;
+    const existing = Array.isArray(
+      (field.metadata as Record<string, unknown> | undefined)?.cropHistory,
+    )
+      ? ((field.metadata as Record<string, unknown>).cropHistory as CropHistoryEntry[])
+      : [];
+    const todayIso = new Date().toISOString();
+    const closedPrevious: CropHistoryEntry[] = existing.map((entry) =>
+      entry.isCurrent && !entry.endDate
+        ? { ...entry, isCurrent: false, endDate: todayIso }
+        : entry,
+    );
+    const nextHistory = [...closedPrevious, { ...newEntry, isCurrent: true }];
+    const mergedMetadata = {
+      ...(field.metadata ?? {}),
+      cropHistory: nextHistory,
+    };
+    updateField.mutate(
+      { fieldId, data: { metadata: mergedMetadata } },
+      {
+        onSuccess: () => setSeasonModalOpen(false),
+      },
+    );
+  };
+
+  /**
+   * True when the field already has an active (unclosed) crop season
+   * in the persisted `cropHistory`. Used by the modal to warn the
+   * user that saving will close the current season.
+   */
+  const hasActiveSeason: boolean = (() => {
+    const raw = (field?.metadata as Record<string, unknown> | undefined)
+      ?.cropHistory;
+    if (!Array.isArray(raw)) return false;
+    return raw.some(
+      (e) =>
+        e &&
+        typeof e === 'object' &&
+        (e as Record<string, unknown>).isCurrent === true &&
+        !(e as Record<string, unknown>).endDate,
+    );
+  })();
   const { data: timeSeries = [] } = useSatelliteMonitorTimeSeries(fieldId, timeSeriesPeriod);
   const { data: weather = [] } = useSatelliteMonitorWeather(fieldId);
   const { data: zones = [] } = useSatelliteMonitorZones(fieldId);
@@ -162,6 +250,27 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
           {/* ========= OVERVIEW TAB ========= */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {/*
+                Crop history archive + alerts binding — both read from
+                Field.metadata JSONB (no backend migration required).
+                Stacks as two columns on wide screens and a single
+                column on mobile.
+              */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <CropHistoryTimeline
+                  currentCropType={field.cropType}
+                  currentCropTypeAr={field.cropTypeAr}
+                  fieldCreatedAt={field.createdAt}
+                  metadata={field.metadata}
+                  onStartSeason={() => setSeasonModalOpen(true)}
+                />
+                <FieldAlertsLinkCard
+                  user={user}
+                  metadata={field.metadata}
+                  onChange={handleAlertsChange}
+                />
+              </div>
+
               {/* Zone Analysis */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">تحليل المناطق</h3>
@@ -653,6 +762,19 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
           )}
         </div>
       </div>
+
+      {/*
+        Stage-2 "Start new crop season" modal — rendered at the root
+        so it can overlay the whole detail view regardless of which
+        tab is currently active.
+      */}
+      <StartCropSeasonModal
+        open={seasonModalOpen}
+        onClose={() => setSeasonModalOpen(false)}
+        onSubmit={handleStartSeason}
+        hasActiveSeason={hasActiveSeason}
+        initialCropType={field.cropType}
+      />
     </div>
   );
 }

@@ -155,6 +155,15 @@ export interface FieldSetupData {
   boundaryMethod: BoundaryInputMethod;
   address?: string;
   coordinates?: { lat: number; lng: number };
+  /**
+   * Optional free-form JSONB metadata persisted on the Field row. The
+   * web client uses this to seed `cropHistory` (archival record of
+   * planted crop rotations) and `alerts` (which authenticated user
+   * should receive notifications for this field) at create time.
+   * Backend field-management-service stores it verbatim under
+   * `Field.metadata` — no migration or new endpoint required.
+   */
+  metadata?: Record<string, unknown>;
 }
 
 // ---------------------------------------------------------------------------

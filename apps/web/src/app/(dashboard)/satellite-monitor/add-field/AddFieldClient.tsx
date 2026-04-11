@@ -19,6 +19,9 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useCreateField } from '@/features/satellite-monitor';
+import { useAuth } from '@/stores/auth.store';
+import { buildInitialCropHistory } from '@/features/fields/components/CropHistoryTimeline';
+import { buildInitialFieldAlerts } from '@/features/fields/components/FieldAlertsLinkCard';
 
 // Dynamically load the Google Maps drawing surface — it pulls in
 // `@react-google-maps/api` which requires a browser `window`, so SSR
@@ -62,6 +65,9 @@ const BOUNDARY_METHODS: Array<{ method: BoundaryInputMethod; label: string; labe
 
 export default function AddFieldClient() {
   const createField = useCreateField();
+  // Authenticated user — used to seed the per-field `alerts` metadata
+  // with the account that should receive notifications for this field.
+  const { user } = useAuth();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [boundaryMethod, setBoundaryMethod] = useState<BoundaryInputMethod>('coordinates');
   const [boundaryPoints, setBoundaryPoints] = useState<FieldBoundary[]>([]);
@@ -255,6 +261,28 @@ export default function AddFieldClient() {
       return;
     }
     try {
+      // Seed the two new metadata sub-objects at create time so the
+      // field has a real historical database from day 1 and knows who
+      // to notify — both stored inside the existing JSONB column, no
+      // backend migration required.
+      //
+      //   metadata.cropHistory → archival crop-rotation timeline
+      //   metadata.alerts      → per-field SMS/Email/Push preferences
+      //                          + contact snapshot of the creator
+      const cropLabel = CROP_TYPES.find((c) => c.value === formData.cropType);
+      const initialMetadata: Record<string, unknown> = {
+        cropHistory: buildInitialCropHistory({
+          cropType: formData.cropType,
+          cropTypeAr: cropLabel?.labelAr,
+          plantingDate: formData.sowingDate,
+        }),
+        alerts: buildInitialFieldAlerts({
+          name: user?.name,
+          name_ar: user?.name_ar,
+          email: user?.email,
+        }),
+      };
+
       await createField.mutateAsync({
         name: formData.name || formData.nameAr,
         nameAr: formData.nameAr,
@@ -268,12 +296,13 @@ export default function AddFieldClient() {
         coordinates: formData.lat && formData.lng
           ? { lat: parseFloat(formData.lat), lng: parseFloat(formData.lng) }
           : undefined,
+        metadata: initialMetadata,
       });
     } catch {
       // Error handled by mutation
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData, boundaryPoints, boundaryMethod, createField]);
+  }, [formData, boundaryPoints, boundaryMethod, createField, user]);
 
   // Success state
   if (createField.isSuccess) {

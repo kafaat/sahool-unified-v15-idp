@@ -289,6 +289,24 @@ class ComprehensiveAdvisoryOrchestrator:
     # Unified call helper with timeout + error mapping
     # ------------------------------------------------------------------
 
+    def _trusted_base_urls(self) -> tuple[str, ...]:
+        """
+        Return the tuple of base URLs the orchestrator is allowed to
+        call. Every URL passed to ``_call`` must start with one of
+        these. Computed once per request — ``self.urls`` is frozen at
+        construction time so the tuple is constant.
+        """
+        return (
+            self.urls.soil_analysis.rstrip("/") + "/",
+            self.urls.pest_detection.rstrip("/") + "/",
+            self.urls.crop_intelligence.rstrip("/") + "/",
+            self.urls.irrigation_smart.rstrip("/") + "/",
+            self.urls.weather.rstrip("/") + "/",
+            self.urls.yield_prediction.rstrip("/") + "/",
+            self.urls.carbon.rstrip("/") + "/",
+            self.urls.alerts.rstrip("/") + "/",
+        )
+
     async def _call(
         self,
         client: httpx.AsyncClient,
@@ -297,6 +315,32 @@ class ComprehensiveAdvisoryOrchestrator:
         headers: dict,
     ) -> Section:
         import time
+
+        # SECURITY: third line of defence against SSRF. Even though
+        # `field_id` was validated at the FastAPI boundary (Layer 1)
+        # and re-validated + URL-encoded via ``_safe_id`` (Layer 2),
+        # we also gate every outbound HTTP request on an explicit
+        # allowlist of trusted base URLs. If a bug in URL construction
+        # (wrong base, typo, malicious `urls` override) ever produces a
+        # URL that doesn't start with one of the ServiceUrls bases, we
+        # fail closed before ``client.request`` is called.
+        #
+        # CodeQL recognises an explicit `startswith` check against an
+        # untainted allowlist as a partial-SSRF sanitizer, so this is
+        # the primitive that makes the ``py/partial-ssrf`` query's
+        # dataflow terminate cleanly.
+        trusted_bases = self._trusted_base_urls()
+        if not any(url.startswith(base) for base in trusted_bases):
+            logger.error(
+                "Refusing to call URL not under trusted base",
+                url=url,
+            )
+            return Section(
+                data=None,
+                degraded=True,
+                latency_ms=0.0,
+                error="rejected: url not under trusted base",
+            )
 
         start = time.perf_counter()
         try:

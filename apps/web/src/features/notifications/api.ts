@@ -65,7 +65,9 @@ export const notificationsApi = {
       if (filters?.read !== undefined) params.set('read', String(filters.read));
       if (filters?.priority) params.set('priority', filters.priority);
 
-      const response = await api.get(`${NOTIFICATION_ENDPOINTS.LIST}?${params.toString()}`);
+      const qs = params.toString();
+      const url = qs ? `${NOTIFICATION_ENDPOINTS.LIST}?${qs}` : NOTIFICATION_ENDPOINTS.LIST;
+      const response = await api.get(url);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       throw new Error('API returned unexpected format for notifications');

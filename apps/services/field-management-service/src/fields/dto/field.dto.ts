@@ -383,6 +383,19 @@ export class UpdateFieldDto {
   @ValidateNested()
   @Type(() => GeoJsonPolygonDto)
   boundary?: GeoJsonPolygonDto;
+
+  @ApiPropertyOptional({
+    description:
+      "Expected version for optimistic locking. If supplied and does not " +
+      "match the server's current version, the request is rejected with " +
+      "HTTP 409 Conflict. Takes precedence over the If-Match header when both are present.",
+    example: 3,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  ifMatch?: number;
 }
 
 /**

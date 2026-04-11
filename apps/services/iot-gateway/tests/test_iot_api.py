@@ -126,10 +126,11 @@ class TestSensorEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
-        assert data["device_id"] == "test_device_001"
-        assert data["sensor_type"] == "soil_moisture"
+        # Response now uses camelCase
+        assert data["deviceId"] == "test_device_001"
+        assert data["sensorType"] == "soil_moisture"
         assert data["value"] == 45.5
-        assert "event_id" in data
+        assert "eventId" in data
 
     @patch("apps.services.iot_gateway.src.main.registry")
     @patch("apps.services.iot_gateway.src.main.publisher")
@@ -243,7 +244,8 @@ class TestSensorEndpoints:
         data = response.json()
         assert data["status"] == "ok"
         assert data["count"] >= 3
-        assert len(data["event_ids"]) >= 3
+        # Response now uses camelCase
+        assert len(data["eventIds"]) >= 3
 
 
 class TestDeviceEndpoints:
@@ -274,8 +276,9 @@ class TestDeviceEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
-        assert data["device"]["device_id"] == "new_device_001"
-        assert data["device"]["device_type"] == "soil_sensor"
+        # Response now uses camelCase (normalize_response applied in gateway)
+        assert data["device"]["deviceId"] == "new_device_001"
+        assert data["device"]["deviceType"] == "soil_sensor"
 
     @patch("apps.services.iot_gateway.src.main.registry")
     def test_get_device_success(self, mock_reg, test_client, mock_registry):
@@ -285,8 +288,9 @@ class TestDeviceEndpoints:
         response = test_client.get("/device/test_device_001")
         assert response.status_code == 200
         data = response.json()
-        assert data["device_id"] == "test_device_001"
-        assert data["tenant_id"] == "tenant_1"
+        # Response now uses camelCase
+        assert data["deviceId"] == "test_device_001"
+        assert data["tenantId"] == "tenant_1"
 
     @patch("apps.services.iot_gateway.src.main.registry")
     def test_get_device_not_found(self, mock_reg, test_client):
@@ -305,10 +309,11 @@ class TestDeviceEndpoints:
         response = test_client.get("/device/test_device_001/status")
         assert response.status_code == 200
         data = response.json()
-        assert data["device_id"] == "test_device_001"
+        # Response now uses camelCase
+        assert data["deviceId"] == "test_device_001"
         assert "status" in data
-        assert "is_online" in data
-        assert "last_seen" in data
+        assert "isOnline" in data
+        assert "lastSeen" in data
 
     @patch("apps.services.iot_gateway.src.main.registry")
     def test_list_all_devices(self, mock_reg, test_client, mock_registry):
@@ -330,8 +335,8 @@ class TestDeviceEndpoints:
         response = test_client.get("/devices?field_id=field_1")
         assert response.status_code == 200
         data = response.json()
-        assert data["count"] == 2
-        assert all(d["field_id"] == "field_1" for d in data["devices"])
+        # Devices use camelCase fields now
+        assert all(d["fieldId"] == "field_1" for d in data["devices"])
 
     @patch("apps.services.iot_gateway.src.main.registry")
     def test_list_devices_by_type(self, mock_reg, test_client, mock_registry):
@@ -341,8 +346,8 @@ class TestDeviceEndpoints:
         response = test_client.get("/devices?device_type=soil_sensor")
         assert response.status_code == 200
         data = response.json()
-        assert data["count"] == 1
-        assert data["devices"][0]["device_type"] == "soil_sensor"
+        # Devices use camelCase fields now
+        assert data["devices"][0]["deviceType"] == "soil_sensor"
 
     @patch("apps.services.iot_gateway.src.main.registry")
     def test_delete_device_success(self, mock_reg, test_client, mock_registry):
@@ -353,7 +358,8 @@ class TestDeviceEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
-        assert data["device_id"] == "test_device_001"
+        # Response now uses camelCase (normalize_response applied in gateway)
+        assert data["deviceId"] == "test_device_001"
 
     @patch("apps.services.iot_gateway.src.main.registry")
     def test_delete_device_not_found(self, mock_reg, test_client):
@@ -375,7 +381,8 @@ class TestFieldEndpoints:
         response = test_client.get("/field/field_1/devices")
         assert response.status_code == 200
         data = response.json()
-        assert data["field_id"] == "field_1"
+        # Response now uses camelCase
+        assert data["fieldId"] == "field_1"
         assert data["count"] == 2
         assert len(data["devices"]) == 2
 
@@ -392,7 +399,8 @@ class TestFieldEndpoints:
         response = test_client.get("/field/field_1/latest")
         assert response.status_code == 200
         data = response.json()
-        assert data["field_id"] == "field_1"
+        # Response now uses camelCase
+        assert data["fieldId"] == "field_1"
         assert "readings" in data
         assert "count" in data
 

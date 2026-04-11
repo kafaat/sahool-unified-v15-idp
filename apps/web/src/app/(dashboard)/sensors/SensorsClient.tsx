@@ -276,7 +276,13 @@ export default function SensorsClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredSensors.map((sensor) => {
           const sType = sensorTypes[sensor.type];
-          const readingValue = sensor.lastReading?.value ?? '-';
+          // Defensive formatting: guard against null/undefined/NaN values
+          // that may arrive from the backend for freshly-provisioned sensors.
+          const rawValue = sensor.lastReading?.value;
+          const readingValue =
+            typeof rawValue === 'number' && Number.isFinite(rawValue)
+              ? rawValue.toFixed(2)
+              : '-';
           const readingUnit = sensor.lastReading?.unit ?? sensor.unit ?? '';
           const readingTime = sensor.lastReading?.timestamp ?? sensor.updatedAt;
           const batteryLevel = sensor.battery ?? 0;
@@ -316,7 +322,7 @@ export default function SensorsClient() {
                   <span className="text-sm text-gray-500">القراءة الأخيرة</span>
                   <span className="text-lg font-bold text-gray-900">
                     {readingValue}
-                    {readingUnit}
+                    {readingUnit ? ` ${readingUnit}` : ''}
                   </span>
                 </div>
                 {sensor.battery != null && (
@@ -380,7 +386,11 @@ export default function SensorsClient() {
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-sm text-gray-500">القراءة الأخيرة</span>
                 <span className="text-sm font-bold text-gray-900">
-                  {sensorDetail.lastReading?.value ?? '-'} {sensorDetail.lastReading?.unit ?? sensorDetail.unit ?? ''}
+                  {typeof sensorDetail.lastReading?.value === 'number' &&
+                  Number.isFinite(sensorDetail.lastReading.value)
+                    ? sensorDetail.lastReading.value.toFixed(2)
+                    : '-'}{' '}
+                  {sensorDetail.lastReading?.unit ?? sensorDetail.unit ?? ''}
                 </span>
               </div>
               {sensorDetail.battery != null && (

@@ -141,6 +141,37 @@ export class FieldsController {
   }
 
   /**
+   * Get field statistics for tenant
+   *
+   * NOTE: This route MUST be declared before `@Get(":id")` so that NestJS
+   * matches the literal `stats/` prefix before the UUID route. Otherwise
+   * `ParseUUIDPipe` on `:id` will reject the literal "stats" segment and
+   * return HTTP 400 on every stats request.
+   */
+  @Get("stats/:tenantId")
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ApiOperation({
+    summary: "Get field statistics",
+    description: "جلب إحصائيات الحقول للمستأجر",
+  })
+  @ApiParam({ name: "tenantId", type: String })
+  @ApiResponse({ status: 200, description: "Statistics retrieved" })
+  async getStats(
+    @Req() req: any,
+    @Param("tenantId") pathTenantId: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    // Reject if the path param doesn't match the authenticated tenant
+    assertTenantOwnership(pathTenantId, tenantId, "stats");
+    const stats = await this.fieldsService.getStats(tenantId);
+    return {
+      success: true,
+      data: stats,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
    * Get field by ID
    */
   @Get(":id")
@@ -357,29 +388,4 @@ export class FieldsController {
     };
   }
 
-  /**
-   * Get field statistics for tenant
-   */
-  @Get("stats/:tenantId")
-  @Throttle({ default: { limit: 30, ttl: 60000 } })
-  @ApiOperation({
-    summary: "Get field statistics",
-    description: "جلب إحصائيات الحقول للمستأجر",
-  })
-  @ApiParam({ name: "tenantId", type: String })
-  @ApiResponse({ status: 200, description: "Statistics retrieved" })
-  async getStats(
-    @Req() req: any,
-    @Param("tenantId") pathTenantId: string,
-  ) {
-    const tenantId = getRequestTenantId(req);
-    // Reject if the path param doesn't match the authenticated tenant
-    assertTenantOwnership(pathTenantId, tenantId, "stats");
-    const stats = await this.fieldsService.getStats(tenantId);
-    return {
-      success: true,
-      data: stats,
-      timestamp: new Date().toISOString(),
-    };
-  }
 }

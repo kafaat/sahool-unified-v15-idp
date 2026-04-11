@@ -280,6 +280,7 @@ def db_task_to_dict(db_task) -> dict[str, Any]:
         "scheduled_time": db_task.scheduled_time,
         "estimated_duration_minutes": db_task.estimated_duration_minutes,
         "actual_duration_minutes": db_task.actual_duration_minutes,
+        "version": getattr(db_task, "version", 1),
         "created_at": db_task.created_at.isoformat() if db_task.created_at else None,
         "updated_at": db_task.updated_at.isoformat() if db_task.updated_at else None,
         "completed_at": db_task.completed_at.isoformat() if db_task.completed_at else None,

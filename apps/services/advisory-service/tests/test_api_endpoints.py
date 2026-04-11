@@ -421,6 +421,62 @@ class TestCropEndpoints:
 
 
 # ---------------------------------------------------------------------------
+# Crop catalog rename: deprecation & successor endpoint
+# ---------------------------------------------------------------------------
+
+
+class TestCropCatalogRename:
+    """Verify /api/v1/crops is deprecated and /api/v1/crop-catalog/categories is the successor.
+
+    The legacy /api/v1/crops endpoint returns a CATALOG (taxonomy), not a CRUD
+    collection of user-owned crops. It has been renamed to
+    /api/v1/crop-catalog/categories. The old path must continue to work but
+    emit RFC 8594 deprecation headers.
+    """
+
+    def test_deprecated_crops_headers(self, client):
+        """GET /api/v1/crops must include RFC 8594 deprecation headers."""
+        response = client.get("/api/v1/crops?limit=5&offset=0")
+        assert response.status_code == 200
+
+        # RFC 8594 headers
+        assert response.headers.get("Deprecation") == "true"
+        assert "Sunset" in response.headers
+        assert response.headers.get("X-API-Deprecated") == "true"
+
+        link = response.headers.get("Link", "")
+        assert "/api/v1/crop-catalog/categories" in link
+        assert 'rel="successor-version"' in link
+
+        warning = response.headers.get("Warning", "")
+        assert "deprecated" in warning.lower()
+        assert "/api/v1/crop-catalog/categories" in warning
+
+    def test_crop_catalog_categories_returns_same_shape(self, client):
+        """New /api/v1/crop-catalog/categories must return the same taxonomy."""
+        response = client.get("/api/v1/crop-catalog/categories?limit=5&offset=0")
+        assert response.status_code == 200
+
+        data = response.json()
+        assert "categories" in data
+        assert "total_crops" in data
+        assert "category_counts" in data
+        assert data["limit"] == 5
+        assert data["offset"] == 0
+
+        # Response body must match the deprecated endpoint exactly
+        legacy = client.get("/api/v1/crops?limit=5&offset=0").json()
+        assert data == legacy
+
+    def test_crop_catalog_no_deprecation_headers(self, client):
+        """The successor endpoint must NOT emit deprecation headers."""
+        response = client.get("/api/v1/crop-catalog/categories")
+        assert response.status_code == 200
+        assert response.headers.get("Deprecation") != "true"
+        assert "X-API-Deprecated" not in response.headers
+
+
+# ---------------------------------------------------------------------------
 # KB module tests (fertilizers.py coverage)
 # ---------------------------------------------------------------------------
 

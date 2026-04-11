@@ -20,6 +20,46 @@ import type {
 const api = createApiClient();
 
 /**
+ * Generate a unique Idempotency-Key for money-mutating requests.
+ * Prefers the cryptographically-strong `crypto.randomUUID()` when available
+ * (modern browsers, Node 19+, secure contexts); otherwise falls back to a
+ * timestamped random token. This key is sent as the `Idempotency-Key`
+ * header so the server can deduplicate retries of the same logical request
+ * and prevent double-charges on network hiccups.
+ *
+ * توليد مفتاح Idempotency فريد لطلبات تعديل الأموال لمنع التكرار عند إعادة المحاولة.
+ */
+function newIdempotencyKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `idem-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+/**
+ * Validate that a value is a finite, positive, sane monetary amount.
+ * Rejects NaN, Infinity, negatives, zero, and amounts beyond sane bounds.
+ * This is a defense-in-depth check; the server remains authoritative.
+ *
+ * التحقق من أن المبلغ رقم موجب ضمن نطاق معقول (دفاع في العمق).
+ */
+function assertValidAmount(amount: unknown, endpoint: string): asserts amount is number {
+  if (
+    typeof amount !== 'number' ||
+    !Number.isFinite(amount) ||
+    amount <= 0 ||
+    amount > 1_000_000_000
+  ) {
+    throw new ApiError({
+      message: ERROR_MESSAGES.INVALID_AMOUNT.en,
+      messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar,
+      statusCode: 400,
+      endpoint,
+    });
+  }
+}
+
+/**
  * Error messages in Arabic and English
  * رسائل الخطأ بالعربية والإنجليزية
  */
@@ -165,11 +205,18 @@ export const walletApi = {
   /**
    * Create deposit
    * إنشاء إيداع
+   *
+   * Sends an `Idempotency-Key` header so the server can deduplicate retries
+   * of the same logical deposit (prevents double-credit on network retry).
    */
   async deposit(data: DepositFormData): Promise<Transaction> {
+    assertValidAmount(data?.amount, BILLING_ENDPOINTS.WALLET_DEPOSIT);
+    const idempotencyKey = newIdempotencyKey();
     return safeFetch(BILLING_ENDPOINTS.WALLET_DEPOSIT, async () => {
       try {
-        const response = await api.post(BILLING_ENDPOINTS.WALLET_DEPOSIT, data);
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_DEPOSIT, data, {
+          headers: { 'Idempotency-Key': idempotencyKey },
+        });
         const result = response.data.data || response.data;
 
         if (result && typeof result === 'object' && 'id' in result) {
@@ -190,11 +237,18 @@ export const walletApi = {
   /**
    * Create withdrawal
    * إنشاء سحب
+   *
+   * Sends an `Idempotency-Key` header so the server can deduplicate retries
+   * of the same logical withdrawal (prevents double-debit on network retry).
    */
   async withdraw(data: WithdrawalFormData): Promise<Transaction> {
+    assertValidAmount(data?.amount, BILLING_ENDPOINTS.WALLET_WITHDRAW);
+    const idempotencyKey = newIdempotencyKey();
     return safeFetch(BILLING_ENDPOINTS.WALLET_WITHDRAW, async () => {
       try {
-        const response = await api.post(BILLING_ENDPOINTS.WALLET_WITHDRAW, data);
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_WITHDRAW, data, {
+          headers: { 'Idempotency-Key': idempotencyKey },
+        });
         const result = response.data.data || response.data;
 
         if (result && typeof result === 'object' && 'id' in result) {
@@ -216,11 +270,26 @@ export const walletApi = {
   /**
    * Transfer money to another user
    * تحويل الأموال إلى مستخدم آخر
+   *
+   * Sends an `Idempotency-Key` header so the server can deduplicate retries
+   * of the same logical transfer (prevents double-transfer on network retry).
    */
   async transfer(data: TransferFormData): Promise<Transaction> {
+    assertValidAmount(data?.amount, BILLING_ENDPOINTS.WALLET_TRANSFER);
+    if (!data?.recipientId || typeof data.recipientId !== 'string' || !data.recipientId.trim()) {
+      throw new ApiError({
+        message: 'Recipient ID is required',
+        messageAr: 'معرف المستلم مطلوب',
+        statusCode: 400,
+        endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER,
+      });
+    }
+    const idempotencyKey = newIdempotencyKey();
     return safeFetch(BILLING_ENDPOINTS.WALLET_TRANSFER, async () => {
       try {
-        const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data);
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data, {
+          headers: { 'Idempotency-Key': idempotencyKey },
+        });
         const result = response.data.data || response.data;
 
         if (result && typeof result === 'object' && 'id' in result) {

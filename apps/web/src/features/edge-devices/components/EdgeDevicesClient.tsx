@@ -274,30 +274,38 @@ export default function EdgeDevicesClient() {
               {device.status !== 'offline' && (
                 <div className="space-y-3 mb-4">
                   {[
-                    { label: 'المعالج', value: device.cpuUsage },
+                    { label: 'المعالج', value: device.cpuUsage ?? 0 },
                     ...(device.gpuUsage != null ? [{ label: 'GPU', value: device.gpuUsage }] : []),
-                    { label: 'الذاكرة', value: device.memoryUsage },
-                  ].map((metric) => (
-                    <div key={metric.label}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-500">{metric.label}</span>
-                        <span className="font-medium">{metric.value}%</span>
+                    { label: 'الذاكرة', value: device.memoryUsage ?? 0 },
+                  ].map((metric) => {
+                    // Clamp to [0, 100] to prevent distorted progress bars
+                    // when API returns out-of-range or non-numeric values.
+                    const safeValue =
+                      typeof metric.value === 'number' && Number.isFinite(metric.value)
+                        ? Math.max(0, Math.min(100, metric.value))
+                        : 0;
+                    return (
+                      <div key={metric.label}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-gray-500">{metric.label}</span>
+                          <span className="font-medium">{safeValue}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${getUsageColor(safeValue)}`}
+                            style={{ width: `${safeValue}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full ${getUsageColor(metric.value)}`}
-                          style={{ width: `${metric.value}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
               <div className="flex items-center justify-between text-sm mb-3">
                 <div className="flex items-center gap-1 text-gray-500">
                   <Thermometer className="w-4 h-4" />
-                  <span>{device.diskUsage}% قرص</span>
+                  <span>{device.diskUsage ?? 0}% قرص</span>
                 </div>
                 <div className="flex items-center gap-1 text-gray-500">
                   <Activity className="w-4 h-4" />
@@ -305,9 +313,9 @@ export default function EdgeDevicesClient() {
                 </div>
               </div>
 
-              {device.models.length > 0 && (
+              {(device.models?.length ?? 0) > 0 && (
                 <div className="flex flex-wrap gap-1 mb-3">
-                  {device.models.map((model) => (
+                  {device.models!.map((model) => (
                     <span key={model} className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-xs">
                       {model}
                     </span>
@@ -317,7 +325,7 @@ export default function EdgeDevicesClient() {
 
               <div className="pt-3 border-t flex justify-between items-center">
                 <span className="text-xs text-gray-400">
-                  آخر ظهور: {new Date(device.lastSeen).toLocaleTimeString('ar-SA')}
+                  آخر ظهور: {device.lastSeen ? new Date(device.lastSeen).toLocaleTimeString('ar-SA') : '-'}
                 </span>
                 <button
                   disabled

@@ -7,6 +7,8 @@ import {
   IsEnum,
   IsUUID,
   IsObject,
+  IsInt,
+  Min,
 } from "class-validator";
 
 export enum ExperimentStatus {
@@ -83,4 +85,23 @@ export class CreateExperimentDto {
   metadata?: Record<string, unknown>;
 }
 
-export class UpdateExperimentDto extends PartialType(CreateExperimentDto) {}
+export class UpdateExperimentDto extends PartialType(CreateExperimentDto) {
+  /**
+   * Expected version for optimistic locking (CAS pattern).
+   * If provided, the update will fail with 409 Conflict when the stored
+   * row's `version` does not match this value — preventing lost updates
+   * in concurrent edit scenarios.
+   *
+   * رقم النسخة المتوقع للقفل التفاؤلي - يمنع الكتابة فوق التعديلات المتزامنة
+   */
+  @ApiPropertyOptional({
+    description:
+      "Expected version for optimistic locking (CAS). If supplied, update fails with 409 on mismatch.",
+    type: Number,
+    minimum: 1,
+  })
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  version?: number;
+}

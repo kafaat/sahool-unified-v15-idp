@@ -32,12 +32,28 @@ model Farm {
 
   // Basic Info
   name     String  @db.VarChar(255)
+  nameAr   String? @map("name_ar") @db.VarChar(255)
   tenantId String  @map("tenant_id") @db.VarChar(100)
   ownerId  String? @map("owner_id") @db.Uuid
 
   // Geospatial (PostGIS)
-  location Unsupported("geometry(Point, 4326)")?
+  // `location` / `boundary` below are the PostGIS geometry columns.
+  // The optional string fields (`locationLabel`, `locationLabelAr`) are
+  // human-readable labels exposed to the UI.
+  locationGeom    Unsupported("geometry(Point, 4326)")?  @map("location")
   boundary Unsupported("geometry(Polygon, 4326)")?
+
+  // Display / domain fields
+  region        String? @map("region") @db.VarChar(255)
+  regionAr      String? @map("region_ar") @db.VarChar(255)
+  waterSource   String? @map("water_source") @db.VarChar(255)
+  waterSourceAr String? @map("water_source_ar") @db.VarChar(255)
+  workersCount  Int     @default(0) @map("workers_count")
+  status        String  @default("active") @map("status") @db.VarChar(32) // active|inactive|archived
+  cultivatedAreaHectares Decimal? @map("cultivated_area_hectares") @db.Decimal(10, 2)
+  location      String? @map("location_label") @db.VarChar(500)
+  locationAr    String? @map("location_label_ar") @db.VarChar(500)
+  owner         String? @map("owner_name") @db.VarChar(255)
 
   // Farm Details
   totalAreaHectares Decimal? @map("total_area_hectares") @db.Decimal(10, 4)
@@ -58,6 +74,7 @@ model Farm {
   // Indexes
   @@index([tenantId], name: "idx_farm_tenant")
   @@index([tenantId, isDeleted], name: "idx_farm_tenant_active")
+  @@index([tenantId, status], name: "idx_farm_tenant_status")
   @@index([ownerId], name: "idx_farm_owner")
   @@index([createdAt], name: "idx_farm_created")
   @@map("farms")

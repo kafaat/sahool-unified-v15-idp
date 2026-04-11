@@ -126,7 +126,7 @@ export const AnalyticsDashboard: React.FC = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-600">{t('totalArea')}</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {summary.totalArea.toLocaleString('ar-SA')}
+                    {(Number(summary.totalArea) || 0).toLocaleString('ar-SA')}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">{t('hectare')}</p>
                 </div>
@@ -134,7 +134,7 @@ export const AnalyticsDashboard: React.FC = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-600">{t('totalYield')}</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {summary.totalYield.toLocaleString('ar-SA')}
+                    {(Number(summary.totalYield) || 0).toLocaleString('ar-SA')}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">{t('kg')}</p>
                 </div>
@@ -142,7 +142,7 @@ export const AnalyticsDashboard: React.FC = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-600">{t('netProfit')}</p>
                   <p className="text-3xl font-bold text-green-600 mt-2">
-                    {summary.totalProfit.toLocaleString('ar-SA')}
+                    {(Number(summary.totalProfit) || 0).toLocaleString('ar-SA')}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">{t('sar')}</p>
                 </div>
@@ -150,7 +150,7 @@ export const AnalyticsDashboard: React.FC = () => {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-600">{t('averageProductivity')}</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {summary.averageYieldPerHectare.toLocaleString('ar-SA')}
+                    {(Number(summary.averageYieldPerHectare) || 0).toLocaleString('ar-SA')}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">{t('kgPerHectare')}</p>
                 </div>

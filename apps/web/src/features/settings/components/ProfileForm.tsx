@@ -12,6 +12,15 @@ import { useUserProfile, useUpdateProfile, useUploadAvatar } from '../hooks/useS
 import type { UpdateProfilePayload } from '../types';
 import { logger } from '@/lib/logger';
 
+// Avatar upload constraints — kept in sync with backend limits.
+const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
+const ALLOWED_AVATAR_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+]);
+
 export const ProfileForm: React.FC = () => {
   const { data: profile, isLoading } = useUserProfile();
   const updateProfile = useUpdateProfile();
@@ -20,6 +29,11 @@ export const ProfileForm: React.FC = () => {
   const [formData, setFormData] = useState<UpdateProfilePayload>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [avatarError, setAvatarError] = useState<string>('');
+  const [submitMessage, setSubmitMessage] = useState<{
+    kind: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -42,19 +56,35 @@ export const ProfileForm: React.FC = () => {
   }, [profile]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAvatarError('');
     const file = e.target.files?.[0];
-    if (file) {
-      setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Client-side validation — server MUST still validate. These checks just
+    // give users fast feedback and block obvious junk before upload.
+    if (!ALLOWED_AVATAR_MIME_TYPES.has(file.type)) {
+      setAvatarError('نوع الملف غير مدعوم. المسموح: JPG, PNG, GIF, WEBP');
+      // Reset the input so the same file can be re-selected after fixing it.
+      e.target.value = '';
+      return;
     }
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      setAvatarError('حجم الصورة يتجاوز 2 ميجابايت');
+      e.target.value = '';
+      return;
+    }
+
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitMessage(null);
 
     try {
       // Upload avatar first if changed
@@ -69,10 +99,15 @@ export const ProfileForm: React.FC = () => {
         avatar: avatarUrl,
       });
 
-      alert('تم تحديث الملف الشخصي بنجاح');
+      setSubmitMessage({ kind: 'success', text: 'تم تحديث الملف الشخصي بنجاح' });
     } catch (err) {
-      alert('حدث خطأ أثناء تحديث الملف الشخصي');
-      logger.error(err);
+      setSubmitMessage({ kind: 'error', text: 'حدث خطأ أثناء تحديث الملف الشخصي' });
+      // Do NOT log the profile payload — it contains PII (name, phone, location).
+      // Log only the error message, never the request body.
+      logger.error(
+        'Profile update failed',
+        err instanceof Error ? err.message : 'unknown error'
+      );
     }
   };
 
@@ -120,7 +155,12 @@ export const ProfileForm: React.FC = () => {
           </div>
           <div>
             <p className="text-sm text-gray-600">صورة بحجم 400x400 بكسل على الأقل</p>
-            <p className="text-xs text-gray-500 mt-1">JPG, PNG, or GIF (max 2MB)</p>
+            <p className="text-xs text-gray-500 mt-1">JPG, PNG, GIF, or WEBP (max 2MB)</p>
+            {avatarError && (
+              <p role="alert" className="text-xs text-red-600 mt-2">
+                {avatarError}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -353,6 +393,21 @@ export const ProfileForm: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Submit feedback */}
+      {submitMessage && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`rounded-lg border p-3 text-sm ${
+            submitMessage.kind === 'success'
+              ? 'bg-green-50 border-green-200 text-green-700'
+              : 'bg-red-50 border-red-200 text-red-700'
+          }`}
+        >
+          {submitMessage.text}
+        </div>
+      )}
 
       {/* Submit Button */}
       <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">

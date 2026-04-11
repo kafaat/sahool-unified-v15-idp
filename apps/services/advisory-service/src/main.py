@@ -512,6 +512,42 @@ except ImportError:
     pass
 
 
+# ============== Deprecation Middleware (RFC 8594) ==============
+#
+# The legacy ``GET /api/v1/crops`` endpoint returns a crop-type CATALOG
+# (taxonomy), not a CRUD collection of user-owned Crop records. The frontend
+# expects CRUD semantics from ``/crops``, so the catalog has been renamed to
+# ``/api/v1/crop-catalog/categories``. The old path stays as a deprecated
+# alias until sunset.
+#
+# References: RFC 8594 (Sunset, Deprecation, Link: rel="successor-version")
+_DEPRECATED_CROPS_SUCCESSOR = "/api/v1/crop-catalog/categories"
+_DEPRECATED_CROPS_SUNSET = "Tue, 01 Dec 2026 00:00:00 GMT"
+
+
+@app.middleware("http")
+async def deprecated_crops_middleware(request: Request, call_next):
+    """Emit RFC 8594 deprecation headers on GET /api/v1/crops.
+
+    The legacy alias /crops (without /api/v1 prefix) is also covered so that
+    the backward-compat route aliases registered at the bottom of the file
+    still return deprecation metadata.
+    """
+    response = await call_next(request)
+    if request.method == "GET" and request.url.path in ("/api/v1/crops", "/crops"):
+        response.headers["Deprecation"] = "true"
+        response.headers["Sunset"] = _DEPRECATED_CROPS_SUNSET
+        response.headers["Link"] = f'<{_DEPRECATED_CROPS_SUCCESSOR}>; rel="successor-version"'
+        response.headers["X-API-Deprecated"] = "true"
+        response.headers["Warning"] = (
+            '299 - "advisory-service GET /api/v1/crops returns a crop-type '
+            "catalog (not user-owned crops) and is deprecated; use "
+            f"{_DEPRECATED_CROPS_SUCCESSOR} for the taxonomy, or "
+            'field-management-service for user crop CRUD"'
+        )
+    return response
+
+
 # ============== Health Check ==============
 
 
@@ -922,13 +958,14 @@ def search_crops_endpoint(q: str):
     }
 
 
-@app.get("/api/v1/crops")
-def list_all_crops(
-    limit: int = Query(default=100, ge=1, le=500, description="Maximum number of crops per category"),
-    offset: int = Query(default=0, ge=0, description="Number of crops to skip per category"),
-):
-    """List all crops grouped by category with pagination"""
-    crops_by_category = {}
+def _build_crop_catalog(limit: int, offset: int) -> dict:
+    """Build the crop taxonomy catalog grouped by category with pagination.
+
+    NOTE: This returns a CATALOG (crop-type taxonomy) shared across all tenants,
+    not a user-owned collection. For user/farm crop CRUD use
+    `field-management-service` (canonical) or `crop-intelligence-service`.
+    """
+    crops_by_category: dict = {}
     total_crops = 0
 
     for category in CropCategory:
@@ -958,6 +995,49 @@ def list_all_crops(
         "offset": offset,
         "category_counts": CATEGORIES_COUNT,
     }
+
+
+@app.get("/api/v1/crop-catalog/categories")
+def list_crop_catalog_categories(
+    limit: int = Query(default=100, ge=1, le=500, description="Maximum number of crops per category"),
+    offset: int = Query(default=0, ge=0, description="Number of crops to skip per category"),
+):
+    """List crop-type TAXONOMY grouped by category with pagination.
+
+    This is the canonical endpoint for the crop taxonomy catalog. It returns
+    reference data (crop types like 'wheat', 'tomato', 'date_palm') shared
+    across all tenants — NOT user-owned crop records.
+
+    For user/farm crop CRUD operations use `field-management-service` (the
+    canonical owner of user crop records) or `crop-intelligence-service`.
+    """
+    return _build_crop_catalog(limit=limit, offset=offset)
+
+
+@app.get(
+    "/api/v1/crops",
+    deprecated=True,
+    summary="[DEPRECATED] Use /api/v1/crop-catalog/categories",
+)
+def list_all_crops(
+    limit: int = Query(default=100, ge=1, le=500, description="Maximum number of crops per category"),
+    offset: int = Query(default=0, ge=0, description="Number of crops to skip per category"),
+):
+    """[DEPRECATED] Returns crop-type TAXONOMY (not user-owned crops).
+
+    This endpoint was misnamed: it returns a catalog (taxonomy) of crop types,
+    not a CRUD `Crop[]` collection. The frontend expects CRUD semantics here.
+
+    MIGRATION:
+    - For the crop taxonomy catalog, use
+      ``GET /api/v1/crop-catalog/categories`` (same response shape).
+    - For user/farm crop CRUD (create/read/update/delete user crops), use
+      ``field-management-service`` (canonical) or ``crop-intelligence-service``.
+
+    Sunset: 2026-12-01. Deprecation headers (RFC 8594) are emitted by
+    middleware on every GET /api/v1/crops response.
+    """
+    return _build_crop_catalog(limit=limit, offset=offset)
 
 
 @app.get("/api/v1/crops/{crop_code}")

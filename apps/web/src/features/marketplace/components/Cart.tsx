@@ -102,9 +102,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
                   )}
                 </span>
               </div>
-              {cart.shipping > 0 && cart.subtotal > 400 && (
+              {cart.shipping > 0 && cart.subtotal > 400 && cart.subtotal < 500 && (
                 <div className="text-xs text-orange-600">
-                  أضف منتجات بقيمة {(500 - cart.subtotal).toFixed(2)} {cart.currency} للشحن المجاني!
+                  أضف منتجات بقيمة {Math.max(0, 500 - cart.subtotal).toFixed(2)} {cart.currency}{' '}
+                  للشحن المجاني!
                 </div>
               )}
               <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
@@ -209,7 +210,10 @@ const CartItem: React.FC<CartItemProps> = ({ item, onRemove, onUpdateQuantity })
               onChange={(e) => setInputValue(e.target.value)}
               onBlur={() => {
                 const val = parseInt(inputValue, 10);
-                if (!isNaN(val) && val > 0) {
+                // Require a positive finite integer within a sane upper bound
+                // to defend against overflow values that could cause the total
+                // price calculation to blow up.
+                if (Number.isFinite(val) && Number.isInteger(val) && val > 0 && val <= 10000) {
                   onUpdateQuantity(val);
                   setInputValue(String(val));
                 } else {

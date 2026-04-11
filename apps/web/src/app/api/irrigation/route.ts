@@ -27,6 +27,24 @@ const VALID_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 const VALID_RESOURCES = ['methods', 'crops', 'water-balance'] as const;
 type IrrigationResource = (typeof VALID_RESOURCES)[number];
 
+/**
+ * Map the UI-facing resource to the actual backend path on the
+ * irrigation-smart service. The backend exposes routes at `/v1/...`
+ * (no `/api` prefix), and `water-balance` takes the field id as a
+ * path parameter rather than a query string.
+ */
+function buildBackendPath(resource: IrrigationResource, fieldId: string | null): string {
+  switch (resource) {
+    case 'methods':
+      return '/v1/methods';
+    case 'crops':
+      return '/v1/crops';
+    case 'water-balance':
+      // fieldId is required & already validated against VALID_ID_PATTERN by the caller
+      return `/v1/water-balance/${encodeURIComponent(fieldId ?? '')}`;
+  }
+}
+
 const RATE_LIMIT_CONFIG = {
   windowMs: 60000,
   maxRequests: 60,
@@ -163,24 +181,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Build query parameters for the backend
+    // Build query parameters for the backend. The irrigation-smart service
+    // reads tenant_id from the JWT `tid` claim, so it is not strictly
+    // required as a query parameter, but we forward it for any downstream
+    // logging/compat. field_id is passed as a path param for water-balance.
     const backendParams = new URLSearchParams();
     backendParams.set('tenant_id', tenantId);
 
-    if (fieldId) {
-      backendParams.set('field_id', fieldId);
-    }
-
-    // Forward optional query params
-    const allowedParams = ['season', 'crop_type', 'page', 'limit'];
+    // Forward optional query params that the backend actually accepts.
+    // Only known-safe params are allow-listed to avoid SSRF / param injection.
+    const allowedParams = ['season', 'crop', 'crop_type', 'days', 'page', 'limit'];
     for (const param of allowedParams) {
       const value = searchParams.get(param);
-      if (value !== null) {
+      if (value !== null && value.length <= 100) {
         backendParams.set(param, value);
       }
     }
 
-    const backendUrl = `${IRRIGATION_SERVICE_URL}/api/v1/irrigation/${resource}?${backendParams.toString()}`;
+    const backendPath = buildBackendPath(resource, fieldId);
+    const query = backendParams.toString();
+    const backendUrl = `${IRRIGATION_SERVICE_URL}${backendPath}${query ? `?${query}` : ''}`;
 
     const response = await fetch(backendUrl, {
       method: 'GET',
@@ -236,13 +256,17 @@ export async function GET(request: NextRequest) {
 /**
  * Calculate irrigation amount for a given field.
  *
- * Request body:
+ * Request body (matches irrigation-smart IrrigationRequest):
  * {
- *   fieldId: string,
- *   crop_type?: string,
- *   soil_moisture?: number,
- *   weather_data?: { temperature: number, humidity: number, rain_forecast: number },
- *   irrigation_method?: string
+ *   fieldId: string,                 // required — will be forwarded as field_id
+ *   crop: string,                    // required — crop type (wheat, tomato, ...)
+ *   growth_stage: string,            // required — seedling/vegetative/...
+ *   area_hectares: number,           // required — > 0
+ *   soil_type?: string,              // optional — defaults to loamy on backend
+ *   irrigation_method?: string,      // optional — defaults to drip on backend
+ *   current_soil_moisture?: number,  // optional — 0..100
+ *   last_irrigation_date?: string,   // optional — ISO date string
+ *   weather_forecast?: Record<string, unknown>
  * }
  */
 export async function POST(request: NextRequest) {
@@ -283,14 +307,42 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse and validate request body
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = (await request.json()) as Record<string, unknown>;
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON body' },
+        { status: 400 }
+      );
+    }
 
-    const { fieldId, crop_type, soil_moisture, weather_data, irrigation_method } = body as {
+    const {
+      fieldId,
+      crop,
+      crop_type,
+      growth_stage,
+      area_hectares,
+      soil_type,
+      soil_moisture,
+      current_soil_moisture,
+      weather_data,
+      weather_forecast,
+      irrigation_method,
+      last_irrigation_date,
+    } = body as {
       fieldId?: string;
+      crop?: string;
       crop_type?: string;
+      growth_stage?: string;
+      area_hectares?: number;
+      soil_type?: string;
       soil_moisture?: number;
-      weather_data?: { temperature: number; humidity: number; rain_forecast: number };
+      current_soil_moisture?: number;
+      weather_data?: Record<string, unknown>;
+      weather_forecast?: Record<string, unknown>;
       irrigation_method?: string;
+      last_irrigation_date?: string;
     };
 
     // Validate fieldId (required)
@@ -308,7 +360,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const backendUrl = `${IRRIGATION_SERVICE_URL}/api/v1/irrigation/calculate`;
+    // Validate required backend fields to fail fast instead of round-tripping
+    // to irrigation-smart for a 422.
+    const resolvedCrop = crop ?? crop_type;
+    if (!resolvedCrop || typeof resolvedCrop !== 'string') {
+      return NextResponse.json(
+        { success: false, error: 'Missing required field: crop' },
+        { status: 400 }
+      );
+    }
+    if (!growth_stage || typeof growth_stage !== 'string') {
+      return NextResponse.json(
+        { success: false, error: 'Missing required field: growth_stage' },
+        { status: 400 }
+      );
+    }
+    if (typeof area_hectares !== 'number' || !Number.isFinite(area_hectares) || area_hectares <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or missing field: area_hectares (must be > 0)' },
+        { status: 400 }
+      );
+    }
+
+    // Backend exposes /v1/calculate — NOT /api/v1/irrigation/calculate.
+    const backendUrl = `${IRRIGATION_SERVICE_URL}/v1/calculate`;
+
+    // Map to the backend IrrigationRequest schema (snake_case field names).
+    // Accept both soil_moisture and current_soil_moisture for compatibility.
+    const resolvedMoisture = current_soil_moisture ?? soil_moisture;
+    const resolvedWeather = weather_forecast ?? weather_data;
 
     const response = await fetch(backendUrl, {
       method: 'POST',
@@ -317,12 +397,15 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
-        tenant_id: tenantId,
         field_id: fieldId,
-        ...(crop_type ? { crop_type } : {}),
-        ...(soil_moisture !== undefined ? { soil_moisture } : {}),
-        ...(weather_data ? { weather_data } : {}),
+        crop: resolvedCrop,
+        growth_stage,
+        area_hectares,
+        ...(soil_type ? { soil_type } : {}),
         ...(irrigation_method ? { irrigation_method } : {}),
+        ...(resolvedMoisture !== undefined ? { current_soil_moisture: resolvedMoisture } : {}),
+        ...(last_irrigation_date ? { last_irrigation_date } : {}),
+        ...(resolvedWeather ? { weather_forecast: resolvedWeather } : {}),
       }),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });

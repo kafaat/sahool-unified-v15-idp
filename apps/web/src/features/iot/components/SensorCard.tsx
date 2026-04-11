@@ -121,14 +121,19 @@ const SensorCardComponent: React.FC<SensorCardProps> = ({ sensor, onClick }) => 
             <div>
               <p className="text-sm text-gray-600">القراءة الحالية</p>
               <p className="text-3xl font-bold text-green-700 mt-1">
-                {reading.value.toFixed(1)}
+                {typeof reading.value === 'number' && Number.isFinite(reading.value)
+                  ? reading.value.toFixed(1)
+                  : '-'}
                 <span className="text-lg mr-2">{reading.unit}</span>
               </p>
             </div>
             <Activity className="w-8 h-8 text-green-600 opacity-50" />
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            آخر تحديث: {new Date(reading.timestamp).toLocaleString('ar-YE')}
+            آخر تحديث:{' '}
+            {reading.timestamp
+              ? new Date(reading.timestamp).toLocaleString('ar-YE')
+              : '-'}
           </p>
         </div>
       )}

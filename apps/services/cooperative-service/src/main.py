@@ -116,9 +116,15 @@ if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)
 
 # Include API routers
+# IMPORTANT: specific sub-routers (bookings, purchase-orders, revenue) must be
+# registered BEFORE the generic cooperatives router so that their paths don't
+# collide with the /api/v1/cooperatives/{coop_id} wildcard.
 try:
-    from src.api.v1 import cooperatives
+    from src.api.v1 import bookings, cooperatives, orders, revenue
 
+    app.include_router(bookings.router)
+    app.include_router(orders.router)
+    app.include_router(revenue.router)
     app.include_router(cooperatives.router)
     logger.info("API routers registered")
 except ImportError as e:

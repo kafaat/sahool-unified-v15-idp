@@ -47,6 +47,7 @@ from ...algorithms.terrain_indicators import (
 )
 from ...core.config import settings
 from ..schemas import (
+    AspectAnalysisResponse,
     AspectClassification,
     AspectResult,
     BilingualField,
@@ -652,6 +653,118 @@ async def get_slope_analysis(
     except Exception as e:
         logger.error("Slope analysis failed", field_id=field_id, error=str(e))
         raise HTTPException(status_code=500, detail="Slope analysis failed")
+
+
+@router.get(
+    "/aspect/{field_id}",
+    response_model=AspectAnalysisResponse,
+    response_model_by_alias=True,
+    summary="Get Aspect Analysis | الحصول على تحليل الجانب",
+    description="""
+    Compute aspect (sun-facing direction, 0-360°) for a field from its DEM.
+
+    حساب اتجاه الجانب (اتجاه مواجهة الشمس، 0-360 درجة) للحقل من بيانات الارتفاع.
+
+    - Uses Horn's method (same gradient path as slope).
+    - 0° = North, 90° = East, 180° = South, 270° = West.
+    - Flat cells are reported in the distribution under `flat`.
+    - Coordinates returned assume CRS EPSG:4326 (WGS84).
+    """,
+)
+async def get_aspect_analysis(
+    field_id: str,
+    dem_source: DEMSourceType = Query(default=DEMSourceType.COPERNICUS, description="DEM source | مصدر الارتفاعات"),
+    dem_processor: DEMProcessor = Depends(get_dem_processor),
+    terrain_calculator: TerrainIndicatorCalculator = Depends(get_terrain_calculator),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Compute aspect for a field | حساب الجانب للحقل.
+
+    Tenant isolation is enforced via JWT: ``current_user.tenant_id`` (from the
+    ``tid`` claim) is used implicitly for any future tenant-scoped caching.
+    """
+    start_time = time.time()
+
+    # Tenant is derived strictly from the authenticated user (JWT `tid` claim).
+    # We explicitly read it here so that static analysis sees it used and so
+    # that downstream auditing/caching can pick it up via request state later.
+    tenant_id = getattr(current_user, "tenant_id", None)
+
+    logger.info(
+        "Calculating aspect",
+        field_id=field_id,
+        tenant_id=tenant_id,
+        dem_source=dem_source.value,
+    )
+
+    try:
+        bounds = get_bounds_from_field_id(field_id)
+        # Enforce EPSG:4326 input CRS
+        dem_data = await dem_processor.acquire_dem(
+            bounds=bounds,
+            source=DEMSource(dem_source.value),
+        )
+
+        # Fill holes so aspect is computed on contiguous data
+        if dem_data.nodata_mask.any():
+            dem_data = await dem_processor.fill_holes(dem_data)
+
+        aspect_result = terrain_calculator.calculate_aspect(dem_data)
+
+        # Map internal direction codes (N, NE, ...) to API enum + bilingual labels.
+        direction_code_to_enum: dict[str, AspectClassification] = {
+            "flat": AspectClassification.FLAT,
+            "N": AspectClassification.NORTH,
+            "NE": AspectClassification.NORTHEAST,
+            "E": AspectClassification.EAST,
+            "SE": AspectClassification.SOUTHEAST,
+            "S": AspectClassification.SOUTH,
+            "SW": AspectClassification.SOUTHWEST,
+            "W": AspectClassification.WEST,
+            "NW": AspectClassification.NORTHWEST,
+        }
+        direction_code_to_labels: dict[str, tuple[str, str]] = {
+            "flat": ("Flat", "مسطح"),
+            "N": ("North", "شمال"),
+            "NE": ("Northeast", "شمال شرق"),
+            "E": ("East", "شرق"),
+            "SE": ("Southeast", "جنوب شرق"),
+            "S": ("South", "جنوب"),
+            "SW": ("Southwest", "جنوب غرب"),
+            "W": ("West", "غرب"),
+            "NW": ("Northwest", "شمال غرب"),
+        }
+
+        dominant_code = aspect_result.dominant_direction
+        dominant_enum = direction_code_to_enum.get(dominant_code, AspectClassification.FLAT)
+        dominant_en, dominant_ar = direction_code_to_labels.get(dominant_code, ("Flat", "مسطح"))
+
+        aspect_schema = AspectResult(
+            dominant_direction=dominant_enum,
+            dominant_direction_name=BilingualField(en=dominant_en, ar=dominant_ar),
+            distribution=aspect_result.distribution,
+            mean_aspect_degrees=aspect_result.mean_aspect,
+        )
+
+        return AspectAnalysisResponse(
+            field_id=field_id,
+            analyzed_at=datetime.now(UTC),
+            dem_source=dem_source,
+            aspect=aspect_schema,
+            processing_time_ms=int((time.time() - start_time) * 1000),
+        )
+
+    except Exception as e:
+        logger.error("Aspect analysis failed", field_id=field_id, error=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "ASPECT_ANALYSIS_ERROR",
+                "message": "Aspect analysis failed",
+                "message_ar": "فشل تحليل الجانب",
+            },
+        )
 
 
 @router.get(

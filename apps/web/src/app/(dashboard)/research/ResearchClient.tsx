@@ -20,6 +20,13 @@ export default function ResearchClient() {
   const { data: trials = [], isLoading, error } = useResearchTrials();
   const { data: stats } = useResearchStats();
 
+  const formatSafeDate = (value?: string): string => {
+    if (!value) return '—';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('ar-SA');
+  };
+
   const getStatusBadge = (status: ResearchTrial['status']) => {
     const styles: Record<ResearchTrial['status'], string> = {
       planning: 'bg-blue-100 text-blue-800',
@@ -193,25 +200,28 @@ export default function ResearchClient() {
                 <div className="flex items-center gap-2 text-gray-500">
                   <Calendar className="w-4 h-4" />
                   <span>
-                    {trial.startDate} - {trial.endDate}
+                    {formatSafeDate(trial.startDate)} - {formatSafeDate(trial.endDate)}
                   </span>
                 </div>
               </div>
 
-              {trial.status === 'active' && (
-                <div className="mt-4">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-500">التقدم</span>
-                    <span className="font-medium">{trial.progress}%</span>
+              {trial.status === 'active' && (() => {
+                const pct = Math.max(0, Math.min(100, Number(trial.progress) || 0));
+                return (
+                  <div className="mt-4">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-500">التقدم</span>
+                      <span className="font-medium">{pct}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-sahool-green-600 h-2 rounded-full transition-all"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-sahool-green-600 h-2 rounded-full transition-all"
-                      style={{ width: `${trial.progress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
               <button className="w-full mt-4 px-4 py-2 border border-sahool-green-600 text-sahool-green-600 rounded-lg hover:bg-sahool-green-50 transition-colors text-sm font-medium">
                 عرض التفاصيل

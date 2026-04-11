@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import { validateCsrfRequest } from '@/lib/security/csrf-server';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -23,7 +24,22 @@ import { logger } from '@/lib/logger';
 const TASK_SERVICE_URL =
   process.env.TASK_SERVICE_URL || 'http://task-service:8103';
 
+// Allowlist the upstream host to prevent SSRF via tampered env at runtime.
+// We reject anything whose parsed hostname does not match a known good value.
+const ALLOWED_UPSTREAM_HOSTS = new Set<string>(
+  (process.env.TASK_SERVICE_ALLOWED_HOSTS || 'task-service,localhost,127.0.0.1')
+    .split(',')
+    .map((h: string) => h.trim())
+    .filter((h: string) => h.length > 0),
+);
+
+// Generic identifier pattern for task/field IDs.
 const SAFE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
+
+// Strict UUID pattern for user-facing references (assignees). Matches the
+// task-service backend's `_UUID_PATTERN` to avoid submitting values that
+// will be rejected by the upstream validator.
+const UUID_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
 const VALID_TASK_STATUSES = [
   'pending',
@@ -36,6 +52,9 @@ const VALID_PATCH_ACTIONS = ['complete', 'assign'] as const;
 type PatchAction = (typeof VALID_PATCH_ACTIONS)[number];
 
 const REQUEST_TIMEOUT_MS = 15_000;
+
+// Cap request body size to prevent memory abuse.
+const MAX_BODY_BYTES = 128 * 1024; // 128 KB
 
 const RATE_LIMIT_CONFIG = {
   windowMs: 60_000,
@@ -89,6 +108,100 @@ async function extractToken(): Promise<string | null> {
 function validateContentType(response: Response): boolean {
   const ct = response.headers.get('content-type') || '';
   return ct.includes('application/json');
+}
+
+/**
+ * Build the upstream URL while enforcing an allowlist on the host.
+ * Returns null if TASK_SERVICE_URL is malformed or points at a disallowed host.
+ * This protects against SSRF via accidental/malicious env misconfiguration.
+ */
+function buildUpstreamUrl(path: string): URL | null {
+  let base: URL;
+  try {
+    base = new URL(TASK_SERVICE_URL);
+  } catch {
+    return null;
+  }
+  if (base.protocol !== 'http:' && base.protocol !== 'https:') return null;
+  if (!ALLOWED_UPSTREAM_HOSTS.has(base.hostname)) return null;
+  return new URL(path, base);
+}
+
+/**
+ * Read and size-check the JSON request body. Prevents memory exhaustion
+ * from oversize payloads and returns a bilingual 413 on overflow.
+ */
+async function readJsonBody(request: NextRequest): Promise<
+  | { ok: true; data: Record<string, unknown> }
+  | { ok: false; response: NextResponse }
+> {
+  const contentLength = request.headers.get('content-length');
+  if (contentLength && Number(contentLength) > MAX_BODY_BYTES) {
+    return {
+      ok: false,
+      response: bilingualError(
+        'Request body too large',
+        'حجم الطلب كبير جدا',
+        413,
+      ),
+    };
+  }
+  let text: string;
+  try {
+    text = await request.text();
+  } catch {
+    return {
+      ok: false,
+      response: bilingualError('Invalid request body', 'نص الطلب غير صالح', 400),
+    };
+  }
+  if (text.length > MAX_BODY_BYTES) {
+    return {
+      ok: false,
+      response: bilingualError(
+        'Request body too large',
+        'حجم الطلب كبير جدا',
+        413,
+      ),
+    };
+  }
+  try {
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {
+        ok: false,
+        response: bilingualError(
+          'Expected JSON object',
+          'متوقع كائن JSON',
+          400,
+        ),
+      };
+    }
+    return { ok: true, data: parsed as Record<string, unknown> };
+  } catch {
+    return {
+      ok: false,
+      response: bilingualError('Invalid JSON body', 'تنسيق JSON غير صالح', 400),
+    };
+  }
+}
+
+/**
+ * Enforce CSRF double-submit cookie on state-changing methods.
+ * The global middleware skips `/api/*`, so the protection must be applied
+ * explicitly at the route level for write operations.
+ */
+function enforceCsrf(request: NextRequest): NextResponse | null {
+  const result = validateCsrfRequest(request);
+  if (!result.valid) {
+    logger.error('[Tasks API] CSRF validation failed:', result.error);
+    return bilingualError(
+      'CSRF validation failed',
+      'فشل التحقق من CSRF',
+      403,
+    );
+  }
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -153,7 +266,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const upstream = new URL('/api/v1/tasks', TASK_SERVICE_URL);
+    const upstream = buildUpstreamUrl('/api/v1/tasks');
+    if (!upstream) {
+      logger.error('[Tasks API] Upstream URL blocked by SSRF allowlist');
+      return bilingualError(
+        'Service configuration error',
+        'خطأ في تكوين الخدمة',
+        500,
+      );
+    }
     const qsStr = qs.toString();
     if (qsStr) upstream.search = qsStr;
 
@@ -202,6 +323,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF: middleware skips /api/*, so enforce at the route level for
+    // state-changing methods.
+    const csrfError = enforceCsrf(request);
+    if (csrfError) return csrfError;
+
     const clientIP = getClientIP(request);
     if (await isRateLimited(clientIP, RATE_LIMIT_CONFIG)) {
       return bilingualError(
@@ -220,30 +346,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const bodyResult = await readJsonBody(request);
+    if (!bodyResult.ok) return bodyResult.response;
+    const body = bodyResult.data;
 
     // Validate required fields
-    if (!body.title || typeof body.title !== 'string' || body.title.trim().length === 0) {
+    const title = body.title;
+    if (typeof title !== 'string' || title.trim().length === 0) {
       return bilingualError(
         'Task title is required',
         'عنوان المهمة مطلوب',
         400,
       );
     }
+    if (title.length > 200) {
+      return bilingualError(
+        'Task title exceeds maximum length (200)',
+        'عنوان المهمة يتجاوز الحد الأقصى (200)',
+        400,
+      );
+    }
 
-    // Validate optional fieldId if provided
-    if (body.fieldId) {
-      const fieldError = validateId(body.fieldId, 'fieldId', 'معرف الحقل');
+    // Validate optional fieldId if provided (accept both snake_case and camelCase)
+    const fieldId = (body.field_id ?? body.fieldId) as string | undefined;
+    if (fieldId) {
+      const fieldError = validateId(fieldId, 'field_id', 'معرف الحقل');
       if (fieldError) return fieldError;
     }
 
-    // Validate optional assignee if provided
-    if (body.assignee) {
-      const assigneeError = validateId(body.assignee, 'assignee', 'المكلف');
-      if (assigneeError) return assigneeError;
+    // Validate optional assignee if provided. The backend requires a strict
+    // UUID to prevent cross-tenant assignment with arbitrary strings.
+    const assignee = (body.assigned_to ?? body.assignee ?? body.assignee_id) as
+      | string
+      | undefined;
+    if (assignee !== undefined && assignee !== null && assignee !== '') {
+      if (typeof assignee !== 'string' || !UUID_PATTERN.test(assignee)) {
+        return bilingualError(
+          'assigned_to must be a valid UUID',
+          'يجب أن يكون المكلف UUID صالح',
+          400,
+        );
+      }
     }
 
-    const upstream = new URL('/api/v1/tasks', TASK_SERVICE_URL);
+    const upstream = buildUpstreamUrl('/api/v1/tasks');
+    if (!upstream) {
+      logger.error('[Tasks API] Upstream URL blocked by SSRF allowlist');
+      return bilingualError(
+        'Service configuration error',
+        'خطأ في تكوين الخدمة',
+        500,
+      );
+    }
 
     const response = await fetch(upstream.toString(), {
       method: 'POST',
@@ -292,6 +446,9 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const csrfError = enforceCsrf(request);
+    if (csrfError) return csrfError;
+
     const clientIP = getClientIP(request);
     if (await isRateLimited(clientIP, RATE_LIMIT_CONFIG)) {
       return bilingualError(
@@ -310,7 +467,9 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const bodyResult = await readJsonBody(request);
+    if (!bodyResult.ok) return bodyResult.response;
+    const body = bodyResult.data;
 
     // Validate task ID
     const taskId = body.taskId as string | undefined;
@@ -327,10 +486,16 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Validate assignee for 'assign' action
+    // Validate assignee for 'assign' action (must match backend UUID pattern).
     if (action === 'assign') {
-      const assigneeError = validateId(body.assignee, 'assignee', 'المكلف');
-      if (assigneeError) return assigneeError;
+      const assignee = (body.assigned_to ?? body.assignee) as string | undefined;
+      if (typeof assignee !== 'string' || !UUID_PATTERN.test(assignee)) {
+        return bilingualError(
+          'assigned_to must be a valid UUID',
+          'يجب أن يكون المكلف UUID صالح',
+          400,
+        );
+      }
     }
 
     // Map action to upstream endpoint
@@ -339,13 +504,20 @@ export async function PATCH(request: NextRequest) {
       assign: `/api/v1/tasks/${encodeURIComponent(taskId!)}/assign`,
     };
 
-    const upstream = new URL(
-      actionPathMap[action as PatchAction],
-      TASK_SERVICE_URL,
-    );
+    const upstream = buildUpstreamUrl(actionPathMap[action as PatchAction]);
+    if (!upstream) {
+      logger.error('[Tasks API] Upstream URL blocked by SSRF allowlist');
+      return bilingualError(
+        'Service configuration error',
+        'خطأ في تكوين الخدمة',
+        500,
+      );
+    }
 
     // Forward the payload (excluding proxy-level fields)
     const { taskId: _taskId, action: _action, ...payload } = body;
+    void _taskId;
+    void _action;
 
     const response = await fetch(upstream.toString(), {
       method: 'PATCH',

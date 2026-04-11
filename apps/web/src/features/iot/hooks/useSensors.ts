@@ -83,6 +83,12 @@ export function useSensorStats() {
 
 /**
  * Hook for real-time sensor readings stream
+ *
+ * Stabilizes the onReading callback via a ref so that parent re-renders do
+ * not tear down and recreate the EventSource on every render (which would
+ * cause reconnect storms against the backend SSE endpoint).
+ * Uses exponential backoff (capped at 30s) to avoid hammering the server
+ * when the connection is persistently failing.
  */
 export function useSensorStream(
   sensorId: string | undefined,
@@ -93,9 +99,18 @@ export function useSensorStream(
   const queryClient = useQueryClient();
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const unmountedRef = useRef(false);
+
+  // Stable ref for the caller's onReading callback so it can change between
+  // renders without tearing down the stream connection.
+  const onReadingRef = useRef(onReading);
+  useEffect(() => {
+    onReadingRef.current = onReading;
+  }, [onReading]);
 
   const connect = useCallback(() => {
-    if (!sensorId) return;
+    if (!sensorId || unmountedRef.current) return;
 
     // Clean up any existing connection
     if (eventSourceRef.current) {
@@ -116,12 +131,22 @@ export function useSensorStream(
     eventSource.onopen = () => {
       setIsConnected(true);
       setError(null);
+      reconnectAttemptsRef.current = 0;
     };
 
     eventSource.onmessage = (event) => {
       try {
         const reading: SensorReading = JSON.parse(event.data);
-        onReading(reading);
+        // Validate minimal shape before propagating to caller/cache
+        if (
+          !reading ||
+          typeof reading !== 'object' ||
+          typeof reading.value !== 'number'
+        ) {
+          logger.warn('Received malformed sensor reading, skipping', reading);
+          return;
+        }
+        onReadingRef.current(reading);
         // Update cache
         queryClient.setQueryData(sensorKeys.latest(sensorId), reading);
         queryClient.invalidateQueries({
@@ -136,17 +161,28 @@ export function useSensorStream(
       setIsConnected(false);
       setError(new Error('Connection lost'));
       eventSource.close();
-      // Reconnect after 5 seconds
-      reconnectTimeoutRef.current = setTimeout(connect, 5000);
+      eventSourceRef.current = null;
+
+      if (unmountedRef.current) return;
+
+      // Exponential backoff: 1s, 2s, 4s, 8s, 16s, capped at 30s
+      const attempts = Math.min(reconnectAttemptsRef.current, 5);
+      const delay = Math.min(1000 * 2 ** attempts, 30000);
+      reconnectAttemptsRef.current += 1;
+      reconnectTimeoutRef.current = setTimeout(connect, delay);
     };
-  }, [sensorId, onReading, queryClient]);
+  }, [sensorId, queryClient]);
 
   useEffect(() => {
+    unmountedRef.current = false;
+    reconnectAttemptsRef.current = 0;
     if (sensorId) {
       connect();
     }
 
     return () => {
+      // Mark unmounted so any pending reconnect callback is a no-op.
+      unmountedRef.current = true;
       // Clean up EventSource on unmount
       if (eventSourceRef.current) {
         eventSourceRef.current.close();

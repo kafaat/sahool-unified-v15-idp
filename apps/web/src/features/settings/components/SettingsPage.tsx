@@ -214,6 +214,20 @@ const NotificationsTab: React.FC = () => {
   );
 };
 
+// Password policy — server MUST enforce this too. Client-side is UX only.
+const MIN_PASSWORD_LENGTH = 12;
+const PASSWORD_POLICY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
+
+function validatePassword(pw: string): string | null {
+  if (pw.length < MIN_PASSWORD_LENGTH) {
+    return `كلمة المرور يجب أن تكون ${MIN_PASSWORD_LENGTH} حرفاً على الأقل`;
+  }
+  if (!PASSWORD_POLICY_REGEX.test(pw)) {
+    return 'كلمة المرور يجب أن تحتوي على حرف كبير وحرف صغير ورقم ورمز خاص';
+  }
+  return null;
+}
+
 // Security Tab
 const SecurityTab: React.FC = () => {
   const { data: security, isLoading } = useSecuritySettings();
@@ -223,6 +237,10 @@ const SecurityTab: React.FC = () => {
     new: '',
     confirm: '',
   });
+  const [pwMessage, setPwMessage] = useState<{
+    kind: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
   if (isLoading || !security) {
     return (
@@ -232,20 +250,35 @@ const SecurityTab: React.FC = () => {
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPwMessage(null);
+
     if (passwords.new !== passwords.confirm) {
-      alert('كلمات المرور الجديدة غير متطابقة');
+      setPwMessage({ kind: 'error', text: 'كلمات المرور الجديدة غير متطابقة' });
       return;
     }
+    const policyError = validatePassword(passwords.new);
+    if (policyError) {
+      setPwMessage({ kind: 'error', text: policyError });
+      return;
+    }
+    if (passwords.new === passwords.current) {
+      setPwMessage({
+        kind: 'error',
+        text: 'كلمة المرور الجديدة يجب أن تختلف عن الحالية',
+      });
+      return;
+    }
+
     try {
       await updatePassword.mutateAsync({
         currentPassword: passwords.current,
         newPassword: passwords.new,
         confirmPassword: passwords.confirm,
       });
-      alert('تم تحديث كلمة المرور بنجاح');
+      setPwMessage({ kind: 'success', text: 'تم تحديث كلمة المرور بنجاح' });
       setPasswords({ current: '', new: '', confirm: '' });
     } catch {
-      alert('حدث خطأ أثناء تحديث كلمة المرور');
+      setPwMessage({ kind: 'error', text: 'حدث خطأ أثناء تحديث كلمة المرور' });
     }
   };
 
@@ -256,48 +289,77 @@ const SecurityTab: React.FC = () => {
         {/* Change Password */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">تغيير كلمة المرور</h3>
-          <form onSubmit={handlePasswordUpdate} className="space-y-4">
+          <form onSubmit={handlePasswordUpdate} className="space-y-4" autoComplete="off">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="current-password" className="block text-sm font-medium text-gray-700 mb-2">
                 كلمة المرور الحالية
               </label>
               <input
+                id="current-password"
+                name="current-password"
                 type="password"
+                autoComplete="current-password"
                 value={passwords.current}
                 onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                 required
+                minLength={8}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-2">
                 كلمة المرور الجديدة
               </label>
               <input
+                id="new-password"
+                name="new-password"
                 type="password"
+                autoComplete="new-password"
                 value={passwords.new}
                 onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                 required
+                minLength={MIN_PASSWORD_LENGTH}
               />
+              <p className="text-xs text-gray-500 mt-1">
+                {MIN_PASSWORD_LENGTH}+ حرفاً، يشمل حرفاً كبيراً وحرفاً صغيراً ورقماً ورمزاً خاصاً
+              </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-2">
                 تأكيد كلمة المرور الجديدة
               </label>
               <input
+                id="confirm-password"
+                name="confirm-password"
                 type="password"
+                autoComplete="new-password"
                 value={passwords.confirm}
                 onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                 required
+                minLength={MIN_PASSWORD_LENGTH}
               />
             </div>
+            {pwMessage && (
+              <div
+                role="status"
+                aria-live="polite"
+                className={`rounded-lg border p-3 text-sm ${
+                  pwMessage.kind === 'success'
+                    ? 'bg-green-50 border-green-200 text-green-700'
+                    : 'bg-red-50 border-red-200 text-red-700'
+                }`}
+              >
+                {pwMessage.text}
+              </div>
+            )}
             <button
               type="submit"
-              className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+              disabled={updatePassword.isPending}
+              className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
             >
-              تحديث كلمة المرور
+              {updatePassword.isPending ? 'جاري التحديث...' : 'تحديث كلمة المرور'}
             </button>
           </form>
         </div>

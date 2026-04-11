@@ -9,6 +9,7 @@ Provides equipment/asset management:
 - QR code registration
 """
 
+import json
 import os
 import sys
 import uuid
@@ -16,14 +17,19 @@ from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 
 import structlog
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Body, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 logger = structlog.get_logger()
 
 from . import repository
+from .api_models import (
+    STATUS_IN_MAP,
+    map_status_in,
+    serialize_equipment,
+)
 from .database import check_db_connection, get_db, init_db
 from .db_models import (
     Equipment as DBEquipment,
@@ -176,12 +182,17 @@ class EquipmentCreate(BaseModel):
 
 
 class EquipmentUpdate(BaseModel):
-    """Update equipment properties"""
+    """Update equipment properties.
+
+    Accepts both backend-canonical status values (``operational``, ``inactive``)
+    and frontend-canonical aliases (``active``, ``idle``, ``retired``). Incoming
+    aliases are normalized to the backend canonical form before persistence.
+    """
 
     name: str | None = None
     name_ar: str | None = None
     equipment_type: EquipmentType | None = None
-    status: EquipmentStatus | None = None
+    status: str | None = None
     brand: str | None = None
     model: str | None = None
     serial_number: str | None = None
@@ -193,6 +204,18 @@ class EquipmentUpdate(BaseModel):
     current_lat: float | None = None
     current_lon: float | None = None
     metadata: dict | None = None
+
+    @field_validator("status")
+    @classmethod
+    def _normalize_status(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = map_status_in(value)
+        # After normalization, ensure it is a recognised backend value.
+        valid_backend = {s.value for s in EquipmentStatus}
+        if normalized not in valid_backend:
+            raise ValueError(f"Invalid status '{value}'. Allowed: {sorted(valid_backend | set(STATUS_IN_MAP.keys()))}")
+        return normalized
 
 
 class MaintenanceRecord(BaseModel):
@@ -224,6 +247,57 @@ class MaintenanceAlert(BaseModel):
     due_hours: float | None = None
     is_overdue: bool = False
     created_at: datetime
+
+
+class IssueSeverity(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class IssueStatus(StrEnum):
+    OPEN = "open"
+    ACKNOWLEDGED = "acknowledged"
+    IN_PROGRESS = "in_progress"
+    RESOLVED = "resolved"
+    CLOSED = "closed"
+
+
+class EquipmentIssueCreate(BaseModel):
+    """Schema for reporting an incident/issue against a piece of equipment.
+
+    This is intentionally minimal: the service does not yet own a dedicated
+    ``equipment_issues`` table, so we persist via the NATS event bus instead
+    (subject ``sahool.tenant.{tid}.equipment.issue_reported``) and return a
+    synthetic ``issue_id`` so the client can correlate.
+    """
+
+    title: str = Field(..., min_length=1, max_length=200)
+    title_ar: str | None = None
+    description: str | None = None
+    description_ar: str | None = None
+    severity: IssueSeverity = IssueSeverity.MEDIUM
+    reported_by: str | None = None
+    metadata: dict | None = None
+
+
+class EquipmentIssueResponse(BaseModel):
+    """Response payload for a reported issue."""
+
+    id: str
+    issue_id: str
+    equipment_id: str
+    tenant_id: str
+    title: str
+    title_ar: str | None = None
+    description: str | None = None
+    description_ar: str | None = None
+    severity: IssueSeverity
+    status: IssueStatus = IssueStatus.OPEN
+    reported_at: datetime
+    reported_by: str | None = None
+    metadata: dict | None = None
 
 
 class Equipment(BaseModel):
@@ -493,8 +567,19 @@ async def readiness_check():
 
 @app.get("/api/v1/equipment", response_model=dict)
 async def list_equipment(
-    equipment_type: EquipmentType | None = Query(None, description="Filter by type"),
-    status: EquipmentStatus | None = Query(None, description="Filter by status"),
+    equipment_type: str | None = Query(
+        None,
+        description="Filter by equipment type (preferred)",
+    ),
+    type: str | None = Query(
+        None,
+        alias="type",
+        description="Alias for equipment_type (frontend compatibility)",
+    ),
+    status: str | None = Query(
+        None,
+        description="Filter by status. Accepts both backend (operational) and frontend (active) canonical values.",
+    ),
     field_id: str | None = Query(None, description="Filter by field"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -502,53 +587,67 @@ async def list_equipment(
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
-    """List all equipment with optional filters"""
+    """List all equipment with optional filters.
+
+    Accepts both ``equipment_type`` and ``type`` query parameters for
+    frontend compatibility. ``equipment_type`` takes precedence if both are
+    supplied. ``status`` accepts both the backend canonical dialect
+    (``operational``, ``inactive``) and the frontend canonical dialect
+    (``active``, ``idle``, ``retired``).
+
+    The response envelope is::
+
+        {
+            "data": [...],           # new, preferred
+            "pagination": {...},     # new, preferred
+            "equipment": [...],      # legacy alias (will be removed in v17)
+            "total": N,              # legacy alias
+            "limit": X,              # legacy alias
+            "offset": Y,             # legacy alias
+        }
+    """
+    # Prefer the explicit ``equipment_type`` param; fall back to ``type``.
+    effective_type = equipment_type or type
+    if effective_type is not None:
+        valid_types = {t.value for t in EquipmentType}
+        if effective_type not in valid_types:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid equipment_type '{effective_type}'. Allowed: {sorted(valid_types)}",
+            )
+
+    # Normalize status to the backend canonical dialect before querying.
+    backend_status: str | None = None
+    if status is not None:
+        backend_status = map_status_in(status)
+        valid_statuses = {s.value for s in EquipmentStatus}
+        if backend_status not in valid_statuses:
+            raise HTTPException(
+                status_code=422,
+                detail=(f"Invalid status '{status}'. Allowed: {sorted(valid_statuses | set(STATUS_IN_MAP.keys()))}"),
+            )
+
     equipment_list, total = repository.list_equipment(
         db,
         tenant_id=tenant_id,
-        equipment_type=equipment_type.value if equipment_type else None,
-        status=status.value if status else None,
+        equipment_type=effective_type,
+        status=backend_status,
         field_id=field_id,
         skip=offset,
         limit=limit,
     )
 
-    # Convert to Pydantic models
-    equipment_dicts = []
-    for eq in equipment_list:
-        equipment_dicts.append(
-            {
-                "equipment_id": eq.equipment_id,
-                "tenant_id": eq.tenant_id,
-                "name": eq.name,
-                "name_ar": eq.name_ar,
-                "equipment_type": eq.equipment_type,
-                "status": eq.status,
-                "brand": eq.brand,
-                "model": eq.model,
-                "serial_number": eq.serial_number,
-                "year": eq.year,
-                "purchase_date": eq.purchase_date,
-                "purchase_price": float(eq.purchase_price) if eq.purchase_price else None,
-                "field_id": eq.field_id,
-                "location_name": eq.location_name,
-                "horsepower": eq.horsepower,
-                "fuel_capacity_liters": float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
-                "current_fuel_percent": float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
-                "current_hours": float(eq.current_hours) if eq.current_hours else None,
-                "current_lat": float(eq.current_lat) if eq.current_lat else None,
-                "current_lon": float(eq.current_lon) if eq.current_lon else None,
-                "last_maintenance_at": eq.last_maintenance_at,
-                "next_maintenance_at": eq.next_maintenance_at,
-                "next_maintenance_hours": float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
-                "created_at": eq.created_at,
-                "updated_at": eq.updated_at,
-                "metadata": eq.extra_metadata,
-                "qr_code": eq.qr_code,
-            }
-        )
+    equipment_dicts = [serialize_equipment(eq) for eq in equipment_list]
 
     return {
+        # New unified envelope
+        "data": equipment_dicts,
+        "pagination": {
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+        },
+        # Legacy envelope (deprecated, kept for 1 minor version)
         "equipment": equipment_dicts,
         "total": total,
         "limit": limit,
@@ -606,93 +705,152 @@ async def get_maintenance_alerts(
     }
 
 
-@app.get("/api/v1/equipment/{equipment_id}", response_model=Equipment)
+@app.get("/api/v1/equipment/maintenance-schedule", response_model=dict)
+async def get_maintenance_schedule(
+    days_ahead: int = Query(
+        90,
+        ge=1,
+        le=365,
+        description="Look-ahead window in days for upcoming maintenance",
+    ),
+    priority: MaintenancePriority | None = Query(None),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
+    """Return the upcoming maintenance schedule.
+
+    Combines two sources:
+
+    1. ``MaintenanceAlert`` rows scoped to the tenant (via the equipment join),
+       which represent service tickets the system has already raised.
+    2. Equipment whose ``next_maintenance_at`` falls inside the look-ahead
+       window -- these are upcoming scheduled services that may not yet have
+       an explicit alert row.
+
+    The endpoint is the authoritative source for the frontend
+    ``/api/v1/equipment/maintenance-schedule`` call, which used to 404.
+    """
+    now = datetime.now(UTC)
+    cutoff = now + timedelta(days=days_ahead)
+
+    # --- 1) Pull alerts (tenant-isolated via JOIN in the repository) ------
+    alerts = repository.get_maintenance_alerts(
+        db,
+        tenant_id=tenant_id,
+        priority=priority.value if priority else None,
+        overdue_only=False,
+    )
+
+    schedule_items: list[dict] = []
+    for alert in alerts:
+        schedule_items.append(
+            {
+                "source": "alert",
+                "alert_id": alert.alert_id,
+                "equipment_id": alert.equipment_id,
+                "equipment_name": alert.equipment_name,
+                "maintenance_type": alert.maintenance_type,
+                "description": alert.description,
+                "description_ar": alert.description_ar,
+                "priority": alert.priority,
+                "scheduled_date": alert.due_at,
+                "scheduledDate": alert.due_at,
+                "due_hours": float(alert.due_hours) if alert.due_hours else None,
+                "is_overdue": alert.is_overdue,
+                "created_at": alert.created_at,
+            }
+        )
+
+    # --- 2) Pull equipment with an upcoming next_maintenance_at ----------
+    try:
+        upcoming_query = (
+            db.query(DBEquipment)
+            .filter(DBEquipment.tenant_id == tenant_id)
+            .filter(DBEquipment.next_maintenance_at.is_not(None))
+            .filter(DBEquipment.next_maintenance_at <= cutoff)
+            .order_by(DBEquipment.next_maintenance_at.asc())
+        )
+        upcoming = list(upcoming_query)
+    except Exception as exc:  # pragma: no cover - defensive, fall back to alerts
+        logger.warning("maintenance_schedule_upcoming_query_failed", error=str(exc))
+        upcoming = []
+
+    for eq in upcoming:
+        schedule_items.append(
+            {
+                "source": "equipment",
+                "equipment_id": eq.equipment_id,
+                "equipment_name": eq.name,
+                "maintenance_type": "scheduled_service",
+                "description": "Scheduled maintenance window",
+                "description_ar": "موعد الصيانة المجدولة",
+                "priority": MaintenancePriority.MEDIUM.value,
+                "scheduled_date": eq.next_maintenance_at,
+                "scheduledDate": eq.next_maintenance_at,
+                "due_hours": float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
+                "is_overdue": bool(eq.next_maintenance_at and eq.next_maintenance_at < now),
+                "created_at": eq.updated_at,
+            }
+        )
+
+    # Sort by scheduled_date ascending, overdue first
+    schedule_items.sort(
+        key=lambda item: (
+            not item.get("is_overdue"),
+            item.get("scheduled_date") or datetime.max.replace(tzinfo=UTC),
+        )
+    )
+
+    return {
+        "data": schedule_items,
+        "schedule": schedule_items,  # legacy alias
+        "count": len(schedule_items),
+        "pagination": {
+            "total": len(schedule_items),
+            "limit": len(schedule_items),
+            "offset": 0,
+        },
+        "window": {
+            "from": now,
+            "to": cutoff,
+            "days_ahead": days_ahead,
+        },
+    }
+
+
+@app.get("/api/v1/equipment/{equipment_id}", response_model=dict)
 async def get_equipment(
     equipment_id: str,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
-    """Get equipment by ID"""
+    """Get equipment by ID.
+
+    Returns the unified response shape emitted by :func:`serialize_equipment`
+    (legacy snake_case fields + new camelCase frontend aliases).
+    """
     eq = repository.get_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id)
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    # Convert to Pydantic model
-    return Equipment(
-        equipment_id=eq.equipment_id,
-        tenant_id=eq.tenant_id,
-        name=eq.name,
-        name_ar=eq.name_ar,
-        equipment_type=EquipmentType(eq.equipment_type),
-        status=EquipmentStatus(eq.status),
-        brand=eq.brand,
-        model=eq.model,
-        serial_number=eq.serial_number,
-        year=eq.year,
-        purchase_date=eq.purchase_date,
-        purchase_price=float(eq.purchase_price) if eq.purchase_price else None,
-        field_id=eq.field_id,
-        location_name=eq.location_name,
-        horsepower=eq.horsepower,
-        fuel_capacity_liters=float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
-        current_fuel_percent=float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
-        current_hours=float(eq.current_hours) if eq.current_hours else None,
-        current_lat=float(eq.current_lat) if eq.current_lat else None,
-        current_lon=float(eq.current_lon) if eq.current_lon else None,
-        last_maintenance_at=eq.last_maintenance_at,
-        next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
-        created_at=eq.created_at,
-        updated_at=eq.updated_at,
-        metadata=eq.extra_metadata,
-        qr_code=eq.qr_code,
-    )
+    return serialize_equipment(eq)
 
 
-@app.get("/api/v1/equipment/qr/{qr_code}", response_model=Equipment)
+@app.get("/api/v1/equipment/qr/{qr_code}", response_model=dict)
 async def get_equipment_by_qr(
     qr_code: str,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
-    """Get equipment by QR code"""
+    """Get equipment by QR code."""
     eq = repository.get_equipment_by_qr(db, qr_code=qr_code, tenant_id=tenant_id)
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    # Convert to Pydantic model
-    return Equipment(
-        equipment_id=eq.equipment_id,
-        tenant_id=eq.tenant_id,
-        name=eq.name,
-        name_ar=eq.name_ar,
-        equipment_type=EquipmentType(eq.equipment_type),
-        status=EquipmentStatus(eq.status),
-        brand=eq.brand,
-        model=eq.model,
-        serial_number=eq.serial_number,
-        year=eq.year,
-        purchase_date=eq.purchase_date,
-        purchase_price=float(eq.purchase_price) if eq.purchase_price else None,
-        field_id=eq.field_id,
-        location_name=eq.location_name,
-        horsepower=eq.horsepower,
-        fuel_capacity_liters=float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
-        current_fuel_percent=float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
-        current_hours=float(eq.current_hours) if eq.current_hours else None,
-        current_lat=float(eq.current_lat) if eq.current_lat else None,
-        current_lon=float(eq.current_lon) if eq.current_lon else None,
-        last_maintenance_at=eq.last_maintenance_at,
-        next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
-        created_at=eq.created_at,
-        updated_at=eq.updated_at,
-        metadata=eq.extra_metadata,
-        qr_code=eq.qr_code,
-    )
+    return serialize_equipment(eq)
 
 
-@app.post("/api/v1/equipment", response_model=Equipment, status_code=201)
+@app.post("/api/v1/equipment", response_model=dict, status_code=201)
 async def create_equipment(
     data: EquipmentCreate,
     user: User | None = Depends(get_current_user),
@@ -729,39 +887,10 @@ async def create_equipment(
 
     repository.create_equipment(db, db_eq)
 
-    # Convert to Pydantic model for response
-    return Equipment(
-        equipment_id=db_eq.equipment_id,
-        tenant_id=db_eq.tenant_id,
-        name=db_eq.name,
-        name_ar=db_eq.name_ar,
-        equipment_type=EquipmentType(db_eq.equipment_type),
-        status=EquipmentStatus(db_eq.status),
-        brand=db_eq.brand,
-        model=db_eq.model,
-        serial_number=db_eq.serial_number,
-        year=db_eq.year,
-        purchase_date=db_eq.purchase_date,
-        purchase_price=float(db_eq.purchase_price) if db_eq.purchase_price else None,
-        field_id=db_eq.field_id,
-        location_name=db_eq.location_name,
-        horsepower=db_eq.horsepower,
-        fuel_capacity_liters=float(db_eq.fuel_capacity_liters) if db_eq.fuel_capacity_liters else None,
-        current_fuel_percent=None,
-        current_hours=None,
-        current_lat=None,
-        current_lon=None,
-        last_maintenance_at=None,
-        next_maintenance_at=None,
-        next_maintenance_hours=None,
-        created_at=db_eq.created_at,
-        updated_at=db_eq.updated_at,
-        metadata=db_eq.extra_metadata,
-        qr_code=db_eq.qr_code,
-    )
+    return serialize_equipment(db_eq)
 
 
-@app.put("/api/v1/equipment/{equipment_id}", response_model=Equipment)
+@app.put("/api/v1/equipment/{equipment_id}", response_model=dict)
 async def update_equipment(
     equipment_id: str,
     data: EquipmentUpdate,
@@ -772,96 +901,50 @@ async def update_equipment(
     """Update equipment"""
     update_data = data.model_dump(exclude_unset=True)
 
-    # Convert enum values to strings
+    # Convert enum values to strings. Status is already normalized to a
+    # plain backend-canonical string by ``EquipmentUpdate._normalize_status``.
     if "equipment_type" in update_data and update_data["equipment_type"]:
-        update_data["equipment_type"] = update_data["equipment_type"].value
-    if "status" in update_data and update_data["status"]:
-        update_data["status"] = update_data["status"].value
+        eq_type = update_data["equipment_type"]
+        update_data["equipment_type"] = eq_type.value if hasattr(eq_type, "value") else eq_type
 
     eq = repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, **update_data)
 
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    # Convert to Pydantic model
-    return Equipment(
-        equipment_id=eq.equipment_id,
-        tenant_id=eq.tenant_id,
-        name=eq.name,
-        name_ar=eq.name_ar,
-        equipment_type=EquipmentType(eq.equipment_type),
-        status=EquipmentStatus(eq.status),
-        brand=eq.brand,
-        model=eq.model,
-        serial_number=eq.serial_number,
-        year=eq.year,
-        purchase_date=eq.purchase_date,
-        purchase_price=float(eq.purchase_price) if eq.purchase_price else None,
-        field_id=eq.field_id,
-        location_name=eq.location_name,
-        horsepower=eq.horsepower,
-        fuel_capacity_liters=float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
-        current_fuel_percent=float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
-        current_hours=float(eq.current_hours) if eq.current_hours else None,
-        current_lat=float(eq.current_lat) if eq.current_lat else None,
-        current_lon=float(eq.current_lon) if eq.current_lon else None,
-        last_maintenance_at=eq.last_maintenance_at,
-        next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
-        created_at=eq.created_at,
-        updated_at=eq.updated_at,
-        metadata=eq.extra_metadata,
-        qr_code=eq.qr_code,
-    )
+    return serialize_equipment(eq)
 
 
-@app.post("/api/v1/equipment/{equipment_id}/status", response_model=Equipment)
+@app.post("/api/v1/equipment/{equipment_id}/status", response_model=dict)
 async def update_equipment_status(
     equipment_id: str,
-    status: EquipmentStatus,
+    status: str,
     current_user: User = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
-    """Update equipment status"""
-    eq = repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, status=status.value)
+    """Update equipment status.
+
+    Accepts both backend canonical (``operational``, ``inactive``) and
+    frontend canonical (``active``, ``idle``, ``retired``) values.
+    """
+    normalized = map_status_in(status)
+    valid_backend = {s.value for s in EquipmentStatus}
+    if normalized not in valid_backend:
+        raise HTTPException(
+            status_code=422,
+            detail=(f"Invalid status '{status}'. Allowed: {sorted(valid_backend | set(STATUS_IN_MAP.keys()))}"),
+        )
+
+    eq = repository.update_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id, status=normalized)
 
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    # Convert to Pydantic model
-    return Equipment(
-        equipment_id=eq.equipment_id,
-        tenant_id=eq.tenant_id,
-        name=eq.name,
-        name_ar=eq.name_ar,
-        equipment_type=EquipmentType(eq.equipment_type),
-        status=EquipmentStatus(eq.status),
-        brand=eq.brand,
-        model=eq.model,
-        serial_number=eq.serial_number,
-        year=eq.year,
-        purchase_date=eq.purchase_date,
-        purchase_price=float(eq.purchase_price) if eq.purchase_price else None,
-        field_id=eq.field_id,
-        location_name=eq.location_name,
-        horsepower=eq.horsepower,
-        fuel_capacity_liters=float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
-        current_fuel_percent=float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
-        current_hours=float(eq.current_hours) if eq.current_hours else None,
-        current_lat=float(eq.current_lat) if eq.current_lat else None,
-        current_lon=float(eq.current_lon) if eq.current_lon else None,
-        last_maintenance_at=eq.last_maintenance_at,
-        next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
-        created_at=eq.created_at,
-        updated_at=eq.updated_at,
-        metadata=eq.extra_metadata,
-        qr_code=eq.qr_code,
-    )
+    return serialize_equipment(eq)
 
 
-@app.post("/api/v1/equipment/{equipment_id}/location", response_model=Equipment)
+@app.post("/api/v1/equipment/{equipment_id}/location", response_model=dict)
 async def update_equipment_location(
     equipment_id: str,
     lat: float = Query(...),
@@ -872,7 +955,7 @@ async def update_equipment_location(
     db: Session = Depends(get_db),
 ):
     """Update equipment GPS location"""
-    update_data = {"current_lat": lat, "current_lon": lon}
+    update_data: dict = {"current_lat": lat, "current_lon": lon}
     if location_name:
         update_data["location_name"] = location_name
 
@@ -881,39 +964,10 @@ async def update_equipment_location(
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    # Convert to Pydantic model
-    return Equipment(
-        equipment_id=eq.equipment_id,
-        tenant_id=eq.tenant_id,
-        name=eq.name,
-        name_ar=eq.name_ar,
-        equipment_type=EquipmentType(eq.equipment_type),
-        status=EquipmentStatus(eq.status),
-        brand=eq.brand,
-        model=eq.model,
-        serial_number=eq.serial_number,
-        year=eq.year,
-        purchase_date=eq.purchase_date,
-        purchase_price=float(eq.purchase_price) if eq.purchase_price else None,
-        field_id=eq.field_id,
-        location_name=eq.location_name,
-        horsepower=eq.horsepower,
-        fuel_capacity_liters=float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
-        current_fuel_percent=float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
-        current_hours=float(eq.current_hours) if eq.current_hours else None,
-        current_lat=float(eq.current_lat) if eq.current_lat else None,
-        current_lon=float(eq.current_lon) if eq.current_lon else None,
-        last_maintenance_at=eq.last_maintenance_at,
-        next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
-        created_at=eq.created_at,
-        updated_at=eq.updated_at,
-        metadata=eq.extra_metadata,
-        qr_code=eq.qr_code,
-    )
+    return serialize_equipment(eq)
 
 
-@app.post("/api/v1/equipment/{equipment_id}/telemetry", response_model=Equipment)
+@app.post("/api/v1/equipment/{equipment_id}/telemetry", response_model=dict)
 async def update_equipment_telemetry(
     equipment_id: str,
     fuel_percent: float | None = None,
@@ -925,7 +979,7 @@ async def update_equipment_telemetry(
     db: Session = Depends(get_db),
 ):
     """Update equipment telemetry data (fuel, hours, location)"""
-    update_data = {}
+    update_data: dict = {}
     if fuel_percent is not None:
         update_data["current_fuel_percent"] = fuel_percent
     if hours is not None:
@@ -940,36 +994,94 @@ async def update_equipment_telemetry(
     if not eq:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    # Convert to Pydantic model
-    return Equipment(
-        equipment_id=eq.equipment_id,
-        tenant_id=eq.tenant_id,
-        name=eq.name,
-        name_ar=eq.name_ar,
-        equipment_type=EquipmentType(eq.equipment_type),
-        status=EquipmentStatus(eq.status),
-        brand=eq.brand,
-        model=eq.model,
-        serial_number=eq.serial_number,
-        year=eq.year,
-        purchase_date=eq.purchase_date,
-        purchase_price=float(eq.purchase_price) if eq.purchase_price else None,
-        field_id=eq.field_id,
-        location_name=eq.location_name,
-        horsepower=eq.horsepower,
-        fuel_capacity_liters=float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
-        current_fuel_percent=float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
-        current_hours=float(eq.current_hours) if eq.current_hours else None,
-        current_lat=float(eq.current_lat) if eq.current_lat else None,
-        current_lon=float(eq.current_lon) if eq.current_lon else None,
-        last_maintenance_at=eq.last_maintenance_at,
-        next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
-        created_at=eq.created_at,
-        updated_at=eq.updated_at,
-        metadata=eq.extra_metadata,
-        qr_code=eq.qr_code,
+    return serialize_equipment(eq)
+
+
+@app.post(
+    "/api/v1/equipment/{equipment_id}/issues",
+    response_model=EquipmentIssueResponse,
+    status_code=202,
+)
+async def report_equipment_issue(
+    equipment_id: str,
+    issue: EquipmentIssueCreate = Body(...),
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
+    """Report an issue/incident against a piece of equipment.
+
+    This endpoint is an **event-first** replacement for the missing DB-backed
+    issues table. Behaviour:
+
+    1. Verifies the equipment exists and belongs to the authenticated tenant.
+    2. Builds an ``EquipmentIssueResponse`` payload with a synthetic issue_id.
+    3. Best-effort publishes the payload to NATS on the subject
+       ``sahool.tenant.{tenant_id}.equipment.issue_reported`` so downstream
+       services (notification, audit, ticketing) can react. Publishing is
+       best-effort: the HTTP call returns ``202 Accepted`` even if the NATS
+       connection is unavailable (the payload is still logged for later
+       reconciliation).
+
+    Returns ``202 Accepted`` to signal the issue has been queued.
+    """
+    # Verify equipment exists and belongs to tenant
+    eq = repository.get_equipment(db, equipment_id=equipment_id, tenant_id=tenant_id)
+    if not eq:
+        raise HTTPException(status_code=404, detail="Equipment not found")
+
+    now = datetime.now(UTC)
+    issue_id = f"issue_{uuid.uuid4().hex[:12]}"
+
+    reported_by = issue.reported_by
+    if not reported_by and current_user is not None:
+        reported_by = getattr(current_user, "id", None)
+
+    response = EquipmentIssueResponse(
+        id=issue_id,
+        issue_id=issue_id,
+        equipment_id=equipment_id,
+        tenant_id=tenant_id,
+        title=issue.title,
+        title_ar=issue.title_ar,
+        description=issue.description,
+        description_ar=issue.description_ar,
+        severity=issue.severity,
+        status=IssueStatus.OPEN,
+        reported_at=now,
+        reported_by=reported_by,
+        metadata=issue.metadata,
     )
+
+    # Best-effort NATS publish. We deliberately swallow all errors here so a
+    # NATS outage does not break the user-facing flow; the payload is logged.
+    subject = f"sahool.tenant.{tenant_id}.equipment.issue_reported"
+    try:
+        nc = getattr(app.state, "nc", None)
+        if nc is not None and hasattr(nc, "publish"):
+            payload = response.model_dump(mode="json")
+            payload_bytes = json.dumps(payload, default=str).encode("utf-8")
+            maybe_coro = nc.publish(subject, payload_bytes)
+            # nats-py publish is a coroutine; await if so
+            if hasattr(maybe_coro, "__await__"):
+                await maybe_coro
+        logger.info(
+            "equipment_issue_reported",
+            issue_id=issue_id,
+            equipment_id=equipment_id,
+            tenant_id=tenant_id,
+            severity=issue.severity.value,
+            subject=subject,
+        )
+    except Exception as exc:  # pragma: no cover - best-effort publish
+        logger.warning(
+            "equipment_issue_nats_publish_failed",
+            error=str(exc),
+            issue_id=issue_id,
+            subject=subject,
+        )
+
+    return response
 
 
 @app.get("/api/v1/equipment/{equipment_id}/maintenance", response_model=dict)

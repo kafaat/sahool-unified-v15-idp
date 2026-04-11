@@ -170,31 +170,41 @@ export function SensorReadings({ sensorId, sensorName, unit, limit }: SensorRead
       </div>
 
       {/* Stats */}
-      {readings && readings.length > 0 && (
-        <div className="p-6 bg-gray-50 border-t border-gray-200">
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">المتوسط</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {(readings.reduce((sum, r) => sum + r.value, 0) / readings.length).toFixed(2)}{' '}
-                {unit || ''}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">الحد الأدنى</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {Math.min(...readings.map((r) => r.value)).toFixed(2)} {unit || ''}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">الحد الأقصى</p>
-              <p className="text-2xl font-bold text-red-600">
-                {Math.max(...readings.map((r) => r.value)).toFixed(2)} {unit || ''}
-              </p>
+      {readings && readings.length > 0 && (() => {
+        // Defensive: filter to finite numeric values to avoid NaN/Infinity
+        // when API returns null/undefined or non-numeric readings.
+        const numericValues = readings
+          .map((r) => r.value)
+          .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+        if (numericValues.length === 0) return null;
+        const avg = numericValues.reduce((sum, v) => sum + v, 0) / numericValues.length;
+        const minVal = Math.min(...numericValues);
+        const maxVal = Math.max(...numericValues);
+        return (
+          <div className="p-6 bg-gray-50 border-t border-gray-200">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">المتوسط</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {avg.toFixed(2)} {unit || ''}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">الحد الأدنى</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {minVal.toFixed(2)} {unit || ''}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">الحد الأقصى</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {maxVal.toFixed(2)} {unit || ''}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

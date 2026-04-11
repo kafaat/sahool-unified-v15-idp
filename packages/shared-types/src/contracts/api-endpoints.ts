@@ -250,6 +250,18 @@ export const IOT_ENDPOINTS = {
   FIELD_SENSORS: `${API_PREFIX}/iot/fields/{fieldId}/sensors`,
   SENSOR_HISTORY: `${API_PREFIX}/iot/sensors/{sensorId}/history`,
   READINGS_BY_FARM: `${API_PREFIX}/iot/readings/{farmId}`,
+  /** @since 4.3.0 - Sensor resource collection */
+  SENSORS: `${API_PREFIX}/iot/sensors`,
+  /** @since 4.3.0 - Actuator resource collection */
+  ACTUATORS: `${API_PREFIX}/iot/actuators`,
+  /** @since 4.3.0 - Alert rule resource collection */
+  ALERT_RULES: `${API_PREFIX}/iot/alert-rules`,
+  /** @since 4.3.0 - Server-sent / WebSocket sensor data stream */
+  SENSOR_STREAM: `${API_PREFIX}/iot/sensors/stream`,
+  /** @since 4.3.0 - Aggregated sensor statistics */
+  SENSOR_STATS: `${API_PREFIX}/iot/sensors/stats`,
+  /** @since 4.3.0 - Latest reading for a single sensor */
+  SENSOR_LATEST: `${API_PREFIX}/iot/sensors/{sensorId}/latest`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -421,13 +433,23 @@ export const VISION_ENDPOINTS = {
 export const TERRAIN_ENDPOINTS = {
   DEM: `${API_PREFIX}/terrain/dem`,
   SLOPE: `${API_PREFIX}/terrain/slope`,
-  ASPECT: `${API_PREFIX}/terrain/aspect`,
-  HYDROLOGY_DRAINAGE: `${API_PREFIX}/hydrology/drainage`,
-  HYDROLOGY_WATERSHED: `${API_PREFIX}/hydrology/watershed`,
-  HYDROLOGY_FLOW: `${API_PREFIX}/hydrology/flow`,
-  LEVELING_OPTIMIZE: `${API_PREFIX}/leveling/optimize`,
+  /** @since 4.3.0 - Corrected to field-scoped path */
+  ASPECT: `${API_PREFIX}/terrain/aspect/{fieldId}`,
+  /** @since 4.3.0 - Corrected to field-scoped path under /hydrology/drainage */
+  HYDROLOGY_DRAINAGE: `${API_PREFIX}/hydrology/drainage/{fieldId}`,
+  /** @since 4.3.0 - Corrected to field-scoped path under /hydrology/basins */
+  HYDROLOGY_WATERSHED: `${API_PREFIX}/hydrology/basins/{fieldId}`,
+  /** @since 4.3.0 - Corrected to field-scoped path under /terrain/flow */
+  HYDROLOGY_FLOW: `${API_PREFIX}/terrain/flow/{fieldId}`,
+  /** @since 4.3.0 - Corrected to /leveling/analyze (cut/fill data included in response) */
+  LEVELING_OPTIMIZE: `${API_PREFIX}/leveling/analyze`,
+  /**
+   * @deprecated Use LEVELING_OPTIMIZE instead. Cut/fill data is part of the
+   * `/leveling/analyze` response body. Removal: v6.0.0
+   */
   LEVELING_CUT_FILL: `${API_PREFIX}/leveling/cut-fill`,
-  LEVELING_COST: `${API_PREFIX}/leveling/cost`,
+  /** @since 4.3.0 - Corrected to field-scoped path */
+  LEVELING_COST: `${API_PREFIX}/leveling/cost/{fieldId}`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -486,6 +508,8 @@ export const TRACEABILITY_ENDPOINTS = {
   BATCH_GET: `${API_PREFIX}/traceability/batches/{batchId}`,
   EVENTS: `${API_PREFIX}/traceability/events`,
   QR_CODE: `${API_PREFIX}/traceability/batches/{batchId}/qr`,
+  /** @since 4.3.0 - Events nested under a specific batch */
+  BATCH_EVENTS: `${API_PREFIX}/traceability/batches/{batchId}/events`,
 } as const;
 
 export const PROVIDER_ENDPOINTS = {
@@ -497,6 +521,14 @@ export const PROVIDER_ENDPOINTS = {
 export const DISASTER_ENDPOINTS = {
   ASSESS: `${API_PREFIX}/disasters/assess`,
   ALERTS: `${API_PREFIX}/disasters/alerts`,
+  /** @since 4.3.0 - Disaster events collection */
+  EVENTS: `${API_PREFIX}/disasters/events`,
+  /** @since 4.3.0 - Single disaster event by id */
+  EVENT_BY_ID: `${API_PREFIX}/disasters/events/{eventId}`,
+  /** @since 4.3.0 - Aggregated disaster statistics */
+  STATS: `${API_PREFIX}/disasters/stats/summary`,
+  /** @since 4.3.0 - Risk profiles */
+  RISKS: `${API_PREFIX}/disasters/risks`,
 } as const;
 
 export const AGRO_RULES_ENDPOINTS = {
@@ -592,6 +624,8 @@ export const FARM_ENDPOINTS = {
   DELETE: `${API_PREFIX}/farms/{farmId}`,
   STATS: `${API_PREFIX}/farms/{farmId}/stats`,
   MEMBERS: `${API_PREFIX}/farms/{farmId}/members`,
+  /** @since 4.3.0 - Tenant-scoped aggregated farm statistics */
+  STATS_BY_TENANT: `${API_PREFIX}/farms/stats/{tenantId}`,
 } as const;
 
 export const SEASON_ENDPOINTS = {
@@ -680,6 +714,104 @@ export const TEAM_ENDPOINTS = {
   MEMBER_REMOVE: `${API_PREFIX}/team/members/{memberId}`,
   MEMBER_ROLE: `${API_PREFIX}/team/members/{memberId}/role`,
   ROLES: `${API_PREFIX}/team/roles`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Crop & Seed Endpoints - نقاط المحاصيل والبذور
+// @since 4.3.0
+// ---------------------------------------------------------------------------
+
+/** @since 4.3.0 - Crop catalog endpoints */
+export const CROP_ENDPOINTS = {
+  LIST: `${API_PREFIX}/crops`,
+  GET: `${API_PREFIX}/crops/{cropId}`,
+  CREATE: `${API_PREFIX}/crops`,
+  UPDATE: `${API_PREFIX}/crops/{cropId}`,
+  DELETE: `${API_PREFIX}/crops/{cropId}`,
+  STATS: `${API_PREFIX}/crops/stats`,
+} as const;
+
+/** @since 4.3.0 - Seed catalog endpoints */
+export const SEED_ENDPOINTS = {
+  LIST: `${API_PREFIX}/seeds`,
+  GET: `${API_PREFIX}/seeds/{seedId}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Crop Planning Endpoints - نقاط تخطيط المحاصيل
+// @since 4.3.0
+// ---------------------------------------------------------------------------
+
+/** @since 4.3.0 - Crop planning endpoints */
+export const CROP_PLANNING_ENDPOINTS = {
+  PLANS: `${API_PREFIX}/crop-planning/plans`,
+  PLAN_BY_ID: `${API_PREFIX}/crop-planning/plans/{planId}`,
+  RECOMMENDATIONS: `${API_PREFIX}/crop-planning/recommendations`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Crop Rotation Endpoints - نقاط دورة المحاصيل
+// @since 4.3.0
+// ---------------------------------------------------------------------------
+
+/** @since 4.3.0 - Crop rotation planning endpoints */
+export const CROP_ROTATION_ENDPOINTS = {
+  PLANS: `${API_PREFIX}/crop-rotation/plans`,
+  RECOMMEND: `${API_PREFIX}/crop-rotation/recommend`,
+  MULTI_YEAR_PLAN: `${API_PREFIX}/crop-rotation/multi-year-plan`,
+  HISTORY: `${API_PREFIX}/crop-rotation/history/{fieldId}`,
+  PEST_BREAK: `${API_PREFIX}/crop-rotation/pest-break`,
+  SOIL_HEALTH: `${API_PREFIX}/crop-rotation/soil-health`,
+  STATS: `${API_PREFIX}/crop-rotation/stats`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Labor & Workforce Endpoints - نقاط العمالة
+// @since 4.3.0
+// ---------------------------------------------------------------------------
+
+/** @since 4.3.0 - Labor & workforce management endpoints */
+export const LABOR_ENDPOINTS = {
+  WORKERS: `${API_PREFIX}/labor/workers`,
+  WORKER_BY_ID: `${API_PREFIX}/labor/workers/{workerId}`,
+  SCHEDULE: `${API_PREFIX}/labor/schedule`,
+  PAYROLL: `${API_PREFIX}/labor/payroll`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Support Endpoints - نقاط الدعم الفني
+// @since 4.3.0
+// ---------------------------------------------------------------------------
+
+/** @since 4.3.0 - Support ticket endpoints */
+export const SUPPORT_ENDPOINTS = {
+  TICKETS: `${API_PREFIX}/support/tickets`,
+  TICKET_BY_ID: `${API_PREFIX}/support/tickets/{ticketId}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Agricultural Calendar Endpoints - نقاط التقويم الزراعي
+// @since 4.3.0
+// ---------------------------------------------------------------------------
+
+/** @since 4.3.0 - Agricultural calendar endpoints */
+export const AGRI_CALENDAR_ENDPOINTS = {
+  EVENTS: `${API_PREFIX}/agri-calendar/events`,
+  PLANTING_TIMES: `${API_PREFIX}/agri-calendar/planting-times`,
+  HARVEST_TIMES: `${API_PREFIX}/agri-calendar/harvest-times`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Cooperative Endpoints - نقاط التعاونيات
+// @since 4.3.0
+// ---------------------------------------------------------------------------
+
+/** @since 4.3.0 - Cooperative management endpoints */
+export const COOPERATIVE_ENDPOINTS = {
+  BOOKINGS: `${API_PREFIX}/cooperatives/bookings`,
+  PURCHASE_ORDERS: `${API_PREFIX}/cooperatives/purchase-orders`,
+  REVENUE: `${API_PREFIX}/cooperatives/revenue`,
+  REVENUE_CALCULATE: `${API_PREFIX}/cooperatives/revenue/calculate`,
 } as const;
 
 // ---------------------------------------------------------------------------

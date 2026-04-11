@@ -336,6 +336,7 @@ def create_tracking_visualization(
 @router.post(
     "/count/plants",
     response_model=PlantCountResponse,
+    response_model_by_alias=True,
     summary="Count plants in agricultural images",
     description="Count individual plants with optional density map generation.",
 )
@@ -472,6 +473,7 @@ async def count_plants(
 @router.post(
     "/classify/ripeness",
     response_model=RipenessClassificationResponse,
+    response_model_by_alias=True,
     summary="Classify fruit ripeness",
     description="Classify fruit ripeness into 5 stages with bilingual labels.",
 )
@@ -670,6 +672,7 @@ def _create_ripeness_visualization(image_bytes: bytes, results: list[RipenessRes
 @router.post(
     "/segment/leaf",
     response_model=LeafSegmentationResponse,
+    response_model_by_alias=True,
     summary="Segment leaves for area measurement",
     description="Segment individual leaves with area calculation and health indicators.",
 )
@@ -927,6 +930,7 @@ def _create_segmentation_visualization(
 @router.post(
     "/track/objects",
     response_model=ObjectTrackingResponse,
+    response_model_by_alias=True,
     summary="Track objects with ID persistence",
     description="Track objects across video frames with persistent IDs.",
 )

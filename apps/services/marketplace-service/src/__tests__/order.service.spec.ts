@@ -16,6 +16,28 @@ import { MarketService } from "../market/market.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
 import { CacheService } from "../cache/cache.service";
+import { IdempotencyService } from "../fintech/idempotency.service";
+
+/**
+ * No-op IdempotencyService stub: runs the work function immediately,
+ * mirroring the production path when no `Idempotency-Key` header is set.
+ */
+const mockIdempotencyService = {
+  executeIdempotent: jest.fn(
+    async (
+      _key: string | undefined,
+      _tenant: string,
+      _user: string,
+      _op: string,
+      _payload: unknown,
+      fn: () => Promise<unknown>,
+    ) => {
+      const value = await fn();
+      return { value, replayed: false, statusCode: 200 };
+    },
+  ),
+  hashRequest: jest.fn(() => "stub-hash"),
+};
 
 describe("MarketService - Order Operations", () => {
   let service: MarketService;
@@ -72,6 +94,10 @@ describe("MarketService - Order Operations", () => {
         {
           provide: CacheService,
           useValue: mockCacheService,
+        },
+        {
+          provide: IdempotencyService,
+          useValue: mockIdempotencyService,
         },
       ],
     }).compile();
@@ -147,8 +173,9 @@ describe("MarketService - Order Operations", () => {
       const result = await service.createOrder(orderData);
 
       expect(result.orderNumber).toContain("SAH-");
-      expect(result.subtotal).toBe(4000);
-      expect(result.totalAmount).toBe(4580);
+      // Money fields are serialized as string decimals — normalize via Number().
+      expect(Number(result.subtotal)).toBe(4000);
+      expect(Number(result.totalAmount)).toBe(4580);
       expect(mockEventsService.publishOrderPlaced).toHaveBeenCalled();
     });
 
@@ -219,7 +246,7 @@ describe("MarketService - Order Operations", () => {
 
       const result = await service.createOrder(orderData);
 
-      expect(result.subtotal).toBe(10000);
+      expect(Number(result.subtotal)).toBe(10000);
       expect(result.items).toHaveLength(2);
     });
 
@@ -261,8 +288,8 @@ describe("MarketService - Order Operations", () => {
 
       const result = await service.createOrder(orderData);
 
-      expect(result.serviceFee).toBe(200);
-      expect(result.totalAmount).toBe(10700);
+      expect(Number(result.serviceFee)).toBe(200);
+      expect(Number(result.totalAmount)).toBe(10700);
     });
 
     it("should include fixed delivery fee", async () => {
@@ -300,7 +327,7 @@ describe("MarketService - Order Operations", () => {
 
       const result = await service.createOrder(orderData);
 
-      expect(result.deliveryFee).toBe(500);
+      expect(Number(result.deliveryFee)).toBe(500);
     });
 
     it("should generate unique order number", async () => {
@@ -988,8 +1015,9 @@ describe("MarketService - Order Operations", () => {
 
         const result = await service.createOrder(orderData);
 
-        // Verify server-side price is used
-        expect(result.subtotal).toBe(4000);
+        // Verify server-side price is used. Money fields are serialised
+        // as string decimals by the service so we compare via Number().
+        expect(Number(result.subtotal)).toBe(4000);
         expect(result.items[0].unitPrice).toBe(2000);
       });
 
@@ -1033,8 +1061,8 @@ describe("MarketService - Order Operations", () => {
 
         const result = await service.createOrder(orderData);
 
-        expect(result.subtotal).toBe(correctSubtotal);
-        expect(result.totalAmount).toBe(correctTotal);
+        expect(Number(result.subtotal)).toBe(correctSubtotal);
+        expect(Number(result.totalAmount)).toBe(correctTotal);
       });
     });
 

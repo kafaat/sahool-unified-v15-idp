@@ -159,17 +159,38 @@ export function useSpecificIndex(
 }
 
 /**
- * Hook to fetch interpreted indices with recommendations
+ * Hook to fetch interpreted indices with recommendations.
  * خطاف لجلب تفسير المؤشرات مع التوصيات
+ *
+ * NOTE: the backend /v1/indices/interpret endpoint is POST with a JSON body.
+ * Callers MUST supply `indices` (the pre-computed index values). The query is
+ * only enabled when both `fieldId` and a non-empty `indices` map are provided.
  */
 export function useInterpretIndices(
   fieldId: string,
-  options?: { date?: string; enabled?: boolean }
+  indices: Record<string, number> | undefined,
+  options?: {
+    cropType?: string;
+    growthStage?: string;
+    enabled?: boolean;
+  }
 ) {
+  const hasIndices = !!indices && Object.keys(indices).length > 0;
   return useQuery({
-    queryKey: indicesKeys.interpret(fieldId),
-    queryFn: () => vegetationIndicesApi.interpretIndices(fieldId, options?.date),
-    enabled: !!fieldId && (options?.enabled ?? true),
+    queryKey: [
+      ...indicesKeys.interpret(fieldId),
+      indices ? Object.keys(indices).sort().join(',') : undefined,
+      options?.cropType,
+      options?.growthStage,
+    ],
+    queryFn: () =>
+      vegetationIndicesApi.interpretIndices(
+        fieldId,
+        indices ?? {},
+        options?.cropType,
+        options?.growthStage,
+      ),
+    enabled: !!fieldId && hasIndices && (options?.enabled ?? true),
     staleTime: 1000 * 60 * 15,
   });
 }

@@ -19,6 +19,7 @@ import {
 import { Prisma } from "../../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
+import { IdempotencyService } from "../fintech/idempotency.service";
 
 /** Safely convert a Prisma.Decimal (or number) to a plain number for arithmetic. */
 function toNum(v: Prisma.Decimal | number | null | undefined): number {
@@ -70,6 +71,7 @@ interface CreateOrderDto {
   items: { productId: string; quantity: number }[];
   deliveryAddress?: string;
   paymentMethod?: string;
+  currency?: "SAR" | "YER" | "USD" | "AED" | "EUR";
 }
 
 @Injectable()
@@ -91,6 +93,7 @@ export class MarketService {
     @Inject(forwardRef(() => EventsService))
     private eventsService: EventsService,
     private cacheService: CacheService,
+    private idempotencyService: IdempotencyService,
   ) {}
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -286,9 +289,41 @@ export class MarketService {
 
   /**
    * إنشاء طلب جديد
-   * Uses transaction to prevent race conditions in stock management
+   * Uses transaction to prevent race conditions in stock management.
+   *
+   * When an `Idempotency-Key` header is supplied by the client, the
+   * result is cached in `idempotency_keys` so a retry with the same key
+   * and identical payload returns the original order verbatim. This is
+   * the contract expected by money-moving endpoints per the SAHOOL API
+   * guidelines (see /home/user/sahool-unified-v15-idp/CLAUDE.md — section
+   * "Contract Deprecation Policy" and the wallet service docstring).
    */
-  async createOrder(data: CreateOrderDto, tenantId?: string) {
+  async createOrder(
+    data: CreateOrderDto,
+    tenantId?: string,
+    idempotencyKey?: string,
+    userId?: string,
+  ) {
+    const effectiveTenant = tenantId ?? "unassigned";
+    const effectiveUser = userId ?? data.buyerId;
+
+    return this.idempotencyService
+      .executeIdempotent(
+        idempotencyKey,
+        effectiveTenant,
+        effectiveUser,
+        "market.createOrder",
+        data,
+        () => this.createOrderInternal(data),
+      )
+      .then((result) => result.value);
+  }
+
+  /**
+   * Inner implementation split out so IdempotencyService can wrap it.
+   * No idempotency concerns live here — this is the pure domain logic.
+   */
+  private async createOrderInternal(data: CreateOrderDto) {
     // Use transaction with timeout to ensure atomic stock check and decrement
     return this.prisma.$transaction(async (tx) => {
       // Batch fetch all products at once to avoid N+1 queries
@@ -405,11 +440,38 @@ export class MarketService {
           price: item.unitPrice,
         })),
         totalAmount: toNum(order.totalAmount),
-        currency: "YER", // Yemeni Rial
+        currency: data.currency ?? "YER", // default to Yemeni Rial
       });
 
-      return order;
+      // Serialize monetary fields as string decimals to avoid precision
+      // loss for clients that pipe the response into float parsers. We
+      // intentionally do NOT cast through Number() here — the underlying
+      // Prisma Decimal is stringified directly.
+      const orderForResponse = {
+        ...order,
+        subtotal: this.decimalToString(order.subtotal),
+        serviceFee: this.decimalToString(order.serviceFee),
+        deliveryFee: this.decimalToString(order.deliveryFee),
+        totalAmount: this.decimalToString(order.totalAmount),
+        currency: data.currency ?? "YER",
+      };
+      return orderForResponse;
     }, GENERAL_TRANSACTION_CONFIG);
+  }
+
+  /**
+   * Convert a Prisma.Decimal (or number) to its canonical string form
+   * without going through `Number()`. Used on money fields so clients
+   * that serialize via JSON.stringify see `"123.45"` not `123.45`.
+   */
+  private decimalToString(
+    value: Prisma.Decimal | number | string | null | undefined,
+  ): string {
+    if (value === null || value === undefined) return "0";
+    if (typeof value === "string") return value;
+    if (typeof value === "number") return value.toFixed(2);
+    // Prisma.Decimal exposes toString() as its canonical form.
+    return value.toString();
   }
 
   /**

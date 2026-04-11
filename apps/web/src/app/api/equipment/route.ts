@@ -22,7 +22,23 @@ import { logger } from '@/lib/logger';
 const EQUIPMENT_SERVICE_URL =
   process.env.EQUIPMENT_SERVICE_URL || 'http://equipment-service:8101';
 
+// SSRF guard: validate the configured upstream URL once at module load and
+// reject non http(s) schemes (e.g. file://, gopher://, data:).
+function resolveUpstreamBase(): URL | null {
+  try {
+    const u = new URL(EQUIPMENT_SERVICE_URL);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    return u;
+  } catch {
+    return null;
+  }
+}
+const UPSTREAM_BASE = resolveUpstreamBase();
+
+// Equipment IDs may be UUIDs or slug-style identifiers but must never contain
+// characters that could manipulate the upstream path (`/`, `..`, whitespace).
 const SAFE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
+const MAX_ID_LENGTH = 128;
 
 const VALID_POST_ACTIONS = ['log-maintenance', 'report-issue'] as const;
 type EquipmentPostAction = (typeof VALID_POST_ACTIONS)[number];
@@ -66,7 +82,7 @@ function validateId(value: string | null | undefined, label: string, labelAr: st
       400,
     );
   }
-  if (!SAFE_ID_PATTERN.test(value)) {
+  if (value.length > MAX_ID_LENGTH || !SAFE_ID_PATTERN.test(value)) {
     return bilingualError(
       `Invalid ${label} format`,
       `تنسيق ${labelAr} غير صالح`,
@@ -92,6 +108,16 @@ function validateContentType(response: Response): boolean {
 
 export async function GET(request: NextRequest) {
   try {
+    // Fail closed if the upstream URL is misconfigured (SSRF defence).
+    if (!UPSTREAM_BASE) {
+      logger.error('[Equipment API] Invalid EQUIPMENT_SERVICE_URL');
+      return bilingualError(
+        'Equipment service misconfigured',
+        'تكوين خدمة المعدات غير صالح',
+        500,
+      );
+    }
+
     const clientIP = getClientIP(request);
     if (await isRateLimited(clientIP, RATE_LIMIT_CONFIG)) {
       return bilingualError(
@@ -141,24 +167,45 @@ export async function GET(request: NextRequest) {
         : '/api/v1/equipment';
     }
 
-    const upstream = new URL(upstreamPath, EQUIPMENT_SERVICE_URL);
+    const upstream = new URL(upstreamPath, UPSTREAM_BASE);
 
-    // Forward allowed query params
+    // Forward allowed query params. Note: equipment-service expects
+    // snake_case names (equipment_type, field_id) — map from the camelCase
+    // names the web app commonly sends.
     const qs = new URLSearchParams();
-    const allowedParams = ['page', 'limit', 'type', 'status', 'fieldId', 'sort', 'order'];
-    for (const key of allowedParams) {
-      const val = searchParams.get(key);
-      if (val) {
-        // Validate ID-type params
-        if (key === 'fieldId' && !SAFE_ID_PATTERN.test(val)) {
-          return bilingualError(
-            'Invalid fieldId format',
-            'تنسيق معرف الحقل غير صالح',
-            400,
-          );
-        }
-        qs.set(key, val);
+    const PARAM_MAP: Record<string, string> = {
+      page: 'page',
+      limit: 'limit',
+      offset: 'offset',
+      type: 'equipment_type',
+      equipment_type: 'equipment_type',
+      status: 'status',
+      fieldId: 'field_id',
+      field_id: 'field_id',
+      search: 'search',
+      sort: 'sort',
+      order: 'order',
+    };
+    for (const [src, dest] of Object.entries(PARAM_MAP)) {
+      const val = searchParams.get(src);
+      if (!val) continue;
+      // Validate ID-type params to prevent injection into the upstream URL.
+      if ((dest === 'field_id' || src === 'fieldId') && !SAFE_ID_PATTERN.test(val)) {
+        return bilingualError(
+          'Invalid fieldId format',
+          'تنسيق معرف الحقل غير صالح',
+          400,
+        );
       }
+      // Reject obviously invalid pagination values.
+      if ((dest === 'page' || dest === 'limit' || dest === 'offset') && !/^\d{1,6}$/.test(val)) {
+        return bilingualError(
+          `Invalid ${dest} value`,
+          `قيمة ${dest} غير صالحة`,
+          400,
+        );
+      }
+      qs.set(dest, val);
     }
     const qsStr = qs.toString();
     if (qsStr) upstream.search = qsStr;
@@ -181,7 +228,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const data = await response.json();
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      logger.error('[Equipment API] Failed to parse upstream JSON:', parseError);
+      return bilingualError(
+        'Malformed response from equipment service',
+        'استجابة مشوهة من خدمة المعدات',
+        502,
+      );
+    }
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
@@ -208,6 +265,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Fail closed if the upstream URL is misconfigured (SSRF defence).
+    if (!UPSTREAM_BASE) {
+      logger.error('[Equipment API] Invalid EQUIPMENT_SERVICE_URL');
+      return bilingualError(
+        'Equipment service misconfigured',
+        'تكوين خدمة المعدات غير صالح',
+        500,
+      );
+    }
+
     const clientIP = getClientIP(request);
     if (await isRateLimited(clientIP, RATE_LIMIT_CONFIG)) {
       return bilingualError(
@@ -226,10 +293,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    // Parse the request body defensively.
+    let body: Record<string, unknown>;
+    try {
+      const parsed: unknown = await request.json();
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return bilingualError(
+          'Request body must be a JSON object',
+          'يجب أن يكون نص الطلب كائن JSON',
+          400,
+        );
+      }
+      body = parsed as Record<string, unknown>;
+    } catch {
+      return bilingualError(
+        'Invalid JSON body',
+        'نص JSON غير صالح',
+        400,
+      );
+    }
 
     // Validate action
-    const action = body.action as string | undefined;
+    const action = typeof body.action === 'string' ? body.action : undefined;
     if (!action || !VALID_POST_ACTIONS.includes(action as EquipmentPostAction)) {
       return bilingualError(
         `Invalid action. Must be one of: ${VALID_POST_ACTIONS.join(', ')}`,
@@ -239,7 +324,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate equipment ID
-    const equipmentId = body.equipmentId as string | undefined;
+    const equipmentId = typeof body.equipmentId === 'string' ? body.equipmentId : undefined;
     const eqError = validateId(equipmentId, 'equipmentId', 'معرف المعدات');
     if (eqError) return eqError;
 
@@ -251,11 +336,13 @@ export async function POST(request: NextRequest) {
 
     const upstream = new URL(
       actionPathMap[action as EquipmentPostAction],
-      EQUIPMENT_SERVICE_URL,
+      UPSTREAM_BASE,
     );
 
     // Forward the payload (excluding proxy-level fields)
     const { action: _action, equipmentId: _equipmentId, ...payload } = body;
+    void _action;
+    void _equipmentId;
 
     const response = await fetch(upstream.toString(), {
       method: 'POST',
@@ -277,7 +364,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const data = await response.json();
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      logger.error('[Equipment API] Failed to parse upstream JSON:', parseError);
+      return bilingualError(
+        'Malformed response from equipment service',
+        'استجابة مشوهة من خدمة المعدات',
+        502,
+      );
+    }
 
     return NextResponse.json(data, { status: response.status });
   } catch (error) {

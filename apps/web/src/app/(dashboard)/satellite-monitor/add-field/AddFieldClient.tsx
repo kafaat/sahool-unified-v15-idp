@@ -114,17 +114,58 @@ export default function AddFieldClient() {
   const removeBoundaryPoint = (index: number) => {
     setBoundaryPoints(boundaryPoints.filter((_, i) => i !== index));
   };
+  /**
+   * Update a boundary point, clamping lat/lng to valid WGS84 ranges so
+   * downstream geometry serialization never produces out-of-range coordinates
+   * that the backend (vegetation-analysis-service) would reject.
+   */
   const updateBoundaryPoint = (index: number, key: 'lat' | 'lng', value: string) => {
     const updated = [...boundaryPoints];
     const point = updated[index]!;
-    updated[index] = { lat: key === 'lat' ? (parseFloat(value) || 0) : point.lat, lng: key === 'lng' ? (parseFloat(value) || 0) : point.lng };
+    const parsed = parseFloat(value);
+    let next: number = Number.isFinite(parsed) ? parsed : 0;
+    if (key === 'lat') {
+      next = Math.max(-90, Math.min(90, next));
+    } else {
+      next = Math.max(-180, Math.min(180, next));
+    }
+    updated[index] = {
+      lat: key === 'lat' ? next : point.lat,
+      lng: key === 'lng' ? next : point.lng,
+    };
     setBoundaryPoints(updated);
   };
 
-  // Handle file upload for KML/Shapefile
+  // Handle file upload for KML/Shapefile. Enforces a 10 MB cap (KML/KMZ are
+  // rarely larger) and accepts only the declared boundary file extensions.
+  const MAX_BOUNDARY_FILE_BYTES = 10 * 1024 * 1024;
+  const ALLOWED_BOUNDARY_EXTENSIONS = ['.kml', '.kmz', '.shp', '.zip', '.geojson', '.json'];
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setUploadedFile(file);
+    if (!file) return;
+    const name = (file.name || '').toLowerCase();
+    const extOk = ALLOWED_BOUNDARY_EXTENSIONS.some((ext) => name.endsWith(ext));
+    if (!extOk) {
+      setValidationErrors([
+        `نوع الملف غير مدعوم. الأنواع المسموحة: ${ALLOWED_BOUNDARY_EXTENSIONS.join(', ')}`,
+      ]);
+      e.target.value = '';
+      return;
+    }
+    if (file.size <= 0) {
+      setValidationErrors(['الملف فارغ']);
+      e.target.value = '';
+      return;
+    }
+    if (file.size > MAX_BOUNDARY_FILE_BYTES) {
+      setValidationErrors([
+        `حجم الملف يتجاوز الحد الأقصى ${MAX_BOUNDARY_FILE_BYTES / 1024 / 1024} ميجابايت`,
+      ]);
+      e.target.value = '';
+      return;
+    }
+    setValidationErrors([]);
+    setUploadedFile(file);
   };
 
   // Submit field creation

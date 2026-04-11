@@ -49,8 +49,9 @@ export const disasterApi = {
   },
 
   getRiskById: async (id: string): Promise<RiskAssessment> => {
-    return safeFetch(`${DISASTER_ENDPOINTS.ASSESS}/risks/${id}`, async () => {
-      const response = await api.get(`${DISASTER_ENDPOINTS.ASSESS}/risks/${id}`);
+    const safeId = encodeURIComponent(id);
+    return safeFetch(`${DISASTER_ENDPOINTS.ASSESS}/risks/${safeId}`, async () => {
+      const response = await api.get(`${DISASTER_ENDPOINTS.ASSESS}/risks/${safeId}`);
       return response.data.data || response.data;
     });
   },
@@ -71,8 +72,9 @@ export const disasterApi = {
   },
 
   getEventById: async (id: string): Promise<DisasterEvent> => {
-    return safeFetch(`${API_PREFIX}/disaster/events/${id}`, async () => {
-      const response = await api.get(`${API_PREFIX}/disaster/events/${id}`);
+    const safeId = encodeURIComponent(id);
+    return safeFetch(`${API_PREFIX}/disaster/events/${safeId}`, async () => {
+      const response = await api.get(`${API_PREFIX}/disaster/events/${safeId}`);
       return response.data.data || response.data;
     });
   },
@@ -85,15 +87,17 @@ export const disasterApi = {
   },
 
   updateEvent: async (id: string, data: Partial<DisasterFormData>): Promise<DisasterEvent> => {
-    return safeFetch(`${API_PREFIX}/disaster/events/${id}`, async () => {
-      const response = await api.put(`${API_PREFIX}/disaster/events/${id}`, data);
+    const safeId = encodeURIComponent(id);
+    return safeFetch(`${API_PREFIX}/disaster/events/${safeId}`, async () => {
+      const response = await api.put(`${API_PREFIX}/disaster/events/${safeId}`, data);
       return response.data.data || response.data;
     });
   },
 
   updateEventStatus: async (id: string, status: string): Promise<DisasterEvent> => {
-    return safeFetch(`${API_PREFIX}/disaster/events/${id}/status`, async () => {
-      const response = await api.patch(`${API_PREFIX}/disaster/events/${id}/status`, { status });
+    const safeId = encodeURIComponent(id);
+    return safeFetch(`${API_PREFIX}/disaster/events/${safeId}/status`, async () => {
+      const response = await api.patch(`${API_PREFIX}/disaster/events/${safeId}/status`, { status });
       return response.data.data || response.data;
     });
   },

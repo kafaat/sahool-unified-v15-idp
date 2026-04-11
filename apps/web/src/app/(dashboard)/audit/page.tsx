@@ -4,6 +4,7 @@
  */
 
 import { Metadata } from 'next';
+import { requireAdmin } from '@/lib/auth/route-guard';
 import AuditClient from '@/features/audit/components/AuditClient';
 
 export const metadata: Metadata = {
@@ -11,6 +12,9 @@ export const metadata: Metadata = {
   description: 'View audit trail, filter events, and export compliance reports',
 };
 
-export default function AuditPage() {
+// Audit logs contain security-sensitive data (IPs, user actions, PII).
+// Enforce admin role server-side — client-only guards are not sufficient.
+export default async function AuditPage() {
+  await requireAdmin();
   return <AuditClient />;
 }

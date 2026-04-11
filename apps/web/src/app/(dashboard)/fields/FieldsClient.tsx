@@ -78,14 +78,18 @@ export default function FieldsClient() {
         { data }
       );
 
-      // Parse bilingual error message if available
+      // safeFetch wraps failures in ApiError which carries a bilingual
+      // `messageAr` alongside the standard `message` — prefer those
+      // directly over the legacy JSON.parse(error.message) path which
+      // never matched the new error shape.
+      // استخراج الرسالة ثنائية اللغة مباشرة من كائن الخطأ الموحّد
       let errorMessage = t('createFailed');
-      if (error instanceof Error) {
-        try {
-          const errorData = JSON.parse(error.message);
-          errorMessage = errorData.messageAr || errorData.message || errorMessage;
-        } catch {
-          // Use default error message
+      if (error && typeof error === 'object') {
+        const e = error as { messageAr?: string; message?: string };
+        if (e.messageAr && e.messageAr.length > 0) {
+          errorMessage = e.messageAr;
+        } else if (e.message && e.message.length > 0) {
+          errorMessage = e.message;
         }
       }
 

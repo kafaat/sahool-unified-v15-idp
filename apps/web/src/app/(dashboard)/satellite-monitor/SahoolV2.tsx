@@ -457,7 +457,7 @@ export default function SahoolV2() {
                 </div>
               </Card>
               {/* Upload zone */}
-              <label>
+              <label style={{ display: 'block' }}>
               <Card
                 variant="bordered"
                 padding="lg"
@@ -467,7 +467,32 @@ export default function SahoolV2() {
                   cursor: 'pointer',
                 }}
               >
-                <input type="file" accept=".kml,.shp,.geojson,.json,.pdf,.csv,.jpg,.png" multiple style={{ display: 'none' }} />
+                <input
+                  type="file"
+                  accept=".kml,.shp,.geojson,.json,.pdf,.csv,.jpg,.png"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    // Basic client-side validation: reject empty selection,
+                    // enforce 50MB per-file limit (matches backend upload
+                    // limits across file ingestion endpoints). Real upload
+                    // wiring is handled by the feature-specific mutation
+                    // elsewhere — this is a catalog placeholder.
+                    const fileList = e.target.files as FileList | null;
+                    const files: File[] = fileList ? Array.from(fileList) : [];
+                    if (files.length === 0) return;
+                    const MAX_BYTES = 50 * 1024 * 1024;
+                    const oversize: File | undefined = files.find((f: File) => f.size > MAX_BYTES);
+                    if (oversize) {
+                      // eslint-disable-next-line no-alert
+                      alert(`الملف "${oversize.name}" يتجاوز الحد الأقصى 50 ميجابايت`);
+                      e.target.value = '';
+                      return;
+                    }
+                    // Reset the input so re-selecting the same file fires onChange.
+                    e.target.value = '';
+                  }}
+                />
                 <div style={{ fontSize: 32, marginBottom: 8, color: '#426A88' }}>📁</div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#82B8D4' }}>اسحب ملفاتك هنا أو انقر للرفع</div>
                 <div style={{ fontSize: 9, color: '#426A88', marginTop: 4 }}>

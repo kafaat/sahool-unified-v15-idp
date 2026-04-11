@@ -145,9 +145,23 @@ export default function ReportsClient() {
     );
   };
 
+  // Only open URLs with safe schemes (http/https/same-origin). This blocks
+  // javascript:/data:/vbscript: URLs smuggled via a compromised or misbehaving
+  // backend. noopener is set to drop the opener reference on new window.
+  const isSafeDownloadUrl = (url: string): boolean => {
+    try {
+      // Allow relative URLs (resolved against current origin)
+      if (url.startsWith('/')) return true;
+      const parsed = new URL(url, window.location.origin);
+      return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+    } catch {
+      return false;
+    }
+  };
+
   const handleDownload = (report: Report) => {
-    if (report.downloadUrl) {
-      window.open(report.downloadUrl, '_blank');
+    if (report.downloadUrl && isSafeDownloadUrl(report.downloadUrl)) {
+      window.open(report.downloadUrl, '_blank', 'noopener,noreferrer');
     }
   };
 

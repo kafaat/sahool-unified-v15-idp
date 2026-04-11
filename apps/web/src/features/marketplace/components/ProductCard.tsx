@@ -42,9 +42,19 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({ product, onClick }) 
     [onClick]
   );
 
-  const discountedPrice = product.discount
-    ? product.price * (1 - product.discount.percentage / 100)
-    : null;
+  // Clamp the discount percentage to a valid range [0, 100] so that malformed
+  // server data (e.g. >100% or negative) cannot render a negative or absurdly
+  // inflated price to the user. Server remains authoritative; this is display
+  // defense-in-depth only.
+  const discountedPrice = (() => {
+    if (!product.discount) return null;
+    const pct = Number(product.discount.percentage);
+    if (!Number.isFinite(pct) || pct <= 0) return null;
+    const safePct = Math.min(pct, 100);
+    const price = Number(product.price);
+    if (!Number.isFinite(price) || price < 0) return null;
+    return price * (1 - safePct / 100);
+  })();
 
   const isOutOfStock = product.status === 'out_of_stock';
 

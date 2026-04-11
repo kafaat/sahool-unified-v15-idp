@@ -25,8 +25,9 @@ export const farmsApi = {
   },
 
   getFarmById: async (id: string): Promise<Farm> => {
-    return safeFetch(FARM_ENDPOINTS.GET, async () => {
-      const response = await api.get(buildUrl(FARM_ENDPOINTS.GET, { farmId: id }));
+    const url = buildUrl(FARM_ENDPOINTS.GET, { farmId: id });
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return extractData<Farm>(response);
     });
   },
@@ -39,15 +40,17 @@ export const farmsApi = {
   },
 
   updateFarm: async (id: string, data: Partial<FarmFormData>): Promise<Farm> => {
-    return safeFetch(FARM_ENDPOINTS.UPDATE, async () => {
-      const response = await api.put(buildUrl(FARM_ENDPOINTS.UPDATE, { farmId: id }), data);
+    const url = buildUrl(FARM_ENDPOINTS.UPDATE, { farmId: id });
+    return safeFetch(url, async () => {
+      const response = await api.put(url, data);
       return extractData<Farm>(response);
     });
   },
 
   deleteFarm: async (id: string): Promise<void> => {
-    return safeFetch(FARM_ENDPOINTS.DELETE, async () => {
-      await api.delete(buildUrl(FARM_ENDPOINTS.DELETE, { farmId: id }));
+    const url = buildUrl(FARM_ENDPOINTS.DELETE, { farmId: id });
+    return safeFetch(url, async () => {
+      await api.delete(url);
     });
   },
 

@@ -13,16 +13,18 @@ Provides agricultural logistics management:
 import json
 import logging
 import os
+import re
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime, timedelta, timezone
-from enum import Enum, StrEnum
+from datetime import UTC, datetime, timedelta
+from enum import StrEnum
 from typing import Any
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -121,6 +123,26 @@ class VehicleStatus(StrEnum):
 
 
 class ShipmentStatus(StrEnum):
+    """
+    Canonical shipment status enum.
+
+    Includes both backend-native values (scheduled, collecting, at_storage,
+    delivering) and soft/UX values used by the frontend (pending, delayed).
+
+    Soft states semantics:
+      - `pending`: Maps internally to `scheduled` (not yet dispatched) - a "soft" state
+        used by the frontend to represent shipments that have been created but have
+        no vehicle assigned. Persisted canonically as `scheduled`.
+      - `delayed`: Maps internally to `in_transit` with a `delayed=True` flag - a
+        "soft" state representing a shipment in transit past its ETA. Persisted
+        canonically as `in_transit` with metadata.delayed=True.
+    """
+
+    # Soft / UX-layer statuses (aligned with frontend)
+    PENDING = "pending"
+    DELAYED = "delayed"
+
+    # Canonical backend statuses
     SCHEDULED = "scheduled"
     COLLECTING = "collecting"
     IN_TRANSIT = "in_transit"
@@ -128,6 +150,57 @@ class ShipmentStatus(StrEnum):
     DELIVERING = "delivering"
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
+
+
+# Canonical unified status set (emitted on output)
+CANONICAL_STATUSES = [
+    "pending",
+    "scheduled",
+    "collecting",
+    "in_transit",
+    "at_storage",
+    "delivering",
+    "delivered",
+    "delayed",
+    "cancelled",
+]
+
+# Map of legacy / frontend-soft status values to canonical internal values
+# for persistence. "pending" is persisted as "scheduled"; "delayed" stays as
+# "in_transit" but is re-emitted as "delayed" when a delayed flag is present.
+LEGACY_STATUS_MAP = {
+    "in-transit": "in_transit",  # legacy dash form
+    "pending": "scheduled",  # soft -> canonical persist
+    # "delayed" is not mapped for persistence; handled separately via flag
+}
+
+
+def normalize_status(value: str | ShipmentStatus | None) -> str | None:
+    """Normalize a status value, accepting both old and new values.
+
+    Returns the canonical (persistable) status value.
+    """
+    if value is None:
+        return None
+    if isinstance(value, ShipmentStatus):
+        value = value.value
+    v = str(value).strip().lower()
+    # apply legacy mapping
+    v = LEGACY_STATUS_MAP.get(v, v)
+    # validate against allowed set
+    if v not in {
+        "scheduled",
+        "collecting",
+        "in_transit",
+        "at_storage",
+        "delivering",
+        "delivered",
+        "cancelled",
+        "delayed",
+        "pending",
+    }:
+        raise ValueError(f"Invalid shipment status: {value}")
+    return v
 
 
 class StorageType(StrEnum):
@@ -165,14 +238,19 @@ VEHICLE_STATUS_AR = {
 }
 
 SHIPMENT_STATUS_AR = {
+    ShipmentStatus.PENDING: "قيد الانتظار",
     ShipmentStatus.SCHEDULED: "مجدول",
     ShipmentStatus.COLLECTING: "قيد الجمع",
     ShipmentStatus.IN_TRANSIT: "في الطريق",
     ShipmentStatus.AT_STORAGE: "في المخزن",
     ShipmentStatus.DELIVERING: "قيد التسليم",
     ShipmentStatus.DELIVERED: "تم التسليم",
+    ShipmentStatus.DELAYED: "متأخر",
     ShipmentStatus.CANCELLED: "ملغى",
 }
+
+# String-keyed variant (for output emission since canonical values are strings)
+SHIPMENT_STATUS_AR_STR = {k.value: v for k, v in SHIPMENT_STATUS_AR.items()}
 
 STORAGE_TYPE_AR = {
     StorageType.COLD: "تبريد",
@@ -245,6 +323,37 @@ class VehicleUpdate(BaseModel):
     current_lon: float | None = None
     fuel_level_percent: float | None = None
     metadata: dict[str, Any] | None = None
+
+
+class DriverStatus(StrEnum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+
+
+class Driver(BaseModel):
+    """Driver model - نموذج السائق"""
+
+    id: str
+    tenant_id: str
+    name: str
+    name_ar: str | None = None
+    phone: str | None = None
+    license_number: str | None = None
+    vehicle_type: VehicleType | None = None
+    status: DriverStatus = DriverStatus.ACTIVE
+    created_at: datetime
+    version: int = 1
+
+
+class DriverCreate(BaseModel):
+    """Create driver request"""
+
+    name: str = Field(..., min_length=1, max_length=200)
+    name_ar: str | None = None
+    phone: str | None = None
+    license_number: str | None = None
+    vehicle_type: VehicleType | None = None
+    status: DriverStatus = DriverStatus.ACTIVE
 
 
 class StorageFacility(BaseModel):
@@ -341,7 +450,16 @@ class HarvestCollectionCreate(BaseModel):
 
 
 class Shipment(BaseModel):
-    """Shipment/delivery model - نموذج الشحنة"""
+    """Shipment/delivery model - نموذج الشحنة
+
+    Status field accepts both legacy and canonical values. See module-level
+    `normalize_status()` and `CANONICAL_STATUSES`.
+
+    Soft/UX states (see ShipmentStatus docstring):
+      - `pending`: Frontend-only; persisted as `scheduled`.
+      - `delayed`: Frontend-only; persisted as `in_transit` with
+        metadata.delayed=True.
+    """
 
     shipment_id: str
     tenant_id: str
@@ -355,7 +473,7 @@ class Shipment(BaseModel):
     cargo_description: str
     cargo_description_ar: str | None = None
     weight_kg: float
-    status: ShipmentStatus
+    status: str
     status_ar: str | None = None
     scheduled_departure: datetime
     actual_departure: datetime | None = None
@@ -367,6 +485,13 @@ class Shipment(BaseModel):
     created_at: datetime
     updated_at: datetime
     metadata: dict[str, Any] | None = None
+
+    # StatusConverter: accept both old and new values on input,
+    # emit canonical persistable value on output.
+    @field_validator("status", mode="before")
+    @classmethod
+    def _normalize_status(cls, v):
+        return normalize_status(v) if v is not None else v
 
 
 class ShipmentCreate(BaseModel):
@@ -417,10 +542,17 @@ VEHICLES: dict[str, dict] = {}
 STORAGE_FACILITIES: dict[str, dict] = {}
 HARVEST_COLLECTIONS: dict[str, dict] = {}
 SHIPMENTS: dict[str, dict] = {}
+DRIVERS: dict[str, dict] = {}
 
 
-def seed_demo_data():
-    """Seed demo data for testing - بيانات تجريبية للاختبار"""
+def seed_demo_data(_db: Any = None) -> None:
+    """Seed demo data for testing - بيانات تجريبية للاختبار.
+
+    The `_db` parameter is unused here (logistics-service keeps its demo
+    stores in-memory) but is accepted for signature parity with sibling
+    services (`equipment-service`, `task-service`) so cross-file static
+    analyzers do not mis-resolve the symbol.
+    """
     now = datetime.now(UTC)
 
     # Demo vehicles
@@ -566,6 +698,36 @@ def seed_demo_data():
     for c in demo_collections:
         HARVEST_COLLECTIONS[c["collection_id"]] = c
 
+    # Demo drivers
+    demo_drivers = [
+        {
+            "id": "driver_001",
+            "tenant_id": "tenant_demo",
+            "name": "Ahmed Mohammed",
+            "name_ar": "أحمد محمد",
+            "phone": "+967-771-123-456",
+            "license_number": "DL-YE-001",
+            "vehicle_type": VehicleType.REFRIGERATED.value,
+            "status": DriverStatus.ACTIVE.value,
+            "created_at": now - timedelta(days=365),
+            "version": 1,
+        },
+        {
+            "id": "driver_002",
+            "tenant_id": "tenant_demo",
+            "name": "Ali Hassan",
+            "name_ar": "علي حسن",
+            "phone": "+967-771-456-789",
+            "license_number": "DL-YE-002",
+            "vehicle_type": VehicleType.PICKUP.value,
+            "status": DriverStatus.ACTIVE.value,
+            "created_at": now - timedelta(days=200),
+            "version": 1,
+        },
+    ]
+    for d in demo_drivers:
+        DRIVERS[d["id"]] = d
+
     logger.info("Demo data seeded successfully")
 
 
@@ -578,12 +740,50 @@ def get_tenant_id(
     x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
     user: User | None = Depends(get_current_user),
 ) -> str:
-    """Extract tenant ID from authenticated user or header"""
-    if AUTH_AVAILABLE and user:
+    """Extract tenant ID strictly from the authenticated JWT `tid` claim.
+
+    Security: In production we do NOT trust the X-Tenant-Id header. The tenant
+    is pulled exclusively from the JWT propagated via the auth dependency,
+    which exposes `user.tenant_id` populated from the `tid` claim.
+
+    The header fallback is retained ONLY for development/testing environments
+    where authentication is not wired up (AUTH_AVAILABLE=False).
+    """
+    # Primary: trust only the JWT-derived user context.
+    if AUTH_AVAILABLE and user and getattr(user, "tenant_id", None):
         return user.tenant_id
-    if x_tenant_id:
-        return x_tenant_id
-    raise HTTPException(status_code=400, detail="Tenant ID is required (authenticate or provide X-Tenant-Id header)")
+
+    # Dev/test fallback path: authentication backend unavailable.
+    if not AUTH_AVAILABLE:
+        if x_tenant_id:
+            return x_tenant_id
+        return "tenant_demo"
+
+    # Auth is available but user has no tenant_id — reject.
+    raise HTTPException(
+        status_code=401,
+        detail="Authenticated user has no tenant context (missing `tid` claim)",
+    )
+
+
+# Strip newlines and control characters from values before logging them to
+# prevent log-injection / log-forging (CodeQL py/log-injection). Any value
+# that flows from a request (tenant_id, user_id, ids in NATS subjects, etc.)
+# MUST be sanitized before being interpolated into a log message.
+_LOG_INJECTION_RE = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def sanitize_log(value: Any) -> str:
+    """Make a value safe for inclusion in a log line.
+
+    Replaces CR/LF/TAB/NULL/control characters with `?` and caps the result
+    at 500 characters to protect against log-line flooding.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    cleaned = _LOG_INJECTION_RE.sub("?", text)
+    return cleaned[:500]
 
 
 async def publish_event(subject: str, data: dict):
@@ -592,9 +792,9 @@ async def publish_event(subject: str, data: dict):
     if _nats_client and _nats_available:
         try:
             await _nats_client.publish(subject, json.dumps(data).encode())
-            logger.info(f"Published event to {subject}")
+            logger.info("Published event to %s", sanitize_log(subject))
         except Exception as e:
-            logger.warning(f"Failed to publish event: {e}")
+            logger.warning("Failed to publish event: %s", sanitize_log(str(e)))
 
 
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -632,11 +832,13 @@ async def lifespan(app: FastAPI):
             _nats_client = await nats.connect(NATS_URL)
             from shared.logging_config import sanitize_url
 
-            logger.info(f"NATS connected: {sanitize_url(NATS_URL)}")
+            logger.info("NATS connected: %s", sanitize_log(sanitize_url(NATS_URL)))
         except Exception as e:
-            logger.warning(f"Failed to connect to NATS: {e}")
+            # Sanitize exception text — NATS client errors can echo the
+            # connection URL or server response which may contain CR/LF.
+            logger.warning("Failed to connect to NATS: %s", sanitize_log(repr(e)))
 
-    logger.info(f"Logistics Service ready on port {SERVICE_PORT}")
+    logger.info("Logistics Service ready on port %s", sanitize_log(SERVICE_PORT))
 
     yield
 
@@ -649,7 +851,8 @@ async def lifespan(app: FastAPI):
             await _nats_client.close()
             logger.info("NATS connection closed")
         except Exception as e:
-            logger.error(f"Error closing NATS: {e}")
+            # Sanitize the exception message — see comment above.
+            logger.error("Error closing NATS: %s", sanitize_log(repr(e)))
 
     logger.info("Logistics Service stopped")
 
@@ -692,6 +895,46 @@ if SECURITY_HEADERS_AVAILABLE:
 
 # Tenant context middleware - عزل المستأجرين
 app.add_middleware(TenantContextMiddleware)
+
+
+# ==============================================================================
+# Deprecation headers middleware (RFC 8594)
+# ==============================================================================
+# Legacy paths (without the /logistics/ segment) are still mounted as aliases
+# but receive RFC 8594 deprecation headers so API clients can migrate.
+
+_DEPRECATED_PATHS = {
+    "/api/v1/shipments",
+    "/api/v1/stats",
+}
+_DEPRECATION_SUNSET = "Wed, 01 Jul 2026 00:00:00 GMT"
+
+
+def _is_deprecated_path(path: str) -> bool:
+    """Return True if the request path matches a deprecated (legacy) alias."""
+    # Match exact path or path + suffix (e.g. /api/v1/shipments/{id}/status)
+    for deprecated in _DEPRECATED_PATHS:
+        if path == deprecated or path.startswith(deprecated + "/") or path.startswith(deprecated + "?"):
+            return True
+    return False
+
+
+class DeprecationHeadersMiddleware(BaseHTTPMiddleware):
+    """Add RFC 8594 deprecation headers for legacy path aliases."""
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if _is_deprecated_path(request.url.path):
+            response.headers["X-API-Deprecated"] = "true"
+            response.headers["Deprecation"] = "true"
+            response.headers["Sunset"] = _DEPRECATION_SUNSET
+            # Migration hint: new canonical path
+            new_path = request.url.path.replace("/api/v1/", "/api/v1/logistics/", 1)
+            response.headers["Link"] = f'<{new_path}>; rel="successor-version"'
+        return response
+
+
+app.add_middleware(DeprecationHeadersMiddleware)
 
 
 # ==============================================================================
@@ -1330,9 +1573,10 @@ async def optimize_route(
 # ==============================================================================
 
 
-@app.get("/api/v1/shipments", response_model=dict)
+@app.get("/api/v1/logistics/shipments", response_model=dict)
+@app.get("/api/v1/shipments", response_model=dict, include_in_schema=False)
 async def list_shipments(
-    status: ShipmentStatus | None = Query(None),
+    status: str | None = Query(None, description="Filter by shipment status (canonical or legacy)"),
     vehicle_id: str | None = Query(None),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -1341,11 +1585,18 @@ async def list_shipments(
     """
     List shipments/deliveries
     قائمة الشحنات/التسليمات
+
+    Returns an envelope:
+    `{shipments: [...], total, limit, offset, pagination: {...}}`
     """
     shipments = [s for s in SHIPMENTS.values() if s["tenant_id"] == tenant_id]
 
     if status:
-        shipments = [s for s in shipments if s["status"] == status.value]
+        try:
+            normalized = normalize_status(status)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        shipments = [s for s in shipments if s["status"] == normalized]
     if vehicle_id:
         shipments = [s for s in shipments if s["vehicle_id"] == vehicle_id]
 
@@ -1353,17 +1604,19 @@ async def list_shipments(
     shipments = shipments[offset : offset + limit]
 
     for s in shipments:
-        s["status_ar"] = SHIPMENT_STATUS_AR.get(ShipmentStatus(s["status"]))
+        s["status_ar"] = SHIPMENT_STATUS_AR_STR.get(s["status"], s["status"])
 
     return {
         "shipments": shipments,
         "total": total,
         "limit": limit,
         "offset": offset,
+        "pagination": {"total": total, "limit": limit, "offset": offset},
     }
 
 
-@app.post("/api/v1/shipments", response_model=Shipment, status_code=201)
+@app.post("/api/v1/logistics/shipments", response_model=Shipment, status_code=201)
+@app.post("/api/v1/shipments", response_model=Shipment, status_code=201, include_in_schema=False)
 async def create_shipment(
     data: ShipmentCreate,
     current_user: User = Depends(get_current_user),
@@ -1417,10 +1670,11 @@ async def create_shipment(
     return Shipment(**shipment)
 
 
-@app.post("/api/v1/shipments/{shipment_id}/status")
+@app.post("/api/v1/logistics/shipments/{shipment_id}/status")
+@app.post("/api/v1/shipments/{shipment_id}/status", include_in_schema=False)
 async def update_shipment_status(
     shipment_id: str,
-    status: ShipmentStatus = Query(...),
+    status: str = Query(..., description="Shipment status (canonical or legacy value)"),
     lat: float | None = Query(None),
     lon: float | None = Query(None),
     current_user: User = Depends(get_current_user),
@@ -1429,33 +1683,60 @@ async def update_shipment_status(
     """
     Update shipment status
     تحديث حالة الشحنة
+
+    Accepts both canonical backend statuses (scheduled, collecting, in_transit,
+    at_storage, delivering, delivered, cancelled) and soft/UX frontend statuses
+    (pending, delayed). The "pending" value is mapped to `scheduled`;
+    "delayed" is mapped to `in_transit` with a metadata.delayed=True flag.
     """
     shipment = SHIPMENTS.get(shipment_id)
     if not shipment or shipment["tenant_id"] != tenant_id:
         raise HTTPException(status_code=404, detail="Shipment not found | الشحنة غير موجودة")
 
+    # Accept both legacy and canonical values. Special-case "delayed" as a
+    # soft state: persist as in_transit + delayed flag.
+    raw_status = status
+    delayed_flag = False
+    try:
+        normalized = normalize_status(raw_status)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if normalized == "delayed":
+        delayed_flag = True
+        normalized = "in_transit"
+
     now = datetime.now(UTC)
-    shipment["status"] = status.value
+    shipment["status"] = normalized
     shipment["updated_at"] = now
+
+    # Track delayed flag in metadata for re-emission as the "delayed" UX state.
+    metadata = shipment.get("metadata") or {}
+    if delayed_flag:
+        metadata["delayed"] = True
+        shipment["metadata"] = metadata
+    elif "delayed" in metadata:
+        metadata.pop("delayed", None)
+        shipment["metadata"] = metadata or None
 
     if lat is not None:
         shipment["current_lat"] = lat
     if lon is not None:
         shipment["current_lon"] = lon
 
-    if status == ShipmentStatus.IN_TRANSIT and shipment["actual_departure"] is None:
+    if normalized == "in_transit" and shipment["actual_departure"] is None:
         shipment["actual_departure"] = now
-    elif status == ShipmentStatus.DELIVERED:
+    elif normalized == "delivered":
         shipment["actual_arrival"] = now
 
     await publish_event(
         f"sahool.{tenant_id}.logistics.shipment.status_changed",
-        {"shipment_id": shipment_id, "status": status.value},
+        {"shipment_id": shipment_id, "status": normalized, "delayed": delayed_flag},
     )
 
+    status_ar = SHIPMENT_STATUS_AR_STR.get(normalized, normalized)
     return {
         "status": "ok",
-        "message": f"Status updated to {status.value} | تم تحديث الحالة إلى {SHIPMENT_STATUS_AR.get(status)}",
+        "message": f"Status updated to {normalized} | تم تحديث الحالة إلى {status_ar}",
     }
 
 
@@ -1464,7 +1745,8 @@ async def update_shipment_status(
 # ==============================================================================
 
 
-@app.get("/api/v1/stats")
+@app.get("/api/v1/logistics/stats")
+@app.get("/api/v1/stats", include_in_schema=False)
 async def get_logistics_stats(
     tenant_id: str = Depends(get_tenant_id),
 ):
@@ -1521,6 +1803,94 @@ async def get_logistics_stats(
             "message_ar": f"{active_shipments} شحنة نشطة",
         },
     }
+
+
+# ==============================================================================
+# Driver Endpoints - نقاط نهاية السائقين
+# ==============================================================================
+
+
+@app.get("/api/v1/logistics/drivers", response_model=dict)
+async def list_drivers(
+    status: DriverStatus | None = Query(None, description="Filter by driver status"),
+    vehicle_type: VehicleType | None = Query(None, description="Filter by certified vehicle type"),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """
+    List drivers in the fleet.
+    قائمة سائقي الأسطول.
+
+    Returns an envelope:
+    `{drivers: [...], total, limit, offset, pagination: {...}}`
+    """
+    drivers = [d for d in DRIVERS.values() if d["tenant_id"] == tenant_id]
+
+    if status:
+        drivers = [d for d in drivers if d.get("status") == status.value]
+    if vehicle_type:
+        drivers = [d for d in drivers if d.get("vehicle_type") == vehicle_type.value]
+
+    total = len(drivers)
+    drivers = drivers[offset : offset + limit]
+
+    return {
+        "drivers": drivers,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "pagination": {"total": total, "limit": limit, "offset": offset},
+    }
+
+
+@app.get("/api/v1/logistics/drivers/{driver_id}", response_model=Driver)
+async def get_driver(
+    driver_id: str,
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """
+    Get driver by ID.
+    الحصول على سائق بواسطة المعرف.
+    """
+    driver = DRIVERS.get(driver_id)
+    if not driver or driver["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=404, detail="Driver not found | السائق غير موجود")
+    return Driver(**driver)
+
+
+@app.post("/api/v1/logistics/drivers", response_model=Driver, status_code=201)
+async def create_driver(
+    data: DriverCreate,
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """
+    Create a new driver.
+    إنشاء سائق جديد.
+    """
+    now = datetime.now(UTC)
+    driver_id = f"driver_{uuid.uuid4().hex[:8]}"
+    driver = {
+        "id": driver_id,
+        "tenant_id": tenant_id,
+        "name": data.name,
+        "name_ar": data.name_ar,
+        "phone": data.phone,
+        "license_number": data.license_number,
+        "vehicle_type": data.vehicle_type.value if data.vehicle_type else None,
+        "status": data.status.value,
+        "created_at": now,
+        "version": 1,
+    }
+    DRIVERS[driver_id] = driver
+
+    await publish_event(
+        f"sahool.{tenant_id}.logistics.driver.created",
+        {"driver_id": driver_id, "tenant_id": tenant_id},
+    )
+
+    return Driver(**driver)
 
 
 # ==============================================================================

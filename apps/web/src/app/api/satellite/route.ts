@@ -17,6 +17,14 @@ const VEGETATION_SERVICE_URL =
 /** Validate fieldId to prevent path traversal */
 const FIELD_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
+/** Validate ISO 8601 date (YYYY-MM-DD) or date-time strings for query injection prevention */
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
+function isValidDateString(str: string): boolean {
+  if (!DATE_PATTERN.test(str)) return false;
+  const d = new Date(str);
+  return !isNaN(d.getTime());
+}
+
 /** Validate UUID format for tenant_id injection prevention */
 function isValidUUID(str: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
@@ -102,7 +110,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'days must be an integer between 1 and 365', error_ar: 'يجب أن يكون عدد الأيام بين 1 و 365' }, { status: 400 });
     }
 
-    // Validate coordinates if provided
+    // Validate coordinates if provided. lat and lon must be supplied together
+    // (a half-bbox is ambiguous for backend field-centroid overrides).
+    if ((lat && !lon) || (lon && !lat)) {
+      return NextResponse.json(
+        { error: 'lat and lon must be provided together', error_ar: 'يجب تقديم خط العرض وخط الطول معاً' },
+        { status: 400 },
+      );
+    }
     if (lat && (isNaN(Number(lat)) || Number(lat) < -90 || Number(lat) > 90)) {
       return NextResponse.json({ error: 'lat must be between -90 and 90', error_ar: 'يجب أن يكون خط العرض بين -90 و 90' }, { status: 400 });
     }
@@ -148,8 +163,24 @@ export async function GET(request: NextRequest) {
         const sarParams = new URLSearchParams();
         const startDate = searchParams.get('start_date');
         const endDate = searchParams.get('end_date');
-        if (startDate) sarParams.set('start_date', startDate);
-        if (endDate) sarParams.set('end_date', endDate);
+        if (startDate) {
+          if (!isValidDateString(startDate)) {
+            return NextResponse.json(
+              { error: 'Invalid start_date format', error_ar: 'تنسيق تاريخ البداية غير صالح' },
+              { status: 400 },
+            );
+          }
+          sarParams.set('start_date', startDate);
+        }
+        if (endDate) {
+          if (!isValidDateString(endDate)) {
+            return NextResponse.json(
+              { error: 'Invalid end_date format', error_ar: 'تنسيق تاريخ النهاية غير صالح' },
+              { status: 400 },
+            );
+          }
+          sarParams.set('end_date', endDate);
+        }
         if (lat) sarParams.set('lat', lat);
         if (lon) sarParams.set('lon', lon);
         const sarQs = sarParams.toString();
@@ -239,6 +270,42 @@ export async function POST(request: NextRequest) {
     }
 
     const { latitude, longitude, coordinates } = body;
+    // Validate coordinates. latitude and longitude must be numeric and in range
+    // when supplied. coordinates (polygon) must be a non-empty array of
+    // [lng, lat] tuples if supplied — we do a structural check only and let
+    // the backend reject malformed geometries.
+    if (latitude != null) {
+      if (typeof latitude !== 'number' || !Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
+        return NextResponse.json({ error: 'latitude must be a number between -90 and 90', error_ar: 'يجب أن يكون خط العرض رقماً بين -90 و 90' }, { status: 400 });
+      }
+    }
+    if (longitude != null) {
+      if (typeof longitude !== 'number' || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+        return NextResponse.json({ error: 'longitude must be a number between -180 and 180', error_ar: 'يجب أن يكون خط الطول رقماً بين -180 و 180' }, { status: 400 });
+      }
+    }
+    if ((latitude != null) !== (longitude != null)) {
+      return NextResponse.json(
+        { error: 'latitude and longitude must be provided together', error_ar: 'يجب تقديم خط العرض وخط الطول معاً' },
+        { status: 400 },
+      );
+    }
+    if (coordinates != null && !Array.isArray(coordinates)) {
+      return NextResponse.json(
+        { error: 'coordinates must be an array of [lng, lat] pairs', error_ar: 'يجب أن تكون الإحداثيات مصفوفة' },
+        { status: 400 },
+      );
+    }
+    // Validate analysisType against a known whitelist to prevent backend
+    // confusion. Unknown types fall back to 'ndvi' on the backend but we
+    // reject obviously malicious inputs (strings with path separators, etc.)
+    if (analysisType != null && typeof analysisType !== 'string') {
+      return NextResponse.json({ error: 'analysisType must be a string', error_ar: 'يجب أن يكون نوع التحليل نصاً' }, { status: 400 });
+    }
+    if (typeof analysisType === 'string' && !/^[a-zA-Z0-9_-]{1,32}$/.test(analysisType)) {
+      return NextResponse.json({ error: 'Invalid analysisType', error_ar: 'نوع التحليل غير صالح' }, { status: 400 });
+    }
+
     const response = await fetch(`${VEGETATION_SERVICE_URL}/v1/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Tenant-Id': tenantId, 'Authorization': `Bearer ${token}` },

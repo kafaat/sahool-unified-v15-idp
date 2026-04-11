@@ -52,12 +52,12 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
     );
   }
 
-  // Prepare chart data
+  // Prepare chart data (coerce numeric fields to avoid NaN rendering)
   const chartData = yieldData.map((field) => ({
-    name: field.fieldNameAr,
-    actual: field.totalYield,
-    expected: field.expectedYield,
-    yieldPerHectare: field.yieldPerHectare,
+    name: field.fieldNameAr || field.fieldName || '',
+    actual: Number(field.totalYield) || 0,
+    expected: Number(field.expectedYield) || 0,
+    yieldPerHectare: Number(field.yieldPerHectare) || 0,
   }));
 
   return (
@@ -134,7 +134,10 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
       {/* Detailed Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {yieldData.map((field) => {
-          const variance = field.variance;
+          const variance = Number(field.variance) || 0;
+          const totalYield = Number(field.totalYield) || 0;
+          const yieldPerHectare = Number(field.yieldPerHectare) || 0;
+          const area = Number(field.area) || 0;
           const isUnderperforming = variance < -10;
           const isOverperforming = variance > 10;
 
@@ -162,7 +165,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
                 <div>
                   <p className="text-sm text-gray-600">{t('actualYield')}</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {field.totalYield.toLocaleString('ar-SA')} {t('kg')}
+                    {totalYield.toLocaleString('ar-SA')} {t('kg')}
                   </p>
                 </div>
 
@@ -171,7 +174,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
                     {t('productivity')} ({t('kgPerHectare')})
                   </p>
                   <p className="text-xl font-semibold text-gray-900">
-                    {field.yieldPerHectare.toLocaleString('ar-SA')}
+                    {yieldPerHectare.toLocaleString('ar-SA')}
                   </p>
                 </div>
 
@@ -193,10 +196,10 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
 
                 <div className="pt-3 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
-                    {t('totalArea')}: {field.area.toLocaleString('ar-SA')} {t('hectare')}
+                    {t('totalArea')}: {area.toLocaleString('ar-SA')} {t('hectare')}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {t('season')}: {field.season}
+                    {t('season')}: {field.season || '-'}
                   </p>
                 </div>
               </div>

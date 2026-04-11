@@ -67,12 +67,14 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
     );
   }
 
-  // Calculate total breakdown across all fields
+  // Calculate total breakdown across all fields (null-safe)
   const totalBreakdown = costData.reduce(
     (acc, field) => {
+      if (!field.breakdown) return acc;
       Object.keys(field.breakdown).forEach((key) => {
         const category = key as keyof typeof field.breakdown;
-        acc[category] = (acc[category] || 0) + field.breakdown[category];
+        const value = Number(field.breakdown[category]) || 0;
+        acc[category] = (acc[category] || 0) + value;
       });
       return acc;
     },
@@ -85,7 +87,9 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
     color: COLORS[category as keyof typeof COLORS] || '#6b7280',
   }));
 
-  const totalCost = costData.reduce((sum, field) => sum + field.totalCost, 0);
+  const totalCost = costData.reduce((sum, field) => sum + (Number(field.totalCost) || 0), 0);
+  const safeFieldCount = costData.length || 1;
+  const averageCostPerField = totalCost / safeFieldCount;
 
   return (
     <div className="space-y-6">
@@ -106,7 +110,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
           <div>
             <p className="text-sm text-gray-600">{t('averageCostPerField')}</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
-              {(totalCost / costData.length).toLocaleString('ar-SA', {
+              {averageCostPerField.toLocaleString('ar-SA', {
                 maximumFractionDigits: 0,
               })}{' '}
               {t('sar')}
@@ -127,7 +131,9 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
                 cy="50%"
                 labelLine={false}
                 label={(entry: { name: string; value: number }) =>
-                  `${entry.name}: ${((entry.value / totalCost) * 100).toFixed(1)}%`
+                  totalCost > 0
+                    ? `${entry.name}: ${((entry.value / totalCost) * 100).toFixed(1)}%`
+                    : entry.name
                 }
                 outerRadius={120}
                 fill="#8884d8"
@@ -153,13 +159,14 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
           >
             <h4 className="font-semibold text-gray-900 mb-1">{field.fieldNameAr}</h4>
             <p className="text-sm text-gray-600 mb-4">
-              {field.costPerHectare.toLocaleString('ar-SA')} {t('sar')}/{t('hectare')}
+              {(Number(field.costPerHectare) || 0).toLocaleString('ar-SA')} {t('sar')}/{t('hectare')}
             </p>
 
             <div className="space-y-2">
-              {Object.entries(field.breakdown).map(([category, value]) => {
-                const numValue = value as number;
-                const percentage = (numValue / field.totalCost) * 100;
+              {Object.entries(field.breakdown || {}).map(([category, value]) => {
+                const numValue = Number(value) || 0;
+                const fieldTotal = Number(field.totalCost) || 0;
+                const percentage = fieldTotal > 0 ? (numValue / fieldTotal) * 100 : 0;
                 const label = categoryLabels[category as keyof typeof categoryLabels] || category;
                 const color = COLORS[category as keyof typeof COLORS] || '#6b7280';
 
@@ -189,7 +196,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700">{t('total')}</span>
                 <span className="text-lg font-bold text-gray-900">
-                  {field.totalCost.toLocaleString('ar-SA')} {t('sar')}
+                  {(Number(field.totalCost) || 0).toLocaleString('ar-SA')} {t('sar')}
                 </span>
               </div>
             </div>

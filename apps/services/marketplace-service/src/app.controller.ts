@@ -16,7 +16,9 @@ import {
   UseGuards,
   ValidationPipe,
   Req,
+  Headers,
   ForbiddenException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import { MarketService } from "./market/market.service";
@@ -35,6 +37,7 @@ import {
   RecordCreditEventDto,
   RequestLoanDto,
   WalletTransactionDto,
+  WalletTransferDto,
 } from "./dto/market.dto";
 
 @Controller()
@@ -45,6 +48,35 @@ export class AppController {
     private readonly prismaService: PrismaService,
     private readonly eventsService: EventsService,
   ) {}
+
+  /**
+   * Resolve the authenticated tenant id **strictly** from the JWT
+   * (`tenant_id` claim, surfaced by JwtAuthGuard as `req.user.tenantId`).
+   *
+   * Used on money-moving endpoints where we must NOT trust the
+   * `X-Tenant-Id` header. If the header fallback ever came back those
+   * endpoints would be vulnerable to tenant-hopping attacks.
+   */
+  private requireTenantId(req: any): string {
+    const tenantId: unknown = req?.user?.tenantId;
+    if (typeof tenantId !== "string" || tenantId.length === 0) {
+      throw new UnauthorizedException(
+        "Missing tenant claim in authentication token",
+      );
+    }
+    return tenantId;
+  }
+
+  /** Resolve the authenticated user id (JWT `sub`). */
+  private requireUserId(req: any): string {
+    const userId: unknown = req?.user?.id;
+    if (typeof userId !== "string" || userId.length === 0) {
+      throw new UnauthorizedException(
+        "Missing user claim in authentication token",
+      );
+    }
+    return userId;
+  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Health Check
@@ -172,6 +204,10 @@ export class AppController {
   /**
    * إنشاء طلب شراء
    * POST /api/v1/market/orders
+   *
+   * Money-moving endpoint: tenant is taken from the JWT claim only (no
+   * header fallback) and the `Idempotency-Key` header is honoured to
+   * prevent duplicate orders on client retries.
    */
   @Post("market/orders")
   @UseGuards(JwtAuthGuard)
@@ -179,9 +215,16 @@ export class AppController {
   async createOrder(
     @Req() req: any,
     @Body(ValidationPipe) body: CreateOrderDto,
+    @Headers("idempotency-key") idempotencyKey?: string,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.marketService.createOrder(body, tenantId);
+    const tenantId = this.requireTenantId(req);
+    const userId = this.requireUserId(req);
+    return this.marketService.createOrder(
+      body,
+      tenantId,
+      idempotencyKey,
+      userId,
+    );
   }
 
   /**
@@ -240,19 +283,40 @@ export class AppController {
   /**
    * إيداع في المحفظة
    * POST /api/v1/fintech/wallet/:walletId/deposit
+   *
+   * Money-moving endpoint: tenant is resolved from the JWT claim (no
+   * header fallback) and the `Idempotency-Key` header is persisted so
+   * a client retry of the exact same request returns the same response.
    */
   @Post("fintech/wallet/:walletId/deposit")
   @UseGuards(JwtAuthGuard)
   async deposit(
+    @Req() request: any,
     @Param("walletId") walletId: string,
     @Body(ValidationPipe) body: WalletTransactionDto,
+    @Headers("idempotency-key") idempotencyKey?: string,
   ) {
-    return this.fintechService.deposit(walletId, body.amount, body.description);
+    const tenantId = this.requireTenantId(request);
+    const userId = this.requireUserId(request);
+    return this.fintechService.deposit(
+      walletId,
+      body.amount,
+      body.description,
+      idempotencyKey,
+      userId,
+      request.ip,
+      tenantId,
+      body.currency,
+    );
   }
 
   /**
    * سحب من المحفظة (مع رمز PIN للمبالغ الكبيرة)
    * POST /api/v1/fintech/wallet/:walletId/withdraw
+   *
+   * Money-moving endpoint: tenant is resolved from the JWT claim (no
+   * header fallback) and the `Idempotency-Key` header is persisted via
+   * the IdempotencyService so client retries are safe.
    */
   @Post("fintech/wallet/:walletId/withdraw")
   @UseGuards(JwtAuthGuard)
@@ -260,16 +324,20 @@ export class AppController {
     @Req() request: any,
     @Param("walletId") walletId: string,
     @Body(ValidationPipe) body: WalletTransactionDto & { pin?: string },
+    @Headers("idempotency-key") idempotencyKey?: string,
   ) {
-    const authenticatedUser = request.user;
+    const tenantId = this.requireTenantId(request);
+    const userId = this.requireUserId(request);
     return this.fintechService.withdraw(
       walletId,
       body.amount,
       body.description,
-      undefined,
-      authenticatedUser.id,
+      idempotencyKey,
+      userId,
       request.ip,
       body.pin,
+      tenantId,
+      body.currency,
     );
   }
 
@@ -837,29 +905,28 @@ export class AppController {
   /**
    * تحويل بين المحافظ
    * POST /api/v1/fintech/wallet/transfer
+   *
+   * Money-moving endpoint: tenant from JWT claim only, Idempotency-Key
+   * header persisted so retries are safe. Currency must be in the
+   * allow-list enforced by WalletTransferDto.
    */
   @Post("fintech/wallet/transfer")
   @UseGuards(JwtAuthGuard)
   async transfer(
     @Req() request: any,
-    @Body()
-    body: {
-      fromWalletId: string;
-      toWalletId: string;
-      amount: number;
-      description?: string;
-      pin?: string;
-    },
+    @Body(ValidationPipe) body: WalletTransferDto,
+    @Headers("idempotency-key") idempotencyKey?: string,
   ) {
+    const tenantId = this.requireTenantId(request);
+    const userId = this.requireUserId(request);
+
     // Verify sender wallet ownership
     const wallet = await this.fintechService.getWalletById(body.fromWalletId);
     if (!wallet) {
       throw new ForbiddenException("Sender wallet not found");
     }
 
-    const authenticatedUser = request.user;
-    const isOwner = authenticatedUser.id === wallet.userId;
-
+    const isOwner = userId === wallet.userId;
     if (!isOwner) {
       throw new ForbiddenException(
         "You are not authorized to transfer from this wallet",
@@ -871,10 +938,12 @@ export class AppController {
       body.toWalletId,
       body.amount,
       body.description,
-      undefined,
-      authenticatedUser.id,
+      idempotencyKey,
+      userId,
       request.ip,
       body.pin,
+      tenantId,
+      body.currency,
     );
   }
 

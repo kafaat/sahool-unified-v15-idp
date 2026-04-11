@@ -51,13 +51,26 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
     }
   };
 
+  // Empty state when KPIs payload is missing or empty.
+  if (!kpis || kpis.length === 0) {
+    return (
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
+        <p className="text-gray-600">لا توجد مؤشرات متاحة | No KPIs available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {kpis.map((kpi) => {
         const Icon = iconMap[kpi.icon] || BarChart;
-        const TrendIcon = getTrendIcon(kpi.trend);
-        const statusColor = statusColors[kpi.status];
-        const trendColor = trendColors[kpi.trend];
+        const trend = kpi.trend || 'stable';
+        const TrendIcon = getTrendIcon(trend);
+        const statusColor = statusColors[kpi.status] || statusColors.good;
+        const trendColor = trendColors[trend];
+        // Coerce numeric fields so missing/invalid values do not crash .toFixed/.toLocaleString.
+        const change = Number(kpi.change) || 0;
+        const value = Number(kpi.value) || 0;
 
         return (
           <div
@@ -71,8 +84,8 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
               <div className={`flex items-center gap-1 ${trendColor}`}>
                 <TrendIcon className="w-5 h-5" />
                 <span className="text-sm font-medium">
-                  {kpi.change > 0 ? '+' : ''}
-                  {kpi.change.toFixed(1)}%
+                  {change > 0 ? '+' : ''}
+                  {change.toFixed(1)}%
                 </span>
               </div>
             </div>
@@ -81,7 +94,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
               <p className="text-sm text-gray-600">{kpi.nameAr}</p>
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-3xl font-bold text-gray-900">
-                  {kpi.value.toLocaleString('ar-SA')}
+                  {value.toLocaleString('ar-SA')}
                 </span>
                 <span className="text-sm text-gray-500">{kpi.unitAr}</span>
               </div>

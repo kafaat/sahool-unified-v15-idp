@@ -1,6 +1,10 @@
 /**
  * Documents Feature - API Layer
  * طبقة API لميزة الوثائق
+ *
+ * NOTE: DOCUMENT_ENDPOINTS is currently marked @deprecated in contracts
+ * because the backend service is not yet implemented. These calls will
+ * return empty data via safeFetch fallback until the backend lands.
  */
 
 import { DOCUMENT_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
@@ -10,6 +14,10 @@ import type { Document, DocumentFilters, DocumentStats } from './types';
 
 const api = createApiClient();
 
+// Client-side pagination defaults (backend may or may not support these)
+const DEFAULT_PAGE_SIZE = 50;
+const MAX_PAGE_SIZE = 200;
+
 export const documentsApi = {
   getDocuments: async (filters?: DocumentFilters): Promise<Document[]> => {
     return safeFetch(DOCUMENT_ENDPOINTS.LIST, async () => {
@@ -18,50 +26,55 @@ export const documentsApi = {
       if (filters?.status) params.set('status', filters.status);
       if (filters?.farmId) params.set('farm_id', filters.farmId);
       if (filters?.search) params.set('search', filters.search);
+      // Enforce a bounded page size to prevent unbounded fetches
+      params.set('limit', String(DEFAULT_PAGE_SIZE));
+      params.set('offset', '0');
       const response = await api.get(`${DOCUMENT_ENDPOINTS.LIST}?${params.toString()}`);
       const data = extractData<Document[]>(response);
-      if (Array.isArray(data)) return data;
+      if (Array.isArray(data)) return data.slice(0, MAX_PAGE_SIZE);
       return [];
     });
   },
 
   getDocumentById: async (id: string): Promise<Document> => {
-    return safeFetch(DOCUMENT_ENDPOINTS.GET, async () => {
-      const response = await api.get(buildUrl(DOCUMENT_ENDPOINTS.GET, { documentId: id }));
+    const endpoint = buildUrl(DOCUMENT_ENDPOINTS.GET, { documentId: id });
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return extractData<Document>(response);
     });
   },
 
   uploadDocument: async (data: FormData): Promise<Document> => {
     return safeFetch(DOCUMENT_ENDPOINTS.UPLOAD, async () => {
-      const response = await api.post(DOCUMENT_ENDPOINTS.UPLOAD, data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // NOTE: Do NOT manually set Content-Type for multipart/form-data — the
+      // browser must set the boundary. Overriding it breaks the upload.
+      const response = await api.post(DOCUMENT_ENDPOINTS.UPLOAD, data);
       return extractData<Document>(response);
     });
   },
 
   deleteDocument: async (id: string): Promise<void> => {
-    return safeFetch(DOCUMENT_ENDPOINTS.DELETE, async () => {
-      await api.delete(buildUrl(DOCUMENT_ENDPOINTS.DELETE, { documentId: id }));
+    const endpoint = buildUrl(DOCUMENT_ENDPOINTS.DELETE, { documentId: id });
+    return safeFetch(endpoint, async () => {
+      await api.delete(endpoint);
     });
   },
 
   downloadDocument: async (id: string): Promise<Blob> => {
-    return safeFetch(DOCUMENT_ENDPOINTS.GET, async () => {
-      const response = await api.get(
-        `${buildUrl(DOCUMENT_ENDPOINTS.GET, { documentId: id })}/download`,
-        {
-          responseType: 'blob',
-        }
-      );
+    const endpoint = `${buildUrl(DOCUMENT_ENDPOINTS.GET, { documentId: id })}/download`;
+    // Download hits a protected endpoint; the unified client attaches the JWT
+    // automatically. Do NOT expose a plain file URL to <a href> — always
+    // fetch the blob through the authenticated client.
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint, { responseType: 'blob' });
       return response.data;
     });
   },
 
   getStats: async (): Promise<DocumentStats> => {
-    return safeFetch(DOCUMENT_ENDPOINTS.LIST, async () => {
-      const response = await api.get(`${DOCUMENT_ENDPOINTS.LIST}/stats`);
+    const endpoint = `${DOCUMENT_ENDPOINTS.LIST}/stats`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return extractData<DocumentStats>(response);
     });
   },

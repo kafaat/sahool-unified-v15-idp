@@ -25,6 +25,7 @@ References:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import math
 import os
@@ -42,9 +43,21 @@ sys.path.insert(0, "/app/shared")
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
 import logging
+import re
 
-from fastapi import Depends, FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from pydantic import BaseModel, ConfigDict, Field
+
+# Log injection sanitizer (CodeQL LOG_INJECTION mitigation).
+_LOG_INJ_RE = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def _safe_log(value: Any) -> str:
+    """Sanitize a value for safe inclusion in log format args."""
+    if value is None:
+        return ""
+    return _LOG_INJ_RE.sub("?", str(value))[:200]
+
 
 try:
     from shared.auth.dependencies import get_current_user
@@ -173,6 +186,86 @@ class SensorReadingBatch(BaseModel):
     readings: list[SensorReading]
     field_id: str | None = None
     tenant_id: str | None = None
+
+
+class SensorReadingOut(BaseModel):
+    """
+    Public camelCase representation of a sensor reading.
+
+    Contract-compatible with ``SENSOR_LATEST`` / ``SENSOR_STREAM``
+    endpoints defined in ``@sahool/shared-types/contracts``.
+    All fields use camelCase aliases via Pydantic V2 aliasing.
+    """
+
+    model_config = ConfigDict(populate_by_name=True, by_alias=True)
+
+    id: str = Field(..., description="Reading identifier (uuid or node:type:timestamp)")
+    sensor_id: str = Field(..., alias="sensorId", description="Sensor / node identifier")
+    value: float = Field(..., description="Sensor value (filtered if Kalman applied)")
+    unit: str = Field(default="", description="Unit of measurement")
+    timestamp: datetime = Field(..., description="Reading timestamp")
+    quality: float | None = Field(default=None, description="Quality 0-1")
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata")
+
+
+class SensorOut(BaseModel):
+    """
+    Public camelCase representation of a sensor / node.
+
+    Contract-compatible with ``SENSORS`` list endpoint.
+    """
+
+    model_config = ConfigDict(populate_by_name=True, by_alias=True)
+
+    id: str = Field(..., description="Sensor / node identifier")
+    name: str = Field(..., description="Sensor display name (English)")
+    name_ar: str | None = Field(default=None, alias="nameAr", description="Sensor display name (Arabic)")
+    node_type: str = Field(..., alias="nodeType", description="Node hardware type")
+    field_id: str = Field(..., alias="fieldId", description="Field the sensor belongs to")
+    status: str = Field(..., description="online / offline")
+    last_seen: str | None = Field(default=None, alias="lastSeen", description="ISO-8601 last seen timestamp")
+    battery_level: float | None = Field(default=None, alias="batteryLevel", description="Battery level 0-100")
+    readings_count: int = Field(default=0, alias="readingsCount", description="Total readings received")
+    sensors: list[str] = Field(default_factory=list, description="List of supported sensor types")
+
+
+def _node_to_sensor_out(node: dict) -> dict:
+    """Convert an internal node dict to ``SensorOut`` serialization (by alias)."""
+    model = SensorOut(
+        id=node.get("node_id", ""),
+        name=node.get("name", ""),
+        name_ar=node.get("name_ar"),
+        node_type=node.get("node_type", ""),
+        field_id=node.get("field_id", ""),
+        status="online" if node.get("online") else "offline",
+        last_seen=node.get("last_seen"),
+        battery_level=node.get("battery_level"),
+        readings_count=int(node.get("readings_count", 0)),
+        sensors=list(node.get("sensors", []) or []),
+    )
+    return model.model_dump(by_alias=True)
+
+
+def _reading_record_to_out(record: dict, sensor_id: str) -> dict:
+    """Convert an internal reading buffer record to ``SensorReadingOut`` (by alias)."""
+    # Build a deterministic id if not provided
+    raw_ts = record.get("timestamp") or datetime.utcnow().isoformat()
+    reading_id = f"{sensor_id}:{record.get('sensor_type', 'value')}:{raw_ts}"
+    # Parse ISO timestamp tolerantly
+    try:
+        ts_parsed = datetime.fromisoformat(str(raw_ts).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        ts_parsed = datetime.utcnow()
+    model = SensorReadingOut(
+        id=reading_id,
+        sensorId=sensor_id,  # type: ignore[arg-type]
+        value=float(record.get("filtered_value", record.get("raw_value", 0.0))),
+        unit=str(record.get("unit") or ""),
+        timestamp=ts_parsed,
+        quality=record.get("quality"),
+        metadata={"sensor_type": record.get("sensor_type"), "raw_value": record.get("raw_value")},
+    )
+    return model.model_dump(by_alias=True, mode="json")
 
 
 class NodeRegistration(BaseModel):
@@ -681,24 +774,25 @@ async def ingest_reading(reading: SensorReading, current_user: User = Depends(ge
     """Ingest a single sensor reading with Kalman filtering and alert checking."""
     result = iot_engine.process_reading(reading)
 
-    # Publish to NATS (subject: sahool.{tenant_id}.iot.reading.{type})
+    # Publish to NATS (subject: sahool.tenant.{tenant_id}.iot.reading.{type})
     nc = getattr(app.state, "nc", None)
     tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
     if nc and result["status"] == "accepted":
         try:
             await nc.publish(
-                f"sahool.{tenant_id}.iot.reading.{reading.sensor_type.value}",
+                f"sahool.tenant.{tenant_id}.iot.reading.{reading.sensor_type.value}",
                 json.dumps(
                     {
                         "node_id": reading.node_id,
+                        "field_id": iot_engine.nodes.get(reading.node_id, {}).get("field_id"),
                         "sensor_type": reading.sensor_type.value,
                         "value": result["filtered_value"],
                         "timestamp": reading.timestamp.isoformat(),
                     }
                 ).encode(),
             )
-        except Exception:
-            logger.warning("Failed to publish NATS reading event for node %s", reading.node_id, exc_info=True)
+        except Exception as e:
+            logger.warning("nats_publish_reading_failed: %s", _safe_log(repr(e)))
 
     return result
 
@@ -718,10 +812,11 @@ async def ingest_batch(batch: SensorReadingBatch, current_user: User = Depends(g
         if nc and result["status"] == "accepted":
             try:
                 await nc.publish(
-                    f"sahool.{tenant_id}.iot.reading.{reading.sensor_type.value}",
+                    f"sahool.tenant.{tenant_id}.iot.reading.{reading.sensor_type.value}",
                     json.dumps(
                         {
                             "node_id": reading.node_id,
+                            "field_id": iot_engine.nodes.get(reading.node_id, {}).get("field_id"),
                             "sensor_type": reading.sensor_type.value,
                             "value": result["filtered_value"],
                             "timestamp": reading.timestamp.isoformat(),
@@ -729,7 +824,7 @@ async def ingest_batch(batch: SensorReadingBatch, current_user: User = Depends(g
                     ).encode(),
                 )
             except Exception as e:
-                logger.error(f"Failed to publish event: {e}", exc_info=True)
+                logger.error("nats_publish_batch_failed: %s", _safe_log(repr(e)))
 
     accepted = sum(1 for r in results if r["status"] == "accepted")
     rejected = len(results) - accepted
@@ -757,7 +852,7 @@ async def calculate_wdi(req: WDIRequest, current_user: User = Depends(get_curren
         try:
             tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
             await nc.publish(
-                f"sahool.{tenant_id}.iot.wdi_calculated",
+                f"sahool.tenant.{tenant_id}.iot.wdi_calculated",
                 json.dumps(
                     {
                         "field_id": req.field_id,
@@ -767,8 +862,8 @@ async def calculate_wdi(req: WDIRequest, current_user: User = Depends(get_curren
                     }
                 ).encode(),
             )
-        except Exception:
-            logger.warning("Failed to publish NATS WDI event for field %s", req.field_id, exc_info=True)
+        except Exception as e:
+            logger.warning("nats_publish_wdi_failed: %s", _safe_log(repr(e)))
 
     return result
 
@@ -856,6 +951,204 @@ async def list_sensor_types():
             for st in SensorType
         ]
     }
+
+
+# ---------------------------------------------------------------------------
+# Alias routes aligned with @sahool/shared-types IOT_ENDPOINTS (4.3.0)
+# SENSORS, SENSOR_LATEST, SENSOR_STATS, SENSOR_STREAM
+# ---------------------------------------------------------------------------
+
+
+def _filter_tenant_nodes(user: User, field_id: str | None = None) -> list[dict]:
+    """Return nodes visible to this tenant (and optionally a field)."""
+    user_tenant = getattr(user, "tenant_id", None)
+    nodes = list(iot_engine.nodes.values())
+    if user_tenant:
+        nodes = [n for n in nodes if n.get("tenant_id") == user_tenant]
+    if field_id:
+        nodes = [n for n in nodes if n.get("field_id") == field_id]
+    return nodes
+
+
+@app.get("/api/v1/iot/sensors")
+async def list_sensors_alias(
+    field_id: str | None = Query(None, description="Optional field filter"),
+    user: User = Depends(get_current_user),
+):
+    """
+    Alias for ``/api/v1/iot/nodes`` — returns sensors in camelCase shape.
+
+    Aligned with ``IOT_ENDPOINTS.SENSORS`` in the shared contracts package.
+    """
+    nodes = _filter_tenant_nodes(user, field_id=field_id)
+    sensors = [_node_to_sensor_out(n) for n in nodes]
+    return {"sensors": sensors, "total": len(sensors)}
+
+
+@app.get("/api/v1/iot/sensors/stats")
+async def sensors_stats_alias(user: User = Depends(get_current_user)):
+    """
+    Sensor summary statistics grouped by status and node type.
+
+    Aligned with ``IOT_ENDPOINTS.SENSOR_STATS`` in the shared contracts package.
+    """
+    nodes = _filter_tenant_nodes(user)
+    by_status: dict[str, int] = {"online": 0, "offline": 0}
+    by_type: dict[str, int] = {}
+    for n in nodes:
+        key = "online" if n.get("online") else "offline"
+        by_status[key] = by_status.get(key, 0) + 1
+        t = str(n.get("node_type", "unknown"))
+        by_type[t] = by_type.get(t, 0) + 1
+    return {
+        "total": len(nodes),
+        "byStatus": by_status,
+        "byType": by_type,
+    }
+
+
+@app.get("/api/v1/iot/sensors/stream")
+async def sensors_stream_alias(
+    request: Request,
+    sensor_id: str | None = Query(None, description="Optional sensor/node filter"),
+    field_id: str | None = Query(None, description="Optional field filter"),
+    user: User = Depends(get_current_user),
+):
+    """
+    Server-Sent Events stream of live sensor readings.
+
+    Subscribes to NATS subject ``sahool.tenant.{tenantId}.iot.reading.*``
+    and forwards each message as a ``data:`` SSE event. Returns HTTP 501
+    with a bilingual explanation if ``sse-starlette`` is not installed or
+    NATS is unavailable.
+
+    Aligned with ``IOT_ENDPOINTS.SENSOR_STREAM`` in the shared contracts
+    package.
+    """
+    try:
+        from sse_starlette.sse import EventSourceResponse
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=501,
+            detail={
+                "error": "sse_not_available",
+                "message_en": (
+                    "Server-Sent Events dependency 'sse-starlette' is not "
+                    "installed. Install it to enable /sensors/stream."
+                ),
+                "message_ar": (
+                    "المكتبة المطلوبة لدفق الأحداث 'sse-starlette' غير مثبتة. قم بتثبيتها لتفعيل بث المستشعرات."
+                ),
+            },
+        ) from exc
+
+    nc = getattr(app.state, "nc", None)
+    if nc is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "nats_unavailable",
+                "message_en": "NATS connection not available; streaming disabled.",
+                "message_ar": "اتصال NATS غير متوفر؛ البث معطل.",
+            },
+        )
+
+    tenant_id = getattr(user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
+    subject_pattern = f"sahool.tenant.{tenant_id}.iot.reading.*"
+    queue: asyncio.Queue = asyncio.Queue(maxsize=256)
+
+    async def _cb(msg):
+        try:
+            data = json.loads(msg.data.decode()) if msg.data else {}
+        except Exception:
+            data = {"raw": msg.data.decode(errors="ignore") if msg.data else ""}
+        # Client-side filters
+        if sensor_id and str(data.get("node_id") or data.get("sensor_id")) != sensor_id:
+            return
+        if field_id and str(data.get("field_id") or "") != field_id:
+            return
+        try:
+            queue.put_nowait({"event": "reading", "data": json.dumps(data)})
+        except asyncio.QueueFull:
+            # Drop oldest when overwhelmed
+            try:
+                _ = queue.get_nowait()
+                queue.put_nowait({"event": "reading", "data": json.dumps(data)})
+            except Exception:
+                pass
+
+    try:
+        sub = await nc.subscribe(subject_pattern, cb=_cb)
+    except Exception as e:
+        logger.warning("sensors_stream_subscribe_failed: %s", _safe_log(repr(e)))
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "nats_subscribe_failed",
+                "message_en": "Failed to subscribe to sensor event stream.",
+                "message_ar": "فشل الاشتراك في بث أحداث المستشعرات.",
+            },
+        ) from e
+
+    async def _event_gen():
+        try:
+            # Initial hello event so the client knows the stream is live
+            yield {"event": "hello", "data": json.dumps({"tenantId": tenant_id})}
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    item = await asyncio.wait_for(queue.get(), timeout=15.0)
+                    yield item
+                except TimeoutError:
+                    # Keepalive comment so proxies don't time out
+                    yield {"event": "ping", "data": "{}"}
+        finally:
+            try:
+                await sub.unsubscribe()
+            except Exception:
+                pass
+
+    return EventSourceResponse(_event_gen())
+
+
+@app.get("/api/v1/iot/sensors/{sensor_id}")
+async def get_sensor_alias(sensor_id: str, user: User = Depends(get_current_user)):
+    """
+    Alias for ``/api/v1/iot/nodes/{id}`` — returns a single sensor in camelCase shape.
+    """
+    node = iot_engine.nodes.get(sensor_id)
+    if not node:
+        raise HTTPException(status_code=404, detail=f"Sensor not found: {sensor_id}")
+    user_tenant = getattr(user, "tenant_id", None)
+    if user_tenant and node.get("tenant_id") != user_tenant:
+        # Do not leak existence across tenants
+        raise HTTPException(status_code=404, detail=f"Sensor not found: {sensor_id}")
+    recent = list(iot_engine.readings_buffer.get(sensor_id, []))[-20:]
+    return {
+        "sensor": _node_to_sensor_out(node),
+        "recentReadings": [_reading_record_to_out(r, sensor_id) for r in recent],
+    }
+
+
+@app.get("/api/v1/iot/sensors/{sensor_id}/latest")
+async def get_sensor_latest(sensor_id: str, user: User = Depends(get_current_user)):
+    """
+    Return the most recent filtered reading for a sensor in camelCase shape.
+
+    Aligned with ``IOT_ENDPOINTS.SENSOR_LATEST`` in the shared contracts package.
+    """
+    node = iot_engine.nodes.get(sensor_id)
+    if not node:
+        raise HTTPException(status_code=404, detail=f"Sensor not found: {sensor_id}")
+    user_tenant = getattr(user, "tenant_id", None)
+    if user_tenant and node.get("tenant_id") != user_tenant:
+        raise HTTPException(status_code=404, detail=f"Sensor not found: {sensor_id}")
+    buffer = iot_engine.readings_buffer.get(sensor_id)
+    if not buffer:
+        raise HTTPException(status_code=404, detail="No readings available for this sensor yet")
+    record = buffer[-1]
+    return _reading_record_to_out(record, sensor_id)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,21 @@ interface DiagnosisToolProps {
   onDiagnosisCreated?: (diagnosisId: string) => void;
 }
 
+// Allowed MIME types for crop images (SVG excluded — XSS risk via embedded scripts)
+const ALLOWED_IMAGE_MIME_TYPES = new Set<string>([
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+]);
+
+// Max single-image size: 10 MB
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+// Max number of images per diagnosis
+const MAX_IMAGES_PER_DIAGNOSIS = 5;
+
 export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated }) => {
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -33,31 +48,50 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
       const files = Array.from(e.target.files || []);
       if (files.length === 0) return;
 
-      // Validate file types
-      const validFiles = files.filter((file) => file.type.startsWith('image/'));
-      if (validFiles.length !== files.length) {
-        setError('يرجى تحميل صور فقط');
+      // Validate MIME types (SVG and other exotic formats blocked)
+      const invalidType = files.find((file) => !ALLOWED_IMAGE_MIME_TYPES.has(file.type));
+      if (invalidType) {
+        setError('نوع الصورة غير مدعوم. الأنواع المسموح بها: JPEG, PNG, WebP, HEIC');
+        // Reset the input so selecting the same file again re-triggers onChange
+        e.target.value = '';
         return;
       }
 
-      // Limit to 5 images
-      const totalImages = images.length + validFiles.length;
-      if (totalImages > 5) {
-        setError('الحد الأقصى 5 صور');
+      // Validate size per file (10 MB each)
+      const oversized = files.find((file) => file.size > MAX_IMAGE_SIZE_BYTES);
+      if (oversized) {
+        setError('حجم الصورة يتجاوز الحد الأقصى (10 ميجابايت لكل صورة)');
+        e.target.value = '';
+        return;
+      }
+
+      // Limit to MAX_IMAGES_PER_DIAGNOSIS
+      const totalImages = images.length + files.length;
+      if (totalImages > MAX_IMAGES_PER_DIAGNOSIS) {
+        setError(`الحد الأقصى ${MAX_IMAGES_PER_DIAGNOSIS} صور`);
+        e.target.value = '';
         return;
       }
 
       setError('');
-      setImages((prev) => [...prev, ...validFiles]);
+      setImages((prev) => [...prev, ...files]);
 
-      // Create previews
-      validFiles.forEach((file) => {
+      // Create previews (with error handling)
+      files.forEach((file) => {
         const reader = new FileReader();
-        reader.onloadend = () => {
-          setPreviews((prev) => [...prev, reader.result as string]);
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            setPreviews((prev) => [...prev, reader.result as string]);
+          }
+        };
+        reader.onerror = () => {
+          logger.error('FileReader failed to read image preview', reader.error);
         };
         reader.readAsDataURL(file);
       });
+
+      // Reset the input so re-selecting the same file works
+      e.target.value = '';
     },
     [images.length]
   );

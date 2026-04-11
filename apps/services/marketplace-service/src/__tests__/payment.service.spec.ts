@@ -16,10 +16,26 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { WalletService } from "../fintech/wallet.service";
 import { EscrowService } from "../fintech/escrow.service";
 import { FintechService } from "../fintech/fintech.service";
+import { IdempotencyService } from "../fintech/idempotency.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreditService } from "../fintech/credit.service";
 import { LoanService } from "../fintech/loan.service";
 import { NotFoundException, BadRequestException } from "@nestjs/common";
+
+/** No-op IdempotencyService stub — see idempotency.service.ts */
+const mockIdempotencyService = {
+  executeIdempotent: jest.fn(
+    async (
+      _key: string | undefined,
+      _tenant: string,
+      _user: string,
+      _op: string,
+      _payload: unknown,
+      fn: () => Promise<unknown>,
+    ) => ({ value: await fn(), replayed: false, statusCode: 200 }),
+  ),
+  hashRequest: jest.fn(() => "stub-hash"),
+};
 
 describe("Payment Service - Wallet Operations", () => {
   let walletService: WalletService;
@@ -98,6 +114,10 @@ describe("Payment Service - Wallet Operations", () => {
         {
           provide: LoanService,
           useValue: mockLoanService,
+        },
+        {
+          provide: IdempotencyService,
+          useValue: mockIdempotencyService,
         },
       ],
     }).compile();

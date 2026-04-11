@@ -435,13 +435,20 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.createOrder.mockResolvedValue(mockOrder);
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       const result = await controller.createOrder(mockReq, createOrderDto);
 
       expect(result).toEqual(mockOrder);
+      // Controller now forwards (body, tenantId, idempotencyKey, userId).
+      // `idempotencyKey` is `undefined` when the header is absent.
       expect(mockMarketService.createOrder).toHaveBeenCalledWith(
         createOrderDto,
-        'tenant-1',
+        "tenant-1",
+        undefined,
+        "user-1",
       );
     });
 
@@ -455,7 +462,10 @@ describe("AppController (Marketplace)", () => {
         new Error("الكمية المطلوبة غير متوفرة للمنتج"),
       );
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       await expect(
         controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("الكمية المطلوبة غير متوفرة للمنتج");
@@ -471,7 +481,10 @@ describe("AppController (Marketplace)", () => {
         new Error("المنتج غير موجود"),
       );
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       await expect(
         controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("المنتج غير موجود");
@@ -658,7 +671,10 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.createProduct.mockResolvedValue(mockProduct);
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       const product = await controller.createProduct(mockReq, createProductDto);
       expect(product.id).toBe("product-1");
 
@@ -734,7 +750,10 @@ describe("AppController (Marketplace)", () => {
         new Error("الكمية المطلوبة غير متوفرة للمنتج"),
       );
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       await expect(
         controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("الكمية المطلوبة غير متوفرة للمنتج");

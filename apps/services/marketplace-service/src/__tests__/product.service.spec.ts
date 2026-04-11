@@ -12,6 +12,22 @@
 
 import { Test, TestingModule } from "@nestjs/testing";
 import { MarketService } from "../market/market.service";
+import { IdempotencyService } from "../fintech/idempotency.service";
+
+/** No-op IdempotencyService stub — see idempotency.service.ts */
+const mockIdempotencyService = {
+  executeIdempotent: jest.fn(
+    async (
+      _key: string | undefined,
+      _tenant: string,
+      _user: string,
+      _op: string,
+      _payload: unknown,
+      fn: () => Promise<unknown>,
+    ) => ({ value: await fn(), replayed: false, statusCode: 200 }),
+  ),
+  hashRequest: jest.fn(() => "stub-hash"),
+};
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
 import { CacheService } from "../cache/cache.service";
@@ -73,6 +89,10 @@ describe("MarketService - Product Operations", () => {
         {
           provide: CacheService,
           useValue: mockCacheService,
+        },
+        {
+          provide: IdempotencyService,
+          useValue: mockIdempotencyService,
         },
       ],
     }).compile();

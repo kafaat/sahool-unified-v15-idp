@@ -583,6 +583,22 @@ class ContourAnalysisResponse(BaseModel):
     processing_time_ms: int
 
 
+class AspectAnalysisResponse(BaseModel):
+    """
+    Aspect analysis response | استجابة تحليل الجانب
+
+    Returns sun-facing direction (0-360 degrees, 0=North, clockwise)
+    computed from the DEM for the field. Contract endpoint:
+    GET /api/v1/terrain/aspect/{field_id}
+    """
+
+    field_id: str = Field(..., description="Field identifier | معرف الحقل")
+    analyzed_at: datetime = Field(..., description="Analysis timestamp | وقت التحليل")
+    dem_source: DEMSourceType = Field(..., description="DEM source used | مصدر الارتفاعات")
+    aspect: AspectResult = Field(..., description="Aspect analysis result | نتيجة تحليل الجانب")
+    processing_time_ms: int = Field(..., description="Processing time (ms) | وقت المعالجة (ملي ثانية)")
+
+
 # =============================================================================
 # Error Response Models
 # =============================================================================

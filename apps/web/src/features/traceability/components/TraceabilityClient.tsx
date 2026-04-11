@@ -21,7 +21,17 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { traceabilityApi } from '../api';
-import type { TraceabilityBatch, TraceabilityEvent } from '../api';
+import type { TraceabilityBatch, TraceabilityEvent, TraceabilityBatchStatus } from '../api';
+
+/**
+ * Strip bidi/control/zero-width characters from user-supplied strings
+ * before rendering to prevent visual spoofing of batch codes and locations.
+ */
+function sanitizeDisplay(input: string | null | undefined): string {
+  if (!input) return '';
+  // eslint-disable-next-line no-control-regex
+  return String(input).replace(/[\u0000-\u001F\u007F\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '').slice(0, 300);
+}
 
 // ---------------------------------------------------------------------------
 // Query Keys
@@ -38,28 +48,28 @@ const traceabilityKeys = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const statusColors: Record<string, string> = {
+const statusColors: Record<TraceabilityBatchStatus, string> = {
   harvested: 'bg-amber-100 text-amber-700',
   processing: 'bg-blue-100 text-blue-700',
   in_transit: 'bg-purple-100 text-purple-700',
-  'in-transit': 'bg-purple-100 text-purple-700',
   delivered: 'bg-green-100 text-green-700',
+  recalled: 'bg-red-100 text-red-700',
 };
 
-const statusLabels: Record<string, string> = {
+const statusLabels: Record<TraceabilityBatchStatus, string> = {
   harvested: 'تم الحصاد',
   processing: 'قيد المعالجة',
   in_transit: 'قيد النقل',
-  'in-transit': 'قيد النقل',
   delivered: 'تم التسليم',
+  recalled: 'تم الاسترجاع',
 };
 
-const statusIcons: Record<string, React.ReactNode> = {
+const statusIcons: Record<TraceabilityBatchStatus, React.ReactNode> = {
   harvested: <Package className="w-4 h-4" />,
   processing: <Clock className="w-4 h-4" />,
   in_transit: <Truck className="w-4 h-4" />,
-  'in-transit': <Truck className="w-4 h-4" />,
   delivered: <CheckCircle className="w-4 h-4" />,
+  recalled: <AlertTriangle className="w-4 h-4" />,
 };
 
 const eventLabels: Record<string, string> = {
@@ -110,9 +120,9 @@ function BatchEvents({ batchId }: { batchId: string }) {
             </div>
             <p className="text-sm text-gray-600 mb-1">
               <MapPin className="w-3 h-3 inline ml-1" />
-              {event.location}
+              {sanitizeDisplay(event.location)}
             </p>
-            <p className="text-xs text-gray-400 mt-1">{event.actor}</p>
+            <p className="text-xs text-gray-400 mt-1">{sanitizeDisplay(event.actor)}</p>
           </div>
         </div>
       ))}
@@ -144,7 +154,7 @@ export default function TraceabilityClient() {
 
   const stats = {
     total: records.length,
-    inTransit: records.filter((b) => b.status === 'in_transit' || b.status === ('in-transit' as string)).length,
+    inTransit: records.filter((b) => b.status === 'in_transit').length,
     delivered: records.filter((b) => b.status === 'delivered').length,
     qrCodes: records.filter((b) => !!b.qrCode).length,
   };
@@ -249,10 +259,11 @@ export default function TraceabilityClient() {
           </button>
           <div className="mb-6">
             <h2 className="text-xl font-bold text-gray-900">
-              {selected.cropType} - {selected.batchCode}
+              {sanitizeDisplay(selected.cropType)} - {sanitizeDisplay(selected.batchCode)}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {selected.fieldId ?? '-'} &rarr; {statusLabels[selected.status] ?? selected.status}
+              {sanitizeDisplay(selected.fieldId) || '-'} &rarr;{' '}
+              {statusLabels[selected.status] ?? sanitizeDisplay(selected.status)}
             </p>
           </div>
           {/* Events Timeline */}
@@ -284,19 +295,19 @@ export default function TraceabilityClient() {
                   {records.map((batch: TraceabilityBatch) => (
                     <tr key={batch.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-4 pr-4 text-sm font-mono font-semibold text-gray-900">
-                        {batch.batchCode}
+                        {sanitizeDisplay(batch.batchCode)}
                       </td>
-                      <td className="py-4 pr-4 text-sm text-gray-700">{batch.cropType}</td>
-                      <td className="py-4 pr-4 text-sm text-gray-700">{batch.fieldId ?? '-'}</td>
+                      <td className="py-4 pr-4 text-sm text-gray-700">{sanitizeDisplay(batch.cropType)}</td>
+                      <td className="py-4 pr-4 text-sm text-gray-700">{sanitizeDisplay(batch.fieldId) || '-'}</td>
                       <td className="py-4 pr-4 text-sm text-gray-700">
-                        {batch.quantity} {batch.unit}
+                        {Number.isFinite(batch.quantity) ? batch.quantity : 0} {sanitizeDisplay(batch.unit)}
                       </td>
                       <td className="py-4 pr-4">
                         <span
                           className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${statusColors[batch.status] ?? 'bg-gray-100 text-gray-700'}`}
                         >
                           {statusIcons[batch.status]}
-                          {statusLabels[batch.status] ?? batch.status}
+                          {statusLabels[batch.status] ?? sanitizeDisplay(batch.status)}
                         </span>
                       </td>
                       <td className="py-4 pr-4">

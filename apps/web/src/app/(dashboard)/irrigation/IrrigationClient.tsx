@@ -656,9 +656,11 @@ export default function IrrigationClient() {
           aria-label="تصفية حسب الحالة"
         >
           <option value="all">جميع الحالات</option>
-          <option value="active">نشط</option>
-          <option value="paused">متوقف</option>
+          <option value="scheduled">مجدول</option>
+          <option value="in_progress">جاري</option>
           <option value="completed">مكتمل</option>
+          <option value="cancelled">ملغي</option>
+          <option value="overdue">متأخر</option>
         </select>
       </div>
 

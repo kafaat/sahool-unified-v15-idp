@@ -154,6 +154,20 @@ class IoTPublisher:
         message = json.dumps(envelope.to_dict(), default=str).encode()
         await self.nc.publish(subject, message)
 
+        # Additionally mirror to tenant-scoped subject so consumers that
+        # subscribe per-tenant (e.g. `/api/v1/iot/sensors/stream`) can
+        # filter via NATS wildcard matching on
+        # ``sahool.tenant.{tenant_id}.iot.*``. This is a non-breaking
+        # addition — the legacy `sahool.iot.*` subject is still emitted
+        # above for existing subscribers.
+        if tenant_id:
+            tenant_subject = f"sahool.tenant.{tenant_id}.iot.{event_type}"
+            try:
+                await self.nc.publish(tenant_subject, message)
+            except Exception:
+                # Best-effort mirror; never fail the caller on mirror errors.
+                pass
+
         return envelope.event_id
 
     async def publish_sensor_reading(
@@ -196,10 +210,16 @@ class IoTPublisher:
 
         # Also publish to sensor-specific subject
         sensor_subject = get_sensor_subject(sensor_type)
-        await self.nc.publish(
-            sensor_subject,
-            json.dumps(payload, default=str).encode(),
-        )
+        sensor_payload = json.dumps(payload, default=str).encode()
+        await self.nc.publish(sensor_subject, sensor_payload)
+
+        # Mirror to tenant-scoped sensor subject for per-tenant consumers.
+        if tenant_id:
+            tenant_sensor_subject = f"sahool.tenant.{tenant_id}.iot.reading.{sensor_type}"
+            try:
+                await self.nc.publish(tenant_sensor_subject, sensor_payload)
+            except Exception:
+                pass
 
         self._stats["readings_published"] += 1
         print(f"📤 Sensor reading: {sensor_type}={value}{unit} from {device_id}")

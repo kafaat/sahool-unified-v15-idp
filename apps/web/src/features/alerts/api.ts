@@ -229,8 +229,11 @@ export const alertsApi = {
   getStats: async (governorate?: string): Promise<AlertStats> => {
     const endpoint = `${ALERT_ENDPOINTS.LIST}/stats`;
     return safeFetch(endpoint, async () => {
-      const params = governorate ? `?governorate=${governorate}` : '';
-      const response = await api.get(`${endpoint}${params}`);
+      // URL-encode governorate to prevent query-string injection
+      const params = new URLSearchParams();
+      if (governorate) params.set('governorate', governorate);
+      const qs = params.toString();
+      const response = await api.get(qs ? `${endpoint}?${qs}` : endpoint);
       return response.data.data || response.data;
     });
   },

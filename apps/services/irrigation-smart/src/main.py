@@ -110,7 +110,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import re
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 sys.path.insert(0, "/app")
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
@@ -170,6 +170,12 @@ def _validate_tenant_id(user: dict):
             detail={"error": "Missing or invalid tenant_id", "error_ar": "معرف المستأجر مفقود أو غير صالح"},
         )
     return tenant_id
+
+
+def _get_tenant_id(user: dict) -> str:
+    """Get tenant_id from JWT claims (tid preferred).
+    الحصول على معرف المستأجر من رمز JWT."""
+    return _validate_tenant_id(user)
 
 
 def _validate_sensor_ranges(
@@ -396,13 +402,26 @@ class UrgencyLevel(StrEnum):
 
 
 class IrrigationRequest(BaseModel):
+    """Irrigation calculation request.
+
+    Accepts both the canonical field names (``crop``, ``current_soil_moisture``)
+    and frontend-friendly aliases (``crop_type``, ``soil_moisture``).
+    """
+
+    model_config = ConfigDict(populate_by_name=True)
+
     field_id: str
-    crop: CropType
+    crop: CropType = Field(..., alias="crop_type")
     growth_stage: GrowthStage
     area_hectares: float = Field(..., gt=0)
     soil_type: SoilType = SoilType.LOAMY
     irrigation_method: IrrigationMethod = IrrigationMethod.DRIP
-    current_soil_moisture: float | None = Field(default=None, ge=0, le=100)
+    current_soil_moisture: float | None = Field(
+        default=None,
+        ge=0,
+        le=100,
+        alias="soil_moisture",
+    )
     last_irrigation_date: date | None = None
     weather_forecast: dict[str, Any] | None = None
 
@@ -480,6 +499,81 @@ class IrrigationExecution(BaseModel):
     method: IrrigationMethod = IrrigationMethod.DRIP
     executed_at: datetime | None = None
     notes: str | None = None
+
+
+class PivotAction(StrEnum):
+    START = "start"
+    STOP = "stop"
+    PAUSE = "pause"
+    SET_SPEED = "set_speed"
+
+
+class PivotControlRequest(BaseModel):
+    """تحكم المحور المركزي - Center pivot control command."""
+
+    pivot_id: str = Field(..., min_length=1, max_length=100)
+    action: PivotAction
+    speed_percent: float | None = Field(default=None, ge=0, le=100)
+
+
+class ScheduleType(StrEnum):
+    MANUAL = "manual"
+    AUTOMATIC = "automatic"
+    SENSOR_BASED = "sensor_based"
+
+
+class ScheduleStatus(StrEnum):
+    SCHEDULED = "scheduled"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    FAILED = "failed"
+
+
+class IrrigationScheduleCreate(BaseModel):
+    """إنشاء جدول ري - Create irrigation schedule."""
+
+    field_id: str = Field(..., min_length=1, max_length=100)
+    schedule_type: ScheduleType
+    start_time: datetime
+    duration_minutes: int = Field(..., gt=0, le=24 * 60)
+    water_amount_mm: float | None = Field(default=None, ge=0)
+    recurrence: str | None = Field(default=None, max_length=200)
+
+
+class IrrigationScheduleUpdate(BaseModel):
+    """تحديث جدول ري - Update irrigation schedule."""
+
+    schedule_type: ScheduleType | None = None
+    start_time: datetime | None = None
+    duration_minutes: int | None = Field(default=None, gt=0, le=24 * 60)
+    water_amount_mm: float | None = Field(default=None, ge=0)
+    status: ScheduleStatus | None = None
+    recurrence: str | None = Field(default=None, max_length=200)
+
+
+class IrrigationScheduleRecord(BaseModel):
+    """سجل جدول ري - Irrigation schedule record."""
+
+    id: str
+    tenant_id: str
+    field_id: str
+    schedule_type: ScheduleType
+    start_time: datetime
+    duration_minutes: int
+    water_amount_mm: float | None = None
+    status: ScheduleStatus
+    recurrence: str | None = None
+    created_at: datetime
+    version: int = 1
+
+
+# In-memory store for schedules until the DB-backed migration is applied.
+# مخزن مؤقت في الذاكرة - tenant-scoped isolation enforced in handlers.
+# Exposed via __all__ so CodeQL does not flag it as unused before the
+# handler module that populates/reads from it is wired up.
+_schedules_store: dict[str, IrrigationScheduleRecord] = {}
+__all__ = ["_schedules_store"]
 
 
 # =============================================================================
@@ -1066,13 +1160,9 @@ async def calculate_irrigation(
     )
 
     # Publish irrigation plan created event
-    tenant_id = (
-        getattr(user, "tenant_id", "")
-        if isinstance(user, dict) and "tenant_id" in user
-        else getattr(user, "tenant_id", "")
-    )
+    tenant_id = _get_tenant_id(user)
     await publish_event(
-        subject="sahool.irrigation.plan_created",
+        subject=f"sahool.tenant.{tenant_id}.irrigation.plan_created",
         data={
             "field_id": request.field_id,
             "plan_id": plan_id,

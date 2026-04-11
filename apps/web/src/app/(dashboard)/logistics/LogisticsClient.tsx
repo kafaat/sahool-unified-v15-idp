@@ -12,7 +12,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useShipments, useLogisticsStats } from '@/features/logistics';
-import type { Shipment, ShipmentStatus } from '@/features/logistics';
+import type { ShipmentStatus } from '@/features/logistics';
 
 export default function LogisticsClient() {
   const [filterStatus, setFilterStatus] = useState<ShipmentStatus | 'all'>('all');
@@ -25,37 +25,71 @@ export default function LogisticsClient() {
   } = useShipments(filterStatus !== 'all' ? { status: filterStatus } : undefined);
   const { data: stats } = useLogisticsStats();
 
-  const getStatusColor = (status: Shipment['status']) => {
-    const colors: Record<Shipment['status'], string> = {
-      pending: 'text-yellow-600 bg-yellow-100',
-      in_transit: 'text-blue-600 bg-blue-100',
-      delivered: 'text-green-600 bg-green-100',
-      delayed: 'text-red-600 bg-red-100',
-      cancelled: 'text-gray-600 bg-gray-100',
-    };
-    return colors[status];
+  // Status metadata. Backend logistics-service emits additional enum values
+  // (scheduled, collecting, at_storage, delivering) that are not yet in the
+  // frontend type. Using a loose string index and falling back to a sane
+  // default avoids rendering a blank badge when the backend returns an
+  // unmapped status.
+  const STATUS_COLORS: Record<string, string> = {
+    pending: 'text-yellow-600 bg-yellow-100',
+    scheduled: 'text-yellow-600 bg-yellow-100',
+    collecting: 'text-yellow-600 bg-yellow-100',
+    in_transit: 'text-blue-600 bg-blue-100',
+    at_storage: 'text-indigo-600 bg-indigo-100',
+    delivering: 'text-blue-600 bg-blue-100',
+    delivered: 'text-green-600 bg-green-100',
+    delayed: 'text-red-600 bg-red-100',
+    cancelled: 'text-gray-600 bg-gray-100',
+  };
+  const STATUS_LABELS: Record<string, string> = {
+    pending: 'قيد الانتظار',
+    scheduled: 'مجدول',
+    collecting: 'قيد الجمع',
+    in_transit: 'في الطريق',
+    at_storage: 'في المخزن',
+    delivering: 'قيد التسليم',
+    delivered: 'تم التسليم',
+    delayed: 'متأخر',
+    cancelled: 'ملغي',
   };
 
-  const getStatusLabel = (status: Shipment['status']) => {
-    const labels: Record<Shipment['status'], string> = {
-      pending: 'قيد الانتظار',
-      in_transit: 'في الطريق',
-      delivered: 'تم التسليم',
-      delayed: 'متأخر',
-      cancelled: 'ملغي',
-    };
-    return labels[status];
+  const getStatusColor = (status: string | undefined) =>
+    (status && STATUS_COLORS[status]) || 'text-gray-600 bg-gray-100';
+
+  const getStatusLabel = (status: string | undefined) =>
+    (status && STATUS_LABELS[status]) || 'غير معروف';
+
+  const getStatusIcon = (status: string | undefined) => {
+    switch (status) {
+      case 'pending':
+      case 'scheduled':
+      case 'collecting':
+        return <Clock className="w-4 h-4" />;
+      case 'in_transit':
+      case 'delivering':
+      case 'at_storage':
+        return <Truck className="w-4 h-4" />;
+      case 'delivered':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'delayed':
+      case 'cancelled':
+        return <AlertCircle className="w-4 h-4" />;
+      default:
+        return <AlertCircle className="w-4 h-4" />;
+    }
   };
 
-  const getStatusIcon = (status: Shipment['status']) => {
-    const icons: Record<Shipment['status'], React.ReactNode> = {
-      pending: <Clock className="w-4 h-4" />,
-      in_transit: <Truck className="w-4 h-4" />,
-      delivered: <CheckCircle className="w-4 h-4" />,
-      delayed: <AlertCircle className="w-4 h-4" />,
-      cancelled: <AlertCircle className="w-4 h-4" />,
-    };
-    return icons[status];
+  // Safe weight formatter: backend may send kg, ton, or lb, and weight may
+  // be null/undefined. Uses the shipment's own unit instead of a hardcoded
+  // label to prevent wrong unit display (kg vs ton).
+  const formatWeight = (weight: number | undefined | null, unit?: string): string => {
+    if (weight === null || weight === undefined || !Number.isFinite(weight)) {
+      return '—';
+    }
+    // Normalize common Arabic/English unit labels without performing
+    // arithmetic conversion — backend values are authoritative.
+    const unitLabel = unit && unit.trim().length > 0 ? unit : 'كجم';
+    return `${weight.toLocaleString()} ${unitLabel}`;
   };
 
   const localStats = useMemo(
@@ -210,13 +244,15 @@ export default function LogisticsClient() {
                     </div>
                     <div>
                       <div className="text-gray-500">الوزن</div>
-                      <div className="font-medium">{shipment.weight.toLocaleString()} كجم</div>
+                      <div className="font-medium">
+                        {formatWeight(shipment.weight, shipment.weightUnit)}
+                      </div>
                     </div>
                     <div>
                       <div className="text-gray-500">التسليم المتوقع</div>
                       <div className="font-medium flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        {shipment.estimatedDelivery}
+                        {shipment.estimatedDelivery || '—'}
                       </div>
                     </div>
                     {shipment.driver && (

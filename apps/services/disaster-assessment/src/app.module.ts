@@ -10,8 +10,13 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { HealthController } from "./health/health.controller";
 import { DisasterController } from "./disaster/disaster.controller";
 import { DisasterService } from "./disaster/disaster.service";
+import { DisasterDeprecatedController } from "./disaster/disaster-deprecated.controller";
 import { AlertController } from "./alert/alert.controller";
 import { AlertService } from "./alert/alert.service";
+import { EventsController } from "./events/events.controller";
+import { EventsService } from "./events/events.service";
+import { RisksController } from "./risks/risks.controller";
+import { RisksService } from "./risks/risks.service";
 
 @Module({
   imports: [
@@ -37,9 +42,18 @@ import { AlertService } from "./alert/alert.service";
       },
     ]),
   ],
-  controllers: [HealthController, DisasterController, AlertController],
+  controllers: [
+    HealthController,
+    DisasterController,
+    DisasterDeprecatedController,
+    EventsController,
+    RisksController,
+    AlertController,
+  ],
   providers: [
     DisasterService,
+    EventsService,
+    RisksService,
     AlertService,
     // Global rate limiting guard
     {

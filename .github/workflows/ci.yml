@@ -377,8 +377,13 @@ jobs:
           "
 
       - name: Upload coverage report
+        # `secrets` cannot be referenced inside `if:` directly — it must
+        # be wired through `env:` first. Skip the upload entirely when
+        # CODECOV_TOKEN is not configured (forks, local actuators, etc).
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v5
-        if: always() && secrets.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml

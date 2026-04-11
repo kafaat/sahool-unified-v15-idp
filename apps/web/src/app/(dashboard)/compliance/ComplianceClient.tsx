@@ -66,9 +66,14 @@ export default function ComplianceClient() {
         : 0;
     const compliantCount = compliance.filter((c) => c.status === 'compliant').length;
     const activeCerts = certifications.filter((c) => c.status === 'active').length;
-    const firstItem = compliance[0];
-    const nextAudit = firstItem
-      ? compliance.reduce((min, c) => (c.nextAudit < min ? c.nextAudit : min), firstItem.nextAudit)
+    // Compute min next audit using Date parsing so mixed ISO/locale strings
+    // don't cause incorrect string-compare ordering. Skip items with an
+    // invalid or past date (null-safe).
+    const auditTimestamps = compliance
+      .map((c) => Date.parse(c.nextAudit))
+      .filter((t): t is number => Number.isFinite(t));
+    const nextAudit = auditTimestamps.length
+      ? new Date(Math.min(...auditTimestamps)).toISOString().slice(0, 10)
       : 'N/A';
     return { overallScore, compliantCount, activeCerts, nextAudit };
   }, [compliance, certifications]);
@@ -209,8 +214,10 @@ export default function ComplianceClient() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-gray-900">{item.requirementAr}</div>
-                        {item.notes && (
-                          <div className="text-xs text-amber-600 mt-1">{item.notes}</div>
+                        {(item.notesAr ?? item.notes) && (
+                          <div className="text-xs text-amber-600 mt-1">
+                            {item.notesAr ?? item.notes}
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -221,18 +228,35 @@ export default function ComplianceClient() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full ${item.score >= 90 ? 'bg-green-500' : item.score >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                              style={{ width: `${item.score}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium">{item.score}%</span>
-                        </div>
+                        {(() => {
+                          // Clamp score to 0..100 so backend data can't blow
+                          // out the UI layout via an out-of-range percentage.
+                          const raw = Number(item.score);
+                          const score = Number.isFinite(raw)
+                            ? Math.max(0, Math.min(100, raw))
+                            : 0;
+                          return (
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full ${score >= 90 ? 'bg-green-500' : score >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                  style={{ width: `${score}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium">{score}%</span>
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3 text-center text-sm text-gray-500">
-                        {item.nextAudit}
+                        {item.nextAudit
+                          ? (() => {
+                              const t = Date.parse(item.nextAudit);
+                              return Number.isFinite(t)
+                                ? new Date(t).toLocaleDateString('ar-SA')
+                                : '—';
+                            })()
+                          : '—'}
                       </td>
                     </tr>
                   ))

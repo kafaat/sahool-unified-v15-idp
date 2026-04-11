@@ -67,10 +67,12 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
   };
 
   const formatDate = (date: string) => {
-    const now = new Date();
     const postDate = new Date(date);
+    // Guard against undefined/invalid dates from backend or offline cache.
+    if (Number.isNaN(postDate.getTime())) return '';
+    const now = new Date();
     const diffMs = now.getTime() - postDate.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
+    const diffMins = Math.max(0, Math.floor(diffMs / 60000));
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
@@ -80,6 +82,9 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
     return postDate.toLocaleDateString('ar-SA');
   };
 
+  // Resilient avatar initials; never throw on empty username.
+  const avatarInitial = (post.userName ?? post.userNameAr ?? '?').charAt(0) || '?';
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
@@ -88,7 +93,7 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
           <div className="flex items-start gap-3">
             {/* Avatar */}
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-lg">
-              {post.userName[0]}
+              {avatarInitial}
             </div>
 
             {/* User Info */}
@@ -230,7 +235,7 @@ const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
               <div key={comment.id} className="bg-white p-3 rounded-lg">
                 <div className="flex items-start gap-2">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold">
-                    {comment.userName[0]}
+                    {(comment.userName ?? comment.userNameAr ?? '?').charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-sm text-gray-900">{comment.userNameAr}</p>

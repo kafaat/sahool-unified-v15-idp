@@ -75,7 +75,17 @@ from .alert_endpoints import init_alert_manager
 from .alert_endpoints import router as alert_router
 from .alert_manager import AlertManager
 from .inventory_analytics import InventoryAnalytics
-from .models.inventory import (
+
+# Import v2 ORM models so their tables are registered on the shared Base
+# metadata and created by tests / create_all calls. The binding is not
+# referenced again, so we explicitly ignore it via noqa. Bandit B101
+# forbids using `assert` in non-test production code, so the keep-alive
+# trick cannot rely on an assertion.
+from .models import inventory_v2 as _inventory_v2  # noqa: F401
+
+_ = _inventory_v2  # keep side-effect import alive without an assert
+
+from .models.inventory import (  # noqa: E402
     ItemCategory,
 )
 
@@ -173,6 +183,15 @@ app = FastAPI(
 
 # Include alert router
 app.include_router(alert_router)
+
+# Include Wave 2 inventory CRUD router (/api/v1/inventory).
+# Imported here (not at module top) so the static import graph stays
+# acyclic: `api.v1.inventory` lazy-imports back into `main` for the
+# `get_db` / `get_current_user` dependencies.
+import importlib as _importlib  # noqa: E402
+
+_inventory_v1_module = _importlib.import_module("src.api.v1.inventory")
+app.include_router(_inventory_v1_module.router)
 
 # Setup unified error handling
 setup_exception_handlers(app)

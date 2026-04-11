@@ -158,6 +158,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({
     includeCharts: true,
     includeMaps: true,
   });
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const generateFieldReport = useGenerateFieldReport();
   const generateSeasonReport = useGenerateSeasonReport();
@@ -190,6 +191,20 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({
   };
 
   const handleGenerate = async () => {
+    setValidationError(null);
+    // Validate date range before submitting
+    const startMs = Date.parse(config.startDate);
+    const endMs = Date.parse(config.endDate);
+    if (Number.isNaN(startMs) || Number.isNaN(endMs)) {
+      setValidationError('الرجاء اختيار نطاق تاريخ صالح | Please pick a valid date range');
+      return;
+    }
+    if (startMs > endMs) {
+      setValidationError(
+        'يجب أن يكون تاريخ البداية قبل تاريخ النهاية | Start date must be before end date'
+      );
+      return;
+    }
     try {
       if (config.type === 'field') {
         const request: GenerateFieldReportRequest = {
@@ -467,6 +482,13 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({
           )}
         </button>
       </div>
+
+      {/* Validation Error (client-side date range) */}
+      {validationError && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+          <p className="text-yellow-800 font-medium">{validationError}</p>
+        </div>
+      )}
 
       {/* Success Message */}
       {(generateFieldReport.isSuccess || generateSeasonReport.isSuccess) && (

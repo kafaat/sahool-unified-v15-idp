@@ -144,6 +144,18 @@ export const ERROR_CODES = {
   FIELD_OPERATION_INVALID_TYPE: 'F1202',
   FIELD_OPERATION_INVALID_DATE: 'F1203',
   FIELD_OPERATION_DURATION_INVALID: 'F1204',
+  FIELD_OPERATION_LOCKED_BY_ERP: 'F1205',
+  FIELD_OPERATION_NOT_APPROVED: 'F1206',
+  FIELD_OPERATION_REJECTED: 'F1207',
+  FIELD_OPERATION_ALREADY_POSTED: 'F1208',
+  // ERP Sync (F13xx)
+  ERP_ADAPTER_NOT_CONFIGURED: 'F1301',
+  ERP_POSTING_FAILED: 'F1302',
+  ERP_WEBHOOK_UNAVAILABLE: 'F1303',
+  ERP_SIGNATURE_INVALID: 'F1304',
+  // Idempotency (F14xx)
+  IDEMPOTENCY_KEY_CONFLICT: 'F1401',
+  IDEMPOTENCY_KEY_EXPIRED: 'F1402',
 
   // ── Irrigation Service (I1xxx) ─────────────────────────────────────
   IRRIGATION_FIELD_NOT_FOUND: 'I1001',
@@ -679,6 +691,78 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 400,
     en: 'Invalid duration - must be a non-negative number of hours',
     ar: 'مدة العملية غير صالحة — يجب أن تكون عدداً غير سالب من الساعات',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_OPERATION_LOCKED_BY_ERP]: {
+    code: ERROR_CODES.FIELD_OPERATION_LOCKED_BY_ERP,
+    httpStatus: 400,
+    en: 'Operation is locked because it was posted to ERP - reverse the posting first',
+    ar: 'العملية مقفلة لأنها مرحلة إلى نظام المحاسبة — يجب إلغاء الترحيل أولاً',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_OPERATION_NOT_APPROVED]: {
+    code: ERROR_CODES.FIELD_OPERATION_NOT_APPROVED,
+    httpStatus: 400,
+    en: 'Only approved operations can be posted to ERP',
+    ar: 'لا يمكن ترحيل عملية غير معتمدة إلى نظام المحاسبة',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_OPERATION_REJECTED]: {
+    code: ERROR_CODES.FIELD_OPERATION_REJECTED,
+    httpStatus: 400,
+    en: 'Operation has been rejected and cannot be approved',
+    ar: 'العملية مرفوضة ولا يمكن اعتمادها',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_OPERATION_ALREADY_POSTED]: {
+    code: ERROR_CODES.FIELD_OPERATION_ALREADY_POSTED,
+    httpStatus: 409,
+    en: 'Operation has already been posted to ERP',
+    ar: 'تم ترحيل العملية مسبقاً إلى نظام المحاسبة',
+    retryable: false,
+  },
+  // ERP Sync
+  [ERROR_CODES.ERP_ADAPTER_NOT_CONFIGURED]: {
+    code: ERROR_CODES.ERP_ADAPTER_NOT_CONFIGURED,
+    httpStatus: 400,
+    en: 'No ERP adapter is configured',
+    ar: 'لا يوجد موفر ERP مفعّل حالياً',
+    retryable: false,
+  },
+  [ERROR_CODES.ERP_POSTING_FAILED]: {
+    code: ERROR_CODES.ERP_POSTING_FAILED,
+    httpStatus: 502,
+    en: 'ERP posting failed - will be retried by the background worker',
+    ar: 'فشل ترحيل العملية إلى ERP - ستتم إعادة المحاولة تلقائياً',
+    retryable: true,
+  },
+  [ERROR_CODES.ERP_WEBHOOK_UNAVAILABLE]: {
+    code: ERROR_CODES.ERP_WEBHOOK_UNAVAILABLE,
+    httpStatus: 502,
+    en: 'External ERP webhook is unavailable',
+    ar: 'نقطة الاتصال بنظام المحاسبة الخارجي غير متاحة',
+    retryable: true,
+  },
+  [ERROR_CODES.ERP_SIGNATURE_INVALID]: {
+    code: ERROR_CODES.ERP_SIGNATURE_INVALID,
+    httpStatus: 401,
+    en: 'ERP webhook signature is invalid',
+    ar: 'توقيع webhook غير صالح',
+    retryable: false,
+  },
+  // Idempotency
+  [ERROR_CODES.IDEMPOTENCY_KEY_CONFLICT]: {
+    code: ERROR_CODES.IDEMPOTENCY_KEY_CONFLICT,
+    httpStatus: 409,
+    en: 'Idempotency-Key conflict: same key used with a different body',
+    ar: 'تعارض في مفتاح Idempotency — نفس المفتاح مع جسم مختلف',
+    retryable: false,
+  },
+  [ERROR_CODES.IDEMPOTENCY_KEY_EXPIRED]: {
+    code: ERROR_CODES.IDEMPOTENCY_KEY_EXPIRED,
+    httpStatus: 410,
+    en: 'Idempotency-Key has expired',
+    ar: 'انتهت صلاحية مفتاح Idempotency',
     retryable: false,
   },
 

@@ -108,12 +108,30 @@ export const FIELD_OPERATION_ENDPOINTS = {
   GET: `${API_PREFIX}/field-operations/{operationId}`,
   /** Partial update */
   UPDATE: `${API_PREFIX}/field-operations/{operationId}`,
-  /** Hard delete */
+  /** Soft-delete (SOX/IFRS audit safe) */
   DELETE: `${API_PREFIX}/field-operations/{operationId}`,
   /** List all operations for one field */
   LIST_BY_FIELD: `${API_PREFIX}/fields/{fieldId}/operations`,
   /** Record a new operation against a field */
   CREATE: `${API_PREFIX}/fields/{fieldId}/operations`,
+  /** Approve a pending operation (required before ERP posting) */
+  APPROVE: `${API_PREFIX}/field-operations/{operationId}/approve`,
+  /** Reject a pending operation with a mandatory reason */
+  REJECT: `${API_PREFIX}/field-operations/{operationId}/reject`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// ERP Sync Endpoints - تكامل نظام المحاسبة
+// Routes for posting field operations / crop seasons to external accounting
+// systems (QuickBooks, SAP, Odoo, Xero, Oracle NetSuite, ...) via the
+// pluggable IErpAdapter interface in field-management-service.
+// ---------------------------------------------------------------------------
+
+export const ERP_SYNC_ENDPOINTS = {
+  /** Post a single field operation to every enabled ERP adapter */
+  POST_FIELD_OPERATION: `${API_PREFIX}/erp-sync/field-operations/{operationId}/post`,
+  /** Health check — returns reachability of each configured adapter */
+  HEALTH: `${API_PREFIX}/erp-sync/health`,
 } as const;
 
 // ---------------------------------------------------------------------------

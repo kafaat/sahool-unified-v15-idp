@@ -30,6 +30,7 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  UseInterceptors,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from "@nestjs/swagger";
 import { CropSeasonsService } from "./crop-seasons.service";
@@ -40,6 +41,7 @@ import {
   QueryCropSeasonsDto,
 } from "./dto/crop-season.dto";
 import { getRequestTenantId } from "../auth/tenant.utils";
+import { IdempotencyInterceptor } from "../idempotency/idempotency.interceptor";
 
 @ApiTags("Crop Seasons - مواسم المحاصيل")
 @Controller("api/v1")
@@ -93,6 +95,7 @@ export class CropSeasonsController {
    */
   @Post("fields/:fieldId/crop-seasons")
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(IdempotencyInterceptor)
   @ApiOperation({
     summary: "Start a new crop season",
     description: "بدء موسم محصولي جديد على الحقل",
@@ -169,12 +172,13 @@ export class CropSeasonsController {
    */
   @Delete("crop-seasons/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Delete a crop season (hard delete)" })
+  @ApiOperation({ summary: "Soft-delete a crop season (audit-safe)" })
   async remove(
     @Req() req: any,
     @Param("id", ParseUUIDPipe) id: string,
   ) {
     const tenantId = getRequestTenantId(req);
-    await this.service.remove(id, tenantId);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    await this.service.remove(id, tenantId, userId);
   }
 }

@@ -20,6 +20,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { FieldEventsService } from "../events/field-events.service";
+import { OutboxService } from "../outbox/outbox.service";
 import type {
   CreateFieldOperationDto,
   UpdateFieldOperationDto,
@@ -33,7 +34,16 @@ export class FieldOperationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly events: FieldEventsService,
+    private readonly outbox: OutboxService,
   ) {}
+
+  private uuidOrNull(value: string): string {
+    const uuidRe =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRe.test(value)
+      ? value
+      : "00000000-0000-0000-0000-000000000000";
+  }
 
   /**
    * List operations scoped to the authenticated tenant. Supports filtering
@@ -44,7 +54,7 @@ export class FieldOperationsService {
     if (q.fieldId) {
       await this.assertFieldOwnership(q.fieldId, tenantId);
     }
-    const where: Record<string, unknown> = { tenantId };
+    const where: Record<string, unknown> = { tenantId, deletedAt: null };
     if (q.fieldId) where.fieldId = q.fieldId;
     if (q.cropSeasonId) where.cropSeasonId = q.cropSeasonId;
     if (q.operationType) where.operationType = q.operationType;
@@ -90,41 +100,99 @@ export class FieldOperationsService {
     }
 
     const rows = await this.prisma.fieldOperation.findMany({
-      where: { cropSeasonId, tenantId },
+      where: { cropSeasonId, tenantId, deletedAt: null },
       select: {
         operationType: true,
         durationHours: true,
         costAmount: true,
         costCurrency: true,
+        fuelCost: true,
+        laborCost: true,
+        materialsCost: true,
+        overheadCost: true,
+        otherCost: true,
+        taxAmount: true,
       },
     });
 
     const byType: Record<
       string,
-      { count: number; hours: number; cost: number }
+      {
+        count: number;
+        hours: number;
+        cost: number;
+        fuelCost: number;
+        laborCost: number;
+        materialsCost: number;
+        overheadCost: number;
+      }
     > = {};
     let totalHours = 0;
     let totalCost = 0;
+    let totalFuel = 0;
+    let totalLabor = 0;
+    let totalMaterials = 0;
+    let totalOverhead = 0;
+    let totalTax = 0;
+
     for (const r of rows) {
       const hrs = Number(r.durationHours ?? 0);
       const cost = Number(r.costAmount ?? 0);
+      const fuel = Number(r.fuelCost ?? 0);
+      const labor = Number(r.laborCost ?? 0);
+      const materials = Number(r.materialsCost ?? 0);
+      const overhead = Number(r.overheadCost ?? 0);
+      const tax = Number(r.taxAmount ?? 0);
+
       totalHours += Number.isFinite(hrs) ? hrs : 0;
       totalCost += Number.isFinite(cost) ? cost : 0;
+      totalFuel += Number.isFinite(fuel) ? fuel : 0;
+      totalLabor += Number.isFinite(labor) ? labor : 0;
+      totalMaterials += Number.isFinite(materials) ? materials : 0;
+      totalOverhead += Number.isFinite(overhead) ? overhead : 0;
+      totalTax += Number.isFinite(tax) ? tax : 0;
+
       const bucket = (byType[r.operationType] ||= {
         count: 0,
         hours: 0,
         cost: 0,
+        fuelCost: 0,
+        laborCost: 0,
+        materialsCost: 0,
+        overheadCost: 0,
       });
       bucket.count += 1;
       bucket.hours += Number.isFinite(hrs) ? hrs : 0;
       bucket.cost += Number.isFinite(cost) ? cost : 0;
+      bucket.fuelCost += Number.isFinite(fuel) ? fuel : 0;
+      bucket.laborCost += Number.isFinite(labor) ? labor : 0;
+      bucket.materialsCost += Number.isFinite(materials) ? materials : 0;
+      bucket.overheadCost += Number.isFinite(overhead) ? overhead : 0;
     }
+
+    // Update the materialised cache on the parent CropSeason row so
+    // dashboards can list 100 seasons without re-computing rollups.
+    await this.prisma.cropSeason.updateMany({
+      where: { id: cropSeasonId, tenantId, deletedAt: null },
+      data: {
+        totalSeasonCost: totalCost as any,
+        totalSeasonHours: totalHours as any,
+        totalsUpdatedAt: new Date(),
+      },
+    });
 
     return {
       cropSeasonId,
       totalOperations: rows.length,
       totalHours,
       totalCost,
+      costBreakdown: {
+        fuel: totalFuel,
+        labor: totalLabor,
+        materials: totalMaterials,
+        overhead: totalOverhead,
+        tax: totalTax,
+      },
       currency: rows[0]?.costCurrency ?? "SAR",
       byType,
     };
@@ -135,7 +203,7 @@ export class FieldOperationsService {
    */
   async getById(id: string, tenantId: string) {
     const row = await this.prisma.fieldOperation.findUnique({ where: { id } });
-    if (!row || row.tenantId !== tenantId) {
+    if (!row || row.tenantId !== tenantId || row.deletedAt) {
       throw new NotFoundException({
         message: "Field operation not found",
         messageAr: "عملية الحقل غير موجودة",
@@ -191,37 +259,186 @@ export class FieldOperationsService {
       });
     }
 
-    const row = await this.prisma.fieldOperation.create({
-      data: {
-        tenantId,
-        fieldId,
-        cropSeasonId: dto.cropSeasonId,
-        operationType: dto.operationType,
-        performedAt,
-        endedAt: endedAt ?? undefined,
-        durationHours: dto.durationHours as any,
-        costAmount: dto.costAmount as any,
-        costCurrency: dto.costCurrency || "SAR",
-        equipmentId: dto.equipmentId,
-        equipmentName: dto.equipmentName,
-        equipmentNameAr: dto.equipmentNameAr,
-        notes: dto.notes,
-        createdBy,
-      },
-    });
+    // Derive total cost from the breakdown if the caller didn't supply
+    // an explicit `costAmount`. This guarantees dashboards always have
+    // a populated total even when the modal only captures per-component
+    // costs (fuel + labor + materials + overhead + other).
+    const computedTotal =
+      (dto.costAmount ??
+        (dto.fuelCost ?? 0) +
+          (dto.laborCost ?? 0) +
+          (dto.materialsCost ?? 0) +
+          (dto.overheadCost ?? 0) +
+          (dto.otherCost ?? 0)) || undefined;
 
-    await this.events.publishFieldOperationRecorded(tenantId, fieldId, {
-      operationId: row.id,
-      operationType: row.operationType,
-      performedAt: row.performedAt.toISOString(),
-      durationHours: row.durationHours ? Number(row.durationHours) : null,
-      costAmount: row.costAmount ? Number(row.costAmount) : null,
-      costCurrency: row.costCurrency,
-      equipmentId: row.equipmentId ?? null,
-      cropSeasonId: row.cropSeasonId ?? null,
+    const row = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.fieldOperation.create({
+        data: {
+          tenantId,
+          fieldId,
+          cropSeasonId: dto.cropSeasonId,
+          operationType: dto.operationType,
+          performedAt,
+          endedAt: endedAt ?? undefined,
+          durationHours: dto.durationHours as any,
+          costAmount: computedTotal as any,
+          costCurrency: dto.costCurrency || "SAR",
+          // Cost breakdown
+          fuelLiters: dto.fuelLiters as any,
+          fuelCost: dto.fuelCost as any,
+          laborHours: dto.laborHours as any,
+          laborCost: dto.laborCost as any,
+          materialsCost: dto.materialsCost as any,
+          overheadCost: dto.overheadCost as any,
+          otherCost: dto.otherCost as any,
+          // Tax + currency
+          taxAmount: dto.taxAmount as any,
+          taxRate: dto.taxRate as any,
+          exchangeRate: dto.exchangeRate as any,
+          baseCurrency: dto.baseCurrency,
+          // Vendor / invoice
+          invoiceNumber: dto.invoiceNumber,
+          invoiceDate: dto.invoiceDate ? new Date(dto.invoiceDate) : undefined,
+          vendorId: dto.vendorId,
+          vendorName: dto.vendorName,
+          receiptUrl: dto.receiptUrl,
+          // GL / cost-center / project
+          glAccount: dto.glAccount,
+          costCenter: dto.costCenter,
+          projectCode: dto.projectCode,
+          // Equipment link
+          equipmentId: dto.equipmentId,
+          equipmentName: dto.equipmentName,
+          equipmentNameAr: dto.equipmentNameAr,
+          notes: dto.notes,
+          createdBy,
+          // Approval: by default `approved` so the existing flow keeps
+          // working; admins can configure operation-level approval
+          // workflow via env (not in this PR).
+          approvalStatus: "approved",
+          approvedBy: createdBy,
+          approvedAt: new Date(),
+        },
+      });
+
+      // Outbox write — guaranteed delivery to NDVI pipeline, yield-
+      // prediction, advisory-service, ERP webhooks.
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.operation.recorded",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "FieldOperation",
+        aggregateId: created.id,
+        payload: {
+          tenantId,
+          fieldId,
+          operationId: created.id,
+          operationType: created.operationType,
+          performedAt: created.performedAt.toISOString(),
+          durationHours: created.durationHours
+            ? Number(created.durationHours)
+            : null,
+          costAmount: created.costAmount ? Number(created.costAmount) : null,
+          costCurrency: created.costCurrency,
+          costBreakdown: {
+            fuel: Number(created.fuelCost ?? 0),
+            labor: Number(created.laborCost ?? 0),
+            materials: Number(created.materialsCost ?? 0),
+            overhead: Number(created.overheadCost ?? 0),
+            other: Number(created.otherCost ?? 0),
+            tax: Number(created.taxAmount ?? 0),
+          },
+          equipmentId: created.equipmentId ?? null,
+          cropSeasonId: created.cropSeasonId ?? null,
+          vendorId: created.vendorId ?? null,
+          glAccount: created.glAccount ?? null,
+        },
+      });
+
+      return created;
     });
 
     return row;
+  }
+
+  /**
+   * Approve a pending field operation. Only approved operations can be
+   * posted to ERP systems (enforced by ErpSyncService).
+   */
+  async approve(
+    id: string,
+    tenantId: string,
+    approvedBy?: string,
+  ) {
+    const existing = await this.getById(id, tenantId);
+    if (existing.approvalStatus === "approved") return existing;
+    if (existing.approvalStatus === "rejected") {
+      throw new BadRequestException({
+        message: "Operation has been rejected and cannot be approved",
+        messageAr: "العملية مرفوضة ولا يمكن اعتمادها",
+      });
+    }
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.fieldOperation.update({
+        where: { id },
+        data: {
+          approvalStatus: "approved",
+          approvedBy: approvedBy ?? "system",
+          approvedAt: new Date(),
+        },
+      });
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.operation.approved",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "FieldOperation",
+        aggregateId: id,
+        payload: {
+          tenantId,
+          fieldId: existing.fieldId,
+          operationId: id,
+          approvedBy: approvedBy ?? "system",
+        },
+      });
+      return row;
+    });
+  }
+
+  /**
+   * Reject a pending field operation. Rejected operations can no longer
+   * be approved — they must be deleted and re-recorded.
+   */
+  async reject(
+    id: string,
+    tenantId: string,
+    reason: string,
+    rejectedBy?: string,
+  ) {
+    const existing = await this.getById(id, tenantId);
+    if (existing.approvalStatus === "rejected") return existing;
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.fieldOperation.update({
+        where: { id },
+        data: {
+          approvalStatus: "rejected",
+          rejectionReason: reason,
+          approvedBy: rejectedBy ?? "system",
+          approvedAt: new Date(),
+        },
+      });
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.operation.rejected",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "FieldOperation",
+        aggregateId: id,
+        payload: {
+          tenantId,
+          fieldId: existing.fieldId,
+          operationId: id,
+          reason,
+          rejectedBy: rejectedBy ?? "system",
+        },
+      });
+      return row;
+    });
   }
 
   /**
@@ -230,41 +447,126 @@ export class FieldOperationsService {
   async update(id: string, tenantId: string, dto: UpdateFieldOperationDto) {
     const existing = await this.getById(id, tenantId);
 
+    // Once an operation has been posted to an ERP system, its
+    // accounting fields become immutable — otherwise the posted
+    // journal entry wouldn't match the source row anymore. Admins who
+    // need to correct a posted row must first reverse the posting.
+    if (existing.postedToErp) {
+      throw new BadRequestException({
+        message:
+          "Operation has been posted to ERP and is locked — reverse the posting first",
+        messageAr:
+          "العملية مرحلة إلى نظام المحاسبة ومقفلة — يجب إلغاء الترحيل أولاً",
+      });
+    }
+
     const data: Record<string, unknown> = {};
-    if (dto.operationType !== undefined) data.operationType = dto.operationType;
-    if (dto.performedAt !== undefined)
-      data.performedAt = new Date(dto.performedAt);
-    if (dto.endedAt !== undefined) data.endedAt = new Date(dto.endedAt);
-    if (dto.durationHours !== undefined) data.durationHours = dto.durationHours;
-    if (dto.costAmount !== undefined) data.costAmount = dto.costAmount;
-    if (dto.costCurrency !== undefined) data.costCurrency = dto.costCurrency;
-    if (dto.equipmentId !== undefined) data.equipmentId = dto.equipmentId;
-    if (dto.equipmentName !== undefined) data.equipmentName = dto.equipmentName;
-    if (dto.equipmentNameAr !== undefined)
-      data.equipmentNameAr = dto.equipmentNameAr;
-    if (dto.notes !== undefined) data.notes = dto.notes;
+    const set = <K extends keyof UpdateFieldOperationDto>(
+      key: K,
+      transform?: (v: NonNullable<UpdateFieldOperationDto[K]>) => unknown,
+    ) => {
+      const v = dto[key];
+      if (v === undefined) return;
+      (data as Record<string, unknown>)[key] = transform
+        ? transform(v as NonNullable<UpdateFieldOperationDto[K]>)
+        : (v as unknown);
+    };
 
-    const updated = await this.prisma.fieldOperation.update({
-      where: { id },
-      data: data as any,
-    });
+    set("operationType");
+    set("performedAt", (v) => new Date(v as string));
+    set("endedAt", (v) => new Date(v as string));
+    set("durationHours");
+    set("costAmount");
+    set("costCurrency");
+    set("equipmentId");
+    set("equipmentName");
+    set("equipmentNameAr");
+    set("notes");
+    // Accounting fields
+    set("fuelLiters");
+    set("fuelCost");
+    set("laborHours");
+    set("laborCost");
+    set("materialsCost");
+    set("overheadCost");
+    set("otherCost");
+    set("taxAmount");
+    set("taxRate");
+    set("exchangeRate");
+    set("baseCurrency");
+    set("invoiceNumber");
+    set("invoiceDate", (v) => new Date(v as string));
+    set("vendorId");
+    set("vendorName");
+    set("receiptUrl");
+    set("glAccount");
+    set("costCenter");
+    set("projectCode");
 
-    await this.events.publishFieldOperationUpdated(tenantId, existing.fieldId, {
-      operationId: updated.id,
-      changes: Object.keys(data),
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const row = await tx.fieldOperation.update({
+        where: { id },
+        data: data as any,
+      });
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.operation.updated",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "FieldOperation",
+        aggregateId: id,
+        payload: {
+          tenantId,
+          fieldId: existing.fieldId,
+          operationId: id,
+          changes: Object.keys(data),
+        },
+      });
+      return row;
     });
 
     return updated;
   }
 
   /**
-   * Hard delete.
+   * Soft delete — preserves the row for SOX/IFRS audit compliance.
+   * Posted rows cannot be deleted (must reverse posting first).
    */
-  async remove(id: string, tenantId: string) {
+  async remove(
+    id: string,
+    tenantId: string,
+    deletedBy?: string,
+    reason?: string,
+  ) {
     const existing = await this.getById(id, tenantId);
-    await this.prisma.fieldOperation.delete({ where: { id } });
-    await this.events.publishFieldOperationDeleted(tenantId, existing.fieldId, {
-      operationId: existing.id,
+    if (existing.postedToErp) {
+      throw new BadRequestException({
+        message:
+          "Operation has been posted to ERP and cannot be deleted — reverse the posting first",
+        messageAr:
+          "العملية مرحلة إلى نظام المحاسبة ولا يمكن حذفها — يجب إلغاء الترحيل أولاً",
+      });
+    }
+    await this.prisma.$transaction(async (tx) => {
+      await tx.fieldOperation.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+          deletedBy: deletedBy ?? "system",
+          deletedReason: reason ?? null,
+        },
+      });
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.operation.deleted",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "FieldOperation",
+        aggregateId: id,
+        payload: {
+          tenantId,
+          fieldId: existing.fieldId,
+          operationId: id,
+          deletedBy: deletedBy ?? "system",
+          reason: reason ?? null,
+        },
+      });
     });
     return { id };
   }

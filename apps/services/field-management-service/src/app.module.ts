@@ -25,6 +25,9 @@ import { SyncModule } from "./sync/sync.module";
 import { HealthModule } from "./health/health.module";
 import { CropSeasonsModule } from "./crop-seasons/crop-seasons.module";
 import { FieldOperationsModule } from "./field-operations/field-operations.module";
+import { OutboxModule } from "./outbox/outbox.module";
+import { IdempotencyModule } from "./idempotency/idempotency.module";
+import { ErpSyncModule } from "./erp-sync/erp-sync.module";
 
 @Module({
   imports: [
@@ -61,6 +64,10 @@ import { FieldOperationsModule } from "./field-operations/field-operations.modul
     HealthModule,
     CropSeasonsModule,
     FieldOperationsModule,
+    // Infrastructure modules for enterprise accounting + reliability
+    OutboxModule,
+    IdempotencyModule,
+    ErpSyncModule,
   ],
   providers: [
     // Global rate limiting guard

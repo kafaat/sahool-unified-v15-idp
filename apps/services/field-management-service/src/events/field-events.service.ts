@@ -142,4 +142,20 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
       this.logger.error(`Failed to publish ${subject}: ${e}`);
     }
   }
+
+  /**
+   * Raw publish hook used by the OutboxPublisher worker. Unlike the
+   * private `publish()` above, this one THROWS on NATS disconnection
+   * so the outbox worker can increment retry_count and reschedule —
+   * silently dropping events would defeat the whole point of the
+   * transactional outbox pattern.
+   */
+  async publishRaw(subject: string, envelope: Record<string, unknown>): Promise<void> {
+    if (!this.nc || this.nc.isClosed()) {
+      throw new Error(`NATS unavailable while publishing ${subject}`);
+    }
+    const data = JSON.stringify(envelope);
+    this.nc.publish(subject, this.sc.encode(data));
+    this.logger.debug(`Published ${subject} via outbox`);
+  }
 }

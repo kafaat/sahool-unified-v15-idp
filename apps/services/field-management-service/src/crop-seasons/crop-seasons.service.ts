@@ -21,6 +21,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { FieldEventsService } from "../events/field-events.service";
+import { OutboxService } from "../outbox/outbox.service";
 import type {
   CreateCropSeasonDto,
   UpdateCropSeasonDto,
@@ -35,6 +36,7 @@ export class CropSeasonsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly events: FieldEventsService,
+    private readonly outbox: OutboxService,
   ) {}
 
   /**
@@ -45,7 +47,12 @@ export class CropSeasonsService {
     if (q.fieldId) {
       await this.assertFieldOwnership(q.fieldId, tenantId);
     }
-    const where: Record<string, unknown> = { tenantId };
+    // Always filter out soft-deleted rows unless the caller explicitly
+    // asks via metadata — audit queries can use the raw table.
+    const where: Record<string, unknown> = {
+      tenantId,
+      deletedAt: null,
+    };
     if (q.fieldId) where.fieldId = q.fieldId;
     if (q.cropType) where.cropType = q.cropType;
     if (typeof q.isCurrent === "boolean") where.isCurrent = q.isCurrent;
@@ -77,7 +84,7 @@ export class CropSeasonsService {
    */
   async getById(id: string, tenantId: string) {
     const row = await this.prisma.cropSeason.findUnique({ where: { id } });
-    if (!row || row.tenantId !== tenantId) {
+    if (!row || row.tenantId !== tenantId || row.deletedAt) {
       throw new NotFoundException({
         message: "Crop season not found",
         messageAr: "الموسم المحصولي غير موجود",
@@ -120,14 +127,35 @@ export class CropSeasonsService {
       });
     }
 
-    // Single-transaction close-old + insert-new so the partial unique
-    // index (idx_crop_season_field_single_current) never observes two
-    // "current" rows for the same field.
+    // Single-transaction close-old + insert-new + outbox-write so the
+    // partial unique index never observes two "current" rows AND the
+    // downstream NATS event is guaranteed to be published at-least-once
+    // via the outbox publisher (reliable delivery to NDVI pipeline,
+    // yield-prediction, advisory-service, ERP webhooks).
     const result = await this.prisma.$transaction(async (tx) => {
-      await tx.cropSeason.updateMany({
-        where: { fieldId, isCurrent: true },
-        data: { isCurrent: false, endedAt: new Date() },
+      // Close any previously-active season.
+      const previous = await tx.cropSeason.findFirst({
+        where: { fieldId, isCurrent: true, deletedAt: null },
       });
+      if (previous) {
+        await tx.cropSeason.update({
+          where: { id: previous.id },
+          data: { isCurrent: false, endedAt: new Date() },
+        });
+        await this.outbox.writeInTransaction(tx, {
+          eventType: "sahool.field.crop_season.ended",
+          tenantId: this.uuidOrNull(tenantId),
+          aggregateType: "CropSeason",
+          aggregateId: previous.id,
+          payload: {
+            tenantId,
+            fieldId,
+            cropSeasonId: previous.id,
+            endedAt: new Date().toISOString(),
+            endReason: "superseded_by_new_season",
+          },
+        });
+      }
 
       const row = await tx.cropSeason.create({
         data: {
@@ -161,20 +189,45 @@ export class CropSeasonsService {
         },
       });
 
+      // Outbox: crop_season.started (guaranteed delivery to all
+      // downstream services via the outbox publisher worker).
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.crop_season.started",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "CropSeason",
+        aggregateId: row.id,
+        payload: {
+          tenantId,
+          fieldId,
+          cropSeasonId: row.id,
+          cropType: row.cropType,
+          cropTypeAr: row.cropTypeAr,
+          sowingDate: row.sowingDate.toISOString(),
+          expectedHarvestDate: row.expectedHarvestDate?.toISOString() ?? null,
+          seedVariety: row.seedVariety,
+          irrigationType: row.irrigationType,
+        },
+      });
+
       return row;
     });
 
-    // Fire-and-forget NATS event (degraded mode if NATS is down).
-    await this.events.publishCropSeasonStarted(tenantId, fieldId, {
-      cropSeasonId: result.id,
-      cropType: result.cropType,
-      sowingDate: result.sowingDate.toISOString(),
-      expectedHarvestDate: result.expectedHarvestDate?.toISOString() ?? null,
-      seedVariety: result.seedVariety ?? null,
-      irrigationType: result.irrigationType ?? null,
-    });
-
     return result;
+  }
+
+  /**
+   * Tenant IDs in this service are VARCHAR(100) (free-form strings),
+   * but the outbox table stores them as UUIDs to match the platform-
+   * wide shared outbox schema. For non-UUID tenants we fall back to
+   * the nil UUID — the downstream consumer still has the full string
+   * inside `payload.tenantId`, so no information is lost.
+   */
+  private uuidOrNull(value: string): string {
+    const uuidRe =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRe.test(value)
+      ? value
+      : "00000000-0000-0000-0000-000000000000";
   }
 
   /**
@@ -222,14 +275,24 @@ export class CropSeasonsService {
     if (dto.notes !== undefined) data.notes = dto.notes;
     if (dto.isCurrent !== undefined) data.isCurrent = dto.isCurrent;
 
-    const updated = await this.prisma.cropSeason.update({
-      where: { id },
-      data: data as any,
-    });
-
-    await this.events.publishCropSeasonUpdated(tenantId, existing.fieldId, {
-      cropSeasonId: updated.id,
-      changes: Object.keys(data),
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const row = await tx.cropSeason.update({
+        where: { id },
+        data: data as any,
+      });
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.crop_season.updated",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "CropSeason",
+        aggregateId: id,
+        payload: {
+          tenantId,
+          fieldId: existing.fieldId,
+          cropSeasonId: id,
+          changes: Object.keys(data),
+        },
+      });
+      return row;
     });
 
     return updated;
@@ -252,35 +315,74 @@ export class CropSeasonsService {
       ? new Date(dto.actualHarvestDate)
       : null;
 
-    const updated = await this.prisma.cropSeason.update({
-      where: { id },
-      data: {
-        isCurrent: false,
-        endedAt,
-        endReason: dto.endReason,
-        actualHarvestDate: actualHarvestDate ?? undefined,
-        yieldKgHa: dto.yieldKgHa as any,
-      },
-    });
-
-    await this.events.publishCropSeasonEnded(tenantId, existing.fieldId, {
-      cropSeasonId: updated.id,
-      endedAt: endedAt.toISOString(),
-      endReason: dto.endReason ?? null,
-      yieldKgHa: dto.yieldKgHa ?? null,
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const row = await tx.cropSeason.update({
+        where: { id },
+        data: {
+          isCurrent: false,
+          endedAt,
+          endReason: dto.endReason,
+          actualHarvestDate: actualHarvestDate ?? undefined,
+          yieldKgHa: dto.yieldKgHa as any,
+        },
+      });
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.crop_season.ended",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "CropSeason",
+        aggregateId: id,
+        payload: {
+          tenantId,
+          fieldId: existing.fieldId,
+          cropSeasonId: id,
+          endedAt: endedAt.toISOString(),
+          endReason: dto.endReason ?? null,
+          yieldKgHa: dto.yieldKgHa ?? null,
+          actualHarvestDate: actualHarvestDate?.toISOString() ?? null,
+        },
+      });
+      return row;
     });
 
     return updated;
   }
 
   /**
-   * Hard delete - rarely used; closing via `end()` is preferred.
+   * Soft-delete — sets deleted_at + deleted_by but keeps the row for
+   * audit / SOX / IFRS compliance. Hard-delete is intentionally not
+   * exposed; operators who need to scrub rows must do so via direct SQL
+   * with a documented incident response procedure.
    */
-  async remove(id: string, tenantId: string) {
+  async remove(
+    id: string,
+    tenantId: string,
+    deletedBy?: string,
+    reason?: string,
+  ) {
     const existing = await this.getById(id, tenantId);
-    await this.prisma.cropSeason.delete({ where: { id } });
-    await this.events.publishCropSeasonDeleted(tenantId, existing.fieldId, {
-      cropSeasonId: existing.id,
+    await this.prisma.$transaction(async (tx) => {
+      await tx.cropSeason.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+          deletedBy: deletedBy ?? "system",
+          deletedReason: reason ?? null,
+          isCurrent: false,
+        },
+      });
+      await this.outbox.writeInTransaction(tx, {
+        eventType: "sahool.field.crop_season.deleted",
+        tenantId: this.uuidOrNull(tenantId),
+        aggregateType: "CropSeason",
+        aggregateId: id,
+        payload: {
+          tenantId,
+          fieldId: existing.fieldId,
+          cropSeasonId: id,
+          deletedBy: deletedBy ?? "system",
+          reason: reason ?? null,
+        },
+      });
     });
     return { id };
   }

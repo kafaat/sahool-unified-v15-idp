@@ -90,6 +90,68 @@ export class CreateFieldOperationDto {
   @IsString()
   @MaxLength(2000)
   notes?: string;
+
+  // ── Cost breakdown (IAS 41 — all optional, additive) ───────────────
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000)
+  fuelLiters?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000_000)
+  fuelCost?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(10000)
+  laborHours?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000_000)
+  laborCost?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000_000)
+  materialsCost?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000_000)
+  overheadCost?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000_000)
+  otherCost?: number;
+
+  // ── Tax + multi-currency ────────────────────────────────────────────
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000_000)
+  taxAmount?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(100)
+  taxRate?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000)
+  exchangeRate?: number;
+  @IsOptional() @IsString() @MaxLength(8)
+  baseCurrency?: string;
+
+  // ── Vendor / invoice ────────────────────────────────────────────────
+  @IsOptional() @IsString() @MaxLength(100)
+  invoiceNumber?: string;
+  @IsOptional() @IsDateString()
+  invoiceDate?: string;
+  @IsOptional() @IsString() @MaxLength(100)
+  vendorId?: string;
+  @IsOptional() @IsString() @MaxLength(255)
+  vendorName?: string;
+  @IsOptional() @IsString() @MaxLength(500)
+  receiptUrl?: string;
+
+  // ── GL / cost-center / project ──────────────────────────────────────
+  @IsOptional() @IsString() @MaxLength(50)
+  glAccount?: string;
+  @IsOptional() @IsString() @MaxLength(50)
+  costCenter?: string;
+  @IsOptional() @IsString() @MaxLength(50)
+  projectCode?: string;
+}
+
+/**
+ * DTO for approval workflow (approve / reject a pending operation).
+ */
+export class ApproveFieldOperationDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  notes?: string;
+}
+
+export class RejectFieldOperationDto {
+  @IsString()
+  @MaxLength(2000)
+  reason: string;
 }
 
 export class UpdateFieldOperationDto {
@@ -140,6 +202,28 @@ export class UpdateFieldOperationDto {
   @IsString()
   @MaxLength(2000)
   notes?: string;
+
+  // All accounting fields from CreateFieldOperationDto are also
+  // updatable on PATCH.
+  @IsOptional() @IsNumber() @Min(0) fuelLiters?: number;
+  @IsOptional() @IsNumber() @Min(0) fuelCost?: number;
+  @IsOptional() @IsNumber() @Min(0) laborHours?: number;
+  @IsOptional() @IsNumber() @Min(0) laborCost?: number;
+  @IsOptional() @IsNumber() @Min(0) materialsCost?: number;
+  @IsOptional() @IsNumber() @Min(0) overheadCost?: number;
+  @IsOptional() @IsNumber() @Min(0) otherCost?: number;
+  @IsOptional() @IsNumber() @Min(0) taxAmount?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(100) taxRate?: number;
+  @IsOptional() @IsNumber() @Min(0) exchangeRate?: number;
+  @IsOptional() @IsString() @MaxLength(8) baseCurrency?: string;
+  @IsOptional() @IsString() @MaxLength(100) invoiceNumber?: string;
+  @IsOptional() @IsDateString() invoiceDate?: string;
+  @IsOptional() @IsString() @MaxLength(100) vendorId?: string;
+  @IsOptional() @IsString() @MaxLength(255) vendorName?: string;
+  @IsOptional() @IsString() @MaxLength(500) receiptUrl?: string;
+  @IsOptional() @IsString() @MaxLength(50) glAccount?: string;
+  @IsOptional() @IsString() @MaxLength(50) costCenter?: string;
+  @IsOptional() @IsString() @MaxLength(50) projectCode?: string;
 }
 
 export class QueryFieldOperationsDto {

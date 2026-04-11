@@ -26,6 +26,7 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  UseInterceptors,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from "@nestjs/swagger";
 import { FieldOperationsService } from "./field-operations.service";
@@ -33,8 +34,11 @@ import {
   CreateFieldOperationDto,
   UpdateFieldOperationDto,
   QueryFieldOperationsDto,
+  ApproveFieldOperationDto,
+  RejectFieldOperationDto,
 } from "./dto/field-operation.dto";
 import { getRequestTenantId } from "../auth/tenant.utils";
+import { IdempotencyInterceptor } from "../idempotency/idempotency.interceptor";
 
 @ApiTags("Field Operations - عمليات الحقل")
 @Controller("api/v1")
@@ -74,10 +78,13 @@ export class FieldOperationsController {
   }
 
   /**
-   * Record a new operation against a field.
+   * Record a new operation against a field. Supports Idempotency-Key
+   * header so clients can safely retry after network errors without
+   * creating duplicate records.
    */
   @Post("fields/:fieldId/operations")
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(IdempotencyInterceptor)
   @ApiOperation({ summary: "Record a new field operation" })
   @ApiResponse({ status: 201, description: "Operation recorded" })
   async create(
@@ -137,12 +144,58 @@ export class FieldOperationsController {
 
   @Delete("field-operations/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Delete a field operation" })
+  @ApiOperation({ summary: "Soft-delete a field operation" })
   async remove(
     @Req() req: any,
     @Param("id", ParseUUIDPipe) id: string,
   ) {
     const tenantId = getRequestTenantId(req);
-    await this.service.remove(id, tenantId);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    await this.service.remove(id, tenantId, userId);
+  }
+
+  /**
+   * Approval workflow — approves an operation so it becomes eligible
+   * for ERP posting.
+   */
+  @Post("field-operations/:id/approve")
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(IdempotencyInterceptor)
+  @ApiOperation({
+    summary: "Approve a field operation",
+    description: "اعتماد العملية للترحيل إلى نظام المحاسبة",
+  })
+  async approve(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    _dto: ApproveFieldOperationDto,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    const row = await this.service.approve(id, tenantId, userId);
+    return { success: true, data: row };
+  }
+
+  /**
+   * Reject a field operation with a mandatory reason.
+   */
+  @Post("field-operations/:id/reject")
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(IdempotencyInterceptor)
+  @ApiOperation({
+    summary: "Reject a field operation",
+    description: "رفض العملية مع ذكر السبب",
+  })
+  async reject(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: RejectFieldOperationDto,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    const row = await this.service.reject(id, tenantId, dto.reason, userId);
+    return { success: true, data: row };
   }
 }

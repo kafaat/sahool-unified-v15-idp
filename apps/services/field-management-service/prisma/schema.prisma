@@ -450,6 +450,26 @@ model CropSeason {
   // forcing another migration — mirrors the Field.metadata pattern).
   metadata Json? @db.JsonB
 
+  // ── ERP / accounting integration ────────────────────────────────────
+  // Cross-system reference so the same CropSeason can appear in
+  // QuickBooks / SAP / Odoo / Xero and be traced back.
+  externalId     String? @map("external_id") @db.VarChar(100)
+  externalSource String? @map("external_source") @db.VarChar(50)
+  costCenter     String? @map("cost_center") @db.VarChar(50)
+  projectCode    String? @map("project_code") @db.VarChar(50)
+  baseCurrency   String? @map("base_currency") @db.VarChar(8)
+
+  // Cached totals (materialised from field_operations rollup).
+  totalSeasonCost    Decimal? @map("total_season_cost") @db.Decimal(14, 2)
+  totalSeasonRevenue Decimal? @map("total_season_revenue") @db.Decimal(14, 2)
+  totalSeasonHours   Decimal? @map("total_season_hours") @db.Decimal(10, 2)
+  totalsUpdatedAt    DateTime? @map("totals_updated_at") @db.Timestamptz
+
+  // Soft delete (audit compliance)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz
+  deletedBy      String?   @map("deleted_by") @db.VarChar(100)
+  deletedReason  String?   @map("deleted_reason") @db.Text
+
   // Sync / audit
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
@@ -485,7 +505,7 @@ model FieldOperation {
   // Operation type — stored as VARCHAR to keep it extensible from the
   // client side without requiring enum migrations for each new op.
   // Canonical values: plowing | land_preparation | fertilization |
-  // spraying | irrigation | harvesting | scouting | other
+  // spraying | irrigation | harvesting | scouting | sowing | other
   operationType String @map("operation_type") @db.VarChar(50)
 
   // Timing — performedAt is the start of the operation; durationHours
@@ -495,9 +515,51 @@ model FieldOperation {
   endedAt      DateTime? @map("ended_at") @db.Timestamptz
   durationHours Decimal? @map("duration_hours") @db.Decimal(8, 2)
 
-  // Cost (local currency, default SAR)
+  // ── Total cost + currency ───────────────────────────────────────────
   costAmount   Decimal? @map("cost_amount") @db.Decimal(12, 2)
   costCurrency String   @default("SAR") @map("cost_currency") @db.VarChar(8)
+
+  // ── Cost breakdown (IAS 41 "biological assets" disclosure) ──────────
+  fuelLiters    Decimal? @map("fuel_liters") @db.Decimal(10, 2)
+  fuelCost      Decimal? @map("fuel_cost") @db.Decimal(12, 2)
+  laborHours    Decimal? @map("labor_hours") @db.Decimal(8, 2)
+  laborCost     Decimal? @map("labor_cost") @db.Decimal(12, 2)
+  materialsCost Decimal? @map("materials_cost") @db.Decimal(12, 2)
+  overheadCost  Decimal? @map("overhead_cost") @db.Decimal(12, 2)
+  otherCost     Decimal? @map("other_cost") @db.Decimal(12, 2)
+
+  // ── Tax + multi-currency ────────────────────────────────────────────
+  taxAmount    Decimal? @map("tax_amount") @db.Decimal(12, 2)
+  taxRate      Decimal? @map("tax_rate") @db.Decimal(5, 2)
+  exchangeRate Decimal? @map("exchange_rate") @db.Decimal(14, 6)
+  baseCurrency String?  @map("base_currency") @db.VarChar(8)
+
+  // ── Vendor / invoice (accounting reconciliation) ────────────────────
+  invoiceNumber String?  @map("invoice_number") @db.VarChar(100)
+  invoiceDate   DateTime? @map("invoice_date") @db.Date
+  vendorId      String?  @map("vendor_id") @db.VarChar(100)
+  vendorName    String?  @map("vendor_name") @db.VarChar(255)
+  receiptUrl    String?  @map("receipt_url") @db.VarChar(500)
+
+  // ── GL / cost-center / project for ERP posting ─────────────────────
+  glAccount   String? @map("gl_account") @db.VarChar(50)
+  costCenter  String? @map("cost_center") @db.VarChar(50)
+  projectCode String? @map("project_code") @db.VarChar(50)
+
+  // ── ERP sync bookkeeping ────────────────────────────────────────────
+  externalId       String?  @map("external_id") @db.VarChar(100)
+  externalSource   String?  @map("external_source") @db.VarChar(50)
+  postedToErp      Boolean  @default(false) @map("posted_to_erp")
+  postedAt         DateTime? @map("posted_at") @db.Timestamptz
+  postingReference String?  @map("posting_reference") @db.VarChar(255)
+  postingError     String?  @map("posting_error") @db.Text
+  postingAttempts  Int      @default(0) @map("posting_attempts")
+
+  // ── Approval workflow (pending | approved | rejected) ──────────────
+  approvalStatus   String   @default("approved") @map("approval_status") @db.VarChar(20)
+  approvedBy       String?  @map("approved_by") @db.VarChar(100)
+  approvedAt       DateTime? @map("approved_at") @db.Timestamptz
+  rejectionReason  String?  @map("rejection_reason") @db.Text
 
   // Equipment linkage (cross-service soft link).
   // `equipmentId` is a UUID owned by equipment-service. We cache the
@@ -513,6 +575,11 @@ model FieldOperation {
 
   // Free-form notes (max 2KB enforced at application layer)
   notes String? @db.Text
+
+  // ── Soft delete (SOX / IFRS audit compliance) ──────────────────────
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+  deletedBy     String?   @map("deleted_by") @db.VarChar(100)
+  deletedReason String?   @map("deleted_reason") @db.Text
 
   // Audit
   createdBy String?  @map("created_by") @db.VarChar(100)
@@ -531,7 +598,102 @@ model FieldOperation {
   @@index([equipmentId], name: "idx_field_op_equipment")
   @@index([tenantId, operationType], name: "idx_field_op_tenant_type")
   @@index([tenantId, performedAt], name: "idx_field_op_tenant_date")
+  @@index([tenantId, vendorId], name: "idx_field_op_vendor")
   @@map("field_operations")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Outbox Event - Transactional outbox for reliable event publishing
+// مخرج أحداث معاملاتي للنشر الموثوق
+//
+// Events are written to this table in the SAME transaction as the business
+// data change. A separate background worker polls this table and publishes
+// rows to NATS (and optionally to external ERP webhooks). This implements
+// the standard microservices "transactional outbox" pattern to guarantee
+// at-least-once delivery without tying the DB commit to NATS availability.
+//
+// Schema intentionally mirrors shared/libs/outbox/models.py so downstream
+// consumers see identical envelope shapes regardless of which service
+// produced the event.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model OutboxEvent {
+  id             String   @id @default(uuid()) @db.Uuid
+  eventType      String   @map("event_type") @db.VarChar(200)
+  eventVersion   Int      @default(1) @map("event_version")
+  schemaRef      String   @map("schema_ref") @db.VarChar(240)
+  tenantId       String   @map("tenant_id") @db.Uuid
+  correlationId  String   @map("correlation_id") @db.Uuid
+  aggregateType  String?  @map("aggregate_type") @db.VarChar(100)
+  aggregateId    String?  @map("aggregate_id") @db.Uuid
+  payloadJson    String   @map("payload_json") @db.Text
+  published      Boolean  @default(false)
+  publishedAt    DateTime? @map("published_at") @db.Timestamptz
+  retryCount     Int      @default(0) @map("retry_count")
+  lastError      String?  @map("last_error") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([published, createdAt], name: "ix_outbox_published_created")
+  @@index([tenantId, createdAt], name: "ix_outbox_tenant_created")
+  @@index([aggregateType, aggregateId], name: "ix_outbox_aggregate")
+  @@map("outbox_events")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Idempotency Key - guard against duplicate POSTs
+// مفتاح idempotency - حماية من الإرسال المكرر
+//
+// Matches the RFC-draft "Idempotency-Key" header semantics used by Stripe /
+// Adyen / PayPal / AWS. A client retrying a request after a network error
+// re-sends the same key; the server replays the stored response instead of
+// executing the operation twice. A mismatched request body under the same
+// key returns 409 Conflict so replay attacks can't "grow" a transaction.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model IdempotencyKey {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.VarChar(100)
+  key            String   @db.VarChar(255)
+  method         String   @db.VarChar(10)
+  path           String   @db.VarChar(500)
+  requestHash    String   @map("request_hash") @db.VarChar(64)
+  responseStatus Int?     @map("response_status")
+  responseBody   String?  @map("response_body") @db.Text
+  expiresAt      DateTime @map("expires_at") @db.Timestamptz
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([tenantId, key, method, path], name: "uq_idempotency_tenant_key_method_path")
+  @@index([expiresAt], name: "ix_idempotency_expires")
+  @@map("idempotency_keys")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Operation Audit - append-only change log
+// سجل التدقيق - يسجل كل تعديل على عمليات الحقل
+//
+// Populated by a Postgres trigger (see migration) PLUS explicit service-layer
+// inserts that carry the correlation_id + actor_id. The trigger is a
+// belt-and-braces guarantee that no mutation ever slips through unrecorded,
+// even in emergency direct-SQL fixes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldOperationAudit {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.VarChar(100)
+  operationId   String   @map("operation_id") @db.Uuid
+  action        String   @db.VarChar(20)
+  actorId       String?  @map("actor_id") @db.VarChar(100)
+  beforeData    Json?    @map("before_data") @db.JsonB
+  afterData     Json?    @map("after_data") @db.JsonB
+  correlationId String?  @map("correlation_id") @db.Uuid
+  clientIp      String?  @map("client_ip") @db.VarChar(50)
+  userAgent     String?  @map("user_agent") @db.VarChar(500)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([tenantId], name: "idx_field_op_audit_tenant")
+  @@index([operationId, createdAt(sort: Desc)], name: "idx_field_op_audit_op")
+  @@index([tenantId, action, createdAt], name: "idx_field_op_audit_action")
+  @@map("field_operation_audit")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!-- Voice / Speech Recognition - required by speech_to_text package.
+         Without RECORD_AUDIO the SpeechToText plugin fails to initialize
+         with a misleading "recognition not available" message. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:label="sahool_atmosphere"
         android:name="${applicationName}"
@@ -49,6 +54,12 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Required on Android 11+ (API 30+) so speech_to_text can discover
+             the on-device RecognitionService. Without this, listing speech
+             engines returns an empty list on newer devices. -->
+        <intent>
+            <action android:name="android.speech.RecognitionService"/>
         </intent>
     </queries>
 </manifest>

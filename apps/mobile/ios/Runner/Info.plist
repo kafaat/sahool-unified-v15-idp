@@ -86,6 +86,14 @@
 	<string>يحتاج التطبيق لموقعك لتحديد موقع الحقول على الخريطة</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>يحتاج التطبيق لموقعك لتتبع مواقع الحقول وتقديم توصيات محلية</string>
+	<!-- Microphone & Speech Recognition — required by speech_to_text package
+	     (lib/core/voice/voice_service.dart). Without these keys, iOS silently
+	     rejects the permission request and the voice service reports
+	     "recognition not available" instead of "permission denied". -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>يحتاج التطبيق إلى الميكروفون لتلقي الأوامر الصوتية والاستفسارات الزراعية باللغة العربية</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>يستخدم التطبيق خدمة التعرف على الصوت لتحويل كلامك إلى نص والرد على استفساراتك الزراعية</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

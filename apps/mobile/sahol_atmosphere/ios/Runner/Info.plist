@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Microphone & Speech Recognition — required by speech_to_text package.
+	     Without these keys, iOS silently rejects the permission request and
+	     the voice service reports "recognition not available" instead of
+	     "permission denied". -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>يحتاج تطبيق سهول أتموسفير إلى الميكروفون لتلقي الاستفسارات الصوتية عن حالة الطقس / Sahool Atmosphere needs microphone access for spoken weather queries.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>يستخدم التطبيق خدمة التعرف على الصوت لفهم استفساراتك عن الطقس / The app uses speech recognition to understand your weather questions.</string>
 </dict>
 </plist>

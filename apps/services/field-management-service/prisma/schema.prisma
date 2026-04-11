@@ -720,6 +720,43 @@ model FieldOperationAudit {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Carbon Event Dedup — حماية idempotency لمشترك الأحداث في carbon-service
+//
+// carbon-service subscribes to `sahool.field.operation.recorded` and runs
+// the IPCC Tier 1 engine per event. NATS delivers at-least-once so replays
+// are expected during broker restarts / consumer reconnects / network
+// blips. This table is the first line of defence: INSERT-before-compute
+// with (tenant_id, operation_id) as the natural PK. A replay hits the
+// ON CONFLICT DO NOTHING guard and the handler returns early.
+//
+// Schema deliberately minimal — just enough to:
+//   1. Dedupe by natural key
+//   2. Detect tampering (payload_hash)
+//   3. Support a "which events failed?" forensics query (error_message)
+//   4. Allow nightly GC of rows older than 30 days (created_at index)
+//
+// Owned by `carbon-service` but the table lives in field-management-service's
+// DB because carbon-service is stateless and shares the same Postgres
+// instance (same pattern as the `co2_*` columns on `field_operations`
+// from the Phase 1 `20260411200000_phase1_sub_zones_reports_co2` migration).
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CarbonEventDedup {
+  tenantId         String   @map("tenant_id") @db.VarChar(100)
+  operationId      String   @map("operation_id") @db.Uuid
+  payloadHash      String   @map("payload_hash") @db.Char(64)
+  processedAt      DateTime @default(now()) @map("processed_at") @db.Timestamptz
+  carbonComputedAt DateTime? @map("carbon_computed_at") @db.Timestamptz
+  errorMessage     String?  @map("error_message") @db.Text
+  correlationId    String?  @map("correlation_id") @db.VarChar(100)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@id([tenantId, operationId])
+  @@index([createdAt], name: "idx_carbon_dedup_age")
+  @@map("carbon_event_dedup")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Field Sub-Zone - المناطق الفرعية للحقل
 // Represents sub-polygons inside a single Field record. Critical for
 // terraced Yemeni farms where a logical "field" is actually 10-30 small

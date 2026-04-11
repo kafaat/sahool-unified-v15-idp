@@ -253,3 +253,11 @@ _codeql_detected_source_root
 # ─────────────────────────────────────────────────────────────────────────────
 infrastructure/core/mqtt/passwd
 .hypothesis/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Claude Code — personal overrides (never commit)
+# ─────────────────────────────────────────────────────────────────────────────
+CLAUDE_LOCAL.md
+.claude/settings.local.json
+.claude/.cache/
+.claude/logs/

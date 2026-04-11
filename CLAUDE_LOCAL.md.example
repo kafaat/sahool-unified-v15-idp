@@ -1,0 +1,95 @@
+# CLAUDE_LOCAL.md — Personal AI Instructions (NOT checked in)
+
+> Copy this file to `CLAUDE_LOCAL.md` in the repo root and fill it in with your
+> personal preferences. `CLAUDE_LOCAL.md` is ignored by git (see `.gitignore`),
+> so nothing you put here will leak to other contributors.
+>
+> Claude Code automatically reads `CLAUDE.md` (team-wide) **and** `CLAUDE_LOCAL.md`
+> (your personal overrides) on every session start. Put anything that is specific
+> to **your** machine, **your** workflow, or **your** current focus here — not in
+> the shared `CLAUDE.md`.
+
+## My current focus
+
+<!-- e.g. "Working on pest detection in yolo26-vision-service this sprint." -->
+
+## Machine-specific paths
+
+<!--
+  Examples:
+  - My local SAHOOL checkout: /home/me/work/sahool-unified-v15-idp
+  - My test database:         postgres://localhost:5433/sahool_dev
+  - My NATS:                  nats://localhost:4222
+  - Ollama endpoint:          http://localhost:11434
+-->
+
+## Tools I have locally
+
+<!--
+  Check what's actually installed and tell Claude to use or avoid it:
+  - [ ] ruff
+  - [ ] mypy
+  - [ ] bandit
+  - [ ] npm
+  - [ ] flutter
+  - [ ] docker compose
+  - [ ] k3d (local K8s)
+  - [ ] ollama
+-->
+
+## Preferred communication style
+
+<!--
+  Examples:
+  - Reply in Arabic and English for farmer-facing content
+  - Be very terse in code reviews; verbose in architectural discussions
+  - Don't run docker-compose without asking — my machine has 16GB RAM
+-->
+
+## Things to ALWAYS do on this machine
+
+<!--
+  Examples:
+  - Run `ruff format` before `ruff check` because my editor lints on save
+  - Use `podman` not `docker` on this machine
+  - Never touch `apps/mobile/android/` — I build mobile separately on macOS
+-->
+
+## Things to NEVER do on this machine
+
+<!--
+  Examples:
+  - Never run `make db-reset` — my local DB has manual test fixtures
+  - Never run `make clean` — it takes 40 minutes to rebuild
+  - Never restart sahool-postgres — my pgAdmin has open cursors
+-->
+
+## Services I'm working on right now
+
+<!--
+  List 1–3 services. Claude will bias its searches and edits toward these.
+  - apps/services/yolo26-vision-service
+  - shared/ai/
+-->
+
+## Services I want to avoid touching
+
+<!--
+  List any services that are owned by another team or frozen.
+  - apps/services/billing-core  (finance team owns it)
+  - archive/deprecated-services/ (always frozen)
+-->
+
+## My git conventions
+
+<!--
+  - Commit message signature: "Co-authored-by: Me <me@example.com>"
+  - Always branch off: develop
+  - Never push directly to: main, develop
+-->
+
+## Open questions / WIP notes
+
+<!--
+  Free-form scratch area. Claude will read this and can help you follow up.
+-->

@@ -27,11 +27,28 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Any, BinaryIO, Generic, TypeVar
 
-import asyncpg
-import boto3
+# Optional heavyweight infrastructure deps — wrapped in try/except so
+# `shared.platform` can be imported in lightweight CI jobs that don't
+# install the full platform stack. Each wrapper preserves the original
+# symbol name so callers don't need to change; runtime code that
+# actually touches the underlying lib will fail with a clearer error
+# if it's genuinely needed but missing.
+try:
+    import asyncpg  # type: ignore[import-not-found]
+except ImportError:  # pragma: no cover - optional dep
+    asyncpg = None  # type: ignore[assignment]
+
+try:
+    import boto3  # type: ignore[import-not-found]
+    from botocore.exceptions import ClientError  # type: ignore[import-not-found]
+except ImportError:  # pragma: no cover - optional dep
+    boto3 = None  # type: ignore[assignment]
+
+    class ClientError(Exception):  # type: ignore[no-redef]
+        """Fallback stub when botocore isn't installed."""
+
 import jwt
 import redis.asyncio as redis
-from botocore.exceptions import ClientError
 from fastapi import HTTPException, Request
 from nats.aio.client import Client as NatsClient
 from nats.aio.msg import Msg
@@ -483,7 +500,9 @@ class TenantDB:
         self._start_time = None
 
     @classmethod
-    def initialize_pool(cls, pool: asyncpg.Pool):
+    def initialize_pool(cls, pool: "asyncpg.Pool"):
+        # String-form annotation so the module can still be imported
+        # when asyncpg isn't installed (see try/except at module top).
         cls._pool = pool
 
     async def __aenter__(self):

@@ -328,20 +328,34 @@ class ComprehensiveAdvisoryOrchestrator:
     ) -> Section:
         import time
 
-        # SECURITY: third line of defence against SSRF. Layer 1 validates
-        # ``field_id`` at the FastAPI boundary via a regex pattern; Layer 2
-        # re-validates + URL-encodes via ``_safe_id`` inside the
-        # orchestrator. Layer 3 — here — parses the constructed URL with
-        # ``urllib.parse.urlparse`` and checks the resolved hostname against
-        # a fixed allowlist derived from ``ServiceUrls``. If a bug in URL
-        # construction ever produces a URL whose host is not one of the 8
-        # trusted downstream services, we fail closed before
-        # ``client.request`` is called.
+        # SECURITY: four-layer defence against partial SSRF. Each layer
+        # is a legitimate runtime check AND a sanitizer pattern CodeQL's
+        # ``py/partial-ssrf`` query recognises in its dataflow.
         #
-        # The ``urlparse`` + hostname-allowlist pattern is CodeQL's
-        # canonical sanitizer for ``py/partial-ssrf``; replacing the
-        # earlier ``startswith`` check with this primitive is what makes
-        # the static analyzer's dataflow terminate cleanly.
+        #   Layer 1 — FastAPI endpoint boundary: ``field_id`` validated
+        #             against ^[A-Za-z0-9_-]{1,100}$ via ``Annotated[str,
+        #             FastAPIPath(pattern=...)]``. Malicious input is
+        #             rejected with 422 before the orchestrator runs.
+        #   Layer 2 — ``_safe_id`` re-validates + URL-encodes the
+        #             identifier inside the orchestrator, defending
+        #             against non-FastAPI callers.
+        #   Layer 3 — ``urlparse(url).hostname`` check against the
+        #             trusted hostname allowlist (below). Fails closed
+        #             if the URL's host is not one of the 8 downstream
+        #             services.
+        #   Layer 4 — ``re.fullmatch`` against ``_SAFE_URL_PATTERN``,
+        #             an untainted class-level constant regex that
+        #             accepts only the 8 exact URL shapes we intend
+        #             to call. This is the outermost sanitizer; any
+        #             URL that reaches ``client.request`` has been
+        #             validated character-by-character against a
+        #             literal allowlist, so there is no residual
+        #             taint for CodeQL to track.
+        #
+        # ``re.fullmatch`` against a constant pattern is explicitly
+        # listed in CodeQL's partial-SSRF sanitizer set, which is why
+        # this fourth layer is the one that makes the static
+        # analyzer's dataflow terminate cleanly.
         parsed = urlparse(url)
         host = (parsed.hostname or "").lower()
         if not host or host not in self._trusted_hostnames():
@@ -355,6 +369,17 @@ class ComprehensiveAdvisoryOrchestrator:
                 degraded=True,
                 latency_ms=0.0,
                 error="rejected: host not in trusted allowlist",
+            )
+        if not self._SAFE_URL_PATTERN.fullmatch(url):
+            logger.error(
+                "Refusing to call URL that does not match the safe allowlist pattern",
+                url=url,
+            )
+            return Section(
+                data=None,
+                degraded=True,
+                latency_ms=0.0,
+                error="rejected: url not in safe pattern",
             )
 
         start = time.perf_counter()
@@ -416,6 +441,35 @@ class ComprehensiveAdvisoryOrchestrator:
     # copy means the orchestrator stays safe even if it's used outside
     # the FastAPI request lifecycle (tests, internal calls, scripts).
     _ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,100}$")
+
+    # Compiled once — strict allowlist of the 8 fully-qualified URL
+    # shapes this orchestrator is allowed to request. Used as the
+    # outermost SSRF sanitizer in ``_call``: if the constructed URL
+    # doesn't match this pattern exactly, we fail closed before any
+    # outbound HTTP request. Every character class is bounded:
+    #
+    #   * scheme         — http or https only
+    #   * host           — alphanumerics + dots + hyphens (DNS chars)
+    #   * port           — optional 1-5 digit port
+    #   * path namespace — one of 8 known service roots
+    #   * field_id       — [A-Za-z0-9_-]{1,100}, same as _ID_PATTERN
+    #
+    # CodeQL's ``py/partial-ssrf`` query explicitly recognises
+    # ``re.fullmatch`` against a constant pattern as a full sanitizer.
+    # This is the primitive that terminates the dataflow cleanly.
+    _SAFE_URL_PATTERN = re.compile(
+        r"^https?://[A-Za-z0-9.-]+(?::\d{1,5})?/api/v1/"
+        r"(?:"
+        r"soil/fields/[A-Za-z0-9_-]{1,100}/summary"
+        r"|pest/fields/[A-Za-z0-9_-]{1,100}/predictions"
+        r"|crop-intelligence/fields/[A-Za-z0-9_-]{1,100}/diseases"
+        r"|irrigation/fields/[A-Za-z0-9_-]{1,100}/recommendation"
+        r"|weather/forecast/field/[A-Za-z0-9_-]{1,100}"
+        r"|yield/fields/[A-Za-z0-9_-]{1,100}/prediction"
+        r"|carbon/fields/[A-Za-z0-9_-]{1,100}/summary"
+        r"|alerts/fields/[A-Za-z0-9_-]{1,100}/active"
+        r")$"
+    )
 
     @classmethod
     def _safe_id(cls, field_id: str) -> str:

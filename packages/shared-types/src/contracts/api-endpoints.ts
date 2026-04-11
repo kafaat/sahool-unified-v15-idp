@@ -592,6 +592,12 @@ export const TERRAIN_ENDPOINTS = {
   LEVELING_COST: `${API_PREFIX}/leveling/cost/{fieldId}`,
   /** @since 4.7.1 — RUSLE soil-erosion assessment (replaces hardcoded erosion_risk stub) */
   EROSION: `${API_PREFIX}/terrain/erosion`,
+  /** @since 4.9.0 — RWEQ wind-erosion assessment (for Yemen plains: Tihama, Marib, Al-Jawf, Hadramawt) */
+  EROSION_WIND: `${API_PREFIX}/terrain/erosion/wind`,
+  /** @since 4.9.0 — Combined water + wind erosion; returns whichever process dominates */
+  EROSION_COMBINED: `${API_PREFIX}/terrain/erosion/combined`,
+  /** @since 4.9.0 — Yemen region preset shortcut (fewest inputs, auto-fills climate + soil defaults) */
+  EROSION_YEMEN: `${API_PREFIX}/terrain/erosion/yemen`,
 } as const;
 
 // ---------------------------------------------------------------------------

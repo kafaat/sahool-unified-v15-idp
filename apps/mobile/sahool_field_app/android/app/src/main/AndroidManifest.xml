@@ -19,6 +19,12 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
+    <!-- Voice / Speech Recognition - required by speech_to_text package
+         (see lib/core/voice/voice_service.dart). Without RECORD_AUDIO the
+         SpeechToText plugin fails to initialize with a misleading
+         "recognition not available" message. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
     <application
         android:label="سهول"
         android:name="${applicationName}"
@@ -62,6 +68,12 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Required on Android 11+ (API 30+) so speech_to_text can discover
+             the on-device RecognitionService. Without this, listing speech
+             engines returns an empty list on newer devices. -->
+        <intent>
+            <action android:name="android.speech.RecognitionService"/>
         </intent>
     </queries>
 </manifest>

@@ -207,10 +207,7 @@ class GeofenceAutoOperationBridge:
         event: GeofenceEvent,
         auth_header: str | None,
     ) -> AutoOperationResult:
-        url = (
-            f"{self.field_management_url}/api/v1/fields/"
-            f"{event.field_id}/operations"
-        )
+        url = f"{self.field_management_url}/api/v1/fields/{event.field_id}/operations"
         headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -218,8 +215,7 @@ class GeofenceAutoOperationBridge:
             # Idempotency key so the same geofence entry can't create
             # two draft operations if the caller retries.
             "Idempotency-Key": (
-                f"geofence-{event.equipment_id}-{event.geofence_id}-"
-                f"{int(event.timestamp.timestamp())}"
+                f"geofence-{event.equipment_id}-{event.geofence_id}-{int(event.timestamp.timestamp())}"
             ),
             "X-Source": "geofence_auto",
         }
@@ -232,11 +228,7 @@ class GeofenceAutoOperationBridge:
             if resp.status_code in (200, 201):
                 body = resp.json() if resp.content else {}
                 data = body.get("data") if isinstance(body, dict) else body
-                op_id = (
-                    data.get("id")
-                    if isinstance(data, dict)
-                    else None
-                )
+                op_id = data.get("id") if isinstance(data, dict) else None
                 return AutoOperationResult(
                     handled=True,
                     reason="drafted",
@@ -279,9 +271,7 @@ class GeofenceAutoOperationBridge:
                 error=f"unexpected:{type(e).__name__}",
             )
 
-    def _build_payload(
-        self, event: GeofenceEvent, operation_type: str
-    ) -> dict[str, Any]:
+    def _build_payload(self, event: GeofenceEvent, operation_type: str) -> dict[str, Any]:
         """
         Build the CreateFieldOperationDto body.
 
@@ -310,9 +300,7 @@ class GeofenceAutoOperationBridge:
     # NATS event emission
     # ------------------------------------------------------------------
 
-    async def _publish_drafted_event(
-        self, event: GeofenceEvent, result: AutoOperationResult
-    ) -> None:
+    async def _publish_drafted_event(self, event: GeofenceEvent, result: AutoOperationResult) -> None:
         if self.nats_client is None:
             return
         subject = f"sahool.tenant.{event.tenant_id}.field_operation.auto_drafted"
@@ -331,6 +319,4 @@ class GeofenceAutoOperationBridge:
             if hasattr(maybe, "__await__"):
                 await maybe
         except Exception as e:  # pragma: no cover - best-effort
-            logger.warning(
-                "geofence_autoop.publish_failed", error=str(e), subject=subject
-            )
+            logger.warning("geofence_autoop.publish_failed", error=str(e), subject=subject)

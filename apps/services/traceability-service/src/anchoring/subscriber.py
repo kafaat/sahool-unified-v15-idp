@@ -105,7 +105,7 @@ def classify_event(subject: str) -> str | None:
     # Strip the "sahool.field." prefix
     if not subject.startswith("sahool.field."):
         return None
-    suffix = subject[len("sahool.field."):]
+    suffix = subject[len("sahool.field.") :]
 
     # Whole-suffix match first
     if suffix in _SUBJECT_CLASSIFIER:
@@ -328,9 +328,7 @@ class FieldEventSubscriber:
         timestamp = datetime.now(UTC).isoformat()
         previous_hash = chain.head_hash
 
-        anchor_hash = hashlib.sha256(
-            f"{previous_hash}|{payload_digest}|{timestamp}|{event_type}".encode()
-        ).hexdigest()
+        anchor_hash = hashlib.sha256(f"{previous_hash}|{payload_digest}|{timestamp}|{event_type}".encode()).hexdigest()
 
         anchor = AnchorRecord(
             field_id=field_id,

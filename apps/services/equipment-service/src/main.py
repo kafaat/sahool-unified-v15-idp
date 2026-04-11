@@ -1281,9 +1281,7 @@ async def geofence_event(
     # Lazy-init the bridge once per process.
     if not hasattr(app.state, "geofence_autoop_bridge"):
         app.state.geofence_autoop_bridge = GeofenceAutoOperationBridge(
-            field_management_url=os.getenv(
-                "FIELD_MANAGEMENT_URL", "http://field-management-service:3000"
-            ),
+            field_management_url=os.getenv("FIELD_MANAGEMENT_URL", "http://field-management-service:3000"),
             nats_client=getattr(app.state, "nc", None),
             timeout=float(os.getenv("GEOFENCE_AUTOOP_TIMEOUT_SEC", "4.0")),
         )

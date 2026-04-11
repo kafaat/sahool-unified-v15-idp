@@ -1216,9 +1216,7 @@ class WeatherGraphGenerateRequest(BaseModel):
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)
     days: int = Field(default=14, ge=1, le=90)
-    metric: Literal["temperature", "precipitation", "humidity", "wind", "combined"] = (
-        "combined"
-    )
+    metric: Literal["temperature", "precipitation", "humidity", "wind", "combined"] = "combined"
     language: Literal["ar", "en"] = "ar"
 
 
@@ -1262,9 +1260,7 @@ async def generate_weather_graph(
     # provider's history method when available, else we gracefully
     # fall back to an empty series so the SVG still renders.
     daily_points: list[DailyPoint] = []
-    if app.state.multi_provider and hasattr(
-        app.state.multi_provider, "get_historical_daily"
-    ):
+    if app.state.multi_provider and hasattr(app.state.multi_provider, "get_historical_daily"):
         try:
             history_result = await app.state.multi_provider.get_historical_daily(
                 req.lat, req.lon, req.days, tenant_id=req.tenant_id
@@ -1293,9 +1289,7 @@ async def generate_weather_graph(
             language=req.language,
         )
     )
-    graph_id, url_path, expires_at = app.state.graph_store.store(
-        svg=svg, field_id=field_id, tenant_id=req.tenant_id
-    )
+    graph_id, url_path, expires_at = app.state.graph_store.store(svg=svg, field_id=field_id, tenant_id=req.tenant_id)
 
     return {
         "success": True,

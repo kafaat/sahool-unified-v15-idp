@@ -27,7 +27,6 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Literal
 
-
 # ---------------------------------------------------------------------------
 # Data models
 # ---------------------------------------------------------------------------
@@ -129,9 +128,9 @@ class WeatherGraphRenderer:
     def _plot_body(self, req: GraphRequest) -> str:
         metric = req.metric
         if metric == "temperature":
-            return self._line_series(
-                req, "temp_max_c", _THEME["temp_max"]
-            ) + self._line_series(req, "temp_min_c", _THEME["temp_min"])
+            return self._line_series(req, "temp_max_c", _THEME["temp_max"]) + self._line_series(
+                req, "temp_min_c", _THEME["temp_min"]
+            )
         if metric == "precipitation":
             return self._bar_series(req, "precipitation_mm", _THEME["precipitation"])
         if metric == "humidity":
@@ -156,11 +155,7 @@ class WeatherGraphRenderer:
             if v is None:
                 continue
             x = self.MARGIN_LEFT + (i / max(n - 1, 1)) * self.plot_w
-            y = (
-                self.MARGIN_TOP
-                + self.plot_h
-                - ((v - vmin) / max(vmax - vmin, 0.01)) * self.plot_h
-            )
+            y = self.MARGIN_TOP + self.plot_h - ((v - vmin) / max(vmax - vmin, 0.01)) * self.plot_h
             points.append(f"{x:.1f},{y:.1f}")
         if not points:
             return ""
@@ -182,16 +177,11 @@ class WeatherGraphRenderer:
         for i, v in enumerate(values):
             if v is None or v <= 0:
                 continue
-            x = (
-                self.MARGIN_LEFT
-                + (i / max(n - 1, 1)) * self.plot_w
-                - bar_w / 2
-            )
+            x = self.MARGIN_LEFT + (i / max(n - 1, 1)) * self.plot_w - bar_w / 2
             h = (v / vmax) * self.plot_h
             y = self.MARGIN_TOP + self.plot_h - h
             bars.append(
-                f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_w:.1f}" '
-                f'height="{h:.1f}" fill="{colour}" opacity="0.75"/>'
+                f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_w:.1f}" height="{h:.1f}" fill="{colour}" opacity="0.75"/>'
             )
         return "".join(bars)
 
@@ -222,7 +212,7 @@ class WeatherGraphRenderer:
                 parts.append(
                     f'<text x="{x:.1f}" y="{y}" text-anchor="middle" '
                     f'fill="{_THEME["axis"]}" font-size="10">'
-                    f'{self._esc(req.points[i].date)}</text>'
+                    f"{self._esc(req.points[i].date)}</text>"
                 )
         return "".join(parts)
 
@@ -284,12 +274,7 @@ class WeatherGraphRenderer:
 
     @staticmethod
     def _esc(s: str) -> str:
-        return (
-            s.replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace('"', "&quot;")
-        )
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
 # ---------------------------------------------------------------------------
@@ -319,9 +304,7 @@ class GraphStore:
             "dev-change-me-in-production",  # nosec B105 - dev fallback only
         )
 
-    def store(
-        self, svg: str, field_id: str, tenant_id: str
-    ) -> tuple[str, str, datetime]:
+    def store(self, svg: str, field_id: str, tenant_id: str) -> tuple[str, str, datetime]:
         """
         Persist an SVG + return (graph_id, signed_url_path, expires_at).
         The caller prepends its own scheme+host for the full URL.
@@ -330,15 +313,11 @@ class GraphStore:
         expires_at = datetime.now(UTC) + timedelta(seconds=self.TTL_SECONDS)
         self._store[graph_id] = (svg, expires_at, field_id, tenant_id)
         signature = self._sign(graph_id, tenant_id)
-        url_path = (
-            f"/api/v1/weather/graphs/{graph_id}?tid={tenant_id}&sig={signature}"
-        )
+        url_path = f"/api/v1/weather/graphs/{graph_id}?tid={tenant_id}&sig={signature}"
         self._gc_expired()
         return graph_id, url_path, expires_at
 
-    def fetch(
-        self, graph_id: str, tenant_id: str, signature: str
-    ) -> str | None:
+    def fetch(self, graph_id: str, tenant_id: str, signature: str) -> str | None:
         """Return SVG if found + signature valid, None otherwise."""
         row = self._store.get(graph_id)
         if not row:
@@ -355,9 +334,7 @@ class GraphStore:
 
     def _sign(self, graph_id: str, tenant_id: str) -> str:
         msg = f"{graph_id}:{tenant_id}".encode()
-        digest = hmac.new(
-            self._secret.encode(), msg, hashlib.sha256
-        ).digest()
+        digest = hmac.new(self._secret.encode(), msg, hashlib.sha256).digest()
         return base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
 
     def _gc_expired(self) -> None:

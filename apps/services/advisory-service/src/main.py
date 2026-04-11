@@ -1205,9 +1205,7 @@ async def comprehensive_advisory(
             timeout=float(os.getenv("COMPREHENSIVE_TIMEOUT_SEC", "8.0")),
         )
 
-    orchestrator: ComprehensiveAdvisoryOrchestrator = (
-        app.state.comprehensive_orchestrator
-    )
+    orchestrator: ComprehensiveAdvisoryOrchestrator = app.state.comprehensive_orchestrator
 
     # Pass the caller's auth header through so each downstream
     # service can independently verify the JWT and enforce its own
@@ -1295,9 +1293,7 @@ async def verify_crop_loan(
 
     if not hasattr(app.state, "loan_verification_engine"):
         app.state.loan_verification_engine = CropLoanVerificationEngine(
-            field_management_url=os.getenv(
-                "FIELD_MANAGEMENT_URL", "http://field-management-service:3000"
-            ),
+            field_management_url=os.getenv("FIELD_MANAGEMENT_URL", "http://field-management-service:3000"),
             vegetation_analysis_url=os.getenv(
                 "VEGETATION_ANALYSIS_URL",
                 "http://vegetation-analysis-service:8090",

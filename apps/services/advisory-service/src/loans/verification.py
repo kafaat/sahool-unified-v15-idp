@@ -128,9 +128,7 @@ class LoanVerificationResult:
                 "ndvi_stability": self.ndvi_stability,
                 "ndvi_samples": self.ndvi_samples,
                 "last_satellite_pass": self.last_satellite_pass,
-                "declared_crop_matches_signature": (
-                    self.declared_crop_matches_signature
-                ),
+                "declared_crop_matches_signature": (self.declared_crop_matches_signature),
             },
             "risk_factors": self.risk_factors,
             "risk_factors_ar": self.risk_factors_ar,
@@ -216,12 +214,8 @@ class CropLoanVerificationEngine:
             )
 
         # 1. Evaluate satellite evidence
-        actual_area, area_ok = self._check_area(
-            field_data, req.declared_area_hectares
-        )
-        ndvi_mean, ndvi_stability, ndvi_samples, last_pass = self._summarise_ndvi(
-            ndvi_series
-        )
+        actual_area, area_ok = self._check_area(field_data, req.declared_area_hectares)
+        ndvi_mean, ndvi_stability, ndvi_samples, last_pass = self._summarise_ndvi(ndvi_series)
         crop_verified = (ndvi_mean or 0.0) >= self.NDVI_SPARSE
         crop_signature_ok = self._signature_check(req.declared_crop, ndvi_mean)
 
@@ -248,11 +242,7 @@ class CropLoanVerificationEngine:
             req.declared_crop,
             actual_area or req.declared_area_hectares,
         )
-        ltv = (
-            req.requested_loan_amount_sar / expected_revenue
-            if expected_revenue > 0
-            else 0.0
-        )
+        ltv = req.requested_loan_amount_sar / expected_revenue if expected_revenue > 0 else 0.0
 
         # 4. Decide
         decision, decision_ar = self._decide(
@@ -274,9 +264,7 @@ class CropLoanVerificationEngine:
             risk_level=risk_level,
         )
 
-        degraded_sources = sum(
-            1 for src in (field_data, ndvi_series, risk_data) if src.get("_degraded")
-        )
+        degraded_sources = sum(1 for src in (field_data, ndvi_series, risk_data) if src.get("_degraded"))
         elapsed_ms = (time.perf_counter() - start_total) * 1000
 
         return LoanVerificationResult(
@@ -310,33 +298,19 @@ class CropLoanVerificationEngine:
     # Downstream calls — each returns a dict, NEVER raises
     # ------------------------------------------------------------------
 
-    async def _fetch_field(
-        self, client: httpx.AsyncClient, headers: dict, field_id: str
-    ) -> dict[str, Any]:
+    async def _fetch_field(self, client: httpx.AsyncClient, headers: dict, field_id: str) -> dict[str, Any]:
         url = f"{self.field_management_url}/api/v1/fields/{field_id}"
         return await self._safe_get(client, url, headers)
 
-    async def _fetch_ndvi_series(
-        self, client: httpx.AsyncClient, headers: dict, field_id: str
-    ) -> dict[str, Any]:
-        url = (
-            f"{self.vegetation_analysis_url}/api/v1/vegetation/fields/"
-            f"{field_id}/ndvi/history"
-        )
+    async def _fetch_ndvi_series(self, client: httpx.AsyncClient, headers: dict, field_id: str) -> dict[str, Any]:
+        url = f"{self.vegetation_analysis_url}/api/v1/vegetation/fields/{field_id}/ndvi/history"
         return await self._safe_get(client, url, headers)
 
-    async def _fetch_risk(
-        self, client: httpx.AsyncClient, headers: dict, field_id: str
-    ) -> dict[str, Any]:
-        url = (
-            f"{self.crop_intelligence_url}/api/v1/crop-intelligence/fields/"
-            f"{field_id}/risk"
-        )
+    async def _fetch_risk(self, client: httpx.AsyncClient, headers: dict, field_id: str) -> dict[str, Any]:
+        url = f"{self.crop_intelligence_url}/api/v1/crop-intelligence/fields/{field_id}/risk"
         return await self._safe_get(client, url, headers)
 
-    async def _safe_get(
-        self, client: httpx.AsyncClient, url: str, headers: dict
-    ) -> dict[str, Any]:
+    async def _safe_get(self, client: httpx.AsyncClient, url: str, headers: dict) -> dict[str, Any]:
         try:
             resp = await client.get(url, headers=headers)
             if resp.status_code == 200:
@@ -362,9 +336,7 @@ class CropLoanVerificationEngine:
     # Evidence extraction helpers
     # ------------------------------------------------------------------
 
-    def _check_area(
-        self, field_data: dict, declared_area: float
-    ) -> tuple[float | None, bool]:
+    def _check_area(self, field_data: dict, declared_area: float) -> tuple[float | None, bool]:
         """Compare declared vs actual GIS-measured area."""
         actual = None
         for key in ("area_hectares", "area_ha", "computed_area_hectares"):
@@ -379,9 +351,7 @@ class CropLoanVerificationEngine:
         diff_pct = abs(actual - declared_area) / declared_area * 100
         return actual, diff_pct <= self.AREA_TOLERANCE_PCT
 
-    def _summarise_ndvi(
-        self, ndvi_data: dict
-    ) -> tuple[float | None, float | None, int, str | None]:
+    def _summarise_ndvi(self, ndvi_data: dict) -> tuple[float | None, float | None, int, str | None]:
         """Collapse an NDVI history series into mean, stability, count."""
         series = ndvi_data.get("series") if isinstance(ndvi_data, dict) else None
         if not isinstance(series, list) or not series:
@@ -412,9 +382,7 @@ class CropLoanVerificationEngine:
         last_pass = max(timestamps) if timestamps else None
         return m, stability, len(values), last_pass
 
-    def _extract_risk(
-        self, risk_data: dict
-    ) -> tuple[str, list[str], list[str]]:
+    def _extract_risk(self, risk_data: dict) -> tuple[str, list[str], list[str]]:
         level = risk_data.get("risk_level") or "moderate"
         factors = risk_data.get("factors") or []
         factors_ar = risk_data.get("factors_ar") or []
@@ -428,9 +396,7 @@ class CropLoanVerificationEngine:
             [str(f) for f in factors_ar],
         )
 
-    def _signature_check(
-        self, declared_crop: str, ndvi_mean: float | None
-    ) -> bool | None:
+    def _signature_check(self, declared_crop: str, ndvi_mean: float | None) -> bool | None:
         """Return True/False if we can judge, None if we can't."""
         if ndvi_mean is None:
             return None
@@ -489,9 +455,7 @@ class CropLoanVerificationEngine:
         total = ndvi_points + stability_points + area_points + crop_points + risk_points
         return max(0.0, min(100.0, total))
 
-    def _max_safe_loan(
-        self, crop: str, area_ha: float, eligibility_score: float
-    ) -> float:
+    def _max_safe_loan(self, crop: str, area_ha: float, eligibility_score: float) -> float:
         """
         Upper-bound loan amount we'd comfortably underwrite. Computed as
         a percentage of expected gross revenue, scaled by eligibility.

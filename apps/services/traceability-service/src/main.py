@@ -83,9 +83,7 @@ async def lifespan(app: FastAPI):
             await app.state.field_event_subscriber.start()
             logger.info("Field event anchoring subscriber started")
         except Exception as e:
-            logger.error(
-                "Failed to start field event subscriber", error=str(e)
-            )
+            logger.error("Failed to start field event subscriber", error=str(e))
 
     yield
 

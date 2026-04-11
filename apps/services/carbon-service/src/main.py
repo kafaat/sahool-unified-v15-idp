@@ -77,9 +77,7 @@ async def lifespan(app: FastAPI):
                     start_operation_subscriber,
                 )
 
-                app.state.subscriber_task = await start_operation_subscriber(
-                    app.state.nc, app.state.db_pool
-                )
+                app.state.subscriber_task = await start_operation_subscriber(app.state.nc, app.state.db_pool)
                 logger.info("Operation subscriber started")
             except Exception as sub_err:
                 logger.warning(
@@ -106,10 +104,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=SERVICE_NAME,
-    description=(
-        "Agricultural carbon footprint (IPCC Tier 1) — "
-        "خدمة البصمة الكربونية الزراعية"
-    ),
+    description=("Agricultural carbon footprint (IPCC Tier 1) — خدمة البصمة الكربونية الزراعية"),
     version=SERVICE_VERSION,
     lifespan=lifespan,
 )

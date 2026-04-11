@@ -50,14 +50,10 @@ async def start_operation_subscriber(nc, pool) -> Any:
             # The outbox envelope nests the business payload inside
             # `payload`. Support both shapes (direct publish vs outbox).
             payload = envelope.get("payload", envelope)
-            operation_id = payload.get("operationId") or payload.get(
-                "operation_id"
-            )
+            operation_id = payload.get("operationId") or payload.get("operation_id")
             tenant_id = payload.get("tenantId") or payload.get("tenant_id")
             if not operation_id or not tenant_id:
-                logger.warning(
-                    "Skipping event with missing ids", envelope=envelope
-                )
+                logger.warning("Skipping event with missing ids", envelope=envelope)
                 return
 
             async with pool.acquire() as conn:

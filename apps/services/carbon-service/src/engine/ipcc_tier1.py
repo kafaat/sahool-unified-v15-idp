@@ -29,7 +29,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-
 # ---------------------------------------------------------------------------
 # Emission factors — IPCC Tier 1 defaults
 # ---------------------------------------------------------------------------
@@ -167,20 +166,14 @@ class IpccTier1Engine:
 
         # ── Fuel combustion ────────────────────────────────────────────
         if op.fuel_liters and op.fuel_liters > 0:
-            factor = (
-                FUEL_DIESEL_CO2E_PER_LITRE
-                if op.fuel_type == "diesel"
-                else FUEL_GASOLINE_CO2E_PER_LITRE
-            )
+            factor = FUEL_DIESEL_CO2E_PER_LITRE if op.fuel_type == "diesel" else FUEL_GASOLINE_CO2E_PER_LITRE
             breakdown.fuel = op.fuel_liters * factor
 
         # ── Fertiliser embodied + in-field N2O ────────────────────────
         if op.nitrogen_kg and op.nitrogen_kg > 0:
             breakdown.fertilizer_n = op.nitrogen_kg * FERTILIZER_N_CO2E_PER_KG
         if op.phosphorus_kg and op.phosphorus_kg > 0:
-            breakdown.fertilizer_p = (
-                op.phosphorus_kg * FERTILIZER_P_CO2E_PER_KG
-            )
+            breakdown.fertilizer_p = op.phosphorus_kg * FERTILIZER_P_CO2E_PER_KG
         if op.potassium_kg and op.potassium_kg > 0:
             breakdown.fertilizer_k = op.potassium_kg * FERTILIZER_K_CO2E_PER_KG
 
@@ -194,29 +187,20 @@ class IpccTier1Engine:
 
         # ── Residue burning (if applicable) ────────────────────────────
         if op.is_residue_burning and op.area_hectares and op.area_hectares > 0:
-            breakdown.residue_burning = (
-                op.area_hectares * RESIDUE_BURNING_CO2E_PER_HA
-            )
+            breakdown.residue_burning = op.area_hectares * RESIDUE_BURNING_CO2E_PER_HA
             warnings.append(
-                "Residue burning is a high-intensity emission source. "
-                "Consider alternatives (incorporation, baling)."
+                "Residue burning is a high-intensity emission source. Consider alternatives (incorporation, baling)."
             )
 
         # ── Sequestration ──────────────────────────────────────────────
         # Applied at a per-month rate (1/12th of annual) to match the
         # operation-level granularity of the source data.
         if op.is_cover_cropping and op.area_hectares and op.area_hectares > 0:
-            breakdown.cover_cropping_seq = (
-                op.area_hectares * COVER_CROPPING_CO2E_SEQ_PER_HA_YEAR / 12
-            )
+            breakdown.cover_cropping_seq = op.area_hectares * COVER_CROPPING_CO2E_SEQ_PER_HA_YEAR / 12
         if op.is_no_till and op.area_hectares and op.area_hectares > 0:
-            breakdown.no_till_seq = (
-                op.area_hectares * NO_TILL_CO2E_SEQ_PER_HA_YEAR / 12
-            )
+            breakdown.no_till_seq = op.area_hectares * NO_TILL_CO2E_SEQ_PER_HA_YEAR / 12
         if op.biochar_tonnes and op.biochar_tonnes > 0:
-            breakdown.biochar_seq = (
-                op.biochar_tonnes * BIOCHAR_CO2E_SEQ_PER_TONNE
-            )
+            breakdown.biochar_seq = op.biochar_tonnes * BIOCHAR_CO2E_SEQ_PER_TONNE
 
         emissions = (
             breakdown.fuel
@@ -227,11 +211,7 @@ class IpccTier1Engine:
             + breakdown.pesticide
             + breakdown.residue_burning
         )
-        sequestration = (
-            breakdown.cover_cropping_seq
-            + breakdown.no_till_seq
-            + breakdown.biochar_seq
-        )
+        sequestration = breakdown.cover_cropping_seq + breakdown.no_till_seq + breakdown.biochar_seq
         net = emissions - sequestration
 
         # Carbon credits are generally issued for net-negative operations
@@ -239,18 +219,13 @@ class IpccTier1Engine:
         # conservative — only flips TRUE when sequestration exceeds
         # emissions AND the sequestration source is a well-known one.
         credit_eligible = (
-            sequestration > 0
-            and net < 0
-            and (op.is_cover_cropping or op.is_no_till or bool(op.biochar_tonnes))
+            sequestration > 0 and net < 0 and (op.is_cover_cropping or op.is_no_till or bool(op.biochar_tonnes))
         )
 
         source_type = self._primary_source(breakdown)
 
         if emissions == 0 and sequestration == 0:
-            warnings.append(
-                "No computable inputs — operation has no fuel, fertiliser, "
-                "or machinery hours recorded."
-            )
+            warnings.append("No computable inputs — operation has no fuel, fertiliser, or machinery hours recorded.")
 
         return CarbonResult(
             operation_id=op.operation_id,

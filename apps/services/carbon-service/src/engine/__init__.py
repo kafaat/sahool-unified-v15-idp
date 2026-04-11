@@ -1,4 +1,5 @@
 """IPCC-aligned carbon computation engine."""
+
 from .ipcc_tier1 import (
     CarbonBreakdown,
     CarbonResult,

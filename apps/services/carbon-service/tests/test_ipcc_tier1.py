@@ -10,7 +10,6 @@ factor updates require explicit developer review.
 from __future__ import annotations
 
 import pytest
-
 from src.engine import IpccTier1Engine, OperationInput
 
 
@@ -220,9 +219,7 @@ def test_residue_burning_warning(engine: IpccTier1Engine):
 
 
 def test_empty_operation_produces_warning(engine: IpccTier1Engine):
-    result = engine.compute(
-        OperationInput(operation_id="op-12", operation_type="scouting")
-    )
+    result = engine.compute(OperationInput(operation_id="op-12", operation_type="scouting"))
     assert result.emissions_kg == 0.0
     assert result.sequestration_kg == 0.0
     assert any("no computable inputs" in w.lower() for w in result.warnings)

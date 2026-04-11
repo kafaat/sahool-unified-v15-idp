@@ -435,9 +435,7 @@ async def crop_season_summary(
         src = r["emission_source_type"] or "mixed"
         by_source[src] = by_source.get(src, 0.0) + float(r["co2_net_kg"] or 0)
         op_type = r["operation_type"]
-        bucket = by_op_type.setdefault(
-            op_type, {"emissions": 0.0, "sequestration": 0.0, "net": 0.0}
-        )
+        bucket = by_op_type.setdefault(op_type, {"emissions": 0.0, "sequestration": 0.0, "net": 0.0})
         bucket["emissions"] += float(r["co2_emissions_kg"] or 0)
         bucket["sequestration"] += float(r["co2_sequestration_kg"] or 0)
         bucket["net"] += float(r["co2_net_kg"] or 0)
@@ -452,10 +450,7 @@ async def crop_season_summary(
         total_sequestration_kg=round(total_seq, 2),
         total_net_kg=round(total_net, 2),
         by_source={k: round(v, 2) for k, v in by_source.items()},
-        by_operation_type={
-            k: {kk: round(vv, 2) for kk, vv in v.items()}
-            for k, v in by_op_type.items()
-        },
+        by_operation_type={k: {kk: round(vv, 2) for kk, vv in v.items()} for k, v in by_op_type.items()},
     )
 
 
@@ -485,14 +480,9 @@ def _map_row_to_input(row: dict, metadata: dict) -> OperationInput:
     return OperationInput(
         operation_id=str(row["id"]),
         operation_type=row["operation_type"],
-        area_hectares=float(row["area_hectares"])
-        if row.get("area_hectares")
-        else None,
-        duration_hours=float(row["duration_hours"])
-        if row.get("duration_hours")
-        else None,
-        fuel_liters=float(row.get("fuel_liters") or metadata.get("fuel_liters") or 0)
-        or None,
+        area_hectares=float(row["area_hectares"]) if row.get("area_hectares") else None,
+        duration_hours=float(row["duration_hours"]) if row.get("duration_hours") else None,
+        fuel_liters=float(row.get("fuel_liters") or metadata.get("fuel_liters") or 0) or None,
         fuel_type=metadata.get("fuel_type", "diesel"),
         nitrogen_kg=float(fert.get("n_kg") or 0) or None,
         phosphorus_kg=float(fert.get("p_kg") or 0) or None,

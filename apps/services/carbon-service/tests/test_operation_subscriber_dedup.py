@@ -75,7 +75,6 @@ sys.modules["src.api.v1.carbon"] = _stub_api_v1_carbon
 # Now safe to import the subscriber module
 from src.events import operation_subscriber as sub_mod  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Canonical hash tests — determinism + tamper detection
 # ---------------------------------------------------------------------------
@@ -400,10 +399,7 @@ async def test_handler_mixed_ops_are_all_processed():
     # 3 distinct computes, 1 replay skipped
     assert FakeConn._state["update_calls"] == 3
     assert len(FakeConn._state["dedup"]) == 3
-    assert all(
-        FakeConn._state["field_ops"][op]["carbon_computed_at"] == "NOW()"
-        for op in ("op-1", "op-2", "op-3")
-    )
+    assert all(FakeConn._state["field_ops"][op]["carbon_computed_at"] == "NOW()" for op in ("op-1", "op-2", "op-3"))
 
 
 @pytest.mark.asyncio

@@ -108,9 +108,7 @@ async def _mark_processed(conn, tenant_id: str, operation_id: str) -> None:
     )
 
 
-async def _mark_failed(
-    conn, tenant_id: str, operation_id: str, error: str
-) -> None:
+async def _mark_failed(conn, tenant_id: str, operation_id: str, error: str) -> None:
     """Record failure in carbon_event_dedup for later forensics."""
     # Cap at 2000 chars to keep the table small.
     await conn.execute(
@@ -197,9 +195,7 @@ async def start_operation_subscriber(nc, pool) -> Any:
                         "Operation not found for carbon compute",
                         operation_id=operation_id,
                     )
-                    await _mark_failed(
-                        conn, tenant_id, operation_id, "operation_not_found"
-                    )
+                    await _mark_failed(conn, tenant_id, operation_id, "operation_not_found")
                     return
 
                 # ── Step 3: compute ──────────────────────────────────

@@ -832,11 +832,13 @@ async def lifespan(app: FastAPI):
             _nats_client = await nats.connect(NATS_URL)
             from shared.logging_config import sanitize_url
 
-            logger.info(f"NATS connected: {sanitize_url(NATS_URL)}")
+            logger.info("NATS connected: %s", sanitize_log(sanitize_url(NATS_URL)))
         except Exception as e:
-            logger.warning(f"Failed to connect to NATS: {e}")
+            # Sanitize exception text — NATS client errors can echo the
+            # connection URL or server response which may contain CR/LF.
+            logger.warning("Failed to connect to NATS: %s", sanitize_log(repr(e)))
 
-    logger.info(f"Logistics Service ready on port {SERVICE_PORT}")
+    logger.info("Logistics Service ready on port %s", sanitize_log(SERVICE_PORT))
 
     yield
 
@@ -849,7 +851,8 @@ async def lifespan(app: FastAPI):
             await _nats_client.close()
             logger.info("NATS connection closed")
         except Exception as e:
-            logger.error(f"Error closing NATS: {e}")
+            # Sanitize the exception message — see comment above.
+            logger.error("Error closing NATS: %s", sanitize_log(repr(e)))
 
     logger.info("Logistics Service stopped")
 

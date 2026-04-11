@@ -187,9 +187,11 @@ async def list_purchase_orders(
     params.append(limit)
     params.append(offset)
 
-    # nosec B608 - conditions built from validated allowlist
-    query = (  # nosemgrep: python.lang.security.audit.formatted-sql-query
-        f"SELECT * FROM cooperative_purchase_orders WHERE {where_clause} "
+    # WHERE clause built from `conditions` (static `column = $N` strings
+    # — see ALLOWED_FILTERS allowlist); user values flow through asyncpg
+    # parameters, never into the SQL string. Safe SQL composition.
+    query = (
+        f"SELECT * FROM cooperative_purchase_orders WHERE {where_clause} "  # nosec B608  # nosemgrep: python.lang.security.audit.formatted-sql-query
         f"ORDER BY created_at DESC LIMIT ${len(params) - 1} OFFSET ${len(params)}"
     )
     rows = await pool.fetch(query, *params)
@@ -328,9 +330,11 @@ async def update_purchase_order(
     values.append(uuid.UUID(tenant_id))
     values.append(current.get("version", 1))
 
-    # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist
-    query = (  # nosemgrep: python.lang.security.audit.formatted-sql-query
-        f"UPDATE cooperative_purchase_orders SET {', '.join(set_clauses)} "
+    # `set_clauses` built from `column = $N` fragments where `column` is
+    # validated against ALLOWED_COLUMNS allowlist; user values bound via
+    # asyncpg parameters. Safe SQL composition.
+    query = (
+        f"UPDATE cooperative_purchase_orders SET {', '.join(set_clauses)} "  # nosec B608  # nosemgrep: python.lang.security.audit.formatted-sql-query
         f"WHERE id = ${len(values) - 2} AND tenant_id = ${len(values) - 1} AND version = ${len(values)} "
         f"RETURNING *"
     )

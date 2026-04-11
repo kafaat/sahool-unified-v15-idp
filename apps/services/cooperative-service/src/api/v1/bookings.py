@@ -147,9 +147,12 @@ async def list_bookings(
     params.append(limit)
     params.append(offset)
 
-    # nosec B608 - conditions built from validated params
-    query = (  # nosemgrep: python.lang.security.audit.formatted-sql-query
-        f"SELECT * FROM cooperative_bookings WHERE {where_clause} "
+    # WHERE clause is built only from `conditions` (a list of static
+    # `column = $N` fragments — see ALLOWED_FILTERS allowlist above);
+    # the user-provided values flow through asyncpg parameters, never
+    # interpolated into the SQL string. Safe SQL composition.
+    query = (
+        f"SELECT * FROM cooperative_bookings WHERE {where_clause} "  # nosec B608  # nosemgrep: python.lang.security.audit.formatted-sql-query
         f"ORDER BY booking_date DESC LIMIT ${len(params) - 1} OFFSET ${len(params)}"
     )
     rows = await pool.fetch(query, *params)

@@ -251,8 +251,10 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage to Codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v5
-        if: always() && secrets.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: apps/services/ai-advisor/coverage.xml

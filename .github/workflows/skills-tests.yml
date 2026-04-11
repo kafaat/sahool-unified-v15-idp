@@ -316,8 +316,10 @@ jobs:
           fi
 
       - name: Upload combined coverage to Codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
         uses: codecov/codecov-action@v5
-        if: always() && secrets.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage-ai/coverage-ai.xml

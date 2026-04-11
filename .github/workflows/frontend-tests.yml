@@ -1094,20 +1094,30 @@ jobs:
           SERVER_PID=$!
           echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
 
-          # Health check with proper timeout
-          timeout=60
+          # Health check with generous timeout.
+          # 60s was hitting the edge on slower runners and caused
+          # intermittent E2E flakes — the Next.js production server
+          # cold-start sometimes exceeds 45s when RSC prefetching and
+          # the first request trigger additional bundle compilation.
+          # 120s gives a comfortable safety margin; on a healthy runner
+          # the server is up in <10s and we exit the loop immediately.
+          timeout=120
           elapsed=0
           while [ $elapsed -lt $timeout ]; do
             if curl -f http://localhost:3000 2>/dev/null; then
-              echo "✅ Server is ready"
+              echo "✅ Server is ready after ${elapsed}s"
+              # Brief warmup so Next.js finishes compiling the /login
+              # route (the first Playwright smoke test target) before
+              # the browser starts hitting it cold.
+              sleep 2
               exit 0
             fi
-            echo "Waiting for server... ($elapsed/$timeout seconds)"
+            echo "Waiting for server... (${elapsed}/${timeout}s)"
             sleep 3
             elapsed=$((elapsed + 3))
           done
 
-          echo "::error::Server failed to start within $timeout seconds"
+          echo "::error::Server failed to start within ${timeout}s"
           echo "=== Server logs ==="
           cat server.log
           kill $SERVER_PID 2>/dev/null || true

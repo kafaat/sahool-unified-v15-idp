@@ -930,6 +930,7 @@ def _create_segmentation_visualization(
 @router.post(
     "/track/objects",
     response_model=ObjectTrackingResponse,
+    response_model_by_alias=True,
     summary="Track objects with ID persistence",
     description="Track objects across video frames with persistent IDs.",
 )

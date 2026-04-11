@@ -26,7 +26,7 @@ from fastapi import (
     status,
 )
 from PIL import Image
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.schemas import (
     DISEASE_CLASSES,
@@ -79,60 +79,70 @@ router = APIRouter(prefix="/api/v1/batch", tags=["batch"])
 class BatchItemResult(BaseModel):
     """Result for a single item in batch."""
 
-    item_id: str
+    model_config = ConfigDict(populate_by_name=True)
+
+    item_id: str = Field(..., alias="itemId")
     index: int
     status: str = Field(description="success, failed")
     filename: str | None = None
     detections: list[dict] = Field(default_factory=list)
-    detection_count: int = 0
-    processing_time_ms: float = 0.0
+    detection_count: int = Field(default=0, alias="detectionCount")
+    processing_time_ms: float = Field(default=0.0, alias="processingTimeMs")
     error: str | None = None
-    error_ar: str | None = None
+    error_ar: str | None = Field(default=None, alias="errorAr")
 
 
 class BatchDetectionResponse(BaseModel):
     """Response for batch detection request."""
 
-    job_id: str
+    model_config = ConfigDict(populate_by_name=True)
+
+    job_id: str = Field(..., alias="jobId")
     status: str
-    total_items: int
-    successful_count: int
-    failed_count: int
+    total_items: int = Field(..., alias="totalItems")
+    successful_count: int = Field(..., alias="successfulCount")
+    failed_count: int = Field(..., alias="failedCount")
     progress: float
-    total_processing_time_ms: float
-    average_time_per_image_ms: float
+    total_processing_time_ms: float = Field(..., alias="totalProcessingTimeMs")
+    average_time_per_image_ms: float = Field(..., alias="averageTimePerImageMs")
     results: list[BatchItemResult]
-    model_variant: ModelVariant
+    model_variant: ModelVariant = Field(..., alias="modelVariant")
     task: str
-    created_at: float
-    completed_at: float | None
+    created_at: float = Field(..., alias="createdAt")
+    completed_at: float | None = Field(default=None, alias="completedAt")
 
 
 class BatchJobStatusResponse(BaseModel):
     """Response for batch job status query."""
 
-    job_id: str
+    model_config = ConfigDict(populate_by_name=True)
+
+    job_id: str = Field(..., alias="jobId")
     status: str
-    total_items: int
-    successful_count: int
-    failed_count: int
+    total_items: int = Field(..., alias="totalItems")
+    successful_count: int = Field(..., alias="successfulCount")
+    failed_count: int = Field(..., alias="failedCount")
     progress: float
-    total_processing_time_ms: float
-    created_at: float
-    started_at: float | None
-    completed_at: float | None
-    estimated_remaining_time_ms: float | None
+    total_processing_time_ms: float = Field(..., alias="totalProcessingTimeMs")
+    created_at: float = Field(..., alias="createdAt")
+    started_at: float | None = Field(default=None, alias="startedAt")
+    completed_at: float | None = Field(default=None, alias="completedAt")
+    estimated_remaining_time_ms: float | None = Field(
+        default=None, alias="estimatedRemainingTimeMs"
+    )
 
 
 class BatchQueueStatusResponse(BaseModel):
     """Response for batch queue status."""
 
-    queue_size: int
-    active_jobs: int
-    completed_jobs: int
-    current_batch_size: int
-    total_processed: int
-    average_throughput: float
+    model_config = ConfigDict(populate_by_name=True)
+
+    queue_size: int = Field(..., alias="queueSize")
+    active_jobs: int = Field(..., alias="activeJobs")
+    completed_jobs: int = Field(..., alias="completedJobs")
+    current_batch_size: int = Field(..., alias="currentBatchSize")
+    total_processed: int = Field(..., alias="totalProcessed")
+    average_throughput: float = Field(..., alias="averageThroughput")
 
 
 # =============================================================================
@@ -215,6 +225,7 @@ def calculate_severity(confidence: float, area_ratio: float = 0.0) -> SeverityLe
 @router.post(
     "/detect/pest",
     response_model=BatchDetectionResponse,
+    response_model_by_alias=True,
     summary="Batch pest detection",
     description="Detect pests in multiple images with efficient batch processing.",
 )
@@ -431,6 +442,7 @@ async def batch_detect_pests(
 @router.post(
     "/detect/disease",
     response_model=BatchDetectionResponse,
+    response_model_by_alias=True,
     summary="Batch disease detection",
     description="Detect plant diseases in multiple images with efficient batch processing.",
 )
@@ -613,6 +625,7 @@ async def batch_detect_diseases(
 @router.get(
     "/status",
     response_model=BatchQueueStatusResponse,
+    response_model_by_alias=True,
     summary="Get batch queue status",
     description="Get the current status of the batch processing queue.",
 )

@@ -330,9 +330,14 @@ async def analyze_hydrology(
     start_time = time.time()
     settings = get_settings()
 
+    # Tenant is already derived from JWT (tid claim) by get_tenant_id.
     effective_tenant_id = tenant_id
 
-    logger.info("Starting hydrology analysis", field_id=request.field_id, tenant_id=effective_tenant_id)
+    logger.info(
+        "Starting hydrology analysis",
+        field_id=_safe_log(request.field_id),
+        tenant_id=_safe_log(effective_tenant_id),
+    )
 
     # Try to fetch real DEM data
     dem = await fetch_dem_from_terrain_service(request.field_id, effective_tenant_id)

@@ -9,6 +9,22 @@ import { MarketService } from "../src/market/market.service";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { EventsService } from "../src/events/events.service";
 import { CacheService } from "../src/cache/cache.service";
+import { IdempotencyService } from "../src/fintech/idempotency.service";
+
+/** No-op IdempotencyService stub — see idempotency.service.ts */
+const mockIdempotencyService = {
+  executeIdempotent: jest.fn(
+    async (
+      _key: string | undefined,
+      _tenant: string,
+      _user: string,
+      _op: string,
+      _payload: unknown,
+      fn: () => Promise<unknown>,
+    ) => ({ value: await fn(), replayed: false, statusCode: 200 }),
+  ),
+  hashRequest: jest.fn(() => "stub-hash"),
+};
 
 describe("MarketplaceService - خدمة السوق", () => {
   let service: MarketService;
@@ -115,6 +131,10 @@ describe("MarketplaceService - خدمة السوق", () => {
         {
           provide: CacheService,
           useValue: mockCacheService,
+        },
+        {
+          provide: IdempotencyService,
+          useValue: mockIdempotencyService,
         },
       ],
     }).compile();

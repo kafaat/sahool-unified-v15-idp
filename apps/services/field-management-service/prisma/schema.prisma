@@ -37,9 +37,18 @@ model Farm {
   ownerId  String? @map("owner_id") @db.Uuid
 
   // Geospatial (PostGIS)
-  // `location` / `boundary` below are the PostGIS geometry columns.
+  // `locationGeom` / `boundary` below are the PostGIS geometry columns
+  // (mapped to DB columns `location` / `boundary` for legacy compatibility).
   // The optional string fields (`locationLabel`, `locationLabelAr`) are
   // human-readable labels exposed to the UI.
+  //
+  // IMPORTANT: Prisma 5.22 reports a "Field X already defined" validation
+  // error when a Prisma field name collides with another field's @map target
+  // in the same model. `locationGeom @map("location")` therefore cannot
+  // coexist with a Prisma field literally named `location` — hence the
+  // camelCase rename to `locationLabel` / `locationLabelAr`. The API-facing
+  // DTO names (`location` / `locationAr`) are preserved via explicit
+  // mapping in `farms.service.ts` so no public contract breaks.
   locationGeom    Unsupported("geometry(Point, 4326)")?  @map("location")
   boundary Unsupported("geometry(Polygon, 4326)")?
 
@@ -51,8 +60,8 @@ model Farm {
   workersCount  Int     @default(0) @map("workers_count")
   status        String  @default("active") @map("status") @db.VarChar(32) // active|inactive|archived
   cultivatedAreaHectares Decimal? @map("cultivated_area_hectares") @db.Decimal(10, 2)
-  location      String? @map("location_label") @db.VarChar(500)
-  locationAr    String? @map("location_label_ar") @db.VarChar(500)
+  locationLabel   String? @map("location_label") @db.VarChar(500)
+  locationLabelAr String? @map("location_label_ar") @db.VarChar(500)
   owner         String? @map("owner_name") @db.VarChar(255)
 
   // Farm Details

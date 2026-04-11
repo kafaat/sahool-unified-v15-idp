@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "@/config/prisma.service";
 import { Prisma } from "../../../prisma/generated/client";
 import { CreateExperimentDto, UpdateExperimentDto } from "./dto/experiment.dto";

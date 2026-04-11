@@ -74,10 +74,15 @@ Base = declarative_base()
 from .alert_endpoints import init_alert_manager
 from .alert_endpoints import router as alert_router
 from .alert_manager import AlertManager
+from .api.v1.inventory import router as inventory_v1_router
 from .inventory_analytics import InventoryAnalytics
 from .models.inventory import (
     ItemCategory,
 )
+
+# Import v2 ORM models so their tables are registered on the shared Base
+# metadata and created by tests / create_all calls.
+from .models import inventory_v2 as _inventory_v2_models  # noqa: F401
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -173,6 +178,9 @@ app = FastAPI(
 
 # Include alert router
 app.include_router(alert_router)
+
+# Include Wave 2 inventory CRUD router (/api/v1/inventory)
+app.include_router(inventory_v1_router)
 
 # Setup unified error handling
 setup_exception_handlers(app)

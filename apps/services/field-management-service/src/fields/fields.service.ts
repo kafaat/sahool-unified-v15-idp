@@ -36,10 +36,57 @@ function generateETag(id: string, version: number): string {
   return `"${id}-v${version}"`;
 }
 
-// Convert Prisma Decimal fields to numbers for DTO compatibility
+// Convert Prisma Decimal fields to numbers for DTO compatibility.
+// Prisma returns Decimal columns as objects with a `.toNumber()` method or
+// as strings (depending on configuration). The UI always expects `number`,
+// so unconditionally coerce here.
 function toNumber(value: any): number | undefined {
   if (value === null || value === undefined) return undefined;
-  return typeof value === "number" ? value : Number(value);
+  if (typeof value === "number") return value;
+  if (typeof value === "object" && typeof value.toNumber === "function") {
+    return value.toNumber();
+  }
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+/**
+ * Serialize a Field row from Prisma into a FieldResponseDto, coercing all
+ * Decimal columns (areaHectares, healthScore, ndviValue) into plain numbers
+ * so the UI can safely call `.toFixed()` / arithmetic on them.
+ */
+function serializeField(
+  f: any,
+  extras: {
+    centroidLat?: number;
+    centroidLng?: number;
+    bbox?: [number, number, number, number];
+  } = {},
+): FieldResponseDto {
+  const etag = generateETag(f.id, f.version);
+  return {
+    id: f.id,
+    name: f.name,
+    tenantId: f.tenantId,
+    cropType: f.cropType,
+    ownerId: f.ownerId ?? undefined,
+    farmId: f.farmId ?? undefined,
+    status: f.status as unknown as FieldResponseDto["status"],
+    areaHectares: toNumber(f.areaHectares),
+    healthScore: toNumber(f.healthScore),
+    ndviValue: toNumber(f.ndviValue),
+    centroidLat: extras.centroidLat,
+    centroidLng: extras.centroidLng,
+    bbox: extras.bbox,
+    irrigationType: f.irrigationType ?? undefined,
+    soilType: f.soilType ?? undefined,
+    plantingDate: f.plantingDate ?? undefined,
+    expectedHarvest: f.expectedHarvest ?? undefined,
+    version: f.version,
+    createdAt: f.createdAt,
+    updatedAt: f.updatedAt,
+    etag,
+  };
 }
 
 // Polygon area calculation (approximate, in hectares)
@@ -300,30 +347,11 @@ export class FieldsService {
       // centroid / boundary columns may not exist on older DB schemas — ignore
     }
 
-    const etag = generateETag(field.id, field.version);
-    const result: FieldResponseDto = {
-      id: field.id,
-      name: field.name,
-      tenantId: field.tenantId,
-      cropType: field.cropType,
-      ownerId: field.ownerId ?? undefined,
-      farmId: field.farmId ?? undefined,
-      status: field.status as unknown as FieldResponseDto["status"],
-      areaHectares: toNumber(field.areaHectares),
-      healthScore: toNumber(field.healthScore),
-      ndviValue: toNumber(field.ndviValue),
+    const result: FieldResponseDto = serializeField(field, {
       centroidLat,
       centroidLng,
       bbox,
-      irrigationType: field.irrigationType ?? undefined,
-      soilType: field.soilType ?? undefined,
-      plantingDate: field.plantingDate ?? undefined,
-      expectedHarvest: field.expectedHarvest ?? undefined,
-      version: field.version,
-      createdAt: field.createdAt,
-      updatedAt: field.updatedAt,
-      etag,
-    };
+    });
 
     // Cache the result
     await this.cacheService.set(CACHE_KEYS.FIELD(id), result, CACHE_TTL.MEDIUM);
@@ -447,29 +475,11 @@ export class FieldsService {
 
     const data: FieldResponseDto[] = fields.map((f: any) => {
       const geom = geomByFieldId.get(f.id);
-      return {
-        id: f.id,
-        name: f.name,
-        tenantId: f.tenantId,
-        cropType: f.cropType,
-        ownerId: f.ownerId ?? undefined,
-        farmId: f.farmId ?? undefined,
-        status: f.status as unknown as FieldResponseDto["status"],
-        areaHectares: toNumber(f.areaHectares),
-        healthScore: toNumber(f.healthScore),
-        ndviValue: toNumber(f.ndviValue),
+      return serializeField(f, {
         centroidLat: geom?.centroidLat,
         centroidLng: geom?.centroidLng,
         bbox: geom?.bbox,
-        irrigationType: f.irrigationType ?? undefined,
-        soilType: f.soilType ?? undefined,
-        plantingDate: f.plantingDate ?? undefined,
-        expectedHarvest: f.expectedHarvest ?? undefined,
-        version: f.version,
-        createdAt: f.createdAt,
-        updatedAt: f.updatedAt,
-        etag: generateETag(f.id, f.version),
-      };
+      });
     });
 
     return {
@@ -507,8 +517,20 @@ export class FieldsService {
     // Enforce tenant isolation
     assertTenantOwnership(current.tenantId, tenantId, "field");
 
-    // Validate ETag if provided
-    if (ifMatch) {
+    // Validate If-Match version: DTO `ifMatch` (number) takes precedence
+    // over the HTTP `If-Match` header (etag string). Either mechanism yields
+    // a 409 Conflict on mismatch so concurrent edits never silently overwrite.
+    if (dto.ifMatch !== undefined && dto.ifMatch !== null) {
+      if (Number(dto.ifMatch) !== current.version) {
+        throw new ConflictException({
+          message: "Field was modified by another user",
+          messageAr: "تم تعديل الحقل بواسطة مستخدم آخر",
+          currentVersion: current.version,
+          providedVersion: Number(dto.ifMatch),
+          error: "version_conflict",
+        });
+      }
+    } else if (ifMatch) {
       const expectedETag = generateETag(current.id, current.version);
       if (ifMatch !== expectedETag && ifMatch !== `"${current.id}-v${current.version}"`) {
         throw new ConflictException({
@@ -516,6 +538,7 @@ export class FieldsService {
           messageAr: "تم تعديل الحقل بواسطة مستخدم آخر",
           currentVersion: current.version,
           currentETag: expectedETag,
+          error: "version_conflict",
         });
       }
     }
@@ -633,6 +656,9 @@ export class FieldsService {
 
     return fields.map((f) => ({
       ...f,
+      area_hectares: toNumber(f.area_hectares),
+      health_score: toNumber(f.health_score),
+      distance_meters: toNumber(f.distance_meters),
       boundary: f.boundary ? JSON.parse(f.boundary) : null,
       centroid: f.centroid ? JSON.parse(f.centroid) : null,
     }));
@@ -883,7 +909,18 @@ export class FieldsService {
       WHERE tenant_id = ${tenantId} AND is_deleted = false
     `;
 
-    const result = stats[0] || {};
+    const raw = stats[0] || {};
+    // Coerce Decimal/bigint counts to plain numbers so the UI can render them
+    const result = {
+      total_fields: toNumber(raw.total_fields) ?? 0,
+      active_fields: toNumber(raw.active_fields) ?? 0,
+      fallow_fields: toNumber(raw.fallow_fields) ?? 0,
+      harvested_fields: toNumber(raw.harvested_fields) ?? 0,
+      total_area: toNumber(raw.total_area) ?? 0,
+      average_health: toNumber(raw.average_health),
+      average_ndvi: toNumber(raw.average_ndvi),
+      crop_types: toNumber(raw.crop_types) ?? 0,
+    };
     await this.cacheService.set(cacheKey, result, CACHE_TTL.MEDIUM);
 
     return result;

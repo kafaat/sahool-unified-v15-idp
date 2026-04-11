@@ -1,16 +1,25 @@
-import { BadRequestException } from "@nestjs/common";
+import { UnauthorizedException } from "@nestjs/common";
 
 /**
- * Extract and validate tenantId from request.
- * Throws BadRequestException if tenantId is missing.
+ * Extract and validate tenantId from the authenticated JWT.
  *
- * استخراج والتحقق من معرف المستأجر من الطلب
+ * IMPORTANT: tenantId MUST come from the JWT `tid` claim (exposed on
+ * `req.user.tid` / `req.user.tenantId` by the JwtAuthGuard). It must NEVER
+ * be taken from an arbitrary header such as `x-tenant-id`, as that would
+ * allow cross-tenant data access.
+ *
+ * استخراج والتحقق من معرف المستأجر من الـ JWT فقط
  */
 export function extractTenantId(req: any): string {
-  const tenantId =
-    req.tenantId || req.user?.tenantId || req.headers?.["x-tenant-id"];
+  // Primary: raw JWT `tid` claim as exposed on req.user.tid
+  // Fallback: `req.user.tenantId` (populated by JwtAuthGuard from the same claim)
+  const tenantId: string | undefined =
+    req?.user?.tid || req?.user?.tenantId;
+
   if (!tenantId) {
-    throw new BadRequestException("Missing tenantId");
+    throw new UnauthorizedException(
+      "Missing tenantId in JWT (tid claim required)",
+    );
   }
   return tenantId;
 }

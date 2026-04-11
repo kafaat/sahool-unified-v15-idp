@@ -30,7 +30,7 @@ try:
 except ImportError:
     asyncpg = None  # type: ignore[assignment]
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 # Add path to shared modules
 SHARED_PATH = PathLib("/app/shared")
@@ -75,26 +75,28 @@ def sanitize_log_input(value: str) -> str:
 
 
 class AuditLogResponse(BaseModel):
-    """Audit log entry response"""
+    """Audit log entry response (camelCase aliases for frontend)"""
+
+    model_config = ConfigDict(populate_by_name=True)
 
     id: str
-    tenant_id: str
-    user_id: str
+    tenant_id: str = Field(..., alias="tenantId")
+    user_id: str = Field(..., alias="userId")
     action: str
     category: str
     severity: str
-    resource_type: str | None = None
-    resource_id: str | None = None
-    correlation_id: str | None = None
-    ip_address: str | None = None
+    resource_type: str | None = Field(default=None, alias="resourceType")
+    resource_id: str | None = Field(default=None, alias="resourceId")
+    correlation_id: str | None = Field(default=None, alias="correlationId")
+    ip_address: str | None = Field(default=None, alias="ipAddress")
     success: bool = True
-    error_code: str | None = None
-    error_message: str | None = None
+    error_code: str | None = Field(default=None, alias="errorCode")
+    error_message: str | None = Field(default=None, alias="errorMessage")
     details: dict | None = None
-    old_value: dict | None = None
-    new_value: dict | None = None
-    entry_hash: str | None = None
-    created_at: str
+    old_value: dict | None = Field(default=None, alias="oldValue")
+    new_value: dict | None = Field(default=None, alias="newValue")
+    entry_hash: str | None = Field(default=None, alias="entryHash")
+    created_at: str = Field(..., alias="createdAt")
 
 
 class AuditLogQuery(BaseModel):
@@ -136,14 +138,16 @@ class ComplianceReportResponse(BaseModel):
 
 
 class AuditStatsResponse(BaseModel):
-    """Audit statistics response"""
+    """Audit statistics response (camelCase aliases for frontend)"""
 
-    total_events: int
-    events_by_category: dict
-    events_by_severity: dict
-    failed_events: int
-    unique_users: int
-    chain_coverage_percent: float
+    model_config = ConfigDict(populate_by_name=True)
+
+    total_events: int = Field(..., alias="totalEvents")
+    events_by_category: dict = Field(..., alias="eventsByCategory")
+    events_by_severity: dict = Field(..., alias="eventsBySeverity")
+    failed_events: int = Field(..., alias="failedEvents")
+    unique_users: int = Field(..., alias="uniqueUsers")
+    chain_coverage_percent: float = Field(..., alias="chainCoveragePercent")
 
 
 class AuditLogCreate(BaseModel):
@@ -165,6 +169,18 @@ class PaginatedResponse(BaseModel):
     skip: int
     limit: int
     has_more: bool
+
+
+class PaginatedAuditLogsResponse(BaseModel):
+    """Paginated audit logs response with camelCase item serialization."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    items: list[AuditLogResponse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool = Field(..., alias="hasMore")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -200,12 +216,54 @@ def enforce_tenant_match(tenant_id: str, user: object) -> None:
     Raises HTTPException 403 if the authenticated user's tenant does not
     match the tenant supplied via header, preventing cross-tenant access.
     """
-    jwt_tenant = getattr(user, "tenant_id", None)
+    jwt_tenant = getattr(user, "tenant_id", None) or getattr(user, "tid", None)
     # Also check dict-style user mocks used in tests
     if jwt_tenant is None and isinstance(user, dict):
-        jwt_tenant = user.get("tenant_id")
+        jwt_tenant = user.get("tenant_id") or user.get("tid")
     if jwt_tenant and tenant_id != str(jwt_tenant):
         raise HTTPException(status_code=403, detail="Tenant mismatch")
+
+
+def _get_user_tenant(user: object) -> str | None:
+    """Extract tenant id from JWT-bound user (tid claim / tenant_id attr)."""
+    tid = getattr(user, "tenant_id", None) or getattr(user, "tid", None)
+    if tid is None and isinstance(user, dict):
+        tid = user.get("tenant_id") or user.get("tid")
+    return str(tid) if tid else None
+
+
+_ADMIN_ROLES = {"admin", "super_admin"}
+
+
+def _user_has_admin_role(user: object) -> bool:
+    """Case-insensitively check if user has ADMIN or SUPER_ADMIN role."""
+    # dataclass/pydantic user with `roles` list
+    roles = getattr(user, "roles", None)
+    if roles is None and isinstance(user, dict):
+        roles = user.get("roles") or ([user.get("role")] if user.get("role") else [])
+    # Single `role` attribute fallback (per spec wording user.role)
+    if not roles:
+        single_role = getattr(user, "role", None)
+        if single_role:
+            roles = [single_role]
+    if not roles:
+        return False
+    normalized = {str(r).strip().lower() for r in roles if r}
+    return bool(normalized & _ADMIN_ROLES)
+
+
+def require_admin(user: object = Depends(get_current_user)) -> object:
+    """FastAPI dependency: only allow ADMIN or SUPER_ADMIN users.
+
+    Raises HTTPException 403 if the authenticated user does not hold an
+    admin-tier role. Used to guard sensitive audit log retrieval endpoints.
+    """
+    if not _user_has_admin_role(user):
+        raise HTTPException(
+            status_code=403,
+            detail="Admin privileges required to access audit logs",
+        )
+    return user
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

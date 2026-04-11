@@ -127,6 +127,17 @@ class Task(Base, TimestampMixin, TenantMixin):
         nullable=True,
     )
 
+    # Optimistic locking - قفل تفاؤلي
+    # Incremented on each successful update. Clients may pass `if_match_version`
+    # to detect concurrent modifications (kanban drag-drop races, stale tabs, etc.).
+    # A mismatch returns HTTP 409 Conflict rather than silently overwriting.
+    version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+        server_default="1",
+    )
+
     # Completion - الإنجاز
     completed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),

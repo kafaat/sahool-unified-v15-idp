@@ -16,7 +16,6 @@ can re-scan `carbon_computed_at IS NULL` rows.
 
 from __future__ import annotations
 
-import asyncio
 import json
 from typing import Any
 

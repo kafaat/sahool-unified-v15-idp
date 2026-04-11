@@ -94,8 +94,17 @@ async def lifespan(app: FastAPI):
     if hasattr(app.state, "subscriber_task") and app.state.subscriber_task:
         try:
             await app.state.subscriber_task.drain()
-        except Exception:
-            pass
+        except Exception as drain_err:
+            # Draining a NATS subscription on shutdown is best-effort.
+            # Any failure here (NATS already closed, connection reset,
+            # etc.) is non-actionable — we log it for observability but
+            # must not raise, otherwise the lifespan shutdown hangs and
+            # Kubernetes kills the pod with a sigkill instead of a clean
+            # sigterm. Downstream consumers dedupe on event_id anyway.
+            logger.warning(
+                "Failed to drain subscriber on shutdown",
+                error=str(drain_err),
+            )
     if app.state.db_pool:
         await app.state.db_pool.close()
     if app.state.nc:

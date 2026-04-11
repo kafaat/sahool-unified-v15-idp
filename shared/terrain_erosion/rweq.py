@@ -66,7 +66,6 @@ from enum import StrEnum
 
 from .rusle import ErosionRiskLevel
 
-
 # ---------------------------------------------------------------------------
 # Enums + lookup tables
 # ---------------------------------------------------------------------------
@@ -252,13 +251,7 @@ class RWEQEngine:
         if fractions is None:
             fractions = _TEXTURE_FRACTIONS["loam"]  # fallback
         sand, silt, clay, om = fractions
-        ef = (
-            29.09
-            + 0.31 * sand
-            + 0.17 * silt
-            + 0.33 * (sand / max(clay, 1))
-            - 2.59 * om
-        )
+        ef = 29.09 + 0.31 * sand + 0.17 * silt + 0.33 * (sand / max(clay, 1)) - 2.59 * om
         # Normalise into [0, 1]: the raw range for Yemeni soils spans
         # roughly 40-75 on the Fryrear scale.
         ef_normalised = (ef - 40.0) / 35.0
@@ -342,15 +335,11 @@ class RWEQEngine:
         Run the full RWEQ-lite assessment and return a structured
         result including risk band and bilingual recommendations.
         """
-        wf = self.compute_wind_factor(
-            mean_wind_speed_ms, annual_rainfall_mm, annual_et0_mm
-        )
+        wf = self.compute_wind_factor(mean_wind_speed_ms, annual_rainfall_mm, annual_et0_mm)
         ef = self.compute_erodibility_factor(texture_key)
         scf = self.compute_soil_crust_factor(texture_key)
         k_prime = self.compute_roughness_factor(roughness)
-        cog = self.compute_cover_factor(
-            residue_state, residue_cover_pct, canopy_cover_pct
-        )
+        cog = self.compute_cover_factor(residue_state, residue_cover_pct, canopy_cover_pct)
 
         factors = RWEQFactors(
             wind_factor=wf,
@@ -387,10 +376,7 @@ class RWEQEngine:
             positive = {k: v + shift for k, v in logs.items()}
             total = sum(positive.values())
             if total > 0:
-                contributions = {
-                    name: round(val / total * 100, 1)
-                    for name, val in positive.items()
-                }
+                contributions = {name: round(val / total * 100, 1) for name, val in positive.items()}
 
         recs_en, recs_ar = self._recommendations(
             risk_level=risk_level,
@@ -439,12 +425,8 @@ class RWEQEngine:
         recs_ar: list[str] = []
 
         if risk_level in (ErosionRiskLevel.NONE, ErosionRiskLevel.LOW):
-            recs_en.append(
-                "Wind erosion risk is within safe bounds. Continue current practice."
-            )
-            recs_ar.append(
-                "خطر تعرية الرياح ضمن الحدود الآمنة. استمر في الممارسة الحالية."
-            )
+            recs_en.append("Wind erosion risk is within safe bounds. Continue current practice.")
+            recs_ar.append("خطر تعرية الرياح ضمن الحدود الآمنة. استمر في الممارسة الحالية.")
             return recs_en, recs_ar
 
         # 1. Residue is the single most actionable lever — 60-80% reduction

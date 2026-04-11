@@ -856,12 +856,8 @@ class WindErosionAssessmentRequest(BaseModel):
     endpoint — or call ``/erosion/combined`` for both at once.
     """
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=100, description="Field identifier | معرف الحقل"
-    )
-    tenant_id: str = Field(
-        ..., min_length=1, max_length=100, description="Tenant identifier | معرف المستأجر"
-    )
+    field_id: str = Field(..., min_length=1, max_length=100, description="Field identifier | معرف الحقل")
+    tenant_id: str = Field(..., min_length=1, max_length=100, description="Tenant identifier | معرف المستأجر")
 
     # Soil — either a USDA texture class OR a Yemen profile key.
     texture_key: str = Field(
@@ -938,21 +934,11 @@ class RWEQFactorsResponse(BaseModel):
     العوامل الخمسة في معادلة RWEQ-lite التي تحدد تقدير فقد التربة بالرياح.
     """
 
-    wind_factor: float = Field(
-        ..., description="WF — aridity-weighted wind kinetic energy | عامل الرياح"
-    )
-    erodibility_factor: float = Field(
-        ..., description="EF — soil erodibility from texture + OM | عامل قابلية التعرية"
-    )
-    soil_crust_factor: float = Field(
-        ..., description="SCF — clay + OM surface crust protection | عامل قشرة التربة"
-    )
-    roughness_factor: float = Field(
-        ..., description="K' — Chepil tillage / surface roughness | عامل الخشونة"
-    )
-    cover_factor: float = Field(
-        ..., description="COG — residue + canopy ground cover | عامل الغطاء"
-    )
+    wind_factor: float = Field(..., description="WF — aridity-weighted wind kinetic energy | عامل الرياح")
+    erodibility_factor: float = Field(..., description="EF — soil erodibility from texture + OM | عامل قابلية التعرية")
+    soil_crust_factor: float = Field(..., description="SCF — clay + OM surface crust protection | عامل قشرة التربة")
+    roughness_factor: float = Field(..., description="K' — Chepil tillage / surface roughness | عامل الخشونة")
+    cover_factor: float = Field(..., description="COG — residue + canopy ground cover | عامل الغطاء")
 
 
 class WindErosionAssessmentResponse(BaseModel):
@@ -976,12 +962,8 @@ class WindErosionAssessmentResponse(BaseModel):
         default_factory=dict,
         description="Log-normalised per-factor contribution (%) — which factor drives the loss",
     )
-    recommendations: list[str] = Field(
-        default_factory=list, description="Wind-erosion mitigation actions (English)"
-    )
-    recommendations_ar: list[str] = Field(
-        default_factory=list, description="خطوات التخفيف من تعرية الرياح (عربي)"
-    )
+    recommendations: list[str] = Field(default_factory=list, description="Wind-erosion mitigation actions (English)")
+    recommendations_ar: list[str] = Field(default_factory=list, description="خطوات التخفيف من تعرية الرياح (عربي)")
     assessed_at: datetime = Field(..., description="Assessment timestamp")
 
 
@@ -999,17 +981,11 @@ class CombinedErosionAssessmentRequest(BaseModel):
     that the USDA class doesn't represent.
     """
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=100, description="Field identifier | معرف الحقل"
-    )
-    tenant_id: str = Field(
-        ..., min_length=1, max_length=100, description="Tenant identifier | معرف المستأجر"
-    )
+    field_id: str = Field(..., min_length=1, max_length=100, description="Field identifier | معرف الحقل")
+    tenant_id: str = Field(..., min_length=1, max_length=100, description="Tenant identifier | معرف المستأجر")
 
     # --- Water erosion (RUSLE) inputs ---
-    slope_pct: float = Field(
-        ..., ge=0, le=200, description="Mean slope percentage (0-200) | متوسط نسبة الميل"
-    )
+    slope_pct: float = Field(..., ge=0, le=200, description="Mean slope percentage (0-200) | متوسط نسبة الميل")
     slope_length_m: float | None = Field(
         None,
         ge=1,
@@ -1020,9 +996,7 @@ class CombinedErosionAssessmentRequest(BaseModel):
         ...,
         description="USDA soil texture class — drives the RUSLE K factor | فئة قوام التربة",
     )
-    annual_rainfall_mm: float = Field(
-        ..., ge=0, le=5000, description="Mean annual precipitation (mm) | الهطول السنوي"
-    )
+    annual_rainfall_mm: float = Field(..., ge=0, le=5000, description="Mean annual precipitation (mm) | الهطول السنوي")
     rainy_days_per_year: int = Field(
         ..., ge=0, le=365, description="Mean rainy days per year | عدد الأيام الممطرة سنوياً"
     )
@@ -1108,18 +1082,12 @@ class CombinedErosionAssessmentResponse(BaseModel):
 
     field_id: str
     tenant_id: str
-    overall_risk_level: ErosionRiskLevelEnum = Field(
-        ..., description="Worst-of-two FAO risk band | أعلى مستوى خطر"
-    )
-    overall_risk_level_ar: str = Field(
-        ..., description="Arabic label for the overall risk band"
-    )
+    overall_risk_level: ErosionRiskLevelEnum = Field(..., description="Worst-of-two FAO risk band | أعلى مستوى خطر")
+    overall_risk_level_ar: str = Field(..., description="Arabic label for the overall risk band")
     dominant_process: DominantProcessEnum = Field(
         ..., description="Which erosion process dominates the risk | العملية المسيطرة"
     )
-    water: ErosionAssessmentResponse = Field(
-        ..., description="Full RUSLE (water) sub-result | نتيجة تعرية المياه"
-    )
+    water: ErosionAssessmentResponse = Field(..., description="Full RUSLE (water) sub-result | نتيجة تعرية المياه")
     wind: WindErosionAssessmentResponse = Field(
         ..., description="Full RWEQ-lite (wind) sub-result | نتيجة تعرية الرياح"
     )
@@ -1149,12 +1117,8 @@ class YemenRegionErosionRequest(BaseModel):
     ``shared/terrain_erosion/combined.py``.
     """
 
-    field_id: str = Field(
-        ..., min_length=1, max_length=100, description="Field identifier | معرف الحقل"
-    )
-    tenant_id: str = Field(
-        ..., min_length=1, max_length=100, description="Tenant identifier | معرف المستأجر"
-    )
+    field_id: str = Field(..., min_length=1, max_length=100, description="Field identifier | معرف الحقل")
+    tenant_id: str = Field(..., min_length=1, max_length=100, description="Tenant identifier | معرف المستأجر")
     region: str = Field(
         ...,
         min_length=1,

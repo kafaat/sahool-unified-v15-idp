@@ -22,10 +22,10 @@ callers that only care about one process.
 """
 
 from .combined import (
+    YEMEN_REGION_PRESETS,
     CombinedErosionEngine,
     CombinedErosionResult,
     DominantProcess,
-    YEMEN_REGION_PRESETS,
     YemenRegionPreset,
     get_yemen_region_preset,
 )

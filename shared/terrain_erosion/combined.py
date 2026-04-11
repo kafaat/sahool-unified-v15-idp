@@ -34,7 +34,6 @@ from .rweq import (
     SurfaceRoughness,
 )
 
-
 # ---------------------------------------------------------------------------
 # Combined result
 # ---------------------------------------------------------------------------
@@ -303,9 +302,7 @@ class CombinedErosionEngine:
             recs_en.extend(water.recommendations)
             recs_ar.extend(water.recommendations_ar)
             if wind_ord >= _BAND_ORDER[ErosionRiskLevel.LOW]:
-                recs_en.append(
-                    "Also keep an eye on wind erosion — secondary actions:"
-                )
+                recs_en.append("Also keep an eye on wind erosion — secondary actions:")
                 recs_ar.append("راقب أيضاً تعرية الرياح — إجراءات ثانوية:")
                 recs_en.extend(wind.recommendations)
                 recs_ar.extend(wind.recommendations_ar)
@@ -323,9 +320,7 @@ class CombinedErosionEngine:
             recs_en.extend(wind.recommendations)
             recs_ar.extend(wind.recommendations_ar)
             if water_ord >= _BAND_ORDER[ErosionRiskLevel.LOW]:
-                recs_en.append(
-                    "Also keep an eye on water erosion — secondary actions:"
-                )
+                recs_en.append("Also keep an eye on water erosion — secondary actions:")
                 recs_ar.append("راقب أيضاً تعرية المياه — إجراءات ثانوية:")
                 recs_en.extend(water.recommendations)
                 recs_ar.extend(water.recommendations_ar)
@@ -335,20 +330,15 @@ class CombinedErosionEngine:
                 f"Implement the full mitigation set:"
             )
             recs_ar.append(
-                f"كلا تعريتي المياه والرياح نشطتان عند مستوى {_RISK_AR[overall]}. "
-                f"نفّذ مجموعة التخفيف الكاملة:"
+                f"كلا تعريتي المياه والرياح نشطتان عند مستوى {_RISK_AR[overall]}. نفّذ مجموعة التخفيف الكاملة:"
             )
             recs_en.extend(water.recommendations)
             recs_ar.extend(water.recommendations_ar)
             recs_en.extend(wind.recommendations)
             recs_ar.extend(wind.recommendations_ar)
         else:
-            recs_en.append(
-                "Both erosion processes are within safe bounds. Continue current practice."
-            )
-            recs_ar.append(
-                "كلا عمليتي التعرية ضمن الحدود الآمنة. استمر في الممارسة الحالية."
-            )
+            recs_en.append("Both erosion processes are within safe bounds. Continue current practice.")
+            recs_ar.append("كلا عمليتي التعرية ضمن الحدود الآمنة. استمر في الممارسة الحالية.")
 
         return CombinedErosionResult(
             field_id=field_id,
@@ -398,9 +388,7 @@ class CombinedErosionEngine:
                 "southern_coast_saline": SoilTextureClass.SAND,
                 "abyan_delta": SoilTextureClass.CLAY_LOAM,
             }
-            soil_texture = _usda_map.get(
-                preset.texture_key, SoilTextureClass.LOAM
-            )
+            soil_texture = _usda_map.get(preset.texture_key, SoilTextureClass.LOAM)
 
         # Approximate rainy-days count from the monthly distribution
         rainy_days = max(15, int(preset.annual_rainfall_mm / 8))

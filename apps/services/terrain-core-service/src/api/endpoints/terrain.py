@@ -1541,10 +1541,7 @@ async def assess_wind_erosion(
 @router.post(
     "/erosion/combined",
     response_model=CombinedErosionAssessmentResponse,
-    summary=(
-        "Combined water + wind erosion assessment (RUSLE + RWEQ-lite) | "
-        "التقييم المشترك لتعرية المياه والرياح"
-    ),
+    summary=("Combined water + wind erosion assessment (RUSLE + RWEQ-lite) | التقييم المشترك لتعرية المياه والرياح"),
     description="""
 Run both the RUSLE (water) and RWEQ-lite (wind) engines on a single
 field and return a unified assessment:
@@ -1672,8 +1669,7 @@ async def assess_combined_erosion(
     "/erosion/yemen",
     response_model=CombinedErosionAssessmentResponse,
     summary=(
-        "Combined erosion assessment for a Yemeni agro-ecological region | "
-        "التقييم المشترك للتعرية لمنطقة زراعية يمنية"
+        "Combined erosion assessment for a Yemeni agro-ecological region | التقييم المشترك للتعرية لمنطقة زراعية يمنية"
     ),
     description="""
 Minimum-input combined erosion assessment for Yemeni fields. Only

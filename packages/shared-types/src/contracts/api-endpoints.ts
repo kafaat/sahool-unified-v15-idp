@@ -70,6 +70,53 @@ export const FIELD_ENDPOINTS = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Crop Season Endpoints - نقاط مواسم المحاصيل
+// First-class crop rotation archive. Replaces the earlier
+// `field.metadata.cropHistory[]` JSON shim with a proper relational API.
+// Served by field-management-service (port 3000, Kong-routed).
+// ---------------------------------------------------------------------------
+
+export const CROP_SEASON_ENDPOINTS = {
+  /** List crop seasons tenant-wide (with optional filters) */
+  LIST: `${API_PREFIX}/crop-seasons`,
+  /** Get a specific season by id */
+  GET: `${API_PREFIX}/crop-seasons/{cropSeasonId}`,
+  /** Partial update (PATCH) */
+  UPDATE: `${API_PREFIX}/crop-seasons/{cropSeasonId}`,
+  /** End an active season (soft close) */
+  END: `${API_PREFIX}/crop-seasons/{cropSeasonId}/end`,
+  /** Hard delete (rare) */
+  DELETE: `${API_PREFIX}/crop-seasons/{cropSeasonId}`,
+  /** List all seasons for one field */
+  LIST_BY_FIELD: `${API_PREFIX}/fields/{fieldId}/crop-seasons`,
+  /** Start a new season on a field (automatically closes the previous) */
+  CREATE: `${API_PREFIX}/fields/{fieldId}/crop-seasons`,
+  /** Per-season operation rollup (hours + cost) */
+  ROLLUP: `${API_PREFIX}/crop-seasons/{cropSeasonId}/rollup`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Field Operation Endpoints - نقاط عمليات الحقل
+// Per-field operation log (plowing, land prep, fertilization, spraying, ...).
+// Links to CropSeason + Equipment for per-season and per-equipment rollups.
+// ---------------------------------------------------------------------------
+
+export const FIELD_OPERATION_ENDPOINTS = {
+  /** Tenant-wide list with filters */
+  LIST: `${API_PREFIX}/field-operations`,
+  /** Get an operation by id */
+  GET: `${API_PREFIX}/field-operations/{operationId}`,
+  /** Partial update */
+  UPDATE: `${API_PREFIX}/field-operations/{operationId}`,
+  /** Hard delete */
+  DELETE: `${API_PREFIX}/field-operations/{operationId}`,
+  /** List all operations for one field */
+  LIST_BY_FIELD: `${API_PREFIX}/fields/{fieldId}/operations`,
+  /** Record a new operation against a field */
+  CREATE: `${API_PREFIX}/fields/{fieldId}/operations`,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Weather Endpoints - نقاط الطقس
 // ---------------------------------------------------------------------------
 

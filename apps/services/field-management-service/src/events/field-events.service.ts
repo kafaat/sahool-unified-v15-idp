@@ -41,6 +41,94 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     await this.publish('sahool.field.boundary.changed', { tenantId, fieldId, ...data });
   }
 
+  // ── Crop season events ──────────────────────────────────────────────────
+
+  async publishCropSeasonStarted(
+    tenantId: string,
+    fieldId: string,
+    data: Record<string, unknown>,
+  ) {
+    await this.publish('sahool.field.crop_season.started', {
+      tenantId,
+      fieldId,
+      ...data,
+    });
+  }
+
+  async publishCropSeasonUpdated(
+    tenantId: string,
+    fieldId: string,
+    data: Record<string, unknown>,
+  ) {
+    await this.publish('sahool.field.crop_season.updated', {
+      tenantId,
+      fieldId,
+      ...data,
+    });
+  }
+
+  async publishCropSeasonEnded(
+    tenantId: string,
+    fieldId: string,
+    data: Record<string, unknown>,
+  ) {
+    await this.publish('sahool.field.crop_season.ended', {
+      tenantId,
+      fieldId,
+      ...data,
+    });
+  }
+
+  async publishCropSeasonDeleted(
+    tenantId: string,
+    fieldId: string,
+    data: Record<string, unknown>,
+  ) {
+    await this.publish('sahool.field.crop_season.deleted', {
+      tenantId,
+      fieldId,
+      ...data,
+    });
+  }
+
+  // ── Field operation events ──────────────────────────────────────────────
+
+  async publishFieldOperationRecorded(
+    tenantId: string,
+    fieldId: string,
+    data: Record<string, unknown>,
+  ) {
+    await this.publish('sahool.field.operation.recorded', {
+      tenantId,
+      fieldId,
+      ...data,
+    });
+  }
+
+  async publishFieldOperationUpdated(
+    tenantId: string,
+    fieldId: string,
+    data: Record<string, unknown>,
+  ) {
+    await this.publish('sahool.field.operation.updated', {
+      tenantId,
+      fieldId,
+      ...data,
+    });
+  }
+
+  async publishFieldOperationDeleted(
+    tenantId: string,
+    fieldId: string,
+    data: Record<string, unknown>,
+  ) {
+    await this.publish('sahool.field.operation.deleted', {
+      tenantId,
+      fieldId,
+      ...data,
+    });
+  }
+
   private async publish(subject: string, payload: Record<string, unknown>) {
     if (!this.nc || this.nc.isClosed()) {
       this.logger.warn(`NATS unavailable, skipping ${subject}`);

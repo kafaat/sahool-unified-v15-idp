@@ -145,6 +145,8 @@ model Field {
   ndviReadings    NdviReading[]
   kpiSnapshots    FieldKpiSnapshot[]
   farm            Farm?                   @relation(fields: [farmId], references: [id], onDelete: SetNull)
+  cropSeasons     CropSeason[]
+  operations      FieldOperation[]
 
   // Indexes
   @@index([tenantId], name: "idx_field_tenant")
@@ -397,6 +399,139 @@ model FieldKpiSnapshot {
   @@index([fieldId, fetchedAt(sort: Desc)], name: "idx_kpi_field_date")
   @@index([tenantId], name: "idx_kpi_tenant")
   @@map("field_kpi_snapshots")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Crop Season - مواسم المحاصيل
+// First-class archive of crop rotations on a field. Replaces the earlier
+// web-side `field.metadata.cropHistory[]` shim with a real relational table
+// so downstream services (NDVI pipeline, yield-prediction, irrigation-smart,
+// advisory-service) can query planted crops by date range with PostgreSQL
+// indexes instead of JSON probes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CropSeason {
+  id       String @id @default(uuid()) @db.Uuid
+  tenantId String @map("tenant_id") @db.VarChar(100)
+  fieldId  String @map("field_id") @db.Uuid
+
+  // Crop identity
+  cropType   String  @map("crop_type") @db.VarChar(100)
+  cropTypeAr String? @map("crop_type_ar") @db.VarChar(100)
+  // Seasonal classification (winter | spring | summer | autumn | year-round)
+  season     String? @db.VarChar(32)
+
+  // Timeline - all dates are DATE (no time) so they line up with how
+  // agronomists reason about operations ("the plow was on the 14th").
+  // Drive crop phenology / Zadoks staging for the NDVI pipeline.
+  sowingDate           DateTime  @map("sowing_date") @db.Date
+  expectedHarvestDate  DateTime? @map("expected_harvest_date") @db.Date
+  actualHarvestDate    DateTime? @map("actual_harvest_date") @db.Date
+  endedAt              DateTime? @map("ended_at") @db.Timestamptz
+  endReason            String?   @map("end_reason") @db.VarChar(255)
+
+  // Denormalized flag for fast "current crop" lookup — only one row per
+  // (fieldId) should have isCurrent=true. Partial unique index below.
+  isCurrent Boolean @default(false) @map("is_current")
+
+  // Agronomic detail (captured via <StartCropSeasonModal>)
+  seedVariety          String?  @map("seed_variety") @db.VarChar(255)
+  seedVarietyAr        String?  @map("seed_variety_ar") @db.VarChar(255)
+  plantingDensityKgHa  Decimal? @map("planting_density_kg_ha") @db.Decimal(10, 2)
+  irrigationType       String?  @map("irrigation_type") @db.VarChar(50)
+
+  // Post-harvest outcomes
+  yieldKgHa  Decimal? @map("yield_kg_ha") @db.Decimal(10, 2)
+
+  // Free-form notes (max 2KB enforced at application layer)
+  notes String? @db.Text
+
+  // Flexible additive metadata (anything the UI wants to persist without
+  // forcing another migration — mirrors the Field.metadata pattern).
+  metadata Json? @db.JsonB
+
+  // Sync / audit
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  field      Field            @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  operations FieldOperation[]
+
+  // Indexes
+  @@index([tenantId], name: "idx_crop_season_tenant")
+  @@index([fieldId], name: "idx_crop_season_field")
+  @@index([fieldId, sowingDate(sort: Desc)], name: "idx_crop_season_field_sown")
+  @@index([tenantId, cropType], name: "idx_crop_season_tenant_crop")
+  @@index([tenantId, sowingDate], name: "idx_crop_season_tenant_sown")
+  @@map("crop_seasons")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Operation - عمليات الحقل
+// First-class record of pre-sowing and in-season operations (plowing,
+// land preparation, fertilization, spraying, irrigation, harvesting, ...).
+// Links to CropSeason (so each operation rolls up into a per-season cost +
+// duration) and to Equipment via `equipmentId` (soft link — equipment lives
+// in a separate service, so we store the UUID + cached display name).
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldOperation {
+  id       String @id @default(uuid()) @db.Uuid
+  tenantId String @map("tenant_id") @db.VarChar(100)
+  fieldId  String @map("field_id") @db.Uuid
+  cropSeasonId String? @map("crop_season_id") @db.Uuid
+
+  // Operation type — stored as VARCHAR to keep it extensible from the
+  // client side without requiring enum migrations for each new op.
+  // Canonical values: plowing | land_preparation | fertilization |
+  // spraying | irrigation | harvesting | scouting | other
+  operationType String @map("operation_type") @db.VarChar(50)
+
+  // Timing — performedAt is the start of the operation; durationHours
+  // captures how long it took. When the operation spans a window you
+  // can also set `endedAt` separately.
+  performedAt  DateTime  @map("performed_at") @db.Date
+  endedAt      DateTime? @map("ended_at") @db.Timestamptz
+  durationHours Decimal? @map("duration_hours") @db.Decimal(8, 2)
+
+  // Cost (local currency, default SAR)
+  costAmount   Decimal? @map("cost_amount") @db.Decimal(12, 2)
+  costCurrency String   @default("SAR") @map("cost_currency") @db.VarChar(8)
+
+  // Equipment linkage (cross-service soft link).
+  // `equipmentId` is a UUID owned by equipment-service. We cache the
+  // display name so the timeline can render a clickable chip even
+  // when equipment-service is temporarily offline.
+  equipmentId     String? @map("equipment_id") @db.Uuid
+  equipmentName   String? @map("equipment_name") @db.VarChar(255)
+  equipmentNameAr String? @map("equipment_name_ar") @db.VarChar(255)
+
+  // Labour / input metadata (additive — future-proofs the table without
+  // forcing another migration for every new attribute).
+  metadata Json? @db.JsonB
+
+  // Free-form notes (max 2KB enforced at application layer)
+  notes String? @db.Text
+
+  // Audit
+  createdBy String?  @map("created_by") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  field      Field       @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  cropSeason CropSeason? @relation(fields: [cropSeasonId], references: [id], onDelete: SetNull)
+
+  // Indexes
+  @@index([tenantId], name: "idx_field_op_tenant")
+  @@index([fieldId], name: "idx_field_op_field")
+  @@index([fieldId, performedAt(sort: Desc)], name: "idx_field_op_field_date")
+  @@index([cropSeasonId], name: "idx_field_op_crop_season")
+  @@index([equipmentId], name: "idx_field_op_equipment")
+  @@index([tenantId, operationType], name: "idx_field_op_tenant_type")
+  @@index([tenantId, performedAt], name: "idx_field_op_tenant_date")
+  @@map("field_operations")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

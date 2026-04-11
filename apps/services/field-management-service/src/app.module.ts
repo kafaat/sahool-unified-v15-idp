@@ -23,6 +23,8 @@ import { TasksModule } from "./tasks/tasks.module";
 import { NdviModule } from "./ndvi/ndvi.module";
 import { SyncModule } from "./sync/sync.module";
 import { HealthModule } from "./health/health.module";
+import { CropSeasonsModule } from "./crop-seasons/crop-seasons.module";
+import { FieldOperationsModule } from "./field-operations/field-operations.module";
 
 @Module({
   imports: [
@@ -57,6 +59,8 @@ import { HealthModule } from "./health/health.module";
     NdviModule,
     SyncModule,
     HealthModule,
+    CropSeasonsModule,
+    FieldOperationsModule,
   ],
   providers: [
     // Global rate limiting guard

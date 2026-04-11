@@ -134,6 +134,16 @@ export const ERROR_CODES = {
   FIELD_SYNC_CONFLICT: 'F1008',
   FIELD_GEOJSON_INVALID: 'F1009',
   FIELD_POSTGIS_ERROR: 'F1010',
+  // Crop Season (F11xx)
+  CROP_SEASON_NOT_FOUND: 'F1101',
+  CROP_SEASON_ALREADY_ENDED: 'F1102',
+  CROP_SEASON_ANOTHER_CURRENT_EXISTS: 'F1103',
+  CROP_SEASON_INVALID_DATE_RANGE: 'F1104',
+  // Field Operation (F12xx)
+  FIELD_OPERATION_NOT_FOUND: 'F1201',
+  FIELD_OPERATION_INVALID_TYPE: 'F1202',
+  FIELD_OPERATION_INVALID_DATE: 'F1203',
+  FIELD_OPERATION_DURATION_INVALID: 'F1204',
 
   // ── Irrigation Service (I1xxx) ─────────────────────────────────────
   IRRIGATION_FIELD_NOT_FOUND: 'I1001',
@@ -612,6 +622,64 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'PostGIS spatial operation failed',
     ar: 'فشلت العملية المكانية في PostGIS',
     retryable: true,
+  },
+  // Crop Season (F11xx)
+  [ERROR_CODES.CROP_SEASON_NOT_FOUND]: {
+    code: ERROR_CODES.CROP_SEASON_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Crop season not found',
+    ar: 'الموسم المحصولي غير موجود',
+    retryable: false,
+  },
+  [ERROR_CODES.CROP_SEASON_ALREADY_ENDED]: {
+    code: ERROR_CODES.CROP_SEASON_ALREADY_ENDED,
+    httpStatus: 400,
+    en: 'Crop season is already ended',
+    ar: 'الموسم المحصولي منتهٍ بالفعل',
+    retryable: false,
+  },
+  [ERROR_CODES.CROP_SEASON_ANOTHER_CURRENT_EXISTS]: {
+    code: ERROR_CODES.CROP_SEASON_ANOTHER_CURRENT_EXISTS,
+    httpStatus: 400,
+    en: 'Another current season exists for this field - end it first',
+    ar: 'يوجد موسم حالي آخر لهذا الحقل — يجب إنهاؤه أولاً',
+    retryable: false,
+  },
+  [ERROR_CODES.CROP_SEASON_INVALID_DATE_RANGE]: {
+    code: ERROR_CODES.CROP_SEASON_INVALID_DATE_RANGE,
+    httpStatus: 400,
+    en: 'Invalid date range - harvest date must be after sowing date',
+    ar: 'نطاق التواريخ غير صالح — تاريخ الحصاد يجب أن يكون بعد تاريخ البذار',
+    retryable: false,
+  },
+  // Field Operation (F12xx)
+  [ERROR_CODES.FIELD_OPERATION_NOT_FOUND]: {
+    code: ERROR_CODES.FIELD_OPERATION_NOT_FOUND,
+    httpStatus: 404,
+    en: 'Field operation not found',
+    ar: 'عملية الحقل غير موجودة',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_OPERATION_INVALID_TYPE]: {
+    code: ERROR_CODES.FIELD_OPERATION_INVALID_TYPE,
+    httpStatus: 400,
+    en: 'Invalid field operation type',
+    ar: 'نوع العملية غير صالح',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_OPERATION_INVALID_DATE]: {
+    code: ERROR_CODES.FIELD_OPERATION_INVALID_DATE,
+    httpStatus: 400,
+    en: 'Invalid operation date',
+    ar: 'تاريخ العملية غير صالح',
+    retryable: false,
+  },
+  [ERROR_CODES.FIELD_OPERATION_DURATION_INVALID]: {
+    code: ERROR_CODES.FIELD_OPERATION_DURATION_INVALID,
+    httpStatus: 400,
+    en: 'Invalid duration - must be a non-negative number of hours',
+    ar: 'مدة العملية غير صالحة — يجب أن تكون عدداً غير سالب من الساعات',
+    retryable: false,
   },
 
   // ── Irrigation Service (I1xxx) ─────────────────────────────────────

@@ -47,6 +47,11 @@ import {
   type FieldAlertsMetadata,
 } from '@/features/fields/components/FieldAlertsLinkCard';
 import { StartCropSeasonModal } from '@/features/fields/components/StartCropSeasonModal';
+import {
+  useStartCropSeason,
+  useRecordFieldOperation,
+  useCropSeasonsByField,
+} from '@/features/fields/hooks/useCropSeasons';
 
 const HEALTH_CONFIG: Record<CropHealthStatus, { color: string; bg: string; labelAr: string }> = {
   healthy: { color: 'text-green-700', bg: 'bg-green-100', labelAr: 'صحي' },
@@ -94,51 +99,105 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
   // ── Stage-2 "Start Crop Season" state ────────────────────────────────
   const [seasonModalOpen, setSeasonModalOpen] = useState(false);
 
+  // Load crop seasons from the first-class backend table (falls back to
+  // the legacy `field.metadata.cropHistory[]` shape below when the
+  // backend has no rows yet, preserving history from pre-migration
+  // fields).
+  const { data: cropSeasonsData } = useCropSeasonsByField(fieldId);
+  const startCropSeason = useStartCropSeason(fieldId);
+  const recordOperation = useRecordFieldOperation(fieldId);
+
   /**
-   * Append a new rich crop-season entry to `metadata.cropHistory`.
+   * Start a new crop season on this field via the real API.
    *
-   * Mutation policy:
-   *   1. Any previously-flagged `isCurrent: true` entry is marked
-   *      `isCurrent: false` and given an `endDate` of today, so the
-   *      timeline preserves the historical record of the previous
-   *      season instead of overwriting it.
-   *   2. The new entry is appended with `isCurrent: true`.
-   *   3. The whole metadata blob is PATCHed back via `useUpdateField`;
-   *      the backend persists it as-is inside the existing JSONB
-   *      column — no migration required.
+   * The backend transactionally closes any previously active season, so
+   * the client no longer has to orchestrate "mark old as isCurrent=false".
+   * After the season is created we fire-and-forget record the plowing
+   * and land-preparation operations (if the user filled them in the
+   * modal), linked to the new cropSeasonId so the rollup endpoint can
+   * compute totals by season.
    */
-  const handleStartSeason = (newEntry: CropHistoryEntry) => {
+  const handleStartSeason = async (newEntry: CropHistoryEntry) => {
     if (!field) return;
-    const existing = Array.isArray(
-      (field.metadata as Record<string, unknown> | undefined)?.cropHistory,
-    )
-      ? ((field.metadata as Record<string, unknown>).cropHistory as CropHistoryEntry[])
-      : [];
-    const todayIso = new Date().toISOString();
-    const closedPrevious: CropHistoryEntry[] = existing.map((entry) =>
-      entry.isCurrent && !entry.endDate
-        ? { ...entry, isCurrent: false, endDate: todayIso }
-        : entry,
-    );
-    const nextHistory = [...closedPrevious, { ...newEntry, isCurrent: true }];
-    const mergedMetadata = {
-      ...(field.metadata ?? {}),
-      cropHistory: nextHistory,
-    };
-    updateField.mutate(
-      { fieldId, data: { metadata: mergedMetadata } },
-      {
-        onSuccess: () => setSeasonModalOpen(false),
-      },
-    );
+    try {
+      const created = await startCropSeason.mutateAsync({
+        cropType: newEntry.cropType,
+        cropTypeAr: newEntry.cropTypeAr,
+        season: newEntry.season as
+          | 'winter'
+          | 'spring'
+          | 'summer'
+          | 'autumn'
+          | 'year-round'
+          | undefined,
+        sowingDate: newEntry.startDate,
+        expectedHarvestDate: newEntry.estimatedHarvestDate,
+        seedVariety: newEntry.seedVariety,
+        seedVarietyAr: newEntry.seedVarietyAr,
+        plantingDensityKgHa: newEntry.plantingDensityKgHa,
+        irrigationType: newEntry.irrigationType,
+        notes: newEntry.notes,
+      });
+
+      // Record plowing as a FieldOperation if the modal captured it.
+      if (newEntry.plowingDate) {
+        try {
+          await recordOperation.mutateAsync({
+            operationType: 'plowing',
+            performedAt: newEntry.plowingDate,
+            durationHours: newEntry.plowingDurationHours,
+            costAmount: newEntry.plowingCost,
+            costCurrency: 'SAR',
+            cropSeasonId: created.id,
+            equipmentId: newEntry.plowingEquipmentId,
+            equipmentName: newEntry.plowingEquipmentName,
+            equipmentNameAr: newEntry.plowingEquipmentNameAr,
+          });
+        } catch (err) {
+          // Non-fatal: the season is already created; surface in console
+          // for debugging but don't block the modal from closing.
+          // eslint-disable-next-line no-console
+          console.error('Failed to record plowing operation', err);
+        }
+      }
+
+      // Record land preparation as a FieldOperation if captured.
+      if (newEntry.landPreparationDate) {
+        try {
+          await recordOperation.mutateAsync({
+            operationType: 'land_preparation',
+            performedAt: newEntry.landPreparationDate,
+            durationHours: newEntry.landPreparationDurationHours,
+            costAmount: newEntry.landPreparationCost,
+            costCurrency: 'SAR',
+            cropSeasonId: created.id,
+            equipmentId: newEntry.landPreparationEquipmentId,
+            equipmentName: newEntry.landPreparationEquipmentName,
+            equipmentNameAr: newEntry.landPreparationEquipmentNameAr,
+          });
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('Failed to record land-preparation operation', err);
+        }
+      }
+
+      setSeasonModalOpen(false);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to start crop season', err);
+    }
   };
 
   /**
-   * True when the field already has an active (unclosed) crop season
-   * in the persisted `cropHistory`. Used by the modal to warn the
-   * user that saving will close the current season.
+   * True when the field already has an active (unclosed) crop season.
+   * Preference order:
+   *   1. Real backend row from `useCropSeasonsByField`.
+   *   2. Legacy `field.metadata.cropHistory[]` fallback so fields
+   *      created before the migration still render correctly.
    */
   const hasActiveSeason: boolean = (() => {
+    const backendRows = cropSeasonsData?.items ?? [];
+    if (backendRows.some((r) => r.isCurrent)) return true;
     const raw = (field?.metadata as Record<string, unknown> | undefined)
       ?.cropHistory;
     if (!Array.isArray(raw)) return false;

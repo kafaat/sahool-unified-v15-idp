@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -18,6 +19,27 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useCreateField } from '@/features/satellite-monitor';
+import { useAuth } from '@/stores/auth.store';
+import { buildInitialCropHistory } from '@/features/fields/components/CropHistoryTimeline';
+import { buildInitialFieldAlerts } from '@/features/fields/components/FieldAlertsLinkCard';
+
+// Dynamically load the Google Maps drawing surface — it pulls in
+// `@react-google-maps/api` which requires a browser `window`, so SSR
+// must be disabled. We swapped away from the Leaflet-only
+// `DrawableMap` because that component only supported polygon +
+// rectangle, and this page needs the circle tool the native Google
+// Maps DrawingManager provides (see commit history).
+const GoogleMapsFieldDrawer = dynamic(
+  () => import('@/components/maps/GoogleMapsFieldDrawer'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="aspect-video bg-gradient-to-br from-green-50 via-green-100 to-green-200 rounded-lg border-2 border-green-300 flex items-center justify-center">
+        <p className="text-green-700 text-sm">جاري تحميل أدوات الرسم...</p>
+      </div>
+    ),
+  },
+);
 import type { BoundaryInputMethod, FieldBoundary } from '@/features/satellite-monitor';
 
 const CROP_TYPES = [
@@ -43,6 +65,9 @@ const BOUNDARY_METHODS: Array<{ method: BoundaryInputMethod; label: string; labe
 
 export default function AddFieldClient() {
   const createField = useCreateField();
+  // Authenticated user — used to seed the per-field `alerts` metadata
+  // with the account that should receive notifications for this field.
+  const { user } = useAuth();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [boundaryMethod, setBoundaryMethod] = useState<BoundaryInputMethod>('coordinates');
   const [boundaryPoints, setBoundaryPoints] = useState<FieldBoundary[]>([]);
@@ -136,6 +161,62 @@ export default function AddFieldClient() {
     setBoundaryPoints(updated);
   };
 
+  /**
+   * Receive a GeoJSON polygon from <GoogleMapsFieldDrawer> and flatten
+   * it into the `FieldBoundary[]` shape the rest of this client already
+   * consumes.
+   *
+   * GeoJSON polygon rings are closed (first coordinate == last); we drop
+   * the duplicate closing vertex so `boundaryPoints.length` reflects the
+   * number of user-placed points and the existing `length < 3` guard in
+   * `validateStep` still works. Circles are emitted by
+   * GoogleMapsFieldDrawer as a 72-vertex approximation via the
+   * `circlePolygon()` helper, so they flow through this same path with
+   * no special-casing.
+   */
+  const handleDrawnBoundary = useCallback(
+    (geojson: GeoJSON.Polygon | null) => {
+      if (!geojson || !geojson.coordinates?.[0]) {
+        setBoundaryPoints([]);
+        return;
+      }
+      const ring = geojson.coordinates[0];
+      const closed =
+        ring.length > 1 &&
+        ring[0]?.[0] === ring[ring.length - 1]?.[0] &&
+        ring[0]?.[1] === ring[ring.length - 1]?.[1];
+      const openRing = closed ? ring.slice(0, -1) : ring;
+      setBoundaryPoints(
+        openRing.map(([lng, lat]) => ({
+          lat: typeof lat === 'number' ? lat : 0,
+          lng: typeof lng === 'number' ? lng : 0,
+        })),
+      );
+    },
+    [],
+  );
+
+  /**
+   * Center the drawing map on the form-entered lat/lng if the user
+   * provided one in step 1, otherwise default to Yemen's centroid.
+   * The tuple is memoised so <GoogleMapsFieldDrawer> does not re-mount
+   * on every unrelated re-render.
+   */
+  const drawInitialCenter = useMemo<[number, number]>(() => {
+    const lat = parseFloat(formData.lat);
+    const lng = parseFloat(formData.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      return [lat, lng];
+    }
+    return [15.5527, 48.5164];
+  }, [formData.lat, formData.lng]);
+
+  const drawInitialZoom = useMemo(() => {
+    const lat = parseFloat(formData.lat);
+    const lng = parseFloat(formData.lng);
+    return Number.isFinite(lat) && Number.isFinite(lng) ? 15 : 6;
+  }, [formData.lat, formData.lng]);
+
   // Handle file upload for KML/Shapefile. Enforces a 10 MB cap (KML/KMZ are
   // rarely larger) and accepts only the declared boundary file extensions.
   const MAX_BOUNDARY_FILE_BYTES = 10 * 1024 * 1024;
@@ -180,6 +261,28 @@ export default function AddFieldClient() {
       return;
     }
     try {
+      // Seed the two new metadata sub-objects at create time so the
+      // field has a real historical database from day 1 and knows who
+      // to notify — both stored inside the existing JSONB column, no
+      // backend migration required.
+      //
+      //   metadata.cropHistory → archival crop-rotation timeline
+      //   metadata.alerts      → per-field SMS/Email/Push preferences
+      //                          + contact snapshot of the creator
+      const cropLabel = CROP_TYPES.find((c) => c.value === formData.cropType);
+      const initialMetadata: Record<string, unknown> = {
+        cropHistory: buildInitialCropHistory({
+          cropType: formData.cropType,
+          cropTypeAr: cropLabel?.labelAr,
+          plantingDate: formData.sowingDate,
+        }),
+        alerts: buildInitialFieldAlerts({
+          name: user?.name,
+          name_ar: user?.name_ar,
+          email: user?.email,
+        }),
+      };
+
       await createField.mutateAsync({
         name: formData.name || formData.nameAr,
         nameAr: formData.nameAr,
@@ -193,12 +296,13 @@ export default function AddFieldClient() {
         coordinates: formData.lat && formData.lng
           ? { lat: parseFloat(formData.lat), lng: parseFloat(formData.lng) }
           : undefined,
+        metadata: initialMetadata,
       });
     } catch {
       // Error handled by mutation
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData, boundaryPoints, boundaryMethod, createField]);
+  }, [formData, boundaryPoints, boundaryMethod, createField, user]);
 
   // Success state
   if (createField.isSuccess) {
@@ -364,12 +468,40 @@ export default function AddFieldClient() {
 
           {/* Method-specific content */}
           {boundaryMethod === 'draw' && (
-            <div className="aspect-video bg-gradient-to-br from-green-50 via-green-100 to-green-200 rounded-lg border-2 border-green-300 flex items-center justify-center">
-              <div className="text-center">
-                <Pencil className="w-12 h-12 text-green-600 mx-auto mb-2" />
-                <p className="text-green-800 font-medium">انقر على الخريطة لتحديد نقاط الحدود</p>
-                <p className="text-green-600 text-sm mt-1">سيتم ربط النقاط تلقائياً لإنشاء المضلع</p>
+            <div className="space-y-3">
+              <div className="rounded-lg border-2 border-green-300 bg-green-50 p-3 text-sm text-green-800">
+                <p className="font-medium inline-flex items-center gap-1.5">
+                  <Pencil className="w-4 h-4" /> اختر أداة الرسم من شريط الأدوات أعلى الخريطة
+                </p>
+                <p className="text-green-700 text-xs mt-1">
+                  الأدوات المتاحة: <strong>مضلع</strong> (انقر لإضافة نقطة
+                  وخط بين كل نقطتين متتاليتين)، <strong>مستطيل</strong>{' '}
+                  (اسحب لرسم إطار)، <strong>دائرة</strong> (انقر المركز
+                  واسحب لتحديد الشعاع). يمكنك تحريك الرؤوس أو السحب لتعديل
+                  الشكل بعد الرسم.
+                </p>
               </div>
+              <GoogleMapsFieldDrawer
+                onBoundaryChange={handleDrawnBoundary}
+                initialCenter={drawInitialCenter}
+                initialZoom={drawInitialZoom}
+                height="480px"
+              />
+              {boundaryPoints.length > 0 && (
+                <div className="text-xs text-gray-600 flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
+                  <span>
+                    النقاط المرسومة:{' '}
+                    <span className="font-semibold text-gray-900">
+                      {boundaryPoints.length}
+                    </span>
+                  </span>
+                  {boundaryPoints.length < 3 && (
+                    <span className="text-amber-700">
+                      يلزم {3 - boundaryPoints.length} نقطة إضافية على الأقل
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

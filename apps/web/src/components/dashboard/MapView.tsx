@@ -19,18 +19,37 @@ interface PopupData {
   crop: string;
   area: number | string;
   ndvi: number | null;
-  status: 'healthy' | 'warning' | 'critical';
+  status: FieldStatus;
 }
 
-// Status colors for NDVI/health
+// ---------------------------------------------------------------------------
+// Field status classification + colors
+// ---------------------------------------------------------------------------
+// Status categories are only used for the popup badge and legend. The actual
+// polygon fill colour is computed as a continuous gradient over the raw NDVI
+// value (see the `interpolate` expression in the `fields-fill` layer below),
+// so two fields with NDVI = 0.42 and 0.58 no longer share the same fill.
+//
+// `no-data` is a distinct state — previously, missing NDVI values silently
+// fell through to `warning` (amber), which made every field in a freshly-
+// loaded tenant look "one colour for all" and masked real issues.
+
 const STATUS_COLORS = {
   healthy: '#10b981',
   warning: '#f59e0b',
   critical: '#ef4444',
+  'no-data': '#9ca3af',
 } as const;
 
-function getFieldStatus(ndviValue?: number): 'healthy' | 'warning' | 'critical' {
-  if (!ndviValue) return 'warning';
+type FieldStatus = keyof typeof STATUS_COLORS;
+
+function getFieldStatus(ndviValue?: number | null): FieldStatus {
+  // Treat undefined / null / NaN as a distinct "no data" state rather than
+  // silently bucketing them into "warning". Note: a real NDVI reading of 0
+  // (bare soil) IS valid data and must be classified as "critical".
+  if (ndviValue === undefined || ndviValue === null || Number.isNaN(ndviValue)) {
+    return 'no-data';
+  }
   if (ndviValue >= 0.6) return 'healthy';
   if (ndviValue >= 0.4) return 'warning';
   return 'critical';
@@ -38,16 +57,18 @@ function getFieldStatus(ndviValue?: number): 'healthy' | 'warning' | 'critical' 
 
 // Secure popup content component using React instead of raw HTML
 const PopupContent: React.FC<PopupData> = ({ name, crop, area, ndvi, status }) => {
-  const statusClasses = {
+  const statusClasses: Record<FieldStatus, string> = {
     healthy: 'bg-green-100 text-green-800',
     warning: 'bg-yellow-100 text-yellow-800',
     critical: 'bg-red-100 text-red-800',
+    'no-data': 'bg-gray-100 text-gray-700',
   };
 
-  const statusLabels = {
+  const statusLabels: Record<FieldStatus, string> = {
     healthy: 'صحي',
     warning: 'تحذير',
     critical: 'حرج',
+    'no-data': 'لا توجد بيانات',
   };
 
   return (
@@ -190,19 +211,31 @@ const MapView = React.memo<MapViewProps>(function MapView({
       type: 'FeatureCollection',
       features: fields
         .filter((field) => field.boundary)
-        .map((field) => ({
-          type: 'Feature' as const,
-          id: field.id,
-          properties: {
+        .map((field) => {
+          // IMPORTANT: use `??` not `||` so that a valid NDVI of 0 (bare
+          // soil) is preserved instead of being treated as "no data". The
+          // previous `field.ndvi_value || field.ndvi_current` lost zeros.
+          const ndviRaw = field.ndvi_value ?? field.ndvi_current;
+          const ndvi =
+            typeof ndviRaw === 'number' && Number.isFinite(ndviRaw) ? ndviRaw : null;
+          return {
+            type: 'Feature' as const,
             id: field.id,
-            name: field.name,
-            crop: field.crop_type || field.crop,
-            area: field.area_hectares || field.area,
-            status: getFieldStatus(field.ndvi_value || field.ndvi_current),
-            ndvi: field.ndvi_value || field.ndvi_current,
-          },
-          geometry: field.boundary || field.polygon || field.geometry!,
-        })),
+            properties: {
+              id: field.id,
+              name: field.name,
+              crop: field.crop_type || field.crop,
+              area: field.area_hectares || field.area,
+              status: getFieldStatus(ndvi ?? undefined),
+              // Store `ndvi` separately from `hasNdvi` so the MapLibre
+              // expression can branch on presence without mistaking a
+              // real 0.0 reading for "missing".
+              ndvi: ndvi ?? -999, // sentinel; hasNdvi flag disambiguates
+              hasNdvi: ndvi !== null,
+            },
+            geometry: field.boundary || field.polygon || field.geometry!,
+          };
+        }),
     };
 
     // Remove existing layers and source
@@ -219,23 +252,69 @@ const MapView = React.memo<MapViewProps>(function MapView({
       data: geojsonData,
     });
 
+    // Add fields fill layer.
+    //
+    // Previously this used a 3-bucket `match` expression over the pre-computed
+    // `status` property (healthy/warning/critical/fallback-gray). That had two
+    // problems that together produced the "one colour for all fields" symptom:
+    //
+    //   1. Every field with NDVI in 0.4-0.59 mapped to the same warning amber,
+    //      and every field with NDVI in 0.6-1.0 mapped to the same healthy
+    //      green — so any tenant whose fields clustered inside one of these
+    //      wide bands looked uniformly coloured.
+    //   2. The old status helper treated `undefined` / `null` NDVI as
+    //      `warning` instead of `no-data`, so a freshly-loaded tenant whose
+    //      fields had not yet been scored was painted entirely amber.
+    //
+    // The new paint expression:
+    //   - checks `hasNdvi` first and paints `no-data` fields in neutral gray
+    //     (STATUS_COLORS['no-data']) so the user can visually distinguish
+    //     "no reading yet" from "stressed";
+    //   - then interpolates the raw NDVI value through a 7-stop gradient
+    //     (0.0 → dark red, up to 0.8+ → dark green) matching the NDVI scale
+    //     used by NdviTileLayer / NDVI_COLORS in lib/chart-colors.ts.
+    //
+    // The same expression is reused for the outline colour so the polygon
+    // stroke stays in sync with the fill.
+    // MapLibre `case` + `interpolate` expression as a plain array.
+    // The paint-property types for MapLibre's `addLayer` differ between
+    // minor versions, so we build the expression as `unknown` and let
+    // MapLibre's runtime expression parser validate it.
+    const ndviFillExpression: unknown = [
+      'case',
+      ['!', ['to-boolean', ['get', 'hasNdvi']]],
+      STATUS_COLORS['no-data'],
+      [
+        'interpolate',
+        ['linear'],
+        ['to-number', ['get', 'ndvi']],
+        0.0,
+        '#8B0000', // Bare soil / critical (dark red)
+        0.2,
+        '#d73027', // Very low vegetation (red)
+        0.3,
+        '#f46d43', // Sparse (orange)
+        0.4,
+        '#fdae61', // Moderate-low (amber)
+        0.5,
+        '#fee08b', // Moderate (yellow)
+        0.6,
+        '#a6d96a', // Healthy (light green)
+        0.7,
+        '#66bd63', // Very healthy (green)
+        0.8,
+        '#1a9850', // Excellent (dark green)
+      ],
+    ];
+
     // Add fields fill layer
     map.current.addLayer({
       id: 'fields-fill',
       type: 'fill',
       source: 'fields',
       paint: {
-        'fill-color': [
-          'match',
-          ['get', 'status'],
-          'healthy',
-          STATUS_COLORS.healthy,
-          'warning',
-          STATUS_COLORS.warning,
-          'critical',
-          STATUS_COLORS.critical,
-          '#9ca3af',
-        ],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'fill-color': ndviFillExpression as any,
         'fill-opacity': 0.6,
       },
     });
@@ -246,17 +325,8 @@ const MapView = React.memo<MapViewProps>(function MapView({
       type: 'line',
       source: 'fields',
       paint: {
-        'line-color': [
-          'match',
-          ['get', 'status'],
-          'healthy',
-          STATUS_COLORS.healthy,
-          'warning',
-          STATUS_COLORS.warning,
-          'critical',
-          STATUS_COLORS.critical,
-          '#6b7280',
-        ],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'line-color': ndviFillExpression as any,
         'line-width': 2,
       },
     });
@@ -393,22 +463,29 @@ const MapView = React.memo<MapViewProps>(function MapView({
         </button>
       </div>
 
-      {/* Legend */}
-      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3">
-        <h4 className="text-xs font-bold text-gray-700 mb-2">الحالة</h4>
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
-            <span>صحي (NDVI &gt; 0.6)</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="w-3 h-3 rounded-full bg-amber-500"></span>
-            <span>تحذير (0.4 - 0.6)</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="w-3 h-3 rounded-full bg-red-500"></span>
-            <span>حرج (&lt; 0.4)</span>
-          </div>
+      {/* Legend — continuous NDVI gradient + no-data swatch */}
+      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 w-44">
+        <h4 className="text-xs font-bold text-gray-700 mb-2">مؤشر NDVI</h4>
+        {/* Continuous gradient bar matching the `interpolate` stops used
+            by the `fields-fill` layer. */}
+        <div
+          className="relative h-3 rounded overflow-hidden mb-1"
+          style={{
+            background:
+              'linear-gradient(to right, #8B0000 0%, #d73027 25%, #f46d43 37.5%, #fdae61 50%, #fee08b 62.5%, #a6d96a 75%, #66bd63 87.5%, #1a9850 100%)',
+          }}
+        />
+        <div className="flex justify-between text-[10px] text-gray-600 mb-2">
+          <span>0.0</span>
+          <span>0.4</span>
+          <span>0.8+</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span
+            className="w-3 h-3 rounded-full"
+            style={{ backgroundColor: STATUS_COLORS['no-data'] }}
+          ></span>
+          <span>لا توجد بيانات</span>
         </div>
       </div>
 

@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.3.0
+/// Contract version: 4.5.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
@@ -60,6 +60,24 @@ abstract final class ErrorCodes {
   static const String fieldSyncConflict = 'F1008';
   static const String fieldGeojsonInvalid = 'F1009';
   static const String fieldPostgisError = 'F1010';
+  static const String cropSeasonNotFound = 'F1101';
+  static const String cropSeasonAlreadyEnded = 'F1102';
+  static const String cropSeasonAnotherCurrentExists = 'F1103';
+  static const String cropSeasonInvalidDateRange = 'F1104';
+  static const String fieldOperationNotFound = 'F1201';
+  static const String fieldOperationInvalidType = 'F1202';
+  static const String fieldOperationInvalidDate = 'F1203';
+  static const String fieldOperationDurationInvalid = 'F1204';
+  static const String fieldOperationLockedByErp = 'F1205';
+  static const String fieldOperationNotApproved = 'F1206';
+  static const String fieldOperationRejected = 'F1207';
+  static const String fieldOperationAlreadyPosted = 'F1208';
+  static const String erpAdapterNotConfigured = 'F1301';
+  static const String erpPostingFailed = 'F1302';
+  static const String erpWebhookUnavailable = 'F1303';
+  static const String erpSignatureInvalid = 'F1304';
+  static const String idempotencyKeyConflict = 'F1401';
+  static const String idempotencyKeyExpired = 'F1402';
   static const String irrigationFieldNotFound = 'I1001';
   static const String irrigationScheduleNotFound = 'I1002';
   static const String irrigationInvalidWaterVolume = 'I1003';
@@ -542,6 +560,132 @@ const Map<String, ErrorMessage> errorMessages = {
     en: 'PostGIS spatial operation failed',
     ar: 'فشلت العملية المكانية في PostGIS',
     retryable: true,
+  ),
+  'F1101': ErrorMessage(
+    code: 'F1101',
+    httpStatus: 404,
+    en: 'Crop season not found',
+    ar: 'الموسم المحصولي غير موجود',
+    retryable: false,
+  ),
+  'F1102': ErrorMessage(
+    code: 'F1102',
+    httpStatus: 400,
+    en: 'Crop season is already ended',
+    ar: 'الموسم المحصولي منتهٍ بالفعل',
+    retryable: false,
+  ),
+  'F1103': ErrorMessage(
+    code: 'F1103',
+    httpStatus: 400,
+    en: 'Another current season exists for this field - end it first',
+    ar: 'يوجد موسم حالي آخر لهذا الحقل — يجب إنهاؤه أولاً',
+    retryable: false,
+  ),
+  'F1104': ErrorMessage(
+    code: 'F1104',
+    httpStatus: 400,
+    en: 'Invalid date range - harvest date must be after sowing date',
+    ar: 'نطاق التواريخ غير صالح — تاريخ الحصاد يجب أن يكون بعد تاريخ البذار',
+    retryable: false,
+  ),
+  'F1201': ErrorMessage(
+    code: 'F1201',
+    httpStatus: 404,
+    en: 'Field operation not found',
+    ar: 'عملية الحقل غير موجودة',
+    retryable: false,
+  ),
+  'F1202': ErrorMessage(
+    code: 'F1202',
+    httpStatus: 400,
+    en: 'Invalid field operation type',
+    ar: 'نوع العملية غير صالح',
+    retryable: false,
+  ),
+  'F1203': ErrorMessage(
+    code: 'F1203',
+    httpStatus: 400,
+    en: 'Invalid operation date',
+    ar: 'تاريخ العملية غير صالح',
+    retryable: false,
+  ),
+  'F1204': ErrorMessage(
+    code: 'F1204',
+    httpStatus: 400,
+    en: 'Invalid duration - must be a non-negative number of hours',
+    ar: 'مدة العملية غير صالحة — يجب أن تكون عدداً غير سالب من الساعات',
+    retryable: false,
+  ),
+  'F1205': ErrorMessage(
+    code: 'F1205',
+    httpStatus: 400,
+    en: 'Operation is locked because it was posted to ERP - reverse the posting first',
+    ar: 'العملية مقفلة لأنها مرحلة إلى نظام المحاسبة — يجب إلغاء الترحيل أولاً',
+    retryable: false,
+  ),
+  'F1206': ErrorMessage(
+    code: 'F1206',
+    httpStatus: 400,
+    en: 'Only approved operations can be posted to ERP',
+    ar: 'لا يمكن ترحيل عملية غير معتمدة إلى نظام المحاسبة',
+    retryable: false,
+  ),
+  'F1207': ErrorMessage(
+    code: 'F1207',
+    httpStatus: 400,
+    en: 'Operation has been rejected and cannot be approved',
+    ar: 'العملية مرفوضة ولا يمكن اعتمادها',
+    retryable: false,
+  ),
+  'F1208': ErrorMessage(
+    code: 'F1208',
+    httpStatus: 409,
+    en: 'Operation has already been posted to ERP',
+    ar: 'تم ترحيل العملية مسبقاً إلى نظام المحاسبة',
+    retryable: false,
+  ),
+  'F1301': ErrorMessage(
+    code: 'F1301',
+    httpStatus: 400,
+    en: 'No ERP adapter is configured',
+    ar: 'لا يوجد موفر ERP مفعّل حالياً',
+    retryable: false,
+  ),
+  'F1302': ErrorMessage(
+    code: 'F1302',
+    httpStatus: 502,
+    en: 'ERP posting failed - will be retried by the background worker',
+    ar: 'فشل ترحيل العملية إلى ERP - ستتم إعادة المحاولة تلقائياً',
+    retryable: true,
+  ),
+  'F1303': ErrorMessage(
+    code: 'F1303',
+    httpStatus: 502,
+    en: 'External ERP webhook is unavailable',
+    ar: 'نقطة الاتصال بنظام المحاسبة الخارجي غير متاحة',
+    retryable: true,
+  ),
+  'F1304': ErrorMessage(
+    code: 'F1304',
+    httpStatus: 401,
+    en: 'ERP webhook signature is invalid',
+    ar: 'توقيع webhook غير صالح',
+    retryable: false,
+  ),
+  'F1401': ErrorMessage(
+    code: 'F1401',
+    httpStatus: 409,
+    en: 'Idempotency-Key conflict: same key used with a different body',
+    ar: 'تعارض في مفتاح Idempotency — نفس المفتاح مع جسم مختلف',
+    retryable: false,
+  ),
+  'F1402': ErrorMessage(
+    code: 'F1402',
+    httpStatus: 410,
+    en: 'Idempotency-Key has expired',
+    ar: 'انتهت صلاحية مفتاح Idempotency',
+    retryable: false,
   ),
   'I1001': ErrorMessage(
     code: 'I1001',

@@ -247,6 +247,64 @@ abstract final class IndicatorEndpoints {
   static const String trends = '$apiPrefix/indicators/trends';
 }
 
+/// Crop Seasons - مواسم المحاصيل
+///
+/// First-class archive of per-field crop rotations (replaces the legacy
+/// `field.metadata.cropHistory[]` JSON shim). Served by
+/// field-management-service.
+abstract final class CropSeasonEndpoints {
+  static const String list = '$apiPrefix/crop-seasons';
+  static String get(String cropSeasonId) =>
+      '$apiPrefix/crop-seasons/$cropSeasonId';
+  static String update(String cropSeasonId) =>
+      '$apiPrefix/crop-seasons/$cropSeasonId';
+  static String end(String cropSeasonId) =>
+      '$apiPrefix/crop-seasons/$cropSeasonId/end';
+  static String delete(String cropSeasonId) =>
+      '$apiPrefix/crop-seasons/$cropSeasonId';
+  static String listByField(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/crop-seasons';
+  static String create(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/crop-seasons';
+  static String rollup(String cropSeasonId) =>
+      '$apiPrefix/crop-seasons/$cropSeasonId/rollup';
+}
+
+/// Field Operations - عمليات الحقل
+///
+/// Per-field operation log (plowing, land preparation, fertilization,
+/// spraying, irrigation, harvesting, ...). Each row optionally links
+/// to a CropSeason and an Equipment record for per-season and per-
+/// equipment cost rollups.
+abstract final class FieldOperationEndpoints {
+  static const String list = '$apiPrefix/field-operations';
+  static String get(String operationId) =>
+      '$apiPrefix/field-operations/$operationId';
+  static String update(String operationId) =>
+      '$apiPrefix/field-operations/$operationId';
+  static String delete(String operationId) =>
+      '$apiPrefix/field-operations/$operationId';
+  static String listByField(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/operations';
+  static String create(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/operations';
+  static String approve(String operationId) =>
+      '$apiPrefix/field-operations/$operationId/approve';
+  static String reject(String operationId) =>
+      '$apiPrefix/field-operations/$operationId/reject';
+}
+
+/// ERP Sync - تكامل نظام المحاسبة
+///
+/// Routes for posting field operations to external accounting systems
+/// (QuickBooks, SAP, Odoo, Xero, Oracle NetSuite, ...) via the
+/// pluggable IErpAdapter interface in field-management-service.
+abstract final class ErpSyncEndpoints {
+  static String postFieldOperation(String operationId) =>
+      '$apiPrefix/erp-sync/field-operations/$operationId/post';
+  static const String health = '$apiPrefix/erp-sync/health';
+}
+
 /// Public endpoints (no auth required)
 const List<String> publicEndpoints = [
   AuthEndpoints.login,

@@ -164,7 +164,16 @@ class VoiceServiceError {
 
 /// Listening options
 class ListeningOptions {
-  /// Duration to listen before auto-stop (null for continuous)
+  /// Upper bound on how long the speech engine will listen before
+  /// auto-stopping. `null` means "continuous listening with no hard
+  /// deadline" — only use this with [continuousOptions] where the UI
+  /// layer owns the stop lifecycle explicitly. For any normal
+  /// listen-once interaction, leave this at the default 30 s.
+  ///
+  /// Independently of this value, [VoiceService] installs a watchdog
+  /// [Timer] that force-stops the recognizer at `listenFor + 2s` (or at
+  /// [watchdogFallback] when `listenFor` is null) so a stuck engine can
+  /// never leave the service pinned in the `listening` state.
   final Duration? listenFor;
 
   /// Pause duration to consider speech ended
@@ -180,21 +189,33 @@ class ListeningOptions {
   final ListenMode listenMode;
 
   const ListeningOptions({
-    this.listenFor,
+    this.listenFor = const Duration(seconds: 30),
     this.pauseFor = const Duration(seconds: 2),
     this.partialResults = true,
     this.onDevice = false,
     this.listenMode = ListenMode.confirmation,
   });
 
+  /// Sensible default for single-phrase interactions (voice commands,
+  /// short questions): 30-second hard cap. Balances "long enough to
+  /// finish a sentence" with "short enough to recover from a crash".
   static const defaultOptions = ListeningOptions();
 
+  /// Continuous listening (wake-word / dictation) where the upper bound
+  /// is explicitly unbounded. Even here, [VoiceService] still installs
+  /// a [watchdogFallback] Timer so the service cannot leak the
+  /// `listening` state indefinitely.
   static const continuousOptions = ListeningOptions(
     listenFor: null,
     pauseFor: Duration(seconds: 3),
     partialResults: true,
     listenMode: ListenMode.dictation,
   );
+
+  /// Watchdog deadline used when [listenFor] is null. After this elapses
+  /// without the engine emitting `done`, the service force-cancels to
+  /// recover the `ready` state.
+  static const watchdogFallback = Duration(minutes: 2);
 }
 
 /// Wake word configuration
@@ -234,6 +255,12 @@ class VoiceService {
   List<LocaleName> _availableLocales = [];
   double _currentSoundLevel = 0.0;
   WakeWordConfig _wakeWordConfig = const WakeWordConfig();
+
+  /// Watchdog timer that force-stops recognition if the speech engine
+  /// fails to emit `done` within the listen window. Without this, the
+  /// service can be pinned in [VoiceServiceStatus.listening] forever on
+  /// devices where the underlying recognizer crashes silently.
+  Timer? _listeningWatchdog;
 
   // Stream controllers
   final _statusController = StreamController<VoiceServiceStatus>.broadcast();
@@ -470,6 +497,7 @@ class VoiceService {
       );
 
       _updateStatus(VoiceServiceStatus.listening);
+      _armWatchdog(options);
     } catch (e, stack) {
       AppLogger.e('Failed to start listening', tag: 'VOICE', error: e, stackTrace: stack);
       _updateStatus(VoiceServiceStatus.error);
@@ -481,11 +509,57 @@ class VoiceService {
     }
   }
 
+  /// Install a watchdog Timer that force-stops the recognizer if it
+  /// fails to emit a terminal state within the listen window. This is
+  /// the recovery path for devices where the platform recognizer
+  /// crashes silently and never delivers `done` or `error`, which used
+  /// to leave the service pinned in the `listening` state indefinitely.
+  ///
+  /// Budget = `options.listenFor + 2s` (grace for the native engine to
+  /// deliver its own timeout), or [ListeningOptions.watchdogFallback]
+  /// when `listenFor` is null (continuous mode).
+  void _armWatchdog(ListeningOptions options) {
+    _listeningWatchdog?.cancel();
+    final baseline = options.listenFor ?? ListeningOptions.watchdogFallback;
+    final budget = baseline + const Duration(seconds: 2);
+    _listeningWatchdog = Timer(budget, _onWatchdogFired);
+    AppLogger.d(
+      'Watchdog armed for ${budget.inSeconds}s',
+      tag: 'VOICE',
+    );
+  }
+
+  void _disarmWatchdog() {
+    _listeningWatchdog?.cancel();
+    _listeningWatchdog = null;
+  }
+
+  Future<void> _onWatchdogFired() async {
+    if (!isListening) {
+      // The engine already finished naturally; nothing to do.
+      _disarmWatchdog();
+      return;
+    }
+    AppLogger.w(
+      'Speech recognizer watchdog fired — force-cancelling to recover',
+      tag: 'VOICE',
+    );
+    try {
+      await _speech.cancel();
+    } catch (e) {
+      AppLogger.e('Watchdog cancel failed', tag: 'VOICE', error: e);
+    }
+    _disarmWatchdog();
+    _updateStatus(VoiceServiceStatus.ready);
+    _errorController.add(VoiceServiceError.timeout);
+  }
+
   /// Stop listening
   Future<void> stopListening() async {
     if (!isListening) return;
 
     AppLogger.d('Stopping speech recognition', tag: 'VOICE');
+    _disarmWatchdog();
 
     try {
       await _speech.stop();
@@ -500,6 +574,7 @@ class VoiceService {
     if (!isListening) return;
 
     AppLogger.d('Cancelling speech recognition', tag: 'VOICE');
+    _disarmWatchdog();
 
     try {
       await _speech.cancel();
@@ -513,6 +588,7 @@ class VoiceService {
   Future<void> pauseListening() async {
     if (!isListening) return;
 
+    _disarmWatchdog();
     try {
       await _speech.stop();
       _updateStatus(VoiceServiceStatus.paused);
@@ -653,9 +729,14 @@ class VoiceService {
         if (_status == VoiceServiceStatus.listening) {
           _updateStatus(VoiceServiceStatus.ready);
         }
+        // Engine reported a clean stop — the watchdog is no longer
+        // needed; cancelling it here avoids a spurious "timeout" event
+        // firing after the recognizer has already gone home.
+        _disarmWatchdog();
         break;
       case 'done':
         _updateStatus(VoiceServiceStatus.ready);
+        _disarmWatchdog();
         break;
     }
   }
@@ -664,6 +745,10 @@ class VoiceService {
     AppLogger.e('Speech error: ${error.errorMsg}', tag: 'VOICE', data: {
       'permanent': error.permanent,
     });
+
+    // The engine is done — tear down the watchdog to avoid a stale
+    // timeout being emitted after the real error.
+    _disarmWatchdog();
 
     final voiceError = VoiceServiceError.fromSpeechError(error);
     _errorController.add(voiceError);
@@ -728,6 +813,7 @@ class VoiceService {
 
   /// Dispose resources
   void dispose() {
+    _disarmWatchdog();
     _speech.stop();
     _speech.cancel();
     _statusController.close();

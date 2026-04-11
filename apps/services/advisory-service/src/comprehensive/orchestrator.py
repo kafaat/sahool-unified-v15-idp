@@ -36,7 +36,7 @@ import asyncio
 import re
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import httpx
 import structlog
@@ -289,23 +289,35 @@ class ComprehensiveAdvisoryOrchestrator:
     # Unified call helper with timeout + error mapping
     # ------------------------------------------------------------------
 
-    def _trusted_base_urls(self) -> tuple[str, ...]:
+    def _trusted_hostnames(self) -> frozenset[str]:
         """
-        Return the tuple of base URLs the orchestrator is allowed to
-        call. Every URL passed to ``_call`` must start with one of
-        these. Computed once per request — ``self.urls`` is frozen at
-        construction time so the tuple is constant.
+        Return the allowlist of hostnames we are permitted to call.
+        Derived from ``self.urls`` (frozen at construction time) so
+        the set is constant for the life of the orchestrator.
+
+        Using ``urllib.parse.urlparse`` here is deliberate: it's the
+        primitive CodeQL's ``py/partial-ssrf`` query recognises as a
+        URL parser, and checking ``parsed.hostname`` against an
+        untainted allowlist is its canonical sanitizer pattern.
+        Replacing the previous ``startswith`` check with this
+        parse+check pair was the step that made CodeQL's dataflow
+        terminate cleanly on the partial-SSRF finding.
         """
-        return (
-            self.urls.soil_analysis.rstrip("/") + "/",
-            self.urls.pest_detection.rstrip("/") + "/",
-            self.urls.crop_intelligence.rstrip("/") + "/",
-            self.urls.irrigation_smart.rstrip("/") + "/",
-            self.urls.weather.rstrip("/") + "/",
-            self.urls.yield_prediction.rstrip("/") + "/",
-            self.urls.carbon.rstrip("/") + "/",
-            self.urls.alerts.rstrip("/") + "/",
-        )
+        hosts: set[str] = set()
+        for base in (
+            self.urls.soil_analysis,
+            self.urls.pest_detection,
+            self.urls.crop_intelligence,
+            self.urls.irrigation_smart,
+            self.urls.weather,
+            self.urls.yield_prediction,
+            self.urls.carbon,
+            self.urls.alerts,
+        ):
+            host = urlparse(base).hostname
+            if host:
+                hosts.add(host.lower())
+        return frozenset(hosts)
 
     async def _call(
         self,
@@ -316,30 +328,33 @@ class ComprehensiveAdvisoryOrchestrator:
     ) -> Section:
         import time
 
-        # SECURITY: third line of defence against SSRF. Even though
-        # `field_id` was validated at the FastAPI boundary (Layer 1)
-        # and re-validated + URL-encoded via ``_safe_id`` (Layer 2),
-        # we also gate every outbound HTTP request on an explicit
-        # allowlist of trusted base URLs. If a bug in URL construction
-        # (wrong base, typo, malicious `urls` override) ever produces a
-        # URL that doesn't start with one of the ServiceUrls bases, we
-        # fail closed before ``client.request`` is called.
+        # SECURITY: third line of defence against SSRF. Layer 1 validates
+        # ``field_id`` at the FastAPI boundary via a regex pattern; Layer 2
+        # re-validates + URL-encodes via ``_safe_id`` inside the
+        # orchestrator. Layer 3 — here — parses the constructed URL with
+        # ``urllib.parse.urlparse`` and checks the resolved hostname against
+        # a fixed allowlist derived from ``ServiceUrls``. If a bug in URL
+        # construction ever produces a URL whose host is not one of the 8
+        # trusted downstream services, we fail closed before
+        # ``client.request`` is called.
         #
-        # CodeQL recognises an explicit `startswith` check against an
-        # untainted allowlist as a partial-SSRF sanitizer, so this is
-        # the primitive that makes the ``py/partial-ssrf`` query's
-        # dataflow terminate cleanly.
-        trusted_bases = self._trusted_base_urls()
-        if not any(url.startswith(base) for base in trusted_bases):
+        # The ``urlparse`` + hostname-allowlist pattern is CodeQL's
+        # canonical sanitizer for ``py/partial-ssrf``; replacing the
+        # earlier ``startswith`` check with this primitive is what makes
+        # the static analyzer's dataflow terminate cleanly.
+        parsed = urlparse(url)
+        host = (parsed.hostname or "").lower()
+        if not host or host not in self._trusted_hostnames():
             logger.error(
-                "Refusing to call URL not under trusted base",
+                "Refusing to call URL whose host is not in the trusted allowlist",
                 url=url,
+                host=host,
             )
             return Section(
                 data=None,
                 degraded=True,
                 latency_ms=0.0,
-                error="rejected: url not under trusted base",
+                error="rejected: host not in trusted allowlist",
             )
 
         start = time.perf_counter()

@@ -121,6 +121,62 @@ export const FIELD_OPERATION_ENDPOINTS = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Field Sub-Zone Endpoints - المناطق الفرعية للحقل
+// Multi-polygon sub-zones within a single Field. Critical for terraced
+// Yemeni farms where one "field" is actually many small terraces with
+// different elevation, slope, aspect, and crop performance.
+// ---------------------------------------------------------------------------
+
+export const FIELD_SUB_ZONE_ENDPOINTS = {
+  /** List all sub-zones for a field (ordered by display_order) */
+  LIST_BY_FIELD: `${API_PREFIX}/fields/{fieldId}/sub-zones`,
+  /** Create a new sub-zone under a field */
+  CREATE: `${API_PREFIX}/fields/{fieldId}/sub-zones`,
+  /** Get a sub-zone by id */
+  GET: `${API_PREFIX}/field-sub-zones/{subZoneId}`,
+  /** Partial update */
+  UPDATE: `${API_PREFIX}/field-sub-zones/{subZoneId}`,
+  /** Soft-delete */
+  DELETE: `${API_PREFIX}/field-sub-zones/{subZoneId}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Field Report Endpoints - تقارير الحقل
+// Async HTML/PDF report generation, Arabic RTL first. Caller POSTs a
+// request and polls for status until 'ready', then fetches the content
+// via the signed URL or the /content endpoint (depending on storage).
+// ---------------------------------------------------------------------------
+
+export const FIELD_REPORT_ENDPOINTS = {
+  /** Enqueue a new report (returns 202 with pending row) */
+  CREATE: `${API_PREFIX}/fields/{fieldId}/reports`,
+  /** List reports for a field */
+  LIST_BY_FIELD: `${API_PREFIX}/fields/{fieldId}/reports`,
+  /** Get report metadata (poll for status) */
+  GET: `${API_PREFIX}/field-reports/{reportId}`,
+  /** Stream the rendered HTML content */
+  GET_CONTENT: `${API_PREFIX}/field-reports/{reportId}/content`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Carbon Footprint Endpoints - البصمة الكربونية (IPCC Tier 1)
+// Served by carbon-service (port 8195). Aggregates per-operation CO2e
+// into per-field and per-season dashboards. See src/engine/ipcc_tier1.py
+// for the factor table.
+// ---------------------------------------------------------------------------
+
+export const CARBON_ENDPOINTS = {
+  /** Stateless what-if compute — no persistence */
+  COMPUTE: `${API_PREFIX}/carbon/compute`,
+  /** DB-backed compute — persists results on the field_operations row */
+  COMPUTE_OPERATION: `${API_PREFIX}/carbon/operations/{operationId}/compute`,
+  /** Per-field aggregate (emissions + sequestration + net by source) */
+  FIELD_SUMMARY: `${API_PREFIX}/carbon/fields/{fieldId}/summary`,
+  /** Per-season aggregate (with by-operation-type breakdown) */
+  CROP_SEASON_SUMMARY: `${API_PREFIX}/carbon/crop-seasons/{cropSeasonId}/summary`,
+} as const;
+
+// ---------------------------------------------------------------------------
 // ERP Sync Endpoints - تكامل نظام المحاسبة
 // Routes for posting field operations / crop seasons to external accounting
 // systems (QuickBooks, SAP, Odoo, Xero, Oracle NetSuite, ...) via the

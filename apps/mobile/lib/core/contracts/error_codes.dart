@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.5.0
+/// Contract version: 4.6.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
@@ -78,6 +78,19 @@ abstract final class ErrorCodes {
   static const String erpSignatureInvalid = 'F1304';
   static const String idempotencyKeyConflict = 'F1401';
   static const String idempotencyKeyExpired = 'F1402';
+  static const String subZoneNotFound = 'F1501';
+  static const String subZoneInvalidPolygon = 'F1502';
+  static const String subZoneOutsideField = 'F1503';
+  static const String subZoneAreaTooSmall = 'F1504';
+  static const String subZoneSelfIntersection = 'F1505';
+  static const String reportNotFound = 'F1601';
+  static const String reportNotReady = 'F1602';
+  static const String reportRenderFailed = 'F1603';
+  static const String reportContentUnavailable = 'F1604';
+  static const String reportExpired = 'F1605';
+  static const String carbonComputationFailed = 'F1701';
+  static const String carbonNoComputableInputs = 'F1702';
+  static const String carbonInvalidFactor = 'F1703';
   static const String irrigationFieldNotFound = 'I1001';
   static const String irrigationScheduleNotFound = 'I1002';
   static const String irrigationInvalidWaterVolume = 'I1003';
@@ -685,6 +698,97 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 410,
     en: 'Idempotency-Key has expired',
     ar: 'انتهت صلاحية مفتاح Idempotency',
+    retryable: false,
+  ),
+  'F1501': ErrorMessage(
+    code: 'F1501',
+    httpStatus: 404,
+    en: 'Sub-zone not found',
+    ar: 'المنطقة الفرعية غير موجودة',
+    retryable: false,
+  ),
+  'F1502': ErrorMessage(
+    code: 'F1502',
+    httpStatus: 400,
+    en: 'Sub-zone polygon geometry is invalid',
+    ar: 'هندسة المنطقة الفرعية غير صالحة',
+    retryable: false,
+  ),
+  'F1503': ErrorMessage(
+    code: 'F1503',
+    httpStatus: 400,
+    en: 'Sub-zone boundary must lie inside the parent field',
+    ar: 'يجب أن تكون حدود المنطقة الفرعية داخل حدود الحقل',
+    retryable: false,
+  ),
+  'F1504': ErrorMessage(
+    code: 'F1504',
+    httpStatus: 400,
+    en: 'Sub-zone area is smaller than the minimum allowed (1 m²)',
+    ar: 'مساحة المنطقة الفرعية أصغر من الحد المسموح',
+    retryable: false,
+  ),
+  'F1505': ErrorMessage(
+    code: 'F1505',
+    httpStatus: 400,
+    en: 'Sub-zone polygon has self-intersection',
+    ar: 'المنطقة الفرعية تحتوي على تقاطع ذاتي',
+    retryable: false,
+  ),
+  'F1601': ErrorMessage(
+    code: 'F1601',
+    httpStatus: 404,
+    en: 'Report not found',
+    ar: 'التقرير غير موجود',
+    retryable: false,
+  ),
+  'F1602': ErrorMessage(
+    code: 'F1602',
+    httpStatus: 400,
+    en: 'Report is not ready yet — poll until status=ready',
+    ar: 'التقرير غير جاهز بعد — انتظر حتى تصبح الحالة جاهز',
+    retryable: true,
+  ),
+  'F1603': ErrorMessage(
+    code: 'F1603',
+    httpStatus: 500,
+    en: 'Report rendering failed',
+    ar: 'فشل توليد التقرير',
+    retryable: true,
+  ),
+  'F1604': ErrorMessage(
+    code: 'F1604',
+    httpStatus: 404,
+    en: 'Report content not available',
+    ar: 'محتوى التقرير غير متوفر',
+    retryable: false,
+  ),
+  'F1605': ErrorMessage(
+    code: 'F1605',
+    httpStatus: 410,
+    en: 'Report URL has expired — regenerate',
+    ar: 'انتهت صلاحية رابط التقرير — يرجى إعادة التوليد',
+    retryable: false,
+  ),
+  'F1701': ErrorMessage(
+    code: 'F1701',
+    httpStatus: 500,
+    en: 'Carbon computation failed',
+    ar: 'فشل حساب البصمة الكربونية',
+    retryable: true,
+  ),
+  'F1702': ErrorMessage(
+    code: 'F1702',
+    httpStatus: 400,
+    en: 'Operation has no inputs suitable for carbon computation',
+    ar: 'لا توجد مدخلات كافية لحساب البصمة الكربونية للعملية',
+    retryable: false,
+  ),
+  'F1703': ErrorMessage(
+    code: 'F1703',
+    httpStatus: 500,
+    en: 'Invalid emission factor configuration',
+    ar: 'تهيئة معامل الانبعاث غير صالحة',
     retryable: false,
   ),
   'I1001': ErrorMessage(

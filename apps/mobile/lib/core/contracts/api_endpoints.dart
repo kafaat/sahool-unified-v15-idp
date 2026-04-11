@@ -305,6 +305,57 @@ abstract final class ErpSyncEndpoints {
   static const String health = '$apiPrefix/erp-sync/health';
 }
 
+/// Field Sub-Zones - المناطق الفرعية للحقل
+///
+/// Multi-polygon sub-zones within a single Field record. Critical for
+/// terraced Yemeni farms where one "field" is actually many small
+/// terraces with different elevation, slope, aspect, and crop
+/// performance.
+abstract final class FieldSubZoneEndpoints {
+  static String listByField(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/sub-zones';
+  static String create(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/sub-zones';
+  static String get(String subZoneId) =>
+      '$apiPrefix/field-sub-zones/$subZoneId';
+  static String update(String subZoneId) =>
+      '$apiPrefix/field-sub-zones/$subZoneId';
+  static String delete(String subZoneId) =>
+      '$apiPrefix/field-sub-zones/$subZoneId';
+}
+
+/// Field Reports - تقارير الحقل
+///
+/// Async HTML/PDF report generation, Arabic RTL first. Caller POSTs a
+/// request and polls for status until 'ready', then fetches the content
+/// via the signed URL or the /content endpoint.
+abstract final class FieldReportEndpoints {
+  static String create(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/reports';
+  static String listByField(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/reports';
+  static String get(String reportId) =>
+      '$apiPrefix/field-reports/$reportId';
+  static String getContent(String reportId) =>
+      '$apiPrefix/field-reports/$reportId/content';
+}
+
+/// Carbon Footprint - البصمة الكربونية (IPCC Tier 1)
+///
+/// Served by carbon-service (port 8195). Aggregates per-operation CO2e
+/// into per-field and per-season dashboards. See Python engine at
+/// apps/services/carbon-service/src/engine/ipcc_tier1.py for the
+/// factor table.
+abstract final class CarbonEndpoints {
+  static const String compute = '$apiPrefix/carbon/compute';
+  static String computeOperation(String operationId) =>
+      '$apiPrefix/carbon/operations/$operationId/compute';
+  static String fieldSummary(String fieldId) =>
+      '$apiPrefix/carbon/fields/$fieldId/summary';
+  static String cropSeasonSummary(String cropSeasonId) =>
+      '$apiPrefix/carbon/crop-seasons/$cropSeasonId/summary';
+}
+
 /// Public endpoints (no auth required)
 const List<String> publicEndpoints = [
   AuthEndpoints.login,

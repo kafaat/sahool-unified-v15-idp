@@ -136,6 +136,21 @@ export class CreateFieldOperationDto {
   costCenter?: string;
   @IsOptional() @IsString() @MaxLength(50)
   projectCode?: string;
+
+  // ── Carbon footprint (optional manual seed) ─────────────────────────
+  // Normally carbon-service computes these automatically via the
+  // NATS subscriber. Clients CAN seed them at create time to override
+  // (e.g. when backfilling historical data with ground-truth values).
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000)
+  co2EmissionsKg?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000)
+  co2SequestrationKg?: number;
+  @IsOptional() @IsNumber()
+  co2NetKg?: number;
+  @IsOptional() @IsString() @MaxLength(50)
+  carbonMethodology?: string;
+  @IsOptional() @IsString() @MaxLength(50)
+  emissionSourceType?: string;
 }
 
 /**

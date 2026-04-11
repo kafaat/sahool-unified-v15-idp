@@ -42,6 +42,11 @@ dependencies:
   # Breaking changes: listen() returns Future<void> instead of bool, updated callback signatures
   speech_to_text: ^7.0.0
 
+  # Runtime permission handling — required by the voice subsystem to
+  # explicitly request Permission.microphone before calling _speech.initialize().
+  # Without this, a permission denial is reported as "recognition not available".
+  permission_handler: ^11.3.1
+
   # AR Kit (for future)
   # arkit_plugin: ^1.0.7
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
@@ -92,9 +93,21 @@ class VoiceServiceError {
     code: 'permission_denied',
     message: 'Microphone permission was denied',
     messageAr: 'تم رفض إذن الميكروفون',
+    isPermanent: false,
+  );
+
+  /// User tapped "Don't ask again" / "Deny permanently" — the only way
+  /// forward is to open the system settings screen. UI layers should
+  /// detect this code and show an "Open Settings" button.
+  static const permissionPermanentlyDenied = VoiceServiceError(
+    code: 'permission_permanently_denied',
+    message: 'Microphone permission was permanently denied. Open app settings to enable it.',
+    messageAr: 'تم رفض إذن الميكروفون بشكل دائم. افتح إعدادات التطبيق لتفعيله.',
     isPermanent: true,
   );
 
+  /// Platform reports that the microphone hardware is physically unavailable
+  /// (e.g. no microphone on this device, or another app is holding it).
   static const notAvailable = VoiceServiceError(
     code: 'not_available',
     message: 'Speech recognition is not available on this device',
@@ -247,7 +260,20 @@ class VoiceService {
   // Initialization
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Initialize the voice service
+  /// Initialize the voice service.
+  ///
+  /// This performs two distinct checks in order:
+  ///   1. Microphone permission via [permission_handler]. If the user has
+  ///      never been asked, a system prompt is shown. If the user previously
+  ///      selected "Don't ask again" / "Deny permanently", we emit a
+  ///      [VoiceServiceError.permissionPermanentlyDenied] so the caller can
+  ///      direct the user to app settings via [openAppSettings].
+  ///   2. Speech recognition availability via [_speech.initialize]. This
+  ///      only runs after the mic permission is confirmed, so the
+  ///      "not available" path now genuinely means hardware/engine
+  ///      unavailable rather than a silent permission denial.
+  ///
+  /// Returns `true` only when both checks pass.
   Future<bool> initialize() async {
     if (_status == VoiceServiceStatus.ready) return true;
 
@@ -255,7 +281,15 @@ class VoiceService {
     AppLogger.i('Initializing voice service...', tag: 'VOICE');
 
     try {
-      // Initialize speech recognition
+      // ── Step 1: explicit microphone permission check ──────────────────
+      final permissionOk = await _ensureMicrophonePermission();
+      if (!permissionOk) {
+        // Error already emitted by _ensureMicrophonePermission.
+        // Status was set to error/unavailable there as well.
+        return false;
+      }
+
+      // ── Step 2: speech engine availability ────────────────────────────
       final available = await _speech.initialize(
         onStatus: _handleStatusChange,
         onError: _handleError,
@@ -264,7 +298,11 @@ class VoiceService {
 
       if (!available) {
         _updateStatus(VoiceServiceStatus.unavailable);
-        AppLogger.w('Speech recognition not available on this device', tag: 'VOICE');
+        AppLogger.w(
+          'Speech recognition engine not available (permission already granted)',
+          tag: 'VOICE',
+        );
+        _errorController.add(VoiceServiceError.notAvailable);
         return false;
       }
 
@@ -293,6 +331,67 @@ class VoiceService {
       return false;
     }
   }
+
+  /// Request (or verify) microphone permission.
+  ///
+  /// Returns `true` only when the permission is granted. Any non-granted
+  /// state results in an error being emitted on [errorStream] and the
+  /// service status transitioning to [VoiceServiceStatus.unavailable]
+  /// (for permanently denied) or [VoiceServiceStatus.error] (for
+  /// transient denial / restricted).
+  ///
+  /// Callers that want to retry after the user opens app settings can call
+  /// [initialize] again; this method is idempotent.
+  @visibleForTesting
+  Future<bool> ensureMicrophonePermission() => _ensureMicrophonePermission();
+
+  Future<bool> _ensureMicrophonePermission() async {
+    final status = await Permission.microphone.status;
+    AppLogger.d('Microphone permission status: $status', tag: 'VOICE');
+
+    if (status.isGranted || status.isLimited) {
+      return true;
+    }
+
+    if (status.isPermanentlyDenied) {
+      AppLogger.w('Microphone permission permanently denied', tag: 'VOICE');
+      _updateStatus(VoiceServiceStatus.unavailable);
+      _errorController.add(VoiceServiceError.permissionPermanentlyDenied);
+      return false;
+    }
+
+    if (status.isRestricted) {
+      // iOS parental controls / MDM restriction — user cannot grant.
+      AppLogger.w('Microphone permission restricted by device policy', tag: 'VOICE');
+      _updateStatus(VoiceServiceStatus.unavailable);
+      _errorController.add(VoiceServiceError.permissionPermanentlyDenied);
+      return false;
+    }
+
+    // status is denied (first-time or soft-denied) — request now.
+    final requested = await Permission.microphone.request();
+    AppLogger.d('Microphone permission after request: $requested', tag: 'VOICE');
+
+    if (requested.isGranted || requested.isLimited) {
+      return true;
+    }
+
+    if (requested.isPermanentlyDenied) {
+      _updateStatus(VoiceServiceStatus.unavailable);
+      _errorController.add(VoiceServiceError.permissionPermanentlyDenied);
+      return false;
+    }
+
+    // User tapped "Deny" on the system prompt but not permanently.
+    _updateStatus(VoiceServiceStatus.error);
+    _errorController.add(VoiceServiceError.permissionDenied);
+    return false;
+  }
+
+  /// Open the OS app-settings screen so the user can change the
+  /// microphone permission after a permanent denial. Call this from the
+  /// UI layer when you receive [VoiceServiceError.permissionPermanentlyDenied].
+  Future<bool> openMicrophoneSettings() => openAppSettings();
 
   /// Select the best available Arabic locale
   void _selectBestArabicLocale() {
@@ -605,11 +704,24 @@ class VoiceService {
         .trim();
   }
 
-  /// Check if speech recognition is available
+  /// Check if speech recognition is available on this device.
+  ///
+  /// This is a *cheap* check intended for UI gating (e.g. hiding a voice
+  /// button on devices without a microphone). It does NOT request
+  /// permission; use [initialize] for that.
+  ///
+  /// Returns `true` only when:
+  ///   - the microphone permission is already granted, AND
+  ///   - the platform speech engine reports itself available.
   Future<bool> checkAvailability() async {
     try {
+      final micStatus = await Permission.microphone.status;
+      if (!micStatus.isGranted && !micStatus.isLimited) {
+        return false;
+      }
       return await _speech.initialize();
     } catch (e) {
+      AppLogger.e('checkAvailability failed', tag: 'VOICE', error: e);
       return false;
     }
   }

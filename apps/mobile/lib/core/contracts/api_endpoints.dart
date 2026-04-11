@@ -406,12 +406,29 @@ abstract final class CarbonEndpoints {
 ///
 /// @since 4.8.0 — RUSLE erosion assessment replaces the Phase-1
 /// hardcoded `erosion_risk` stub with a proper multi-factor model.
+/// @since 4.9.0 — RWEQ wind erosion + combined + Yemen presets
+/// for plains (Tihama, Marib, Al-Jawf, Hadramawt) where wind is the
+/// dominant degradation driver.
 abstract final class TerrainEndpoints {
   /// Full terrain analysis (slope + aspect + flow + TWI + contours)
   static const String analyze = '$apiPrefix/terrain/analyze';
 
-  /// RUSLE soil-erosion assessment (A = R × K × LS × C × P)
+  /// RUSLE water-erosion assessment (A = R × K × LS × C × P)
   static const String erosion = '$apiPrefix/terrain/erosion';
+
+  /// RWEQ wind-erosion assessment (for Yemen plains:
+  /// Tihama, Marib, Al-Jawf, Hadramawt)
+  /// @since 4.9.0
+  static const String erosionWind = '$apiPrefix/terrain/erosion/wind';
+
+  /// Combined water + wind erosion; returns whichever process dominates
+  /// @since 4.9.0
+  static const String erosionCombined = '$apiPrefix/terrain/erosion/combined';
+
+  /// Yemen region preset shortcut (fewest inputs, auto-fills
+  /// climate + soil defaults from region profile)
+  /// @since 4.9.0
+  static const String erosionYemen = '$apiPrefix/terrain/erosion/yemen';
 }
 
 /// Public endpoints (no auth required)

@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.8.0
+/// Contract version: 4.9.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
@@ -210,6 +210,10 @@ abstract final class ErrorCodes {
   static const String erosionInvalidSoilTexture = 'ER1002';
   static const String erosionTenantMismatch = 'ER1003';
   static const String erosionComputeFailed = 'ER1004';
+  static const String erosionWindEngineUnavailable = 'ER1005';
+  static const String erosionWindComputeFailed = 'ER1006';
+  static const String erosionCombinedComputeFailed = 'ER1007';
+  static const String erosionYemenUnknownRegion = 'ER1008';
 }
 
 /// Bilingual error message.
@@ -1581,6 +1585,34 @@ const Map<String, ErrorMessage> errorMessages = {
     en: 'RUSLE soil loss computation failed',
     ar: 'فشل حساب فقد التربة RUSLE',
     retryable: true,
+  ),
+  'ER1005': ErrorMessage(
+    code: 'ER1005',
+    httpStatus: 503,
+    en: 'Wind erosion (RWEQ) engine is not available',
+    ar: 'محرك تقييم التعرية الريحية (RWEQ) غير متاح',
+    retryable: true,
+  ),
+  'ER1006': ErrorMessage(
+    code: 'ER1006',
+    httpStatus: 500,
+    en: 'RWEQ wind erosion computation failed',
+    ar: 'فشل حساب التعرية الريحية RWEQ',
+    retryable: true,
+  ),
+  'ER1007': ErrorMessage(
+    code: 'ER1007',
+    httpStatus: 500,
+    en: 'Combined water + wind erosion computation failed',
+    ar: 'فشل حساب التعرية المشتركة (المائية + الريحية)',
+    retryable: true,
+  ),
+  'ER1008': ErrorMessage(
+    code: 'ER1008',
+    httpStatus: 400,
+    en: 'Unknown Yemen region preset (expected: tihama, eastern_plateau, hadhramaut, southern_coast, highlands)',
+    ar: 'منطقة يمنية غير معروفة (المتوقع: تهامة، الهضبة الشرقية، حضرموت، الساحل الجنوبي، المرتفعات)',
+    retryable: false,
   ),
   'UNKNOWN': ErrorMessage(
     code: 'UNKNOWN',

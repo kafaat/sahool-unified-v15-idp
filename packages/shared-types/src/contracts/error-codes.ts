@@ -281,6 +281,12 @@ export const ERROR_CODES = {
   EROSION_TENANT_MISMATCH: 'ER1003',
   EROSION_COMPUTE_FAILED: 'ER1004',
 
+  // ── Wind Erosion / RWEQ + Combined (ER1xxx) — @since 4.9.0 ────────
+  EROSION_WIND_ENGINE_UNAVAILABLE: 'ER1005',
+  EROSION_WIND_COMPUTE_FAILED: 'ER1006',
+  EROSION_COMBINED_COMPUTE_FAILED: 'ER1007',
+  EROSION_YEMEN_UNKNOWN_REGION: 'ER1008',
+
   // ── Generic ──────────────────────────────────────────────────────────
   UNKNOWN: 'UNKNOWN',
 } as const;
@@ -1709,6 +1715,36 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'RUSLE soil loss computation failed',
     ar: 'فشل حساب فقد التربة RUSLE',
     retryable: true,
+  },
+
+  // ── Wind Erosion / RWEQ + Combined (ER1xxx) — @since 4.9.0 ────────
+  [ERROR_CODES.EROSION_WIND_ENGINE_UNAVAILABLE]: {
+    code: ERROR_CODES.EROSION_WIND_ENGINE_UNAVAILABLE,
+    httpStatus: 503,
+    en: 'Wind erosion (RWEQ) engine is not available',
+    ar: 'محرك تقييم التعرية الريحية (RWEQ) غير متاح',
+    retryable: true,
+  },
+  [ERROR_CODES.EROSION_WIND_COMPUTE_FAILED]: {
+    code: ERROR_CODES.EROSION_WIND_COMPUTE_FAILED,
+    httpStatus: 500,
+    en: 'RWEQ wind erosion computation failed',
+    ar: 'فشل حساب التعرية الريحية RWEQ',
+    retryable: true,
+  },
+  [ERROR_CODES.EROSION_COMBINED_COMPUTE_FAILED]: {
+    code: ERROR_CODES.EROSION_COMBINED_COMPUTE_FAILED,
+    httpStatus: 500,
+    en: 'Combined water + wind erosion computation failed',
+    ar: 'فشل حساب التعرية المشتركة (المائية + الريحية)',
+    retryable: true,
+  },
+  [ERROR_CODES.EROSION_YEMEN_UNKNOWN_REGION]: {
+    code: ERROR_CODES.EROSION_YEMEN_UNKNOWN_REGION,
+    httpStatus: 400,
+    en: 'Unknown Yemen region preset (expected: tihama, eastern_plateau, hadhramaut, southern_coast, highlands)',
+    ar: 'منطقة يمنية غير معروفة (المتوقع: تهامة، الهضبة الشرقية، حضرموت، الساحل الجنوبي، المرتفعات)',
+    retryable: false,
   },
 
   // ── Generic ──────────────────────────────────────────────────────────

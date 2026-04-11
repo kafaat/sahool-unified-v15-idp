@@ -89,10 +89,13 @@ def test_r_factor_more_rainy_days_gives_higher_value(engine: RUSLEEngine):
 def test_r_factor_arid_yemeni_highlands(engine: RUSLEEngine):
     """
     Yemen highland averages: ~200 mm/yr rainfall, ~30 rainy days.
-    Expected R should be in the low hundreds (arid baseline).
+    Expected R should be in the low tens after the post-smoke-test
+    calibration fix (see `compute_r_factor` docstring). With the
+    ~200 mm arid baseline + half the rainy-days multiplier we should
+    land around R≈37.
     """
     r = engine.compute_r_factor(200.0, 30)
-    assert 300 < r < 1000  # arid-ish range
+    assert 20 < r < 60  # calibrated arid range
 
 
 # ---------------------------------------------------------------------------

@@ -51,6 +51,14 @@ from ...core.config import settings
 # `erosion_risk = "low"` hard-coded stub with a proper multi-factor
 # model (Revised Universal Soil Loss Equation). See
 # `shared/terrain_erosion/rusle.py` for the full derivation.
+#
+# Phase 3.1 extends the import to also expose the RWEQ-lite (wind) and
+# CombinedErosionEngine classes so the wind / combined / yemen endpoints
+# below can reach them. We keep a separate ``_RWEQ_AVAILABLE`` flag so
+# that the existing ``_RUSLE_AVAILABLE`` callsites (e.g. the quick
+# erosion risk helper inside ``generate_irrigation_recommendations``)
+# don't need to change — and so the service can still boot with only
+# the RUSLE engine present on an older deployment.
 try:
     from shared.terrain_erosion import (  # type: ignore
         ErosionRiskLevel as _RUSLEErosionRiskLevel,
@@ -69,11 +77,39 @@ except ImportError:
     logger.warning(
         "shared.terrain_erosion not importable — /erosion endpoint will 503",
     )
+
+try:
+    from shared.terrain_erosion import (  # type: ignore
+        CombinedErosionEngine as _CombinedErosionEngine,
+    )
+    from shared.terrain_erosion import (
+        DominantProcess as _DominantProcess,
+    )
+    from shared.terrain_erosion import (
+        ResidueState as _ResidueState,
+    )
+    from shared.terrain_erosion import (
+        RWEQEngine as _RWEQEngine,
+    )
+    from shared.terrain_erosion import (
+        SurfaceRoughness as _SurfaceRoughness,
+    )
+
+    _RWEQ_AVAILABLE = True
+except ImportError:
+    _RWEQ_AVAILABLE = False
+    logger = structlog.get_logger()
+    logger.warning(
+        "shared.terrain_erosion RWEQ/Combined engines not importable — "
+        "/erosion/wind, /erosion/combined, /erosion/yemen endpoints will 503",
+    )
 from ..schemas import (
     AspectAnalysisResponse,
     AspectClassification,
     AspectResult,
     BilingualField,
+    CombinedErosionAssessmentRequest,
+    CombinedErosionAssessmentResponse,
     ContourAnalysisResponse,
     ContourLine,
     ContourRequest,
@@ -87,6 +123,7 @@ from ..schemas import (
     DEMSourcesResponse,
     DEMSourceType,
     DEMStatistics,
+    DominantProcessEnum,
     ErosionAssessmentRequest,
     ErosionAssessmentResponse,
     ErosionRiskLevelEnum,
@@ -94,17 +131,23 @@ from ..schemas import (
     FlowAnalysisResponse,
     FlowDirectionMethod,
     GeoJSONFeatureCollection,
+    ResidueStateEnum,
     RUSLEFactorsResponse,
+    RWEQFactorsResponse,
     SlopeAnalysisRequest,
     SlopeAnalysisResponse,
     SlopeUnit,
     SoilTextureEnum,
+    SurfaceRoughnessEnum,
     TerrainAnalysisRequest,
     TerrainAnalysisResponse,
     TerrainCategory,
     TerrainIrrigationRecommendation,
     TWIAnalysisResponse,
     TWIRequest,
+    WindErosionAssessmentRequest,
+    WindErosionAssessmentResponse,
+    YemenRegionErosionRequest,
 )
 from ..schemas import (
     DEMMetadata as DEMMetadataSchema,
@@ -1291,5 +1334,455 @@ async def assess_erosion(
         factor_contributions_pct=result.factor_contributions_pct,
         recommendations=result.recommendations,
         recommendations_ar=result.recommendations_ar,
+        assessed_at=datetime.now(UTC),
+    )
+
+
+# =============================================================================
+# Erosion (RWEQ wind + Combined + Yemen) endpoints — Phase 3.1
+# =============================================================================
+
+
+def _enforce_erosion_tenant_guard(
+    request_tenant_id: str,
+    current_user: User,
+) -> None:
+    """
+    Reject requests where the body's tenant_id disagrees with the JWT
+    caller's tenant_id. Mirrors the pattern used by ``assess_erosion``.
+
+    رفض الطلبات التي لا يتطابق فيها معرف المستأجر في الجسم مع المتصل.
+    """
+    caller_tenant = getattr(current_user, "tenant_id", None)
+    if caller_tenant and request_tenant_id != caller_tenant:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "EROSION_TENANT_MISMATCH",
+                "message": "tenant_id does not match the authenticated caller",
+                "message_ar": "معرف المستأجر لا يتطابق مع المتصل",
+            },
+        )
+
+
+def _require_rweq_engine() -> None:
+    """Raise 503 if the RWEQ/Combined engines aren't importable."""
+    if not _RWEQ_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": "EROSION_ENGINE_UNAVAILABLE",
+                "message": "shared.terrain_erosion RWEQ/Combined engines are not importable",
+                "message_ar": "محرك تعرية الرياح / المشترك غير متاح",
+            },
+        )
+
+
+def _serialize_wind_result(result) -> WindErosionAssessmentResponse:
+    """
+    Map a :class:`RWEQResult` dataclass to the API response schema.
+    تحويل نتيجة RWEQ إلى مخطط الاستجابة.
+    """
+    return WindErosionAssessmentResponse(
+        field_id=result.field_id,
+        tenant_id=result.tenant_id,
+        soil_loss_t_ha_yr=result.soil_loss_t_ha_yr,
+        risk_level=ErosionRiskLevelEnum(result.risk_level.value),
+        risk_level_ar=result.risk_level_ar,
+        factors=RWEQFactorsResponse(
+            wind_factor=result.factors.wind_factor,
+            erodibility_factor=result.factors.erodibility_factor,
+            soil_crust_factor=result.factors.soil_crust_factor,
+            roughness_factor=result.factors.roughness_factor,
+            cover_factor=result.factors.cover_factor,
+        ),
+        factor_contributions_pct=result.factor_contributions_pct,
+        recommendations=result.recommendations,
+        recommendations_ar=result.recommendations_ar,
+        assessed_at=datetime.now(UTC),
+    )
+
+
+def _serialize_water_result(result) -> ErosionAssessmentResponse:
+    """
+    Map a :class:`RUSLEResult` dataclass to the API response schema.
+    تحويل نتيجة RUSLE إلى مخطط الاستجابة.
+    """
+    return ErosionAssessmentResponse(
+        field_id=result.field_id,
+        tenant_id=result.tenant_id,
+        soil_loss_t_ha_yr=result.soil_loss_t_ha_yr,
+        risk_level=ErosionRiskLevelEnum(result.risk_level.value),
+        risk_level_ar=result.risk_level_ar,
+        factors=RUSLEFactorsResponse(
+            r_factor=result.factors.r_factor,
+            k_factor=result.factors.k_factor,
+            ls_factor=result.factors.ls_factor,
+            c_factor=result.factors.c_factor,
+            p_factor=result.factors.p_factor,
+        ),
+        factor_contributions_pct=result.factor_contributions_pct,
+        recommendations=result.recommendations,
+        recommendations_ar=result.recommendations_ar,
+        assessed_at=datetime.now(UTC),
+    )
+
+
+@router.post(
+    "/erosion/wind",
+    response_model=WindErosionAssessmentResponse,
+    summary="Per-field wind erosion assessment (RWEQ-lite) | تقييم تعرية الرياح للحقل (RWEQ-lite)",
+    description="""
+Compute the per-field annual wind soil loss using the RWEQ-lite model:
+
+    SL = 2 × (s / 50000²) × Q_max
+    Q_max = 109.8 × (WF × EF × SCF × K' × COG)
+
+Where:
+  * **WF** — wind factor (aridity-weighted wind kinetic energy)
+  * **EF** — soil erodibility factor (texture fractions + organic matter)
+  * **SCF** — soil crust factor (clay + OM protective crusts)
+  * **K'** — Chepil surface roughness factor (tillage relief)
+  * **COG** — combined (residue + canopy) ground cover factor
+  * **s** — unsheltered field length along the prevailing wind
+
+Returns:
+  * `soil_loss_t_ha_yr` — annual wind soil loss in tonnes / hectare / year
+  * `risk_level` — FAO band (none / low / moderate / high / severe / catastrophic)
+  * `factors` — the 5 RWEQ sub-factors
+  * `factor_contributions_pct` — log-normalised contribution per factor
+  * `recommendations` — wind-specific mitigation (bilingual EN + AR)
+
+**Context**: RUSLE is wrong for Yemen's grain-producing plains
+(Tihama, Marib, Al-Jawf, Hadramawt) where slope is near-zero and wind
+is the dominant erosion driver. A flat Tihama sandy-loam field with
+no standing stubble can lose ~50 t/ha/yr to wind in a single sandstorm
+season — RUSLE would score it as "none". This endpoint surfaces the
+honest wind answer. For sloped fields pair with ``/erosion`` (water)
+or call ``/erosion/combined`` for both at once.
+
+The endpoint is a pure calculation — no DB, no satellite fetch.
+""",
+)
+async def assess_wind_erosion(
+    request: WindErosionAssessmentRequest,
+    current_user: User = Depends(get_current_user),
+) -> WindErosionAssessmentResponse:
+    """
+    RWEQ-lite wind-erosion assessment for a single field.
+    تقييم تعرية الرياح RWEQ-lite لحقل واحد.
+    """
+    _require_rweq_engine()
+    _enforce_erosion_tenant_guard(request.tenant_id, current_user)
+
+    engine = _RWEQEngine()
+
+    # Map API enums → engine enums. Both share the same underlying
+    # string values so this is a direct lookup, but we guard against
+    # a drift between API and engine by catching the ValueError.
+    try:
+        roughness = _SurfaceRoughness(request.roughness.value)
+        residue_state = _ResidueState(request.residue_state.value)
+    except ValueError as exc:  # pragma: no cover - defensive
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "WIND_EROSION_INVALID_ENUM",
+                "message": f"unknown surface/residue enum: {exc}",
+                "message_ar": f"قيمة غير معروفة للخشونة / البقايا: {exc}",
+            },
+        ) from exc
+
+    try:
+        result = engine.assess(
+            field_id=request.field_id,
+            tenant_id=request.tenant_id,
+            texture_key=request.texture_key,
+            mean_wind_speed_ms=request.mean_wind_speed_ms,
+            annual_rainfall_mm=request.annual_rainfall_mm,
+            annual_et0_mm=request.annual_et0_mm,
+            roughness=roughness,
+            residue_state=residue_state,
+            residue_cover_pct=request.residue_cover_pct,
+            canopy_cover_pct=request.canopy_cover_pct,
+            unsheltered_length_m=request.unsheltered_length_m,
+        )
+    except KeyError as exc:
+        # The RWEQ engine falls back to ``loam`` for unknown texture
+        # keys rather than raising, but a KeyError could still bubble
+        # up from a stale lookup — surface it as a 400 so callers know
+        # to supply a valid texture.
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "WIND_EROSION_INVALID_TEXTURE",
+                "message": f"unknown texture_key: {request.texture_key}",
+                "message_ar": f"مفتاح قوام التربة غير معروف: {request.texture_key}",
+            },
+        ) from exc
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "wind_erosion_assessment_failed",
+            field_id=request.field_id,
+            error=str(exc),
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "EROSION_COMPUTE_FAILED",
+                "message": f"RWEQ compute failed: {exc}",
+                "message_ar": f"فشل حساب RWEQ: {exc}",
+            },
+        ) from exc
+
+    return _serialize_wind_result(result)
+
+
+@router.post(
+    "/erosion/combined",
+    response_model=CombinedErosionAssessmentResponse,
+    summary=("Combined water + wind erosion assessment (RUSLE + RWEQ-lite) | التقييم المشترك لتعرية المياه والرياح"),
+    description="""
+Run both the RUSLE (water) and RWEQ-lite (wind) engines on a single
+field and return a unified assessment:
+
+  * `overall_risk_level` — the **worst-of-two** FAO band across the
+    two processes (not the sum — they operate on different time scales)
+  * `dominant_process` — which engine drives the overall risk
+    (`water` | `wind` | `both` | `none`), so operators can prioritise
+    between bench-terrace / cover-crop actions vs. windbreak /
+    standing-stubble actions
+  * `water` — the full RUSLE sub-result (same shape as ``/erosion``)
+  * `wind` — the full RWEQ-lite sub-result (same shape as ``/erosion/wind``)
+  * `combined_recommendations` — priority-ordered mitigation actions
+    starting with the dominant process (bilingual EN + AR)
+
+**Use this endpoint** whenever you need a per-field erosion risk
+without making assumptions about which process dominates. A field can
+be safe on water and catastrophic on wind (flat Tihama sandy loam) or
+vice versa (Sana'a highland terrace at 30% slope). ``texture_key`` is
+optional: when omitted it's derived from the USDA ``soil_texture``
+value, which keeps the single-call path ergonomic for callers that
+don't need Yemen-specific soil profiles.
+
+The endpoint is a pure calculation — no DB, no satellite fetch.
+""",
+)
+async def assess_combined_erosion(
+    request: CombinedErosionAssessmentRequest,
+    current_user: User = Depends(get_current_user),
+) -> CombinedErosionAssessmentResponse:
+    """
+    Combined RUSLE (water) + RWEQ-lite (wind) erosion assessment.
+    التقييم المشترك لتعرية التربة (مياه + رياح).
+    """
+    _require_rweq_engine()
+    _enforce_erosion_tenant_guard(request.tenant_id, current_user)
+
+    # Map API enums → engine enums
+    try:
+        soil_texture = _RUSLESoilTextureClass(request.soil_texture.value)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "EROSION_INVALID_SOIL_TEXTURE",
+                "message": f"unknown soil texture: {request.soil_texture}",
+                "message_ar": f"نوع تربة غير معروف: {request.soil_texture}",
+            },
+        ) from exc
+
+    try:
+        roughness = _SurfaceRoughness(request.roughness.value)
+        residue_state = _ResidueState(request.residue_state.value)
+    except ValueError as exc:  # pragma: no cover - defensive
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "WIND_EROSION_INVALID_ENUM",
+                "message": f"unknown surface/residue enum: {exc}",
+                "message_ar": f"قيمة غير معروفة للخشونة / البقايا: {exc}",
+            },
+        ) from exc
+
+    engine = _CombinedErosionEngine()
+
+    try:
+        result = engine.assess(
+            field_id=request.field_id,
+            tenant_id=request.tenant_id,
+            slope_pct=request.slope_pct,
+            soil_texture=soil_texture,
+            annual_rainfall_mm=request.annual_rainfall_mm,
+            rainy_days_per_year=request.rainy_days_per_year,
+            cover_type=request.cover_type,
+            conservation_practice=request.conservation_practice,
+            slope_length_m=request.slope_length_m,
+            mean_wind_speed_ms=request.mean_wind_speed_ms,
+            annual_et0_mm=request.annual_et0_mm,
+            texture_key=request.texture_key,
+            roughness=roughness,
+            residue_state=residue_state,
+            residue_cover_pct=request.residue_cover_pct,
+            canopy_cover_pct=request.canopy_cover_pct,
+            unsheltered_length_m=request.unsheltered_length_m,
+        )
+    except KeyError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "WIND_EROSION_INVALID_TEXTURE",
+                "message": f"unknown texture_key: {request.texture_key}",
+                "message_ar": f"مفتاح قوام التربة غير معروف: {request.texture_key}",
+            },
+        ) from exc
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "combined_erosion_assessment_failed",
+            field_id=request.field_id,
+            error=str(exc),
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "EROSION_COMPUTE_FAILED",
+                "message": f"Combined erosion compute failed: {exc}",
+                "message_ar": f"فشل حساب التعرية المشتركة: {exc}",
+            },
+        ) from exc
+
+    return CombinedErosionAssessmentResponse(
+        field_id=result.field_id,
+        tenant_id=result.tenant_id,
+        overall_risk_level=ErosionRiskLevelEnum(result.overall_risk_level.value),
+        overall_risk_level_ar=result.overall_risk_level_ar,
+        dominant_process=DominantProcessEnum(result.dominant_process.value),
+        water=_serialize_water_result(result.water),
+        wind=_serialize_wind_result(result.wind),
+        combined_recommendations=result.combined_recommendations,
+        combined_recommendations_ar=result.combined_recommendations_ar,
+        assessed_at=datetime.now(UTC),
+    )
+
+
+@router.post(
+    "/erosion/yemen",
+    response_model=CombinedErosionAssessmentResponse,
+    summary=(
+        "Combined erosion assessment for a Yemeni agro-ecological region | التقييم المشترك للتعرية لمنطقة زراعية يمنية"
+    ),
+    description="""
+Minimum-input combined erosion assessment for Yemeni fields. Only
+field-specific variables (slope, cover type, residue state) are
+required — climate (rainfall, wind speed, ET0) and soil texture
+defaults are looked up from the ``YEMEN_REGION_PRESETS`` in
+``shared/terrain_erosion/combined.py`` (derived from
+``shared/yemen/climate.py`` + ``shared/yemen/soils.py``).
+
+Supported regions (``region`` field):
+  * ``tihama`` — Tihama Coastal Plain (peak wind 3.5 m/s, 125 mm rain)
+  * ``eastern_plateau`` — Marib / Al-Jawf semi-arid (3.5 m/s, 100 mm)
+  * ``hadhramaut`` — Wadi Hadhramaut (3.0 m/s, 65 mm)
+  * ``southern_coast`` — Aden / Lahj / Abyan delta (3.2 m/s, 120 mm)
+  * ``highlands`` — Sana'a / Ibb / Taiz terraces (2.5 m/s, 500 mm)
+
+Returns the full :class:`CombinedErosionAssessmentResponse` shape.
+
+**Use this endpoint** when an advisory-service caller only knows the
+farmer's region name and wants a single call to get both the water
+and wind erosion risk. For full control over every input, call
+``/erosion/combined`` instead.
+""",
+)
+async def assess_yemen_region_erosion(
+    request: YemenRegionErosionRequest,
+    current_user: User = Depends(get_current_user),
+) -> CombinedErosionAssessmentResponse:
+    """
+    Yemen-region-preset combined erosion assessment.
+    تقييم التعرية المشترك باستخدام إعدادات المنطقة اليمنية.
+    """
+    _require_rweq_engine()
+    _enforce_erosion_tenant_guard(request.tenant_id, current_user)
+
+    # Map API enums → engine enums
+    try:
+        residue_state = _ResidueState(request.residue_state.value)
+    except ValueError as exc:  # pragma: no cover - defensive
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "WIND_EROSION_INVALID_ENUM",
+                "message": f"unknown residue enum: {exc}",
+                "message_ar": f"قيمة غير معروفة للبقايا: {exc}",
+            },
+        ) from exc
+
+    soil_texture = None
+    if request.soil_texture is not None:
+        try:
+            soil_texture = _RUSLESoilTextureClass(request.soil_texture.value)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "EROSION_INVALID_SOIL_TEXTURE",
+                    "message": f"unknown soil texture: {request.soil_texture}",
+                    "message_ar": f"نوع تربة غير معروف: {request.soil_texture}",
+                },
+            ) from exc
+
+    engine = _CombinedErosionEngine()
+
+    try:
+        result = engine.assess_yemen_region(
+            field_id=request.field_id,
+            tenant_id=request.tenant_id,
+            region=request.region,
+            slope_pct=request.slope_pct,
+            soil_texture=soil_texture,
+            cover_type=request.cover_type,
+            conservation_practice=request.conservation_practice,
+            residue_state=residue_state,
+            residue_cover_pct=request.residue_cover_pct,
+            canopy_cover_pct=request.canopy_cover_pct,
+        )
+    except ValueError as exc:
+        # Unknown region — the combined engine raises ``ValueError``
+        # with a descriptive message.
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "YEMEN_REGION_UNKNOWN",
+                "message": f"unknown Yemen region: {request.region}",
+                "message_ar": f"منطقة يمنية غير معروفة: {request.region}",
+            },
+        ) from exc
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "yemen_erosion_assessment_failed",
+            field_id=request.field_id,
+            region=request.region,
+            error=str(exc),
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "EROSION_COMPUTE_FAILED",
+                "message": f"Yemen-region erosion compute failed: {exc}",
+                "message_ar": f"فشل حساب تعرية المنطقة اليمنية: {exc}",
+            },
+        ) from exc
+
+    return CombinedErosionAssessmentResponse(
+        field_id=result.field_id,
+        tenant_id=result.tenant_id,
+        overall_risk_level=ErosionRiskLevelEnum(result.overall_risk_level.value),
+        overall_risk_level_ar=result.overall_risk_level_ar,
+        dominant_process=DominantProcessEnum(result.dominant_process.value),
+        water=_serialize_water_result(result.water),
+        wind=_serialize_wind_result(result.wind),
+        combined_recommendations=result.combined_recommendations,
+        combined_recommendations_ar=result.combined_recommendations_ar,
         assessed_at=datetime.now(UTC),
     )

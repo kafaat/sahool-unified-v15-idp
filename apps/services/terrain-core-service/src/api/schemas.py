@@ -720,9 +720,7 @@ class ErosionAssessmentRequest(BaseModel):
     tenant_id: str = Field(..., min_length=1, max_length=100, description="Tenant identifier")
 
     # Topography — usually provided by the existing /terrain/slope endpoint
-    slope_pct: float = Field(
-        ..., ge=0, le=200, description="Mean slope percentage (0-200)"
-    )
+    slope_pct: float = Field(..., ge=0, le=200, description="Mean slope percentage (0-200)")
     slope_length_m: float | None = Field(
         None,
         ge=1,
@@ -731,34 +729,24 @@ class ErosionAssessmentRequest(BaseModel):
     )
 
     # Soil
-    soil_texture: SoilTextureEnum = Field(
-        ..., description="USDA soil texture class — drives the K factor"
-    )
+    soil_texture: SoilTextureEnum = Field(..., description="USDA soil texture class — drives the K factor")
 
     # Climate
-    annual_rainfall_mm: float = Field(
-        ..., ge=0, le=5000, description="Mean annual precipitation (mm)"
-    )
-    rainy_days_per_year: int = Field(
-        ..., ge=0, le=365, description="Mean rainy days per year"
-    )
+    annual_rainfall_mm: float = Field(..., ge=0, le=5000, description="Mean annual precipitation (mm)")
+    rainy_days_per_year: int = Field(..., ge=0, le=365, description="Mean rainy days per year")
 
     # Land cover
     cover_type: str = Field(
         "bare_soil",
         max_length=64,
         description=(
-            "Crop / cover class (bare_soil, fallow, wheat, barley, corn, "
-            "date_palm, olive, citrus, grass, forest, ...)"
+            "Crop / cover class (bare_soil, fallow, wheat, barley, corn, date_palm, olive, citrus, grass, forest, ...)"
         ),
     )
     conservation_practice: str = Field(
         "none",
         max_length=64,
-        description=(
-            "Support practice (none, contour_farming, strip_cropping, "
-            "terraces, bench_terraces)"
-        ),
+        description=("Support practice (none, contour_farming, strip_cropping, terraces, bench_terraces)"),
     )
 
     @field_validator("field_id", "tenant_id")
@@ -792,9 +780,7 @@ class ErosionAssessmentResponse(BaseModel):
 
     field_id: str
     tenant_id: str
-    soil_loss_t_ha_yr: float = Field(
-        ..., description="Annual soil loss A = RKLSCP (tonnes / hectare / year)"
-    )
+    soil_loss_t_ha_yr: float = Field(..., description="Annual soil loss A = RKLSCP (tonnes / hectare / year)")
     risk_level: ErosionRiskLevelEnum = Field(
         ..., description="FAO risk band (none / low / moderate / high / severe / catastrophic)"
     )
@@ -804,10 +790,6 @@ class ErosionAssessmentResponse(BaseModel):
         default_factory=dict,
         description="Log-normalised per-factor contribution (%) — which factor drives the loss",
     )
-    recommendations: list[str] = Field(
-        default_factory=list, description="Mitigation actions (English)"
-    )
-    recommendations_ar: list[str] = Field(
-        default_factory=list, description="خطوات التخفيف (عربي)"
-    )
+    recommendations: list[str] = Field(default_factory=list, description="Mitigation actions (English)")
+    recommendations_ar: list[str] = Field(default_factory=list, description="خطوات التخفيف (عربي)")
     assessed_at: datetime = Field(..., description="Assessment timestamp")

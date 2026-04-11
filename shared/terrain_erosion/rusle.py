@@ -49,7 +49,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-
 # ---------------------------------------------------------------------------
 # Enums + lookup tables
 # ---------------------------------------------------------------------------
@@ -159,13 +158,7 @@ class RUSLEFactors:
 
     def multiply(self) -> float:
         """A = R × K × LS × C × P."""
-        return (
-            self.r_factor
-            * self.k_factor
-            * self.ls_factor
-            * self.c_factor
-            * self.p_factor
-        )
+        return self.r_factor * self.k_factor * self.ls_factor * self.c_factor * self.p_factor
 
 
 @dataclass
@@ -204,9 +197,7 @@ class RUSLEEngine:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def compute_r_factor(
-        annual_rainfall_mm: float, rainy_days_per_year: int
-    ) -> float:
+    def compute_r_factor(annual_rainfall_mm: float, rainy_days_per_year: int) -> float:
         """
         Renard et al. (1997) simplified R-factor for arid / semi-arid
         regions. Returns MJ·mm / ha·h·yr.
@@ -299,9 +290,7 @@ class RUSLEEngine:
         c = self.compute_c_factor(cover_type)
         p = self.compute_p_factor(conservation_practice)
 
-        factors = RUSLEFactors(
-            r_factor=r, k_factor=k, ls_factor=ls, c_factor=c, p_factor=p
-        )
+        factors = RUSLEFactors(r_factor=r, k_factor=k, ls_factor=ls, c_factor=c, p_factor=p)
         soil_loss = factors.multiply()
 
         risk_level = self._classify_risk(soil_loss)
@@ -327,10 +316,7 @@ class RUSLEEngine:
             positive = {k: v + shift for k, v in logs.items()}
             total = sum(positive.values())
             if total > 0:
-                contributions = {
-                    name: round(val / total * 100, 1)
-                    for name, val in positive.items()
-                }
+                contributions = {name: round(val / total * 100, 1) for name, val in positive.items()}
 
         recs_en, recs_ar = self._recommendations(
             risk_level=risk_level,
@@ -381,53 +367,35 @@ class RUSLEEngine:
         recs_ar: list[str] = []
 
         if risk_level in (ErosionRiskLevel.NONE, ErosionRiskLevel.LOW):
-            recs_en.append(
-                "Erosion risk is within safe bounds. Continue current practice."
-            )
-            recs_ar.append(
-                "خطر التعرية ضمن الحدود الآمنة. استمر في الممارسة الحالية."
-            )
+            recs_en.append("Erosion risk is within safe bounds. Continue current practice.")
+            recs_ar.append("خطر التعرية ضمن الحدود الآمنة. استمر في الممارسة الحالية.")
             return recs_en, recs_ar
 
         # Slope-driven (LS > 2)
         if factors.ls_factor > 2.0:
             if slope_pct > 10 and conservation_practice in ("none", "straight_rows"):
                 recs_en.append(
-                    f"Slope is {slope_pct:.1f}% — install contour bench terraces "
-                    f"(P=0.10) to cut soil loss by ~85%."
+                    f"Slope is {slope_pct:.1f}% — install contour bench terraces (P=0.10) to cut soil loss by ~85%."
                 )
-                recs_ar.append(
-                    f"الانحدار {slope_pct:.1f}٪ — أنشئ مصاطب كنتورية "
-                    f"(P=0.10) لخفض فقد التربة بنحو 85٪."
-                )
+                recs_ar.append(f"الانحدار {slope_pct:.1f}٪ — أنشئ مصاطب كنتورية (P=0.10) لخفض فقد التربة بنحو 85٪.")
             elif slope_pct > 5:
-                recs_en.append(
-                    "Switch to contour farming along the slope (P=0.60) to reduce loss."
-                )
-                recs_ar.append(
-                    "اتبع الزراعة الكنتورية على طول الانحدار (P=0.60) لخفض الفقد."
-                )
+                recs_en.append("Switch to contour farming along the slope (P=0.60) to reduce loss.")
+                recs_ar.append("اتبع الزراعة الكنتورية على طول الانحدار (P=0.60) لخفض الفقد.")
 
         # Cover-driven (C > 0.3)
         if factors.c_factor > 0.3:
             if cover_type == "bare_soil":
                 recs_en.append(
-                    "Field is bare — plant a cover crop (ryegrass / vetch) "
-                    "during fallow to drop C from 1.0 to ≤0.05."
+                    "Field is bare — plant a cover crop (ryegrass / vetch) during fallow to drop C from 1.0 to ≤0.05."
                 )
                 recs_ar.append(
-                    "الحقل عارٍ — ازرع محصول تغطية (حشيشة الرجل / البيقية) "
-                    "خلال السبات لخفض C من 1.0 إلى ≤0.05."
+                    "الحقل عارٍ — ازرع محصول تغطية (حشيشة الرجل / البيقية) خلال السبات لخفض C من 1.0 إلى ≤0.05."
                 )
             elif cover_type in ("wheat", "barley", "corn", "sorghum"):
                 recs_en.append(
-                    f"Retain crop residues on {cover_type} stubble after harvest "
-                    f"(no-till) to halve the C factor."
+                    f"Retain crop residues on {cover_type} stubble after harvest (no-till) to halve the C factor."
                 )
-                recs_ar.append(
-                    f"احتفظ ببقايا المحصول على رصيص {cover_type} بعد الحصاد "
-                    f"(بدون حرث) لخفض معامل C للنصف."
-                )
+                recs_ar.append(f"احتفظ ببقايا المحصول على رصيص {cover_type} بعد الحصاد (بدون حرث) لخفض معامل C للنصف.")
 
         # Soil-driven (K > 0.3) — catastrophic erosion
         if factors.k_factor > 0.3 and risk_level in (
@@ -444,16 +412,10 @@ class RUSLEEngine:
             )
 
         # Severe + practice=none: urgent escalation
-        if (
-            risk_level in (ErosionRiskLevel.SEVERE, ErosionRiskLevel.CATASTROPHIC)
-            and conservation_practice == "none"
-        ):
+        if risk_level in (ErosionRiskLevel.SEVERE, ErosionRiskLevel.CATASTROPHIC) and conservation_practice == "none":
             recs_en.append(
-                "Catastrophic erosion — stop tillage immediately and call an "
-                "extension officer for a field visit."
+                "Catastrophic erosion — stop tillage immediately and call an extension officer for a field visit."
             )
-            recs_ar.append(
-                "تعرية كارثية — أوقف الحرث فوراً واتصل بمرشد زراعي للقيام بزيارة ميدانية."
-            )
+            recs_ar.append("تعرية كارثية — أوقف الحرث فوراً واتصل بمرشد زراعي للقيام بزيارة ميدانية.")
 
         return recs_en, recs_ar

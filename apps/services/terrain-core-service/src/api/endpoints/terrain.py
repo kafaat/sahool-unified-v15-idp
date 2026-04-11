@@ -237,13 +237,7 @@ def generate_irrigation_recommendations(
                 "p_factor": engine.compute_p_factor("none"),
             },
         )()
-        soil_loss = (
-            factors.r_factor
-            * factors.k_factor
-            * factors.ls_factor
-            * factors.c_factor
-            * factors.p_factor
-        )
+        soil_loss = factors.r_factor * factors.k_factor * factors.ls_factor * factors.c_factor * factors.p_factor
         level = engine._classify_risk(soil_loss)
         # Collapse the six-band FAO classification to the 3-band schema
         # the existing TerrainIrrigationRecommendation shape exposes.

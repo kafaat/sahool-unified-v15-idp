@@ -7,7 +7,7 @@
 # See .github/workflows/security.yml for how per-service ignore files are
 # merged with the repo-wide .trivyignore at scan time.
 #
-# Last reviewed: 2026-03-29
+# Last reviewed: 2026-04-11
 # ─────────────────────────────────────────────────────────────────────────────
 
 # minimatch ReDoS / path-traversal (CVE-2026-26996, CVE-2026-27903, CVE-2026-27904)
@@ -51,3 +51,16 @@ CVE-2024-28176
 # Not part of application runtime dependencies. Fixed in 5.0.1.
 # Revisit: remove once npm ships a release bundling @isaacs/brace-expansion>=5.0.1.
 CVE-2026-25547
+
+# picomatch ReDoS via crafted extglob patterns (CVE-2026-33671)
+# Package: picomatch 4.0.3 bundled inside npm@11.7.0's own
+# /usr/local/lib/node_modules/npm/node_modules/tinyglobby/node_modules/picomatch
+# (npm-internal tooling). Not part of the application's runtime dependency
+# tree; only reachable when npm/npx itself processes packages (e.g., during
+# the Prisma migration step on container startup), which does not pass
+# untrusted glob patterns to picomatch.
+# Accepted risk: npm's internal modules are not exposed to untrusted input
+# at application runtime. Fixed in picomatch 4.0.4, 3.0.2, and 2.3.2.
+# Revisit: remove once npm ships a release bundling tinyglobby with
+# picomatch>=4.0.4.
+CVE-2026-33671

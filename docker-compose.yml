@@ -549,8 +549,6 @@ asyncio.run(main())
 
   # MongoDB for Rocket.Chat - قاعدة بيانات MongoDB لمنصة المجتمع
   mongo:
-    profiles:
-      - community
     image: mongo:6.0
     container_name: sahool-mongo
     volumes:
@@ -583,8 +581,6 @@ asyncio.run(main())
 
   # MongoDB Replica Set Initializer - تهيئة مجموعة النسخ المتماثل
   mongo-init-replica:
-    profiles:
-      - community
     image: mongo:6.0
     container_name: sahool-mongo-init-replica
     depends_on:
@@ -622,8 +618,6 @@ asyncio.run(main())
   # Rocket.Chat - Community Messaging Platform
   # منصة المراسلة المجتمعية للمزارعين
   rocketchat:
-    profiles:
-      - community
     image: registry.rocket.chat/rocketchat/rocket.chat:7.5
     container_name: sahool-rocketchat
     environment:
@@ -691,8 +685,6 @@ asyncio.run(main())
   # Supports 20+ concurrent agents for parallel analysis
   # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
   ollama:
-    profiles:
-      - gpu
     image: ollama/ollama:latest
     container_name: sahool-ollama
     volumes:
@@ -743,8 +735,6 @@ asyncio.run(main())
   # تحميل نموذج DeepSeek عند بدء التشغيل
   # NOTE: Only runs when gpu profile is active
   ollama-model-loader:
-    profiles:
-      - gpu
     image: curlimages/curl:8.11.1
     container_name: sahool-ollama-model-loader
     depends_on:
@@ -782,8 +772,6 @@ asyncio.run(main())
   # API: http://localhost:${VLLM_PORT:-8270}/v1 (OpenAI-compatible)
   # ─────────────────────────────────────────────────────────────────────────────
   vllm-deepseek:
-    profiles:
-      - gpu
     build:
       context: .
       dockerfile: apps/services/vllm-deepseek/Dockerfile
@@ -838,8 +826,6 @@ asyncio.run(main())
   # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
   # NOTE: Requires Ollama with GPU. Use: docker compose --profile gpu up -d
   code-review-service:
-    profiles:
-      - gpu
     build:
       context: .
       dockerfile: apps/services/code-review-service/Dockerfile
@@ -1006,7 +992,6 @@ asyncio.run(main())
   # NOTE: Milvus v2.5+ supports etcd auth. Enable with: docker compose --profile etcd-auth up
   # In production, enable etcd-auth profile for security hardening.
   etcd-init:
-    profiles: ["etcd-auth"]
     # FIX: Use alpine-based image with etcdctl because the GCR etcd image is distroless
     # (no /bin/sh) and quay.io may be unavailable in some regions. This ensures the
     # init shell script always has a working shell regardless of etcd image source.
@@ -1529,8 +1514,6 @@ asyncio.run(main())
   # Code is 100% identical. yield-prediction-service adds rate limiting + Prisma ORM.
   # Use --profile deprecated to start this service for migration testing.
   yield-prediction:
-    profiles:
-      - deprecated
     build:
       context: .
       dockerfile: apps/services/yield-prediction/Dockerfile
@@ -1582,7 +1565,6 @@ asyncio.run(main())
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
   # Kept temporarily for backwards compatibility
   lai-estimation:
-    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/lai-estimation/Dockerfile
@@ -1634,7 +1616,6 @@ asyncio.run(main())
   # This service is being consolidated into crop-intelligence-service (Port 8095)
   # Kept temporarily for backwards compatibility
   crop-growth-model:
-    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/crop-growth-model/Dockerfile
@@ -1795,7 +1776,6 @@ asyncio.run(main())
   # Ground Vision Service - Tower Camera Agricultural Monitoring
   # Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
   ground-vision-service:
-    profiles: [gpu]
     build:
       context: .
       dockerfile: apps/services/ground-vision-service/Dockerfile
@@ -2952,7 +2932,6 @@ asyncio.run(main())
   # Kept temporarily for backwards compatibility
   # DEPRECATED: ndvi-processor - Migrated to vegetation-analysis-service (sunset: 2026-02)
   ndvi-processor:
-    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/ndvi-processor/Dockerfile
@@ -3160,8 +3139,6 @@ asyncio.run(main())
         condition: service_healthy
       nats:
         condition: service_healthy
-    profiles:
-      - demo
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3388,8 +3365,6 @@ asyncio.run(main())
       context: .
       dockerfile: archive/deprecated-services/wechat-service/Dockerfile
     container_name: sahool-wechat-service
-    profiles:
-      - deprecated
     environment:
       - PORT=8135
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -4191,7 +4166,6 @@ asyncio.run(main())
   # YOLO26 Vision Service - خدمة الرؤية الحاسوبية
   # Real-time object detection using YOLO26m model with GPU acceleration
   yolo26-vision-service:
-    profiles: [gpu]
     build:
       context: .
       dockerfile: apps/services/yolo26-vision-service/Dockerfile
@@ -4623,9 +4597,6 @@ asyncio.run(main())
   # Code Review Agent - AI code review using Claude Agent SDK
   # وكيل مراجعة الكود - مراجعة كود ذكية باستخدام Claude SDK
   code-review-agent:
-    profiles:
-      - optional
-      - ai-agents
     build:
       context: .
       dockerfile: apps/services/code-review-agent/Dockerfile

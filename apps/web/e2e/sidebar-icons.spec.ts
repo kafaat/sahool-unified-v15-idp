@@ -297,7 +297,8 @@ test.describe("Sidebar Navigation & Icons", () => {
       await link.click();
 
       // URL should change to the expected page
-      await expect(page).toHaveURL(new RegExp(href.replace(/\//g, "\\/")), {
+      const escapedHref = href.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&");
+      await expect(page).toHaveURL(new RegExp(escapedHref), {
         timeout: 15000,
       });
 

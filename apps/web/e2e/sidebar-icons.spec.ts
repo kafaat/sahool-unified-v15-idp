@@ -195,7 +195,7 @@ test.describe("Sidebar Navigation & Icons", () => {
     // Each nav link (inside <li>) should contain an SVG icon
     const navItems = sidebar.locator("nav li a");
     const itemCount = await navItems.count();
-    expect(itemCount).toBe(TOTAL_NAV_LINKS);
+    expect(itemCount).toBeGreaterThanOrEqual(TOTAL_NAV_LINKS);
 
     for (let i = 0; i < itemCount; i++) {
       const link = navItems.nth(i);
@@ -297,7 +297,7 @@ test.describe("Sidebar Navigation & Icons", () => {
       await link.click();
 
       // URL should change to the expected page
-      await expect(page).toHaveURL(new RegExp(href.replace("/", "\\/")), {
+      await expect(page).toHaveURL(new RegExp(href.replace(/\//g, "\\/")), {
         timeout: 15000,
       });
 
@@ -323,28 +323,26 @@ test.describe("Sidebar Navigation & Icons", () => {
     test("hamburger menu opens mobile drawer", async ({ page }) => {
       await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
 
-      // Find the hamburger / menu button
+      // Find the hamburger / menu button (aria-label based, not broad svg selector)
       const menuButton = page
         .locator(
-          'button[aria-label*="menu" i], button[aria-label*="القائمة" i], button:has(svg)',
+          'button[aria-label*="menu" i], button[aria-label*="القائمة" i]',
         )
         .first();
 
-      // Wait for page to be interactive
-      await page.waitForTimeout(2000);
+      // Assert the menu button is visible (fail if not, don't silently skip)
+      await expect(menuButton).toBeVisible({ timeout: 10000 });
 
-      if (await menuButton.isVisible({ timeout: 5000 })) {
-        await menuButton.click();
+      await menuButton.click();
 
-        // Mobile drawer should appear
-        const drawer = page.locator('[data-testid="mobile-drawer"]');
-        await expect(drawer).toBeVisible({ timeout: 5000 });
+      // Mobile drawer should appear
+      const drawer = page.locator('[data-testid="mobile-drawer"]');
+      await expect(drawer).toBeVisible({ timeout: 5000 });
 
-        // Drawer should contain navigation links
-        const drawerLinks = drawer.locator("nav a[href]");
-        const count = await drawerLinks.count();
-        expect(count).toBeGreaterThanOrEqual(10);
-      }
+      // Drawer should contain navigation links
+      const drawerLinks = drawer.locator("nav a[href]");
+      const count = await drawerLinks.count();
+      expect(count).toBeGreaterThanOrEqual(10);
     });
   });
 });

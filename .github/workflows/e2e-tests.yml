@@ -65,6 +65,7 @@ jobs:
         run: npx playwright test --project=chromium --reporter=junit,html || true
         env:
           CI: true
+          API_AVAILABLE: true
           PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/results.xml
           PLAYWRIGHT_BASE_URL: http://localhost:3000
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL || 'test@example.com' }}

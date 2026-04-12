@@ -250,24 +250,19 @@ test.describe("Field Management Operations", () => {
     await setupAuthenticatedPage(page);
     await page.goto("/fields", { waitUntil: "domcontentloaded" });
 
-    // Wait for content to render
-    await page.waitForTimeout(2000);
-
-    // Look for field names from our mock data
-    const northField = page.locator("text=/North Field|الحقل الشمالي/i").first();
-    const southField = page.locator("text=/South Field|الحقل الجنوبي/i").first();
-
-    const hasNorth = await northField.isVisible({ timeout: 5000 }).catch(() => false);
-    const hasSouth = await southField.isVisible({ timeout: 5000 }).catch(() => false);
-
     // At least the page should have some content
     const pageContent = page.locator("main, [role='main']").first();
     await expect(pageContent).toBeVisible({ timeout: 10000 });
 
-    // If fields are displayed, verify they have data
-    if (hasNorth || hasSouth) {
-      expect(hasNorth || hasSouth).toBeTruthy();
-    }
+    // Look for field names from our mock data
+    const northField = page.getByText(/North Field|الحقل الشمالي/i).first();
+    const southField = page.getByText(/South Field|الحقل الجنوبي/i).first();
+
+    const hasNorth = await northField.isVisible({ timeout: 5000 }).catch(() => false);
+    const hasSouth = await southField.isVisible({ timeout: 5000 }).catch(() => false);
+
+    // Use soft assertion — mock data may not render depending on page implementation
+    expect.soft(hasNorth || hasSouth).toBeTruthy();
   });
 });
 
@@ -282,20 +277,14 @@ test.describe("Task Management Operations", () => {
     const heading = page.locator("h1, h2").first();
     await expect(heading).toBeVisible({ timeout: 10000 });
 
-    // Look for task items from mock data
-    await page.waitForTimeout(2000);
-    const taskContent = page.locator(
-      "text=/Irrigate|ري|Fertilizer|سماد|pending|قيد الانتظار/i",
-    ).first();
-    const hasTask = await taskContent.isVisible({ timeout: 5000 }).catch(() => false);
-
-    // Page should render content even without visible tasks
+    // Page should render content
     const mainContent = page.locator("main, [role='main']").first();
     await expect(mainContent).toBeVisible();
 
-    if (hasTask) {
-      expect(hasTask).toBeTruthy();
-    }
+    // Look for task items from mock data (soft assertion)
+    const taskContent = page.getByText(/Irrigate|ري|Fertilizer|سماد|pending|قيد الانتظار/i).first();
+    const hasTask = await taskContent.isVisible({ timeout: 5000 }).catch(() => false);
+    expect.soft(hasTask).toBeTruthy();
   });
 
   test("task page has add/create action", async ({ page }) => {
@@ -311,12 +300,10 @@ test.describe("Task Management Operations", () => {
 
     if (hasButton) {
       await addButton.click();
-      await page.waitForTimeout(1000);
 
-      // Check for form or modal
-      const formElements = page.locator("input, select, textarea");
-      const count = await formElements.count();
-      expect(count).toBeGreaterThan(0);
+      // Check for form or modal (auto-retrying)
+      const formElements = page.locator("input, select, textarea").first();
+      await expect(formElements).toBeVisible({ timeout: 5000 });
     } else {
       // Page should still be functional
       const heading = page.locator("h1, h2").first();
@@ -335,11 +322,8 @@ test.describe("Weather Service Operations", () => {
     await expect(heading).toBeVisible({ timeout: 10000 });
 
     // Look for weather data (temperature, conditions, etc.)
-    await page.waitForTimeout(2000);
-    const weatherContent = page.locator(
-      "text=/°C|°F|sunny|مشمس|temperature|درجة|humidity|رطوبة|28/i",
-    ).first();
-    const hasWeather = await weatherContent.isVisible({ timeout: 5000 }).catch(() => false);
+    const weatherContent = page.getByText(/°C|°F|sunny|مشمس|temperature|درجة|humidity|رطوبة|28/i).first();
+    const hasWeather = await weatherContent.isVisible({ timeout: 8000 }).catch(() => false);
 
     // Check for weather icons (SVG elements in weather section)
     const svgIcons = page.locator("main svg, [role='main'] svg");
@@ -352,22 +336,15 @@ test.describe("Weather Service Operations", () => {
   test("weather page has forecast section", async ({ page }) => {
     await setupAuthenticatedPage(page);
     await page.goto("/weather", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2000);
-
-    // Look for forecast-related content
-    const forecastContent = page.locator(
-      "text=/Forecast|التوقعات|Mon|Tue|Wed|tomorrow|غداً/i",
-    ).first();
-
-    const hasForecast = await forecastContent.isVisible({ timeout: 5000 }).catch(() => false);
 
     // The page should at least render
     const mainContent = page.locator("main, [role='main']").first();
-    await expect(mainContent).toBeVisible();
+    await expect(mainContent).toBeVisible({ timeout: 10000 });
 
-    if (hasForecast) {
-      expect(hasForecast).toBeTruthy();
-    }
+    // Look for forecast-related content (soft assertion)
+    const forecastContent = page.getByText(/Forecast|التوقعات|Mon|Tue|Wed|tomorrow|غداً/i).first();
+    const hasForecast = await forecastContent.isVisible({ timeout: 5000 }).catch(() => false);
+    expect.soft(hasForecast).toBeTruthy();
   });
 });
 
@@ -379,16 +356,10 @@ test.describe("Equipment Management Operations", () => {
     const heading = page.locator("h1, h2").first();
     await expect(heading).toBeVisible({ timeout: 10000 });
 
-    // Look for equipment data from mock
-    await page.waitForTimeout(2000);
-    const equipmentItem = page.locator(
-      "text=/Tractor|جرار|JD-8R|operational/i",
-    ).first();
-    const hasEquipment = await equipmentItem.isVisible({ timeout: 5000 }).catch(() => false);
-
-    if (hasEquipment) {
-      expect(hasEquipment).toBeTruthy();
-    }
+    // Look for equipment data from mock (soft assertion)
+    const equipmentItem = page.getByText(/Tractor|جرار|JD-8R|operational/i).first();
+    const hasEquipment = await equipmentItem.isVisible({ timeout: 8000 }).catch(() => false);
+    expect.soft(hasEquipment).toBeTruthy();
   });
 
   test("equipment page has management actions (add, filter)", async ({
@@ -403,8 +374,8 @@ test.describe("Equipment Management Operations", () => {
     );
     const count = await actionButtons.count();
 
-    // Should have some management UI
-    expect(count).toBeGreaterThanOrEqual(0);
+    // Should have at least one management UI element
+    expect(count).toBeGreaterThan(0);
   });
 });
 
@@ -418,17 +389,10 @@ test.describe("Alert & Notification Operations", () => {
     const heading = page.locator("h1, h2").first();
     await expect(heading).toBeVisible({ timeout: 10000 });
 
-    await page.waitForTimeout(2000);
-
-    // Look for alert content from mock data
-    const alertContent = page.locator(
-      "text=/High Temperature|ارتفاع|Pest Detected|آفة|warning|critical/i",
-    ).first();
-    const hasAlerts = await alertContent.isVisible({ timeout: 5000 }).catch(() => false);
-
-    if (hasAlerts) {
-      expect(hasAlerts).toBeTruthy();
-    }
+    // Look for alert content from mock data (soft assertion)
+    const alertContent = page.getByText(/High Temperature|ارتفاع|Pest Detected|آفة|warning|critical/i).first();
+    const hasAlerts = await alertContent.isVisible({ timeout: 8000 }).catch(() => false);
+    expect.soft(hasAlerts).toBeTruthy();
   });
 
   test("notifications page renders notification list", async ({ page }) => {
@@ -520,7 +484,7 @@ test.describe("Cross-Feature Navigation Flow", () => {
 
     for (const route of routes) {
       await sidebar.locator(`a[href="${route}"]`).click();
-      await expect(page).toHaveURL(new RegExp(route.replace("/", "\\/")), {
+      await expect(page).toHaveURL(new RegExp(route.replace(/\//g, "\\/")), {
         timeout: 10000,
       });
       await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
@@ -540,7 +504,7 @@ test.describe("Cross-Feature Navigation Flow", () => {
 
     for (const route of routes) {
       await sidebar.locator(`a[href="${route}"]`).click();
-      await expect(page).toHaveURL(new RegExp(route.replace("/", "\\/")), {
+      await expect(page).toHaveURL(new RegExp(route.replace(/\//g, "\\/")), {
         timeout: 10000,
       });
       await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });

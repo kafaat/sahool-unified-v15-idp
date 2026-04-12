@@ -1,0 +1,757 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Vegetation Analysis Service API
+  version: "4.12.0"
+  description: "Bilingual EN+AR — Satellite imagery + vegetation-index computation (NDVI, NDRE, NDWI, SAVI, EVI, MSAVI, LAI) for SAHOOL fields. Sentinel-2 L2A + Landsat 8/9 + optional Planet. Cloud-masked and harmonized across sensors. Consolidates prior satellite-service + ndvi-processor."
+  contact:
+    name: SAHOOL Developer Relations
+    email: developer@sahool.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://sahool.com/legal/terms
+  x-service-name: vegetation-analysis-service
+  x-service-port: 8090
+  x-contract-version: "4.12.0"
+
+servers:
+  - url: https://api.sahool.com
+    description: Production
+  - url: https://sandbox.sahool.app
+    description: Sandbox
+  - url: http://localhost:8000
+    description: Local development
+
+tags:
+  - name: Satellite
+    description: "Satellite imagery and vegetation-index endpoints"
+  - name: Health
+    description: "Service liveness and readiness probes"
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/satellite/v1/analyze:
+    post:
+      operationId: analyzeSatelliteGeometry
+      summary: Analyze an arbitrary polygon
+      description: "Compute vegetation indices for an ad-hoc GeoJSON polygon, without requiring a registered field."
+      tags: [Satellite]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SatelliteAnalyzeRequest"
+      responses:
+        "200":
+          description: Analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SatelliteAnalyzeResponse"
+              examples:
+                sample:
+                  value:
+                    requestId: "req_8a1f9c"
+                    date: "2026-04-10"
+                    satellite: sentinel2
+                    cloudCover: 4.2
+                    indices: { ndvi: 0.71, ndre: 0.38, ndwi: 0.22, savi: 0.64, evi: 0.58, msavi: 0.62, lai: 3.2 }
+                    stats: { mean: 0.71, min: 0.32, max: 0.88, stddev: 0.11 }
+                    imagery:
+                      rgbUrl: "https://cdn.sahool.com/tiles/req_8a1f9c/rgb.png"
+                      nirUrl: "https://cdn.sahool.com/tiles/req_8a1f9c/nir.png"
+                      indexUrls: { ndvi: "https://cdn.sahool.com/tiles/req_8a1f9c/ndvi.png" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/satellite/analyze/{fieldId}:
+    post:
+      operationId: analyzeSatelliteField
+      summary: Analyze a known field
+      description: "Run vegetation analysis for a registered field using its persisted geometry."
+      tags: [Satellite]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeOptions"
+      responses:
+        "200":
+          description: Analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SatelliteAnalyzeResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/satellite/v1/timeseries/{fieldId}:
+    get:
+      operationId: getVegetationTimeSeries
+      summary: Vegetation-index time series
+      description: "Return a harmonized vegetation-index time series over a date range for the specified field."
+      tags: [Satellite]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+        - name: startDate
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: endDate
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: index
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ndvi, ndre, ndwi, savi, evi, msavi, lai]
+            default: ndvi
+        - name: interval
+          in: query
+          required: false
+          description: "Aggregation window (e.g. 5d, 10d, monthly)"
+          schema: { type: string, default: "5d" }
+      responses:
+        "200":
+          description: Time-series data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeSeriesResponse"
+              examples:
+                sample:
+                  value:
+                    fieldId: "fld_7X9"
+                    index: ndvi
+                    interval: "5d"
+                    series:
+                      - { date: "2026-03-01", value: 0.42, cloudCover: 8.0, satellite: sentinel2, sceneId: "S2B_MSIL2A_20260301" }
+                      - { date: "2026-03-06", value: 0.49, cloudCover: 3.1, satellite: sentinel2, sceneId: "S2A_MSIL2A_20260306" }
+                      - { date: "2026-03-11", value: 0.58, cloudCover: 12.4, satellite: landsat9,  sceneId: "LC09_L2SP_20260311" }
+                    trend: { direction: up, slope: 0.018 }
+                    gaps:
+                      - { startDate: "2026-03-16", endDate: "2026-03-21", reason: "high_cloud_cover" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/satellite/v1/indices/{fieldId}:
+    get:
+      operationId: getVegetationIndices
+      summary: Field vegetation indices
+      description: "Return one or more vegetation indices for the most recent cloud-free scene (or a specified date)."
+      tags: [Satellite]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+        - name: date
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: indices
+          in: query
+          required: false
+          description: "Comma-separated subset of ndvi,ndre,ndwi,savi,evi,msavi"
+          schema: { type: string, default: "ndvi,ndre,ndwi,savi,evi,msavi" }
+      responses:
+        "200":
+          description: Indices returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VegetationIndicesResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/satellite/v1/satellites:
+    get:
+      operationId: listSatelliteProviders
+      summary: List configured satellite providers
+      description: "Enumerate the satellite providers wired into the platform (Sentinel-2, Landsat 8/9, optional Planet)."
+      tags: [Satellite]
+      responses:
+        "200":
+          description: Provider list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [providers]
+                properties:
+                  providers:
+                    type: array
+                    items: { $ref: "#/components/schemas/SatelliteProvider" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/satellite/health/{fieldId}:
+    get:
+      operationId: getFieldCropHealth
+      summary: Crop-health classification
+      description: "Classify field crop health (healthy / moderate / stressed / critical) from the latest NDVI reading."
+      tags: [Satellite]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+        - name: date
+          in: query
+          required: false
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Classification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CropHealthClassification"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/satellite/phenology/{fieldId}:
+    get:
+      operationId: getFieldPhenology
+      summary: Phenology / growth-stage estimation
+      description: "Estimate current Zadoks/BBCH growth stage from the NDVI time series."
+      tags: [Satellite]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+      responses:
+        "200":
+          description: Phenology result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhenologyResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/satellite/imagery/{fieldId}:
+    get:
+      operationId: getFieldImagery
+      summary: Signed imagery URLs
+      description: "Return signed URLs to pre-rendered PNG tiles and GeoTIFF assets for the field."
+      tags: [Satellite]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+        - name: date
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: bands
+          in: query
+          required: false
+          description: "Comma-separated band groups"
+          schema:
+            type: string
+            default: "rgb,nir"
+      responses:
+        "200":
+          description: Imagery bundle
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageryResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/fields/{fieldId}/ndvi:
+    get:
+      operationId: getFieldNdvi
+      summary: Latest NDVI reading for a field
+      description: "Convenience alias returning the most recent NDVI value, category, statistics and short history for a field."
+      tags: [Satellite]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+      responses:
+        "200":
+          description: NDVI reading
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NdviFieldResponse"
+              examples:
+                sample:
+                  value:
+                    fieldId: "fld_7X9"
+                    fieldName: "Al-Rashid North"
+                    current:
+                      value: 0.71
+                      category: { name: healthy, nameAr: "صحي", color: "#22c55e" }
+                      date: "2026-04-10"
+                    statistics:
+                      average: 0.66
+                      min: 0.42
+                      max: 0.88
+                      trend: 0.012
+                      trendDirection: up
+                    history:
+                      - { date: "2026-04-05", value: 0.68, cloudCover: 3.1 }
+                      - { date: "2026-03-31", value: 0.63, cloudCover: 6.8 }
+                      - { date: "2026-03-26", value: 0.55, cloudCover: 11.4 }
+                    lastUpdated: "2026-04-11T04:22:00Z"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/ndvi/summary:
+    get:
+      operationId: getNdviSummary
+      summary: Tenant-wide NDVI distribution
+      description: "Aggregate NDVI dashboard across all fields belonging to the authenticated tenant."
+      tags: [Satellite]
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NdviSummaryResponse"
+              examples:
+                sample:
+                  value:
+                    tenantId: "tn_4f22"
+                    totalFields: 128
+                    averageNdvi: 0.62
+                    averageHealth: moderate
+                    totalAreaHectares: 1843.5
+                    distribution: { healthy: 74, moderate: 38, stressed: 12, critical: 4 }
+                    timestamp: "2026-04-11T05:00:00Z"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /healthz:
+    get:
+      operationId: livenessProbe
+      summary: Liveness probe
+      description: "Kubernetes liveness probe, no auth required."
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Alive
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+  /readyz:
+    get:
+      operationId: readinessProbe
+      summary: Readiness probe
+      description: "Kubernetes readiness probe, no auth required."
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Ready
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+  /health:
+    get:
+      operationId: combinedHealth
+      summary: Combined health status
+      description: "Combined liveness plus dependency health, no auth required."
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    FieldIdPath:
+      name: fieldId
+      in: path
+      required: true
+      schema: { type: string }
+      description: "Field identifier"
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    Unprocessable:
+      description: Semantic validation failed
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    RateLimited:
+      description: "Rate limit exceeded (60/min, 500/hour)"
+      headers:
+        Retry-After:
+          schema: { type: integer }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+
+  schemas:
+    GeoJsonPolygon:
+      type: object
+      required: [type, coordinates]
+      properties:
+        type:
+          type: string
+          enum: [Polygon]
+        coordinates:
+          type: array
+          description: "Polygon coordinate rings in WGS-84 (EPSG:4326)"
+          items:
+            type: array
+            items:
+              type: array
+              minItems: 2
+              maxItems: 3
+              items: { type: number }
+
+    SatelliteAnalyzeRequest:
+      type: object
+      required: [geometry]
+      properties:
+        geometry: { $ref: "#/components/schemas/GeoJsonPolygon" }
+        date:
+          type: [string, "null"]
+          format: date
+        indices:
+          type: array
+          default: [ndvi]
+          items:
+            type: string
+            enum: [ndvi, ndre, ndwi, savi, evi, msavi, lai]
+        satellite:
+          type: string
+          enum: [sentinel2, landsat8, landsat9, auto]
+          default: auto
+        cloudCoverMax:
+          type: number
+          minimum: 0
+          maximum: 100
+          default: 20
+
+    AnalyzeOptions:
+      type: object
+      properties:
+        date:
+          type: [string, "null"]
+          format: date
+        indices:
+          type: array
+          items:
+            type: string
+            enum: [ndvi, ndre, ndwi, savi, evi, msavi, lai]
+        satellite:
+          type: string
+          enum: [sentinel2, landsat8, landsat9, auto]
+          default: auto
+        cloudCoverMax:
+          type: number
+          minimum: 0
+          maximum: 100
+          default: 20
+
+    IndexValues:
+      type: object
+      properties:
+        ndvi:  { type: [number, "null"] }
+        ndre:  { type: [number, "null"] }
+        ndwi:  { type: [number, "null"] }
+        savi:  { type: [number, "null"] }
+        evi:   { type: [number, "null"] }
+        msavi: { type: [number, "null"] }
+        lai:   { type: [number, "null"] }
+
+    IndexStats:
+      type: object
+      properties:
+        mean:   { type: number }
+        min:    { type: number }
+        max:    { type: number }
+        stddev: { type: number }
+
+    SatelliteAnalyzeResponse:
+      type: object
+      required: [requestId, date, satellite, indices]
+      properties:
+        requestId: { type: string }
+        date:      { type: string, format: date }
+        satellite:
+          type: string
+          enum: [sentinel2, landsat8, landsat9, planet]
+        cloudCover: { type: number }
+        indices:    { $ref: "#/components/schemas/IndexValues" }
+        stats:      { $ref: "#/components/schemas/IndexStats" }
+        imagery:
+          type: [object, "null"]
+          properties:
+            rgbUrl:     { type: string, format: uri }
+            nirUrl:     { type: string, format: uri }
+            indexUrls:
+              type: object
+              additionalProperties: { type: string, format: uri }
+
+    TimeSeriesPoint:
+      type: object
+      required: [date, value, satellite]
+      properties:
+        date:       { type: string, format: date }
+        value:      { type: number }
+        cloudCover: { type: [number, "null"] }
+        satellite:
+          type: string
+          enum: [sentinel2, landsat8, landsat9, planet]
+        sceneId:    { type: [string, "null"] }
+
+    TimeSeriesGap:
+      type: object
+      required: [startDate, endDate, reason]
+      properties:
+        startDate: { type: string, format: date }
+        endDate:   { type: string, format: date }
+        reason:
+          type: string
+          enum: [high_cloud_cover, no_scene, acquisition_failure, masked]
+
+    TimeSeriesResponse:
+      type: object
+      required: [fieldId, index, interval, series, trend]
+      properties:
+        fieldId:  { type: string }
+        index:    { type: string, enum: [ndvi, ndre, ndwi, savi, evi, msavi, lai] }
+        interval: { type: string }
+        series:
+          type: array
+          items: { $ref: "#/components/schemas/TimeSeriesPoint" }
+        trend:
+          type: object
+          required: [direction, slope]
+          properties:
+            direction:
+              type: string
+              enum: [up, down, stable]
+            slope: { type: number }
+        gaps:
+          type: array
+          items: { $ref: "#/components/schemas/TimeSeriesGap" }
+
+    VegetationIndicesResponse:
+      type: object
+      required: [fieldId, date, indices, satellite]
+      properties:
+        fieldId:    { type: string }
+        date:       { type: string, format: date }
+        indices:    { $ref: "#/components/schemas/IndexValues" }
+        satellite:
+          type: string
+          enum: [sentinel2, landsat8, landsat9, planet]
+        sceneId:    { type: [string, "null"] }
+        cloudCover: { type: number }
+        footprint:  { $ref: "#/components/schemas/GeoJsonPolygon" }
+
+    SatelliteProvider:
+      type: object
+      required: [id, name, revisitDays, spatialResolutionM, bands, cloudMaskAlgorithm, enabled]
+      properties:
+        id:
+          type: string
+          enum: [sentinel2, landsat8, landsat9, planet]
+        name:               { type: string }
+        revisitDays:        { type: number }
+        spatialResolutionM: { type: number }
+        bands:
+          type: array
+          items: { type: string }
+        cloudMaskAlgorithm: { type: string }
+        enabled:            { type: boolean }
+
+    CropHealthClassification:
+      type: object
+      required: [fieldId, date, status, statusAr, confidence, ndvi]
+      properties:
+        fieldId: { type: string }
+        date:    { type: string, format: date }
+        status:
+          type: string
+          enum: [healthy, moderate, stressed, critical]
+        statusAr:     { type: string }
+        confidence:   { type: number, minimum: 0, maximum: 1 }
+        ndvi:         { type: number }
+        anomalyScore: { type: [number, "null"] }
+        drivers:
+          type: array
+          items: { type: string }
+
+    PhenologyStageHistory:
+      type: object
+      required: [stage, startDate]
+      properties:
+        stage:     { type: string }
+        startDate: { type: string, format: date }
+        peakDate:  { type: [string, "null"], format: date }
+
+    PhenologyResponse:
+      type: object
+      required: [fieldId, currentStage, currentStageAr, progress, history]
+      properties:
+        fieldId:             { type: string }
+        currentStage:        { type: string }
+        currentStageAr:      { type: string }
+        zadoksCode:          { type: [string, "null"] }
+        bbchCode:            { type: [string, "null"] }
+        progress:            { type: number, minimum: 0, maximum: 100 }
+        estimatedHarvestDate: { type: [string, "null"], format: date }
+        history:
+          type: array
+          items: { $ref: "#/components/schemas/PhenologyStageHistory" }
+
+    ImageryAssets:
+      type: object
+      properties:
+        rgbUrl:          { type: [string, "null"], format: uri }
+        nirUrl:          { type: [string, "null"], format: uri }
+        cirUrl:          { type: [string, "null"], format: uri }
+        ndviPngUrl:      { type: [string, "null"], format: uri }
+        ndviGeotiffUrl:  { type: [string, "null"], format: uri }
+
+    ImageryResponse:
+      type: object
+      required: [fieldId, date, bands, assets, expiresAt, sizeBytes, projection]
+      properties:
+        fieldId: { type: string }
+        date:    { type: string, format: date }
+        bands:
+          type: array
+          items: { type: string }
+        assets:    { $ref: "#/components/schemas/ImageryAssets" }
+        expiresAt: { type: string, format: date-time }
+        sizeBytes: { type: integer }
+        projection:
+          type: string
+          enum: ["EPSG:4326", "UTM"]
+
+    NdviCategory:
+      type: object
+      required: [name, nameAr, color]
+      properties:
+        name:
+          type: string
+          enum: [healthy, moderate, stressed, critical]
+        nameAr: { type: string }
+        color:  { type: string }
+
+    NdviFieldCurrent:
+      type: object
+      required: [value, category, date]
+      properties:
+        value:    { type: number }
+        category: { $ref: "#/components/schemas/NdviCategory" }
+        date:     { type: string, format: date }
+
+    NdviFieldStats:
+      type: object
+      required: [average, min, max, trend, trendDirection]
+      properties:
+        average: { type: number }
+        min:     { type: number }
+        max:     { type: number }
+        trend:   { type: number }
+        trendDirection:
+          type: string
+          enum: [up, down, stable]
+
+    NdviHistoryPoint:
+      type: object
+      required: [date, value]
+      properties:
+        date:       { type: string, format: date }
+        value:      { type: number }
+        cloudCover: { type: [number, "null"] }
+
+    NdviFieldResponse:
+      type: object
+      required: [fieldId, current, statistics, history, lastUpdated]
+      properties:
+        fieldId:     { type: string }
+        fieldName:   { type: [string, "null"] }
+        current:     { $ref: "#/components/schemas/NdviFieldCurrent" }
+        statistics:  { $ref: "#/components/schemas/NdviFieldStats" }
+        history:
+          type: array
+          items: { $ref: "#/components/schemas/NdviHistoryPoint" }
+        lastUpdated: { type: string, format: date-time }
+
+    NdviDistribution:
+      type: object
+      required: [healthy, moderate, stressed, critical]
+      properties:
+        healthy:  { type: integer }
+        moderate: { type: integer }
+        stressed: { type: integer }
+        critical: { type: integer }
+
+    NdviSummaryResponse:
+      type: object
+      required: [tenantId, totalFields, averageNdvi, averageHealth, totalAreaHectares, distribution, timestamp]
+      properties:
+        tenantId:          { type: string }
+        totalFields:       { type: integer }
+        averageNdvi:       { type: number }
+        averageHealth:
+          type: string
+          enum: [healthy, moderate, stressed, critical]
+        totalAreaHectares: { type: number }
+        distribution:      { $ref: "#/components/schemas/NdviDistribution" }
+        timestamp:         { type: string, format: date-time }
+
+    ApiError:
+      type: object
+      required: [success, error, errorCode]
+      properties:
+        success:
+          type: boolean
+          const: false
+        error:     { type: string }
+        errorAr:   { type: [string, "null"] }
+        errorCode: { type: string }
+        requestId: { type: [string, "null"] }
+
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status:   { type: string, enum: [ok, degraded, down] }
+        service:  { type: string }
+        version:  { type: string }
+        uptime:   { type: [number, "null"] }
+        dependencies:
+          type: [object, "null"]
+          additionalProperties: { type: string }

@@ -7,10 +7,10 @@
 | Metric | Count |
 |---|---|
 | Total services | 48 |
-| ✅ Fully specified | 2 |
-| ⏳ In progress | 0 |
-| ❌ Planned | 46 |
-| **Coverage** | **4.2%** |
+| ✅ Fully specified | 6 |
+| ⏳ In progress | 1 |
+| ❌ Planned | 41 |
+| **Coverage** | **12.5%** (7/48 with field-management-service in flight) |
 
 ## Legend
 
@@ -28,7 +28,7 @@
 |---|---|---|---|---|---|---|
 | partner-auth-service | 3030 | NestJS | ✅ [partner-auth.openapi.yaml](services/partner-auth.openapi.yaml) | 100% | — | OAuth 2.0 / OIDC v4.12.0 |
 | user-service | 3025 | NestJS | ✅ [user-service.openapi.yaml](services/user-service.openapi.yaml) | 100% | — | JWT HS256 + 2FA + 17 endpoints |
-| field-management-service | 3000 | NestJS | ❌ | 0% | Tier 1 | Planned — `claude/wave1-field-mgmt-openapi` |
+| field-management-service | 3000 | NestJS | ⏳ | — | Tier 1 | In progress — `claude/wave1-openapi-tier1-specs` |
 | marketplace-service | 3010 | NestJS | ❌ | 0% | Tier 2 | Agricultural marketplace |
 | research-core | 3015 | NestJS | ❌ | 0% | Tier 3 | Research trials |
 | disaster-assessment | 3020 | NestJS | ❌ | 0% | Tier 3 | Disaster risk assessment |
@@ -39,11 +39,11 @@
 
 | Service | Port | Lang | Spec | Coverage | Priority | Notes |
 |---|---|---|---|---|---|---|
-| vegetation-analysis-service | 8090 | Python | ❌ | 0% | Tier 1 | NDVI — highest partner interest |
+| vegetation-analysis-service | 8090 | Python | ✅ [vegetation-analysis-service.openapi.yaml](services/vegetation-analysis-service.openapi.yaml) | 100% | — | Sentinel-2 + Landsat 8/9, 6 vegetation indices |
 | indicators-service | 8091 | Python | ❌ | 0% | Tier 3 | Field indicators computation |
-| weather-service | 8092 | Python | ❌ | 0% | Tier 1 | Weather data |
-| advisory-service | 8093 | Python | ❌ | 0% | Tier 1 | Advisory & recommendations |
-| irrigation-smart | 8094 | Python | ❌ | 0% | Tier 1 | Smart irrigation |
+| weather-service | 8092 | Python | ✅ [weather-service.openapi.yaml](services/weather-service.openapi.yaml) | 100% | — | Current + forecast + alerts + signed SVG graphs |
+| advisory-service | 8093 | Python | ✅ [advisory-service.openapi.yaml](services/advisory-service.openapi.yaml) | 100% | — | Fertilizer + disease + LLM Q&A + crop-loan verification |
+| irrigation-smart | 8094 | Python | ✅ [irrigation-smart.openapi.yaml](services/irrigation-smart.openapi.yaml) | 100% | — | Penman-Monteith ET0 + pivot control |
 | crop-intelligence-service | 8095 | Python | ❌ | 0% | Tier 1 | Crop health AI |
 | ndvi-processor | 8118 | Python | ❌ | 0% | Tier 3 | Deprecating → vegetation-analysis-service |
 | virtual-sensors | 8119 | Python | ❌ | 0% | Tier 3 | Virtual sensor computation |

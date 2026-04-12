@@ -392,6 +392,263 @@ export class OAuthService {
       `Auth-code replay on ${authCodeId}; see docs for cascade-revoke limits`,
     );
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Authorization Code issuance (used by /authorize POST)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Create a fresh authorization code. Called after a user approves a
+   * consent prompt. The raw code value is returned (to go into the redirect
+   * URL) — only its SHA-256 hash is stored. 10-minute TTL per RFC 6749.
+   */
+  async createAuthorizationCode(params: {
+    clientId: string;
+    userId: string;
+    tenantId: string;
+    redirectUri: string;
+    scopes: string[];
+    codeChallenge?: string;
+    codeChallengeMethod?: string;
+    nonce?: string;
+  }): Promise<{ code: string; expiresAt: Date }> {
+    const code = `sah_ac_${nanoid(32)}`;
+    const codeHash = sha256(code);
+    const expiresAt = new Date(Date.now() + AUTH_CODE_TTL_SEC * 1000);
+
+    await this.prisma.authCode.create({
+      data: {
+        codeHash,
+        clientId: params.clientId,
+        userId: params.userId,
+        tenantId: params.tenantId,
+        redirectUri: params.redirectUri,
+        scopes: params.scopes,
+        codeChallenge: params.codeChallenge ?? null,
+        codeChallengeMethod: params.codeChallengeMethod ?? null,
+        nonce: params.nonce ?? null,
+        expiresAt,
+      },
+    });
+    return { code, expiresAt };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Token revocation (RFC 7009)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Revoke an access OR refresh token on behalf of its owning client.
+   * Per RFC 7009 § 2.2, the endpoint SHOULD NOT distinguish between
+   * unknown / wrong-type / expired tokens — always return silently.
+   * We log revocation-source audit events but never reveal them to the caller.
+   */
+  async revokeToken(params: {
+    clientId: string;
+    token: string;
+    tokenTypeHint?: "access_token" | "refresh_token";
+  }): Promise<void> {
+    const when = new Date();
+    const reason = "client_revocation";
+
+    // Opportunistic lookup by hint first (avoids 2 queries on the hot path)
+    const hinted = params.tokenTypeHint;
+
+    if (hinted !== "access_token") {
+      const tokenHash = sha256(params.token);
+      const r = await this.prisma.refreshToken.findUnique({ where: { tokenHash } });
+      if (r && r.clientId === params.clientId && r.revokedAt === null) {
+        await this.cascadeRevokeFamily(r.familyId, reason);
+        return;
+      }
+    }
+
+    if (hinted !== "refresh_token") {
+      // Access tokens are JWTs — caller passes the raw JWT; we decode to jti.
+      // Verification happens in the guard elsewhere; here we just peel out
+      // the jti claim to flip revokedAt.
+      const jti = extractJti(params.token);
+      if (jti) {
+        const row = await this.prisma.accessToken.findUnique({ where: { jti } });
+        if (row && row.clientId === params.clientId && row.revokedAt === null) {
+          await this.prisma.accessToken.update({
+            where: { jti },
+            data: { revokedAt: when, revokedReason: reason },
+          });
+          return;
+        }
+      }
+    }
+    // Per RFC 7009, unknown/mismatched/expired tokens produce a 200 with
+    // no body — revoke is idempotent from the caller's perspective.
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Token introspection (RFC 7662)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Returns an RFC 7662 introspection response. For unknown / revoked /
+   * expired / wrong-client tokens the response is `{active: false}` —
+   * never leak whether a token ever existed.
+   */
+  async introspectToken(params: {
+    clientId: string;
+    token: string;
+    tokenTypeHint?: "access_token" | "refresh_token";
+  }): Promise<IntrospectResponse> {
+    const INACTIVE = { active: false as const };
+
+    const hinted = params.tokenTypeHint;
+
+    if (hinted !== "refresh_token") {
+      const jti = extractJti(params.token);
+      if (jti) {
+        const at = await this.prisma.accessToken.findUnique({ where: { jti } });
+        if (
+          at &&
+          at.clientId === params.clientId &&
+          at.revokedAt === null &&
+          at.expiresAt > new Date()
+        ) {
+          return {
+            active: true,
+            scope: at.scopes.join(" "),
+            client_id: params.clientId,
+            username: at.userId,
+            token_type: "Bearer",
+            exp: Math.floor(at.expiresAt.getTime() / 1000),
+            iat: Math.floor(at.createdAt.getTime() / 1000),
+            sub: at.userId,
+            aud: params.clientId,
+            iss: ISSUER,
+            jti,
+            tenant_id: at.tenantId,
+          };
+        }
+      }
+    }
+
+    if (hinted !== "access_token") {
+      const tokenHash = sha256(params.token);
+      const rt = await this.prisma.refreshToken.findUnique({ where: { tokenHash } });
+      if (
+        rt &&
+        rt.clientId === params.clientId &&
+        rt.revokedAt === null &&
+        rt.rotatedToId === null &&
+        rt.expiresAt > new Date()
+      ) {
+        return {
+          active: true,
+          scope: rt.scopes.join(" "),
+          client_id: params.clientId,
+          username: rt.userId,
+          token_type: "refresh_token",
+          exp: Math.floor(rt.expiresAt.getTime() / 1000),
+          iat: Math.floor(rt.createdAt.getTime() / 1000),
+          sub: rt.userId,
+          aud: params.clientId,
+          iss: ISSUER,
+          tenant_id: rt.tenantId,
+        };
+      }
+    }
+
+    return INACTIVE;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Access-token verification (used by /userinfo Bearer guard)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Validates an access token JWT: verifies signature against active JWKS,
+   * checks iss/aud, and confirms the row in access_tokens is not revoked.
+   * Returns the decoded claims, or throws UnauthorizedException.
+   */
+  async verifyAccessToken(token: string): Promise<AccessTokenClaims> {
+    const { jwtVerify } = await import("jose");
+    const keys = this.jwks.getPublicKeys();
+
+    let payload: Record<string, unknown> | null = null;
+    for (const k of keys) {
+      try {
+        const result = await jwtVerify(token, k.publicKey, {
+          issuer: ISSUER,
+        });
+        payload = result.payload as Record<string, unknown>;
+        break;
+      } catch {
+        // Try next key
+      }
+    }
+    if (!payload) {
+      throw new UnauthorizedException({
+        error: "invalid_token",
+        error_description: "Access token signature could not be verified",
+      });
+    }
+
+    const jti = typeof payload.jti === "string" ? payload.jti : null;
+    if (!jti) {
+      throw new UnauthorizedException({
+        error: "invalid_token",
+        error_description: "Access token missing jti claim",
+      });
+    }
+
+    const row = await this.prisma.accessToken.findUnique({ where: { jti } });
+    if (!row || row.revokedAt !== null) {
+      throw new UnauthorizedException({
+        error: "invalid_token",
+        error_description: "Access token has been revoked",
+      });
+    }
+    if (row.expiresAt < new Date()) {
+      throw new UnauthorizedException({
+        error: "invalid_token",
+        error_description: "Access token expired",
+      });
+    }
+
+    return {
+      jti,
+      sub: String(payload.sub ?? row.userId),
+      aud: String(payload.aud ?? ""),
+      scope: typeof payload.scope === "string" ? payload.scope.split(/\s+/) : row.scopes,
+      tenantId: row.tenantId,
+      clientId: row.clientId,
+    };
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Types used above
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface IntrospectResponse {
+  active: boolean;
+  scope?: string;
+  client_id?: string;
+  username?: string;
+  token_type?: string;
+  exp?: number;
+  iat?: number;
+  sub?: string;
+  aud?: string;
+  iss?: string;
+  jti?: string;
+  tenant_id?: string;
+}
+
+export interface AccessTokenClaims {
+  jti: string;
+  sub: string;
+  aud: string;
+  scope: string[];
+  tenantId: string;
+  clientId: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -411,4 +668,22 @@ function oauthError(code: string, description: string): BadRequestException {
     error: code,
     error_description: description,
   });
+}
+
+/**
+ * Extract the `jti` claim from a JWT without verifying signature — used
+ * only to look up a token in the DB (which is where actual revocation
+ * happens). Returns null for malformed tokens.
+ */
+function extractJti(jwt: string): string | null {
+  try {
+    const parts = jwt.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(
+      Buffer.from(parts[1], "base64url").toString("utf-8"),
+    ) as { jti?: string };
+    return typeof payload.jti === "string" ? payload.jti : null;
+  } catch {
+    return null;
+  }
 }

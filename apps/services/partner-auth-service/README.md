@@ -15,22 +15,79 @@ header separate from OAuth).
 
 ## Status — ما يعمل / ما هو مُخطَّط
 
-### ✅ Implemented (this scaffold)
-| Endpoint | Description |
-|---|---|
-| `POST /partner/v1/oauth/token` | `authorization_code` + `refresh_token` grants with rotation + reuse detection |
-| `GET /.well-known/openid-configuration` | OIDC discovery |
-| `GET /.well-known/jwks.json` | Public key set (RSA, RS256) |
-| `GET /healthz` `/readyz` `/health` | K8s probes + DB ping |
+### ✅ Implemented
+| Endpoint | Description | Since |
+|---|---|---|
+| `POST /partner/v1/oauth/token` | `authorization_code` + `refresh_token` grants with rotation + reuse detection | v1 |
+| `GET /partner/v1/oauth/authorize` | Interactive consent screen (bilingual AR/EN, RTL-aware, CSRF-protected) | v2 |
+| `POST /partner/v1/oauth/authorize` | Processes consent decision → 302 back to client | v2 |
+| `POST /partner/v1/oauth/revoke` | RFC 7009 token revocation (silent on unknown tokens) | v2 |
+| `POST /partner/v1/oauth/introspect` | RFC 7662 token introspection (`{active: false}` leak-proof) | v2 |
+| `GET /partner/v1/oauth/userinfo` | OIDC UserInfo (Bearer-authenticated) | v2 |
+| `GET /.well-known/openid-configuration` | OIDC discovery | v1 |
+| `GET /.well-known/jwks.json` | Public key set (RSA, RS256) | v1 |
+| `GET /healthz` `/readyz` `/health` | K8s probes + DB ping | v1 |
 
-### ⏳ Planned (next branch: `claude/wave1-partner-auth-consent-screen`)
-| Endpoint | Returns 501 until live |
+### ⏳ Planned (next branches)
+| Feature | Branch |
 |---|---|
-| `GET /partner/v1/oauth/authorize` | Interactive consent screen (HTML) |
-| `POST /partner/v1/oauth/revoke` | RFC 7009 token revocation |
-| `POST /partner/v1/oauth/introspect` | RFC 7662 token introspection |
-| `GET /partner/v1/oauth/userinfo` | OIDC UserInfo |
-| Admin API | Partner app registration (CRUD `oauth_clients`) |
+| Admin API for partner app registration (CRUD `oauth_clients`) | `claude/wave1-partner-auth-admin-api` |
+| Partner-portal UI for key management | `claude/wave1-partner-portal-ui` |
+| Kong route integration + X-Sahool-Partner-Key rate-limit plugin | `claude/wave1-partner-auth-kong-wiring` |
+| Live user-service fetch in /userinfo (currently minimal claims) | `claude/wave1-partner-auth-userinfo-fresh` |
+
+## /authorize consent flow
+
+```
+Partner opens:  https://api.sahool.com/partner/v1/oauth/authorize
+                 ?response_type=code
+                 &client_id=partner-leaf
+                 &redirect_uri=https://leaf.example.com/cb
+                 &scope=openid+fields:read+operations:harvest:read
+                 &state=<csrf>  &nonce=<rp>
+                 &code_challenge=<pkce>  &code_challenge_method=S256
+
+  ┌─────────────────────────────────────────────────────────┐
+  │ partner-auth-service /authorize (GET)                    │
+  │   1. SahoolSessionGuard — check sahool_session cookie/hdr│
+  │      ↳ if missing → 302 to SAHOOL login with return_to   │
+  │   2. AuthorizeService.validateRequest                    │
+  │      ↳ client exists + active + not revoked              │
+  │      ↳ redirect_uri matches one of client.redirectUris   │
+  │      ↳ response_type = "code"                            │
+  │      ↳ requested scopes ⊆ client.allowedScopes           │
+  │      ↳ PKCE method ∈ {S256, plain}                       │
+  │   3. Check ConsentGrant memory                           │
+  │      ↳ if prior grant covers requested scopes AND        │
+  │        prompt != "consent" → SKIP screen, go to step 5   │
+  │   4. Render bilingual consent HTML (scopes + Allow/Deny) │
+  │   5. On Allow → mint AuthCode, upsert ConsentGrant,      │
+  │        302 to redirect_uri?code=…&state=…                │
+  │   5'. On Deny → 302 to redirect_uri?error=access_denied  │
+  └─────────────────────────────────────────────────────────┘
+```
+
+### Consent-screen security
+
+- Inline CSS only, no external resources, no JS required
+- `frame-ancestors 'none'` + `X-Frame-Options: DENY` — clickjacking defense
+- **CSRF** protected via stateless HMAC token tied to user id + issuance
+  time; 15-minute TTL; constant-time signature compare
+- Scope labels derived from a server-side lookup table (bilingual) — no
+  client-side translation that could drift
+- `noindex,nofollow` meta — consent URL must not be indexed
+
+### Session integration
+
+The `SahoolSessionGuard` accepts either:
+- `X-Sahool-Session` header (JWT signed by user-service, HS256)
+- `sahool_session` cookie with the same JWT
+
+Required JWT claims: `sub` (user id), `tid` (tenant id). Optional:
+`email`, `name`, `name_ar`, `locale`.
+
+When missing/invalid, the guard sets `req.loginRedirect` to
+`$SAHOOL_LOGIN_URL?return_to=<current_url>` and the controller 302s there.
 
 ## Authentication model
 
@@ -97,6 +154,10 @@ This mitigates refresh-token theft: an attacker's stolen token is detected the m
 | `DATABASE_URL` | — | `postgresql://user:pass@pgbouncer:6432/sahool?sslmode=require` |
 | `PARTNER_AUTH_ISSUER` | `https://api.sahool.com` | `iss` claim + base for OIDC discovery URLs |
 | `CORS_ALLOWED_ORIGINS` | (defaults) | Comma-separated list |
+| `CSRF_SECRET` | dev placeholder | HMAC secret for consent-screen CSRF tokens (32+ chars in production) |
+| `SAHOOL_SESSION_SECRET` | dev placeholder | HS256 secret shared with user-service for sahool_session JWT verification |
+| `SAHOOL_LOGIN_URL` | `https://app.sahool.com/login` | Where `/authorize` redirects unauthenticated users |
+| `SAHOOL_SIGNOUT_URL` | `https://app.sahool.com/logout` | "Not you? Sign out" link on consent screen |
 
 ## Local development
 

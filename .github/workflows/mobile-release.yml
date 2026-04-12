@@ -53,8 +53,8 @@ concurrency:
 env:
   FLUTTER_VERSION: '3.27.1'
   JAVA_VERSION: '17'
-  ANDROID_COMPILE_SDK: '36'
-  ANDROID_BUILD_TOOLS: '36.0.0'
+  ANDROID_COMPILE_SDK: '35'
+  ANDROID_BUILD_TOOLS: '35.0.0'
   ANDROID_MIN_SDK: '23'
 
 jobs:
@@ -163,7 +163,7 @@ jobs:
           sdkmanager --install \
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "ndk;28.2.13676358" \
+            "ndk;27.0.12077973" \
             "platform-tools"
           echo "Installed SDK components:"
           sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
@@ -428,7 +428,7 @@ jobs:
           sdkmanager --install \
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "ndk;28.2.13676358" \
+            "ndk;27.0.12077973" \
             "platform-tools"
           echo "Installed SDK components:"
           sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true

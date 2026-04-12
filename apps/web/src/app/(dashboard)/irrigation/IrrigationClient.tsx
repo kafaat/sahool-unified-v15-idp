@@ -450,7 +450,7 @@ export default function IrrigationClient() {
       showToast({ type: 'success', message: 'Schedule created', messageAr: 'تم إنشاء الجدول' });
     }
     setModalOpen(false);
-  }, [formData, editingId, showToast]);
+  }, [formData, editingId, schedules, showToast]);
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;

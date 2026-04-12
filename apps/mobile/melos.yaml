@@ -19,7 +19,6 @@ packages:
   - "."
   # Sub-packages
   - "sahool_field_app/**"
-  - "sahol_atmosphere/**"
 
 # IDE Integration
 ide:

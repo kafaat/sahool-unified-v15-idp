@@ -59,7 +59,7 @@ if command -v psql >/dev/null 2>&1; then
     log_info "psql already available: $(command -v psql)"
 else
     _psql_installed=false
-    for _psql_wait in 2 5 10; do
+    for _psql_wait in 2 4; do
         log_info "Installing postgresql-client (attempt with ${_psql_wait}s timeout)..."
         if command -v timeout >/dev/null 2>&1; then
             timeout "$_psql_wait" apk add --no-cache postgresql-client >/dev/null 2>&1 && _psql_installed=true && break
@@ -158,11 +158,14 @@ generate_scram_hash() {
             return 0
         fi
     fi
-    # Fallback: use md5 hash (safer than plaintext, PgBouncer accepts md5 format)
-    # SECURITY: Never store plaintext passwords in userlist.txt
-    _md5=$(printf '%s%s' "$_pass" "$_user" | md5sum | cut -d' ' -f1)
-    log_warn "SCRAM hash unavailable for $_user — using md5 fallback (less secure than SCRAM)"
-    echo "md5${_md5}"
+    # Fallback: use plaintext password (PgBouncer computes SCRAM proof on-the-fly)
+    # FIX (2026-04-12): md5 hashes are INCOMPATIBLE with auth_type=scram-sha-256.
+    # PgBouncer cannot derive SCRAM proofs from a one-way md5 hash, so auth_user
+    # authentication to PostgreSQL fails, breaking auth_query for ALL clients.
+    # Plaintext in auth_file is safe here: the file is chmod 600 on a tmpfs mount
+    # that is never persisted, and PgBouncer hashes it in memory immediately.
+    log_warn "SCRAM hash unavailable for $_user — using plaintext (PgBouncer will hash in memory)"
+    echo "$_pass"
     return 0
 }
 
@@ -190,7 +193,7 @@ generate_userlist() {
     if echo "$_db_user_hash" | grep -q '^SCRAM-SHA-256\$'; then
         log_info "Using SCRAM-SHA-256 hashed password for auth_user"
     else
-        log_warn "Using plaintext password for auth_user (SCRAM hash unavailable)"
+        log_warn "Using plaintext password for auth_user (PgBouncer will compute SCRAM in memory)"
     fi
 
     # Write userlist.txt with SCRAM hashes or plaintext fallback

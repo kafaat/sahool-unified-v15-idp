@@ -7,10 +7,10 @@
 | Metric | Count |
 |---|---|
 | Total services | 48 |
-| ✅ Fully specified | 1 |
+| ✅ Fully specified | 2 |
 | ⏳ In progress | 0 |
-| ❌ Planned | 47 |
-| **Coverage** | **2.1%** |
+| ❌ Planned | 46 |
+| **Coverage** | **4.2%** |
 
 ## Legend
 
@@ -27,7 +27,7 @@
 | Service | Port | Lang | Spec | Coverage | Priority | Notes |
 |---|---|---|---|---|---|---|
 | partner-auth-service | 3030 | NestJS | ✅ [partner-auth.openapi.yaml](services/partner-auth.openapi.yaml) | 100% | — | OAuth 2.0 / OIDC v4.12.0 |
-| user-service | 3025 | NestJS | ❌ | 0% | Tier 1 | Planned — `claude/wave1-user-service-openapi` |
+| user-service | 3025 | NestJS | ✅ [user-service.openapi.yaml](services/user-service.openapi.yaml) | 100% | — | JWT HS256 + 2FA + 17 endpoints |
 | field-management-service | 3000 | NestJS | ❌ | 0% | Tier 1 | Planned — `claude/wave1-field-mgmt-openapi` |
 | marketplace-service | 3010 | NestJS | ❌ | 0% | Tier 2 | Agricultural marketplace |
 | research-core | 3015 | NestJS | ❌ | 0% | Tier 3 | Research trials |

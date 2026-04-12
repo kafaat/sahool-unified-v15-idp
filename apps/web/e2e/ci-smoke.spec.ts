@@ -60,8 +60,8 @@ test.describe("CI Smoke Tests (no backend required)", () => {
     });
 
     // Verify name inputs
-    await expect(page.locator('input[autocomplete="given-name"]')).toBeVisible();
-    await expect(page.locator('input[autocomplete="family-name"]')).toBeVisible();
+    await expect(page.locator('input[autocomplete="given-name"]').first()).toBeVisible();
+    await expect(page.locator('input[autocomplete="family-name"]').first()).toBeVisible();
 
     // Verify email input
     await expect(page.locator('input[type="email"]').first()).toBeVisible();

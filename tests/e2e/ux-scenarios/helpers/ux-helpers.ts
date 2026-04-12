@@ -61,7 +61,7 @@ export async function registerUser(
   user: Partial<UserCredentials> & { email: string; password: string }
 ): Promise<void> {
   await page.goto("/register");
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 
   // Fill registration form
   // ملء نموذج التسجيل
@@ -104,7 +104,7 @@ export async function loginUser(
   }
 
   await page.goto("/login");
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 
   await page.fill('input[type="email"]', credentials.email);
   await page.fill('input[type="password"]', credentials.password);
@@ -268,7 +268,7 @@ export const sampleFields = {
  */
 export async function createFarm(page: Page, farm: FarmData): Promise<string> {
   await page.goto("/farms/new");
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 
   // Fill farm details
   // ملء تفاصيل المزرعة
@@ -310,7 +310,7 @@ export async function createFarm(page: Page, farm: FarmData): Promise<string> {
  */
 export async function createField(page: Page, field: FieldData): Promise<string> {
   await page.goto("/fields/new");
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 
   // Fill field details
   // ملء تفاصيل الحقل
@@ -425,7 +425,7 @@ export const sampleTasks = {
  */
 export async function createTask(page: Page, task: TaskData): Promise<string> {
   await page.goto("/tasks/new");
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 
   await page.fill('input[name="title"]', task.title);
 
@@ -637,7 +637,7 @@ export async function createCooperative(
   coop: CooperativeData
 ): Promise<string> {
   await page.goto("/cooperatives/new");
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 
   await page.fill('input[name="name"]', coop.name);
   await page.fill('input[name="nameAr"]', coop.nameAr);
@@ -659,7 +659,6 @@ export async function createCooperative(
  * انتظار تحميل الصفحة بالكامل
  */
 export async function waitForPageLoad(page: Page): Promise<void> {
-  await page.waitForLoadState("networkidle");
   await page.waitForLoadState("domcontentloaded");
 }
 

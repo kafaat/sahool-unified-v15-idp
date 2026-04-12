@@ -618,7 +618,7 @@ asyncio.run(main())
   # Rocket.Chat - Community Messaging Platform
   # منصة المراسلة المجتمعية للمزارعين
   rocketchat:
-    image: registry.rocket.chat/rocketchat/rocket.chat:7.5
+    image: rocketchat/rocket.chat:7.5.0
     container_name: sahool-rocketchat
     environment:
       # MongoDB connection (replica set required for Rocket.Chat)

@@ -86,7 +86,7 @@ test.describe("Error Handling Endpoints", () => {
     const response = await request.post("/api/csp-report", {
       data: {
         "csp-report": {
-          "document-uri": "http://localhost:3000/dashboard",
+          "document-uri": `${process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000"}/dashboard`,
           "violated-directive": "script-src",
           "blocked-uri": "http://evil.example.com",
         },

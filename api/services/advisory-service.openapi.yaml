@@ -1,0 +1,1035 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Advisory Service API
+  version: "4.12.0"
+  description: "Bilingual EN+AR — Fertilizer, disease, pest + comprehensive agronomic advisory for SAHOOL fields. Includes Jeevn-style unified advisory and satellite-backed crop-loan verification for banks."
+  contact:
+    name: SAHOOL Developer Relations
+    email: developer@sahool.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://sahool.com/legal/terms
+  x-service-name: advisory-service
+  x-service-port: 8093
+  x-contract-version: "4.12.0"
+
+servers:
+  - url: https://api.sahool.com
+    description: Production gateway
+  - url: https://sandbox.sahool.app
+    description: Sandbox environment
+  - url: http://localhost:8000
+    description: Local development (Kong gateway)
+
+tags:
+  - name: Advisory
+    description: "Agronomic advisory, fertilizer recommendations, disease detection, and comprehensive per-field guidance."
+  - name: Health
+    description: "Liveness, readiness, and combined health checks."
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/fertilizer/recommend:
+    post:
+      operationId: recommendFertilizer
+      summary: Generate fertilizer recommendation
+      description: "Produces a nutrient and product recommendation for a given crop, soil test, and target yield. Output is bilingual (EN/AR)."
+      tags: [Advisory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FertilizerRecommendRequest"
+            examples:
+              wheatTillering:
+                summary: Wheat at tillering stage
+                value:
+                  fieldId: "fld_01HX7K"
+                  cropType: "wheat"
+                  targetYield: 5.5
+                  growthStage: "tillering"
+                  soilTest:
+                    ph: 7.2
+                    nitrogenNitratePpm: 18
+                    phosphorusPpm: 25
+                    potassiumPpm: 180
+                    ecDsM: 1.4
+                    organicMatterPercent: 1.8
+                    texture: "loam"
+      responses:
+        "200":
+          description: Fertilizer recommendation generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FertilizerRecommendationResponse"
+              examples:
+                wheat:
+                  value:
+                    prescriptionId: "rx_01HX7M"
+                    fieldId: "fld_01HX7K"
+                    crop: "wheat"
+                    cropAr: "قمح"
+                    stage: "tillering"
+                    nutrients:
+                      - name: "Nitrogen"
+                        nameAr: "نيتروجين"
+                        amountKgHa: 46
+                        reason: "Soil N below 25 ppm target"
+                        reasonAr: "النيتروجين في التربة أقل من 25 جزء في المليون"
+                    products:
+                      - productName: "Urea 46%"
+                        productNameAr: "يوريا 46%"
+                        rateKgHa: 100
+                        timingDaysAfterSowing: 45
+                    confidence: 0.86
+                    generatedAt: "2026-04-12T07:30:00Z"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/v1/fertilizer/soil/interpret:
+    post:
+      operationId: interpretSoilTest
+      summary: Interpret soil test result
+      description: "Classifies soil health, identifies deficiencies and surpluses, and returns bilingual remediation guidance."
+      tags: [Advisory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SoilTestInput"
+      responses:
+        "200":
+          description: Interpretation produced
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SoilInterpretationResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/fertilizer/crops:
+    get:
+      operationId: listFertilizerCrops
+      summary: List crops with fertilizer profiles
+      description: "Returns supported crops that have fertilizer recommendation profiles loaded."
+      tags: [Advisory]
+      parameters:
+        - name: region
+          in: query
+          required: false
+          schema: { type: string }
+          description: Filter by region code (ISO or internal region tag)
+      responses:
+        "200":
+          description: Crop catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CropCatalogItem"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/fertilizer/fertilizers:
+    get:
+      operationId: listFertilizerProducts
+      summary: List fertilizer product catalog
+      description: "Catalog of fertilizer products known to the service with NPK ratios and typical rates."
+      tags: [Advisory]
+      parameters:
+        - name: formulation
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Fertilizer catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FertilizerCatalogItem"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/fertilizer/deficiency/symptoms:
+    get:
+      operationId: listDeficiencySymptoms
+      summary: List nutrient deficiency symptoms
+      description: "Returns visible deficiency symptoms for a crop and/or a specific nutrient, with remediation rates."
+      tags: [Advisory]
+      parameters:
+        - name: crop
+          in: query
+          required: false
+          schema: { type: string }
+        - name: nutrient
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [N, P, K, Ca, Mg, S, Fe, Zn, Mn, B, Cu, Mo]
+      responses:
+        "200":
+          description: Deficiency symptom list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeficiencySymptom"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/fertilizer/schedule:
+    post:
+      operationId: buildFertilizerSchedule
+      summary: Build a staged fertilizer application schedule
+      description: "Generates a multi-stage fertilizer application schedule for a field from sowing to harvest."
+      tags: [Advisory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FertilizerScheduleRequest"
+      responses:
+        "200":
+          description: Schedule generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FertilizerScheduleResponse"
+              examples:
+                tomatoSchedule:
+                  value:
+                    fieldId: "fld_01HX7K"
+                    crop: "tomato"
+                    stages:
+                      - stageName: "Transplant"
+                        stageNameAr: "شتل"
+                        daysAfterSowing: 0
+                        applications:
+                          - productName: "DAP 18-46-0"
+                            rateKgHa: 150
+                            method: "banding"
+                      - stageName: "Flowering"
+                        stageNameAr: "إزهار"
+                        daysAfterSowing: 45
+                        applications:
+                          - productName: "MOP 0-0-60"
+                            rateKgHa: 80
+                            method: "fertigation"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/advisory/recommendations:
+    get:
+      operationId: listAdvisoryRecommendations
+      summary: List advisory recommendations
+      description: "Returns advisory recommendations for a field, crop, or growth stage. Supports pagination."
+      tags: [Advisory]
+      parameters:
+        - name: fieldId
+          in: query
+          required: false
+          schema: { type: string }
+        - name: crop
+          in: query
+          required: false
+          schema: { type: string }
+        - name: stage
+          in: query
+          required: false
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - name: offset
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Paginated recommendations
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AdvisoryRecommendation"
+                  total: { type: integer }
+                  limit: { type: integer }
+                  offset: { type: integer }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/advisory/fertilizer:
+    post:
+      operationId: advisoryFertilizerAlias
+      summary: "Fertilizer recommendation (alias of /fertilizer/recommend)"
+      description: "Alias endpoint kept for backward compatibility; identical request/response to /api/v1/fertilizer/recommend."
+      tags: [Advisory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FertilizerRecommendRequest"
+      responses:
+        "200":
+          description: Fertilizer recommendation generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FertilizerRecommendationResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/advisory/fertilizer/calculate:
+    post:
+      operationId: calculateFertilizerPrescription
+      summary: Calculate a detailed fertilizer prescription
+      description: "Performs a deterministic nutrient-balance calculation from detailed inputs (soil, target yield, residuals)."
+      tags: [Advisory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FertilizerCalculateRequest"
+      responses:
+        "200":
+          description: Detailed calculation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FertilizerRecommendationResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/advisory/fertilizer/{prescriptionId}:
+    patch:
+      operationId: updateFertilizerPrescription
+      summary: Update an existing fertilizer prescription
+      description: "Updates targets, constraints, or product list on an existing prescription."
+      tags: [Advisory]
+      parameters:
+        - name: prescriptionId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FertilizerPrescriptionPatch"
+      responses:
+        "200":
+          description: Prescription updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FertilizerRecommendationResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/advisory/fertilizer/{prescriptionId}/zones/{zoneId}:
+    patch:
+      operationId: updateFertilizerPrescriptionZone
+      summary: Update a single management zone within a prescription
+      description: "Adjusts nutrient rates for a specific management zone within a Variable Rate Application prescription."
+      tags: [Advisory]
+      parameters:
+        - name: prescriptionId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: zoneId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FertilizerZonePatch"
+      responses:
+        "200":
+          description: Zone updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FertilizerRecommendationResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/agro-advisor/advice:
+    post:
+      operationId: askAgroAdvisor
+      summary: Ask the LLM-powered agro advisor
+      description: "Bilingual Q&A powered by an agricultural LLM with field context and citations."
+      tags: [Advisory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgroQaRequest"
+      responses:
+        "200":
+          description: Advisor answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgroQaResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/agro-advisor/disease:
+    post:
+      operationId: detectDisease
+      summary: Detect crop disease from symptoms or images
+      description: "Analyzes farmer-supplied symptoms or uploaded image URLs to detect likely crop diseases."
+      tags: [Advisory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiseaseDetectionRequest"
+      responses:
+        "200":
+          description: Detection result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiseaseDetectionResult"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/agro-advisor/nutrients:
+    post:
+      operationId: analyzeNutrientStatus
+      summary: Analyze nutrient status for a field
+      description: "Returns a nutrient status summary and deficiency risks for a specific crop and growth stage."
+      tags: [Advisory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fieldId, cropType, growthStage]
+              properties:
+                fieldId: { type: string }
+                cropType: { type: string }
+                growthStage: { type: string }
+      responses:
+        "200":
+          description: Nutrient status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SoilInterpretationResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/advisory/comprehensive/{fieldId}:
+    post:
+      operationId: generateComprehensiveAdvisory
+      summary: Generate Jeevn-style unified field advisory
+      description: "Unified one-call advisory: crop, irrigation, fertilizer, pest, disease, and market guidance in a single bilingual response. Added in 4.7.0."
+      tags: [Advisory]
+      parameters:
+        - name: fieldId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                language:
+                  type: string
+                  enum: [ar, en, both]
+                  default: both
+                includeMarket: { type: boolean, default: true }
+      responses:
+        "200":
+          description: Comprehensive advisory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveAdvisoryResponse"
+              examples:
+                wheatField:
+                  value:
+                    fieldId: "fld_01HX7K"
+                    generatedAt: "2026-04-12T08:00:00Z"
+                    summary: "Wheat field in tillering stage; irrigation and nitrogen application recommended within 48h."
+                    summaryAr: "حقل قمح في مرحلة التفريع؛ يوصى بالري وتسميد النيتروجين خلال 48 ساعة."
+                    sections:
+                      - title: "Irrigation"
+                        titleAr: "الري"
+                        body: "Soil moisture at 38% — irrigate 25mm tomorrow morning."
+                        bodyAr: "رطوبة التربة 38% — اروي 25 مم صباح الغد."
+                        recommendations: ["Irrigate 25mm tomorrow AM"]
+                    citations: ["soil_sensor:SM-003", "weather:2026-04-12"]
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/loans/crop-loan-verification/{fieldId}:
+    post:
+      operationId: verifyCropLoan
+      summary: Satellite-backed crop loan verification for banks
+      description: "Provides NDVI-based and historical-cultivation verification suitable for bank crop-loan decisioning. Added in 4.7.0."
+      tags: [Advisory]
+      parameters:
+        - name: fieldId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                season: { type: string }
+                includeReport: { type: boolean, default: true }
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CropLoanVerificationResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /healthz:
+    get:
+      operationId: livenessCheck
+      summary: Liveness probe
+      description: Kubernetes liveness probe endpoint.
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Service alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /readyz:
+    get:
+      operationId: readinessCheck
+      summary: Readiness probe
+      description: Kubernetes readiness probe endpoint; returns downstream dependency status.
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Service ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Combined health check
+      description: Combined health status including database and NATS connectivity.
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Combined health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    RateLimited:
+      description: "Rate limit exceeded (60/min, 2000/hour per IP)"
+      headers:
+        Retry-After:
+          schema: { type: integer }
+          description: Seconds until limit resets
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+
+  schemas:
+    SoilTestInput:
+      type: object
+      required: [ph, nitrogenNitratePpm, phosphorusPpm, potassiumPpm, ecDsM, organicMatterPercent]
+      properties:
+        ph:
+          type: number
+          minimum: 0
+          maximum: 14
+        nitrogenNitratePpm:
+          type: number
+          minimum: 0
+        phosphorusPpm:
+          type: number
+          minimum: 0
+        potassiumPpm:
+          type: number
+          minimum: 0
+        ecDsM:
+          type: number
+          minimum: 0
+          description: "Electrical conductivity, dS/m"
+        organicMatterPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        cecMeq100g:
+          type: [number, "null"]
+          description: "Cation exchange capacity, meq/100g"
+        texture:
+          type: [string, "null"]
+          enum: [sand, loam, clay, silt, null]
+
+    FertilizerRecommendRequest:
+      type: object
+      required: [cropType, soilTest, targetYield, growthStage]
+      properties:
+        fieldId:
+          type: [string, "null"]
+        cropType: { type: string }
+        targetYield:
+          type: number
+          description: "Target yield in t/ha"
+        growthStage: { type: string }
+        soilTest:
+          $ref: "#/components/schemas/SoilTestInput"
+
+    FertilizerScheduleRequest:
+      type: object
+      required: [fieldId, cropType, sowingDate]
+      properties:
+        fieldId: { type: string }
+        cropType: { type: string }
+        sowingDate:
+          type: string
+          format: date
+
+    FertilizerCalculateRequest:
+      type: object
+      required: [cropType, targetYield, soilTest]
+      properties:
+        fieldId: { type: [string, "null"] }
+        cropType: { type: string }
+        targetYield: { type: number }
+        growthStage: { type: [string, "null"] }
+        soilTest:
+          $ref: "#/components/schemas/SoilTestInput"
+        residuals:
+          type: [object, "null"]
+          additionalProperties: { type: number }
+        constraints:
+          type: [object, "null"]
+          properties:
+            maxNitrogenKgHa: { type: number }
+            budgetPerHa: { type: number }
+
+    FertilizerPrescriptionPatch:
+      type: object
+      properties:
+        targetYield: { type: number }
+        growthStage: { type: string }
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              productName: { type: string }
+              rateKgHa: { type: number }
+
+    FertilizerZonePatch:
+      type: object
+      properties:
+        nutrients:
+          type: array
+          items:
+            type: object
+            required: [name, amountKgHa]
+            properties:
+              name: { type: string }
+              amountKgHa: { type: number }
+
+    Nutrient:
+      type: object
+      required: [name, amountKgHa]
+      properties:
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        amountKgHa: { type: number }
+        reason: { type: [string, "null"] }
+        reasonAr: { type: [string, "null"] }
+
+    FertilizerProductPlan:
+      type: object
+      required: [productName, rateKgHa]
+      properties:
+        productName: { type: string }
+        productNameAr: { type: [string, "null"] }
+        rateKgHa: { type: number }
+        timingDaysAfterSowing: { type: [integer, "null"] }
+
+    FertilizerRecommendationResponse:
+      type: object
+      required: [prescriptionId, crop, stage, nutrients, products, confidence, generatedAt]
+      properties:
+        prescriptionId: { type: string }
+        fieldId: { type: [string, "null"] }
+        crop: { type: string }
+        cropAr: { type: [string, "null"] }
+        stage: { type: string }
+        nutrients:
+          type: array
+          items:
+            $ref: "#/components/schemas/Nutrient"
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/FertilizerProductPlan"
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        generatedAt:
+          type: string
+          format: date-time
+
+    SoilInterpretationResponse:
+      type: object
+      required: [overall, overallAr, deficiencies, surpluses, ph, salinity]
+      properties:
+        overall:
+          type: string
+          enum: [healthy, moderate, stressed, critical]
+        overallAr: { type: string }
+        deficiencies:
+          type: array
+          items: { type: string }
+        surpluses:
+          type: array
+          items: { type: string }
+        ph:
+          type: object
+          required: [value, status, recommendation]
+          properties:
+            value: { type: number }
+            status: { type: string }
+            recommendation: { type: string }
+            recommendationAr: { type: [string, "null"] }
+        salinity:
+          type: object
+          required: [ecDsM, status]
+          properties:
+            ecDsM: { type: number }
+            status: { type: string }
+
+    FertilizerScheduleStageApplication:
+      type: object
+      required: [productName, rateKgHa, method]
+      properties:
+        productName: { type: string }
+        rateKgHa: { type: number }
+        method:
+          type: string
+          enum: [broadcast, banding, fertigation, foliar, side-dress]
+
+    FertilizerScheduleStage:
+      type: object
+      required: [stageName, daysAfterSowing, applications]
+      properties:
+        stageName: { type: string }
+        stageNameAr: { type: [string, "null"] }
+        daysAfterSowing: { type: integer, minimum: 0 }
+        applications:
+          type: array
+          items:
+            $ref: "#/components/schemas/FertilizerScheduleStageApplication"
+
+    FertilizerScheduleResponse:
+      type: object
+      required: [fieldId, crop, stages]
+      properties:
+        fieldId: { type: string }
+        crop: { type: string }
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/FertilizerScheduleStage"
+
+    CropCatalogItem:
+      type: object
+      required: [id, name, typicalCycleLenDays]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        scientificName: { type: [string, "null"] }
+        typicalCycleLenDays: { type: integer }
+        supportedRegions:
+          type: array
+          items: { type: string }
+
+    FertilizerCatalogItem:
+      type: object
+      required: [id, name, npkRatio, formulation, typicalRateKgHa]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        npkRatio: { type: string }
+        formulation:
+          type: string
+          enum: [granular, liquid, soluble, foliar, slow-release]
+        typicalRateKgHa: { type: number }
+        pricePerKg: { type: [number, "null"] }
+
+    DeficiencySymptom:
+      type: object
+      required: [nutrient, symptoms, affectedParts, remediationKgHa]
+      properties:
+        nutrient: { type: string }
+        symptoms: { type: string }
+        symptomsAr: { type: [string, "null"] }
+        affectedParts:
+          type: array
+          items: { type: string }
+        remediationKgHa: { type: number }
+
+    AdvisoryRecommendation:
+      type: object
+      required: [id, fieldId, crop, category, title, body, urgency, createdAt]
+      properties:
+        id: { type: string }
+        fieldId: { type: string }
+        crop: { type: string }
+        category:
+          type: string
+          enum: [irrigation, fertilizer, pest, disease, general]
+        title: { type: string }
+        titleAr: { type: [string, "null"] }
+        body: { type: string }
+        bodyAr: { type: [string, "null"] }
+        urgency:
+          type: string
+          enum: [low, medium, high, critical]
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: [string, "null"]
+          format: date-time
+
+    ComprehensiveAdvisorySection:
+      type: object
+      required: [title, titleAr, body, bodyAr, recommendations]
+      properties:
+        title: { type: string }
+        titleAr: { type: string }
+        body: { type: string }
+        bodyAr: { type: string }
+        recommendations:
+          type: array
+          items: { type: string }
+
+    ComprehensiveAdvisoryResponse:
+      type: object
+      required: [fieldId, generatedAt, summary, summaryAr, sections, citations]
+      properties:
+        fieldId: { type: string }
+        generatedAt:
+          type: string
+          format: date-time
+        summary: { type: string }
+        summaryAr: { type: string }
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/ComprehensiveAdvisorySection"
+        citations:
+          type: array
+          items: { type: string }
+
+    AgroQaRequest:
+      type: object
+      required: [question]
+      properties:
+        fieldId: { type: [string, "null"] }
+        question: { type: string }
+        questionAr: { type: [string, "null"] }
+        language:
+          type: [string, "null"]
+          enum: [ar, en, null]
+
+    AgroQaResponse:
+      type: object
+      required: [answer, confidence, relatedRecommendations, sources]
+      properties:
+        answer: { type: string }
+        answerAr: { type: [string, "null"] }
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        relatedRecommendations:
+          type: array
+          items: { type: string }
+        sources:
+          type: array
+          items: { type: string }
+
+    DiseaseDetectionRequest:
+      type: object
+      required: [fieldId]
+      properties:
+        fieldId: { type: string }
+        symptoms: { type: [string, "null"] }
+        imageUrls:
+          type: [array, "null"]
+          items:
+            type: string
+            format: uri
+
+    DiseaseDetectionEntry:
+      type: object
+      required: [name, nameAr, confidence, severity, treatment]
+      properties:
+        name: { type: string }
+        nameAr: { type: string }
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        treatment: { type: string }
+        treatmentAr: { type: [string, "null"] }
+
+    DiseaseDetectionResult:
+      type: object
+      required: [detected, diseases, imagesAnalyzed]
+      properties:
+        detected: { type: boolean }
+        diseases:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiseaseDetectionEntry"
+        imagesAnalyzed:
+          type: integer
+          minimum: 0
+
+    CropLoanVerificationResponse:
+      type: object
+      required: [fieldId, verified, ndviAverage, historicalCultivation, confidence, checkedAt]
+      properties:
+        fieldId: { type: string }
+        verified: { type: boolean }
+        ndviAverage:
+          type: number
+          minimum: -1
+          maximum: 1
+        historicalCultivation:
+          type: array
+          items: { type: string }
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        reportUrl:
+          type: [string, "null"]
+          format: uri
+        checkedAt:
+          type: string
+          format: date-time
+
+    ApiError:
+      type: object
+      required: [success, error, errorCode]
+      properties:
+        success:
+          type: boolean
+          const: false
+        error: { type: string }
+        errorAr: { type: [string, "null"] }
+        errorCode: { type: string }
+        requestId: { type: [string, "null"] }
+
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, error]
+        service: { type: string }
+        version: { type: string }
+        database: { type: [boolean, "null"] }
+        nats: { type: [boolean, "null"] }

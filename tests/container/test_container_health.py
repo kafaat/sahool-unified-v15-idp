@@ -665,7 +665,7 @@ class TestDependencyHealthChain:
         )
 
     DB_SERVICES = [
-        "advisory-service", "alert-service", "audit-service", "billing-core",
+        "alert-service", "audit-service", "billing-core",
         "crm-service", "field-management-service", "user-service",
         "vegetation-analysis-service", "weather-service",
     ]

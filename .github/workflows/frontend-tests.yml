@@ -892,7 +892,7 @@ jobs:
         run: |
           echo "Building Android APK..."
           # Override Gradle JVM args for CI (runners have ~7GB RAM)
-          export GRADLE_OPTS="-Xmx6G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+          export GRADLE_OPTS="-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
           flutter build apk --debug
 
       - name: Upload APK

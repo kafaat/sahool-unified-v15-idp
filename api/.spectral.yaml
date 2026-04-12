@@ -1,0 +1,154 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL OpenAPI Spectral Ruleset
+# قواعد التحقق من مواصفات OpenAPI
+#
+# Extends the default Spectral OpenAPI ruleset (spectral:oas) with
+# SAHOOL-specific governance rules. Applied to:
+#   - api/gateway-openapi.yaml
+#   - api/services/*.openapi.yaml
+# ═══════════════════════════════════════════════════════════════════════════════
+
+extends:
+  - spectral:oas
+
+rules:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Strengthened defaults — error on structural issues only
+  # `operation-description` kept at `warn` (not error) because (a) the default
+  # OpenAPI spec makes description OPTIONAL, and (b) the pre-existing gateway
+  # spec has ~50 operations that use `summary` only — backfilling all of them
+  # is a separate documentation effort. New services SHOULD include both.
+  # ─────────────────────────────────────────────────────────────────────────────
+  operation-operationId: error           # every operation must have an operationId
+  operation-description: warn            # SHOULD be present — enforced as warn
+  operation-tags: error                  # every operation must have at least one tag
+  info-contact: error                    # info.contact is required
+  info-license: error                    # info.license is required
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL custom rule: operation tags must come from the approved catalog.
+  # When adding a new domain, extend the enum below AND update api/README.md.
+  # ─────────────────────────────────────────────────────────────────────────────
+  sahool-operation-tag-from-catalog:
+    description: operation tag must be one of the known SAHOOL tags
+    message: "Unknown tag '{{value}}'. Add it to the catalog or use an existing tag."
+    severity: warn
+    given: $.paths[*][*].tags[*]
+    then:
+      function: enumeration
+      functionOptions:
+        values:
+          # Partner OAuth / auth surface
+          - OAuth
+          - OIDC Discovery
+          - Admin — Partner Clients
+          - Admin — Consent Grants
+          - Admin — Tokens
+          - Admin — Signing Keys
+          - Health
+          # Field & geospatial
+          - Fields
+          - Boundaries
+          - Layers
+          - Uploads
+          - Exports
+          # Earth observation & weather
+          - Weather
+          - Satellite
+          # Agronomy
+          - Advisory
+          - Crop Health
+          - Irrigation
+          - Soil
+          # Operations
+          - Tasks
+          - Equipment
+          - IoT
+          # Business
+          - Marketplace
+          - Billing
+          - Notifications
+          - Users
+          - Auth
+          - Authentication  # legacy alias used by api/gateway-openapi.yaml
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL custom rule: server URLs must be on SAHOOL domains (or localhost
+  # for local dev). Prevents accidental leakage of internal hostnames.
+  # ─────────────────────────────────────────────────────────────────────────────
+  sahool-server-urls-are-sahool:
+    description: server URLs must be on sahool.com / sahool.app / sahool.io or localhost
+    message: "Server URL must be a SAHOOL domain or localhost"
+    severity: warn
+    given: $.servers[*].url
+    then:
+      function: pattern
+      functionOptions:
+        match: "(sahool\\.(com|app|io)|localhost|127\\.0\\.0\\.1)"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL custom rule: 2xx responses should include an example payload so the
+  # generated SDKs and docs have something to show partners.
+  # ─────────────────────────────────────────────────────────────────────────────
+  sahool-schema-has-example:
+    description: response schemas for 2xx responses should have examples
+    severity: info
+    given: $.paths[*][*].responses.200.content.*.schema
+    then:
+      function: truthy
+      field: example
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL custom rule: every 4xx response body must reference the shared
+  # partner error envelope schema. Aligns client-side error handling.
+  # ─────────────────────────────────────────────────────────────────────────────
+  sahool-error-envelope-on-4xx:
+    description: 4xx responses must reference PartnerErrorEnvelope / ErrorEnvelope / ApiError
+    severity: warn
+    given: $.paths[*][*].responses[?(/^4\d\d$/.test(@property))].content.application/json.schema
+    then:
+      function: pattern
+      functionOptions:
+        match: "(PartnerErrorEnvelope|ErrorEnvelope|ApiError)"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL custom rule: path parameters must have descriptions so the generated
+  # docs are not empty.
+  # ─────────────────────────────────────────────────────────────────────────────
+  sahool-path-param-has-description:
+    description: every path parameter must have a description
+    message: "Path parameter '{{path}}' is missing a description."
+    severity: warn
+    given: $.paths[*][*].parameters[?(@.in=='path')]
+    then:
+      field: description
+      function: truthy
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL custom rule: operationId must be camelCase to align with TS/Dart
+  # codegen conventions (e.g. `listFields`, `createConsentGrant`).
+  # ─────────────────────────────────────────────────────────────────────────────
+  sahool-operation-id-camel-case:
+    description: operationId must be camelCase
+    message: "operationId '{{value}}' must be camelCase (e.g. listFields)."
+    severity: error
+    given: $.paths[*][*].operationId
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[a-z][a-zA-Z0-9]*$"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL custom rule: component schema names must be PascalCase so generated
+  # TypeScript/Dart types line up with platform conventions.
+  # ─────────────────────────────────────────────────────────────────────────────
+  sahool-schema-name-pascal-case:
+    description: component schema names must be PascalCase
+    message: "Schema name '{{property}}' must be PascalCase (e.g. PartnerClient)."
+    severity: warn
+    given: $.components.schemas
+    then:
+      field: "@key"
+      function: pattern
+      functionOptions:
+        match: "^[A-Z][A-Za-z0-9]*$"

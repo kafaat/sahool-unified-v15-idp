@@ -135,9 +135,13 @@ export interface FieldResponse {
   description?: string;
   descriptionAr?: string;
   status: FieldStatus;
+  /** @deprecated Use `boundary` instead. Duplicate of boundary geometry kept for backwards compatibility. Removal: v5.0.0 */
   polygon?: GeoPolygon;
   boundary?: GeoPolygon;
+  /** @deprecated Use `boundary` instead. Duplicate of boundary geometry kept for backwards compatibility. Removal: v5.0.0 */
   geometry?: GeoPolygon;
+  /** @since 4.10.0 — Immutable boundary id; fetch geometry via `/partner/v1/boundaries/{id}` */
+  boundaryId?: string;
   centroid?: GeoPoint;
   area: number;
   areaHectares?: number;
@@ -614,3 +618,226 @@ export const DEFAULT_FREE_TIER: FreeTierLimits = {
   advancedNdvi: false,
   aiAdvisorFull: false,
 };
+
+// ---------------------------------------------------------------------------
+// Wave 0: Upload / Export / Partner Response Shapes (@since 4.10.0)
+// أشكال الاستجابات للرفع والتصدير وواجهة الشركاء
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Closed set of upload lifecycle states */
+export type UploadState =
+  | "UPLOADING"
+  | "PENDING"
+  | "INBOX"
+  | "DECLINED"
+  | "IMPORTING"
+  | "SUCCESS"
+  | "INVALID";
+
+/** @since 4.10.0 — Closed set of export job lifecycle states */
+export type ExportState =
+  | "PROCESSING"
+  | "COMPLETED"
+  | "NO_DATA"
+  | "INVALID"
+  | "EXPIRED";
+
+/** @since 4.10.0 — POST /uploads body (initiate chunked upload) */
+export interface UploadInitRequest {
+  /** Base64-encoded MD5 of the entire payload (validated on completion) */
+  md5: string;
+  /** Total byte length (max 500 MiB = 524_288_000) */
+  length: number;
+  /** Vendor MIME type from MEDIA_TYPES */
+  contentType: string;
+  /** Optional metadata forwarded to ingestion pipeline (e.g. `{fieldId, fileName, resourceOwner}`) */
+  metadata?: Record<string, string>;
+}
+
+/** @since 4.10.0 — POST /uploads 201 response */
+export interface UploadInitResponse {
+  uploadId: string;
+  expiresAt?: string;
+}
+
+/** @since 4.10.0 — GET /uploads/{id}/status response */
+export interface UploadStatusResponse {
+  id: string;
+  status: UploadState;
+  bytesReceived?: number;
+  /** Error messages when status = INVALID or DECLINED */
+  errors?: Array<{ code: string; message: string; path?: string }>;
+  updatedAt?: string;
+}
+
+/** @since 4.10.0 — POST /exports body */
+export interface ExportInitRequest {
+  contentType: string;
+  definition?: Record<string, unknown>;
+}
+
+/** @since 4.10.0 — GET /exports/{id}/status response */
+export interface ExportStatusResponse {
+  id: string;
+  status: ExportState;
+  /** Base64 MD5 of completed contents */
+  checksum?: string;
+  /** Content length in bytes (when COMPLETED) */
+  size?: number;
+  /** Reusable delta-export token — re-run the same export to fetch only newer data */
+  xNextToken?: string;
+  error?: string;
+}
+
+/** @since 4.10.0 — POST /partner/v1/oauth/token body (application/x-www-form-urlencoded) */
+export interface PartnerTokenRequest {
+  grant_type: "authorization_code" | "refresh_token" | "client_credentials";
+  code?: string;
+  redirect_uri?: string;
+  refresh_token?: string;
+  client_id?: string;
+  client_secret?: string;
+  scope?: string;
+}
+
+/** @since 4.10.0 — POST /partner/v1/oauth/token 200 response (OAuth 2.0 + OIDC) */
+export interface PartnerTokenResponse {
+  access_token: string;
+  token_type: "bearer";
+  expires_in: number;
+  refresh_token?: string;
+  scope: string;
+  /** OIDC id_token (JWT) — present when `openid` scope was requested */
+  id_token?: string;
+}
+
+/** @since 4.10.0 — Lightweight field summary for partner list endpoints (no inline geometry) */
+export interface PartnerFieldSummary {
+  id: string;
+  name: string;
+  boundaryId: string;
+  cropType?: string;
+}
+
+/** @since 4.10.0 — Immutable boundary resource (fetched on demand via /boundaries/{id}) */
+export interface PartnerBoundaryResponse {
+  id: string;
+  properties: {
+    area: { q: number; u: "ha" | "ac" | "m2" };
+    centroid: GeoPoint;
+  };
+  geometry: GeoPolygon | GeoMultiPolygon;
+}
+
+/** @since 4.10.0 — Activity layer summary (asPlanted / asHarvested / asApplied / scouting) */
+export interface PartnerActivityLayerSummary {
+  id: string;
+  fieldIds: string[];
+  startTime: string;
+  endTime: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Bytes in the raw contents payload (ZIP / ISOXML / shapefile) */
+  length?: number;
+}
+
+/** @since 4.10.0 — Error envelope (mirrors FieldView structure for partner familiarity) */
+export interface PartnerErrorEnvelope {
+  error: {
+    code: string;
+    id: string;
+    message: string;
+    path?: string;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Wave 1 #3: Partner Admin Response Shapes (@since 4.12.0)
+// ---------------------------------------------------------------------------
+
+export type PartnerClientStatus = "active" | "suspended" | "revoked";
+export type PartnerRateTier = "starter" | "pro" | "enterprise";
+
+/** @since 4.12.0 — Partner client row as returned to admin UIs. Never includes
+ *  the client_secret hash or the X-Sahool-Partner-Key hash. */
+export interface PartnerClientResponse {
+  id: string;
+  clientId: string;
+  name: string;
+  nameAr?: string | null;
+  description?: string | null;
+  homepageUrl?: string | null;
+  logoUrl?: string | null;
+  redirectUris: string[];
+  allowedScopes: string[];
+  rateTier: PartnerRateTier;
+  status: PartnerClientStatus;
+  contactEmail?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  revokedAt?: string | null;
+  /** Present on create/rotate responses ONLY — one-time plaintext */
+  clientSecret?: string;
+  /** Present on create/rotate-api-key responses ONLY — one-time plaintext */
+  partnerApiKey?: string;
+}
+
+/** @since 4.12.0 — Paginated list of partner clients */
+export interface PartnerClientListResponse {
+  results: PartnerClientResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+/** @since 4.12.0 — Consent grant row for admin inspection */
+export interface ConsentGrantAdminResponse {
+  id: string;
+  clientId: string;
+  clientName: string;
+  userId: string;
+  tenantId: string;
+  scopes: string[];
+  acceptedAt: string;
+  revokedAt?: string | null;
+  consentIp?: string | null;
+}
+
+/** @since 4.12.0 — Access token admin view (never includes the JWT itself) */
+export interface AccessTokenAdminResponse {
+  jti: string;
+  clientId: string;
+  clientName?: string;
+  userId: string;
+  tenantId: string;
+  scopes: string[];
+  expiresAt: string;
+  revokedAt?: string | null;
+  revokedReason?: string | null;
+  createdAt: string;
+}
+
+/** @since 4.12.0 — Refresh token admin view (shows rotation chain) */
+export interface RefreshTokenAdminResponse {
+  id: string;
+  clientId: string;
+  clientName?: string;
+  userId: string;
+  tenantId: string;
+  scopes: string[];
+  familyId: string;
+  rotatedToId?: string | null;
+  expiresAt: string;
+  revokedAt?: string | null;
+  revokedReason?: string | null;
+  createdAt: string;
+}
+
+/** @since 4.12.0 — Signing key metadata for admin (never exposes private PEM) */
+export interface SigningKeyAdminResponse {
+  kid: string;
+  alg: string;
+  activatedAt: string;
+  retiredAt?: string | null;
+  publicPem: string;
+}

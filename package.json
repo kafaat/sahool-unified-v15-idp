@@ -8,6 +8,7 @@
     "apps/web",
     "apps/admin",
     "apps/services/field-management-service",
+    "apps/services/partner-auth-service",
     "apps/services/user-service",
     "apps/services/chat-service",
     "apps/services/code-review-agent",

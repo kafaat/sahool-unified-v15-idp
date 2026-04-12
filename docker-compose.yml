@@ -1909,6 +1909,61 @@ asyncio.run(main())
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Partner Auth Service (OAuth 2.0 / OIDC) — port 3030 — @since contract 4.11.0
+  # FieldView-compatible partner authentication. Exposed externally via Kong
+  # on /partner/v1/oauth/*, /.well-known/*, and /api/v1/admin/partner-auth/*.
+  # ─────────────────────────────────────────────────────────────────────────────
+  partner-auth-service:
+    build:
+      context: .
+      dockerfile: apps/services/partner-auth-service/Dockerfile
+    container_name: sahool-partner-auth-service
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=3030
+      # PgBouncer transaction mode — see user-service notes for the rationale
+      # on connection_limit / pool_timeout / connect_timeout.
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true&connection_limit=10&pool_timeout=20&connect_timeout=10
+      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # Shared HS256 session secret with user-service (SahoolSessionGuard + AdminGuard)
+      - SAHOOL_SESSION_SECRET=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      # CSRF HMAC for consent screen; MUST differ from SAHOOL_SESSION_SECRET in prod
+      - CSRF_SECRET=${PARTNER_AUTH_CSRF_SECRET:?PARTNER_AUTH_CSRF_SECRET is required}
+      # OIDC issuer — baked into every id_token and the discovery doc
+      - PARTNER_AUTH_ISSUER=${PARTNER_AUTH_ISSUER:-https://api.sahool.com}
+      # Where /authorize redirects unauthenticated users
+      - SAHOOL_LOGIN_URL=${SAHOOL_LOGIN_URL:-https://app.sahool.com/login}
+      - SAHOOL_SIGNOUT_URL=${SAHOOL_SIGNOUT_URL:-https://app.sahool.com/logout}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com,https://dev.sahool.app,https://sandbox.sahool.app}
+    ports:
+      # localhost-only — all external traffic MUST come through Kong
+      - "127.0.0.1:3030:3030"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3030/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging: *default-logging
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Python Services (29)
   # ─────────────────────────────────────────────────────────────────────────────
 

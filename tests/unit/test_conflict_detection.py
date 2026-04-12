@@ -296,12 +296,44 @@ class TestAPIEndpointConflicts:
             )
 
     def test_all_paths_start_with_api_prefix(self, all_endpoints: dict[str, dict[str, str]]):
-        """All API paths should start with /api/v1/ (except health endpoints)."""
+        """All API paths should start with /api/v1/ except:
+          • HEALTH_ENDPOINTS  (K8s probes use /healthz etc.)
+          • PARTNER_* groups  (FieldView-compatible partner surface lives under
+            /partner/v1/ — intentional, per CONTRACT_VERSION 4.10.0; see
+            `api-endpoints.ts` PARTNER_PREFIX constant).
+          • Groups containing OIDC .well-known URLs (fixed by OIDC spec).
+        """
+        partner_exempt_groups = {
+            "PARTNER_FIELD_ENDPOINTS",
+            "PARTNER_BOUNDARY_ENDPOINTS",
+            "PARTNER_ORG_ENDPOINTS",
+            "PARTNER_LAYER_ENDPOINTS",
+            "PARTNER_UPLOAD_ENDPOINTS",
+            "PARTNER_EXPORT_ENDPOINTS",
+            "PARTNER_OAUTH_ENDPOINTS",  # contains /.well-known/* discovery URLs too
+            # PARTNER_ADMIN_* groups ARE under /api/v1/admin/partner-auth/* at
+            # runtime, but this test reads the TypeScript source as raw text
+            # and can't resolve the `${ADMIN_PARTNER_AUTH_PREFIX}` template
+            # literal constant. Exempting these groups avoids the false
+            # positive. Their prefix is exercised at runtime by the Kong
+            # route integration tests (tests/integration/gateway/).
+            "PARTNER_ADMIN_CLIENT_ENDPOINTS",
+            "PARTNER_ADMIN_CONSENT_ENDPOINTS",
+            "PARTNER_ADMIN_TOKEN_ENDPOINTS",
+            "PARTNER_ADMIN_SIGNING_KEY_ENDPOINTS",
+        }
         invalid: list[str] = []
         for group_name, endpoints in all_endpoints.items():
             if group_name == "HEALTH_ENDPOINTS":
-                continue  # Health endpoints use /healthz etc.
+                continue
+            if group_name in partner_exempt_groups:
+                continue
             for key, path in endpoints.items():
+                # Inside PARTNER_OAUTH specifically DISCOVERY + JWKS live at
+                # /.well-known/* (OIDC Core 1.0). If a new group lands here
+                # with a .well-known URL, allow it.
+                if path.startswith("/.well-known/"):
+                    continue
                 if not path.startswith("/api/v1/"):
                     invalid.append(f"{group_name}.{key}: '{path}'")
 
@@ -318,11 +350,22 @@ class TestAPIEndpointConflicts:
         assert not trailing, "Paths with trailing slashes:\n" + "\n".join(trailing)
 
     def test_paths_are_lowercase(self, all_endpoints: dict[str, dict[str, str]]):
-        """API paths (excluding parameters) should be lowercase."""
+        """API paths (excluding parameters) should be lowercase EXCEPT:
+          • PARTNER_* FieldView-compatible groups, where camelCase path
+            segments (asPlanted, asHarvested, asApplied, scoutingObservations,
+            resourceOwners, farmOrganizations) are wire-compat requirements
+            (see dev.fieldview.com/technical-documentation/). Changing these
+            to snake_case or lowercase would break partner SDK interop.
+        """
+        partner_camel_exempt = {
+            "PARTNER_LAYER_ENDPOINTS",   # asPlanted, asHarvested, asApplied, scoutingObservations
+            "PARTNER_ORG_ENDPOINTS",     # resourceOwners, farmOrganizations
+        }
         uppercase: list[str] = []
         for group_name, endpoints in all_endpoints.items():
+            if group_name in partner_camel_exempt:
+                continue
             for key, path in endpoints.items():
-                # Remove {param} placeholders before checking case
                 path_no_params = re.sub(r"\{[^}]+\}", "", path)
                 if path_no_params != path_no_params.lower():
                     uppercase.append(f"{group_name}.{key}: '{path}'")

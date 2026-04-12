@@ -50,3 +50,31 @@ de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secr
 # not a hardcoded secret. The value comes from POSTGRES_PASSWORD env var at runtime.
 fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthcheck.sh:generic-secret:100
 fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthcheck.sh:generic-secret:129
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Wave 1 — partner-auth-service (PR #1576) — FieldView-inspired OAuth server
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Method name is `rotateSecret(@Param...)` — Gitleaks generic-secret rule
+# false-positives on method/variable names containing the word "Secret".
+# This is the endpoint handler that ROTATES client secrets (returns a new
+# plaintext once); it does NOT embed any secret value.
+34a79cd4e15def4372dfd82186404fe180dbb56f:apps/services/partner-auth-service/src/admin/clients.controller.ts:generic-secret:84
+
+# OpenAPI spec — illustrative EXAMPLE value of an OAuth `code` param
+# (`sah_ac_…`). Hand-written fake token to document the authorization-code
+# token-exchange flow. Real codes are generated server-side at runtime
+# and never committed to the repo.
+68276cd69b542d92769c0221925083abbc1e311b:api/services/partner-auth.openapi.yaml:high-entropy-base64:112
+
+# OpenAPI spec — illustrative EXAMPLE value of an RSA public-key modulus
+# `n` in a JWKS response document. The `n` component of an RSA key pair
+# is PUBLIC by definition (RFC 7517); even a real value here would carry
+# no secret material.
+68276cd69b542d92769c0221925083abbc1e311b:api/services/partner-auth.openapi.yaml:high-entropy-base64:447
+
+# Prisma schema field definition — column name `clientSecretHash` mapped
+# to `client_secret_hash`. This is a column NAME in the DB schema, not a
+# secret value. The column stores bcrypt(client_secret); the actual
+# plaintext never touches the DB (see OAuthService.authenticateClient).
+c030a74e950b66436b38593f6f1ead9c4a3a40e2:apps/services/partner-auth-service/prisma/schema.prisma:generic-secret:44

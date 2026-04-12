@@ -1,0 +1,218 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL OpenAPI Validation
+# التحقق من مواصفات OpenAPI
+#
+# Lints every OpenAPI spec under api/ with Spectral + Redocly, bundles a
+# single-file artifact per service, and fails the build on breaking changes
+# compared to the PR base branch.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: OpenAPI Validation
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'api/**'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'api/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: openapi-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SPECTRAL_VERSION: '6'
+  REDOCLY_VERSION: '1'
+  SPECS_GLOB: 'api/gateway-openapi.yaml api/services/*.openapi.yaml'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Lint every OpenAPI spec with Spectral + Redocly
+  # ─────────────────────────────────────────────────────────────────────────────
+  lint-specs:
+    name: Lint OpenAPI Specs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install linters
+        run: npm i -g "@stoplight/spectral-cli@${SPECTRAL_VERSION}" "@redocly/cli@${REDOCLY_VERSION}"
+
+      - name: Discover specs
+        id: discover
+        run: |
+          echo "🔍 Discovering OpenAPI specs..."
+          git ls-files 'api/**/*.yaml' 'api/**/*.yml' | tee /tmp/specs.txt
+          echo "count=$(wc -l < /tmp/specs.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Spectral lint (GitHub annotations)
+        run: |
+          echo "🔍 Running Spectral with github-actions formatter..."
+          # Non-failing pass — produces inline PR annotations.
+          spectral lint \
+            --ruleset api/.spectral.yaml \
+            --format github-actions \
+            ${SPECS_GLOB} || true
+
+      - name: Spectral lint (fail on errors)
+        run: |
+          echo "🔍 Running Spectral with stylish formatter (enforced)..."
+          spectral lint \
+            --ruleset api/.spectral.yaml \
+            --format stylish \
+            --fail-severity=error \
+            ${SPECS_GLOB}
+
+      - name: Redocly lint
+        run: |
+          echo "🔍 Running Redocly lint..."
+          redocly lint ${SPECS_GLOB}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Bundle dereferenced single-file specs and upload as a build artifact.
+  # Consumed downstream by SDK codegen and the developer portal.
+  # ─────────────────────────────────────────────────────────────────────────────
+  bundle-and-upload-artifact:
+    name: Bundle Specs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint-specs
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Redocly CLI
+        run: npm i -g "@redocly/cli@${REDOCLY_VERSION}"
+
+      - name: Bundle all specs
+        run: |
+          mkdir -p /tmp/bundled
+          echo "🔍 Bundling gateway spec..."
+          redocly bundle api/gateway-openapi.yaml -o /tmp/bundled/gateway.yaml
+
+          echo "🔍 Bundling per-service specs..."
+          for spec in api/services/*.openapi.yaml; do
+            [ -f "$spec" ] || continue
+            name=$(basename "$spec" .openapi.yaml)
+            echo "  → ${name}"
+            redocly bundle "$spec" -o "/tmp/bundled/${name}.yaml"
+          done
+          ls -la /tmp/bundled
+
+      - name: Upload bundled artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-bundled-specs
+          path: /tmp/bundled/
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Detect breaking changes vs. the PR base branch using oasdiff.
+  # Runs in parallel with lint-specs to give fast feedback.
+  # ─────────────────────────────────────────────────────────────────────────────
+  breaking-change-check:
+    name: Detect Breaking Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install oasdiff
+        # oasdiff is a Go binary, NOT an npm package. Install from the
+        # official GitHub release tarball for deterministic + fast CI.
+        run: |
+          OASDIFF_VERSION="1.11.7"
+          curl -sSfL \
+            "https://github.com/oasdiff/oasdiff/releases/download/v${OASDIFF_VERSION}/oasdiff_${OASDIFF_VERSION}_linux_amd64.tar.gz" \
+            | tar xz -C /tmp
+          sudo install -m 0755 /tmp/oasdiff /usr/local/bin/oasdiff
+          oasdiff --version
+
+      - name: Diff specs against base branch
+        id: diff
+        run: |
+          BASE="origin/${{ github.base_ref }}"
+          mkdir -p /tmp/base /tmp/diff
+          : > /tmp/diff/summary.md
+
+          BREAKING=0
+          for spec in $(git ls-files 'api/**/*.openapi.yaml' 'api/gateway-openapi.yaml'); do
+            [ -f "$spec" ] || continue
+            # Use a path-unique name so two specs with the same basename (e.g.
+            # `api/services/foo.openapi.yaml` and `api/internal/foo.openapi.yaml`)
+            # don't overwrite each other in /tmp/base.
+            SAFE_NAME=$(echo "$spec" | tr '/' '_')
+            if git show "${BASE}:${spec}" > "/tmp/base/${SAFE_NAME}" 2>/dev/null; then
+              echo "🔍 Diffing ${spec} vs ${BASE}:${spec} ..."
+              echo "## ${spec}" >> /tmp/diff/summary.md
+              # `--fail-on ERR` exits non-zero ONLY on ERR-level diff entries
+              # (actual breaking changes). Non-breaking changes / parse issues
+              # go to stdout without triggering failure.
+              if ! oasdiff breaking "/tmp/base/${SAFE_NAME}" "$spec" \
+                     --fail-on ERR 2>&1 | tee -a /tmp/diff/summary.md; then
+                echo "⚠️  oasdiff reported ERR-level findings on ${spec}"
+                BREAKING=1
+              fi
+              echo "" >> /tmp/diff/summary.md
+            else
+              echo "  ✨ new spec (not on base) — skipping diff: ${spec}"
+              echo "## ${spec}  _(new)_" >> /tmp/diff/summary.md
+              echo "" >> /tmp/diff/summary.md
+            fi
+          done
+
+          if [ -s /tmp/diff/summary.md ]; then
+            echo "─── summary.md ───"
+            cat /tmp/diff/summary.md
+            echo "──────────────────"
+          fi
+
+          echo "breaking=${BREAKING}" >> "$GITHUB_OUTPUT"
+
+      - name: Comment diff on PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = '/tmp/diff/summary.md';
+            if (!fs.existsSync(path)) return;
+            const body = '## OpenAPI Breaking-Change Report\n\n```\n' +
+              (fs.readFileSync(path, 'utf8') || '(no diff)') + '\n```';
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Fail on breaking changes
+        if: steps.diff.outputs.breaking == '1'
+        run: |
+          echo "::error::Breaking changes detected in OpenAPI specs vs. ${{ github.base_ref }}."
+          exit 1

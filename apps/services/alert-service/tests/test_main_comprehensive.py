@@ -661,7 +661,12 @@ class TestHealthEndpointsComprehensive:
         assert "nats_subscriber" in data
 
     def test_readyz_includes_counts(self, test_client, mock_db_session):
-        # Mock the count queries
+        """Security regression test: /readyz must NOT expose tenant-unscoped
+        business-data counts to unauthenticated K8s probes. The endpoint was
+        hardened in a prior commit to return only connectivity signals; this
+        test is intentionally renamed-in-spirit (kept for git history) and
+        now asserts the HARDENED contract.
+        """
         mock_scalar_result = MagicMock()
         mock_scalar_result.scalar.return_value = 42
         mock_db_session.execute.return_value = mock_scalar_result
@@ -671,8 +676,15 @@ class TestHealthEndpointsComprehensive:
                 response = test_client.get("/readyz")
 
         data = response.json()
-        assert "alerts_count" in data
-        assert "rules_count" in data
+        # Connectivity signals are REQUIRED
+        assert "status" in data
+        assert data["status"] == "ready"
+        assert "database" in data
+        assert "nats_publisher" in data
+        assert "nats_subscriber" in data
+        # Security: business-data counts MUST NOT appear on the unauth probe
+        assert "alerts_count" not in data, "/readyz must not expose tenant-unscoped counts (see main.py fix)"
+        assert "rules_count" not in data
 
 
 class TestStatsEndpointValidation:

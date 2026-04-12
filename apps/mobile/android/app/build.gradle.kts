@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "io.sahool.sahool_field_app"
-    compileSdk = 36  // Android 16 — aligned across all SAHOOL mobile apps
+    compileSdk = 35  // Android 15 — matches Flutter 3.27.x stable support
     ndkVersion = "27.0.12077973"  // NDK r27c LTS — required by sqlcipher_flutter_libs
 
     compileOptions {
@@ -28,7 +28,7 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // flutter_tts requires API 24+, camera_android_camerax requires API 23+
         minSdk = 24  // Required by flutter_tts plugin
-        targetSdk = 36  // Explicitly set — aligned across all SAHOOL mobile apps
+        targetSdk = 35  // Android 15 — matches compileSdk
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

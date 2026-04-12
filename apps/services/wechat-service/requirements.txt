@@ -2,7 +2,7 @@
 # Port: 8135
 
 # Web Framework
-fastapi==0.135.2
+fastapi>=0.115.0,<1.0.0
 uvicorn[standard]==0.42.0
 
 # Data Validation

@@ -73,7 +73,11 @@
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(s.get\\(''''name''''\\), s.get\\(''''host''''\\), s.get\\(''''port''''\\)\\) for s in d.get\\(''''data'''',[]\\)]\")",
       "Bash(python -c \":*)",
       "Bash(TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2Njc3Y2M2Yy1iOTk2LTQ4MWMtYjYyNi0zYTFiNWJkYTc2OWIiLCJlbWFpbCI6ImZhcm1lckBzYWhvb2wuaW8iLCJyb2xlcyI6WyJGQVJNRVIiXSwidGlkIjoiYTAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAxIiwianRpIjoiOTFjNmZiNTItYmJiOS00MjYxLTkzZjYtNTVlMmYzMWIyZDQyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc3NTc3NTM2NiwiZXhwIjoxNzc1Nzc4OTY2LCJhdWQiOiJzYWhvb2wtYXBpIiwiaXNzIjoic2Fob29sLXBsYXRmb3JtIn0.FbZCvZyOjn16W_aGDDzGqVKtEUyF6m-diq7iAUhtpF8 __NEW_LINE_96d7030e4db7008c__ curl -s http://127.0.0.1:8000/api/v1/fields/1173ca64-f7cb-4537-9614-2915d4a9f1bc -H 'Authorization: Bearer $TOKEN')",
-      "Bash(TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2Njc3Y2M2Yy1iOTk2LTQ4MWMtYjYyNi0zYTFiNWJkYTc2OWIiLCJlbWFpbCI6ImZhcm1lckBzYWhvb2wuaW8iLCJyb2xlcyI6WyJGQVJNRVIiXSwidGlkIjoiYTAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAxIiwianRpIjoiOTFjNmZiNTItYmJiOS00MjYxLTkzZjYtNTVlMmYzMWIyZDQyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc3NTc3NTM2NiwiZXhwIjoxNzc1Nzc4OTY2LCJhdWQiOiJzYWhvb2wtYXBpIiwiaXNzIjoic2Fob29sLXBsYXRmb3JtIn0.FbZCvZyOjn16W_aGDDzGqVKtEUyF6m-diq7iAUhtpF8 __NEW_LINE_c7780816936009ba__ curl -s http://127.0.0.1:8000/api/v1/fields/1173ca64-f7cb-4537-9614-2915d4a9f1bc -H 'Authorization: Bearer $TOKEN')"
+      "Bash(TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2Njc3Y2M2Yy1iOTk2LTQ4MWMtYjYyNi0zYTFiNWJkYTc2OWIiLCJlbWFpbCI6ImZhcm1lckBzYWhvb2wuaW8iLCJyb2xlcyI6WyJGQVJNRVIiXSwidGlkIjoiYTAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAxIiwianRpIjoiOTFjNmZiNTItYmJiOS00MjYxLTkzZjYtNTVlMmYzMWIyZDQyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc3NTc3NTM2NiwiZXhwIjoxNzc1Nzc4OTY2LCJhdWQiOiJzYWhvb2wtYXBpIiwiaXNzIjoic2Fob29sLXBsYXRmb3JtIn0.FbZCvZyOjn16W_aGDDzGqVKtEUyF6m-diq7iAUhtpF8 __NEW_LINE_c7780816936009ba__ curl -s http://127.0.0.1:8000/api/v1/fields/1173ca64-f7cb-4537-9614-2915d4a9f1bc -H 'Authorization: Bearer $TOKEN')",
+      "Bash(for file:*)",
+      "Bash(do echo:*)",
+      "Read(//d/projects/v91/sahoo-adel-full/**)",
+      "Bash(done)"
     ]
   }
 }

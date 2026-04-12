@@ -689,13 +689,9 @@ asyncio.run(main())
   # Supports 20+ concurrent agents for parallel analysis
   # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
   ollama:
-<<<<<<< HEAD
-    image: ollama/ollama:latest
-=======
     profiles:
       - gpu
     image: ollama/ollama:0.5.4
->>>>>>> c686000fabbb08fd43b9086202316ee05f5b9f30
     container_name: sahool-ollama
     volumes:
       - ollama_data:/root/.ollama
@@ -745,6 +741,8 @@ asyncio.run(main())
   # تحميل نموذج DeepSeek عند بدء التشغيل
   # NOTE: Only runs when gpu profile is active
   ollama-model-loader:
+    profiles:
+      - gpu
     image: curlimages/curl:8.11.1
     container_name: sahool-ollama-model-loader
     depends_on:
@@ -782,6 +780,8 @@ asyncio.run(main())
   # API: http://localhost:${VLLM_PORT:-8270}/v1 (OpenAI-compatible)
   # ─────────────────────────────────────────────────────────────────────────────
   vllm-deepseek:
+    profiles:
+      - gpu
     build:
       context: .
       dockerfile: apps/services/vllm-deepseek/Dockerfile
@@ -836,6 +836,8 @@ asyncio.run(main())
   # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
   # NOTE: Requires Ollama with GPU. Use: docker compose --profile gpu up -d
   code-review-service:
+    profiles:
+      - gpu
     build:
       context: .
       dockerfile: apps/services/code-review-service/Dockerfile
@@ -1002,6 +1004,8 @@ asyncio.run(main())
   # NOTE: Milvus v2.5+ supports etcd auth. Enable with: docker compose --profile etcd-auth up
   # In production, enable etcd-auth profile for security hardening.
   etcd-init:
+    profiles:
+      - etcd-auth
     # FIX: Use alpine-based image with etcdctl because the GCR etcd image is distroless
     # (no /bin/sh) and quay.io may be unavailable in some regions. This ensures the
     # init shell script always has a working shell regardless of etcd image source.
@@ -1786,6 +1790,8 @@ asyncio.run(main())
   # Ground Vision Service - Tower Camera Agricultural Monitoring
   # Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
   ground-vision-service:
+    profiles:
+      - gpu
     build:
       context: .
       dockerfile: apps/services/ground-vision-service/Dockerfile
@@ -3127,8 +3133,8 @@ asyncio.run(main())
   # ─────────────────────────────────────────────────────────────────────────────
   demo-data:
     build:
-      context: ./apps/services/demo-data
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/demo-data/Dockerfile
     container_name: sahool-demo-data
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-development}

@@ -13,6 +13,7 @@ info:
     email: developer@sahool.com
   license:
     name: MIT
+    url: https://opensource.org/licenses/MIT
   termsOfService: https://sahool.com/legal/terms
   x-service-name: user-service
   x-service-port: 3025
@@ -726,13 +727,13 @@ components:
         id: { type: string, format: uuid }
         email: { type: string, format: email }
         name: { type: string }
-        nameAr: { type: string, nullable: true }
-        phone: { type: string, nullable: true, example: "+966500000001" }
+        nameAr: { type: [string, "null"] }
+        phone: { type: [string, "null"], example: "+966500000001" }
         role: { $ref: '#/components/schemas/UserRole' }
         status: { $ref: '#/components/schemas/UserStatus' }
         tenantId: { type: string, format: uuid }
         language: { $ref: '#/components/schemas/Language' }
-        avatar: { type: string, format: uri, nullable: true }
+        avatar: { type: [string, "null"], format: uri }
         permissions:
           type: array
           items: { type: string }
@@ -746,8 +747,8 @@ components:
         id: { type: string }
         device: { type: string }
         ip: { type: string }
-        userAgent: { type: string, nullable: true }
-        location: { type: string, nullable: true }
+        userAgent: { type: [string, "null"] }
+        location: { type: [string, "null"] }
         lastSeen: { type: string, format: date-time }
         createdAt: { type: string, format: date-time }
         current: { type: boolean }

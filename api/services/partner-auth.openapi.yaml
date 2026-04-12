@@ -1182,8 +1182,8 @@ components:
         kid: { type: string, description: Key id used in JWT `kid` header }
         alg: { type: string, enum: [RS256] }
         use: { type: string, enum: [sig] }
-        n:   { type: string, description: Modulus, base64url-encoded }
-        e:   { type: string, description: Exponent, base64url-encoded, typically `AQAB` }
+        n:   { type: string, description: "Modulus (base64url-encoded)" }
+        e:   { type: string, description: "Exponent (base64url-encoded, typically AQAB)" }
 
     JWKSResponse:
       type: object
@@ -1257,18 +1257,18 @@ components:
         id: { type: string, format: uuid }
         clientId: { type: string, description: Public partner client identifier }
         name: { type: string }
-        nameAr: { type: string, nullable: true }
-        description: { type: string, nullable: true }
-        homepageUrl: { type: string, format: uri, nullable: true }
-        logoUrl: { type: string, format: uri, nullable: true }
+        nameAr: { type: [string, "null"] }
+        description: { type: [string, "null"] }
+        homepageUrl: { type: [string, "null"], format: uri }
+        logoUrl: { type: [string, "null"], format: uri }
         redirectUris: { type: array, items: { type: string, format: uri } }
         allowedScopes: { type: array, items: { type: string } }
         rateTier: { type: string, enum: [starter, pro, enterprise] }
         status: { type: string, enum: [active, suspended, revoked] }
-        contactEmail: { type: string, format: email, nullable: true }
+        contactEmail: { type: [string, "null"], format: email }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
-        revokedAt: { type: string, format: date-time, nullable: true }
+        revokedAt: { type: [string, "null"], format: date-time }
         clientSecret:
           type: string
           description: Plaintext — returned ONCE on create / rotate-secret responses only
@@ -1300,8 +1300,8 @@ components:
         tenantId: { type: string }
         scopes: { type: array, items: { type: string } }
         acceptedAt: { type: string, format: date-time }
-        revokedAt: { type: string, format: date-time, nullable: true }
-        consentIp: { type: string, nullable: true, description: IP captured at consent time (for fraud review) }
+        revokedAt: { type: [string, "null"], format: date-time }
+        consentIp: { type: [string, "null"], description: IP captured at consent time (for fraud review) }
 
     AccessTokenAdminResponse:
       type: object
@@ -1314,8 +1314,8 @@ components:
         tenantId: { type: string }
         scopes: { type: array, items: { type: string } }
         expiresAt: { type: string, format: date-time }
-        revokedAt: { type: string, format: date-time, nullable: true }
-        revokedReason: { type: string, nullable: true }
+        revokedAt: { type: [string, "null"], format: date-time }
+        revokedReason: { type: [string, "null"] }
         createdAt: { type: string, format: date-time }
 
     RefreshTokenAdminResponse:
@@ -1332,10 +1332,10 @@ components:
           type: string
           format: uuid
           description: Rotation chain id — shared by every token derived from the same original consent
-        rotatedToId: { type: string, format: uuid, nullable: true, description: Points to the successor row after rotation }
+        rotatedToId: { type: [string, "null"], format: uuid, description: Points to the successor row after rotation }
         expiresAt: { type: string, format: date-time }
-        revokedAt: { type: string, format: date-time, nullable: true }
-        revokedReason: { type: string, nullable: true }
+        revokedAt: { type: [string, "null"], format: date-time }
+        revokedReason: { type: [string, "null"] }
         createdAt: { type: string, format: date-time }
 
     SigningKeyAdminResponse:
@@ -1345,7 +1345,7 @@ components:
         kid: { type: string }
         alg: { type: string, enum: [RS256] }
         activatedAt: { type: string, format: date-time }
-        retiredAt: { type: string, format: date-time, nullable: true }
+        retiredAt: { type: [string, "null"], format: date-time }
         publicPem: { type: string, description: PEM-encoded RSA public key (private PEM never leaves the DB) }
 
     # ── Health ─────────────────────────────────────────────────────────────

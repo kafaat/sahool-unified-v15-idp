@@ -84,6 +84,7 @@ services:
         target: /etc/pgbouncer/runtime
         tmpfs:
           size: 1048576
+          mode: 0777
       - ./infrastructure/core/pgbouncer/healthcheck.sh:/healthcheck.sh:ro
     ports:
       - 127.0.0.1:6432:6432
@@ -93,12 +94,12 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - export POSTGRES_USER="$DB_USER" POSTGRES_PASSWORD="$DB_PASSWORD" && sh /healthcheck.sh
-          || nc -z localhost 6432
-      interval: 15s
-      timeout: 15s
-      retries: 10
-      start_period: 90s
+        - export POSTGRES_USER="$DB_USER" POSTGRES_PASSWORD="$DB_PASSWORD" && timeout 7
+          sh /healthcheck.sh || nc -z localhost 6432
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -179,9 +180,9 @@ services:
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_TOKEN:?VAULT_DEV_TOKEN must be set - do
         not use default tokens}
-      VAULT_DEV_LISTEN_ADDRESS: 127.0.0.1:8200
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
       VAULT_LOG_LEVEL: info
-      VAULT_ADDR: http://127.0.0.1:8200
+      VAULT_ADDR: http://vault:8200
     cap_add:
       - IPC_LOCK
     volumes:
@@ -531,7 +532,7 @@ services:
     volumes:
       - etcd_data:/etcd-data
       - ./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro
-    command: /usr/local/bin/etcd --advertise-client-urls=http://etcd:2379 --listen-client-urls=http://etcd:2379,http://127.0.0.1:2379
+    command: /usr/local/bin/etcd --advertise-client-urls=http://etcd:2379 --listen-client-urls=http://0.0.0.0:2379
       --data-dir=/etcd-data
     healthcheck:
       test:
@@ -686,14 +687,14 @@ services:
     container_name: sahool-kong
     environment:
       KONG_DATABASE: 'off'
-      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong-core.yml
+      KONG_DECLARATIVE_CONFIG_DIR: /kong/declarative
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 127.0.0.1:8001
       KONG_PROXY_LISTEN: 0.0.0.0:8000
-      KONG_PLUGINS: bundled,cors,rate-limiting,jwt,acl,prometheus
+      KONG_PLUGINS: "bundled,cors,rate-limiting,jwt,acl,prometheus,bot-detection,ip-restriction,request-size-limiting,response-transformer,request-transformer,pre-function,post-function,http-log,file-log"
       REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       KONG_DNS_RESOLVER: 127.0.0.11:53
       KONG_DNS_ORDER: LAST,A,CNAME
@@ -716,7 +717,7 @@ services:
     ports:
       # 0.0.0.0 required so admin container (and other Docker services) can reach Kong.
       # In production, use firewall rules or bind to internal Docker network only.
-      - 0.0.0.0:8000:8000
+      - 127.0.0.1:8000:8000
       - 127.0.0.1:8001:8001
     volumes:
       - ./infrastructure/gateway/kong/kong-core.yml:/kong/declarative/kong-core.yml:ro

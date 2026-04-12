@@ -5,6 +5,7 @@
 import {
   Controller,
   Get,
+  HttpException,
   Param,
   Query,
   Req,
@@ -22,12 +23,11 @@ export class RisksController {
   constructor(private readonly risks: RisksService) {}
 
   private tenantId(req: any): string {
-    return (
-      req.user?.tenantId ||
-      req.tenantId ||
-      req.headers["x-tenant-id"] ||
-      "unassigned"
-    );
+    const tid = req.user?.tenantId || req.user?.tid;
+    if (!tid) {
+      throw new HttpException("Missing tenant ID in JWT", 403);
+    }
+    return tid;
   }
 
   // ─────────────────────────────────────────────────────────────────────────

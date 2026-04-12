@@ -37,7 +37,7 @@ export async function login(
   await page.goto("/login");
 
   // Wait for page to load
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 
   // Fill in credentials
   await page.fill('input[type="email"]', credentials.email);
@@ -136,7 +136,7 @@ export async function logout(page: Page) {
 export async function isLoggedIn(page: Page): Promise<boolean> {
   try {
     // Check if we can access dashboard
-    await page.goto("/dashboard", { waitUntil: "networkidle", timeout: 5000 });
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded", timeout: 15000 });
     return page.url().includes("/dashboard");
   } catch {
     return false;

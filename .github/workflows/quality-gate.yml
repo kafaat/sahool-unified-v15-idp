@@ -212,8 +212,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
-          pip install pytest pytest-asyncio pytest-cov pytest-timeout httpx "pyjwt[crypto]" cryptography fastapi pydantic pydantic-settings jsonschema sqlalchemy structlog redis prometheus-client schemathesis tenacity --quiet
-          pip install numpy pillow aiofiles pyotp qrcode nats-py aiohttp cffi --quiet
+          pip install -c constraints.txt -r requirements/testing.txt --quiet 2>/dev/null \
+            || pip install pytest pytest-asyncio pytest-cov pytest-timeout httpx \
+               "pyjwt[crypto]" cryptography cffi fastapi pydantic pydantic-settings \
+               jsonschema sqlalchemy structlog redis prometheus-client schemathesis \
+               tenacity numpy pillow aiofiles pyotp qrcode nats-py aiohttp --quiet
           pip install tortoise-orm --quiet || true
 
       - name: Run tests with coverage

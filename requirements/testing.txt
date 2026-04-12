@@ -20,3 +20,16 @@ pytest-mock==3.15.1
 pydantic>=2.10.0
 PyJWT>=2.7.0
 PyYAML>=6.0.0
+cryptography>=42.0.0
+cffi>=1.16.0
+
+# Service test imports
+fastapi>=0.115.0
+structlog>=24.0.0
+redis>=5.0.0
+prometheus-client>=0.20.0
+tenacity>=8.2.0
+numpy>=1.26.0
+aiofiles>=23.2.0
+nats-py>=2.6.0
+aiohttp>=3.9.0

@@ -39,15 +39,16 @@ test.describe("CI Smoke Tests (no backend required)", () => {
     await expect(page.getByText("Login").first()).toBeVisible();
 
     // Default login method is phone — verify phone input is visible
-    await expect(page.locator('input[type="tel"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    // Use .first() because responsive layout renders both mobile and desktop forms
+    await expect(page.locator('input[type="tel"]').first()).toBeVisible();
+    await expect(page.locator('input[type="password"]').first()).toBeVisible();
 
     // Switch to email login and verify email input renders
-    await page.getByText("البريد الإلكتروني").click();
-    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await page.getByText("البريد الإلكتروني").first().click();
+    await expect(page.locator('input[type="email"]').first()).toBeVisible();
 
     // Verify submit button
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    await expect(page.locator('button[type="submit"]').first()).toBeVisible();
   });
 
   test("register page renders with form fields", async ({ page }) => {
@@ -59,11 +60,11 @@ test.describe("CI Smoke Tests (no backend required)", () => {
     });
 
     // Verify name inputs
-    await expect(page.locator('input[autocomplete="given-name"]')).toBeVisible();
-    await expect(page.locator('input[autocomplete="family-name"]')).toBeVisible();
+    await expect(page.locator('input[autocomplete="given-name"]').first()).toBeVisible();
+    await expect(page.locator('input[autocomplete="family-name"]').first()).toBeVisible();
 
     // Verify email input
-    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="email"]').first()).toBeVisible();
 
     // Verify password inputs (at least 2 - password + confirm)
     const passwordInputs = page.locator('input[type="password"]');
@@ -107,20 +108,20 @@ test.describe("CI Smoke Tests (no backend required)", () => {
 
   test("login form has required fields", async ({ page }) => {
     await page.goto("/login", { waitUntil: "domcontentloaded" });
-    await expect(page.locator('button[type="submit"]')).toBeVisible({
+    await expect(page.locator('button[type="submit"]').first()).toBeVisible({
       timeout: 15000,
     });
 
     // Default is phone — verify phone input is required
-    const phoneInput = page.locator('input[type="tel"]');
-    const passwordInput = page.locator('input[type="password"]');
+    const phoneInput = page.locator('input[type="tel"]').first();
+    const passwordInput = page.locator('input[type="password"]').first();
 
     await expect(phoneInput).toHaveAttribute("required", "");
     await expect(passwordInput).toHaveAttribute("required", "");
 
     // Switch to email and verify email input is also required
-    await page.getByText("البريد الإلكتروني").click();
-    const emailInput = page.locator('input[type="email"]');
+    await page.getByText("البريد الإلكتروني").first().click();
+    const emailInput = page.locator('input[type="email"]').first();
     await expect(emailInput).toHaveAttribute("required", "");
   });
 
@@ -128,17 +129,17 @@ test.describe("CI Smoke Tests (no backend required)", () => {
     await page.goto("/login", { waitUntil: "domcontentloaded" });
 
     // Default is phone — verify phone autocomplete
-    const phoneInput = page.locator('input[type="tel"]');
+    const phoneInput = page.locator('input[type="tel"]').first();
     await expect(phoneInput).toBeVisible({ timeout: 15000 });
     await expect(phoneInput).toHaveAttribute("autocomplete", "tel");
-    await expect(page.locator('input[type="password"]')).toHaveAttribute(
+    await expect(page.locator('input[type="password"]').first()).toHaveAttribute(
       "autocomplete",
       "current-password",
     );
 
     // Switch to email and verify email autocomplete
-    await page.getByText("البريد الإلكتروني").click();
-    const emailInput = page.locator('input[type="email"]');
+    await page.getByText("البريد الإلكتروني").first().click();
+    const emailInput = page.locator('input[type="email"]').first();
     await expect(emailInput).toBeVisible();
     await expect(emailInput).toHaveAttribute("autocomplete", "email");
   });

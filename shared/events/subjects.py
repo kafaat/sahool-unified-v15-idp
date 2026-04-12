@@ -38,6 +38,32 @@ SAHOOL_FIELD_ACTIVITY_RECORDED = "sahool.field.activity.recorded"
 SAHOOL_FIELD_HARVEST_COMPLETED = "sahool.field.harvest.completed"
 SAHOOL_FIELD_PROFITABILITY_ANALYZED = "sahool.field.profitability.analyzed"
 
+# Boundary changes - تغييرات الحدود
+SAHOOL_FIELD_BOUNDARY_CHANGED = "sahool.field.boundary.changed"
+
+# Crop season lifecycle - دورة حياة الموسم الزراعي
+SAHOOL_FIELD_CROP_SEASON_STARTED = "sahool.field.crop_season.started"
+SAHOOL_FIELD_CROP_SEASON_UPDATED = "sahool.field.crop_season.updated"
+SAHOOL_FIELD_CROP_SEASON_ENDED = "sahool.field.crop_season.ended"
+SAHOOL_FIELD_CROP_SEASON_DELETED = "sahool.field.crop_season.deleted"
+
+# Field operations - عمليات الحقل
+SAHOOL_FIELD_OPERATION_RECORDED = "sahool.field.operation.recorded"
+SAHOOL_FIELD_OPERATION_APPROVED = "sahool.field.operation.approved"
+SAHOOL_FIELD_OPERATION_REJECTED = "sahool.field.operation.rejected"
+SAHOOL_FIELD_OPERATION_UPDATED = "sahool.field.operation.updated"
+SAHOOL_FIELD_OPERATION_DELETED = "sahool.field.operation.deleted"
+
+# Field reports - تقارير الحقل
+SAHOOL_FIELD_REPORT_REQUESTED = "sahool.field.report.requested"
+SAHOOL_FIELD_REPORT_READY = "sahool.field.report.ready"
+SAHOOL_FIELD_REPORT_FAILED = "sahool.field.report.failed"
+
+# Sub-zones - المناطق الفرعية
+SAHOOL_FIELD_SUB_ZONE_CREATED = "sahool.field.sub_zone.created"
+SAHOOL_FIELD_SUB_ZONE_UPDATED = "sahool.field.sub_zone.updated"
+SAHOOL_FIELD_SUB_ZONE_DELETED = "sahool.field.sub_zone.deleted"
+
 # Wildcards for subscribing to all field events
 SAHOOL_FIELD_ALL = "sahool.field.>"
 

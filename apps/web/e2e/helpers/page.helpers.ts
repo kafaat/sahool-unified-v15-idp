@@ -10,7 +10,6 @@ import { Page, expect } from "@playwright/test";
  * الانتظار حتى يتم تحميل الصفحة بالكامل
  */
 export async function waitForPageLoad(page: Page) {
-  await page.waitForLoadState("networkidle");
   await page.waitForLoadState("domcontentloaded");
 }
 
@@ -209,6 +208,6 @@ export async function waitForNavigation(
   if (expectedUrl) {
     await page.waitForURL(expectedUrl, { timeout: 10000 });
   } else {
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
   }
 }

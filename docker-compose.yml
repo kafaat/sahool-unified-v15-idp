@@ -130,11 +130,15 @@ services:
       # Two-tier healthcheck: try deep check via healthcheck.sh, fallback to TCP port check
       # healthcheck.sh uses POSTGRES_USER/POSTGRES_PASSWORD from container environment (set above as DB_USER/DB_PASSWORD)
       # NOTE: Export DB_USER/DB_PASSWORD as POSTGRES_USER/POSTGRES_PASSWORD for healthcheck.sh compatibility
-      test: [ "CMD-SHELL", "export POSTGRES_USER=\"$DB_USER\" POSTGRES_PASSWORD=\"$DB_PASSWORD\" && sh /healthcheck.sh || nc -z localhost 6432" ]
-      interval: 15s
+      # FIX (2026-04-12): Wrap healthcheck.sh in "timeout 7" so that if any psql
+      # command inside the script hangs (e.g. waiting for query_wait_timeout=30s),
+      # it is killed after 7s — well before Docker's 10s healthcheck timeout —
+      # giving the "|| nc -z" TCP fallback time to run and report PgBouncer as alive.
+      test: [ "CMD-SHELL", "export POSTGRES_USER=\"$DB_USER\" POSTGRES_PASSWORD=\"$DB_PASSWORD\" && timeout 7 sh /healthcheck.sh || nc -z localhost 6432" ]
+      interval: 10s
       timeout: 10s
-      retries: 10
-      start_period: 90s
+      retries: 5
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -685,7 +689,13 @@ asyncio.run(main())
   # Supports 20+ concurrent agents for parallel analysis
   # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
   ollama:
+<<<<<<< HEAD
     image: ollama/ollama:latest
+=======
+    profiles:
+      - gpu
+    image: ollama/ollama:0.5.4
+>>>>>>> c686000fabbb08fd43b9086202316ee05f5b9f30
     container_name: sahool-ollama
     volumes:
       - ollama_data:/root/.ollama

@@ -682,7 +682,7 @@ class TestServiceRegistryCompleteness:
 
         unregistered = buildable_in_compose - registered
         # Exclude known special services (init containers, GPU-only services)
-        known_unregistered = {"vllm-deepseek", "etcd-perms-init", "etcd-init"}
+        known_unregistered = {"vllm-deepseek", "etcd-perms-init", "etcd-init", "nats-stream-init"}
         unregistered -= known_unregistered
 
         if unregistered:

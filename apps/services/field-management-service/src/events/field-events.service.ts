@@ -18,7 +18,14 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    if (this.nc) await this.nc.close();
+    if (this.nc) {
+      try {
+        await this.nc.drain();
+        this.logger.log('NATS connection drained and closed');
+      } catch (e) {
+        this.logger.warn(`NATS close failed: ${e}`);
+      }
+    }
   }
 
   isConnected(): boolean {

@@ -420,30 +420,14 @@ def readiness():
     """فحص جاهزية الخدمة - Kubernetes readiness probe"""
     db_ok = check_db_connection()
 
-    # Get counts from database if connected
-    alerts_count = 0
-    rules_count = 0
-    if db_ok and SessionLocal is not None:
-        db = None
-        try:
-            db = SessionLocal()
-            from sqlalchemy import func, select
-
-            alerts_count = db.execute(select(func.count()).select_from(DBAlert)).scalar() or 0
-            rules_count = db.execute(select(func.count()).select_from(DBAlertRule)).scalar() or 0
-        except Exception:
-            logger.warning("Failed to get alert counts in readiness check")
-        finally:
-            if db is not None:
-                db.close()
-
+    # FIX: Removed unauthed data counts (alerts_count, rules_count) from readiness
+    # probe. K8s readiness should check connectivity, not expose tenant-unscoped
+    # business data to unauthenticated callers.
     return {
         "status": "ready" if db_ok else "degraded",
         "database": db_ok,
         "nats_publisher": getattr(app.state, "publisher", None) is not None,
         "nats_subscriber": getattr(app.state, "subscriber", None) is not None,
-        "alerts_count": alerts_count,
-        "rules_count": rules_count,
     }
 
 

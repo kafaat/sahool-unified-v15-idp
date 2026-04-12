@@ -61,7 +61,7 @@ jobs:
           sdkmanager --install \
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "ndk;28.2.13676358" \
+            "ndk;27.0.12077973" \
             "platform-tools"
           # Verify the critical platform was installed
           if [ ! -d "$ANDROID_HOME/platforms/android-${{ env.ANDROID_COMPILE_SDK }}" ]; then
@@ -93,7 +93,7 @@ jobs:
           cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
           org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=false
-          org.gradle.parallel=true
+          org.gradle.parallel=false
           org.gradle.caching=true
           GRADLEEOF
           sed 's/^[[:space:]]*//' ~/.gradle/gradle.properties > /tmp/gp.tmp && mv /tmp/gp.tmp ~/.gradle/gradle.properties

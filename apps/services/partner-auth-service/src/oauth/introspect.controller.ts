@@ -30,7 +30,7 @@ interface IntrospectBody {
 }
 
 @ApiTags("OAuth")
-@Controller("oauth/introspect")
+@Controller("partner/v1/oauth/introspect")
 export class IntrospectController {
   constructor(private readonly oauth: OAuthService) {}
 

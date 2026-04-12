@@ -28,13 +28,68 @@ header separate from OAuth).
 | `GET /.well-known/jwks.json` | Public key set (RSA, RS256) | v1 |
 | `GET /healthz` `/readyz` `/health` | K8s probes + DB ping | v1 |
 
-### ⏳ Planned (next branches)
+### ✅ Admin API (v3 — `claude/wave1-partner-auth-admin-api`)
+| Endpoint | Description |
+|---|---|
+| `POST   /api/v1/admin/partner-auth/clients` | Register partner app — returns `client_secret` + `partnerApiKey` ONCE |
+| `GET    /api/v1/admin/partner-auth/clients` | Paginated list (filter by `status=`, `name=`) |
+| `GET    /api/v1/admin/partner-auth/clients/{id}` | Retrieve public metadata (never exposes hashes) |
+| `PATCH  /api/v1/admin/partner-auth/clients/{id}` | Update name, redirect URIs, scopes, rate tier |
+| `POST   /api/v1/admin/partner-auth/clients/{id}/rotate-secret` | New plaintext secret (one-time return) |
+| `POST   /api/v1/admin/partner-auth/clients/{id}/rotate-api-key` | New plaintext X-Sahool-Partner-Key |
+| `POST   /api/v1/admin/partner-auth/clients/{id}/suspend` | Block all flows (reversible) |
+| `POST   /api/v1/admin/partner-auth/clients/{id}/unsuspend` | Reactivate a suspended client |
+| `DELETE /api/v1/admin/partner-auth/clients/{id}` | Permanent revoke + cascade-revoke all tokens |
+| `GET    /api/v1/admin/partner-auth/consents` | List/filter consent grants |
+| `DELETE /api/v1/admin/partner-auth/consents/{grantId}` | Revoke a user's consent (GDPR Art. 17) |
+| `GET    /api/v1/admin/partner-auth/tokens/access` | List active access tokens |
+| `GET    /api/v1/admin/partner-auth/tokens/refresh` | List refresh tokens + rotation chains |
+| `POST   /api/v1/admin/partner-auth/tokens/revoke-all/client/{id}` | Breach response — bulk revoke |
+| `POST   /api/v1/admin/partner-auth/tokens/revoke-all/user/{id}` | User-wide forget-me across partners |
+| `GET    /api/v1/admin/partner-auth/signing-keys` | List RSA signing keys (active + retired) |
+| `POST   /api/v1/admin/partner-auth/signing-keys/rotate` | Hot-rotate the JWS signing key |
+| `DELETE /api/v1/admin/partner-auth/signing-keys/{kid}` | Delete a fully-expired retired key |
+
+All admin endpoints require `Authorization: Bearer <jwt>` with `role=ADMIN`
+(or `roles` array containing `"ADMIN"`). Verified by `AdminGuard` against
+`SAHOOL_SESSION_SECRET` (HS256, shared with user-service).
+
+### ⏳ Planned (remaining branches)
 | Feature | Branch |
 |---|---|
-| Admin API for partner app registration (CRUD `oauth_clients`) | `claude/wave1-partner-auth-admin-api` |
-| Partner-portal UI for key management | `claude/wave1-partner-portal-ui` |
-| Kong route integration + X-Sahool-Partner-Key rate-limit plugin | `claude/wave1-partner-auth-kong-wiring` |
-| Live user-service fetch in /userinfo (currently minimal claims) | `claude/wave1-partner-auth-userinfo-fresh` |
+| Admin web UI for partner registration | `claude/wave1-partner-portal-ui` |
+| Kong route integration + `X-Sahool-Partner-Key` rate-limit plugin | `claude/wave1-partner-auth-kong-wiring` |
+| Live user-service fetch in `/userinfo` (currently minimal claims) | `claude/wave1-partner-auth-userinfo-fresh` |
+
+## Seeding local dev data
+
+```bash
+# From repo root, after DATABASE_URL is set and migrations applied
+cd apps/services/partner-auth-service
+npm run prisma:migrate    # creates tables
+npm run prisma:seed       # creates RSA key + 2 dev partners
+```
+
+The seed prints `client_secret` + `partnerApiKey` to STDOUT **exactly once**.
+Capture into your local `.env` — they cannot be retrieved later.
+
+Sample output:
+```
+🌱 partner-auth-service seed starting…
+  ✅ Signing key created: kid=Xk3m…
+  ✅ Client created: sahool-sandbox-cli
+  ✅ Client created: sahool-dev-portal
+
+📋 Seed summary:
+  • sahool-sandbox-cli
+      client_secret:       sah_cs_<40-char-nanoid>
+      X-Sahool-Partner-Key: sahk_<32-char-nanoid>
+  • sahool-dev-portal
+      client_secret:       sah_cs_<…>
+      X-Sahool-Partner-Key: sahk_<…>
+
+⚠️  Secrets are plaintext and shown ONCE only.
+```
 
 ## /authorize consent flow
 

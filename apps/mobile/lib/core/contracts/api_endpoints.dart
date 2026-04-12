@@ -680,3 +680,51 @@ abstract final class PartnerExportEndpoints {
   static String contents(String exportId) =>
       '$partnerPrefix/exports/$exportId/contents';
 }
+
+// ---------------------------------------------------------------------------
+// Partner Admin Endpoints (@since 4.12.0) — SAHOOL-internal, ADMIN role req.
+// Served by partner-auth-service; routed via Kong.
+// ---------------------------------------------------------------------------
+
+const String _adminPartnerAuthPrefix = '$apiPrefix/admin/partner-auth';
+
+/// @since 4.12.0 — Partner OAuth client management (CRUD + secret rotation)
+abstract final class PartnerAdminClientEndpoints {
+  static const String create = '$_adminPartnerAuthPrefix/clients';
+  static const String list = '$_adminPartnerAuthPrefix/clients';
+  static String get(String clientId) => '$_adminPartnerAuthPrefix/clients/$clientId';
+  static String update(String clientId) => '$_adminPartnerAuthPrefix/clients/$clientId';
+  static String rotateSecret(String clientId) =>
+      '$_adminPartnerAuthPrefix/clients/$clientId/rotate-secret';
+  static String rotateApiKey(String clientId) =>
+      '$_adminPartnerAuthPrefix/clients/$clientId/rotate-api-key';
+  static String suspend(String clientId) =>
+      '$_adminPartnerAuthPrefix/clients/$clientId/suspend';
+  static String unsuspend(String clientId) =>
+      '$_adminPartnerAuthPrefix/clients/$clientId/unsuspend';
+  static String revoke(String clientId) =>
+      '$_adminPartnerAuthPrefix/clients/$clientId';
+}
+
+/// @since 4.12.0 — Consent grant admin
+abstract final class PartnerAdminConsentEndpoints {
+  static const String list = '$_adminPartnerAuthPrefix/consents';
+  static String revoke(String grantId) => '$_adminPartnerAuthPrefix/consents/$grantId';
+}
+
+/// @since 4.12.0 — Token visibility + breach response
+abstract final class PartnerAdminTokenEndpoints {
+  static const String listAccess = '$_adminPartnerAuthPrefix/tokens/access';
+  static const String listRefresh = '$_adminPartnerAuthPrefix/tokens/refresh';
+  static String revokeAllForClient(String clientId) =>
+      '$_adminPartnerAuthPrefix/tokens/revoke-all/client/$clientId';
+  static String revokeAllForUser(String userId) =>
+      '$_adminPartnerAuthPrefix/tokens/revoke-all/user/$userId';
+}
+
+/// @since 4.12.0 — RSA signing-key rotation (for id_token JWS)
+abstract final class PartnerAdminSigningKeyEndpoints {
+  static const String list = '$_adminPartnerAuthPrefix/signing-keys';
+  static const String rotate = '$_adminPartnerAuthPrefix/signing-keys/rotate';
+  static String delete(String kid) => '$_adminPartnerAuthPrefix/signing-keys/$kid';
+}

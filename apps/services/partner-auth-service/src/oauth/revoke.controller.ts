@@ -30,7 +30,7 @@ interface RevokeBody {
 }
 
 @ApiTags("OAuth")
-@Controller("oauth/revoke")
+@Controller("partner/v1/oauth/revoke")
 export class RevokeController {
   constructor(private readonly oauth: OAuthService) {}
 

@@ -17,7 +17,11 @@
     "test:e2e": "jest --config ./jest.e2e.config.js",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "tsx prisma/seed.ts"
+  },
+  "prisma:config": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
@@ -35,7 +39,8 @@
     "nanoid": "^3.3.8",
     "prisma": "~5.22.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",

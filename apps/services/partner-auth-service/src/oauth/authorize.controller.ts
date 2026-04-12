@@ -46,7 +46,7 @@ interface AuthorizePostBody extends AuthorizeRequest {
 }
 
 @ApiTags("OAuth")
-@Controller("oauth/authorize")
+@Controller("partner/v1/oauth/authorize")
 export class AuthorizeController {
   constructor(
     private readonly authorize: AuthorizeService,

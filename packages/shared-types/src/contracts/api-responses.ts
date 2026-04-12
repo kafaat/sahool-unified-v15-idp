@@ -750,3 +750,94 @@ export interface PartnerErrorEnvelope {
     path?: string;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Wave 1 #3: Partner Admin Response Shapes (@since 4.12.0)
+// ---------------------------------------------------------------------------
+
+export type PartnerClientStatus = "active" | "suspended" | "revoked";
+export type PartnerRateTier = "starter" | "pro" | "enterprise";
+
+/** @since 4.12.0 — Partner client row as returned to admin UIs. Never includes
+ *  the client_secret hash or the X-Sahool-Partner-Key hash. */
+export interface PartnerClientResponse {
+  id: string;
+  clientId: string;
+  name: string;
+  nameAr?: string | null;
+  description?: string | null;
+  homepageUrl?: string | null;
+  logoUrl?: string | null;
+  redirectUris: string[];
+  allowedScopes: string[];
+  rateTier: PartnerRateTier;
+  status: PartnerClientStatus;
+  contactEmail?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  revokedAt?: string | null;
+  /** Present on create/rotate responses ONLY — one-time plaintext */
+  clientSecret?: string;
+  /** Present on create/rotate-api-key responses ONLY — one-time plaintext */
+  partnerApiKey?: string;
+}
+
+/** @since 4.12.0 — Paginated list of partner clients */
+export interface PartnerClientListResponse {
+  results: PartnerClientResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+/** @since 4.12.0 — Consent grant row for admin inspection */
+export interface ConsentGrantAdminResponse {
+  id: string;
+  clientId: string;
+  clientName: string;
+  userId: string;
+  tenantId: string;
+  scopes: string[];
+  acceptedAt: string;
+  revokedAt?: string | null;
+  consentIp?: string | null;
+}
+
+/** @since 4.12.0 — Access token admin view (never includes the JWT itself) */
+export interface AccessTokenAdminResponse {
+  jti: string;
+  clientId: string;
+  clientName?: string;
+  userId: string;
+  tenantId: string;
+  scopes: string[];
+  expiresAt: string;
+  revokedAt?: string | null;
+  revokedReason?: string | null;
+  createdAt: string;
+}
+
+/** @since 4.12.0 — Refresh token admin view (shows rotation chain) */
+export interface RefreshTokenAdminResponse {
+  id: string;
+  clientId: string;
+  clientName?: string;
+  userId: string;
+  tenantId: string;
+  scopes: string[];
+  familyId: string;
+  rotatedToId?: string | null;
+  expiresAt: string;
+  revokedAt?: string | null;
+  revokedReason?: string | null;
+  createdAt: string;
+}
+
+/** @since 4.12.0 — Signing key metadata for admin (never exposes private PEM) */
+export interface SigningKeyAdminResponse {
+  kid: string;
+  alg: string;
+  activatedAt: string;
+  retiredAt?: string | null;
+  publicPem: string;
+}

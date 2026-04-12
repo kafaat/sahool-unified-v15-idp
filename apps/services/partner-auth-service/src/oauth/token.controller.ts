@@ -35,7 +35,7 @@ interface TokenRequestBody {
 }
 
 @ApiTags("OAuth")
-@Controller("oauth/token")
+@Controller("partner/v1/oauth/token")
 export class TokenController {
   constructor(private readonly oauth: OAuthService) {}
 

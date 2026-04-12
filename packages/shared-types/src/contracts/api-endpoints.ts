@@ -1335,6 +1335,75 @@ export const PARTNER_EXPORT_ENDPOINTS = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Partner Admin Endpoints (@since 4.12.0)
+//
+// SAHOOL-internal administration of the partner OAuth ecosystem. These
+// live under /api/v1/admin/partner-auth/* (NOT /partner/v1/*) because
+// partners themselves never call these — only SAHOOL staff (via admin
+// portal) and automated on-boarding tooling.
+//
+// Protected by role check: JWT must carry `role: "ADMIN"`. Served by
+// partner-auth-service (port 3030) via Kong route `/api/v1/admin/
+// partner-auth/*` → partner-auth-service.
+// ---------------------------------------------------------------------------
+
+const ADMIN_PARTNER_AUTH_PREFIX = `${API_PREFIX}/admin/partner-auth` as const;
+
+/** @since 4.12.0 — Partner OAuth client management (CRUD + secret rotation) */
+export const PARTNER_ADMIN_CLIENT_ENDPOINTS = {
+  /** POST — Register a new partner app. Returns {client_id, client_secret} ONCE. */
+  CREATE: `${ADMIN_PARTNER_AUTH_PREFIX}/clients`,
+  /** GET — List all registered clients (paginated, supports ?status= filter) */
+  LIST: `${ADMIN_PARTNER_AUTH_PREFIX}/clients`,
+  /** GET — Retrieve one client's public metadata (never returns secret hash) */
+  GET: `${ADMIN_PARTNER_AUTH_PREFIX}/clients/{clientId}`,
+  /** PATCH — Update name, description, redirect URIs, allowed scopes, rate tier */
+  UPDATE: `${ADMIN_PARTNER_AUTH_PREFIX}/clients/{clientId}`,
+  /** POST — Generate a new client_secret and invalidate the old one. Returns the
+   *  plaintext once — caller must capture it. */
+  ROTATE_SECRET: `${ADMIN_PARTNER_AUTH_PREFIX}/clients/{clientId}/rotate-secret`,
+  /** POST — Generate a new X-Sahool-Partner-Key (for throttling/metering).
+   *  Separate from client_secret so metering can rotate independently. */
+  ROTATE_API_KEY: `${ADMIN_PARTNER_AUTH_PREFIX}/clients/{clientId}/rotate-api-key`,
+  /** POST — Set status=suspended (temporarily blocks all flows) */
+  SUSPEND: `${ADMIN_PARTNER_AUTH_PREFIX}/clients/{clientId}/suspend`,
+  /** POST — Unsuspend (status=active) */
+  UNSUSPEND: `${ADMIN_PARTNER_AUTH_PREFIX}/clients/{clientId}/unsuspend`,
+  /** DELETE — Permanently revoke (status=revoked + cascade revoke all tokens) */
+  REVOKE: `${ADMIN_PARTNER_AUTH_PREFIX}/clients/{clientId}`,
+} as const;
+
+/** @since 4.12.0 — Consent grant inspection + revocation (per-client or per-user) */
+export const PARTNER_ADMIN_CONSENT_ENDPOINTS = {
+  /** GET — List consents (filter by ?clientId= or ?userId=) */
+  LIST: `${ADMIN_PARTNER_AUTH_PREFIX}/consents`,
+  /** DELETE — Revoke a consent grant (user's "forget me" for this client) */
+  REVOKE: `${ADMIN_PARTNER_AUTH_PREFIX}/consents/{grantId}`,
+} as const;
+
+/** @since 4.12.0 — Token visibility + incident-response revocation */
+export const PARTNER_ADMIN_TOKEN_ENDPOINTS = {
+  /** GET — List active access tokens (filter by ?clientId= or ?userId=) */
+  LIST_ACCESS: `${ADMIN_PARTNER_AUTH_PREFIX}/tokens/access`,
+  /** GET — List active refresh tokens + rotation chains */
+  LIST_REFRESH: `${ADMIN_PARTNER_AUTH_PREFIX}/tokens/refresh`,
+  /** POST — Emergency revoke all tokens for a client (breach response) */
+  REVOKE_ALL_FOR_CLIENT: `${ADMIN_PARTNER_AUTH_PREFIX}/tokens/revoke-all/client/{clientId}`,
+  /** POST — Revoke all tokens for a user across all partners */
+  REVOKE_ALL_FOR_USER: `${ADMIN_PARTNER_AUTH_PREFIX}/tokens/revoke-all/user/{userId}`,
+} as const;
+
+/** @since 4.12.0 — RSA signing key rotation (id_token JWS keys) */
+export const PARTNER_ADMIN_SIGNING_KEY_ENDPOINTS = {
+  /** GET — List all signing keys (active + retired-but-verifying) */
+  LIST: `${ADMIN_PARTNER_AUTH_PREFIX}/signing-keys`,
+  /** POST — Generate a new RSA keypair, mark it active, retire the old */
+  ROTATE: `${ADMIN_PARTNER_AUTH_PREFIX}/signing-keys/rotate`,
+  /** DELETE — Permanently delete a fully-expired retired key */
+  DELETE: `${ADMIN_PARTNER_AUTH_PREFIX}/signing-keys/{kid}`,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Public Endpoints (no auth required) - النقاط العامة
 // ---------------------------------------------------------------------------
 

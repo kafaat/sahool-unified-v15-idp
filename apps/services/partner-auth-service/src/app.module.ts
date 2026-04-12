@@ -10,6 +10,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { HealthController, HealthzController } from "./health/health.controller";
 import { OAuthModule } from "./oauth/oauth.module";
 import { OidcModule } from "./oidc/oidc.module";
+import { AdminModule } from "./admin/admin.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OidcModule } from "./oidc/oidc.module";
     PrismaModule,
     OAuthModule,
     OidcModule,
+    AdminModule,
   ],
   controllers: [HealthController, HealthzController],
   providers: [

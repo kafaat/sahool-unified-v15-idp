@@ -25,7 +25,7 @@
 import "reflect-metadata";
 
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe, RequestMethod, Logger } from "@nestjs/common";
+import { ValidationPipe, Logger } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
@@ -87,17 +87,12 @@ async function bootstrap() {
     credentials: false, // Bearer-token auth, no cookies
   });
 
-  // Kong routes /partner/v1/* → this service; well-known endpoints stay root.
-  app.setGlobalPrefix("partner/v1", {
-    exclude: [
-      { path: "healthz", method: RequestMethod.GET },
-      { path: "readyz", method: RequestMethod.GET },
-      { path: "health", method: RequestMethod.GET },
-      { path: "metrics", method: RequestMethod.GET },
-      { path: ".well-known/openid-configuration", method: RequestMethod.GET },
-      { path: ".well-known/jwks.json", method: RequestMethod.GET },
-    ],
-  });
+  // Controllers declare their own absolute paths. No global prefix — this
+  // service serves THREE path families that Kong routes to us:
+  //   • /partner/v1/*           — OAuth + OIDC partner-facing endpoints
+  //   • /api/v1/admin/partner-auth/*  — SAHOOL admin UI endpoints
+  //   • /.well-known/*          — OIDC discovery + JWKS (unversioned by spec)
+  //   • /healthz, /readyz, /health, /metrics — K8s + Prometheus
 
   if (process.env.NODE_ENV !== "production") {
     const cfg = new DocumentBuilder()

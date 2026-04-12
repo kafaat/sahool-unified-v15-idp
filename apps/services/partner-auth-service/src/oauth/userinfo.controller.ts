@@ -32,7 +32,7 @@ interface UserInfoResponse {
 
 @ApiTags("OAuth")
 @ApiBearerAuth()
-@Controller("oauth/userinfo")
+@Controller("partner/v1/oauth/userinfo")
 export class UserinfoController {
   @Get()
   @UseGuards(BearerAuthGuard)

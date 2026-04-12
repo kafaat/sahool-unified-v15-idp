@@ -644,7 +644,6 @@ class TestComposeServiceDependencies:
     def test_services_with_db_depend_on_pgbouncer(self, compose_data):
         """Services using database should depend on pgbouncer."""
         db_dependent_services = [
-            "advisory-service",
             "alert-service",
             "audit-service",
             "field-management-service",

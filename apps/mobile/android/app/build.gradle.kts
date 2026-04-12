@@ -10,8 +10,8 @@ plugins {
 
 android {
     namespace = "io.sahool.sahool_field_app"
-    compileSdk = 35  // Android 15 — matches Flutter 3.27.x stable support
-    ndkVersion = "27.0.12077973"  // NDK r27c LTS — required by sqlcipher_flutter_libs
+    compileSdk = 35  // Android 15 - stable SDK for Flutter 3.27.x
+    ndkVersion = "28.2.13676358"  // Required by sqlcipher_flutter_libs for native compilation
 
     compileOptions {
             isCoreLibraryDesugaringEnabled = true
@@ -28,7 +28,7 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // flutter_tts requires API 24+, camera_android_camerax requires API 23+
         minSdk = 24  // Required by flutter_tts plugin
-        targetSdk = 35  // Android 15 — matches compileSdk
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -177,5 +177,5 @@ flutter {
 
 dependencies {
     // Core library desugaring for Java 8+ API support on older Android versions
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

@@ -21,8 +21,8 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "io.sahool.field"
-    compileSdk = 35  // Android 15 — matches Flutter 3.27.x stable support
-    ndkVersion = "27.0.12077973"
+    compileSdk = 35  // Android 15 - stable SDK for Flutter 3.27.x
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         // Required for flutter_local_notifications and other libraries using Java 8+ APIs
@@ -41,7 +41,7 @@ android {
         // SQLCipher and biometric auth also benefit from API 23+
         // flutter_tts requires API 24+ for full compatibility
         minSdk = 24
-        targetSdk = 35  // Android 15 — matches compileSdk
+        targetSdk = 35  // Target Android 15
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
@@ -119,5 +119,5 @@ flutter {
 
 dependencies {
     // Core library desugaring for Java 8+ API support on older Android versions
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

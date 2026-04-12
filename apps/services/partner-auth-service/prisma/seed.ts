@@ -136,6 +136,12 @@ async function upsertClient(
 
   const clientSecret = `sah_cs_${nanoid(40)}`;
   const clientSecretHash = await bcrypt.hash(clientSecret, 12);
+  // API key is a HIGH-ENTROPY opaque token (not a user password) — hashed
+  // with SHA-256 for fast per-request lookup. See clients.service.ts for
+  // the full rationale (GitHub/Stripe/AWS all use SHA-256/HMAC for API
+  // keys to avoid bcrypt-per-request DoS; ~190 bits of entropy makes
+  // brute-force infeasible regardless). CodeQL js/insufficient-password-
+  // hash false positive — this is an API token, not a password.
   const apiKeyPlain = `sahk_${nanoid(32)}`;
   const apiKeyHash = createHash("sha256").update(apiKeyPlain).digest("hex");
 

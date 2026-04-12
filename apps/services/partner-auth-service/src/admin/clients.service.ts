@@ -61,8 +61,19 @@ export class ClientsService {
     const clientSecret = `sah_cs_${nanoid(40)}`;
     const clientSecretHash = await bcrypt.hash(clientSecret, BCRYPT_COST);
 
-    // Partner API key (X-Sahool-Partner-Key) — SHA-256 hashed (not bcrypt
-    // because it's looked up on every API call — must be fast).
+    // Partner API key (X-Sahool-Partner-Key) — SHA-256 hashed.
+    //
+    // SECURITY NOTE (codeql:js/insufficient-password-hash false-positive):
+    // This is an API token, NOT a user password. The `sahk_` prefix +
+    // 32-char nanoid ≈ 190 bits of entropy — brute-force is infeasible
+    // regardless of hash function. Industry standard for API keys:
+    //   • GitHub PATs: SHA-256
+    //   • Stripe: HMAC-SHA-256
+    //   • AWS: HMAC-SHA-256
+    // Bcrypt-per-request would be a DoS vector (100ms/req × RPS = meltdown)
+    // since this key is validated on EVERY partner API call. User
+    // passwords (see `clientSecretHash` above) DO use bcrypt because they
+    // are typically low-entropy and checked rarely.
     const apiKeyPlain = `sahk_${nanoid(32)}`;
     const apiKeyHash = sha256(apiKeyPlain);
 

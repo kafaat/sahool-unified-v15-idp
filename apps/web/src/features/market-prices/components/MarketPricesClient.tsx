@@ -28,7 +28,7 @@ export default function MarketPricesClient() {
   const { data: prices, isLoading, isError, error, refetch } = useMarketPrices();
   const { data: stats } = useMarketPriceStats();
 
-  const records = prices ?? [];
+  const records = useMemo(() => prices ?? [], [prices]);
 
   const uniqueCrops = useMemo(
     () => Array.from(new Set(records.map((p) => p.cropTypeAr ?? p.cropType))),

@@ -15,7 +15,6 @@ import { getHealthScoreColor } from '@/lib/utils';
  * sprinkling `as any` on every import we centralise a single
  * `dynamicLeaflet` helper with a well-documented `unknown → T` cast.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function dynamicLeaflet<T extends ComponentType<any>>(
   loader: () => Promise<T>,
   loading?: () => JSX.Element | null,

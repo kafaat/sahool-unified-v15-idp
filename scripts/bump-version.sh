@@ -166,8 +166,7 @@ bump_file \
 # 4. Flutter pubspec.yaml files
 for pubspec in \
     "$PROJECT_ROOT/apps/mobile/pubspec.yaml" \
-    "$PROJECT_ROOT/apps/mobile/sahool_field_app/pubspec.yaml" \
-    "$PROJECT_ROOT/apps/mobile/sahol_atmosphere/pubspec.yaml"; do
+    "$PROJECT_ROOT/apps/mobile/sahool_field_app/pubspec.yaml"; do
     if [ -f "$pubspec" ]; then
         bump_file \
             "$pubspec" \

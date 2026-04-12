@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "io.sahool.atmosphere"
     compileSdk = 36  // Android 16 - aligned with CI and field app
-    ndkVersion = "28.2.13676358"
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         // Required for libraries using Java 8+ APIs

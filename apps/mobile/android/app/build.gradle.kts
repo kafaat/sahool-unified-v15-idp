@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "io.sahool.sahool_field_app"
     compileSdk = 35  // Android 15 - stable SDK for Flutter 3.27.x
-    ndkVersion = "28.2.13676358"  // Required by sqlcipher_flutter_libs for native compilation
+    ndkVersion = "27.0.12077973"  // Required by sqlcipher_flutter_libs for native compilation
 
     compileOptions {
             isCoreLibraryDesugaringEnabled = true

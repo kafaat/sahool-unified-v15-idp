@@ -22,7 +22,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "io.sahool.field"
     compileSdk = 35  // Android 15 - stable SDK for Flutter 3.27.x
-    ndkVersion = "28.2.13676358"
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         // Required for flutter_local_notifications and other libraries using Java 8+ APIs
@@ -119,5 +119,5 @@ flutter {
 
 dependencies {
     // Core library desugaring for Java 8+ API support on older Android versions
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }

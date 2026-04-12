@@ -135,9 +135,13 @@ export interface FieldResponse {
   description?: string;
   descriptionAr?: string;
   status: FieldStatus;
+  /** @deprecated Use `boundary` instead. Duplicate of boundary geometry kept for backwards compatibility. Removal: v5.0.0 */
   polygon?: GeoPolygon;
   boundary?: GeoPolygon;
+  /** @deprecated Use `boundary` instead. Duplicate of boundary geometry kept for backwards compatibility. Removal: v5.0.0 */
   geometry?: GeoPolygon;
+  /** @since 4.10.0 — Immutable boundary id; fetch geometry via `/partner/v1/boundaries/{id}` */
+  boundaryId?: string;
   centroid?: GeoPoint;
   area: number;
   areaHectares?: number;
@@ -614,3 +618,135 @@ export const DEFAULT_FREE_TIER: FreeTierLimits = {
   advancedNdvi: false,
   aiAdvisorFull: false,
 };
+
+// ---------------------------------------------------------------------------
+// Wave 0: Upload / Export / Partner Response Shapes (@since 4.10.0)
+// أشكال الاستجابات للرفع والتصدير وواجهة الشركاء
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Closed set of upload lifecycle states */
+export type UploadState =
+  | "UPLOADING"
+  | "PENDING"
+  | "INBOX"
+  | "DECLINED"
+  | "IMPORTING"
+  | "SUCCESS"
+  | "INVALID";
+
+/** @since 4.10.0 — Closed set of export job lifecycle states */
+export type ExportState =
+  | "PROCESSING"
+  | "COMPLETED"
+  | "NO_DATA"
+  | "INVALID"
+  | "EXPIRED";
+
+/** @since 4.10.0 — POST /uploads body (initiate chunked upload) */
+export interface UploadInitRequest {
+  /** Base64-encoded MD5 of the entire payload (validated on completion) */
+  md5: string;
+  /** Total byte length (max 500 MiB = 524_288_000) */
+  length: number;
+  /** Vendor MIME type from MEDIA_TYPES */
+  contentType: string;
+  /** Optional metadata forwarded to ingestion pipeline (e.g. `{fieldId, fileName, resourceOwner}`) */
+  metadata?: Record<string, string>;
+}
+
+/** @since 4.10.0 — POST /uploads 201 response */
+export interface UploadInitResponse {
+  uploadId: string;
+  expiresAt?: string;
+}
+
+/** @since 4.10.0 — GET /uploads/{id}/status response */
+export interface UploadStatusResponse {
+  id: string;
+  status: UploadState;
+  bytesReceived?: number;
+  /** Error messages when status = INVALID or DECLINED */
+  errors?: Array<{ code: string; message: string; path?: string }>;
+  updatedAt?: string;
+}
+
+/** @since 4.10.0 — POST /exports body */
+export interface ExportInitRequest {
+  contentType: string;
+  definition?: Record<string, unknown>;
+}
+
+/** @since 4.10.0 — GET /exports/{id}/status response */
+export interface ExportStatusResponse {
+  id: string;
+  status: ExportState;
+  /** Base64 MD5 of completed contents */
+  checksum?: string;
+  /** Content length in bytes (when COMPLETED) */
+  size?: number;
+  /** Reusable delta-export token — re-run the same export to fetch only newer data */
+  xNextToken?: string;
+  error?: string;
+}
+
+/** @since 4.10.0 — POST /partner/v1/oauth/token body (application/x-www-form-urlencoded) */
+export interface PartnerTokenRequest {
+  grant_type: "authorization_code" | "refresh_token" | "client_credentials";
+  code?: string;
+  redirect_uri?: string;
+  refresh_token?: string;
+  client_id?: string;
+  client_secret?: string;
+  scope?: string;
+}
+
+/** @since 4.10.0 — POST /partner/v1/oauth/token 200 response (OAuth 2.0 + OIDC) */
+export interface PartnerTokenResponse {
+  access_token: string;
+  token_type: "bearer";
+  expires_in: number;
+  refresh_token?: string;
+  scope: string;
+  /** OIDC id_token (JWT) — present when `openid` scope was requested */
+  id_token?: string;
+}
+
+/** @since 4.10.0 — Lightweight field summary for partner list endpoints (no inline geometry) */
+export interface PartnerFieldSummary {
+  id: string;
+  name: string;
+  boundaryId: string;
+  cropType?: string;
+}
+
+/** @since 4.10.0 — Immutable boundary resource (fetched on demand via /boundaries/{id}) */
+export interface PartnerBoundaryResponse {
+  id: string;
+  properties: {
+    area: { q: number; u: "ha" | "ac" | "m2" };
+    centroid: GeoPoint;
+  };
+  geometry: GeoPolygon | GeoMultiPolygon;
+}
+
+/** @since 4.10.0 — Activity layer summary (asPlanted / asHarvested / asApplied / scouting) */
+export interface PartnerActivityLayerSummary {
+  id: string;
+  fieldIds: string[];
+  startTime: string;
+  endTime: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Bytes in the raw contents payload (ZIP / ISOXML / shapefile) */
+  length?: number;
+}
+
+/** @since 4.10.0 — Error envelope (mirrors FieldView structure for partner familiarity) */
+export interface PartnerErrorEnvelope {
+  error: {
+    code: string;
+    id: string;
+    message: string;
+    path?: string;
+  };
+}

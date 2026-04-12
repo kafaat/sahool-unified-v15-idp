@@ -968,6 +968,372 @@ export const COOPERATIVE_ENDPOINTS = {
   REVENUE_CALCULATE: `${API_PREFIX}/cooperatives/revenue/calculate`,
 } as const;
 
+// ===========================================================================
+// Wave 0: FieldView-Inspired Partner & Upload Contracts (@since 4.10.0)
+// إضافات الموجة 0 — بنية شركاء مُستلهَمة من FieldView v4.0.11
+//
+// These are ADDITIVE constants that standardize chunked upload, vendor MIME
+// types, header-based pagination, state machines, and a partner-facing OAuth
+// 2.0 surface — without touching any existing endpoint.
+//
+// Design goals:
+//   1. Drop-in compatibility for partners already integrated with FieldView
+//      (Leaf Agriculture, DroneDeploy, SWAT Maps, ag-retailers, soil labs).
+//   2. Clean separation of identity (OAuth) from metering (X-Sahool-Partner-Key)
+//      — Stripe/Shopify-style.
+//   3. Interop standards: AgGateway Modus 1.0 XML, ISOXML, shapefile Rx.
+//   4. Offline-first mobile benefits from ETag + 304 + chunked resumable upload.
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Unified Upload Endpoints - نقاط الرفع الموحَّدة (@since 4.10.0)
+//
+// Chunked resumable upload inspired by FieldView POST /v4/uploads.
+// Backend contract: MinIO multipart upload wrapped behind this surface.
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Chunked resumable upload API (FieldView-compatible semantics) */
+export const UPLOAD_ENDPOINTS = {
+  /** POST — Initiate. Body: {md5, length, contentType}. Returns 201 + uploadId. */
+  CREATE: `${API_PREFIX}/uploads`,
+  /** PUT — Upload chunk. Required: Content-Range: bytes N-M/TOTAL. Max 5 MiB per chunk. Returns 204. */
+  CHUNK: `${API_PREFIX}/uploads/{uploadId}`,
+  /** GET — Poll processing status. Returns current UploadState. */
+  STATUS: `${API_PREFIX}/uploads/{uploadId}/status`,
+  /** POST — Batch status query. Body: {ids: string[]} (≤100). */
+  BATCH_STATUS: `${API_PREFIX}/uploads/status/query`,
+  /** DELETE — Cancel an in-progress upload (cleans up partial chunks). */
+  CANCEL: `${API_PREFIX}/uploads/{uploadId}`,
+} as const;
+
+/** @since 4.10.0 — Numeric limits on the upload surface (matches FieldView for interop) */
+export const UPLOAD_LIMITS = {
+  /** 500 MiB — hard cap on any single upload */
+  MAX_BYTES: 524_288_000,
+  /** 5 MiB — required chunk size (final chunk may be smaller) */
+  CHUNK_BYTES: 5_242_880,
+  /** 20 MiB — photo cap for scouting attachments */
+  PHOTO_MAX_BYTES: 20_971_520,
+  /** 100 — max upload IDs per /uploads/status/query batch */
+  BATCH_STATUS_MAX_IDS: 100,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Export Endpoints (async job resource) - نقاط التصدير (@since 4.10.0)
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Async export jobs (GeoJSON feature collections for planting/harvest) */
+export const EXPORT_ENDPOINTS = {
+  /** POST — Create export job. Body: {contentType, definition?}. Returns 201 + {id}. */
+  CREATE: `${API_PREFIX}/exports`,
+  /** GET — Poll export status. Returns ExportState + checksum + xNextToken. */
+  STATUS: `${API_PREFIX}/exports/{exportId}/status`,
+  /** GET — Stream binary contents (Range-chunked, 1–5 MiB). */
+  CONTENTS: `${API_PREFIX}/exports/{exportId}/contents`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Media Types (Vendor MIME Contract) - أنواع الوسائط (@since 4.10.0)
+//
+// Vendor MIME types for the unified uploads surface. These mirror FieldView's
+// `image/vnd.climate.*` and `application/vnd.climate.*` families so that
+// partners ported from FieldView can use the same client code. SAHOOL
+// namespace (`vnd.sahool.*`) is used except for AgGateway open standards
+// (Modus, ISOXML) which keep their canonical vendor strings.
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Media (MIME) type catalog for /uploads/{CREATE} contentType field */
+export const MEDIA_TYPES = {
+  // Imagery rasters (GeoTIFF in UTM / WGS-84 datum)
+  NDVI_GEOTIFF: "image/vnd.sahool.ndvi.geotiff",
+  NDRE_GEOTIFF: "image/vnd.sahool.ndre.geotiff",
+  NDWI_GEOTIFF: "image/vnd.sahool.ndwi.geotiff",
+  SAVI_GEOTIFF: "image/vnd.sahool.savi.geotiff",
+  EVI_GEOTIFF: "image/vnd.sahool.evi.geotiff",
+  LAI_GEOTIFF: "image/vnd.sahool.lai.geotiff",
+  SCI_GEOTIFF: "image/vnd.sahool.sci.geotiff",
+  THERMAL_GEOTIFF: "image/vnd.sahool.thermal.geotiff",
+  RGB_GEOTIFF: "image/vnd.sahool.rgb.geotiff",
+  RGB_NIR_GEOTIFF: "image/vnd.sahool.rgb-nir.geotiff",
+  RGB_CIR_GEOTIFF: "image/vnd.sahool.rgb-cir.geotiff",
+  WATER_STRESS_GEOTIFF: "image/vnd.sahool.waterstress.geotiff",
+  ELEVATION_GEOTIFF: "image/vnd.sahool.elevation.geotiff",
+  RAW_GEOTIFF: "image/vnd.sahool.raw.geotiff",
+  // Agronomic data (ZIP / GeoJSON)
+  FIELD_GEOJSON: "application/vnd.sahool.field.geojson",
+  RX_PLANTING_SHP: "application/vnd.sahool.rx.planting.shp",
+  RX_ZONES_SHP: "application/vnd.sahool.prescription.zones.shp",
+  STAND_COUNT_GEOJSON: "application/vnd.sahool.stand-count.geojson",
+  WEED_COUNT_GEOJSON: "application/vnd.sahool.weed-count.geojson",
+  AS_PLANTED_ZIP: "application/vnd.sahool.as-planted.zip",
+  AS_HARVESTED_ZIP: "application/vnd.sahool.as-harvested.zip",
+  AS_APPLIED_ZIP: "application/vnd.sahool.as-applied.zip",
+  // Soil - dual-format (native JSON + AgGateway Modus for lab interop)
+  SOIL_SAHOOL_JSON: "application/vnd.sahool.soil.json",
+  SOIL_MODUS_XML: "application/vnd.agwg.modus.xml",
+  // Machinery telemetry (AgGateway open standards)
+  ISOXML_TASKDATA_ZIP: "application/vnd.agwg.isoxml.zip",
+  // Generic
+  OCTET_STREAM: "application/octet-stream",
+} as const;
+
+// ---------------------------------------------------------------------------
+// Pagination (Header-Based, Cursor Style) - ترقيم الصفحات (@since 4.10.0)
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Header names for cursor-based pagination (FieldView-compatible) */
+export const PAGINATION_HEADERS = {
+  /** Request/response: opaque cursor token for next page */
+  NEXT_TOKEN: "X-Next-Token",
+  /** Request: page size (1..MAX_LIMIT) */
+  LIMIT: "X-Limit",
+  /** Response: stable request id for support */
+  REQUEST_ID: "X-Request-Id",
+  /** Response: ETag for conditional GET (304 Not Modified) */
+  ETAG: "ETag",
+  /** Request: If-None-Match for conditional GET */
+  IF_NONE_MATCH: "If-None-Match",
+} as const;
+
+/** @since 4.10.0 — Pagination numeric defaults */
+export const PAGINATION_DEFAULTS = {
+  /** Default items per page when X-Limit omitted */
+  DEFAULT_LIMIT: 100,
+  /** Hard ceiling on X-Limit */
+  MAX_LIMIT: 1000,
+} as const;
+
+/** @since 4.10.0 — Canonical HTTP status meanings for paginated list endpoints */
+export const PAGINATION_STATUS = {
+  /** 200 — complete result (no more pages) */
+  COMPLETE: 200,
+  /** 206 — partial content; more pages available via X-Next-Token */
+  PARTIAL: 206,
+  /** 304 — nothing modified since client's X-Next-Token */
+  NOT_MODIFIED: 304,
+  /** 409 — X-Next-Token expired; client must discard cache and refetch */
+  NEXT_TOKEN_EXPIRED: 409,
+} as const;
+
+// ---------------------------------------------------------------------------
+// State Machines - آلات الحالة (@since 4.10.0)
+//
+// Explicit, closed enumerations for the Upload and Export lifecycles.
+// FieldView's INBOX state (partner-uploads-to-grower with consent gating) is
+// adopted to support our `cooperatives` module where dealers upload on behalf
+// of farmers; the farmer must ACCEPT before the data enters their account.
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Upload lifecycle states (includes INBOX for dealer-delegation) */
+export const UPLOAD_STATES = [
+  "UPLOADING",
+  "PENDING",
+  "INBOX",
+  "DECLINED",
+  "IMPORTING",
+  "SUCCESS",
+  "INVALID",
+] as const;
+
+/** @since 4.10.0 — Export job lifecycle states */
+export const EXPORT_STATES = [
+  "PROCESSING",
+  "COMPLETED",
+  "NO_DATA",
+  "INVALID",
+  "EXPIRED",
+] as const;
+
+// ===========================================================================
+// Partner API Surface (@since 4.10.0)
+//
+// A parallel, OAuth-2.0-authenticated surface for external partners. Mirrors
+// FieldView's `/v4/*` so third-party integrations that already speak FieldView
+// need minimal adaptation. Serves at `/partner/v1/*` on Kong gateway.
+//
+// Auth model (per-request):
+//   Authorization: Bearer <access_token>   ← identity (OAuth 2.0 + OIDC)
+//   X-Sahool-Partner-Key: <opaque>          ← throttling + metering (per partner)
+// ===========================================================================
+
+/** @since 4.10.0 — Partner API version (independent of internal /api/v1) */
+export const PARTNER_API_VERSION = "v1" as const;
+
+/** @since 4.10.0 — Partner API base path (Kong routes to partner-facing BFF) */
+export const PARTNER_PREFIX = `/partner/${PARTNER_API_VERSION}` as const;
+
+/** @since 4.10.0 — Partner OAuth 2.0 + OIDC endpoints */
+export const PARTNER_OAUTH_ENDPOINTS = {
+  /** GET — Browser redirect for authorization code flow (farmer consent screen) */
+  AUTHORIZE: `${PARTNER_PREFIX}/oauth/authorize`,
+  /** POST — Token exchange (authorization_code + refresh_token grants) */
+  TOKEN: `${PARTNER_PREFIX}/oauth/token`,
+  /** POST — Revoke access or refresh token */
+  REVOKE: `${PARTNER_PREFIX}/oauth/revoke`,
+  /** POST — RFC 7662 token introspection */
+  INTROSPECT: `${PARTNER_PREFIX}/oauth/introspect`,
+  /** GET — OIDC UserInfo */
+  USERINFO: `${PARTNER_PREFIX}/oauth/userinfo`,
+  /** GET — OIDC discovery document */
+  DISCOVERY: `/.well-known/openid-configuration`,
+  /** GET — JWKS for id_token signature verification */
+  JWKS: `/.well-known/jwks.json`,
+} as const;
+
+/** @since 4.10.0 — Partner OAuth scopes (space-delimited when requested) */
+export const PARTNER_OAUTH_SCOPES = [
+  // OIDC foundational
+  "openid",
+  "profile",
+  "email",
+  "offline_access",
+  // Fields & boundaries
+  "fields:read",
+  "fields:write",
+  "boundaries:read",
+  "boundaries:write",
+  // Agronomic activity layers
+  "operations:planting:read",
+  "operations:planting:write",
+  "operations:harvest:read",
+  "operations:harvest:write",
+  "operations:application:read",
+  "operations:application:write",
+  "operations:scouting:read",
+  "operations:scouting:write",
+  // Imagery
+  "imagery:ndvi:read",
+  "imagery:ndvi:write",
+  "imagery:thermal:read",
+  "imagery:rgb:read",
+  // Soil & weather
+  "soil:read",
+  "soil:write",
+  "weather:read",
+  // Advisory & AI
+  "advisory:read",
+  "ai:vision:invoke",
+  // Carbon (SAHOOL-unique)
+  "carbon:read",
+  "carbon:mrv:export",
+  // Export jobs
+  "exports:read",
+  // Platform (always granted)
+  "partnerapis",
+  "platform",
+] as const;
+
+/** @since 4.10.0 — Partner request headers (metering, delegation, versioning) */
+export const PARTNER_HEADERS = {
+  /** Opaque partner API key (separate from OAuth — for throttling + billing metering) */
+  API_KEY: "X-Sahool-Partner-Key",
+  /** Trace id (echo on every response for support correlation) */
+  REQUEST_ID: "X-Request-Id",
+  /** Cursor pagination */
+  NEXT_TOKEN: "X-Next-Token",
+  /** Page size */
+  LIMIT: "X-Limit",
+  /** Dealer-on-behalf-of-grower delegation (FieldView X-Recipient-Email analogue) */
+  RECIPIENT_EMAIL: "X-Recipient-Email",
+  /** Contract version the partner client was compiled against */
+  CONTRACT_VERSION: "X-Sahool-Contract-Version",
+} as const;
+
+/** @since 4.10.0 — Partner limits & rate-ceiling defaults */
+export const PARTNER_LIMITS = {
+  /** Access token TTL (seconds) — 4h to match FieldView convention */
+  ACCESS_TOKEN_TTL_SEC: 14_400,
+  /** Refresh token TTL (days) */
+  REFRESH_TOKEN_TTL_DAYS: 30,
+  /** Used refresh token re-TTL (seconds) — rotation window after a refresh */
+  REFRESH_ROTATION_TTL_SEC: 3_600,
+  /** Max boundary ids per /boundaries/query batch (FieldView parity) */
+  BATCH_BOUNDARY_IDS: 10,
+  /** Max field area (hectares) — generous for MENA mega-farms */
+  FIELD_MAX_HECTARES: 50_000,
+  /** Max polygon vertices per boundary */
+  FIELD_MAX_VERTICES: 10_000,
+  /** Max VRA/Rx zones per prescription shapefile */
+  RX_MAX_ZONES: 100,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Partner Endpoints — Field & Boundary (@since 4.10.0)
+//
+// Boundaries are decoupled from Fields (FieldView pattern): listing fields
+// returns `{id, name, boundaryId}` only — partners fetch geometry on demand.
+// Boundary records are immutable; editing geometry creates a new boundary id
+// and the Field row is updated to reference it.
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Partner field directory (lightweight; no inline geometry) */
+export const PARTNER_FIELD_ENDPOINTS = {
+  /** GET — List fields owned by the authenticated resource owner */
+  LIST: `${PARTNER_PREFIX}/fields`,
+  /** GET — List fields owned + shared with the authenticated user (may 409) */
+  LIST_ALL: `${PARTNER_PREFIX}/fields/all`,
+  /** GET — Retrieve a single field (id, name, boundaryId, cropType) */
+  GET: `${PARTNER_PREFIX}/fields/{fieldId}`,
+} as const;
+
+/** @since 4.10.0 — Partner boundary endpoints (standalone, immutable) */
+export const PARTNER_BOUNDARY_ENDPOINTS = {
+  /** POST — Upload standalone boundary (does not create a field) */
+  CREATE: `${PARTNER_PREFIX}/boundaries`,
+  /** GET — Retrieve a boundary by immutable id */
+  GET: `${PARTNER_PREFIX}/boundaries/{boundaryId}`,
+  /** POST — Batch query boundaries (body: {ids: string[]} ≤ BATCH_BOUNDARY_IDS) */
+  BATCH_QUERY: `${PARTNER_PREFIX}/boundaries/query`,
+} as const;
+
+/** @since 4.10.0 — Partner resource-owner & farm-organization hierarchy */
+export const PARTNER_ORG_ENDPOINTS = {
+  /** GET — Resource owner (client account) details */
+  RESOURCE_OWNER: `${PARTNER_PREFIX}/resourceOwners/{resourceOwnerId}`,
+  /** GET — Farm organization (supports `parent` reference for cooperative hierarchies) */
+  FARM_ORG: `${PARTNER_PREFIX}/farmOrganizations/{farmOrganizationType}/{farmOrganizationId}`,
+  /** GET — Operations (machine operators) list */
+  OPERATIONS: `${PARTNER_PREFIX}/operations/all`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Partner Endpoints — Activity Layers (@since 4.10.0)
+//
+// asPlanted / asHarvested / asApplied / scoutingObservations — FieldView-style
+// time-sliced activity layers. `contents` endpoints stream the raw agronomic
+// payload (ZIP / ISOXML / shapefile) via Range-chunked download.
+// ---------------------------------------------------------------------------
+
+/** @since 4.10.0 — Activity layer endpoints (planting, harvest, application, scouting) */
+export const PARTNER_LAYER_ENDPOINTS = {
+  AS_PLANTED_LIST: `${PARTNER_PREFIX}/layers/asPlanted`,
+  AS_PLANTED_CONTENTS: `${PARTNER_PREFIX}/layers/asPlanted/{activityId}/contents`,
+  AS_HARVESTED_LIST: `${PARTNER_PREFIX}/layers/asHarvested`,
+  AS_HARVESTED_CONTENTS: `${PARTNER_PREFIX}/layers/asHarvested/{activityId}/contents`,
+  AS_APPLIED_LIST: `${PARTNER_PREFIX}/layers/asApplied`,
+  AS_APPLIED_CONTENTS: `${PARTNER_PREFIX}/layers/asApplied/{activityId}/contents`,
+  SCOUTING_LIST: `${PARTNER_PREFIX}/layers/scoutingObservations`,
+  SCOUTING_GET: `${PARTNER_PREFIX}/layers/scoutingObservations/{observationId}`,
+  SCOUTING_ATTACHMENTS: `${PARTNER_PREFIX}/layers/scoutingObservations/{observationId}/attachments`,
+  SCOUTING_ATTACHMENT_CONTENTS: `${PARTNER_PREFIX}/layers/scoutingObservations/{observationId}/attachments/{attachmentId}/contents`,
+} as const;
+
+/** @since 4.10.0 — Partner upload endpoints (same semantics as internal UPLOAD_ENDPOINTS) */
+export const PARTNER_UPLOAD_ENDPOINTS = {
+  CREATE: `${PARTNER_PREFIX}/uploads`,
+  CHUNK: `${PARTNER_PREFIX}/uploads/{uploadId}`,
+  STATUS: `${PARTNER_PREFIX}/uploads/{uploadId}/status`,
+  BATCH_STATUS: `${PARTNER_PREFIX}/uploads/status/query`,
+  CANCEL: `${PARTNER_PREFIX}/uploads/{uploadId}`,
+} as const;
+
+/** @since 4.10.0 — Partner export endpoints */
+export const PARTNER_EXPORT_ENDPOINTS = {
+  CREATE: `${PARTNER_PREFIX}/exports`,
+  STATUS: `${PARTNER_PREFIX}/exports/{exportId}/status`,
+  CONTENTS: `${PARTNER_PREFIX}/exports/{exportId}/contents`,
+} as const;
+
 // ---------------------------------------------------------------------------
 // Public Endpoints (no auth required) - النقاط العامة
 // ---------------------------------------------------------------------------

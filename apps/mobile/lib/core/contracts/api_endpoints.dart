@@ -443,3 +443,240 @@ const List<String> publicEndpoints = [
   HealthEndpoints.readiness,
   HealthEndpoints.health,
 ];
+
+// ===========================================================================
+// Wave 0: FieldView-Inspired Partner & Upload Contracts (@since 4.10.0)
+// إضافات الموجة 0 — بنية شركاء مُستلهَمة من FieldView v4.0.11
+// ===========================================================================
+
+/// @since 4.10.0 — Chunked resumable upload API
+abstract final class UploadEndpoints {
+  static const String create = '$apiPrefix/uploads';
+  static String chunk(String uploadId) => '$apiPrefix/uploads/$uploadId';
+  static String status(String uploadId) => '$apiPrefix/uploads/$uploadId/status';
+  static const String batchStatus = '$apiPrefix/uploads/status/query';
+  static String cancel(String uploadId) => '$apiPrefix/uploads/$uploadId';
+}
+
+/// @since 4.10.0 — Numeric limits on the upload surface
+abstract final class UploadLimits {
+  static const int maxBytes = 524288000; // 500 MiB
+  static const int chunkBytes = 5242880; // 5 MiB
+  static const int photoMaxBytes = 20971520; // 20 MiB
+  static const int batchStatusMaxIds = 100;
+}
+
+/// @since 4.10.0 — Async export jobs
+abstract final class ExportEndpoints {
+  static const String create = '$apiPrefix/exports';
+  static String status(String exportId) => '$apiPrefix/exports/$exportId/status';
+  static String contents(String exportId) => '$apiPrefix/exports/$exportId/contents';
+}
+
+/// @since 4.10.0 — Vendor MIME types for /uploads contentType
+abstract final class MediaTypes {
+  static const String ndviGeotiff = 'image/vnd.sahool.ndvi.geotiff';
+  static const String ndreGeotiff = 'image/vnd.sahool.ndre.geotiff';
+  static const String ndwiGeotiff = 'image/vnd.sahool.ndwi.geotiff';
+  static const String saviGeotiff = 'image/vnd.sahool.savi.geotiff';
+  static const String eviGeotiff = 'image/vnd.sahool.evi.geotiff';
+  static const String laiGeotiff = 'image/vnd.sahool.lai.geotiff';
+  static const String sciGeotiff = 'image/vnd.sahool.sci.geotiff';
+  static const String thermalGeotiff = 'image/vnd.sahool.thermal.geotiff';
+  static const String rgbGeotiff = 'image/vnd.sahool.rgb.geotiff';
+  static const String rgbNirGeotiff = 'image/vnd.sahool.rgb-nir.geotiff';
+  static const String rgbCirGeotiff = 'image/vnd.sahool.rgb-cir.geotiff';
+  static const String waterStressGeotiff = 'image/vnd.sahool.waterstress.geotiff';
+  static const String elevationGeotiff = 'image/vnd.sahool.elevation.geotiff';
+  static const String rawGeotiff = 'image/vnd.sahool.raw.geotiff';
+  static const String fieldGeojson = 'application/vnd.sahool.field.geojson';
+  static const String rxPlantingShp = 'application/vnd.sahool.rx.planting.shp';
+  static const String rxZonesShp = 'application/vnd.sahool.prescription.zones.shp';
+  static const String standCountGeojson = 'application/vnd.sahool.stand-count.geojson';
+  static const String weedCountGeojson = 'application/vnd.sahool.weed-count.geojson';
+  static const String asPlantedZip = 'application/vnd.sahool.as-planted.zip';
+  static const String asHarvestedZip = 'application/vnd.sahool.as-harvested.zip';
+  static const String asAppliedZip = 'application/vnd.sahool.as-applied.zip';
+  static const String soilSahoolJson = 'application/vnd.sahool.soil.json';
+  static const String soilModusXml = 'application/vnd.agwg.modus.xml';
+  static const String isoxmlTaskdataZip = 'application/vnd.agwg.isoxml.zip';
+  static const String octetStream = 'application/octet-stream';
+}
+
+/// @since 4.10.0 — Header names for cursor-based pagination
+abstract final class PaginationHeaders {
+  static const String nextToken = 'X-Next-Token';
+  static const String limit = 'X-Limit';
+  static const String requestId = 'X-Request-Id';
+  static const String etag = 'ETag';
+  static const String ifNoneMatch = 'If-None-Match';
+}
+
+/// @since 4.10.0 — Pagination numeric defaults
+abstract final class PaginationDefaults {
+  static const int defaultLimit = 100;
+  static const int maxLimit = 1000;
+}
+
+/// @since 4.10.0 — Canonical HTTP status meanings for list endpoints
+abstract final class PaginationStatus {
+  static const int complete = 200;
+  static const int partial = 206;
+  static const int notModified = 304;
+  static const int nextTokenExpired = 409;
+}
+
+/// @since 4.10.0 — Upload lifecycle states (includes INBOX for dealer delegation)
+const List<String> uploadStates = [
+  'UPLOADING',
+  'PENDING',
+  'INBOX',
+  'DECLINED',
+  'IMPORTING',
+  'SUCCESS',
+  'INVALID',
+];
+
+/// @since 4.10.0 — Export job lifecycle states
+const List<String> exportStates = [
+  'PROCESSING',
+  'COMPLETED',
+  'NO_DATA',
+  'INVALID',
+  'EXPIRED',
+];
+
+// ---------------------------------------------------------------------------
+// Partner API Surface (@since 4.10.0)
+// ---------------------------------------------------------------------------
+
+const String partnerApiVersion = 'v1';
+const String partnerPrefix = '/partner/$partnerApiVersion';
+
+/// @since 4.10.0 — Partner OAuth 2.0 + OIDC endpoints
+abstract final class PartnerOauthEndpoints {
+  static const String authorize = '$partnerPrefix/oauth/authorize';
+  static const String token = '$partnerPrefix/oauth/token';
+  static const String revoke = '$partnerPrefix/oauth/revoke';
+  static const String introspect = '$partnerPrefix/oauth/introspect';
+  static const String userinfo = '$partnerPrefix/oauth/userinfo';
+  static const String discovery = '/.well-known/openid-configuration';
+  static const String jwks = '/.well-known/jwks.json';
+}
+
+/// @since 4.10.0 — Partner OAuth scopes (space-delimited when requested)
+const List<String> partnerOauthScopes = [
+  'openid',
+  'profile',
+  'email',
+  'offline_access',
+  'fields:read',
+  'fields:write',
+  'boundaries:read',
+  'boundaries:write',
+  'operations:planting:read',
+  'operations:planting:write',
+  'operations:harvest:read',
+  'operations:harvest:write',
+  'operations:application:read',
+  'operations:application:write',
+  'operations:scouting:read',
+  'operations:scouting:write',
+  'imagery:ndvi:read',
+  'imagery:ndvi:write',
+  'imagery:thermal:read',
+  'imagery:rgb:read',
+  'soil:read',
+  'soil:write',
+  'weather:read',
+  'advisory:read',
+  'ai:vision:invoke',
+  'carbon:read',
+  'carbon:mrv:export',
+  'exports:read',
+  'partnerapis',
+  'platform',
+];
+
+/// @since 4.10.0 — Partner request headers
+abstract final class PartnerHeaders {
+  static const String apiKey = 'X-Sahool-Partner-Key';
+  static const String requestId = 'X-Request-Id';
+  static const String nextToken = 'X-Next-Token';
+  static const String limit = 'X-Limit';
+  static const String recipientEmail = 'X-Recipient-Email';
+  static const String contractVersion = 'X-Sahool-Contract-Version';
+}
+
+/// @since 4.10.0 — Partner limits & defaults
+abstract final class PartnerLimits {
+  static const int accessTokenTtlSec = 14400; // 4h
+  static const int refreshTokenTtlDays = 30;
+  static const int refreshRotationTtlSec = 3600;
+  static const int batchBoundaryIds = 10;
+  static const int fieldMaxHectares = 50000;
+  static const int fieldMaxVertices = 10000;
+  static const int rxMaxZones = 100;
+}
+
+/// @since 4.10.0 — Partner field directory (lightweight)
+abstract final class PartnerFieldEndpoints {
+  static const String list = '$partnerPrefix/fields';
+  static const String listAll = '$partnerPrefix/fields/all';
+  static String get(String fieldId) => '$partnerPrefix/fields/$fieldId';
+}
+
+/// @since 4.10.0 — Partner boundary endpoints (standalone, immutable)
+abstract final class PartnerBoundaryEndpoints {
+  static const String create = '$partnerPrefix/boundaries';
+  static String get(String boundaryId) => '$partnerPrefix/boundaries/$boundaryId';
+  static const String batchQuery = '$partnerPrefix/boundaries/query';
+}
+
+/// @since 4.10.0 — Partner resource-owner & farm-organization hierarchy
+abstract final class PartnerOrgEndpoints {
+  static String resourceOwner(String id) => '$partnerPrefix/resourceOwners/$id';
+  static String farmOrg(String type, String id) =>
+      '$partnerPrefix/farmOrganizations/$type/$id';
+  static const String operations = '$partnerPrefix/operations/all';
+}
+
+/// @since 4.10.0 — Activity layer endpoints
+abstract final class PartnerLayerEndpoints {
+  static const String asPlantedList = '$partnerPrefix/layers/asPlanted';
+  static String asPlantedContents(String activityId) =>
+      '$partnerPrefix/layers/asPlanted/$activityId/contents';
+  static const String asHarvestedList = '$partnerPrefix/layers/asHarvested';
+  static String asHarvestedContents(String activityId) =>
+      '$partnerPrefix/layers/asHarvested/$activityId/contents';
+  static const String asAppliedList = '$partnerPrefix/layers/asApplied';
+  static String asAppliedContents(String activityId) =>
+      '$partnerPrefix/layers/asApplied/$activityId/contents';
+  static const String scoutingList = '$partnerPrefix/layers/scoutingObservations';
+  static String scoutingGet(String observationId) =>
+      '$partnerPrefix/layers/scoutingObservations/$observationId';
+  static String scoutingAttachments(String observationId) =>
+      '$partnerPrefix/layers/scoutingObservations/$observationId/attachments';
+  static String scoutingAttachmentContents(
+    String observationId,
+    String attachmentId,
+  ) =>
+      '$partnerPrefix/layers/scoutingObservations/$observationId/attachments/$attachmentId/contents';
+}
+
+/// @since 4.10.0 — Partner upload endpoints (mirror internal UploadEndpoints)
+abstract final class PartnerUploadEndpoints {
+  static const String create = '$partnerPrefix/uploads';
+  static String chunk(String uploadId) => '$partnerPrefix/uploads/$uploadId';
+  static String status(String uploadId) => '$partnerPrefix/uploads/$uploadId/status';
+  static const String batchStatus = '$partnerPrefix/uploads/status/query';
+  static String cancel(String uploadId) => '$partnerPrefix/uploads/$uploadId';
+}
+
+/// @since 4.10.0 — Partner export endpoints
+abstract final class PartnerExportEndpoints {
+  static const String create = '$partnerPrefix/exports';
+  static String status(String exportId) => '$partnerPrefix/exports/$exportId/status';
+  static String contents(String exportId) =>
+      '$partnerPrefix/exports/$exportId/contents';
+}

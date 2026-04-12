@@ -227,7 +227,6 @@ test.describe("Field Management Operations", () => {
 
     if (hasAddButton) {
       await addButton.click();
-      await page.waitForTimeout(1000);
 
       // Modal or form should appear
       const formOrModal = page.locator(
@@ -533,11 +532,10 @@ test.describe("Settings Operations", () => {
       const firstTab = tabs.first();
       if (await firstTab.isVisible({ timeout: 3000 })) {
         await firstTab.click();
-        await page.waitForTimeout(1000);
 
         // Content should update without crashing
         const content = page.locator("main, [role='main']").first();
-        await expect(content).toBeVisible();
+        await expect(content).toBeVisible({ timeout: 5000 });
       }
     }
   });

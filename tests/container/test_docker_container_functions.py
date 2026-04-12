@@ -712,7 +712,7 @@ class TestContainerCategorization:
         backbone = set(BACKBONE_CONTAINERS.keys())
         supporting = set(SUPPORTING_CONTAINERS.keys())
         service_centric = set(PYTHON_SERVICES) | set(NODE_SERVICES)
-        isolated = {"demo-data", "agro-rules", "ollama-model-loader", "etcd-init", "etcd-perms-init", "vllm-deepseek"}
+        isolated = {"demo-data", "agro-rules", "ollama-model-loader", "etcd-init", "etcd-perms-init", "nats-stream-init", "vllm-deepseek"}
         return backbone | supporting | service_centric | isolated
 
     def test_backbone_count(self):

@@ -697,7 +697,7 @@ asyncio.run(main())
   ollama:
     profiles:
       - gpu
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.5.4
     container_name: sahool-ollama
     volumes:
       - ollama_data:/root/.ollama

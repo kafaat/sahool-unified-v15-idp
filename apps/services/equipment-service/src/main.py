@@ -13,6 +13,7 @@ import json
 import os
 import sys
 import uuid
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 
@@ -30,7 +31,7 @@ from .api_models import (
     map_status_in,
     serialize_equipment,
 )
-from .database import check_db_connection, get_db, init_db
+from .database import check_db_connection, engine, get_db, init_db
 from .db_models import (
     Equipment as DBEquipment,
 )
@@ -84,12 +85,31 @@ except ImportError:
 SERVICE_NAME = "sahool-equipment-service"
 SERVICE_PORT = int(os.getenv("PORT", "8101"))
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage startup/shutdown: init DB on start, dispose engine on stop."""
+    try:
+        init_db()
+        logger.info("equipment_service_db_initialized")
+    except Exception as e:
+        logger.warning("database_init_failed", error=str(e))
+    yield
+    # Shutdown: dispose SQLAlchemy engine to release all pooled connections
+    try:
+        engine.dispose()
+        logger.info("equipment_service_db_disposed")
+    except Exception as e:
+        logger.warning("database_dispose_failed", error=str(e))
+
+
 app = FastAPI(
     title="SAHOOL Equipment Service",
     description="Agricultural equipment and asset management API",
     version="16.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Setup unified error handling
@@ -336,12 +356,8 @@ class Equipment(BaseModel):
 # Database Initialization
 # ═══════════════════════════════════════════════════════════════════════════
 
-# Initialize database tables on startup
-# In production, use Alembic migrations instead
-try:
-    init_db()
-except Exception as e:
-    logger.warning("database_init_failed", error=str(e))
+# Database initialization moved to lifespan manager (line ~87)
+# This ensures proper cleanup on shutdown via engine.dispose()
 
 
 def seed_demo_data(db: Session):

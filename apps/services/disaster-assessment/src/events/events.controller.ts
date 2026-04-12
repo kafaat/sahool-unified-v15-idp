@@ -13,6 +13,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   ParseUUIDPipe,
@@ -39,12 +40,13 @@ export class EventsController {
   constructor(private readonly events: EventsService) {}
 
   private tenantId(req: any): string {
-    return (
-      req.user?.tenantId ||
-      req.tenantId ||
-      req.headers["x-tenant-id"] ||
-      "unassigned"
-    );
+    // FIX: Require JWT tenant claim; remove header fallback and "unassigned" default.
+    // Header-based tenant resolution allows tenant spoofing on authenticated endpoints.
+    const tid = req.user?.tenantId || req.user?.tid;
+    if (!tid) {
+      throw new HttpException("Missing tenant ID in JWT", 403);
+    }
+    return tid;
   }
 
   // ─────────────────────────────────────────────────────────────────────────

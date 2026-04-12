@@ -28,11 +28,9 @@ sahool-unified-v15-idp/
 │   │   ├── analytics/          # Analytics processing
 │   │   ├── common/             # Shared database, middleware, queue, monitoring
 │   │   └── field_ops/          # Field operations logic
-│   ├── mobile/                 # Flutter mobile apps
-│   │   ├── sahool_field_app/   # Main field app
-│   │   ├── sahol_atmosphere/   # Weather/atmosphere companion app
-│   │   ├── sahool-mobile/      # Secondary mobile variant
-│   │   ├── lib/                # Core Flutter code
+│   ├── mobile/                 # Flutter mobile app
+│   │   ├── sahool_field_app/   # Main field app (standalone Android config)
+│   │   ├── lib/                # Core Flutter code (708 Dart files)
 │   │   └── integration_test/   # Integration tests
 │   ├── services/               # 72 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
@@ -694,7 +692,6 @@ class FieldNotifier extends _$FieldNotifier {
 | App | Location | Description |
 | --- | -------- | ----------- |
 | sahool_field_app | `apps/mobile/sahool_field_app/` | Main field operations app |
-| sahol_atmosphere | `apps/mobile/sahol_atmosphere/` | Companion weather/atmosphere app |
 
 ### Offline-First Pattern
 

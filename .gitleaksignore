@@ -45,3 +45,8 @@ de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secr
 
 # E2E agri services test — test-only password "Pass123!" in mock registration call
 369a00d690988c2c49428022e7cb387438951f1a:tests/e2e/test_e2e_agri_services.py:generic-secret:60
+
+# PgBouncer healthcheck.sh — PGPASSWORD="$_stats_pass" is a shell variable reference,
+# not a hardcoded secret. The value comes from POSTGRES_PASSWORD env var at runtime.
+fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthcheck.sh:generic-secret:100
+fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthcheck.sh:generic-secret:129

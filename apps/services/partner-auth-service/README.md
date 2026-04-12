@@ -54,12 +54,26 @@ All admin endpoints require `Authorization: Bearer <jwt>` with `role=ADMIN`
 (or `roles` array containing `"ADMIN"`). Verified by `AdminGuard` against
 `SAHOOL_SESSION_SECRET` (HS256, shared with user-service).
 
+### ✅ Kong gateway wiring (v4 — `claude/wave1-partner-auth-kong-wiring`)
+
+All 4 service blocks live in `infrastructure/gateway/kong/active/kong.yml`:
+
+| Kong service block | Purpose | Rate limit |
+|---|---|---|
+| `partner-auth-oauth-public` | `/partner/v1/oauth/{token,authorize,revoke,introspect,userinfo}` | 30–120 req/min per IP (tighter on `/token`) |
+| `partner-auth-wellknown` | `/.well-known/openid-configuration`, `/.well-known/jwks.json` | `proxy-cache` (1h + 15m respectively) |
+| `partner-auth-admin` | `/api/v1/admin/partner-auth/*` (defense-in-depth `jwt` plugin) | 100 req/min, 2000 req/hour |
+| `partner-auth-health` | `/healthz`, `/readyz`, `/health` (no auth, no rate limit) | — |
+
+Validation: [`tests/integration/gateway/test_partner_auth_kong_routes.py`](../../tests/integration/gateway/test_partner_auth_kong_routes.py) checks the kong.yml structure stays in sync with the contract constants.
+
 ### ⏳ Planned (remaining branches)
 | Feature | Branch |
 |---|---|
 | Admin web UI for partner registration | `claude/wave1-partner-portal-ui` |
-| Kong route integration + `X-Sahool-Partner-Key` rate-limit plugin | `claude/wave1-partner-auth-kong-wiring` |
+| Custom Kong plugin for `X-Sahool-Partner-Key` → rate-tier lookup | `claude/wave1-partner-auth-kong-plugin` |
 | Live user-service fetch in `/userinfo` (currently minimal claims) | `claude/wave1-partner-auth-userinfo-fresh` |
+| Private-key at-rest encryption via Vault KEK | `claude/wave1-partner-auth-signing-key-kms` |
 
 ## Seeding local dev data
 

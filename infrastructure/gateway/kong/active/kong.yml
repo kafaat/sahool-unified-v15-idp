@@ -2232,6 +2232,226 @@ services:
       claims_to_verify:
       - exp
 
+# ═══════════════════════════════════════════════════════════════════════════
+# Partner Auth Service (OAuth 2.0 / OIDC) — @since contract 4.11.0
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Three path families routed to a single upstream (partner-auth-service:3030):
+#
+#   1. /partner/v1/oauth/*            — public partner OAuth endpoints
+#                                        (tight rate limits, no auth layer here —
+#                                         the service itself authenticates clients
+#                                         via HTTP Basic + body params)
+#
+#   2. /.well-known/openid-configuration
+#      /.well-known/jwks.json         — OIDC discovery (public, heavily cached)
+#
+#   3. /api/v1/admin/partner-auth/*   — SAHOOL-internal admin (ADMIN role JWT)
+#
+# X-Sahool-Partner-Key metering is implemented in the service itself, not here —
+# Kong forwards the header unchanged. Future branch (kong-partner-key-plugin)
+# will add a custom plugin to resolve the key → rate tier before hitting the
+# upstream, but for now rate limits are applied per-route.
+# ---------------------------------------------------------------------------
+
+- name: partner-auth-oauth-public
+  host: partner-auth-service
+  port: 3030
+  protocol: http
+  routes:
+  - name: partner-auth-oauth-token
+    paths:
+    - /partner/v1/oauth/token
+    methods:
+    - POST
+    - OPTIONS
+    strip_path: false
+    protocols:
+    - http
+    - https
+    # Tight limits on /token — this is where tokens materialize, so abuse
+    # detection matters most. 30/min per IP is generous for a sane partner
+    # but flags credential-stuffing quickly.
+    plugins:
+    - name: rate-limiting
+      config:
+        minute: 30
+        hour: 500
+        policy: local
+        fault_tolerant: true
+        limit_by: ip
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 32   # KiB — token requests are tiny
+  - name: partner-auth-oauth-authorize
+    paths:
+    - /partner/v1/oauth/authorize
+    methods:
+    - GET
+    - POST
+    - OPTIONS
+    strip_path: false
+    protocols:
+    - http
+    - https
+    plugins:
+    - name: rate-limiting
+      config:
+        minute: 60
+        hour: 600
+        policy: local
+        fault_tolerant: true
+        limit_by: ip
+  - name: partner-auth-oauth-revoke-introspect
+    paths:
+    - /partner/v1/oauth/revoke
+    - /partner/v1/oauth/introspect
+    methods:
+    - POST
+    - OPTIONS
+    strip_path: false
+    protocols:
+    - http
+    - https
+    plugins:
+    - name: rate-limiting
+      config:
+        minute: 60
+        hour: 2000
+        policy: local
+        fault_tolerant: true
+        limit_by: ip
+  - name: partner-auth-oauth-userinfo
+    paths:
+    - /partner/v1/oauth/userinfo
+    methods:
+    - GET
+    - OPTIONS
+    strip_path: false
+    protocols:
+    - http
+    - https
+    # /userinfo runs per-request on every partner call that needs profile
+    # data — rate limit a little higher to match partner activity.
+    plugins:
+    - name: rate-limiting
+      config:
+        minute: 120
+        hour: 5000
+        policy: local
+        fault_tolerant: true
+        limit_by: ip
+  plugins:
+  - name: response-transformer
+    config:
+      add:
+        headers:
+        - 'Cache-Control:no-store'
+        - 'Pragma:no-cache'
+
+- name: partner-auth-wellknown
+  host: partner-auth-service
+  port: 3030
+  protocol: http
+  routes:
+  - name: partner-auth-openid-configuration
+    paths:
+    - /.well-known/openid-configuration
+    methods:
+    - GET
+    - OPTIONS
+    strip_path: false
+    protocols:
+    - http
+    - https
+    # Heavily cached — discovery doc changes are rare
+    plugins:
+    - name: proxy-cache
+      config:
+        response_code:
+        - 200
+        request_method:
+        - GET
+        content_type:
+        - application/json
+        cache_ttl: 3600
+        strategy: memory
+  - name: partner-auth-jwks
+    paths:
+    - /.well-known/jwks.json
+    methods:
+    - GET
+    - OPTIONS
+    strip_path: false
+    protocols:
+    - http
+    - https
+    # JWKS ttl must be shorter than key-rotation retention window (4h)
+    # so verifiers don't cache a stale-only set past rotation.
+    plugins:
+    - name: proxy-cache
+      config:
+        response_code:
+        - 200
+        request_method:
+        - GET
+        content_type:
+        - application/json
+        cache_ttl: 900
+        strategy: memory
+
+- name: partner-auth-admin
+  host: partner-auth-service
+  port: 3030
+  protocol: http
+  routes:
+  - name: partner-auth-admin-routes
+    paths:
+    - /api/v1/admin/partner-auth
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+    strip_path: false
+    protocols:
+    - http
+    - https
+  # AdminGuard in the service already enforces role=ADMIN on the JWT, but
+  # we add `jwt` here too for defense-in-depth: if the service ever loses
+  # the guard on a controller, Kong still rejects unauthenticated requests.
+  plugins:
+  - name: jwt
+    config:
+      run_on_preflight: false
+      claims_to_verify:
+      - exp
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 2000
+      policy: local
+      fault_tolerant: true
+
+- name: partner-auth-health
+  host: partner-auth-service
+  port: 3030
+  protocol: http
+  routes:
+  - name: partner-auth-health-route
+    paths:
+    - /healthz
+    - /readyz
+    - /health
+    methods:
+    - GET
+    strip_path: false
+    protocols:
+    - http
+    - https
+
 consumers:
 - username: sahool-platform-service
   jwt_secrets:

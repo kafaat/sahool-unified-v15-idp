@@ -85,6 +85,7 @@ except ImportError:
 SERVICE_NAME = "sahool-equipment-service"
 SERVICE_PORT = int(os.getenv("PORT", "8101"))
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage startup/shutdown: init DB on start, dispose engine on stop."""

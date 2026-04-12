@@ -20,6 +20,13 @@ export const SERVICE_PORTS = {
   FIELD_MANAGEMENT: 3000,
   /** User authentication & management - المصادقة وإدارة المستخدمين */
   USER_SERVICE: 3025,
+  /**
+   * Partner OAuth 2.0 / OIDC authorization server - خادم مصادقة الشركاء
+   * FieldView-compatible partner API auth (authorization code flow,
+   * OIDC id_token, refresh token rotation, token introspection/revocation,
+   * JWKS). Kong routes /partner/v1/oauth/* to this service. @since 4.11.0
+   */
+  PARTNER_AUTH: 3030,
   /** Marketplace service - خدمة السوق */
   MARKETPLACE: 3010,
   /** Research trials - التجارب البحثية */

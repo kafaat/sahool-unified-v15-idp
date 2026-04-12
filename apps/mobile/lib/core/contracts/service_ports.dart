@@ -2,13 +2,14 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.10.0
+/// Contract version: 4.11.0
 library;
 
 /// Single source of truth for all microservice ports.
 abstract final class ServicePorts {
   static const int fieldManagement = 3000;
   static const int userService = 3025;
+  static const int partnerAuth = 3030;
   static const int marketplace = 3010;
   static const int researchCore = 3015;
   static const int disasterAssessment = 3020;

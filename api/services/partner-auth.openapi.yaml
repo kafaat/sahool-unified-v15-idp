@@ -688,7 +688,7 @@ paths:
       parameters:
         - { name: clientId, in: query, schema: { type: string } }
         - { name: userId, in: query, schema: { type: string } }
-        - { name: includeRevoked, in: query, description: "`true` to include revoked rows", schema: { type: string, enum: [true, false] } }
+        - { name: includeRevoked, in: query, description: "`true` to include revoked rows", schema: { type: string, enum: ["true", "false"] } }
         - { name: limit, in: query, schema: { type: integer, default: 100, maximum: 500 } }
         - { name: offset, in: query, schema: { type: integer, default: 0 } }
       responses:
@@ -714,7 +714,7 @@ paths:
         - { name: clientId, in: query, schema: { type: string } }
         - { name: userId, in: query, schema: { type: string } }
         - { name: familyId, in: query, description: Filter to one rotation chain, schema: { type: string, format: uuid } }
-        - { name: includeRevoked, in: query, schema: { type: string, enum: [true, false] } }
+        - { name: includeRevoked, in: query, schema: { type: string, enum: ["true", "false"] } }
         - { name: limit, in: query, schema: { type: integer, default: 100, maximum: 500 } }
         - { name: offset, in: query, schema: { type: integer, default: 0 } }
       responses:

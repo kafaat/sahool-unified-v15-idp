@@ -152,16 +152,34 @@ jobs:
           BREAKING=0
           for spec in $(git ls-files 'api/**/*.openapi.yaml' 'api/gateway-openapi.yaml'); do
             [ -f "$spec" ] || continue
-            if git show "${BASE}:${spec}" > "/tmp/base/$(basename "$spec")" 2>/dev/null; then
-              echo "🔍 Diffing ${spec}..."
-              if ! npx --yes oasdiff breaking "/tmp/base/$(basename "$spec")" "$spec" \
-                     --fail-on ERR >> /tmp/diff/summary.md; then
+            # Use a path-unique name so two specs with the same basename (e.g.
+            # `api/services/foo.openapi.yaml` and `api/internal/foo.openapi.yaml`)
+            # don't overwrite each other in /tmp/base.
+            SAFE_NAME=$(echo "$spec" | tr '/' '_')
+            if git show "${BASE}:${spec}" > "/tmp/base/${SAFE_NAME}" 2>/dev/null; then
+              echo "🔍 Diffing ${spec} vs ${BASE}:${spec} ..."
+              echo "## ${spec}" >> /tmp/diff/summary.md
+              # `--fail-on ERR` exits non-zero ONLY on ERR-level diff entries
+              # (actual breaking changes). Non-breaking changes / parse issues
+              # go to stdout without triggering failure.
+              if ! npx --yes oasdiff breaking "/tmp/base/${SAFE_NAME}" "$spec" \
+                     --fail-on ERR 2>&1 | tee -a /tmp/diff/summary.md; then
+                echo "⚠️  oasdiff reported ERR-level findings on ${spec}"
                 BREAKING=1
               fi
+              echo "" >> /tmp/diff/summary.md
             else
-              echo "  (new spec, skipping diff) ${spec}"
+              echo "  ✨ new spec (not on base) — skipping diff: ${spec}"
+              echo "## ${spec}  _(new)_" >> /tmp/diff/summary.md
+              echo "" >> /tmp/diff/summary.md
             fi
           done
+
+          if [ -s /tmp/diff/summary.md ]; then
+            echo "─── summary.md ───"
+            cat /tmp/diff/summary.md
+            echo "──────────────────"
+          fi
 
           echo "breaking=${BREAKING}" >> "$GITHUB_OUTPUT"
 

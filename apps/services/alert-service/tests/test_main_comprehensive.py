@@ -683,9 +683,7 @@ class TestHealthEndpointsComprehensive:
         assert "nats_publisher" in data
         assert "nats_subscriber" in data
         # Security: business-data counts MUST NOT appear on the unauth probe
-        assert "alerts_count" not in data, (
-            "/readyz must not expose tenant-unscoped counts (see main.py fix)"
-        )
+        assert "alerts_count" not in data, "/readyz must not expose tenant-unscoped counts (see main.py fix)"
         assert "rules_count" not in data
 
 

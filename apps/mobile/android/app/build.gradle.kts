@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "io.sahool.sahool_field_app"
     compileSdk = 36  // Android 16 — aligned across all SAHOOL mobile apps
-    ndkVersion = "27.0.12077973"  // Required by sqlcipher_flutter_libs for native compilation
+    ndkVersion = "27.2.12479018"  // NDK r27c LTS — required by sqlcipher_flutter_libs
 
     compileOptions {
             isCoreLibraryDesugaringEnabled = true

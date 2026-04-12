@@ -22,7 +22,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "io.sahool.field"
     compileSdk = 36  // Android 16 — aligned across all SAHOOL mobile apps
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "27.2.12479018"
 
     compileOptions {
         // Required for flutter_local_notifications and other libraries using Java 8+ APIs

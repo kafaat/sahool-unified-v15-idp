@@ -121,10 +121,10 @@ echo "4. Checking application configurations..."
 echo "-----------------------------------"
 
 # Check mobile Android NDK version
-if grep -q 'ndkVersion = "27\.0\.12077973"' apps/mobile/android/app/build.gradle.kts; then
-    check_pass "Mobile Android NDK version set to 27.0.12077973"
+if grep -q 'ndkVersion = "27\.2\.12479018"' apps/mobile/android/app/build.gradle.kts; then
+    check_pass "Mobile Android NDK version set to 27.2.12479018 (r27c LTS)"
 else
-    check_fail "Mobile Android NDK should be 27.0.12077973 for AGP 8.11 compatibility"
+    check_fail "Mobile Android NDK should be 27.2.12479018 for AGP 8.13 compatibility"
 fi
 
 # Check admin Dockerfile documentation

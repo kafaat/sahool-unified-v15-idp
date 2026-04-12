@@ -350,7 +350,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pytest pytest-asyncio
+          pip install -c constraints.txt -r requirements/testing.txt 2>/dev/null \
+            || pip install pytest pytest-asyncio pydantic pyjwt cryptography cffi httpx
           npm ci --ignore-scripts
 
       - name: Create reports directory

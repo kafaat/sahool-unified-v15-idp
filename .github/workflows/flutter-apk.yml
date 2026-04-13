@@ -49,6 +49,29 @@ jobs:
         working-directory: apps/mobile/sahool_field_app
 
     steps:
+      - name: Free disk space
+        # Android NDK + Flutter SDK + Gradle cache can push disk past
+        # the runner's free-space limit. Remove hosted toolcaches we
+        # don't use. See §6 of docs/prompts/fix-flutter-android-ci-flake.md.
+        run: |
+          echo "=== Disk space before cleanup ==="
+          df -h
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo rm -rf /usr/local/share/boost || true
+          sudo rm -rf /opt/hostedtoolcache/Ruby || true
+          sudo rm -rf /opt/hostedtoolcache/PyPy || true
+          sudo rm -rf /opt/hostedtoolcache/go || true
+          sudo rm -rf /home/linuxbrew || true
+          sudo rm -rf /usr/local/share/powershell || true
+          sudo rm -rf /usr/local/lib/node_modules || true
+          sudo docker system prune --all --force >/dev/null 2>&1 || true
+          sudo apt-get clean || true
+          echo "=== Disk space after cleanup ==="
+          df -h
+        working-directory: .
+
       - name: Checkout repository
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
 

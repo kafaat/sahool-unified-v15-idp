@@ -775,6 +775,10 @@ jobs:
 
     steps:
       - name: Free disk space
+        # Android NDK + Flutter SDK + Gradle cache + node_modules can
+        # push disk past 14 GB on a 7 GB-swap runner. Remove every
+        # hosted toolcache we don't use in this job to buy headroom.
+        # See §6 of docs/prompts/fix-flutter-android-ci-flake.md.
         run: |
           echo "=== Disk space before cleanup ==="
           df -h
@@ -784,6 +788,14 @@ jobs:
           sudo rm -rf /opt/ghc || true
           sudo rm -rf /opt/hostedtoolcache/CodeQL || true
           sudo rm -rf /usr/local/share/boost || true
+          # Additional toolcaches unused by Flutter Android builds
+          sudo rm -rf /opt/hostedtoolcache/Ruby || true
+          sudo rm -rf /opt/hostedtoolcache/PyPy || true
+          sudo rm -rf /opt/hostedtoolcache/go || true
+          sudo rm -rf /home/linuxbrew || true
+          sudo rm -rf /usr/local/share/powershell || true
+          sudo rm -rf /usr/local/lib/node_modules || true
+          sudo docker system prune --all --force >/dev/null 2>&1 || true
 
           # Clean apt cache
           sudo apt-get clean || true
@@ -1222,11 +1234,21 @@ jobs:
 
     steps:
       - name: Free disk space
+        # Same cleanup as the Android Build job. See §6 of
+        # docs/prompts/fix-flutter-android-ci-flake.md.
         run: |
           echo "=== Freeing disk space ==="
           sudo rm -rf /usr/share/dotnet || true
           sudo rm -rf /opt/ghc || true
           sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo rm -rf /usr/local/share/boost || true
+          sudo rm -rf /opt/hostedtoolcache/Ruby || true
+          sudo rm -rf /opt/hostedtoolcache/PyPy || true
+          sudo rm -rf /opt/hostedtoolcache/go || true
+          sudo rm -rf /home/linuxbrew || true
+          sudo rm -rf /usr/local/share/powershell || true
+          sudo rm -rf /usr/local/lib/node_modules || true
+          sudo docker system prune --all --force >/dev/null 2>&1 || true
           df -h
         working-directory: .
 

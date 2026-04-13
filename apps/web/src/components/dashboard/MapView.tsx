@@ -313,7 +313,7 @@ const MapView = React.memo<MapViewProps>(function MapView({
       type: 'fill',
       source: 'fields',
       paint: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         'fill-color': ndviFillExpression as any,
         'fill-opacity': 0.6,
       },
@@ -325,7 +325,7 @@ const MapView = React.memo<MapViewProps>(function MapView({
       type: 'line',
       source: 'fields',
       paint: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         'line-color': ndviFillExpression as any,
         'line-width': 2,
       },

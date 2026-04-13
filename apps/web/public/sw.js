@@ -1,4 +1,4 @@
-/* global self, caches, clients, fetch, Request, Response, URL */
+/* global self, caches, clients */
 /**
  * SAHOOL Service Worker
  * Provides offline-first functionality for the agricultural platform
@@ -175,7 +175,7 @@ async function networkFirstWithCache(request, cacheName) {
     }
 
     return networkResponse;
-  } catch (_error) {
+  } catch {
     console.log("[SW] Network failed, trying cache:", request.url);
 
     const cachedResponse = await caches.match(request);
@@ -224,7 +224,7 @@ async function cacheFirstWithNetwork(request, cacheName) {
     }
 
     return networkResponse;
-  } catch (_error) {
+  } catch {
     console.log("[SW] Failed to fetch:", request.url);
     return new Response("Offline", { status: 503 });
   }

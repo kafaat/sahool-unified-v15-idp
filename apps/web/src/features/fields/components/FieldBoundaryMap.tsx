@@ -82,7 +82,7 @@ const Polygon = dynamic(
 // Helper: vertex icon
 // ---------------------------------------------------------------------------
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 function createVertexIcon(L: any, color: string = '#2563eb') {
   return L.divIcon({
     className: '',
@@ -113,7 +113,7 @@ function DrawingLayer({
   onAddVertex: (v: Vertex) => void;
   onMouseMove?: (coords: { lat: number; lng: number }) => void;
 }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const [mapEvents, setMapEvents] = useState<any>(null);
 
   useEffect(() => {
@@ -145,7 +145,7 @@ function DrawingLayerInner({
   vertices: Vertex[];
   onAddVertex: (v: Vertex) => void;
   onMouseMove?: (coords: { lat: number; lng: number }) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   useMapEvents: any;
 }) {
   useMapEvents({
@@ -230,7 +230,7 @@ export default function FieldBoundaryMap({
   height = '420px',
 }: FieldBoundaryMapProps) {
   const [isClient, setIsClient] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const [leaflet, setLeaflet] = useState<any>(null);
   const [mode, setMode] = useState<DrawingMode>(null);
   const [vertices, setVertices] = useState<Vertex[]>([]);

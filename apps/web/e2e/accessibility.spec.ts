@@ -42,7 +42,7 @@ test.describe("Accessibility Tests", () => {
 
       const emailInput = page.locator('input[type="email"]');
       const passwordInput = page.locator('input[type="password"]');
-      const submitButton = page.locator('button[type="submit"]');
+      const _submitButton = page.locator('button[type="submit"]');
 
       // Focus email input
       await emailInput.focus();
@@ -127,7 +127,7 @@ test.describe("Accessibility Tests", () => {
       await navigateAndWait(page, "/dashboard");
 
       // Focus sidebar
-      const sidebar = page.locator('nav, aside');
+      const _sidebar = page.locator('nav, aside');
       const navLinks = page.locator('nav a, aside a');
 
       if (await navLinks.first().isVisible({ timeout: timeouts.medium })) {
@@ -161,7 +161,7 @@ test.describe("Accessibility Tests", () => {
           }
 
           // Focus should still be within modal
-          const focused = page.locator(":focus");
+          const _focused = page.locator(":focus");
           const focusedInModal = await modal.locator(":focus").isVisible().catch(() => false);
 
           console.log(`Focus trapped in modal: ${focusedInModal}`);

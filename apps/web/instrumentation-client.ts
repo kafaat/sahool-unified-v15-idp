@@ -27,7 +27,6 @@ import * as SentryShim from "./src/lib/sentry-shim";
 let Sentry: typeof SentryShim = SentryShim;
 
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const real = require("@sentry/nextjs");
   if (
     real &&

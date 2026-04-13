@@ -520,9 +520,9 @@ test.describe("Marketplace Page", () => {
         const hadBadge = await initialBadge
           .isVisible({ timeout: 500 })
           .catch(() => false);
-        let initialCount = 0;
+        let _initialCount = 0;
         if (hadBadge) {
-          initialCount = parseInt((await initialBadge.textContent()) || "0");
+          _initialCount = parseInt((await initialBadge.textContent()) || "0");
         }
 
         // Click first add to cart button

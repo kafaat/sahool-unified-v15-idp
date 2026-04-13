@@ -10,9 +10,9 @@ import type * as L from 'leaflet';
 import { Undo2, Pentagon, Square, Trash2, X, Check } from 'lucide-react';
 
 // Dynamic imports — Leaflet/react-leaflet requires browser (no SSR)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic loses react-leaflet types; centralized cast
+
 const dynamicLeaflet = (loader: () => Promise<unknown>) =>
-  dynamic(loader as any, { ssr: false }) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  dynamic(loader as any, { ssr: false }) as any;  
 
 const MapContainer = dynamicLeaflet(() => import('react-leaflet').then((m) => m.MapContainer));
 const TileLayer = dynamicLeaflet(() => import('react-leaflet').then((m) => m.TileLayer));

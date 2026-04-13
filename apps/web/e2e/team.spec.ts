@@ -10,7 +10,6 @@ import { login, TEST_USER } from "./helpers/auth.helpers";
 import {
   waitForPageLoad,
   waitForToast,
-  fillFieldByLabel,
 } from "./helpers/page.helpers";
 import { testData } from "./helpers/test-data";
 

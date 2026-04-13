@@ -2,7 +2,6 @@
  * SAHOOL Web GUI Browser Test — Full Flow
  */
 const { chromium } = require('playwright');
-const https = require('https');
 const http  = require('http');
 const path  = require('path');
 const fs    = require('fs');
@@ -60,7 +59,9 @@ function apiPost(url, body) {
       try {
         const body = await resp.json().catch(() => null);
         apiResponses.push({ url: resp.url(), status: resp.status(), body });
-      } catch {}
+      } catch {
+        // response body parse failure is non-fatal — keep watching the next one
+      }
     }
   });
 

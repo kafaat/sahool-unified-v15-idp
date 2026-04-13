@@ -483,7 +483,7 @@ test.describe("Cross-Feature Navigation Flow", () => {
 
     for (const route of routes) {
       await sidebar.locator(`a[href="${route}"]`).click();
-      await expect(page).toHaveURL(new RegExp(route.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")), {
+      await expect(page).toHaveURL(new RegExp(route.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")), {
         timeout: 10000,
       });
       await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });
@@ -503,7 +503,7 @@ test.describe("Cross-Feature Navigation Flow", () => {
 
     for (const route of routes) {
       await sidebar.locator(`a[href="${route}"]`).click();
-      await expect(page).toHaveURL(new RegExp(route.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")), {
+      await expect(page).toHaveURL(new RegExp(route.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")), {
         timeout: 10000,
       });
       await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 10000 });

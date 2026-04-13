@@ -14,6 +14,7 @@ import { ConflictException, NotFoundException } from "@nestjs/common";
 import * as bcrypt from "bcryptjs";
 import { UsersService } from "./users.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { UserEventsService } from "../events/user-events.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserStatus, UserRole } from "../utils/validation";
@@ -79,12 +80,28 @@ describe("UsersService", () => {
       },
     };
 
+    // No-op UserEventsService — publish calls are fire-and-forget in the
+    // real service (`void this.events.publish...`) so a stub is sufficient
+    // for every CRUD test.
+    const mockUserEventsService = {
+      publishUserCreated: jest.fn().mockResolvedValue(undefined),
+      publishUserUpdated: jest.fn().mockResolvedValue(undefined),
+      publishUserRoleChanged: jest.fn().mockResolvedValue(undefined),
+      publishUserStatusChanged: jest.fn().mockResolvedValue(undefined),
+      publishUserDeleted: jest.fn().mockResolvedValue(undefined),
+      isConnected: jest.fn().mockReturnValue(false),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: UserEventsService,
+          useValue: mockUserEventsService,
         },
       ],
     }).compile();

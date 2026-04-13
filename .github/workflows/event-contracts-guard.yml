@@ -24,6 +24,22 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # Validate Event Schemas
   # ─────────────────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Enforce `sahool.` prefix on every NATS publish/subscribe. See
+  # apps/services/NATS_AUDIT.md §3 Bug #1 — TypeScript publishers that
+  # omit the prefix silently drop events because no Python consumer
+  # subscribes without it.
+  # ─────────────────────────────────────────────────────────────────────────────
+  subject-prefix:
+    name: Verify NATS subject prefix (sahool.*)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check NATS subjects are sahool-prefixed
+        run: ./scripts/check-event-subject-prefix.sh
+
   validate-schemas:
     name: Validate Event Schemas
     runs-on: ubuntu-latest

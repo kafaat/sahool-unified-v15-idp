@@ -27,6 +27,7 @@
     "@nestjs/throttler": "^6.2.1",
     "@nestjs/websockets": "^10.4.15",
     "@prisma/client": "~5.22.0",
+    "@sahool/shared-events": "^16.0.0",
     "class-transformer": "^0.5.1",
     "helmet": "^8.0.0",
     "class-validator": "^0.15.1",

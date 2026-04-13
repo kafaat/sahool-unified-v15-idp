@@ -1,5 +1,34 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { connect, NatsConnection, StringCodec } from 'nats';
+import { EventSubjects } from '@sahool/shared-events';
+
+/**
+ * Field-specific subject constants.
+ *
+ * The generic lifecycle subjects (created / updated / deleted) come
+ * from the shared `EventSubjects` registry so a rename anywhere on
+ * the platform is a single edit. The domain-specific ones below —
+ * boundaries, crop seasons, operations — aren't in the shared map
+ * yet; they're declared here as `as const` so typos fail fast at
+ * compile time and a future shared-events expansion can migrate them
+ * without touching the call sites.
+ */
+const FIELD_SUBJECTS = {
+  CREATED: EventSubjects.FIELD_CREATED,
+  UPDATED: EventSubjects.FIELD_UPDATED,
+  DELETED: EventSubjects.FIELD_DELETED,
+
+  BOUNDARY_CHANGED: 'sahool.field.boundary.changed',
+
+  CROP_SEASON_STARTED: 'sahool.field.crop_season.started',
+  CROP_SEASON_UPDATED: 'sahool.field.crop_season.updated',
+  CROP_SEASON_ENDED: 'sahool.field.crop_season.ended',
+  CROP_SEASON_DELETED: 'sahool.field.crop_season.deleted',
+
+  OPERATION_RECORDED: 'sahool.field.operation.recorded',
+  OPERATION_UPDATED: 'sahool.field.operation.updated',
+  OPERATION_DELETED: 'sahool.field.operation.deleted',
+} as const;
 
 @Injectable()
 export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
@@ -33,19 +62,19 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async publishFieldCreated(tenantId: string, fieldId: string, data: Record<string, unknown>) {
-    await this.publish('sahool.field.created', { tenantId, fieldId, ...data });
+    await this.publish(FIELD_SUBJECTS.CREATED, { tenantId, fieldId, ...data });
   }
 
   async publishFieldUpdated(tenantId: string, fieldId: string, data: Record<string, unknown>) {
-    await this.publish('sahool.field.updated', { tenantId, fieldId, ...data });
+    await this.publish(FIELD_SUBJECTS.UPDATED, { tenantId, fieldId, ...data });
   }
 
   async publishFieldDeleted(tenantId: string, fieldId: string) {
-    await this.publish('sahool.field.deleted', { tenantId, fieldId, deletedAt: new Date().toISOString() });
+    await this.publish(FIELD_SUBJECTS.DELETED, { tenantId, fieldId, deletedAt: new Date().toISOString() });
   }
 
   async publishBoundaryChanged(tenantId: string, fieldId: string, data: Record<string, unknown>) {
-    await this.publish('sahool.field.boundary.changed', { tenantId, fieldId, ...data });
+    await this.publish(FIELD_SUBJECTS.BOUNDARY_CHANGED, { tenantId, fieldId, ...data });
   }
 
   // ── Crop season events ──────────────────────────────────────────────────
@@ -55,7 +84,7 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     data: Record<string, unknown>,
   ) {
-    await this.publish('sahool.field.crop_season.started', {
+    await this.publish(FIELD_SUBJECTS.CROP_SEASON_STARTED, {
       tenantId,
       fieldId,
       ...data,
@@ -67,7 +96,7 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     data: Record<string, unknown>,
   ) {
-    await this.publish('sahool.field.crop_season.updated', {
+    await this.publish(FIELD_SUBJECTS.CROP_SEASON_UPDATED, {
       tenantId,
       fieldId,
       ...data,
@@ -79,7 +108,7 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     data: Record<string, unknown>,
   ) {
-    await this.publish('sahool.field.crop_season.ended', {
+    await this.publish(FIELD_SUBJECTS.CROP_SEASON_ENDED, {
       tenantId,
       fieldId,
       ...data,
@@ -91,7 +120,7 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     data: Record<string, unknown>,
   ) {
-    await this.publish('sahool.field.crop_season.deleted', {
+    await this.publish(FIELD_SUBJECTS.CROP_SEASON_DELETED, {
       tenantId,
       fieldId,
       ...data,
@@ -105,7 +134,7 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     data: Record<string, unknown>,
   ) {
-    await this.publish('sahool.field.operation.recorded', {
+    await this.publish(FIELD_SUBJECTS.OPERATION_RECORDED, {
       tenantId,
       fieldId,
       ...data,
@@ -117,7 +146,7 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     data: Record<string, unknown>,
   ) {
-    await this.publish('sahool.field.operation.updated', {
+    await this.publish(FIELD_SUBJECTS.OPERATION_UPDATED, {
       tenantId,
       fieldId,
       ...data,
@@ -129,7 +158,7 @@ export class FieldEventsService implements OnModuleInit, OnModuleDestroy {
     fieldId: string,
     data: Record<string, unknown>,
   ) {
-    await this.publish('sahool.field.operation.deleted', {
+    await this.publish(FIELD_SUBJECTS.OPERATION_DELETED, {
       tenantId,
       fieldId,
       ...data,

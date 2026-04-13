@@ -9,6 +9,7 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { ChatEventsService } from "../events/chat-events.service";
 import { CreateConversationDto } from "./dto/create-conversation.dto";
 import { SendMessageDto } from "./dto/send-message.dto";
 import {
@@ -19,9 +20,16 @@ import {
 // Define ParticipantRole locally to avoid Prisma client generation dependency
 type ParticipantRole = "BUYER" | "SELLER" | "ADMIN";
 
+/** Max chars of message content emitted on the event bus — avoid
+ *  leaking full message bodies across services. */
+const MESSAGE_PREVIEW_MAX_LEN = 200;
+
 @Injectable()
 export class ChatService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private events: ChatEventsService,
+  ) {}
 
   /**
    * Create a new conversation
@@ -275,6 +283,32 @@ export class ChatService {
 
         return newMessage;
       }, GENERAL_TRANSACTION_CONFIG);
+
+      // Fan-out push notifications via NATS. Fire-and-forget — if the
+      // event bus is unavailable, the message still went to the DB and
+      // real-time WebSocket subscribers already got it.
+      const recipientIds = conversation.participantIds.filter(
+        (id) => id !== dto.senderId,
+      );
+      const preview =
+        dto.content.length > MESSAGE_PREVIEW_MAX_LEN
+          ? dto.content.slice(0, MESSAGE_PREVIEW_MAX_LEN) + "…"
+          : dto.content;
+
+      void this.events.publishMessageSent({
+        tenantId,
+        messageId: message.id,
+        conversationId: dto.conversationId,
+        senderId: dto.senderId,
+        recipientIds,
+        messageType: message.messageType,
+        preview,
+        hasAttachment: !!dto.attachmentUrl,
+        hasOffer: dto.offerAmount != null,
+        offerAmount: dto.offerAmount,
+        offerCurrency: dto.offerCurrency,
+        sentAt: message.createdAt,
+      });
 
       return message;
     } catch (error) {

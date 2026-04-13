@@ -108,7 +108,11 @@ events:
       optional:
         - updated_by
 
-  sahool.field.boundary_changed:
+  # Canonical dot-tokenised key matching shared/events/subjects.py
+  # SAHOOL_FIELD_BOUNDARY_CHANGED ("sahool.field.boundary.changed").
+  # Previously written `boundary_changed` (single segment) which would
+  # silently miss the upstream publishers.
+  sahool.field.boundary.changed:
     version: "1.0.0"
     category: field
     description: "Field boundary geometry has changed"

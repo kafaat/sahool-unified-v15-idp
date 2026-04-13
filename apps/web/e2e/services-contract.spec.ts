@@ -35,8 +35,16 @@ interface ServiceContract {
   category: string;
   /**
    * Regex matching at least one expected backend endpoint hit.
-   * Drawn directly from packages/shared-types/src/contracts/api-endpoints.ts
-   * so renames will fail this test and force a contract update.
+   *
+   * NOTE — these patterns are AUTHORED to match the constants in
+   * `packages/shared-types/src/contracts/api-endpoints.ts` but are
+   * NOT yet imported from there. A future improvement is to convert
+   * each `*_ENDPOINTS.<X>` template (with `{paramName}` placeholders)
+   * to a regex via `templateToRegex(FIELD_ENDPOINTS.LIST)` so a
+   * rename in the contracts module fails this suite automatically.
+   * For now, drift is detected only at PR review time — until that
+   * helper exists, treat any mismatch surfaced here as a signal to
+   * fix the regex AND the comment-of-record below.
    */
   expectEndpoint: RegExp;
   /**

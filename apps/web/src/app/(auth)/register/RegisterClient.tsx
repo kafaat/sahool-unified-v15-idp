@@ -249,10 +249,14 @@ export default function RegisterClient() {
         normalizedPhone = `${YEMEN_COUNTRY_CODE}${normalizedPhone}`;
       }
 
-      // Use the typed authApiClient.register() instead of a raw fetch.
-      // This routes through the Next.js rewrite (same-origin) so the
-      // browser carries the CSRF cookie + the unified client applies
-      // the timeout, retry, and bilingual error envelope automatically.
+      // Use the typed authApiClient.register() instead of a raw fetch
+      // string-built from process.env.NEXT_PUBLIC_API_URL. The new path
+      // routes through the Next.js rewrite (same-origin), applies a
+      // 15 s timeout, and throws a typed Error with the server's
+      // message — which the catch block below maps into a bilingual
+      // toast via `getErrorMessage()`. CSRF and automatic retries are
+      // intentionally NOT applied here (auth endpoints are anonymous
+      // and self-registration is a single user-initiated request).
       // See E2E_USER_JOURNEY_AUDIT.md F-3 for the rationale.
       const result = await authApiClient.register({
         email: formData.email,

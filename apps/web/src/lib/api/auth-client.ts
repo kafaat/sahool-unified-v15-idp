@@ -175,10 +175,21 @@ class AuthApiClient {
 
   /**
    * Self-registration. Routes through the same Next.js rewrite as login
-   * (`/api/v1/auth/register` → Kong → user-service). Replaces the raw
+   * (`/api/v1/auth/register` → Kong → user-service). Replaces a raw
    * `fetch(${NEXT_PUBLIC_API_URL}/api/v1/auth/register)` call that
-   * `RegisterClient.tsx` used to make — that bypassed CSRF, retry,
-   * timeouts, and bilingual error normalization.
+   * `RegisterClient.tsx` used to make.
+   *
+   * NOTE on what this client provides vs what it does NOT:
+   *   * provides : explicit timeout (15 s default in `request()`),
+   *                same-origin cookie credentials, structured error
+   *                throw with the server's error string.
+   *   * does NOT : automatic retry on transient failure, CSRF
+   *                double-submit token injection (auth endpoints are
+   *                anonymous so CSRF is unnecessary), bilingual error
+   *                normalization (the caller is responsible for
+   *                surfacing `messageAr` if present in the response).
+   *   For richer behavior use `unifiedApiClient` from
+   *   `lib/api/unified-client.ts`, which adds CSRF + interceptors.
    *
    * `phone` is normalized by the caller (RegisterClient handles the
    * Yemen-specific operator detection + +967 prefix).

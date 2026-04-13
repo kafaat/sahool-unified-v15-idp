@@ -12,7 +12,7 @@ import { Undo2, Pentagon, Square, Trash2, X, Check } from 'lucide-react';
 // Dynamic imports — Leaflet/react-leaflet requires browser (no SSR)
 
 const dynamicLeaflet = (loader: () => Promise<unknown>) =>
-  dynamic(loader as any, { ssr: false }) as any;  
+  dynamic(loader as any, { ssr: false }) as any;
 
 const MapContainer = dynamicLeaflet(() => import('react-leaflet').then((m) => m.MapContainer));
 const TileLayer = dynamicLeaflet(() => import('react-leaflet').then((m) => m.TileLayer));

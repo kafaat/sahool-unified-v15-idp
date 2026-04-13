@@ -100,7 +100,11 @@ events:
       - alert-service
       - analytics-service
 
-  sahool.field.boundary_updated:
+  # Canonical name uses dot-tokens to match shared/events/subjects.py
+  # (`SAHOOL_FIELD_BOUNDARY_CHANGED = "sahool.field.boundary.changed"`).
+  # Previous key was `sahool.field.boundary_updated` which never matched
+  # any publisher and would have wired consumers to a dead subject.
+  sahool.field.boundary.changed:
     category: field
     description: "Emitted when field boundary is updated / يُرسل عند تحديث حدود الحقل"
     schema:

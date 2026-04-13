@@ -20,9 +20,13 @@ import {
   EventSubjects,
 } from "@sahool/shared-events";
 
-// Subjects that don't have a typed helper in @sahool/shared-events yet.
-// Kept here as local constants so typos fail fast at import time.
-// Full canonical list lives in `shared/events/subjects.py` (Python).
+// Subjects that don't have a typed helper in @sahool/shared-events yet
+// but ARE registered in the canonical Python catalogue
+// (shared/events/subjects.py:508-518: SAHOOL_USER_ROLE_CHANGED,
+//  SAHOOL_USER_STATUS_CHANGED, SAHOOL_USER_DELETED). Kept here as
+// `as const` so a typo fails fast at compile time. When the TS
+// `@sahool/shared-events.EventSubjects` map gains entries for these,
+// the constants below should be replaced with `EventSubjects.USER_*`.
 const SAHOOL_USER_ROLE_CHANGED = "sahool.user.role_changed" as const;
 const SAHOOL_USER_DELETED = "sahool.user.deleted" as const;
 const SAHOOL_USER_STATUS_CHANGED = "sahool.user.status_changed" as const;
@@ -30,7 +34,6 @@ const SAHOOL_USER_STATUS_CHANGED = "sahool.user.status_changed" as const;
 @Injectable()
 export class UserEventsService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(UserEventsService.name);
-  private natsConnected = false;
 
   async onModuleInit(): Promise<void> {
     try {
@@ -38,7 +41,6 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
         servers: process.env.NATS_URL || "nats://nats:4222",
         name: "user-service",
       });
-      this.natsConnected = true;
       this.logger.log("Connected to NATS — user lifecycle events will publish");
     } catch (err) {
       // Non-fatal: HTTP continues to serve; events are dropped in degraded mode.
@@ -141,14 +143,17 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
     newRole: string;
     changedBy?: string;
   }): Promise<void> {
-    await this.rawPublish(SAHOOL_USER_ROLE_CHANGED, {
-      userId: params.userId,
-      oldRole: params.oldRole,
-      newRole: params.newRole,
-      changedBy: params.changedBy,
-      changedAt: new Date().toISOString(),
-      tenantId: params.tenantId,
-    });
+    await this.rawPublish(
+      SAHOOL_USER_ROLE_CHANGED,
+      params.tenantId,
+      {
+        userId: params.userId,
+        oldRole: params.oldRole,
+        newRole: params.newRole,
+        changedBy: params.changedBy,
+        changedAt: new Date().toISOString(),
+      },
+    );
   }
 
   async publishUserStatusChanged(params: {
@@ -157,13 +162,16 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
     oldStatus: string;
     newStatus: string;
   }): Promise<void> {
-    await this.rawPublish(SAHOOL_USER_STATUS_CHANGED, {
-      userId: params.userId,
-      oldStatus: params.oldStatus,
-      newStatus: params.newStatus,
-      changedAt: new Date().toISOString(),
-      tenantId: params.tenantId,
-    });
+    await this.rawPublish(
+      SAHOOL_USER_STATUS_CHANGED,
+      params.tenantId,
+      {
+        userId: params.userId,
+        oldStatus: params.oldStatus,
+        newStatus: params.newStatus,
+        changedAt: new Date().toISOString(),
+      },
+    );
   }
 
   async publishUserDeleted(params: {
@@ -171,17 +179,31 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
     userId: string;
     hardDelete: boolean;
   }): Promise<void> {
-    await this.rawPublish(SAHOOL_USER_DELETED, {
+    await this.rawPublish(SAHOOL_USER_DELETED, params.tenantId, {
       userId: params.userId,
       hardDelete: params.hardDelete,
       deletedAt: new Date().toISOString(),
-      tenantId: params.tenantId,
     });
   }
 
   // ── Helpers ────────────────────────────────────────────────────────
 
-  private async rawPublish(subject: string, payload: unknown): Promise<void> {
+  /**
+   * Publish a raw NATS event matching the @sahool/shared-events
+   * `BaseEvent` envelope shape (top-level `tenantId`, `eventId`,
+   * `eventType`, `timestamp`, `version`). Used for subjects that
+   * don't yet have a typed publisher in @sahool/shared-events.
+   *
+   * `tenantId` is hoisted to the envelope (not nested in payload) so
+   * downstream consumers can filter / route by `event.tenantId`
+   * without unwrapping the payload — matches the contract enforced
+   * by the typed publishers (publishUserCreated, publishFieldCreated, …).
+   */
+  private async rawPublish(
+    subject: string,
+    tenantId: string,
+    payload: unknown,
+  ): Promise<void> {
     if (!this.isConnected()) return;
     try {
       const nats = NatsClient.getInstance();
@@ -193,6 +215,7 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
         eventType: subject,
         timestamp: new Date().toISOString(),
         version: "1.0",
+        tenantId,
         payload,
       };
       conn.publish(subject, Buffer.from(JSON.stringify(envelope)));

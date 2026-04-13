@@ -13,6 +13,9 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import { initializeNatsClient, NatsClient } from "@sahool/shared-events";
 
+// These subjects mirror SAHOOL_CHAT_MESSAGE_SENT / _READ in
+// shared/events/subjects.py (lines 743-744). Kept here as `as const`
+// until @sahool/shared-events.EventSubjects gains typed entries.
 const SAHOOL_CHAT_MESSAGE_SENT = "sahool.chat.message.sent" as const;
 const SAHOOL_CHAT_MESSAGE_READ = "sahool.chat.message.read" as const;
 
@@ -89,16 +92,26 @@ export class ChatEventsService implements OnModuleInit, OnModuleDestroy {
   // ── Publishers ─────────────────────────────────────────────────────
 
   async publishMessageSent(payload: ChatMessageSentPayload): Promise<void> {
-    await this.rawPublish(SAHOOL_CHAT_MESSAGE_SENT, payload);
+    await this.rawPublish(SAHOOL_CHAT_MESSAGE_SENT, payload.tenantId, payload);
   }
 
   async publishMessageRead(payload: ChatMessageReadPayload): Promise<void> {
-    await this.rawPublish(SAHOOL_CHAT_MESSAGE_READ, payload);
+    await this.rawPublish(SAHOOL_CHAT_MESSAGE_READ, payload.tenantId, payload);
   }
 
   // ── Helpers ────────────────────────────────────────────────────────
 
-  private async rawPublish(subject: string, payload: unknown): Promise<void> {
+  /**
+   * Publish a NATS event matching the @sahool/shared-events
+   * `BaseEvent` envelope shape — `tenantId` is hoisted to the
+   * envelope (not nested in payload) so consumers can filter / route
+   * by `event.tenantId` without unwrapping the payload.
+   */
+  private async rawPublish(
+    subject: string,
+    tenantId: string,
+    payload: unknown,
+  ): Promise<void> {
     if (!this.isConnected()) return;
     try {
       const nats = NatsClient.getInstance();
@@ -110,6 +123,7 @@ export class ChatEventsService implements OnModuleInit, OnModuleDestroy {
         eventType: subject,
         timestamp: new Date().toISOString(),
         version: "1.0",
+        tenantId,
         payload,
       };
       conn.publish(subject, Buffer.from(JSON.stringify(envelope)));

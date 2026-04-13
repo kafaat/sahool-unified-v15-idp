@@ -7,14 +7,15 @@
  * hashes no longer on the server).
  *
  * Recovery procedure for affected users:
- *   1. Visit https://<sahool-host>/sw-kill (a tiny page that registers
- *      this script via `navigator.serviceWorker.register('/sw-kill.js')`).
+ *   1. Visit https://<sahool-host>/sw-kill.html (the static page in
+ *      this same /public folder that registers this script via
+ *      `navigator.serviceWorker.register('/sw-kill.js')`).
  *   2. This SW takes control, deletes every sahool-* cache, then
  *      `self.registration.unregister()`s itself.
  *   3. Next page load is fully fresh — no controller, no cache.
  *
  * After deploying this file the support team can simply tell users
- * "open /sw-kill once, then refresh" instead of walking them through
+ * "open /sw-kill.html once, then refresh" instead of walking them through
  * Chrome DevTools to manually clear site data.
  *
  * This file MUST be kept tiny and side-effect free except for the

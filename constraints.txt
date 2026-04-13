@@ -83,7 +83,7 @@ structlog==25.5.0
 numpy>=1.26.0,<2.0.0
 scipy>=1.11.0,<1.18.0
 optuna>=3.6.0,<5.0.0
-Pillow==12.1.1  # CVE-2026-25990 (OOB write in PSD handler) fixed in 12.1.1
+Pillow==12.2.0  # CVE-2026-25990 (OOB write in PSD handler) fixed in 12.1.1
 shapely==2.1.2
 rasterio==1.4.4
 pyproj==3.7.2

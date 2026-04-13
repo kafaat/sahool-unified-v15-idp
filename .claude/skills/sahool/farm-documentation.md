@@ -1,3 +1,8 @@
+---
+name: farm-documentation
+description: Use when producing standardized farm records — field operation logs, crop cycle documentation, input application records, yield records, compliance documentation — in Obsidian-compatible Markdown with bilingual EN/AR. TRIGGER when the user asks to "document", "write report", "log operation", "generate compliance record", or creates farm-facing entries under docs/knowledge-base/ or Obsidian vaults. Emits proper YAML frontmatter (farm_id, field_id, crop_type, season, status, tags), wikilinks, callouts, and task lists.
+---
+
 # Farm Documentation Generation Skill
 
 ## Description

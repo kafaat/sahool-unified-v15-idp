@@ -1,3 +1,8 @@
+---
+name: advisory-evaluation
+description: Use when assessing the quality of an agricultural AI advisory (crop recommendation, irrigation advice, pest guidance, fertilizer plan) against weighted SAHOOL criteria — accuracy (30%), relevance (25%), actionability (20%), timeliness (15%), safety (10%). TRIGGER when reviewing AI-generated farmer-facing output, scoring advisory recommendations, writing tests under tests/evaluation/, or when the user asks to "evaluate", "score", "grade", or "judge" advisory quality. Enforces bilingual EN/AR scoring rubrics and crop-specific validation (Zadoks stages, date-palm seasonality, PHI compliance).
+---
+
 # LLM-as-Judge Evaluation Skill
 
 ## Description

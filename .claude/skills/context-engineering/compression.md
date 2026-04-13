@@ -1,3 +1,8 @@
+---
+name: context-compression
+description: Use when the agricultural context to send to an LLM exceeds the token budget and must be reduced without losing safety-critical information (dosages, PHI, spray windows, RPW alerts). TRIGGER when preparing prompts with sensor readings, multi-field daily reports, or historical farm data; or when the user asks to "compress", "summarize for LLM", "fit into context window", or batch-prepares offline advisory payloads. Applies the SAHOOL 3-level compression (80%/50%/25% retention) with standard agricultural abbreviations and bilingual keys.
+---
+
 # Context Compression Skill
 
 ## Description

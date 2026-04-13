@@ -1,3 +1,8 @@
+---
+name: farm-memory
+description: Use when storing or recalling persistent farm history — entities (farms, fields, farmers, equipment), events (planting, treatment, harvest, inspection), observations, decisions, outcomes, or farmer preferences. TRIGGER when the user mentions "last season", "previous treatments", "field history", "farmer preferences", "similar situations", or "lessons learned"; or when writing data that must persist across offline-online sync cycles. Organizes data in hierarchical namespaces (entities/events/observations/decisions/outcomes) with bilingual EN/AR keys.
+---
+
 # Memory System Skill for Farm History
 
 ## Description

@@ -1,0 +1,1490 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Field Management Service API
+  version: "4.12.0"
+  description: "Bilingual EN+AR — Core field CRUD + crop seasons + operations + sub-zones + reports + IPCC Tier 1 carbon + ERP sync (QuickBooks/SAP/Odoo/Xero/NetSuite). Largest service in SAHOOL — central Field entity links to everything. Supports offline-first mobile sync with ETag conflict resolution."
+  contact:
+    name: "SAHOOL Developer Relations"
+    email: developer@sahool.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://sahool.com/legal/terms
+  x-service-name: field-management-service
+  x-service-port: 3000
+  x-contract-version: "4.12.0"
+
+servers:
+  - url: https://api.sahool.com
+    description: Production
+  - url: https://sandbox.sahool.app
+    description: Sandbox
+  - url: "http://localhost:8000"
+    description: Local (via Kong gateway)
+
+tags:
+  - name: Fields
+    description: "Field CRUD, nearby-search, and offline-first sync"
+  - name: Boundaries
+    description: "Field boundary geometry + versioned history with rollback"
+  - name: Crop Seasons
+    description: "Per-field crop season lifecycle (sowing → harvest → close)"
+  - name: Field Operations
+    description: "Plowing, fertilization, spraying, irrigation, harvest — cost + labor + approval workflow"
+  - name: Field Sub-Zones
+    description: "Sub-polygons within a field (terraces, variable-rate zones)"
+  - name: Field Reports
+    description: "Async HTML/PDF reports, Arabic RTL-first"
+  - name: Carbon
+    description: "IPCC Tier 1 emissions + sequestration + carbon credit eligibility"
+  - name: ERP Sync
+    description: "Post approved operations to QuickBooks / SAP / Odoo / Xero / NetSuite"
+  - name: Health
+    description: Liveness and readiness probes
+
+security:
+  - bearerAuth: []
+
+x-rateLimit:
+  perMinute: 100
+  perHour: 3000
+  scope: per-tenant
+  notes: "See docs/API_GATEWAY.md for tier overrides"
+
+paths:
+  /api/v1/fields:
+    get:
+      operationId: listFields
+      summary: List fields
+      description: "Paginated list of fields visible to the caller's tenant. Geometry omitted — use GET /fields/{id} for full field."
+      tags: [Fields]
+      parameters:
+        - { in: query, name: status, required: false, schema: { type: string, enum: [active, inactive, fallow, preparing, harvested] } }
+        - { in: query, name: cropType, required: false, schema: { type: string } }
+        - { in: query, name: limit, required: false, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { in: query, name: offset, required: false, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/FieldResponse" }
+        "401":
+          description: Unauthorized
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+    post:
+      operationId: createField
+      summary: Create field
+      description: "Creates a new field with geometry and metadata. Geometry must be a closed GeoJSON polygon."
+      tags: [Fields]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateFieldDto" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FieldResponse" }
+              example:
+                id: 11111111-1111-1111-1111-111111111111
+                name: North 40
+                nameAr: الشمال 40
+                farmId: 44444444-4444-4444-4444-444444444444
+                cropType: wheat
+                area: 405000
+                areaHectares: 40.5
+                status: active
+                createdAt: "2026-04-13T06:00:00Z"
+                updatedAt: "2026-04-13T06:00:00Z"
+        "400":
+          description: Invalid input
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+        "401":
+          description: Unauthorized
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  /api/v1/fields/{fieldId}:
+    get:
+      operationId: getField
+      summary: Get field by id
+      description: "Returns a single field with full geometry, metadata, and current crop assignment."
+      tags: [Fields]
+      parameters:
+        - { in: path, name: fieldId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FieldResponse" }
+        "404":
+          description: Not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+    patch:
+      operationId: updateField
+      summary: Update field
+      description: "Partial update of field attributes. Geometry changes are versioned — prefer PATCH /field-core/.../boundary for boundary edits."
+      tags: [Fields]
+      parameters:
+        - { in: path, name: fieldId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateFieldDto" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FieldResponse" }
+        "404":
+          description: Not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+    delete:
+      operationId: deleteField
+      summary: Soft delete field
+      description: "Marks the field as deleted. Historical data (operations, boundaries) is retained for audit and traceability."
+      tags: [Fields]
+      parameters:
+        - { in: path, name: fieldId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  /api/v1/fields/nearby:
+    get:
+      operationId: findFieldsNearby
+      summary: Find fields near coordinates
+      description: "PostGIS-backed radial search around a geographic point. Returns fields whose centroid lies within radiusKm."
+      tags: [Fields]
+      parameters:
+        - { in: query, name: lat, required: true, schema: { type: number, format: double, minimum: -90, maximum: 90 } }
+        - { in: query, name: lng, required: true, schema: { type: number, format: double, minimum: -180, maximum: 180 } }
+        - { in: query, name: radiusKm, required: false, schema: { type: number, minimum: 0.1, maximum: 50, default: 5 } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/FieldResponse" }
+        "400":
+          description: Invalid coordinates
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  /api/v1/fields/sync:
+    post:
+      operationId: syncFields
+      summary: Sync offline field changes
+      description: "Mobile offline-first sync endpoint. Accepts local changes with ETag/versions, returns server-resolved state and conflicts."
+      tags: [Fields]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SyncRequest" }
+      responses:
+        "200":
+          description: Sync complete
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SyncResult" }
+              example:
+                success: true
+                appliedCount: 12
+                conflicts:
+                  - { localId: local-001, serverVersion: 7, resolution: server_wins }
+                lastSyncVersion: 42
+        "400":
+          description: Invalid sync payload
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  /api/v1/fields/sync/batch:
+    post:
+      operationId: syncFieldsBatch
+      summary: Bulk sync multiple field sets
+      description: "Batch variant for devices coming online after extended offline periods. Processes multiple sync requests in order."
+      tags: [Fields]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SyncBatchRequest" }
+      responses:
+        "200":
+          description: Batch sync complete
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SyncResult" }
+        "400":
+          description: Invalid batch payload
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  /api/v1/field-core/fields/{fieldId}/boundary:
+    get:
+      operationId: getFieldBoundary
+      summary: Get current field boundary
+      description: "Returns the currently active boundary polygon for the field as GeoJSON."
+      tags: [Boundaries]
+      parameters:
+        - { in: path, name: fieldId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GeoPolygon" }
+        "404":
+          description: Not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+    patch:
+      operationId: updateFieldBoundary
+      summary: Update field boundary (versioned)
+      description: "Creates a new boundary version. Prior version is retained in boundary-history and can be restored via rollback."
+      tags: [Boundaries]
+      parameters:
+        - { in: path, name: fieldId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BoundaryUpdate" }
+      responses:
+        "200":
+          description: Boundary updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FieldResponse" }
+              example:
+                id: 11111111-1111-1111-1111-111111111111
+                name: North 40
+                farmId: 44444444-4444-4444-4444-444444444444
+                area: 412000
+                areaHectares: 41.2
+                status: active
+                version: 7
+                createdAt: "2026-04-10T06:00:00Z"
+                updatedAt: "2026-04-13T08:45:00Z"
+        "400":
+          description: Invalid geometry
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+        "404":
+          description: Not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  /api/v1/field-core/fields/{fieldId}/boundary-history:
+    get:
+      operationId: listBoundaryHistory
+      summary: List boundary versions
+      description: "Chronological history of boundary edits for the field, ordered newest first."
+      tags: [Boundaries]
+      parameters:
+        - { in: path, name: fieldId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/BoundaryHistoryEntry" }
+        "404":
+          description: Not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  /api/v1/field-core/fields/{fieldId}/boundary-history/rollback:
+    post:
+      operationId: rollbackBoundary
+      summary: Restore a previous boundary version
+      description: "Promotes a prior boundary version back to current. Creates a new history entry referencing the source version."
+      tags: [Boundaries]
+      parameters:
+        - { in: path, name: fieldId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [versionId]
+              properties:
+                versionId: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Rolled back
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FieldResponse" }
+        "400":
+          description: Invalid versionId
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+        "404":
+          description: Field or version not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  /api/v1/crop-seasons:
+    get:
+      operationId: listCropSeasons
+      summary: List crop seasons
+      description: List all crop seasons for the tenant, optionally filtered by field, crop type, or status.
+      tags: [Crop Seasons]
+      parameters:
+        - { name: fieldId, in: query, required: false, schema: { type: string, format: uuid } }
+        - { name: cropType, in: query, required: false, schema: { type: string } }
+        - { name: status, in: query, required: false, schema: { type: string, enum: [active, ended] } }
+        - { name: limit, in: query, required: false, schema: { type: integer, default: 50, minimum: 1, maximum: 500 } }
+        - { name: offset, in: query, required: false, schema: { type: integer, default: 0, minimum: 0 } }
+      responses:
+        '200':
+          description: List of crop seasons
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CropSeasonResponse" }
+        '400': { description: Bad request, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+        '401': { description: Unauthorized, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+
+  /api/v1/crop-seasons/{cropSeasonId}:
+    get:
+      operationId: getCropSeason
+      summary: Get crop season
+      description: Retrieve a single crop season by its identifier.
+      tags: [Crop Seasons]
+      parameters:
+        - { name: cropSeasonId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Crop season
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CropSeasonResponse" }
+        '404': { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+    patch:
+      operationId: updateCropSeason
+      summary: Update crop season
+      description: Partially update a crop season. Only provided fields are modified.
+      tags: [Crop Seasons]
+      parameters:
+        - { name: cropSeasonId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CropSeasonCreate" }
+      responses:
+        '200':
+          description: Updated crop season
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CropSeasonResponse" }
+        '404': { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+        '422': { description: Validation error, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+    delete:
+      operationId: deleteCropSeason
+      summary: Delete crop season
+      description: Permanently delete a crop season and its associated data.
+      tags: [Crop Seasons]
+      parameters:
+        - { name: cropSeasonId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '204': { description: Deleted }
+        '404': { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+
+  /api/v1/crop-seasons/{cropSeasonId}/end:
+    post:
+      operationId: endCropSeason
+      summary: End crop season
+      description: Soft-close the crop season, marking it as ended without deleting data.
+      tags: [Crop Seasons]
+      parameters:
+        - { name: cropSeasonId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Ended crop season
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CropSeasonResponse" }
+        '404': { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+        '409': { description: Already ended, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+
+  /api/v1/fields/{fieldId}/crop-seasons:
+    get:
+      operationId: listFieldCropSeasons
+      summary: List crop seasons for a field
+      description: List all crop seasons belonging to a specific field, ordered by sowingDate DESC.
+      tags: [Crop Seasons]
+      parameters:
+        - { name: fieldId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: List of crop seasons for the field
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CropSeasonResponse" }
+        '404': { description: Field not found, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+    post:
+      operationId: createFieldCropSeason
+      summary: Start a new crop season for a field
+      description: Start a new crop season. Any previous isCurrent season on this field is automatically closed.
+      tags: [Crop Seasons]
+      parameters:
+        - { name: fieldId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CropSeasonCreate" }
+            example:
+              cropType: wheat
+              variety: Sakha 95
+              sowingDate: 2025-11-15
+              expectedHarvestDate: 2026-05-20
+              isCurrent: true
+      responses:
+        '201':
+          description: Created crop season
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CropSeasonResponse" }
+        '404': { description: Field not found, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+        '422': { description: Validation error, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+
+  /api/v1/crop-seasons/{cropSeasonId}/rollup:
+    get:
+      operationId: getCropSeasonRollup
+      summary: Get crop season rollup
+      description: Aggregate total hours, cost, and CO2 emissions across all operations in the crop season.
+      tags: [Crop Seasons]
+      parameters:
+        - { name: cropSeasonId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Crop season rollup aggregates
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CropSeasonRollup" }
+              example:
+                cropSeasonId: 22222222-2222-2222-2222-222222222222
+                totalHours: 180
+                totalCost: 12500.00
+                totalCo2Kg: 950.5
+                operations:
+                  - { type: plowing, count: 1, hours: 8, cost: 850 }
+                  - { type: fertilization, count: 3, hours: 12, cost: 2400 }
+                  - { type: irrigation, count: 18, hours: 90, cost: 3600 }
+                  - { type: harvesting, count: 1, hours: 16, cost: 5650 }
+        '404': { description: Not found, content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } } }
+  /api/v1/field-operations:
+    get:
+      operationId: listFieldOperations
+      summary: List field operations (tenant-wide)
+      description: Lists all field operations across the tenant, with filtering by type, field, season, approval status, and date range.
+      tags: [Field Operations]
+      parameters:
+        - {name: operationType, in: query, required: false, schema: {type: string, enum: [plowing, land_preparation, fertilization, spraying, irrigation, harvesting, scouting, sowing, other]}}
+        - {name: fieldId, in: query, required: false, schema: {type: string, format: uuid}}
+        - {name: cropSeasonId, in: query, required: false, schema: {type: string, format: uuid}}
+        - {name: approvalStatus, in: query, required: false, schema: {type: string, enum: [pending, approved, rejected]}}
+        - {name: from, in: query, required: false, schema: {type: string, format: date}}
+        - {name: to, in: query, required: false, schema: {type: string, format: date}}
+        - {name: limit, in: query, required: false, schema: {type: integer, default: 50, maximum: 200, minimum: 1}}
+        - {name: offset, in: query, required: false, schema: {type: integer, default: 0, minimum: 0}}
+      responses:
+        "200":
+          description: List of field operations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/FieldOperationResponse"}
+        "400": {description: Bad Request, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+        "401": {description: Unauthorized, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+  /api/v1/field-operations/{operationId}:
+    get:
+      operationId: getFieldOperation
+      summary: Get a single field operation
+      description: Retrieves detailed information for a specific field operation by its ID.
+      tags: [Field Operations]
+      parameters:
+        - {name: operationId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Field operation details
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FieldOperationResponse"}
+        "404": {description: Not Found, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+    patch:
+      operationId: updateFieldOperation
+      summary: Update a field operation
+      description: Updates a field operation. Only allowed while approvalStatus is pending; approved/rejected operations are immutable for SOX/IFRS audit integrity.
+      tags: [Field Operations]
+      parameters:
+        - {name: operationId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/FieldOperationCreate"}
+      responses:
+        "200":
+          description: Updated field operation
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FieldOperationResponse"}
+        "404": {description: Not Found, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+        "409": {description: Conflict - operation not in pending state, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+    delete:
+      operationId: deleteFieldOperation
+      summary: Soft-delete a field operation
+      description: Soft-deletes the field operation. The audit trail is preserved per SOX/IFRS requirements; the record remains in the database flagged as deleted.
+      tags: [Field Operations]
+      parameters:
+        - {name: operationId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "204": {description: Deleted (soft)}
+        "404": {description: Not Found, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+  /api/v1/fields/{fieldId}/operations:
+    get:
+      operationId: listFieldOperationsByField
+      summary: List operations for a specific field
+      description: Lists all field operations for a specific field, with filtering by type, season, approval status, and date range.
+      tags: [Field Operations]
+      parameters:
+        - {name: fieldId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: operationType, in: query, required: false, schema: {type: string, enum: [plowing, land_preparation, fertilization, spraying, irrigation, harvesting, scouting, sowing, other]}}
+        - {name: cropSeasonId, in: query, required: false, schema: {type: string, format: uuid}}
+        - {name: approvalStatus, in: query, required: false, schema: {type: string, enum: [pending, approved, rejected]}}
+        - {name: from, in: query, required: false, schema: {type: string, format: date}}
+        - {name: to, in: query, required: false, schema: {type: string, format: date}}
+        - {name: limit, in: query, required: false, schema: {type: integer, default: 50, maximum: 200, minimum: 1}}
+        - {name: offset, in: query, required: false, schema: {type: integer, default: 0, minimum: 0}}
+      responses:
+        "200":
+          description: List of operations for the field
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/FieldOperationResponse"}
+        "404": {description: Field Not Found, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+    post:
+      operationId: createFieldOperation
+      summary: Create a field operation
+      description: Creates a new field operation on the specified field. New operations start with approvalStatus=pending and require finance approval before ERP posting.
+      tags: [Field Operations]
+      parameters:
+        - {name: fieldId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/FieldOperationCreate"}
+            example:
+              operationType: fertilization
+              performedAt: "2026-04-13T07:30:00Z"
+              durationHours: 4
+              costAmount: 115
+              costCurrency: SAR
+              materialsCost: 115
+              laborHours: 2
+              laborCost: 60
+              metadata:
+                product: Urea 46%
+                rateKgHa: 46
+                appliedBy: Ahmed
+              notes: "Early morning, light irrigation planned in 48h"
+      responses:
+        "201":
+          description: Field operation created
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FieldOperationResponse"}
+        "400": {description: Bad Request, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+        "404": {description: Field Not Found, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+  /api/v1/field-operations/{operationId}/approve:
+    post:
+      operationId: approveFieldOperation
+      summary: Approve a field operation
+      description: Finance approval gate. Must be called before the operation can be posted to ERP. Sets approvalStatus=approved and stamps approvedBy with the admin's identity.
+      tags: [Field Operations]
+      parameters:
+        - {name: operationId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Operation approved
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FieldOperationResponse"}
+        "403": {description: Forbidden - insufficient approval privileges, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+        "404": {description: Not Found, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+        "409": {description: Conflict - operation not in pending state, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+  /api/v1/field-operations/{operationId}/reject:
+    post:
+      operationId: rejectFieldOperation
+      summary: Reject a field operation
+      description: Rejects a pending field operation with a reason. Sets approvalStatus=rejected and stores the rejection reason (bilingual English/Arabic supported).
+      tags: [Field Operations]
+      parameters:
+        - {name: operationId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: {type: string}
+                reasonAr: {type: [string, "null"]}
+      responses:
+        "200":
+          description: Operation rejected
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FieldOperationResponse"}
+        "403": {description: Forbidden - insufficient rejection privileges, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+        "404": {description: Not Found, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+        "409": {description: Conflict - operation not in pending state, content: {application/json: {schema: {$ref: "#/components/schemas/ApiError"}}}}
+  /api/v1/fields/{fieldId}/sub-zones:
+    get:
+      tags: [Field Sub-Zones]
+      operationId: listFieldSubZones
+      summary: List sub-zones for a field
+      description: Returns all active sub-zones for a field, ordered by displayOrder ASC.
+      parameters:
+        - name: fieldId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Sub-zones ordered by displayOrder ASC
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SubZoneResponse" }
+        "404":
+          description: Field not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+    post:
+      tags: [Field Sub-Zones]
+      operationId: createFieldSubZone
+      summary: Create a sub-zone
+      parameters:
+        - name: fieldId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubZoneCreate" }
+      responses:
+        "201":
+          description: Sub-zone created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SubZoneResponse" }
+              example:
+                id: 33333333-3333-3333-3333-333333333333
+                fieldId: 11111111-1111-1111-1111-111111111111
+                name: Terrace A
+                nameAr: المدرج أ
+                polygon: { type: Polygon, coordinates: [[[46.7, 24.7],[46.71, 24.7],[46.71, 24.71],[46.7, 24.71],[46.7, 24.7]]] }
+                areaHectares: 2.1
+                displayOrder: 1
+                elevation: 850
+                slope: 12.5
+                aspect: 190
+                createdAt: "2026-04-13T06:00:00Z"
+        "400":
+          description: Invalid payload
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+  /api/v1/field-sub-zones/{subZoneId}:
+    get:
+      tags: [Field Sub-Zones]
+      operationId: getFieldSubZone
+      summary: Get a sub-zone by id
+      parameters:
+        - name: subZoneId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Sub-zone detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SubZoneResponse" }
+        "404":
+          description: Sub-zone not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+    patch:
+      tags: [Field Sub-Zones]
+      operationId: updateFieldSubZone
+      summary: Update a sub-zone
+      parameters:
+        - name: subZoneId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubZoneCreate" }
+      responses:
+        "200":
+          description: Updated sub-zone
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SubZoneResponse" }
+        "404":
+          description: Sub-zone not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+    delete:
+      tags: [Field Sub-Zones]
+      operationId: deleteFieldSubZone
+      summary: Soft-delete a sub-zone
+      parameters:
+        - name: subZoneId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Sub-zone soft-deleted
+        "404":
+          description: Sub-zone not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+  /api/v1/fields/{fieldId}/reports:
+    post:
+      tags: [Field Reports]
+      operationId: enqueueFieldReport
+      summary: Enqueue a field report render
+      description: HTML/PDF rendering is async (can take 30s+); returns 202 with status=pending. Poll the report status endpoint for progress.
+      parameters:
+        - name: fieldId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReportCreate" }
+      responses:
+        "202":
+          description: Report enqueued (status=pending)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReportResponse" }
+        "400":
+          description: Invalid payload
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+    get:
+      tags: [Field Reports]
+      operationId: listFieldReports
+      summary: List reports for a field
+      parameters:
+        - name: fieldId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: [string, "null"]
+            enum: [pending, generating, ready, failed, null]
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Matching reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ReportResponse" }
+  /api/v1/field-reports/{reportId}:
+    get:
+      tags: [Field Reports]
+      operationId: getFieldReport
+      summary: Poll a report status
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Report status and metadata
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReportResponse" }
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+  /api/v1/field-reports/{reportId}/content:
+    get:
+      tags: [Field Reports]
+      operationId: getFieldReportContent
+      summary: Stream rendered report content
+      description: Returns the rendered HTML or PDF once status=ready. Returns 404 if not ready or the content has expired.
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Rendered report payload
+          content:
+            "text/html; charset=utf-8":
+              schema: { type: string }
+            "application/pdf":
+              schema: { type: string, format: binary }
+        "404":
+          description: Report not ready or expired
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+  /api/v1/carbon/compute:
+    post:
+      tags: [Carbon]
+      operationId: computeCarbon
+      summary: Stateless what-if carbon computation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CarbonComputeRequest"
+            example:
+              operationType: fertilization
+              fuelLiters: 5.2
+              fertilizers:
+                - { type: urea-46, rateKgHa: 46 }
+              machineryHours: 2
+              coverCrop: false
+              noTill: true
+      responses:
+        "200":
+          description: Computed carbon footprint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CarbonComputeResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/v1/carbon/operations/{operationId}/compute:
+    post:
+      tags: [Carbon]
+      operationId: computeCarbonForOperation
+      summary: Compute and persist carbon footprint for an operation
+      parameters:
+        - name: operationId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Persisted carbon result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CarbonComputeResponse"
+        "404":
+          description: Operation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/v1/carbon/fields/{fieldId}/summary:
+    get:
+      tags: [Carbon]
+      operationId: getFieldCarbonSummary
+      summary: Per-field carbon totals
+      parameters:
+        - name: fieldId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cropSeasonId
+          in: query
+          required: false
+          description: If given, filters totals to that season
+          schema:
+            type: [string, "null"]
+            format: uuid
+      responses:
+        "200":
+          description: Field carbon summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CarbonFieldSummary"
+              example:
+                fieldId: 11111111-1111-1111-1111-111111111111
+                totalEmissionsKg: 1240.5
+                totalSequestrationKg: 320.0
+                netKg: 920.5
+                byOperationType:
+                  fertilization: 680.0
+                  spraying: 120.5
+                  harvesting: 440.0
+                generatedAt: "2026-04-13T08:00:00Z"
+        "404":
+          description: Field not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/v1/carbon/crop-seasons/{cropSeasonId}/summary:
+    get:
+      tags: [Carbon]
+      operationId: getCropSeasonCarbonSummary
+      summary: Per-season carbon totals
+      parameters:
+        - name: cropSeasonId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Season carbon summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CarbonSeasonSummary"
+        "404":
+          description: Crop season not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/v1/erp-sync/field-operations/{operationId}/post:
+    post:
+      tags: [ERP Sync]
+      operationId: postOperationToErp
+      summary: Post an approved operation to configured ERP adapters
+      parameters:
+        - name: operationId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: ERP post result across adapters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErpPostResult"
+        "409":
+          description: Operation is not approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Operation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/v1/erp-sync/health:
+    get:
+      tags: [ERP Sync]
+      operationId: getErpHealth
+      summary: Per-adapter ERP reachability
+      responses:
+        "200":
+          description: ERP adapter health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErpHealthResponse"
+  /healthz:
+    get:
+      tags: [Health]
+      operationId: getLiveness
+      summary: Liveness probe
+      security: []
+      responses:
+        "200":
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /readyz:
+    get:
+      tags: [Health]
+      operationId: getReadiness
+      summary: Readiness probe
+      security: []
+      responses:
+        "200":
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "503":
+          description: Service is not ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Combined health status
+      responses:
+        "200":
+          description: Combined health status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Internal SAHOOL JWT issued by user-service (HS256)."
+  schemas:
+    GeoPolygon:
+      type: object
+      required: [type, coordinates]
+      properties:
+        type: { type: string, enum: [Polygon] }
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items: { type: number }
+          description: "GeoJSON polygon coordinates [[[lng,lat], ...]]"
+    GeoPoint:
+      type: object
+      required: [type, coordinates]
+      properties:
+        type: { type: string, enum: [Point] }
+        coordinates:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items: { type: number }
+    CreateFieldDto:
+      type: object
+      required: [name, cropType, boundary]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        nameAr: { type: [string, "null"] }
+        cropType: { type: string }
+        ownerId: { type: [string, "null"], format: uuid }
+        farmId: { type: [string, "null"], format: uuid }
+        boundary: { $ref: "#/components/schemas/GeoPolygon" }
+        irrigationType: { type: [string, "null"], enum: [drip, pivot, flood, sprinkler, manual, null] }
+        soilType: { type: [string, "null"] }
+        plantingDate: { type: [string, "null"], format: date }
+        expectedHarvest: { type: [string, "null"], format: date }
+        metadata: { type: [object, "null"], additionalProperties: true }
+    UpdateFieldDto:
+      type: object
+      required: []
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        nameAr: { type: [string, "null"] }
+        cropType: { type: string }
+        ownerId: { type: [string, "null"], format: uuid }
+        farmId: { type: [string, "null"], format: uuid }
+        boundary: { $ref: "#/components/schemas/GeoPolygon" }
+        irrigationType: { type: [string, "null"], enum: [drip, pivot, flood, sprinkler, manual, null] }
+        soilType: { type: [string, "null"] }
+        plantingDate: { type: [string, "null"], format: date }
+        expectedHarvest: { type: [string, "null"], format: date }
+        metadata: { type: [object, "null"], additionalProperties: true }
+    FieldResponse:
+      type: object
+      required: [id, name, farmId, area, status, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        tenantId: { type: [string, "null"], format: uuid }
+        farmId: { type: string, format: uuid }
+        ownerId: { type: [string, "null"], format: uuid }
+        crop: { type: [string, "null"] }
+        cropType: { type: [string, "null"] }
+        status: { type: string, enum: [active, inactive, fallow, preparing, harvested, deleted] }
+        boundary:
+          anyOf:
+            - { $ref: "#/components/schemas/GeoPolygon" }
+            - { type: "null" }
+        centroid:
+          anyOf:
+            - { $ref: "#/components/schemas/GeoPoint" }
+            - { type: "null" }
+        area: { type: number, description: "Area in square meters" }
+        areaHectares: { type: [number, "null"] }
+        irrigationType: { type: [string, "null"] }
+        soilType: { type: [string, "null"] }
+        plantingDate: { type: [string, "null"], format: date }
+        expectedHarvest: { type: [string, "null"], format: date }
+        ndviValue: { type: [number, "null"], minimum: -1, maximum: 1 }
+        healthScore: { type: [number, "null"], minimum: 0, maximum: 100 }
+        metadata: { type: [object, "null"], additionalProperties: true }
+        version: { type: [integer, "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    BoundaryUpdate:
+      type: object
+      required: [boundary]
+      properties:
+        boundary: { $ref: "#/components/schemas/GeoPolygon" }
+        changeReason: { type: [string, "null"] }
+        changedBy: { type: [string, "null"] }
+    BoundaryHistoryEntry:
+      type: object
+      required: [id, fieldId, versionAtChange, changeSource, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        fieldId: { type: string, format: uuid }
+        versionAtChange: { type: integer }
+        previousBoundary:
+          anyOf:
+            - { $ref: "#/components/schemas/GeoPolygon" }
+            - { type: "null" }
+        newBoundary:
+          anyOf:
+            - { $ref: "#/components/schemas/GeoPolygon" }
+            - { type: "null" }
+        areaChangeHectares: { type: [number, "null"] }
+        changedBy: { type: [string, "null"] }
+        changeReason: { type: [string, "null"] }
+        changeSource: { type: string, enum: [api, mobile, web, import] }
+        createdAt: { type: string, format: date-time }
+    SyncOperation:
+      type: object
+      required: [localId, type, payload]
+      properties:
+        localId: { type: string }
+        type: { type: string, enum: [create, update, delete] }
+        fieldId: { type: [string, "null"], format: uuid }
+        payload: { type: object, additionalProperties: true }
+    SyncRequest:
+      type: object
+      required: [deviceId, since, operations]
+      properties:
+        deviceId: { type: string }
+        since: { type: string, format: date-time }
+        operations:
+          type: array
+          items: { $ref: "#/components/schemas/SyncOperation" }
+    SyncBatchRequest:
+      type: array
+      items: { $ref: "#/components/schemas/SyncRequest" }
+    SyncResult:
+      type: object
+      required: [success, appliedCount, conflicts, lastSyncVersion]
+      properties:
+        success: { type: boolean }
+        appliedCount: { type: integer }
+        conflicts:
+          type: array
+          items:
+            type: object
+            required: [localId, serverVersion, resolution]
+            properties:
+              localId: { type: string }
+              serverVersion: { type: integer }
+              resolution: { type: string, enum: [server_wins, client_wins, merged, manual_review] }
+        lastSyncVersion: { type: integer }
+    CropSeasonCreate:
+      type: object
+      required: [cropType, sowingDate]
+      properties:
+        cropType: { type: string }
+        cropTypeAr: { type: [string, "null"] }
+        season: { type: [string, "null"], enum: [winter, summer, spring, fall, null] }
+        sowingDate: { type: string, format: date }
+        expectedHarvestDate: { type: [string, "null"], format: date }
+        seedVariety: { type: [string, "null"] }
+        seedVarietyAr: { type: [string, "null"] }
+        plantingDensityKgHa: { type: [number, "null"], minimum: 0 }
+        irrigationType: { type: [string, "null"] }
+    CropSeasonResponse:
+      type: object
+      required: [id, tenantId, fieldId, cropType, sowingDate, isCurrent, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string, format: uuid }
+        fieldId: { type: string, format: uuid }
+        cropType: { type: string }
+        cropTypeAr: { type: [string, "null"] }
+        season: { type: [string, "null"] }
+        sowingDate: { type: string, format: date }
+        expectedHarvestDate: { type: [string, "null"], format: date }
+        actualHarvestDate: { type: [string, "null"], format: date }
+        endedAt: { type: [string, "null"], format: date-time }
+        isCurrent: { type: boolean }
+        seedVariety: { type: [string, "null"] }
+        yieldKgHa: { type: [number, "null"] }
+        totalSeasonCost: { type: [number, "null"] }
+        totalSeasonRevenue: { type: [number, "null"] }
+        totalSeasonHours: { type: [number, "null"] }
+        totalCo2NetKg: { type: [number, "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CropSeasonRollup:
+      type: object
+      required: [cropSeasonId, totalHours, totalCost, totalCo2Kg, operations]
+      properties:
+        cropSeasonId: { type: string, format: uuid }
+        totalHours: { type: number }
+        totalCost: { type: number }
+        totalCo2Kg: { type: number }
+        operations:
+          type: array
+          items:
+            type: object
+            required: [type, count, hours, cost]
+            properties:
+              type: { type: string }
+              count: { type: integer }
+              hours: { type: number }
+              cost: { type: number }
+    FieldOperationCreate:
+      type: object
+      required: [operationType, performedAt]
+      properties:
+        operationType: { type: string, enum: [plowing, land_preparation, fertilization, spraying, irrigation, harvesting, scouting, sowing, other] }
+        performedAt: { type: string, format: date-time }
+        durationHours: { type: [number, "null"], minimum: 0 }
+        costAmount: { type: [number, "null"], minimum: 0 }
+        costCurrency: { type: [string, "null"], default: SAR }
+        fuelLiters: { type: [number, "null"] }
+        fuelCost: { type: [number, "null"] }
+        laborHours: { type: [number, "null"] }
+        laborCost: { type: [number, "null"] }
+        materialsCost: { type: [number, "null"] }
+        overheadCost: { type: [number, "null"] }
+        otherCost: { type: [number, "null"] }
+        taxAmount: { type: [number, "null"] }
+        vendorId: { type: [string, "null"], format: uuid }
+        invoiceNumber: { type: [string, "null"] }
+        glAccount: { type: [string, "null"] }
+        costCenter: { type: [string, "null"] }
+        equipmentId: { type: [string, "null"], format: uuid }
+        notes: { type: [string, "null"] }
+        metadata: { type: [object, "null"], additionalProperties: true }
+    FieldOperationResponse:
+      type: object
+      required: [id, tenantId, fieldId, operationType, performedAt, costCurrency, approvalStatus, postedToErp, carbonCreditEligible, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string, format: uuid }
+        fieldId: { type: string, format: uuid }
+        cropSeasonId: { type: [string, "null"], format: uuid }
+        operationType: { type: string }
+        performedAt: { type: string, format: date-time }
+        endedAt: { type: [string, "null"], format: date-time }
+        durationHours: { type: [number, "null"] }
+        costAmount: { type: [number, "null"] }
+        costCurrency: { type: string }
+        approvalStatus: { type: string, enum: [pending, approved, rejected] }
+        approvedBy: { type: [string, "null"], format: uuid }
+        rejectionReason: { type: [string, "null"] }
+        postedToErp: { type: boolean }
+        postingReference: { type: [string, "null"] }
+        co2EmissionsKg: { type: [number, "null"] }
+        co2NetKg: { type: [number, "null"] }
+        carbonCreditEligible: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    SubZoneCreate:
+      type: object
+      required: [name, polygon]
+      properties:
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        polygon: { $ref: "#/components/schemas/GeoPolygon" }
+        displayOrder: { type: [integer, "null"] }
+        metadata: { type: [object, "null"], additionalProperties: true }
+    SubZoneResponse:
+      type: object
+      required: [id, fieldId, name, polygon, areaHectares, displayOrder, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        fieldId: { type: string, format: uuid }
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        polygon: { $ref: "#/components/schemas/GeoPolygon" }
+        areaHectares: { type: number }
+        displayOrder: { type: integer }
+        elevation: { type: [number, "null"] }
+        slope: { type: [number, "null"] }
+        aspect: { type: [number, "null"] }
+        createdAt: { type: string, format: date-time }
+    ReportCreate:
+      type: object
+      required: [type, format, language]
+      properties:
+        type: { type: string, enum: [field-summary, season-summary, carbon-summary, custom] }
+        format: { type: string, enum: [html, pdf] }
+        language: { type: string, enum: [ar, en] }
+        parameters: { type: [object, "null"], additionalProperties: true }
+    ReportResponse:
+      type: object
+      required: [id, fieldId, type, format, language, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        fieldId: { type: string, format: uuid }
+        type: { type: string }
+        format: { type: string }
+        language: { type: string }
+        status: { type: string, enum: [pending, generating, ready, failed] }
+        contentUrl: { type: [string, "null"], format: uri }
+        signedContentUrl: { type: [string, "null"], format: uri }
+        errorReason: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+        readyAt: { type: [string, "null"], format: date-time }
+    CarbonComputeRequest:
+      type: object
+      required: [operationType]
+      properties:
+        operationType: { type: string }
+        fuelLiters: { type: [number, "null"] }
+        fertilizers:
+          type: [array, "null"]
+          items:
+            type: object
+            required: [type, rateKgHa]
+            properties:
+              type: { type: string }
+              rateKgHa: { type: number }
+        machineryHours: { type: [number, "null"] }
+        coverCrop: { type: [boolean, "null"] }
+        noTill: { type: [boolean, "null"] }
+    CarbonComputeResponse:
+      type: object
+      required: [co2EmissionsKg, co2SequestrationKg, co2NetKg, methodology, factors, carbonCreditEligible]
+      properties:
+        co2EmissionsKg: { type: number }
+        co2SequestrationKg: { type: number }
+        co2NetKg: { type: number }
+        methodology: { type: string, description: "e.g. IPCC 2019 Tier 1" }
+        factors: { type: object, additionalProperties: true }
+        carbonCreditEligible: { type: boolean }
+    CarbonFieldSummary:
+      type: object
+      required: [fieldId, totalEmissionsKg, totalSequestrationKg, netKg, byOperationType, generatedAt]
+      properties:
+        fieldId: { type: string, format: uuid }
+        totalEmissionsKg: { type: number }
+        totalSequestrationKg: { type: number }
+        netKg: { type: number }
+        byOperationType:
+          type: object
+          additionalProperties: { type: number }
+        generatedAt: { type: string, format: date-time }
+    CarbonSeasonSummary:
+      type: object
+      required: [cropSeasonId, totalEmissionsKg, totalSequestrationKg, netKg, byOperationType, generatedAt]
+      properties:
+        cropSeasonId: { type: string, format: uuid }
+        totalEmissionsKg: { type: number }
+        totalSequestrationKg: { type: number }
+        netKg: { type: number }
+        byOperationType:
+          type: object
+          additionalProperties: { type: number }
+        generatedAt: { type: string, format: date-time }
+    ErpPostResult:
+      type: object
+      required: [operationId, postedToErp, postedAt]
+      properties:
+        operationId: { type: string, format: uuid }
+        postedToErp:
+          type: array
+          items:
+            type: object
+            required: [adapter, success]
+            properties:
+              adapter: { type: string, enum: [quickbooks, sap, odoo, xero, netsuite] }
+              success: { type: boolean }
+              reference: { type: [string, "null"] }
+              error: { type: [string, "null"] }
+        postedAt: { type: string, format: date-time }
+    ErpHealthResponse:
+      type: object
+      required: [adapters]
+      properties:
+        adapters:
+          type: array
+          items:
+            type: object
+            required: [adapter, reachable]
+            properties:
+              adapter: { type: string, enum: [quickbooks, sap, odoo, xero, netsuite] }
+              reachable: { type: boolean }
+              lastSync: { type: [string, "null"], format: date-time }
+              error: { type: [string, "null"] }
+    ApiError:
+      type: object
+      required: [success, error, errorCode]
+      properties:
+        success: { type: boolean, enum: [false] }
+        error: { type: string }
+        errorAr: { type: [string, "null"] }
+        errorCode: { type: string, description: "Machine-readable error code (e.g. E1001)" }
+        requestId: { type: [string, "null"] }
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status: { type: string, enum: [ok, degraded, not_ready] }
+        service: { type: string, enum: [field-management-service] }
+        version: { type: string }
+        timestamp: { type: [string, "null"], format: date-time }
+        database: { type: [boolean, "null"] }
+        nats: { type: [boolean, "null"] }
+

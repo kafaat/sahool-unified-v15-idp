@@ -49,9 +49,16 @@ rules:
           # Field & geospatial
           - Fields
           - Boundaries
+          - Field Sub-Zones
+          - Field Operations
+          - Field Reports
+          - Crop Seasons
           - Layers
           - Uploads
           - Exports
+          # Sustainability & ERP integration
+          - Carbon
+          - ERP Sync
           # Earth observation & weather
           - Weather
           - Satellite

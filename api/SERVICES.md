@@ -1,16 +1,16 @@
 # SAHOOL Services — OpenAPI Coverage Catalog
 
-> Last synced: 2026-04-12 · Branch: `claude/wave1-openapi-specs` · CONTRACT_VERSION `4.12.0`
+> Last synced: 2026-04-13 · Branch: `claude/wave1-field-management-spec` · CONTRACT_VERSION `4.12.0`
 
 ## Summary
 
 | Metric | Count |
 |---|---|
 | Total services | 48 |
-| ✅ Fully specified | 6 |
-| ⏳ In progress | 1 |
+| ✅ Fully specified | 7 |
+| ⏳ In progress | 0 |
 | ❌ Planned | 41 |
-| **Coverage** | **12.5%** (7/48 with field-management-service in flight) |
+| **Coverage** | **14.6%** (7/48) |
 
 ## Legend
 
@@ -28,7 +28,7 @@
 |---|---|---|---|---|---|---|
 | partner-auth-service | 3030 | NestJS | ✅ [partner-auth.openapi.yaml](services/partner-auth.openapi.yaml) | 100% | — | OAuth 2.0 / OIDC v4.12.0 |
 | user-service | 3025 | NestJS | ✅ [user-service.openapi.yaml](services/user-service.openapi.yaml) | 100% | — | JWT HS256 + 2FA + 17 endpoints |
-| field-management-service | 3000 | NestJS | ⏳ | — | Tier 1 | In progress — `claude/wave1-openapi-tier1-specs` |
+| field-management-service | 3000 | NestJS | ✅ [field-management-service.openapi.yaml](services/field-management-service.openapi.yaml) | 100% | — | Fields + boundaries + crop seasons + operations + sub-zones + reports + IPCC carbon + ERP sync (32 ops, 28 schemas) |
 | marketplace-service | 3010 | NestJS | ❌ | 0% | Tier 2 | Agricultural marketplace |
 | research-core | 3015 | NestJS | ❌ | 0% | Tier 3 | Research trials |
 | disaster-assessment | 3020 | NestJS | ❌ | 0% | Tier 3 | Disaster risk assessment |

@@ -1,0 +1,1437 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>06 · Protocol Gateway Template - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#06-protocol-gateway-template" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              06 · Protocol Gateway Template
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="06-protocol-gateway-template">06 · Protocol Gateway Template<a class="headerlink" href="#06-protocol-gateway-template" title="Permanent link">&para;</a></h1>
+<p><strong>Gold standard:</strong> <code>apps/services/ws-gateway/</code>
+<strong>Related:</strong> <code>ussd-gateway</code>, <code>whatsapp-bot-service</code>, <code>wechat-service</code>,
+<code>iot-gateway</code>, <code>mcp-server</code>.
+<strong>Use when:</strong> the service bridges NATS (or the core platform) to an
+external protocol — WebSocket, USSD, SMS, MQTT, WhatsApp/WeChat,
+Model-Context-Protocol, etc.</p>
+<blockquote>
+<p>قالب خدمات البوابات — ربط منصة سهول ببروتوكولات خارجية.</p>
+</blockquote>
+<hr />
+<h2 id="why-ws-gateway">Why <code>ws-gateway</code>?<a class="headerlink" href="#why-ws-gateway" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Canonical <code>NATS → WebSocket</code> bridge (inbound events to browser
+  clients).</li>
+<li>JWT-authenticated rooms with tenant isolation baked in.</li>
+<li>Backpressure handling (slow clients get dropped, not the broker).</li>
+<li>Graceful drain: refuses new connections, finishes in-flight
+  messages, then exits.</li>
+</ul>
+<hr />
+<h2 id="core-responsibilities-of-a-gateway">Core responsibilities of a gateway<a class="headerlink" href="#core-responsibilities-of-a-gateway" title="Permanent link">&para;</a></h2>
+<p>A gateway is <strong>thin, stateless, and has no business logic</strong>. It does
+exactly five things:</p>
+<ol>
+<li><strong>Terminate the external protocol</strong> — upgrade HTTP to WebSocket,
+   parse USSD codes, validate WhatsApp webhook signatures, etc.</li>
+<li><strong>Authenticate / authorize the external user</strong> against SAHOOL's
+   identity service.</li>
+<li><strong>Translate</strong> messages between the external wire format and the
+   internal NATS event format (bilingual when a human is on the other
+   end).</li>
+<li><strong>Relay</strong> the translated messages — NATS→external or external→NATS.</li>
+<li><strong>Track connection/session lifecycle</strong> and expose health metrics.</li>
+</ol>
+<p>If a gateway starts making DB writes or running domain logic, it's
+mutated into a Pattern 02 service — move that logic into its own
+service and keep the gateway thin.</p>
+<hr />
+<h2 id="canonical-directory">Canonical directory<a class="headerlink" href="#canonical-directory" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">services</span><span class="o">/&lt;</span><span class="n">name</span><span class="o">&gt;-</span><span class="n">gateway</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Dockerfile</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">src</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="w">                 </span><span class="c1"># FastAPI / Starlette / NestJS bootstrap</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">protocol</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">handler</span><span class="o">.</span><span class="n">py</span><span class="w">          </span><span class="c1"># the external protocol&#39;s parser/formatter</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">session</span><span class="o">.</span><span class="n">py</span><span class="w">          </span><span class="c1"># per-connection state (ephemeral, in-memory)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">auth</span><span class="o">.</span><span class="n">py</span><span class="w">                 </span><span class="c1"># JWT / API key / HMAC signature verification</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">nats_bridge</span><span class="o">.</span><span class="n">py</span><span class="w">          </span><span class="c1"># subscribe/publish helpers</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">translator</span><span class="o">.</span><span class="n">py</span><span class="w">           </span><span class="c1"># external ⇆ NATS payload mapping</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">metrics</span><span class="o">.</span><span class="n">py</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">tests</span><span class="o">/</span>
+</code></pre></div>
+
+<hr />
+<h2 id="key-patterns">Key patterns<a class="headerlink" href="#key-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="1-per-connection-state-is-ephemeral">1 · Per-connection state is ephemeral<a class="headerlink" href="#1-per-connection-state-is-ephemeral" title="Permanent link">&para;</a></h3>
+<p>Never persist session state to Postgres. Use an in-process dict keyed
+by <code>(tenant_id, user_id, connection_id)</code>. If the process dies, the
+client reconnects and re-authenticates — <strong>no session replay</strong>.</p>
+<p>If state must survive process death (e.g. partially-read USSD menu),
+store it in Redis with a short TTL (&lt;5 min).</p>
+<h3 id="2-tenant-isolation-via-jwt">2 · Tenant isolation via JWT<a class="headerlink" href="#2-tenant-isolation-via-jwt" title="Permanent link">&para;</a></h3>
+<p>Every connection is authenticated on open. The extracted <code>tid</code> is
+<strong>stapled to the session object</strong> — it must never be re-read from
+subsequent client messages. A client cannot switch tenants mid-stream.</p>
+<h3 id="3-subject-scoped-subscriptions">3 · Subject-scoped subscriptions<a class="headerlink" href="#3-subject-scoped-subscriptions" title="Permanent link">&para;</a></h3>
+<p>When bridging NATS→external, only subscribe to the tenant-scoped
+subject:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sahool.tenant.</span><span class="si">{</span><span class="n">tenant_id</span><span class="si">}</span><span class="s2">.&gt;&quot;</span><span class="p">,</span> <span class="n">cb</span><span class="o">=...</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Never subscribe to <code>sahool.&gt;</code> and filter client-side — that's a
+cross-tenant leak waiting to happen.</p>
+<h3 id="4-backpressure">4 · Backpressure<a class="headerlink" href="#4-backpressure" title="Permanent link">&para;</a></h3>
+<p>Slow clients must not slow down the broker. The rule: <strong>drop the
+client, not the event</strong>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;slow_client_dropped&quot;</span><span class="p">,</span> <span class="n">tenant_id</span><span class="o">=</span><span class="n">tid</span><span class="p">,</span> <span class="n">client_id</span><span class="o">=</span><span class="n">cid</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">ws</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">1013</span><span class="p">)</span>   <span class="c1"># try again later</span>
+</code></pre></div>
+
+<h3 id="5-per-connection-rate-limit">5 · Per-connection rate limit<a class="headerlink" href="#5-per-connection-rate-limit" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Token bucket: 60 inbound msgs/min per connection.</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">rate_limiter</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="n">connection_id</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_json</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;rate_limited&quot;</span><span class="p">})</span>
+    <span class="k">continue</span>
+</code></pre></div>
+
+<h3 id="6-graceful-drain">6 · Graceful drain<a class="headerlink" href="#6-graceful-drain" title="Permanent link">&para;</a></h3>
+<p>On <code>SIGTERM</code>:</p>
+<ol>
+<li>Stop accepting new connections (return 503 on the upgrade route).</li>
+<li>Send a <code>{"event":"server_draining"}</code> advisory to every open
+   connection so clients can reconnect to a different replica.</li>
+<li>Wait up to <code>DRAIN_TIMEOUT_S</code> (default 30 s) for clients to close.</li>
+<li>Force-close any remaining connections and <code>nats.drain()</code>.</li>
+</ol>
+<h3 id="7-metrics">7 · Metrics<a class="headerlink" href="#7-metrics" title="Permanent link">&para;</a></h3>
+<p>Required counters / gauges:</p>
+<ul>
+<li><code>gateway_connections_active{protocol, tenant}</code></li>
+<li><code>gateway_messages_inbound_total{protocol, direction="in"}</code></li>
+<li><code>gateway_messages_outbound_total{protocol, direction="out"}</code></li>
+<li><code>gateway_translate_errors_total{protocol, reason}</code></li>
+<li><code>gateway_rate_limit_drops_total{tenant}</code></li>
+<li><code>gateway_broker_lag_seconds</code> (histogram) — time from NATS
+  publish → client receive.</li>
+</ul>
+<hr />
+<h2 id="delta-from-pattern-0203">Delta from Pattern 02/03<a class="headerlink" href="#delta-from-pattern-0203" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Pattern 02/03</th>
+<th>Gateway</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Persistent DB</td>
+<td>optional</td>
+<td><strong>never</strong></td>
+</tr>
+<tr>
+<td>Domain logic</td>
+<td>yes</td>
+<td><strong>never</strong></td>
+</tr>
+<tr>
+<td>NATS</td>
+<td>publish + subscribe</td>
+<td><strong>subscribe-heavy + lightweight publish</strong></td>
+</tr>
+<tr>
+<td>Long-lived connections</td>
+<td>no</td>
+<td><strong>yes (WS, MQTT, USSD session)</strong></td>
+</tr>
+<tr>
+<td>Tenant state</td>
+<td>in DB</td>
+<td>in-process / Redis (ephemeral)</td>
+</tr>
+<tr>
+<td>Scaling</td>
+<td>horizontal, stateless</td>
+<td>horizontal, but sticky per connection</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="protocol-specific-notes">Protocol-specific notes<a class="headerlink" href="#protocol-specific-notes" title="Permanent link">&para;</a></h2>
+<h3 id="websocket-ws-gateway">WebSocket (<code>ws-gateway</code>)<a class="headerlink" href="#websocket-ws-gateway" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Upgrade handler protected by rate-limit on the HTTP layer <strong>before</strong>
+  accepting the upgrade.</li>
+<li>Use Starlette's <code>WebSocketRoute</code> — one coroutine per connection.</li>
+<li>Message framing: JSON with envelope
+  <code>{ "type": "&lt;event&gt;", "tenantId", "payload": {...}, "ts": "..." }</code>.</li>
+</ul>
+<h3 id="ussd-ussd-gateway">USSD (<code>ussd-gateway</code>)<a class="headerlink" href="#ussd-ussd-gateway" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Stateful menu (tree) backed by Redis with <code>SESSION_TTL=180s</code>.</li>
+<li>Bilingual menus selected on the first prompt (<code>1=English, 2=عربي</code>).</li>
+<li>No free-text inputs without sanitization — USSD is open to the PSTN.</li>
+</ul>
+<h3 id="whatsapp-wechat">WhatsApp / WeChat<a class="headerlink" href="#whatsapp-wechat" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Webhook signature verification on every inbound request.</li>
+<li>Template messages only for business-initiated conversations (Meta
+  policy).</li>
+<li>Media downloads proxied through MinIO so the public URL is never
+  leaked back to the external provider.</li>
+</ul>
+<h3 id="mqtt-iot-gateway">MQTT (<code>iot-gateway</code>)<a class="headerlink" href="#mqtt-iot-gateway" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Mutual-TLS for device auth.</li>
+<li>Topic mapping: device <code>f/&lt;device_id&gt;/telemetry</code> → NATS
+  <code>sahool.tenant.&lt;tid&gt;.iot.device.&lt;device_id&gt;.telemetry</code>.</li>
+<li>QoS 1 for commands, QoS 0 for telemetry.</li>
+</ul>
+<h3 id="model-context-protocol-mcp-server">Model-Context-Protocol (<code>mcp-server</code>)<a class="headerlink" href="#model-context-protocol-mcp-server" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Implements the standard MCP over stdio for AI agents.</li>
+<li>Every tool invocation is logged and rate-limited per (tenant, agent).</li>
+</ul>
+<hr />
+<h2 id="coverage-matrix">Coverage matrix<a class="headerlink" href="#coverage-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Gateway</th>
+<th>Auth</th>
+<th>Tenant isolation</th>
+<th>Backpressure</th>
+<th>Metrics</th>
+<th>Graceful drain</th>
+<th>Last audit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ws-gateway</td>
+<td>JWT</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>gold</td>
+</tr>
+<tr>
+<td>ussd-gateway</td>
+<td>API key</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td>whatsapp-bot-service</td>
+<td>HMAC</td>
+<td>✅</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+<td>—</td>
+</tr>
+<tr>
+<td>wechat-service</td>
+<td>HMAC</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>mTLS</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td>mcp-server</td>
+<td>session</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

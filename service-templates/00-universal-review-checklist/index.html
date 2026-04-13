@@ -1,0 +1,1751 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>00 · Universal Service Review Checklist - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#00-universal-service-review-checklist" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              00 · Universal Service Review Checklist
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="00-universal-service-review-checklist">00 · Universal Service Review Checklist<a class="headerlink" href="#00-universal-service-review-checklist" title="Permanent link">&para;</a></h1>
+<p><strong>Applies to:</strong> every SAHOOL microservice, Node.js or Python, any pattern.
+<strong>Revision:</strong> 1.0.0 (2026-04-13)
+<strong>Time to run:</strong> ~15 min for a well-kept service, ~60 min for an unknown one.</p>
+<p>This is the <strong>mandatory baseline</strong>. Pattern-specific templates (<code>01</code>–<code>07</code>)
+add depth on top of it but never remove a row. If a row doesn't apply to a
+given service, write <code>N/A — &lt;one-sentence rationale&gt;</code> instead of leaving
+it blank.</p>
+<blockquote>
+<p>قائمة المراجعة الأساسية الإلزامية لأي خدمة. القوالب النوعية تضيف
+تفاصيل إضافية لكن لا تستبدل أياً من هذه البنود.</p>
+</blockquote>
+<hr />
+<h2 id="how-to-fill-the-matrix">How to fill the matrix<a class="headerlink" href="#how-to-fill-the-matrix" title="Permanent link">&para;</a></h2>
+<p>Copy the table below into an audit report or a PR description. Mark each
+row with one of:</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅</td>
+<td>Compliant — verified by reading the code or running the command in “how to verify”.</td>
+</tr>
+<tr>
+<td>⚠️</td>
+<td>Partially compliant — lists what's missing in the notes column.</td>
+</tr>
+<tr>
+<td>❌</td>
+<td>Non-compliant — must be fixed before merge / release.</td>
+</tr>
+<tr>
+<td>🚫</td>
+<td>Not applicable — justify in the notes column.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="capability-groups">Capability groups<a class="headerlink" href="#capability-groups" title="Permanent link">&para;</a></h2>
+<h3 id="1-bilingual-identity">1 · Bilingual identity<a class="headerlink" href="#1-bilingual-identity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.1</td>
+<td>Service has an entry in <code>governance/services.yaml</code></td>
+<td><code>grep -A5 '^  &lt;service&gt;:' governance/services.yaml</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1.2</td>
+<td>README present with EN + AR sections: Purpose, Architecture, API, Events, Ops</td>
+<td><code>head -20 apps/services/&lt;svc&gt;/README.md</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1.3</td>
+<td>Service linked to its pattern template in README (see <code>docs/service-templates/</code>)</td>
+<td><code>grep service-templates apps/services/&lt;svc&gt;/README.md</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1.4</td>
+<td>Port matches <code>packages/shared-types/src/contracts/service-ports.ts</code></td>
+<td>compare Dockerfile EXPOSE to SERVICE_PORTS</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-health-lifecycle">2 · Health &amp; lifecycle<a class="headerlink" href="#2-health-lifecycle" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.1</td>
+<td><code>/healthz</code> (liveness) returns 200 without DB</td>
+<td><code>curl /healthz</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2.2</td>
+<td><code>/readyz</code> (readiness) returns 200 only when all deps (DB, NATS, Redis) are up</td>
+<td>inspect handler returns composite status</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2.3</td>
+<td><code>/metrics</code> exposes Prometheus format when applicable</td>
+<td><code>curl /metrics \| head</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>Graceful shutdown on <code>SIGTERM</code>: drain DB pool, drain NATS, stop accepting new requests</td>
+<td>grep <code>gracefulShutdown\|lifespan\|onModuleDestroy</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2.5</td>
+<td>No <code>process.exit()</code> / <code>os._exit()</code> in normal flow — only in shutdown or fatal startup</td>
+<td>grep <code>process.exit\|os\._exit\|sys.exit</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-configuration-secrets">3 · Configuration &amp; secrets<a class="headerlink" href="#3-configuration-secrets" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.1</td>
+<td>All config read via env vars at startup, not sprinkled per-request</td>
+<td>grep <code>process.env\|os.getenv</code> coverage</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3.2</td>
+<td>No secrets committed — <code>.env</code> in <code>.gitignore</code>, <code>.env.example</code> present</td>
+<td><code>git log -p .env 2&gt;/dev/null \| head</code> (should be empty)</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3.3</td>
+<td>Sensitive env vars documented in README with placeholder values</td>
+<td>inspect README Ops section</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3.4</td>
+<td><code>DATABASE_URL</code> and <code>DATABASE_URL_DIRECT</code> both declared (PgBouncer transaction-mode)</td>
+<td>grep both in code + compose</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3.5</td>
+<td><code>JWT_SECRET_KEY</code> validated at startup (≥32 chars, not <code>changeme</code>)</td>
+<td>startup validator present</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-database">4 · Database<a class="headerlink" href="#4-database" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4.1</td>
+<td>Connection pool sized for the workload (min/max explicit)</td>
+<td>inspect pool config</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4.2</td>
+<td>Every tenant table has <code>tenantId String @map("tenant_id")</code> + an index containing it</td>
+<td><code>./scripts/prisma-check.sh</code> + grep</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4.3</td>
+<td>All tenant queries scope by <code>tenantId</code> — no cross-tenant leaks</td>
+<td>spot-check 3 random queries</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4.4</td>
+<td>Transactions used for multi-table writes</td>
+<td>grep <code>$transaction\|asyncpg transaction</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4.5</td>
+<td>Migrations present (<code>prisma migrate diff --from-empty</code> works) for Prisma services</td>
+<td><code>ls prisma/migrations/</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4.6</td>
+<td>N+1 queries avoided (relations loaded with <code>include</code> / eager fetch)</td>
+<td>spot-check list endpoints</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-nats-event-bus">5 · NATS / event bus<a class="headerlink" href="#5-nats-event-bus" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5.1</td>
+<td>If the service publishes events: every subject is <code>sahool.&lt;domain&gt;.&lt;entity&gt;.&lt;action&gt;</code></td>
+<td><code>./scripts/check-event-subject-prefix.sh</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5.2</td>
+<td>Subjects come from constants (<code>EventSubjects</code> or <code>shared.events.subjects</code>) — no raw strings in business code</td>
+<td>grep for raw strings in events dir</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5.3</td>
+<td>NATS lifecycle: connect on startup, drain on shutdown</td>
+<td>grep <code>initializeNatsClient\|nats.connect\|nats.drain</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5.4</td>
+<td>Published events include <code>tenantId</code> + <code>eventId</code> (UUID) + <code>timestamp</code> + <code>version</code></td>
+<td>inspect an outgoing envelope</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5.5</td>
+<td>Critical writes go through the Outbox pattern (<code>OutboxEvent</code> table)</td>
+<td>grep <code>OutboxEvent\|outbox_event</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5.6</td>
+<td>Subscribers handle duplicates (idempotency key) and failures (DLQ)</td>
+<td>grep <code>IdempotencyKey\|DLQ\|dead_letter</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-security">6 · Security<a class="headerlink" href="#6-security" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6.1</td>
+<td>Authenticated routes require a valid JWT (shared guard / dependency)</td>
+<td>grep <code>JwtAuthGuard\|get_current_user</code> on router files</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6.2</td>
+<td>Role / scope checks on mutations (RBAC)</td>
+<td>grep <code>@Roles\|require_role</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6.3</td>
+<td>Input validation via Zod / class-validator / Pydantic — no raw <code>any</code> on boundaries</td>
+<td>inspect one controller file</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6.4</td>
+<td>Rate limiting applied globally or per-route</td>
+<td>grep <code>ThrottlerGuard\|slowapi\|rate_limit</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6.5</td>
+<td>SSRF guard on proxy-style endpoints (allow-listed hosts/params)</td>
+<td>inspect fetch / httpx usage</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6.6</td>
+<td>Output escaping for bilingual strings — no raw HTML rendering on the backend</td>
+<td>grep <code>dangerouslySetInnerHTML</code> (web) / direct HTML responses</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6.7</td>
+<td>CORS allow-list is explicit (no <code>*</code> in production)</td>
+<td>inspect CORS config</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6.8</td>
+<td>Security headers present (CSP, HSTS, X-Content-Type-Options, Referrer-Policy)</td>
+<td><code>curl -I</code> on a GET endpoint</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-observability">7 · Observability<a class="headerlink" href="#7-observability" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7.1</td>
+<td>Structured JSON logs (<code>structlog</code> / <code>nestjs-pino</code>) — never <code>print</code> / <code>console.log</code></td>
+<td>grep <code>print(\|console\\.log(</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7.2</td>
+<td>Correlation ID (<code>x-request-id</code>) propagated through logs + outgoing events</td>
+<td>inspect middleware</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7.3</td>
+<td>OpenTelemetry traces emitted (spans cover the request lifecycle)</td>
+<td>grep <code>opentelemetry\|trace.get_tracer</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7.4</td>
+<td>Prometheus metrics for request rate, latency histogram, error counter</td>
+<td>inspect <code>/metrics</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7.5</td>
+<td>Sentry (or equivalent) captures unhandled exceptions</td>
+<td>grep <code>Sentry\|captureException</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7.6</td>
+<td>No PII in logs — sensitive fields (password, phone, email) redacted</td>
+<td>grep for the mask list</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="8-testing">8 · Testing<a class="headerlink" href="#8-testing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8.1</td>
+<td>Unit tests (<code>*.spec.ts</code> / <code>tests/unit/*.py</code>) cover happy-path + error-path of each handler</td>
+<td>count + sample</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>8.2</td>
+<td>Integration tests hit real DB + NATS via testcontainers or docker-compose</td>
+<td><code>ls tests/integration/</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>8.3</td>
+<td>Smoke test importable without env (CI fast path)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>8.4</td>
+<td>Golden dataset / snapshot tests for AI services</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>8.5</td>
+<td>Coverage ≥ 60 % lines — trending up, not down</td>
+<td>coverage report</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="9-deployment-ops">9 · Deployment &amp; ops<a class="headerlink" href="#9-deployment-ops" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Check</th>
+<th>How to verify</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9.1</td>
+<td>Multi-stage Dockerfile: <code>base</code> → <code>builder</code> → <code>production</code></td>
+<td><code>grep -c '^FROM' Dockerfile</code> ≥ 2</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.2</td>
+<td>Runs as non-root user (UID ≥ 1000)</td>
+<td><code>grep 'USER' Dockerfile</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.3</td>
+<td><code>HEALTHCHECK</code> directive present</td>
+<td><code>grep HEALTHCHECK Dockerfile</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.4</td>
+<td><code>.dockerignore</code> excludes <code>node_modules</code>, <code>.git</code>, <code>__pycache__</code>, <code>tests/</code> from build context</td>
+<td>inspect</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.5</td>
+<td>Pip / npm mirror fallback chain for offline/restricted networks</td>
+<td>3-tier fallback present</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.6</td>
+<td>Kong route in <code>infrastructure/gateway/kong/kong.yml</code></td>
+<td><code>grep &lt;service&gt; infrastructure/gateway/kong/kong.yml</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.7</td>
+<td>Kubernetes Helm chart in <code>helm/&lt;service&gt;/</code> with resource requests + limits</td>
+<td><code>ls helm/</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.8</td>
+<td>ArgoCD Application in <code>gitops/</code></td>
+<td><code>grep &lt;service&gt; gitops/*.yaml</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.9</td>
+<td>Grafana dashboard JSON checked-in (or at least a <code># TODO</code> pointing to the shared one)</td>
+<td><code>ls infrastructure/monitoring/grafana/dashboards/</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9.10</td>
+<td>Alert rules in <code>infrastructure/monitoring/prometheus/rules/</code></td>
+<td><code>ls</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="single-command-audit-shortcut">Single-command audit shortcut<a class="headerlink" href="#single-command-audit-shortcut" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="nv">SERVICE</span><span class="o">=</span>&lt;service-name&gt;
+<span class="nv">SVC_DIR</span><span class="o">=</span>apps/services/<span class="nv">$SERVICE</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== </span><span class="nv">$SERVICE</span><span class="s2"> ===&quot;</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/README.md&quot;</span><span class="w">                        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ README&quot;</span><span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ README&quot;</span>
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;service-templates&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/README.md&quot;</span><span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ template link&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ template link&quot;</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;^FROM&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile&quot;</span><span class="w">               </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;$1&gt;=2 {print &quot;✅ multi-stage Dockerfile&quot;}&#39;</span>
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;USER sahool\|USER 1000&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ non-root&quot;</span><span class="w">    </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ runs as root?&quot;</span>
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;HEALTHCHECK&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile&quot;</span><span class="w">         </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ HEALTHCHECK&quot;</span><span class="w">   </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ HEALTHCHECK&quot;</span>
+grep<span class="w"> </span>-rq<span class="w"> </span><span class="s2">&quot;/healthz\|/readyz&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">&quot;</span><span class="w">             </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ probes&quot;</span><span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ probes&quot;</span>
+grep<span class="w"> </span>-rq<span class="w"> </span><span class="s2">&quot;SIGTERM\|gracefulShutdown\|lifespan&quot;</span><span class="w">      </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ graceful shutdown&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ graceful shutdown&quot;</span>
+
+./scripts/check-event-subject-prefix.sh<span class="w">             </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ event subjects&quot;</span>
+./scripts/prisma-check.sh<span class="w">                            </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Prisma clean&quot;</span>
+</code></pre></div>
+
+<p>A deeper automated check is provided by <code>scripts/service-review.sh</code>
+(generated from this checklist) — one-shot TODO for anyone willing to
+wrap the commands above.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

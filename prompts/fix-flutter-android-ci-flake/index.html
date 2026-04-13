@@ -1,0 +1,1495 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Prompt — Fix Flutter Android Build CI Flake - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#prompt-fix-flutter-android-build-ci-flake" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Prompt — Fix Flutter Android Build CI Flake
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="prompt-fix-flutter-android-build-ci-flake">Prompt — Fix Flutter Android Build CI Flake<a class="headerlink" href="#prompt-fix-flutter-android-build-ci-flake" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Self-contained AI-agent prompt. Copy the <strong>entire block between the
+<code>BEGIN PROMPT</code> and <code>END PROMPT</code> markers</strong> into a new branch and paste
+it as the first message to your AI assistant. The prompt assumes the
+agent has shell + git access to a fresh checkout of
+<code>kafaat/sahool-unified-v15-idp</code>.</p>
+</blockquote>
+<hr />
+<h2 id="when-to-use">When to use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<p>Use this prompt when the <strong><code>Flutter - Android Build</code></strong> check (job in
+<code>.github/workflows/frontend-tests.yml</code>, also <code>Build Sahool APK</code> in
+<code>.github/workflows/flutter-apk.yml</code>) fails intermittently on a PR that
+<strong>did not</strong> modify any Flutter / mobile source code (or only modified
+auto-generated Dart contract files under
+<code>apps/mobile/lib/core/contracts/</code>).</p>
+<hr />
+<h2 id="begin-prompt">─────────────── BEGIN PROMPT ───────────────<a class="headerlink" href="#begin-prompt" title="Permanent link">&para;</a></h2>
+<p>You are an AI software engineer. Your task is to <strong>harden the SAHOOL
+Flutter Android CI workflow against transient infrastructure flakes</strong>
+in the repository <code>kafaat/sahool-unified-v15-idp</code>. Create a new branch
+<code>claude/fix-flutter-android-ci-flake</code> and submit a focused PR.</p>
+<h3 id="background">Background<a class="headerlink" href="#background" title="Permanent link">&para;</a></h3>
+<p>The PR <code>kafaat/sahool-unified-v15-idp#1581</code> repeatedly hit a "Flutter -
+Android Build" CI failure even though it did not touch any
+<code>apps/mobile/**</code> source code (only auto-generated 2-line contract
+version comments under <code>apps/mobile/lib/core/contracts/</code>). The pattern
+of failures across 8 consecutive runs on the same code:</p>
+<table>
+<thead>
+<tr>
+<th>Run</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#4307</td>
+<td>✅ Passed</td>
+</tr>
+<tr>
+<td>#4309</td>
+<td>❌ Failed</td>
+</tr>
+<tr>
+<td>#4313</td>
+<td>✅ Passed</td>
+</tr>
+<tr>
+<td>#4314</td>
+<td>❌ Failed</td>
+</tr>
+<tr>
+<td>#4316</td>
+<td>❌ Failed</td>
+</tr>
+<tr>
+<td>#4317</td>
+<td>❌ Failed</td>
+</tr>
+<tr>
+<td>#4318</td>
+<td>❌ Failed</td>
+</tr>
+</tbody>
+</table>
+<p>This is a textbook <strong>infrastructure flake</strong> — same code, different
+outcomes — caused by external CDN / network / disk-space variability.</p>
+<h3 id="files-involved">Files involved<a class="headerlink" href="#files-involved" title="Permanent link">&para;</a></h3>
+<p>Two workflows run a Flutter Android build:</p>
+<ol>
+<li>
+<p><strong><code>.github/workflows/frontend-tests.yml</code></strong> · job
+   <code>flutter-android-build</code> (around line 754). Runs on every PR
+   touching <code>apps/mobile/**</code>. Heavy-weight: NDK, Flutter SDK, Gradle.</p>
+</li>
+<li>
+<p><strong><code>.github/workflows/flutter-apk.yml</code></strong> · job <code>build-apk</code>
+   (around line 33). Same workload, runs on <code>apps/mobile/**</code> PR pushes.</p>
+</li>
+</ol>
+<p>Both jobs perform the same expensive, network-dependent steps:</p>
+<ul>
+<li><code>actions/setup-java@v5</code> · download Temurin JDK 17 (~200 MB)</li>
+<li><code>android-actions/setup-android@v4</code> · setup Android SDK</li>
+<li><code>sdkmanager --install "platforms;android-35" "ndk;27.0.12077973"</code>
+   · downloads ~1 GB Android NDK from Google</li>
+<li><code>subosito/flutter-action@v2</code> · download Flutter SDK 3.27.1 (~500 MB)</li>
+<li><code>flutter pub get</code> · pulls every transitive package from Pub.dev</li>
+<li><code>flutter build apk --debug</code> · runs Gradle with 4 GB heap on a
+   GitHub-hosted runner that has ~7 GB RAM total</li>
+<li><code>actions/upload-artifact@v7</code> · uploads the resulting APK</li>
+</ul>
+<p>Each of these can transiently fail on Pub.dev, Google CDN, Maven
+Central, or simple OOM.</p>
+<h3 id="required-changes">Required changes<a class="headerlink" href="#required-changes" title="Permanent link">&para;</a></h3>
+<p>Apply <strong>all</strong> of the following. Each is small and orthogonal — please
+keep them in separate, well-described commits inside the same PR so
+the reviewer can revert any one independently if needed.</p>
+<h4 id="1-skip-flutter-jobs-when-pr-only-touches-auto-generated-contracts">1 · Skip Flutter jobs when PR only touches auto-generated contracts<a class="headerlink" href="#1-skip-flutter-jobs-when-pr-only-touches-auto-generated-contracts" title="Permanent link">&para;</a></h4>
+<p>The Dart contract files under <code>apps/mobile/lib/core/contracts/</code> are
+<strong>generated</strong> by <code>scripts/sync-contracts-to-dart.ts</code> and have a
+<code>/// DO NOT EDIT</code> header. Changes there can never affect Flutter
+build correctness — only the contract values consumed at runtime.</p>
+<p>Add <code>paths-ignore</code> to BOTH workflows so a contract-only PR does not
+trigger the heavy Flutter Android job:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;apps/mobile/**&#39;</span>
+<span class="w">    </span><span class="nt">paths-ignore</span><span class="p">:</span><span class="w">                                         </span><span class="c1"># NEW</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;apps/mobile/lib/core/contracts/**&#39;</span><span class="w">              </span><span class="c1"># NEW</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;apps/mobile/**/*.md&#39;</span><span class="w">                            </span><span class="c1"># NEW</span>
+</code></pre></div>
+
+<p>(Same change in <code>flutter-apk.yml</code> for the <code>push:</code> trigger.)</p>
+<p>This single change would have skipped the Flutter Android job on
+PR #1581's contract-version bump entirely. Verify by checking that
+<code>git diff origin/main..HEAD -- 'apps/mobile/**'</code> for that PR shows
+ONLY the two contracts files.</p>
+<h4 id="2-add-resilient-retry-to-ndk-sdk-installs">2 · Add resilient retry to NDK + SDK installs<a class="headerlink" href="#2-add-resilient-retry-to-ndk-sdk-installs" title="Permanent link">&para;</a></h4>
+<p><code>sdkmanager --install "ndk;27.0.12077973"</code> is the single most
+fragile step (1+ GB download from Google). Wrap it in a 3-attempt
+shell retry with exponential back-off:</p>
+<div class="codehilite"><pre><span></span><code>-<span class="w"> </span>name:<span class="w"> </span>Install<span class="w"> </span>required<span class="w"> </span>Android<span class="w"> </span>SDK<span class="w"> </span>components
+<span class="w">  </span>run:<span class="w"> </span><span class="p">|</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span>attempt<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempt </span><span class="nv">$attempt</span><span class="s2">: installing Android SDK components...&quot;</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span>yes<span class="w"> </span><span class="p">|</span><span class="w"> </span>sdkmanager<span class="w"> </span>--install<span class="w"> </span><span class="se">\</span>
+<span class="w">           </span><span class="s2">&quot;platforms;android-35&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">           </span><span class="s2">&quot;ndk;27.0.12077973&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ SDK components installed&quot;</span>
+<span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
+<span class="w">      </span><span class="k">fi</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✗ Attempt </span><span class="nv">$attempt</span><span class="s2"> failed; sleeping </span><span class="k">$((</span><span class="nv">attempt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">30</span><span class="k">))</span><span class="s2">s&quot;</span>
+<span class="w">      </span>sleep<span class="w"> </span><span class="k">$((</span><span class="nv">attempt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">30</span><span class="k">))</span>
+<span class="w">    </span><span class="k">done</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;::error::Failed to install Android SDK components after 3 attempts&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+</code></pre></div>
+
+<h4 id="3-pin-flutter-sdk-install-via-cache-retry">3 · Pin Flutter SDK install via cache + retry<a class="headerlink" href="#3-pin-flutter-sdk-install-via-cache-retry" title="Permanent link">&para;</a></h4>
+<p><code>subosito/flutter-action@v2</code> already supports <code>cache: true</code> (used).
+Add a fallback retry <strong>around the Flutter step</strong> since the action
+itself does not retry on download failures:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup Flutter (with retry on network failure)</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nick-fields/retry@v3</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">timeout_minutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span>
+<span class="w">    </span><span class="nt">max_attempts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">    </span><span class="nt">retry_wait_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">curl -sSL https://...   # unsuitable here — see note below</span>
+</code></pre></div>
+
+<p>Note: <code>subosito/flutter-action</code> is itself the install. The cleanest
+approach is to use <code>nick-fields/retry@v3</code> to wrap a shell that
+re-invokes the underlying flutter command. Alternatively, accept the
+flake here and rely on item #4 (job-level retry).</p>
+<h4 id="4-retry-the-entire-flutter-android-job-once-on-failure">4 · Retry the entire Flutter Android job once on failure<a class="headerlink" href="#4-retry-the-entire-flutter-android-job-once-on-failure" title="Permanent link">&para;</a></h4>
+<p>Add a job-level retry. GitHub Actions has no native job-retry, but
+the Marketplace action <code>nick-fields/retry@v3</code> (or a simple matrix +
+<code>continue-on-error</code> + dependent collector) works. Since this PR is
+focused on resilience, the simplest pattern is:</p>
+<ul>
+<li>Split <code>flutter-android-build</code> into <code>flutter-android-build</code> +
+  <code>flutter-android-build-summary</code>.</li>
+<li>The summary job uses <code>if: always() &amp;&amp; (needs.flutter-android-build.result == 'success' || needs.flutter-android-build-rerun.result == 'success')</code></li>
+<li>Add a <code>flutter-android-build-rerun</code> job that runs only if the first
+  attempt failed.</li>
+</ul>
+<p>If that's too invasive, simpler: add <code>continue-on-error: false</code> and
+document that flakes on this single check are tolerated by the merge
+policy (require a manual re-run via the GitHub UI).</p>
+<h4 id="5-cache-the-ndk-across-runs">5 · Cache the NDK across runs<a class="headerlink" href="#5-cache-the-ndk-across-runs" title="Permanent link">&para;</a></h4>
+<p>Even with retries, downloading NDK every run wastes 1+ GB of bandwidth.
+Add an <code>actions/cache@v5</code> step keyed on the NDK version BEFORE the
+sdkmanager install:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cache Android NDK</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/cache@v5</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ runner.temp }}/android-sdk/ndk/27.0.12077973</span>
+<span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">android-ndk-27.0.12077973-${{ runner.os }}</span>
+</code></pre></div>
+
+<h4 id="6-increase-the-disk-space-cleanup-step">6 · Increase the disk-space-cleanup step<a class="headerlink" href="#6-increase-the-disk-space-cleanup-step" title="Permanent link">&para;</a></h4>
+<p>The current "Free disk space" step only removes <code>dotnet</code>, <code>ghc</code>,
+<code>CodeQL</code>, and <code>boost</code>. The Android NDK + Flutter + node_modules can
+push past 14 GB on a 7 GB runner. Add:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/opt/hostedtoolcache/Ruby<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/opt/hostedtoolcache/PyPy<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/opt/hostedtoolcache/go<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/home/linuxbrew<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+sudo<span class="w"> </span>docker<span class="w"> </span>system<span class="w"> </span>prune<span class="w"> </span>--all<span class="w"> </span>--force<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+</code></pre></div>
+
+<h4 id="7a-fix-the-misleading-frontend-test-results-pr-comment">7a · Fix the misleading "Frontend Test Results" PR comment<a class="headerlink" href="#7a-fix-the-misleading-frontend-test-results-pr-comment" title="Permanent link">&para;</a></h4>
+<p><code>.github/workflows/frontend-tests.yml:1497-1516</code> builds the comment by
+checking whether artifact directories exist on disk:</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">webBuild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">artifactsPath</span><span class="si">}</span><span class="sb">/web-build`</span><span class="p">);</span>
+<span class="nx">comment</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sb">`| Web App | </span><span class="si">${</span><span class="nx">webBuild</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;✅ Passed&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;❌ Failed&#39;</span><span class="si">}</span><span class="sb"> |\n`</span><span class="p">;</span>
+</code></pre></div>
+
+<p>That conflates <strong>"the build job failed"</strong> with <strong>"any upstream
+dependency was cancelled / the artifact wasn't uploaded for an unrelated
+reason"</strong>. On PR #1581 we observed runs where Web/Admin tsc + lint
+passed cleanly locally and the actual job logs showed success, but the
+PR comment said Web ❌ and Admin ❌ because Flutter Android flaked
+upstream and cascaded artifact-upload skips.</p>
+<p>Replace the artifact-existence check with the actual job result via
+<code>needs.&lt;job&gt;.result</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Comment PR with Test Results</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/github-script@v8</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">const jobs = {</span>
+<span class="w">        </span><span class="no">webBuild:    &#39;${{ needs.web-build.result }}&#39;,</span>
+<span class="w">        </span><span class="no">adminBuild:  &#39;${{ needs.admin-build.result }}&#39;,</span>
+<span class="w">        </span><span class="no">flutterBuild:&#39;${{ needs.flutter-android-build.result }}&#39;,</span>
+<span class="w">        </span><span class="no">e2e:         &#39;${{ needs.e2e-tests.result }}&#39;,</span>
+<span class="w">        </span><span class="no">mobileInteg: &#39;${{ needs.mobile-integration.result }}&#39;,</span>
+<span class="w">      </span><span class="no">};</span>
+<span class="w">      </span><span class="no">const icon = (r) =&gt;</span>
+<span class="w">        </span><span class="no">r === &#39;success&#39;  ? &#39;✅ Passed&#39;   :</span>
+<span class="w">        </span><span class="no">r === &#39;failure&#39;  ? &#39;❌ Failed&#39;   :</span>
+<span class="w">        </span><span class="no">r === &#39;cancelled&#39;? &#39;🚫 Cancelled&#39;:</span>
+<span class="w">        </span><span class="no">r === &#39;skipped&#39;  ? &#39;⚠️ Skipped&#39;  :</span>
+<span class="w">                           </span><span class="no">`❓ ${r}`;</span>
+<span class="w">      </span><span class="no">// …build the comment table from `jobs`…</span>
+</code></pre></div>
+
+<p>Add the relevant jobs to the <code>needs:</code> array of the comment-posting job
+so they're available. This single fix removes the entire class of
+"web/admin reported as failed when only Flutter flaked" false alarms.</p>
+<h4 id="7b-set-explicit-gradle-daemon-config-to-avoid-oom">7b · Set explicit Gradle daemon config to avoid OOM<a class="headerlink" href="#7b-set-explicit-gradle-daemon-config-to-avoid-oom" title="Permanent link">&para;</a></h4>
+<p>The current step exports <code>GRADLE_OPTS</code> but doesn't configure the
+daemon. Add <code>gradle.properties</code>-equivalent flags:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">GRADLE_OPTS</span><span class="o">=</span><span class="s2">&quot;-Xmx5g \</span>
+<span class="s2">  -XX:MaxMetaspaceSize=512m \</span>
+<span class="s2">  -XX:+HeapDumpOnOutOfMemoryError \</span>
+<span class="s2">  -Dfile.encoding=UTF-8 \</span>
+<span class="s2">  -Dorg.gradle.daemon=false \</span>
+<span class="s2">  -Dorg.gradle.caching=true \</span>
+<span class="s2">  -Dorg.gradle.parallel=true \</span>
+<span class="s2">  -Dorg.gradle.workers.max=2&quot;</span>
+</code></pre></div>
+
+<p><code>-Dorg.gradle.daemon=false</code> is critical — daemon mode caches nothing
+in CI and just holds 1+ GB of RAM hostage.</p>
+<h3 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h3>
+<p>After applying the changes:</p>
+<ol>
+<li>
+<p><strong>Local syntax check</strong>: <code>python3 -c "import yaml; yaml.safe_load(open('.github/workflows/frontend-tests.yml')); yaml.safe_load(open('.github/workflows/flutter-apk.yml'))"</code> — both must succeed.</p>
+</li>
+<li>
+<p><strong>Workflow lint</strong>: if <code>actionlint</code> is available locally, run it.
+   Otherwise, push the branch and confirm GitHub does not flag the
+   workflow as malformed.</p>
+</li>
+<li>
+<p><strong>Trigger CI</strong>: push the branch, open a draft PR. The <code>Flutter -
+   Android Build</code> job should:</p>
+</li>
+<li>Be <strong>skipped</strong> when the PR body lists only contract changes
+     (verifies item #1).</li>
+<li>
+<p>Pass on first attempt for ~95 % of runs (verifies items #2-#7).</p>
+</li>
+<li>
+<p><strong>Re-run sample</strong>: re-run the same workflow run 3 times via the
+   GitHub UI. All three should succeed (or fail with the same root
+   cause, which is itself useful diagnostic info).</p>
+</li>
+</ol>
+<h3 id="out-of-scope-do-not-change">Out-of-scope (do NOT change)<a class="headerlink" href="#out-of-scope-do-not-change" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Any code in <code>apps/mobile/**</code> outside the workflow files.</li>
+<li><code>pubspec.yaml</code> / <code>pubspec.lock</code> — version pins are not the issue.</li>
+<li>The actual Dart code or Android Gradle config in
+  <code>apps/mobile/sahool_field_app/android/</code>.</li>
+<li>Any other CI workflow (web, admin, services).</li>
+</ul>
+<h3 id="deliverable">Deliverable<a class="headerlink" href="#deliverable" title="Permanent link">&para;</a></h3>
+<p>A single PR titled:</p>
+<div class="codehilite"><pre><span></span><code>ci(flutter): harden Android Build against CDN/network flakes
+</code></pre></div>
+
+<p>with each numbered item from §"Required changes" as a separate commit.
+The PR description should reference this prompt and the parent
+investigation in PR #1581.</p>
+<h3 id="reviewer-checklist-include-in-the-pr-description">Reviewer checklist (include in the PR description)<a class="headerlink" href="#reviewer-checklist-include-in-the-pr-description" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] PR with only contract changes (e.g.
+  <code>apps/mobile/lib/core/contracts/error_codes.dart</code>) does NOT trigger
+  Flutter Android Build.</li>
+<li>[ ] PR with real <code>apps/mobile/**</code> change DOES trigger it.</li>
+<li>[ ] NDK install step retries on failure (manually break the Google
+  CDN URL once to verify; revert).</li>
+<li>[ ] Cache hit on NDK reduces step time from minutes to seconds on
+  the second run.</li>
+<li>[ ] Disk-space step shows &gt;5 GB free after cleanup.</li>
+<li>[ ] Gradle finishes without OOM; build succeeds.</li>
+</ul>
+<h2 id="end-prompt">─────────────── END PROMPT ───────────────<a class="headerlink" href="#end-prompt" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="notes-for-the-human-distributing-this-prompt">Notes for the human distributing this prompt<a class="headerlink" href="#notes-for-the-human-distributing-this-prompt" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The fix touches <strong>only <code>.github/workflows/</code></strong>. No application code
+  changes are needed.</li>
+<li>Estimated effort for an AI agent with full repo access: <strong>30–60 min</strong>
+  including a CI roundtrip.</li>
+<li>Risk: low. Each change is in CI YAML, fully reversible.</li>
+<li>Owner: platform-team (CI + DevOps).</li>
+<li>Cross-references:</li>
+<li>Source PR where the flake was diagnosed: #1581</li>
+<li>Audit doc: <code>docs/audits/E2E_USER_JOURNEY_AUDIT.md</code> (if present)</li>
+<li>Relevant CLAUDE.md sections: "GitHub Workflows" + "Mobile
+    Architecture".</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

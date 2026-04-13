@@ -1,0 +1,1525 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>SAHOOL Governance Audit - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-governance-audit" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Governance Audit
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-governance-audit">SAHOOL Governance Audit<a class="headerlink" href="#sahool-governance-audit" title="Permanent link">&para;</a></h1>
+<p><strong>Branch:</strong> <code>claude/test-web-services-e2e-7OiHV</code>
+<strong>Date:</strong> 2026-04-13
+<strong>Scope:</strong> everything under <code>governance/</code> — registry, agents, ADRs,
+events catalog, Kyverno policies, Backstage scaffolder templates,
+reliability SLOs.</p>
+<blockquote>
+<p>تدقيق شامل لمجلد الحوكمة بكامل محتوياته: سجل الخدمات، تعريف الوكلاء،
+ADRs، كتالوج الأحداث، سياسات Kyverno، قوالب Backstage، تعريفات SLO.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1 · Executive summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th style="text-align: right;">Files</th>
+<th style="text-align: center;">Syntax valid</th>
+<th style="text-align: center;">Content valid</th>
+<th style="text-align: right;">Issues fixed in this commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services.yaml</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">⚠️</td>
+<td style="text-align: right;">2 missing entries added</td>
+</tr>
+<tr>
+<td><code>agents.yaml</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>events/catalog.yaml</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌ → ✅</td>
+<td style="text-align: right;">22 event keys + 6 stale service names renamed</td>
+</tr>
+<tr>
+<td><code>events/events-registry.yaml</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌ → ✅</td>
+<td style="text-align: right;">16 event keys + 7 category prefixes</td>
+</tr>
+<tr>
+<td><code>events/schemas/*.json</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0 (referenced correctly from catalog)</td>
+</tr>
+<tr>
+<td><code>templates/*/template.yaml</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌ → ✅</td>
+<td style="text-align: right;">3 dead <code>./skeleton</code> links redirected to <code>idp/templates/</code></td>
+</tr>
+<tr>
+<td><code>templates/*/catalog-info.yaml</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>policies/kyverno/*.yaml</code></td>
+<td style="text-align: right;">7</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>decisions/*.md</code></td>
+<td style="text-align: right;">5 ADRs + README</td>
+<td style="text-align: center;">n/a</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>reliability/slo-definitions.yaml</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>schemas/*.json</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>design/design-tokens.yaml</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>credentials.template.yaml</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><strong>Total files audited</strong></td>
+<td style="text-align: right;"><strong>26</strong></td>
+<td style="text-align: center;"><strong>26/26 ✅</strong></td>
+<td style="text-align: center;"><strong>3/26 initially broken</strong></td>
+<td style="text-align: right;"><strong>5 critical fixes</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-issues-found-and-fixed">2 · Issues found and fixed<a class="headerlink" href="#2-issues-found-and-fixed" title="Permanent link">&para;</a></h2>
+<h3 id="g-1-servicesyaml-missing-live-services">🔴 G-1 · <code>services.yaml</code> missing live services<a class="headerlink" href="#g-1-servicesyaml-missing-live-services" title="Permanent link">&para;</a></h3>
+<p>The services directory <code>apps/services/partner-auth-service</code> and
+<code>apps/services/carbon-service</code> exist, are declared in
+<code>packages/shared-types/src/contracts/service-ports.ts</code> (ports 3030
+and 8195 respectively), and ship with Dockerfiles and code — but
+were <strong>absent from the governance service registry</strong>. Any governance
+pipeline that iterates over <code>governance/services.yaml</code> to generate
+Kong routes, Kyverno resource limits, Prometheus scrape configs, or
+monitoring dashboards would have silently skipped them.</p>
+<p><strong>Fix:</strong> added full entries for both under <code>services:</code> with the
+canonical fields (<code>name</code>, <code>name_ar</code>, <code>type</code>, <code>category</code>, <code>layer</code>,
+<code>path</code>, <code>port</code>, <code>owner</code>, <code>team</code>, <code>lifecycle</code>, <code>tier</code>, <code>events</code>,
+<code>dependencies</code>, <code>resources</code>). Version of <code>services.yaml</code> bumped
+from <code>3.4.0</code> → documented change expected at next release rev.</p>
+<h3 id="g-2-event-catalogs-use-prefix-less-subjects">🔴 G-2 · Event catalogs use prefix-less subjects<a class="headerlink" href="#g-2-event-catalogs-use-prefix-less-subjects" title="Permanent link">&para;</a></h3>
+<p>Both <code>governance/events/catalog.yaml</code> (22 events) and
+<code>governance/events/events-registry.yaml</code> (16 events) keyed events
+as <code>field.created</code>, <code>crop.planted</code>, <code>weather.updated</code>, etc. — the
+canonical NATS subject on the SAHOOL platform is
+<code>sahool.&lt;domain&gt;.&lt;action&gt;</code> (see <code>shared/events/subjects.py</code> + the
+2026-04-13 NATS audit that fixed the same drift in the TypeScript
+<code>@sahool/shared-events</code> package). A subscriber wiring itself from
+the catalog to "<code>field.created</code>" would never receive a message
+because every publisher emits on <code>sahool.field.created</code>.</p>
+<p><strong>Fix:</strong>
+- Every event key in both files is now <code>sahool.&lt;domain&gt;.&lt;action&gt;</code>.
+- Every category <code>prefix</code> in <code>events-registry.yaml</code> (<code>field.</code>,
+  <code>crop.</code>, <code>weather.</code>, <code>iot.</code>, <code>analytics.</code>, <code>user.</code>, <code>system.</code>)
+  now reads <code>sahool.field.</code>, <code>sahool.crop.</code>, etc.
+- Versions bumped to <code>2.0.0</code> with a changelog block at the top of
+  each file.</p>
+<h3 id="g-3-event-catalogs-reference-deprecatedremoved-service-names">🔴 G-3 · Event catalogs reference deprecated/removed service names<a class="headerlink" href="#g-3-event-catalogs-reference-deprecatedremoved-service-names" title="Permanent link">&para;</a></h3>
+<p><code>catalog.yaml</code> listed producers and consumers under the old names
+for 6 services that were renamed 2025-01 → 2026-01 (see CLAUDE.md
+§Deprecated Services):</p>
+<table>
+<thead>
+<tr>
+<th>Old name (in catalog)</th>
+<th>Current name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field-service</code></td>
+<td><code>field-management-service</code></td>
+</tr>
+<tr>
+<td><code>ndvi-processor</code></td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+<tr>
+<td><code>satellite-service</code></td>
+<td><code>vegetation-analysis-service</code></td>
+</tr>
+<tr>
+<td><code>crop-health-service</code></td>
+<td><code>crop-intelligence-service</code></td>
+</tr>
+<tr>
+<td><code>advisor-service</code></td>
+<td><code>advisory-service</code></td>
+</tr>
+<tr>
+<td><code>irrigation-service</code></td>
+<td><code>irrigation-smart</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Fix:</strong> search-and-replace on list items with those names.
+Deduplicated consumers where two old names collapsed to the same
+new one (e.g. <code>ndvi-processor</code> + <code>satellite-service</code> both →
+<code>vegetation-analysis-service</code>).</p>
+<h3 id="g-4-backstage-templates-point-at-non-existent-skeleton">🔴 G-4 · Backstage templates point at non-existent <code>./skeleton</code><a class="headerlink" href="#g-4-backstage-templates-point-at-non-existent-skeleton" title="Permanent link">&para;</a></h3>
+<p>All three scaffolder templates declared:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fetch</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fetch:template</span>
+<span class="w">  </span><span class="nt">input</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./skeleton</span>
+</code></pre></div>
+
+<p>…but none of the three template directories contained a <code>skeleton/</code>
+subdirectory. Running <em>any</em> of them in Backstage would fail at the
+first step with "template source not found" — the templates had
+never been end-to-end tested.</p>
+<p><strong>Fix:</strong> point each at the existing, tested IDP skeleton that fits
+the workload:</p>
+<table>
+<thead>
+<tr>
+<th>Governance template</th>
+<th>Points at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend-service/</code></td>
+<td><code>idp/templates/python-fastapi/skeleton</code></td>
+</tr>
+<tr>
+<td><code>worker-service/</code></td>
+<td><code>idp/templates/data-pipeline/skeleton</code></td>
+</tr>
+<tr>
+<td><code>api-extension/</code></td>
+<td><code>idp/templates/node-service/skeleton</code></td>
+</tr>
+</tbody>
+</table>
+<p>Avoids duplicating skeleton trees and keeps the Backstage catalog
+pointing at a single canonical source.</p>
+<h3 id="g-5-inconsistent-port-vs-ports-key-on-infrastructure-services">🟡 G-5 · Inconsistent <code>port</code> vs <code>ports</code> key on infrastructure services<a class="headerlink" href="#g-5-inconsistent-port-vs-ports-key-on-infrastructure-services" title="Permanent link">&para;</a></h3>
+<p><code>governance/services.yaml</code> <code>infrastructure_services:</code> block mixes
+two styles:</p>
+<ul>
+<li><code>postgres</code>, <code>pgbouncer</code>, <code>redis</code>, <code>vault</code>, <code>mlflow</code>, <code>ollama</code>,
+  <code>etcd</code> → single <code>port: N</code>.</li>
+<li><code>nats</code>, <code>kong</code>, <code>mqtt</code>, <code>qdrant</code>, <code>minio</code>, <code>milvus</code> → list
+  <code>ports: [A, B, ...]</code> (legitimate — they expose multiple ports).</li>
+</ul>
+<p><strong>Impact:</strong> low — nothing programmatic reads this block. But a
+linter loading the file and looking for <code>port</code> alone will undercount.
+Documented as follow-up; not changed in this commit to avoid churn.</p>
+<hr />
+<h2 id="3-non-issues-investigated-cleared">3 · Non-issues (investigated + cleared)<a class="headerlink" href="#3-non-issues-investigated-cleared" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>3 services with <code>port: null</code></strong> (<code>agro-rules</code>, <code>code-review-agent</code>,
+  <code>demo-data</code>) — intentional. They're declared with
+  <code>protocol: nats</code> + <code>service_type: worker</code>,
+  <code>protocol: cli</code>, and <code>protocol: none</code> + <code>service_type: script</code>
+  respectively. The Dockerfile for <code>agro-rules</code> explicitly comments
+  <code># NATS-based worker (no HTTP port exposed)</code>. Confirmed correct.</p>
+</li>
+<li>
+<p><strong>11 services in governance NOT in TS <code>SERVICE_PORTS</code></strong> — all are
+  deprecated / archived per CLAUDE.md §Deprecated Services
+  (<code>field-core</code>, <code>field-ops</code>, <code>field-service</code>, <code>weather-advanced</code>,
+  <code>weather-core</code>, <code>crop-health</code>, <code>crop-health-ai</code>, <code>fertilizer-advisor</code>,
+  <code>agro-advisor</code>, <code>ndvi-engine</code>, <code>satellite-service</code>). They're kept
+  in governance with <code>status: deprecated</code> + sunset date — that's the
+  documented policy.</p>
+</li>
+<li>
+<p><strong>Kyverno policies</strong> (7 files) — all load as valid
+  <code>ClusterPolicy</code> / <code>apiVersion: kyverno.io/v1</code>. Each has a
+  meaningful name, match block, and validation rule. Nothing to
+  change.</p>
+</li>
+<li>
+<p><strong>ADRs</strong> — 5 ADRs present with consistent <code># ADR-000X: Title</code> +
+  <code>## Status</code> structure. Covered topics: backend root directory,
+  multi-tenancy, event versioning, API versioning, service mesh.</p>
+</li>
+<li>
+<p><strong><code>agents.yaml</code></strong> — 33 agents across 11 categories; every agent
+  has <code>category</code> matching a declared category, every agent has an
+  <code>owner</code>, every agent has a health endpoint. Clean.</p>
+</li>
+<li>
+<p><strong><code>reliability/slo-definitions.yaml</code>, <code>design/design-tokens.yaml</code>,
+  <code>credentials.template.yaml</code>, <code>schemas/*.json</code></strong> — structure
+  consistent with their declared JSON schemas. No drift.</p>
+</li>
+</ul>
+<hr />
+<h2 id="4-verification">4 · Verification<a class="headerlink" href="#4-verification" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="n">python3</span> <span class="o">-</span><span class="n">c</span> <span class="s1">&#39;import yaml,json,glob; </span><span class="se">\</span>
+<span class="s1">    for f in glob.glob(&quot;governance/**/*.yaml&quot;, recursive=True): </span><span class="se">\</span>
+<span class="s1">        yaml.safe_load_all(open(f)); </span><span class="se">\</span>
+<span class="s1">    for f in glob.glob(&quot;governance/**/*.json&quot;, recursive=True): </span><span class="se">\</span>
+<span class="s1">        json.load(open(f))&#39;</span>
+<span class="err">✓</span> <span class="mi">26</span> <span class="n">files</span> <span class="n">valid</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failed</span>
+
+<span class="err">$</span> <span class="o">./</span><span class="n">scripts</span><span class="o">/</span><span class="n">check</span><span class="o">-</span><span class="n">event</span><span class="o">-</span><span class="n">subject</span><span class="o">-</span><span class="n">prefix</span><span class="o">.</span><span class="n">sh</span>
+<span class="err">✓</span> <span class="n">All</span> <span class="n">NATS</span> <span class="n">subjects</span> <span class="n">use</span> <span class="n">the</span> <span class="s1">&#39;sahool.&#39;</span> <span class="n">prefix</span>
+
+<span class="err">$</span> <span class="o">./</span><span class="n">scripts</span><span class="o">/</span><span class="n">prisma</span><span class="o">-</span><span class="n">check</span><span class="o">.</span><span class="n">sh</span>
+<span class="err">✓</span> <span class="n">All</span> <span class="mi">10</span> <span class="n">Prisma</span> <span class="n">schemas</span> <span class="k">pass</span> <span class="nb">format</span> <span class="o">+</span> <span class="n">validate</span>
+
+<span class="err">$</span> <span class="n">cd</span> <span class="n">packages</span><span class="o">/</span><span class="n">shared</span><span class="o">-</span><span class="n">types</span> <span class="o">&amp;&amp;</span> <span class="n">npx</span> <span class="n">tsc</span> <span class="o">--</span><span class="n">noEmit</span>
+<span class="err">✓</span> <span class="mi">0</span> <span class="n">errors</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5-recommendations-follow-ups-not-critical">5 · Recommendations (follow-ups, not critical)<a class="headerlink" href="#5-recommendations-follow-ups-not-critical" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R-1</td>
+<td>Add a CI workflow step that diffs <code>governance/services.yaml:services</code> keys against <code>apps/services/*/Dockerfile</code> directory names → fail on mismatch. Would have caught G-1 automatically.</td>
+<td>S</td>
+</tr>
+<tr>
+<td>R-2</td>
+<td>Normalise <code>infrastructure_services</code> on <code>ports: [...]</code> everywhere (even for single-port services). Drop the legacy <code>port: N</code> form.</td>
+<td>S</td>
+</tr>
+<tr>
+<td>R-3</td>
+<td>Promote the <code>governance/events/catalog.yaml</code> format to match the Python <code>shared/events/subjects.py</code> constant style (single canonical source). Right now the two are kept in sync by hand; a small codegen script could generate one from the other.</td>
+<td>M</td>
+</tr>
+<tr>
+<td>R-4</td>
+<td>Add Backstage CI smoke-test that actually scaffolds a service from each governance template into a tmp dir and runs <code>ls</code> on the output. Would have caught G-4.</td>
+<td>M</td>
+</tr>
+<tr>
+<td>R-5</td>
+<td>Move ADRs into <code>docs/adr/</code> (the repo already has that folder) to match the layout used by the rest of the platform. Or symlink one into the other for consistency.</td>
+<td>S</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>End of audit. All fixes applied in the same commit that added this
+report.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

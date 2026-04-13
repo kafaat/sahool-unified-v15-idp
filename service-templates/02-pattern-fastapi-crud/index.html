@@ -1,0 +1,1571 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>02 · FastAPI CRUD Service Template - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#02-fastapi-crud-service-template" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              02 · FastAPI CRUD Service Template
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="02-fastapi-crud-service-template">02 · FastAPI CRUD Service Template<a class="headerlink" href="#02-fastapi-crud-service-template" title="Permanent link">&para;</a></h1>
+<p><strong>Gold standard:</strong> <code>apps/services/notification-service/</code>
+<strong>Use when:</strong> Python service that owns tenant data in Postgres, exposes
+HTTP REST, subscribes to NATS events and publishes its own.</p>
+<blockquote>
+<p>القالب الذهبي لخدمات Python FastAPI التي تدير بيانات دائمة وتشترك
+في أحداث NATS.</p>
+</blockquote>
+<hr />
+<h2 id="why-notification-service">Why <code>notification-service</code>?<a class="headerlink" href="#why-notification-service" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Full NATS subscriber with <strong>DLQ</strong> (<code>nats_subscriber.py</code> +
+  <code>shared/events/dlq_*</code>).</li>
+<li>Multi-channel delivery (push, email, SMS, in-app) with retry and
+  delivery tracking (<code>delivery_tracker.py</code>).</li>
+<li>Structured <code>structlog</code> logging throughout.</li>
+<li>OTP flow demonstrates security-sensitive code patterns (rate limits,
+  cryptographic nonces).</li>
+<li>Bilingual templates (<code>preferences_service.py</code>, <code>history_controller.py</code>).</li>
+<li>Scheduler (<code>notification_scheduler.py</code>) shows periodic background
+  tasks pattern.</li>
+</ul>
+<p>If a simpler starter is needed, <code>alert-service</code> is a good second pick
+(smaller surface, same conventions).</p>
+<hr />
+<h2 id="canonical-directory-layout">Canonical directory layout<a class="headerlink" href="#canonical-directory-layout" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">services</span><span class="o">/&lt;</span><span class="n">service</span><span class="o">-</span><span class="n">name</span><span class="o">&gt;/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">Dockerfile</span><span class="w">                         </span><span class="c1"># python:3.11-slim-bookworm, multi-stage</span>
+<span class="err">├──</span><span class="w"> </span><span class="o">.</span><span class="n">dockerignore</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span><span class="w">                     </span><span class="c1"># [tool.ruff], [tool.pytest.ini_options]</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">README</span><span class="o">.</span><span class="n">md</span><span class="w">                          </span><span class="c1"># bilingual Purpose · Architecture · API · Events · Ops</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">src</span><span class="o">/</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">__init__</span><span class="o">.</span><span class="n">py</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="w">                        </span><span class="c1"># FastAPI app + lifespan — see §&quot;Bootstrap&quot;</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">database</span><span class="o">.</span><span class="n">py</span><span class="w">                    </span><span class="c1"># asyncpg pool lifecycle</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">models</span><span class="o">.</span><span class="n">py</span><span class="w">                      </span><span class="c1"># Pydantic request/response schemas</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_controller</span><span class="o">.</span><span class="n">py</span><span class="w">         </span><span class="c1"># one APIRouter per aggregate</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_service</span><span class="o">.</span><span class="n">py</span><span class="w">            </span><span class="c1"># pure business logic, no HTTP types</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">nats_subscriber</span><span class="o">.</span><span class="n">py</span><span class="w">             </span><span class="c1"># NATS subscribe + DLQ + retry</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">nats_publisher</span><span class="o">.</span><span class="n">py</span><span class="w">              </span><span class="c1"># outgoing events</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">scheduler</span><span class="o">.</span><span class="n">py</span><span class="w">                   </span><span class="c1"># APScheduler / asyncio tasks</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">queue_processor</span><span class="o">.</span><span class="n">py</span><span class="w">             </span><span class="c1"># if using Redis/NATS queues</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="n">tests</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="n">unit</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="n">integration</span><span class="o">/</span>
+<span class="w">        </span><span class="err">└──</span><span class="w"> </span><span class="n">conftest</span><span class="o">.</span><span class="n">py</span>
+</code></pre></div>
+
+<p><strong>Rule of thumb:</strong> one <code>*_controller.py</code> + one <code>*_service.py</code> pair per
+aggregate. No generic <code>routes/</code> or <code>services/</code> god-directories.</p>
+<hr />
+<h2 id="bootstrap-srcmainpy">Bootstrap (<code>src/main.py</code>)<a class="headerlink" href="#bootstrap-srcmainpy" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">asynccontextmanager</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncpg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">nats</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.errors_py</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_request_id_middleware</span><span class="p">,</span> <span class="n">setup_exception_handlers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.logging_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_structlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_rate_limiter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.monitoring.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrometheusMiddleware</span><span class="p">,</span> <span class="n">metrics_endpoint</span>
+
+<span class="n">configure_structlog</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;&lt;service&gt;&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@asynccontextmanager</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">):</span>
+    <span class="c1"># ── Startup ────────────────────────────────────────────────────</span>
+    <span class="n">db_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">db_url</span><span class="p">:</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">create_pool</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_connected</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;db_pool_ready&quot;</span><span class="p">)</span>
+
+    <span class="n">nats_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NATS_URL&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nats_url</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">nats_url</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&lt;service&gt;&quot;</span><span class="p">)</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nats_connected</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;nats_connected&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">nats_url</span><span class="p">)</span>
+            <span class="c1"># subscribers</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">.nats_subscriber</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_subscription</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span> <span class="o">=</span> <span class="k">await</span> <span class="n">start_subscription</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;nats_degraded&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nats_connected</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">yield</span>
+
+    <span class="c1"># ── Shutdown ───────────────────────────────────────────────────</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;subscriber&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;nc&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;db_pool&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;shutdown_complete&quot;</span><span class="p">)</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&lt;Service&gt;&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
+    <span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span><span class="p">,</span>
+    <span class="c1"># OpenAPI in development only</span>
+    <span class="n">openapi_url</span><span class="o">=</span><span class="s2">&quot;/openapi.json&quot;</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ENVIRONMENT&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;production&quot;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Cross-cutting middleware — ORDER MATTERS:</span>
+<span class="c1">#   1. request-id  (so all other middleware can log it)</span>
+<span class="c1">#   2. structured logging</span>
+<span class="c1">#   3. CORS</span>
+<span class="c1">#   4. rate-limit</span>
+<span class="c1">#   5. auth</span>
+<span class="c1">#   6. prometheus</span>
+<span class="n">add_request_id_middleware</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<span class="n">setup_exception_handlers</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>        <span class="c1"># unified error envelope</span>
+<span class="n">setup_rate_limiter</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">PrometheusMiddleware</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_controller</span>     <span class="c1"># noqa: E402  routers imported last</span>
+<span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_controller</span><span class="o">.</span><span class="n">router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/api/v1/&lt;domain&gt;&quot;</span><span class="p">)</span>
+
+<span class="c1"># Health probes NEVER under /api/v1</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/healthz&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">healthz</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;service&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;16.0.0&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/readyz&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">readyz</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;db_connected&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="s2">&quot;nats&quot;</span><span class="p">:</span>     <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;nats_connected&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="n">app</span><span class="o">.</span><span class="n">add_api_route</span><span class="p">(</span><span class="s2">&quot;/metrics&quot;</span><span class="p">,</span> <span class="n">metrics_endpoint</span><span class="p">,</span> <span class="n">include_in_schema</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="database-srcdatabasepy">Database — <code>src/database.py</code><a class="headerlink" href="#database-srcdatabasepy" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncpg</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_pool</span><span class="p">(</span><span class="n">app</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">Pool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_connection</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">conn</span>
+</code></pre></div>
+
+<p>Tenant scoping is <strong>not optional</strong> — every query takes <code>tenant_id</code> as the
+first filter:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span>
+    <span class="s2">&quot;SELECT id, name FROM notifications WHERE tenant_id = $1 AND status = $2&quot;</span><span class="p">,</span>
+    <span class="n">tenant_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>For multi-statement writes, always use <code>async with conn.transaction():</code>.</p>
+<hr />
+<h2 id="events">Events<a class="headerlink" href="#events" title="Permanent link">&para;</a></h2>
+<h3 id="publishing">Publishing<a class="headerlink" href="#publishing" title="Permanent link">&para;</a></h3>
+<p>Use <code>shared/events/subjects.py</code> constants + the <code>EventPublisher</code> helper:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.publisher</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.subjects</span><span class="w"> </span><span class="kn">import</span> <span class="n">SAHOOL_NOTIFICATION_SENT</span>
+
+<span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
+    <span class="n">SAHOOL_NOTIFICATION_SENT</span><span class="p">,</span>
+    <span class="n">payload</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;notification_id&quot;</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">,</span> <span class="o">...</span><span class="p">},</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="subscribing">Subscribing<a class="headerlink" href="#subscribing" title="Permanent link">&para;</a></h3>
+<p>Canonical pattern in <code>notification-service/src/nats_subscriber.py</code> —
+copy the structure: connect → <code>subscribe(subject=..., queue="&lt;service&gt;-&lt;domain&gt;")</code>
+→ dispatch → DLQ on failure.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">nats</span><span class="o">.</span><span class="n">aio</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">Msg</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+        <span class="k">await</span> <span class="n">process</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">ack</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;handler_failed&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">publish_to_dlq</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">term</span><span class="p">()</span>      <span class="c1"># don&#39;t re-deliver — DLQ replay-er will.</span>
+</code></pre></div>
+
+<p>Every subscriber uses a <strong>queue group</strong> named <code>&lt;service&gt;-&lt;consumer&gt;</code> so
+parallel replicas load-balance instead of each receiving the same message.</p>
+<hr />
+<h2 id="auth-tenant-isolation">Auth &amp; tenant isolation<a class="headerlink" href="#auth-tenant-isolation" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_user</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
+    <span class="n">dto</span><span class="p">:</span> <span class="n">CreateNotificationDTO</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">tenant_id</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">dto</span><span class="o">=</span><span class="n">dto</span><span class="p">)</span>
+</code></pre></div>
+
+<ul>
+<li>Never read <code>tenant_id</code> from the request body.</li>
+<li><code>get_current_user</code> validates JWT signature + expiration + revocation
+  (Redis look-up).</li>
+</ul>
+<hr />
+<h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>All handlers return the unified envelope via <code>shared/errors_py.py</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Human-readable English message&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;error_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;الرسالة بالعربية&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;E4001&quot;</span><span class="p">,</span>                  <span class="c1"># stable error code from shared/errors_py.ERROR_CODES</span>
+  <span class="s2">&quot;requestId&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>               <span class="c1"># from x-request-id</span>
+  <span class="s2">&quot;traceId&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span>                  <span class="c1"># OTel trace id</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Don't raise <code>HTTPException(status_code=400, detail="bad")</code> — raise a
+domain exception subclass and let the handler format the envelope.</p>
+<hr />
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">tests</span><span class="o">/</span>
+<span class="err">├──</span> <span class="n">unit</span><span class="o">/</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">conftest</span><span class="o">.</span><span class="n">py</span>             <span class="c1"># fixture: mock asyncpg pool, mock nats</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">test_</span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_service</span><span class="o">.</span><span class="n">py</span>
+<span class="err">│</span>   <span class="err">└──</span> <span class="n">test_models</span><span class="o">.</span><span class="n">py</span>
+<span class="err">├──</span> <span class="n">integration</span><span class="o">/</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">conftest</span><span class="o">.</span><span class="n">py</span>             <span class="c1"># fixture: testcontainers Postgres + NATS</span>
+<span class="err">│</span>   <span class="err">└──</span> <span class="n">test_</span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_flow</span><span class="o">.</span><span class="n">py</span>   <span class="c1"># real HTTP + real DB + real NATS</span>
+<span class="err">└──</span> <span class="n">smoke</span><span class="o">/</span>
+    <span class="err">└──</span> <span class="n">test_import</span><span class="o">.</span><span class="n">py</span>          <span class="c1"># `from src.main import app` — catches startup bugs</span>
+</code></pre></div>
+
+<p>Pytest markers (already enforced in <code>pyproject.toml</code> root):</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>         <span class="c1"># fast, no I/O</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>  <span class="c1"># real deps</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">smoke</span>        <span class="c1"># imports only</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">slow</span>         <span class="c1"># &gt; 5 s</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dockerfile-skeleton-copy-from-notification-service">Dockerfile skeleton (copy from notification-service)<a class="headerlink" href="#dockerfile-skeleton-copy-from-notification-service" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="k">ARG</span><span class="w"> </span><span class="nv">PYTHON_VERSION</span><span class="o">=</span><span class="m">3</span>.11
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:${PYTHON_VERSION}-slim-bookworm</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">base</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PIP_NO_CACHE_DIR</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">PIP_DISABLE_PIP_VERSION_CHECK</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">PIP_DEFAULT_TIMEOUT</span><span class="o">=</span><span class="m">300</span><span class="w"> </span><span class="nv">PIP_RETRIES</span><span class="o">=</span><span class="m">10</span>
+
+<span class="k">FROM</span><span class="w"> </span><span class="s">base</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
+<span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>.
+<span class="c"># 3-tier mirror fallback — see CLAUDE.md §&quot;Pip Mirror Configuration&quot;</span>
+<span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span><span class="o">||</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-i<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple/<span class="w"> </span>--trusted-host<span class="w"> </span>mirrors.aliyun.com<span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span><span class="o">||</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-i<span class="w"> </span>https://mirrors.cloud.tencent.com/pypi/simple<span class="w"> </span>--trusted-host<span class="w"> </span>mirrors.cloud.tencent.com<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="k">FROM</span><span class="w"> </span><span class="s">base</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">production</span>
+<span class="k">RUN</span><span class="w"> </span>groupadd<span class="w"> </span>-g<span class="w"> </span><span class="m">1000</span><span class="w"> </span>sahool<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>useradd<span class="w"> </span>-m<span class="w"> </span>-u<span class="w"> </span><span class="m">1000</span><span class="w"> </span>-g<span class="w"> </span><span class="m">1000</span><span class="w"> </span>sahool
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>/usr/local/lib/python3.11/site-packages<span class="w"> </span>/usr/local/lib/python3.11/site-packages
+<span class="k">COPY</span><span class="w"> </span>--chown<span class="o">=</span>sahool:sahool<span class="w"> </span>src/<span class="w"> </span>/app/src/
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool</span>
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">8110</span>
+<span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>30s<span class="w"> </span>--timeout<span class="o">=</span>5s<span class="w"> </span>--start-period<span class="o">=</span>15s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>CMD<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import urllib.request; urllib.request.urlopen(&#39;http://localhost:8110/healthz&#39;)&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src.main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8110&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<hr />
+<h2 id="coverage-matrix">Coverage matrix<a class="headerlink" href="#coverage-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Pattern 02?</th>
+<th>DB pool lifecycle</th>
+<th>NATS sub + DLQ</th>
+<th>structlog</th>
+<th>OTel</th>
+<th>/metrics</th>
+<th>Integration tests</th>
+<th>Last audit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>notification-service</td>
+<td>✅ gold</td>
+<td>✅ asyncpg</td>
+<td>✅ DLQ</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>28</td>
+<td>2026-04</td>
+</tr>
+<tr>
+<td>alert-service</td>
+<td>✅</td>
+<td>✅ SQLAlchemy</td>
+<td>✅</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>audit-service</td>
+<td>✅</td>
+<td>✅ asyncpg</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>task-service</td>
+<td>✅</td>
+<td>✅ asyncpg</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>equipment-service</td>
+<td>✅</td>
+<td>✅ SQLAlchemy</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>crop-intelligence-service</td>
+<td>✅</td>
+<td>✅ asyncpg</td>
+<td>✅</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td>✅ (in-memory KB)</td>
+<td>—</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>billing-core</td>
+<td>✅</td>
+<td>✅ asyncpg</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>cooperative-service</td>
+<td>✅</td>
+<td>—</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

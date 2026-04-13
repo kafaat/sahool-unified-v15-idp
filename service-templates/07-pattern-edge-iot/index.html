@@ -1,0 +1,1360 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>07 · Edge / IoT Orchestrator Template - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#07-edge-iot-orchestrator-template" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              07 · Edge / IoT Orchestrator Template
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="07-edge-iot-orchestrator-template">07 · Edge / IoT Orchestrator Template<a class="headerlink" href="#07-edge-iot-orchestrator-template" title="Permanent link">&para;</a></h1>
+<p><strong>Gold standard:</strong> <code>apps/services/edge-orchestrator-service/</code>
+<strong>Related:</strong> <code>iot-service</code>, <code>drone-service</code>.
+<strong>Use when:</strong> the service manages fleets of edge devices (Jetson Orin,
+Raspberry Pi, drones, pivot controllers) that can be intermittently
+connected and must sync state bidirectionally.</p>
+<blockquote>
+<p>قالب خدمات تنسيق الأجهزة الطرفية — إدارة أساطيل أجهزة Jetson
+والطائرات المسيّرة ومحطات الري مع المزامنة ثنائية الاتجاه.</p>
+</blockquote>
+<hr />
+<h2 id="why-edge-orchestrator-service">Why <code>edge-orchestrator-service</code>?<a class="headerlink" href="#why-edge-orchestrator-service" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Bidirectional WebSocket bridge with a backing command queue per
+  device (so commands survive a disconnect).</li>
+<li>Model-deploy-to-edge pipeline (pushes YOLO26 weights to Jetson
+  Orin).</li>
+<li>Hash-based integrity checks on every file transfer.</li>
+<li>Tenant-scoped NATS subjects: <code>sahool.tenant.&lt;tid&gt;.edge.metrics</code>,
+  <code>sahool.tenant.&lt;tid&gt;.edge.detection</code>.</li>
+<li>Handles flapping connections without duplicating events.</li>
+</ul>
+<hr />
+<h2 id="key-patterns">Key patterns<a class="headerlink" href="#key-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="1-device-identity-and-registration">1 · Device identity and registration<a class="headerlink" href="#1-device-identity-and-registration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Every edge device has a <strong>stable, tenant-scoped device ID</strong> (UUID
+  v4, not the hardware MAC).</li>
+<li>Registration is a one-time exchange:</li>
+<li>Device presents an admin-issued bootstrap token.</li>
+<li>Service mints a <strong>device credential</strong> (JWT with <code>aud=device</code>,
+     long TTL, rotatable).</li>
+<li>Device stores the credential on secure storage (TPM, encrypted
+     SD).</li>
+<li>Lost credential → admin revokes + device re-bootstraps.</li>
+</ul>
+<h3 id="2-command-queue-pattern">2 · Command queue pattern<a class="headerlink" href="#2-command-queue-pattern" title="Permanent link">&para;</a></h3>
+<p>Edge devices are often offline. Never broadcast commands naively.
+Instead, maintain a <strong>per-device command queue</strong> (Redis or Postgres
+JSONB) and replay on reconnect:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">client</span><span class="w"> </span><span class="nv">reconnects</span><span class="w"> </span><span class="nv">via</span><span class="w"> </span><span class="nv">WebSocket</span>
+<span class="w">  </span>↓
+<span class="nv">server</span><span class="w"> </span><span class="nv">authenticates</span><span class="w"> </span><span class="ss">(</span><span class="nv">device</span><span class="w"> </span><span class="nv">JWT</span><span class="ss">)</span>
+<span class="w">  </span>↓
+<span class="nv">server</span><span class="w"> </span><span class="nv">pops</span><span class="w"> </span><span class="nv">N</span><span class="w"> </span><span class="nv">pending</span><span class="w"> </span><span class="nv">commands</span><span class="w"> </span><span class="nv">from</span><span class="w"> </span><span class="nv">queue</span><span class="w"> </span><span class="nv">and</span><span class="w"> </span><span class="nv">streams</span><span class="w"> </span><span class="nv">them</span>
+<span class="w">  </span>↓
+<span class="nv">device</span><span class="w"> </span><span class="nv">ACKs</span><span class="w"> </span><span class="nv">each</span><span class="w"> </span>—<span class="w"> </span><span class="nv">server</span><span class="w"> </span><span class="nv">removes</span><span class="w"> </span><span class="nv">from</span><span class="w"> </span><span class="nv">queue</span>
+<span class="w">  </span>↓
+<span class="k">if</span><span class="w"> </span><span class="nv">device</span><span class="w"> </span><span class="nv">disconnects</span><span class="w"> </span><span class="nv">before</span><span class="w"> </span><span class="nv">ACK</span>,<span class="w"> </span><span class="nv">command</span><span class="w"> </span><span class="nv">stays</span><span class="w"> </span><span class="nv">pending</span>
+</code></pre></div>
+
+<p>Every command carries <code>{commandId, issuedAt, priority, ttl}</code>.
+Commands past their TTL are dropped to the DLQ with a bilingual
+reason.</p>
+<h3 id="3-event-de-duplication-on-reconnect">3 · Event de-duplication on reconnect<a class="headerlink" href="#3-event-de-duplication-on-reconnect" title="Permanent link">&para;</a></h3>
+<p>When a device reconnects after a network blip, it replays pending
+<strong>outbound</strong> events too. The service must dedup by <code>eventId</code> within a
+24-hour window (Redis SET with expiry).</p>
+<h3 id="4-model-config-deployment">4 · Model / config deployment<a class="headerlink" href="#4-model-config-deployment" title="Permanent link">&para;</a></h3>
+<p>Downloading a 50 MB model over a flaky link? Rules:</p>
+<ul>
+<li>Transfer in <strong>chunks</strong> with per-chunk SHA-256.</li>
+<li>Verify final file hash against the registry before activation.</li>
+<li>Atomic swap: write to <code>models/&lt;name&gt;.new</code>, verify, then <code>mv</code>.</li>
+<li>Roll back on crash (device checks <code>models/&lt;name&gt;.prev</code> at boot).</li>
+</ul>
+<h3 id="5-telemetry-batching">5 · Telemetry batching<a class="headerlink" href="#5-telemetry-batching" title="Permanent link">&para;</a></h3>
+<p>Don't send a NATS event per sensor reading — the gateway should batch:</p>
+<div class="codehilite"><pre><span></span><code>device pushes {readings: [...]}        (every 30 s, 100 readings)
+  ↓
+orchestrator validates + normalizes
+  ↓
+orchestrator publishes ONE NATS event
+  `sahool.tenant.&lt;tid&gt;.edge.metrics.batch`
+  with the reading array
+</code></pre></div>
+
+<p>This keeps NATS throughput linear in fleet size, not reading rate.</p>
+<h3 id="6-offline-mode-contract">6 · Offline mode contract<a class="headerlink" href="#6-offline-mode-contract" title="Permanent link">&para;</a></h3>
+<p>Every edge service must document a clear <strong>offline-mode contract</strong>:</p>
+<ul>
+<li>What does the device do when NATS is unreachable? (Store locally,
+  flush on reconnect.)</li>
+<li>What does the server do when the device is unreachable? (Queue
+  commands, flag <code>device_offline</code> alert after N minutes.)</li>
+<li>What are the sync conflict rules? (Last-write-wins?
+  Device-wins-for-measurements, server-wins-for-config?)</li>
+</ul>
+<h3 id="7-drone-specific-additions-for-drone-service">7 · Drone-specific additions (for <code>drone-service</code>)<a class="headerlink" href="#7-drone-specific-additions-for-drone-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Flight plans are versioned and signed — the drone rejects any plan
+  that doesn't verify.</li>
+<li>No-fly zones enforced server-side via PostGIS — reject any plan
+  that intersects an NFZ.</li>
+<li>Telemetry (altitude, battery, GPS) streamed over a separate high-
+  frequency channel; commands over the main command channel.</li>
+</ul>
+<h3 id="8-metrics">8 · Metrics<a class="headerlink" href="#8-metrics" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>edge_devices_connected{tenant}</code></li>
+<li><code>edge_command_queue_depth{device}</code></li>
+<li><code>edge_model_deploy_bytes_total{device, model}</code></li>
+<li><code>edge_model_deploy_failures_total{device, reason}</code></li>
+<li><code>edge_reconnect_total{device}</code> — spikes indicate a flaky link</li>
+<li><code>edge_offline_duration_seconds</code> (histogram)</li>
+</ul>
+<hr />
+<h2 id="delta-from-pattern-0206">Delta from Pattern 02/06<a class="headerlink" href="#delta-from-pattern-0206" title="Permanent link">&para;</a></h2>
+<p>Edge orchestrators are a <strong>gateway (Pattern 06) with persistent state</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Pattern 06 Gateway</th>
+<th>Pattern 07 Edge Orchestrator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Persistent DB</td>
+<td>never</td>
+<td><strong>yes — device registry, command queue, deploy history</strong></td>
+</tr>
+<tr>
+<td>Long-lived connections</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Command replay on reconnect</td>
+<td>no</td>
+<td><strong>yes, per device</strong></td>
+</tr>
+<tr>
+<td>File transfer</td>
+<td>no</td>
+<td>yes (model / config deploys)</td>
+</tr>
+<tr>
+<td>Offline-mode contract</td>
+<td>n/a</td>
+<td><strong>mandatory</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="coverage-matrix">Coverage matrix<a class="headerlink" href="#coverage-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Device registry</th>
+<th>Command queue</th>
+<th>Model deploy</th>
+<th>Telemetry batching</th>
+<th>Offline contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>edge-orchestrator-service</td>
+<td>✅ gold</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>iot-service</td>
+<td>⚠️ (via device table)</td>
+<td>—</td>
+<td>—</td>
+<td>✅ (MQTT→NATS)</td>
+<td>partial</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td>✅</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

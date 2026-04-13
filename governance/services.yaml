@@ -1489,7 +1489,10 @@ services:
     health_endpoint: "/healthz"
     status: active
     owner: "sustainability-team@sahool.io"
-    team: sustainability
+    # `agro` is the closest team in the governance-validation allowlist
+    # (VALID_TEAMS in .github/workflows/governance-validation.yml). Add
+    # `sustainability` there if it becomes a dedicated team.
+    team: agro
     lifecycle: production
     tier: tier-2
     events:

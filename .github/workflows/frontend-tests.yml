@@ -827,7 +827,7 @@ jobs:
         # docs/prompts/fix-flutter-android-ci-flake.md). On a miss the
         # retry-wrapped install below will populate it.
         id: cache-android-ndk
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /usr/local/lib/android/sdk/ndk/27.0.12077973
           key: android-ndk-27.0.12077973-${{ runner.os }}
@@ -1282,7 +1282,7 @@ jobs:
         # Same NDK cache as the Android Build job — see §5 of
         # docs/prompts/fix-flutter-android-ci-flake.md.
         id: cache-android-ndk
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: /usr/local/lib/android/sdk/ndk/27.0.12077973
           key: android-ndk-27.0.12077973-${{ runner.os }}

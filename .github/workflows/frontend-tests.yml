@@ -810,8 +810,25 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Install required Android SDK components
+        # sdkmanager fetches ~1 GB from the Google CDN which is the single
+        # flakiest step of this job. Retry up to 3× with exponential back-off
+        # so transient 5xx / connection-reset errors don't fail the whole
+        # build. See docs/prompts/fix-flutter-android-ci-flake.md §2.
         run: |
-          yes | sdkmanager --install "platforms;android-35" "ndk;27.0.12077973"
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt: installing Android SDK components..."
+            if yes | sdkmanager --install \
+                 "platforms;android-35" \
+                 "ndk;27.0.12077973"; then
+              echo "✓ SDK components installed on attempt $attempt"
+              exit 0
+            fi
+            wait_s=$((attempt * 30))
+            echo "::warning::Attempt $attempt failed; sleeping ${wait_s}s before retry"
+            sleep $wait_s
+          done
+          echo "::error::Failed to install Android SDK components after 3 attempts"
+          exit 1
         working-directory: .
 
       - name: Setup Flutter
@@ -1219,8 +1236,23 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Install required Android SDK components
+        # Same retry logic as the Android Build job — see
+        # docs/prompts/fix-flutter-android-ci-flake.md §2.
         run: |
-          yes | sdkmanager --install "platforms;android-35" "ndk;27.0.12077973"
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt: installing Android SDK components..."
+            if yes | sdkmanager --install \
+                 "platforms;android-35" \
+                 "ndk;27.0.12077973"; then
+              echo "✓ SDK components installed on attempt $attempt"
+              exit 0
+            fi
+            wait_s=$((attempt * 30))
+            echo "::warning::Attempt $attempt failed; sleeping ${wait_s}s before retry"
+            sleep $wait_s
+          done
+          echo "::error::Failed to install Android SDK components after 3 attempts"
+          exit 1
         working-directory: .
 
       - name: Setup Flutter

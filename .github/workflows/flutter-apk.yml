@@ -62,15 +62,32 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Install required Android SDK components
+        # sdkmanager fetches ~1 GB from the Google CDN which is the single
+        # flakiest step of this job. Retry up to 3× with exponential
+        # back-off so transient 5xx / connection-reset errors don't fail
+        # the whole build. See docs/prompts/fix-flutter-android-ci-flake.md §2.
         run: |
           echo "ANDROID_HOME: $ANDROID_HOME"
           echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager --install \
-            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
-            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "ndk;27.0.12077973" \
-            "platform-tools"
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt: installing Android SDK components..."
+            if sdkmanager --install \
+                 "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+                 "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+                 "ndk;27.0.12077973" \
+                 "platform-tools"; then
+              echo "✓ SDK components installed on attempt $attempt"
+              break
+            fi
+            if [ "$attempt" = "3" ]; then
+              echo "::error::Failed to install Android SDK components after 3 attempts"
+              exit 1
+            fi
+            wait_s=$((attempt * 30))
+            echo "::warning::Attempt $attempt failed; sleeping ${wait_s}s before retry"
+            sleep $wait_s
+          done
           # Verify the critical platform was installed
           if [ ! -d "$ANDROID_HOME/platforms/android-${{ env.ANDROID_COMPILE_SDK }}" ]; then
             echo "::error::Android SDK platform ${{ env.ANDROID_COMPILE_SDK }} not found after install"

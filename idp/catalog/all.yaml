@@ -11,6 +11,8 @@ spec:
     - ./hydrology-service.yaml
     - ./leveling-optimizer-service.yaml
     - ./edge-orchestrator-service.yaml
+    # Library Components
+    - ./sahool-skills-library.yaml
     # API Definitions
     - ./apis/yolo26-vision-api.yaml
     - ./apis/terrain-core-api.yaml

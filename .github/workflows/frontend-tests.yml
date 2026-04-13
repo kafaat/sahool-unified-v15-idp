@@ -1590,7 +1590,7 @@ jobs:
         # real outcome: success | failure | cancelled | skipped.
         # See §7a of docs/prompts/fix-flutter-android-ci-flake.md.
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           WEB_BUILD_RESULT: ${{ needs.web-build.result }}
           ADMIN_BUILD_RESULT: ${{ needs.admin-build.result }}
@@ -1729,7 +1729,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Comment Bundle Size
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const comment = '## 📦 Bundle Size Analysis\n\n' +

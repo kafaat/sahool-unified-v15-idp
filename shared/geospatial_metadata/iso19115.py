@@ -252,6 +252,13 @@ class EX_GeographicBoundingBox(BaseModel):
     @field_validator("east_bound_longitude")
     @classmethod
     def east_gt_west(cls, v: float, info: Any) -> float:
+        # Guard `info.data is None` — Pydantic v2 passes None when the
+        # validator fires before sibling fields are populated (notably
+        # on `model_validate_json()` round-trips). Without this guard
+        # `test_field_metadata_json_roundtrip` crashes with
+        # `AttributeError: 'NoneType' object has no attribute 'get'`.
+        if info.data is None:
+            return v
         west = info.data.get("west_bound_longitude")
         if west is not None and v < west:
             raise ValueError("East longitude must be >= west longitude | خط الطول الشرقي يجب أن يكون >= الغربي")
@@ -260,6 +267,8 @@ class EX_GeographicBoundingBox(BaseModel):
     @field_validator("north_bound_latitude")
     @classmethod
     def north_gt_south(cls, v: float, info: Any) -> float:
+        if info.data is None:
+            return v
         south = info.data.get("south_bound_latitude")
         if south is not None and v < south:
             raise ValueError("North latitude must be >= south latitude | خط العرض الشمالي يجب أن يكون >= الجنوبي")
@@ -280,6 +289,8 @@ class EX_TemporalExtent(BaseModel):
     @field_validator("end_position")
     @classmethod
     def end_after_begin(cls, v: datetime | None, info: Any) -> datetime | None:
+        if info.data is None:
+            return v
         begin = info.data.get("begin_position")
         if v is not None and begin is not None and v < begin:
             raise ValueError("End position must be after begin position")
@@ -306,6 +317,8 @@ class EX_Extent(BaseModel):
     @field_validator("vertical_max_m")
     @classmethod
     def vertical_max_gte_min(cls, v: float | None, info: Any) -> float | None:
+        if info.data is None:
+            return v
         vmin = info.data.get("vertical_min_m")
         if v is not None and vmin is not None and v < vmin:
             raise ValueError(

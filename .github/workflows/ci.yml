@@ -1043,6 +1043,13 @@ jobs:
           echo "VAULT_DEV_TOKEN=ci_vault_dev_token_for_testing" >> .env
           echo "MONGO_PASSWORD=test_mongo_password_ci_32_chars_min" >> .env
           echo "ROCKETCHAT_ADMIN_PASSWORD=test_rocketchat_password_ci_32ch" >> .env
+          # partner-auth-service (docker-compose.yml:1932) uses
+          # `${PARTNER_AUTH_CSRF_SECRET:?...}` which hard-fails
+          # `docker compose up` — even for `postgres nats redis` only —
+          # because compose validates interpolation for every service
+          # in the file. Must be ≥32 chars to match the service's
+          # runtime validation.
+          echo "PARTNER_AUTH_CSRF_SECRET=test_partner_auth_csrf_secret_for_ci_only_32chars" >> .env
           cat .env
           echo "✅ Created .env file"
 

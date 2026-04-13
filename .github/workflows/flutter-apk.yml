@@ -146,13 +146,18 @@ jobs:
         run: yes | flutter doctor --android-licenses || true
 
       - name: Override Gradle JVM memory for CI
+        # Daemon OFF (caches nothing in CI, holds ~1 GB RAM), parallel
+        # ON with workers capped at 2 to match runner CPU budget, heap
+        # bumped from 4 → 5 GB to reduce OOM risk on the APK packaging
+        # step. See §7b of docs/prompts/fix-flutter-android-ci-flake.md.
         working-directory: .
         run: |
           mkdir -p ~/.gradle
           cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
-          org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=false
-          org.gradle.parallel=false
+          org.gradle.parallel=true
+          org.gradle.workers.max=2
           org.gradle.caching=true
           GRADLEEOF
           sed 's/^[[:space:]]*//' ~/.gradle/gradle.properties > /tmp/gp.tmp && mv /tmp/gp.tmp ~/.gradle/gradle.properties

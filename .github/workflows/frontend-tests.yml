@@ -940,8 +940,18 @@ jobs:
       - name: Build Android APK
         run: |
           echo "Building Android APK..."
-          # Override Gradle JVM args for CI (runners have ~7GB RAM)
-          export GRADLE_OPTS="-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+          # Override Gradle JVM args for CI (runners have ~7 GB RAM).
+          # `org.gradle.daemon=false` is critical — daemon mode caches
+          # nothing in a fresh CI job but holds ~1 GB RAM hostage.
+          # See §7b of docs/prompts/fix-flutter-android-ci-flake.md.
+          export GRADLE_OPTS="-Xmx5g \
+            -XX:MaxMetaspaceSize=512m \
+            -XX:+HeapDumpOnOutOfMemoryError \
+            -Dfile.encoding=UTF-8 \
+            -Dorg.gradle.daemon=false \
+            -Dorg.gradle.caching=true \
+            -Dorg.gradle.parallel=true \
+            -Dorg.gradle.workers.max=2"
           flutter build apk --debug
 
       - name: Upload APK

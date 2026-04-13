@@ -809,6 +809,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
+      - name: Cache Android NDK 27.0.12077973
+        # NDK is ~1 GB and version-pinned. Key on the NDK version so
+        # cache hits save a full sdkmanager download (see §5 of
+        # docs/prompts/fix-flutter-android-ci-flake.md). On a miss the
+        # retry-wrapped install below will populate it.
+        id: cache-android-ndk
+        uses: actions/cache@v5
+        with:
+          path: /usr/local/lib/android/sdk/ndk/27.0.12077973
+          key: android-ndk-27.0.12077973-${{ runner.os }}
+
       - name: Install required Android SDK components
         # sdkmanager fetches ~1 GB from the Google CDN which is the single
         # flakiest step of this job. Retry up to 3× with exponential back-off
@@ -1234,6 +1245,15 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
+
+      - name: Cache Android NDK 27.0.12077973
+        # Same NDK cache as the Android Build job — see §5 of
+        # docs/prompts/fix-flutter-android-ci-flake.md.
+        id: cache-android-ndk
+        uses: actions/cache@v5
+        with:
+          path: /usr/local/lib/android/sdk/ndk/27.0.12077973
+          key: android-ndk-27.0.12077973-${{ runner.os }}
 
       - name: Install required Android SDK components
         # Same retry logic as the Android Build job — see

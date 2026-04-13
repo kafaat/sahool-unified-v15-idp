@@ -197,7 +197,52 @@ sudo rm -rf /home/linuxbrew || true
 sudo docker system prune --all --force || true
 ```
 
-#### 7 · Set explicit Gradle daemon config to avoid OOM
+#### 7a · Fix the misleading "Frontend Test Results" PR comment
+
+`.github/workflows/frontend-tests.yml:1497-1516` builds the comment by
+checking whether artifact directories exist on disk:
+
+```javascript
+const webBuild = fs.existsSync(`${artifactsPath}/web-build`);
+comment += `| Web App | ${webBuild ? '✅ Passed' : '❌ Failed'} |\n`;
+```
+
+That conflates **"the build job failed"** with **"any upstream
+dependency was cancelled / the artifact wasn't uploaded for an unrelated
+reason"**. On PR #1581 we observed runs where Web/Admin tsc + lint
+passed cleanly locally and the actual job logs showed success, but the
+PR comment said Web ❌ and Admin ❌ because Flutter Android flaked
+upstream and cascaded artifact-upload skips.
+
+Replace the artifact-existence check with the actual job result via
+`needs.<job>.result`:
+
+```yaml
+- name: Comment PR with Test Results
+  uses: actions/github-script@v8
+  with:
+    script: |
+      const jobs = {
+        webBuild:    '${{ needs.web-build.result }}',
+        adminBuild:  '${{ needs.admin-build.result }}',
+        flutterBuild:'${{ needs.flutter-android-build.result }}',
+        e2e:         '${{ needs.e2e-tests.result }}',
+        mobileInteg: '${{ needs.mobile-integration.result }}',
+      };
+      const icon = (r) =>
+        r === 'success'  ? '✅ Passed'   :
+        r === 'failure'  ? '❌ Failed'   :
+        r === 'cancelled'? '🚫 Cancelled':
+        r === 'skipped'  ? '⚠️ Skipped'  :
+                           `❓ ${r}`;
+      // …build the comment table from `jobs`…
+```
+
+Add the relevant jobs to the `needs:` array of the comment-posting job
+so they're available. This single fix removes the entire class of
+"web/admin reported as failed when only Flutter flaked" false alarms.
+
+#### 7b · Set explicit Gradle daemon config to avoid OOM
 
 The current step exports `GRADLE_OPTS` but doesn't configure the
 daemon. Add `gradle.properties`-equivalent flags:

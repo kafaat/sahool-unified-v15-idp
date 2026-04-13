@@ -1,3 +1,8 @@
+---
+name: obsidian-canvas
+description: Use when creating Obsidian JSON Canvas (.canvas) files for visual problem mapping in SAHOOL — farm layouts, crop rotation plans, irrigation network maps, pest spread tracking, decision flowcharts. TRIGGER when the user asks for "canvas", "visual map", "farm diagram", "rotation visualization", or "decision flowchart"; or when writing/editing any file with a .canvas extension. Emits valid JSON Canvas schema with bilingual Arabic/English labels and agricultural iconography.
+---
+
 # JSON Canvas Skill for Visual Problem Mapping
 
 ## Description

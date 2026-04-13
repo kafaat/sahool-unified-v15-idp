@@ -66,7 +66,7 @@ pandas==2.2.2
 
 # Testing (optional)
 # الاختبار (اختياري)
-pytest==8.4.2
+pytest==9.0.3
 pytest-asyncio==0.26.0
 
 # Authentication

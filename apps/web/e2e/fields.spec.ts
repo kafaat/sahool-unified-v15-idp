@@ -15,9 +15,8 @@ import {
   waitForPageLoad,
   waitForToast,
   navigateAndWait,
-  waitForApiResponse,
 } from "./helpers/page.helpers";
-import { testData, selectors, timeouts } from "./helpers/test-data";
+import { testData, timeouts } from "./helpers/test-data";
 
 test.describe("Fields Management", () => {
   test.beforeEach(async ({ page }) => {
@@ -114,7 +113,7 @@ test.describe("Fields Management", () => {
       const mapViewBtn = page.locator(
         'button:has-text("خريطة"), button:has-text("Map"), [data-testid="map-view"]'
       );
-      const listViewBtn = page.locator(
+      const _listViewBtn = page.locator(
         'button:has-text("قائمة"), button:has-text("List"), [data-testid="list-view"]'
       );
 

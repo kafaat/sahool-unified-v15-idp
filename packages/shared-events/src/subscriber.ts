@@ -101,12 +101,18 @@ export async function subscribe<T extends SahoolEvent = SahoolEvent>(
 }
 
 /**
- * Subscribe to multiple subjects using a wildcard pattern
+ * Subscribe to multiple subjects using a wildcard pattern.
+ *
+ * IMPORTANT: subjects must be `sahool.<domain>.<entity>.<action>` to
+ * match the platform convention enforced in `shared/events/subjects.py`
+ * on the Python side. Patterns without the `sahool.` prefix will
+ * silently match nothing in production.
+ *
  * Examples:
- * - 'field.*' - all field events
- * - 'order.*' - all order events
- * - '*.created' - all creation events
- * - '>' - all events
+ * - 'sahool.field.*'        - all field events
+ * - 'sahool.order.*'        - all order events
+ * - 'sahool.*.created'      - all creation events across domains
+ * - 'sahool.>'              - all SAHOOL events
  */
 export async function subscribePattern<T extends SahoolEvent = SahoolEvent>(
   pattern: string,
@@ -137,7 +143,7 @@ export async function subscribeToFieldEvents(
   handler: EventHandler,
   options?: SubscribeOptions
 ): Promise<Subscription> {
-  return subscribePattern('field.*', handler, options);
+  return subscribePattern('sahool.field.*', handler, options);
 }
 
 /**
@@ -147,7 +153,7 @@ export async function subscribeToOrderEvents(
   handler: EventHandler,
   options?: SubscribeOptions
 ): Promise<Subscription> {
-  return subscribePattern('order.*', handler, options);
+  return subscribePattern('sahool.order.*', handler, options);
 }
 
 /**
@@ -157,7 +163,7 @@ export async function subscribeToSensorEvents(
   handler: EventHandler,
   options?: SubscribeOptions
 ): Promise<Subscription> {
-  return subscribePattern('sensor.*', handler, options);
+  return subscribePattern('sahool.sensor.*', handler, options);
 }
 
 /**
@@ -167,7 +173,7 @@ export async function subscribeToDeviceEvents(
   handler: EventHandler,
   options?: SubscribeOptions
 ): Promise<Subscription> {
-  return subscribePattern('device.*', handler, options);
+  return subscribePattern('sahool.device.*', handler, options);
 }
 
 /**
@@ -177,7 +183,7 @@ export async function subscribeToUserEvents(
   handler: EventHandler,
   options?: SubscribeOptions
 ): Promise<Subscription> {
-  return subscribePattern('user.*', handler, options);
+  return subscribePattern('sahool.user.*', handler, options);
 }
 
 /**
@@ -187,7 +193,7 @@ export async function subscribeToInventoryEvents(
   handler: EventHandler,
   options?: SubscribeOptions
 ): Promise<Subscription> {
-  return subscribePattern('inventory.*', handler, options);
+  return subscribePattern('sahool.inventory.*', handler, options);
 }
 
 /**
@@ -197,7 +203,7 @@ export async function subscribeToNotificationEvents(
   handler: EventHandler,
   options?: SubscribeOptions
 ): Promise<Subscription> {
-  return subscribePattern('notification.*', handler, options);
+  return subscribePattern('sahool.notification.*', handler, options);
 }
 
 // ============================================================================

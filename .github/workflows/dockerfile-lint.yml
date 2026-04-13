@@ -43,11 +43,45 @@ jobs:
 
       - name: Download hadolint
         run: |
-          curl -sL "https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64" -o /usr/local/bin/hadolint
-          chmod +x /usr/local/bin/hadolint
+          # Resilient download: without `--fail`, curl silently saves a CDN
+          # HTML error page (e.g. "504 Gateway Time-out") as the binary and
+          # the subsequent `hadolint` call then parses that HTML as shell —
+          # which is exactly what happened on run 24353404823. Harden with
+          # `--fail`, built-in retry, and a post-download ELF sniff so a
+          # corrupt download fails the step loudly.
+          HADOLINT_VERSION=v2.12.0
+          URL="https://github.com/hadolint/hadolint/releases/download/${HADOLINT_VERSION}/hadolint-Linux-x86_64"
+
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt: downloading hadolint ${HADOLINT_VERSION}..."
+            if curl --fail --show-error --location --silent \
+                 --retry 5 --retry-delay 5 --retry-connrefused \
+                 --connect-timeout 15 --max-time 120 \
+                 "$URL" -o /usr/local/bin/hadolint \
+               && file /usr/local/bin/hadolint | grep -q 'ELF .* executable'; then
+              chmod +x /usr/local/bin/hadolint
+              echo "✓ Downloaded and verified hadolint binary"
+              /usr/local/bin/hadolint --version
+              exit 0
+            fi
+            echo "✗ Attempt $attempt failed or produced a non-binary file; retrying in $((attempt * 10))s..."
+            rm -f /usr/local/bin/hadolint
+            sleep $((attempt * 10))
+          done
+
+          echo "::error::Failed to download hadolint after 3 attempts — CDN flake?"
+          exit 1
 
       - name: Run hadolint
         run: |
+          # Sanity-check the binary before iterating 100+ Dockerfiles — if
+          # someone ever swaps in a corrupt hadolint, fail once here instead
+          # of producing per-file noise like run 24353404823 did.
+          if ! hadolint --version > /dev/null 2>&1; then
+            echo "::error::hadolint is not executable (corrupt download?)"
+            exit 1
+          fi
+
           ERRORS=0
           while IFS= read -r f; do
             if ! hadolint --config .hadolint.yaml "$f"; then

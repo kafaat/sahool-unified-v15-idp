@@ -1353,6 +1353,84 @@ services:
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.user-service.rule=PathPrefix(`/api/v1/user/service`)
+  partner-auth-service:
+    build:
+      context: ./apps/services/partner-auth-service
+      dockerfile: Dockerfile
+    container_name: sahool-partner-auth-service
+    ports:
+    - 3030:3030
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=3030
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3030/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=partner-auth-service
+    - sahool.port=3030
+    - sahool.category=core
+    - traefik.enable=true
+    - traefik.http.routers.partner-auth-service.rule=PathPrefix(`/api/v1/partner/auth/service`)
+  carbon-service:
+    build:
+      context: ./apps/services/carbon-service
+      dockerfile: Dockerfile
+    container_name: sahool-carbon-service
+    ports:
+    - 8195:8195
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8195
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8195/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=carbon-service
+    - sahool.port=8195
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.carbon-service.rule=PathPrefix(`/api/v1/carbon/service`)
   alert-service:
     build:
       context: ./apps/services/alert-service

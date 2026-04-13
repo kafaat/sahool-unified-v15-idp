@@ -26,8 +26,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer transaction-mode pooler).
+  // Migrations need long-lived sessions for advisory locks, prepared statements,
+  // and DDL — none of which work through PgBouncer in transaction mode.
+  // Falls back to DATABASE_URL when DATABASE_URL_DIRECT is not set so local dev
+  // (where developers point straight at Postgres) keeps working.
+  directUrl = env("DATABASE_URL_DIRECT")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -79,10 +85,10 @@ model OAuthClient {
   revokedAt DateTime? @map("revoked_at") @db.Timestamptz
 
   // Relations
-  authCodes      AuthCode[]
-  accessTokens   AccessToken[]
-  refreshTokens  RefreshToken[]
-  consentGrants  ConsentGrant[]
+  authCodes     AuthCode[]
+  accessTokens  AccessToken[]
+  refreshTokens RefreshToken[]
+  consentGrants ConsentGrant[]
 
   @@index([status], name: "idx_oauth_client_status")
   @@map("oauth_clients")
@@ -99,7 +105,7 @@ model AuthCode {
   /// Stored hashed; never the raw code (mitigates DB-dump replay).
   codeHash String @unique @map("code_hash") @db.VarChar(255)
 
-  clientId String @map("client_id") @db.Uuid
+  clientId String      @map("client_id") @db.Uuid
   client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   /// The SAHOOL user (farmer/grower) who consented. UUID from user-service.
@@ -124,7 +130,7 @@ model AuthCode {
   nonce String? @db.VarChar(255)
 
   /// 10 minutes after creation per OAuth 2.0 § 4.1.2
-  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz
   usedAt    DateTime? @map("used_at") @db.Timestamptz
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
@@ -142,7 +148,7 @@ model AccessToken {
   /// JWT id claim — unique per token. The JWT itself is not stored.
   jti String @id @db.VarChar(128)
 
-  clientId String @map("client_id") @db.Uuid
+  clientId String      @map("client_id") @db.Uuid
   client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   userId   String @map("user_id") @db.VarChar(128)
@@ -178,7 +184,7 @@ model RefreshToken {
   /// SHA-256 hash of the opaque refresh token value
   tokenHash String @unique @map("token_hash") @db.VarChar(255)
 
-  clientId String @map("client_id") @db.Uuid
+  clientId String      @map("client_id") @db.Uuid
   client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   userId   String @map("user_id") @db.VarChar(128)
@@ -215,7 +221,7 @@ model RefreshToken {
 model ConsentGrant {
   id String @id @default(uuid()) @db.Uuid
 
-  clientId String @map("client_id") @db.Uuid
+  clientId String      @map("client_id") @db.Uuid
   client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   userId   String @map("user_id") @db.VarChar(128)

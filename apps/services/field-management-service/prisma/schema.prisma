@@ -28,7 +28,7 @@ datasource db {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Farm {
-  id      String @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
 
   // Basic Info
   name     String  @db.VarChar(255)
@@ -49,20 +49,20 @@ model Farm {
   // camelCase rename to `locationLabel` / `locationLabelAr`. The API-facing
   // DTO names (`location` / `locationAr`) are preserved via explicit
   // mapping in `farms.service.ts` so no public contract breaks.
-  locationGeom    Unsupported("geometry(Point, 4326)")?  @map("location")
-  boundary Unsupported("geometry(Polygon, 4326)")?
+  locationGeom Unsupported("geometry(Point, 4326)")?   @map("location")
+  boundary     Unsupported("geometry(Polygon, 4326)")?
 
   // Display / domain fields
-  region        String? @map("region") @db.VarChar(255)
-  regionAr      String? @map("region_ar") @db.VarChar(255)
-  waterSource   String? @map("water_source") @db.VarChar(255)
-  waterSourceAr String? @map("water_source_ar") @db.VarChar(255)
-  workersCount  Int     @default(0) @map("workers_count")
-  status        String  @default("active") @map("status") @db.VarChar(32) // active|inactive|archived
+  region                 String?  @map("region") @db.VarChar(255)
+  regionAr               String?  @map("region_ar") @db.VarChar(255)
+  waterSource            String?  @map("water_source") @db.VarChar(255)
+  waterSourceAr          String?  @map("water_source_ar") @db.VarChar(255)
+  workersCount           Int      @default(0) @map("workers_count")
+  status                 String   @default("active") @map("status") @db.VarChar(32) // active|inactive|archived
   cultivatedAreaHectares Decimal? @map("cultivated_area_hectares") @db.Decimal(10, 2)
-  locationLabel   String? @map("location_label") @db.VarChar(500)
-  locationLabelAr String? @map("location_label_ar") @db.VarChar(500)
-  owner         String? @map("owner_name") @db.VarChar(255)
+  locationLabel          String?  @map("location_label") @db.VarChar(500)
+  locationLabelAr        String?  @map("location_label_ar") @db.VarChar(500)
+  owner                  String?  @map("owner_name") @db.VarChar(255)
 
   // Farm Details
   totalAreaHectares Decimal? @map("total_area_hectares") @db.Decimal(10, 4)
@@ -144,7 +144,7 @@ model Field {
   tasks           Task[]
   ndviReadings    NdviReading[]
   kpiSnapshots    FieldKpiSnapshot[]
-  farm            Farm?                   @relation(fields: [farmId], references: [id], onDelete: SetNull)
+  farm            Farm?                  @relation(fields: [farmId], references: [id], onDelete: SetNull)
   cropSeasons     CropSeason[]
   operations      FieldOperation[]
   subZones        FieldSubZone[]
@@ -222,9 +222,9 @@ model SyncStatus {
   tenantId String @map("tenant_id") @db.VarChar(100)
 
   // Sync State
-  lastSyncAt      DateTime?  @map("last_sync_at") @db.Timestamptz
-  lastSyncVersion BigInt     @default(0) @map("last_sync_version")
-  status          SyncState  @default(idle)
+  lastSyncAt      DateTime? @map("last_sync_at") @db.Timestamptz
+  lastSyncVersion BigInt    @default(0) @map("last_sync_version")
+  status          SyncState @default(idle)
 
   // Pending Operations
   pendingUploads   Int @default(0) @map("pending_uploads")
@@ -327,11 +327,11 @@ model NdviReading {
   field   Field  @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   // NDVI Data
-  value       Decimal   @db.Decimal(4, 3) // -1.000 to 1.000
-  capturedAt  DateTime  @map("captured_at") @db.Timestamptz
-  source      String    @default("satellite") @db.VarChar(50) // satellite, drone, manual
-  cloudCover  Decimal?  @map("cloud_cover") @db.Decimal(5, 2) // 0-100%
-  quality     String?   @db.VarChar(20) // good, moderate, poor
+  value      Decimal  @db.Decimal(4, 3) // -1.000 to 1.000
+  capturedAt DateTime @map("captured_at") @db.Timestamptz
+  source     String   @default("satellite") @db.VarChar(50) // satellite, drone, manual
+  cloudCover Decimal? @map("cloud_cover") @db.Decimal(5, 2) // 0-100%
+  quality    String?  @db.VarChar(20) // good, moderate, poor
 
   // Satellite Info
   satelliteName String? @map("satellite_name") @db.VarChar(50)
@@ -354,14 +354,14 @@ model NdviReading {
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  // Indexes
-  @@index([tenantId], name: "idx_ndvi_tenant")
-  @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
-  @@index([provider, sceneId], name: "idx_ndvi_provider_scene")
   // Idempotent import guard (satellite flow audit H17).
   // Replaying the same satellite scene must NOT create duplicate rows —
   // upserts in the write path should ON CONFLICT on this key.
   @@unique([fieldId, capturedAt, satelliteName], name: "uq_ndvi_field_source_date")
+  // Indexes
+  @@index([tenantId], name: "idx_ndvi_tenant")
+  @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
+  @@index([provider, sceneId], name: "idx_ndvi_provider_scene")
   @@map("ndvi_readings")
 }
 
@@ -385,13 +385,13 @@ model FieldKpiSnapshot {
   ndmi Decimal? @db.Decimal(5, 4)
 
   // OpenWeather / weather service data
-  temperature      Decimal? @map("temperature_c") @db.Decimal(5, 2)
-  humidity         Decimal? @map("humidity_pct") @db.Decimal(5, 2)
-  windSpeed        Decimal? @map("wind_speed_kmh") @db.Decimal(6, 2)
-  precipitation    Decimal? @map("precipitation_mm") @db.Decimal(6, 2)
-  uvIndex          Decimal? @map("uv_index") @db.Decimal(4, 2)
-  weatherCondition   String? @map("weather_condition") @db.VarChar(100)
-  weatherConditionAr String? @map("weather_condition_ar") @db.VarChar(100)
+  temperature        Decimal? @map("temperature_c") @db.Decimal(5, 2)
+  humidity           Decimal? @map("humidity_pct") @db.Decimal(5, 2)
+  windSpeed          Decimal? @map("wind_speed_kmh") @db.Decimal(6, 2)
+  precipitation      Decimal? @map("precipitation_mm") @db.Decimal(6, 2)
+  uvIndex            Decimal? @map("uv_index") @db.Decimal(4, 2)
+  weatherCondition   String?  @map("weather_condition") @db.VarChar(100)
+  weatherConditionAr String?  @map("weather_condition_ar") @db.VarChar(100)
 
   satelliteSource String? @map("satellite_source") @db.VarChar(50)
   weatherSource   String? @map("weather_source") @db.VarChar(50)
@@ -426,24 +426,24 @@ model CropSeason {
   // Timeline - all dates are DATE (no time) so they line up with how
   // agronomists reason about operations ("the plow was on the 14th").
   // Drive crop phenology / Zadoks staging for the NDVI pipeline.
-  sowingDate           DateTime  @map("sowing_date") @db.Date
-  expectedHarvestDate  DateTime? @map("expected_harvest_date") @db.Date
-  actualHarvestDate    DateTime? @map("actual_harvest_date") @db.Date
-  endedAt              DateTime? @map("ended_at") @db.Timestamptz
-  endReason            String?   @map("end_reason") @db.VarChar(255)
+  sowingDate          DateTime  @map("sowing_date") @db.Date
+  expectedHarvestDate DateTime? @map("expected_harvest_date") @db.Date
+  actualHarvestDate   DateTime? @map("actual_harvest_date") @db.Date
+  endedAt             DateTime? @map("ended_at") @db.Timestamptz
+  endReason           String?   @map("end_reason") @db.VarChar(255)
 
   // Denormalized flag for fast "current crop" lookup — only one row per
   // (fieldId) should have isCurrent=true. Partial unique index below.
   isCurrent Boolean @default(false) @map("is_current")
 
   // Agronomic detail (captured via <StartCropSeasonModal>)
-  seedVariety          String?  @map("seed_variety") @db.VarChar(255)
-  seedVarietyAr        String?  @map("seed_variety_ar") @db.VarChar(255)
-  plantingDensityKgHa  Decimal? @map("planting_density_kg_ha") @db.Decimal(10, 2)
-  irrigationType       String?  @map("irrigation_type") @db.VarChar(50)
+  seedVariety         String?  @map("seed_variety") @db.VarChar(255)
+  seedVarietyAr       String?  @map("seed_variety_ar") @db.VarChar(255)
+  plantingDensityKgHa Decimal? @map("planting_density_kg_ha") @db.Decimal(10, 2)
+  irrigationType      String?  @map("irrigation_type") @db.VarChar(50)
 
   // Post-harvest outcomes
-  yieldKgHa  Decimal? @map("yield_kg_ha") @db.Decimal(10, 2)
+  yieldKgHa Decimal? @map("yield_kg_ha") @db.Decimal(10, 2)
 
   // Free-form notes (max 2KB enforced at application layer)
   notes String? @db.Text
@@ -462,9 +462,9 @@ model CropSeason {
   baseCurrency   String? @map("base_currency") @db.VarChar(8)
 
   // Cached totals (materialised from field_operations rollup).
-  totalSeasonCost    Decimal? @map("total_season_cost") @db.Decimal(14, 2)
-  totalSeasonRevenue Decimal? @map("total_season_revenue") @db.Decimal(14, 2)
-  totalSeasonHours   Decimal? @map("total_season_hours") @db.Decimal(10, 2)
+  totalSeasonCost    Decimal?  @map("total_season_cost") @db.Decimal(14, 2)
+  totalSeasonRevenue Decimal?  @map("total_season_revenue") @db.Decimal(14, 2)
+  totalSeasonHours   Decimal?  @map("total_season_hours") @db.Decimal(10, 2)
   totalsUpdatedAt    DateTime? @map("totals_updated_at") @db.Timestamptz
 
   // Cached carbon totals (materialised from field_operations CO2 rollup).
@@ -476,9 +476,9 @@ model CropSeason {
   carbonTotalsUpdatedAt   DateTime? @map("carbon_totals_updated_at") @db.Timestamptz
 
   // Soft delete (audit compliance)
-  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz
-  deletedBy      String?   @map("deleted_by") @db.VarChar(100)
-  deletedReason  String?   @map("deleted_reason") @db.Text
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+  deletedBy     String?   @map("deleted_by") @db.VarChar(100)
+  deletedReason String?   @map("deleted_reason") @db.Text
 
   // Sync / audit
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
@@ -507,9 +507,9 @@ model CropSeason {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model FieldOperation {
-  id       String @id @default(uuid()) @db.Uuid
-  tenantId String @map("tenant_id") @db.VarChar(100)
-  fieldId  String @map("field_id") @db.Uuid
+  id           String  @id @default(uuid()) @db.Uuid
+  tenantId     String  @map("tenant_id") @db.VarChar(100)
+  fieldId      String  @map("field_id") @db.Uuid
   cropSeasonId String? @map("crop_season_id") @db.Uuid
 
   // Operation type — stored as VARCHAR to keep it extensible from the
@@ -521,9 +521,9 @@ model FieldOperation {
   // Timing — performedAt is the start of the operation; durationHours
   // captures how long it took. When the operation spans a window you
   // can also set `endedAt` separately.
-  performedAt  DateTime  @map("performed_at") @db.Date
-  endedAt      DateTime? @map("ended_at") @db.Timestamptz
-  durationHours Decimal? @map("duration_hours") @db.Decimal(8, 2)
+  performedAt   DateTime  @map("performed_at") @db.Date
+  endedAt       DateTime? @map("ended_at") @db.Timestamptz
+  durationHours Decimal?  @map("duration_hours") @db.Decimal(8, 2)
 
   // ── Total cost + currency ───────────────────────────────────────────
   costAmount   Decimal? @map("cost_amount") @db.Decimal(12, 2)
@@ -545,11 +545,11 @@ model FieldOperation {
   baseCurrency String?  @map("base_currency") @db.VarChar(8)
 
   // ── Vendor / invoice (accounting reconciliation) ────────────────────
-  invoiceNumber String?  @map("invoice_number") @db.VarChar(100)
+  invoiceNumber String?   @map("invoice_number") @db.VarChar(100)
   invoiceDate   DateTime? @map("invoice_date") @db.Date
-  vendorId      String?  @map("vendor_id") @db.VarChar(100)
-  vendorName    String?  @map("vendor_name") @db.VarChar(255)
-  receiptUrl    String?  @map("receipt_url") @db.VarChar(500)
+  vendorId      String?   @map("vendor_id") @db.VarChar(100)
+  vendorName    String?   @map("vendor_name") @db.VarChar(255)
+  receiptUrl    String?   @map("receipt_url") @db.VarChar(500)
 
   // ── GL / cost-center / project for ERP posting ─────────────────────
   glAccount   String? @map("gl_account") @db.VarChar(50)
@@ -557,19 +557,19 @@ model FieldOperation {
   projectCode String? @map("project_code") @db.VarChar(50)
 
   // ── ERP sync bookkeeping ────────────────────────────────────────────
-  externalId       String?  @map("external_id") @db.VarChar(100)
-  externalSource   String?  @map("external_source") @db.VarChar(50)
-  postedToErp      Boolean  @default(false) @map("posted_to_erp")
+  externalId       String?   @map("external_id") @db.VarChar(100)
+  externalSource   String?   @map("external_source") @db.VarChar(50)
+  postedToErp      Boolean   @default(false) @map("posted_to_erp")
   postedAt         DateTime? @map("posted_at") @db.Timestamptz
-  postingReference String?  @map("posting_reference") @db.VarChar(255)
-  postingError     String?  @map("posting_error") @db.Text
-  postingAttempts  Int      @default(0) @map("posting_attempts")
+  postingReference String?   @map("posting_reference") @db.VarChar(255)
+  postingError     String?   @map("posting_error") @db.Text
+  postingAttempts  Int       @default(0) @map("posting_attempts")
 
   // ── Approval workflow (pending | approved | rejected) ──────────────
-  approvalStatus   String   @default("approved") @map("approval_status") @db.VarChar(20)
-  approvedBy       String?  @map("approved_by") @db.VarChar(100)
-  approvedAt       DateTime? @map("approved_at") @db.Timestamptz
-  rejectionReason  String?  @map("rejection_reason") @db.Text
+  approvalStatus  String    @default("approved") @map("approval_status") @db.VarChar(20)
+  approvedBy      String?   @map("approved_by") @db.VarChar(100)
+  approvedAt      DateTime? @map("approved_at") @db.Timestamptz
+  rejectionReason String?   @map("rejection_reason") @db.Text
 
   // Equipment linkage (cross-service soft link).
   // `equipmentId` is a UUID owned by equipment-service. We cache the
@@ -641,20 +641,20 @@ model FieldOperation {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model OutboxEvent {
-  id             String   @id @default(uuid()) @db.Uuid
-  eventType      String   @map("event_type") @db.VarChar(200)
-  eventVersion   Int      @default(1) @map("event_version")
-  schemaRef      String   @map("schema_ref") @db.VarChar(240)
-  tenantId       String   @map("tenant_id") @db.Uuid
-  correlationId  String   @map("correlation_id") @db.Uuid
-  aggregateType  String?  @map("aggregate_type") @db.VarChar(100)
-  aggregateId    String?  @map("aggregate_id") @db.Uuid
-  payloadJson    String   @map("payload_json") @db.Text
-  published      Boolean  @default(false)
-  publishedAt    DateTime? @map("published_at") @db.Timestamptz
-  retryCount     Int      @default(0) @map("retry_count")
-  lastError      String?  @map("last_error") @db.Text
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id            String    @id @default(uuid()) @db.Uuid
+  eventType     String    @map("event_type") @db.VarChar(200)
+  eventVersion  Int       @default(1) @map("event_version")
+  schemaRef     String    @map("schema_ref") @db.VarChar(240)
+  tenantId      String    @map("tenant_id") @db.Uuid
+  correlationId String    @map("correlation_id") @db.Uuid
+  aggregateType String?   @map("aggregate_type") @db.VarChar(100)
+  aggregateId   String?   @map("aggregate_id") @db.Uuid
+  payloadJson   String    @map("payload_json") @db.Text
+  published     Boolean   @default(false)
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz
+  retryCount    Int       @default(0) @map("retry_count")
+  lastError     String?   @map("last_error") @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@index([published, createdAt], name: "ix_outbox_published_created")
   @@index([tenantId, createdAt], name: "ix_outbox_tenant_created")
@@ -742,14 +742,14 @@ model FieldOperationAudit {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model CarbonEventDedup {
-  tenantId         String   @map("tenant_id") @db.VarChar(100)
-  operationId      String   @map("operation_id") @db.Uuid
-  payloadHash      String   @map("payload_hash") @db.Char(64)
-  processedAt      DateTime @default(now()) @map("processed_at") @db.Timestamptz
+  tenantId         String    @map("tenant_id") @db.VarChar(100)
+  operationId      String    @map("operation_id") @db.Uuid
+  payloadHash      String    @map("payload_hash") @db.Char(64)
+  processedAt      DateTime  @default(now()) @map("processed_at") @db.Timestamptz
   carbonComputedAt DateTime? @map("carbon_computed_at") @db.Timestamptz
-  errorMessage     String?  @map("error_message") @db.Text
-  correlationId    String?  @map("correlation_id") @db.VarChar(100)
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  errorMessage     String?   @map("error_message") @db.Text
+  correlationId    String?   @map("correlation_id") @db.VarChar(100)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@id([tenantId, operationId])
   @@index([createdAt], name: "idx_carbon_dedup_age")
@@ -777,13 +777,13 @@ model FieldSubZone {
 
   // PostGIS polygon for the sub-zone — must lie inside the parent field
   // boundary (enforced at the application layer via ST_Contains).
-  boundary       Unsupported("geometry(Polygon, 4326)")?
-  areaHectares   Decimal? @map("area_hectares") @db.Decimal(10, 4)
+  boundary     Unsupported("geometry(Polygon, 4326)")?
+  areaHectares Decimal?                                @map("area_hectares") @db.Decimal(10, 4)
 
   // Topography (populated from terrain-core-service DEM lookup)
   elevationM   Decimal? @map("elevation_m") @db.Decimal(8, 2)
   slopeDegrees Decimal? @map("slope_degrees") @db.Decimal(5, 2)
-  aspect       String?  @db.VarChar(20)       // N | NE | E | SE | S | SW | W | NW | flat
+  aspect       String?  @db.VarChar(20) // N | NE | E | SE | S | SW | W | NW | flat
   isTerrace    Boolean  @default(false) @map("is_terrace")
   terraceLevel Int?     @map("terrace_level") // 1 = lowest, N = highest
 
@@ -828,10 +828,10 @@ model FieldReport {
   periodTo   DateTime? @map("period_to") @db.Date
 
   // Rendering state-machine: pending → rendering → ready | failed | expired
-  status          String    @default("pending") @db.VarChar(20)
-  renderedAt      DateTime? @map("rendered_at") @db.Timestamptz
-  errorMessage    String?   @map("error_message") @db.Text
-  renderAttempts  Int       @default(0) @map("render_attempts")
+  status         String    @default("pending") @db.VarChar(20)
+  renderedAt     DateTime? @map("rendered_at") @db.Timestamptz
+  errorMessage   String?   @map("error_message") @db.Text
+  renderAttempts Int       @default(0) @map("render_attempts")
 
   // Output
   contentHtml      String?   @map("content_html") @db.Text

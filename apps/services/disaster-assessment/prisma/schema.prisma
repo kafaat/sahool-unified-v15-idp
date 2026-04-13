@@ -32,31 +32,31 @@ model DisasterReport {
   id String @id @default(uuid()) @db.Uuid
 
   // Disaster Classification
-  type     DisasterType   @default(flood)
+  type     DisasterType     @default(flood)
   severity DisasterSeverity @default(medium)
-  status   DisasterStatus @default(reported)
+  status   DisasterStatus   @default(reported)
 
   // Basic Info
-  title       String  @db.VarChar(255)
-  titleAr     String? @map("title_ar") @db.VarChar(255)
-  description String? @db.Text
+  title         String  @db.VarChar(255)
+  titleAr       String? @map("title_ar") @db.VarChar(255)
+  description   String? @db.Text
   descriptionAr String? @map("description_ar") @db.Text
 
   // Location - GeoJSON point stored as JSON
-  governorate   String  @db.VarChar(100)
-  district      String? @db.VarChar(100)
-  location      Json    @db.JsonB // { lat: number, lng: number }
+  governorate String  @db.VarChar(100)
+  district    String? @db.VarChar(100)
+  location    Json    @db.JsonB // { lat: number, lng: number }
 
   // Impact Assessment
-  affectedRadiusKm       Float?   @map("affected_radius_km")
-  affectedArea           Float?   @map("affected_area") // hectares
-  affectedFieldsCount    Int      @default(0) @map("affected_fields_count")
-  totalAffectedAreaHectares Float? @map("total_affected_area_hectares")
-  totalEstimatedLossYER  BigInt?  @map("total_estimated_loss_yer")
+  affectedRadiusKm          Float?  @map("affected_radius_km")
+  affectedArea              Float?  @map("affected_area") // hectares
+  affectedFieldsCount       Int     @default(0) @map("affected_fields_count")
+  totalAffectedAreaHectares Float?  @map("total_affected_area_hectares")
+  totalEstimatedLossYER     BigInt? @map("total_estimated_loss_yer")
 
   // Reporting
-  reportedBy String  @default("system") @map("reported_by") @db.VarChar(255)
-  tenantId   String  @default("unassigned") @map("tenant_id") @db.VarChar(100)
+  reportedBy String @default("system") @map("reported_by") @db.VarChar(255)
+  tenantId   String @default("unassigned") @map("tenant_id") @db.VarChar(100)
 
   // Lifecycle Dates
   startDate  DateTime? @map("start_date") @db.Timestamptz
@@ -72,8 +72,8 @@ model DisasterReport {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  alerts            DisasterAlert[]
-  fieldAssessments  FieldAssessment[]
+  alerts           DisasterAlert[]
+  fieldAssessments FieldAssessment[]
 
   // Indexes
   @@index([tenantId], name: "idx_disaster_tenant")
@@ -100,16 +100,16 @@ model DisasterAlert {
   id String @id @default(uuid()) @db.Uuid
 
   // Alert Type
-  alertType DisasterAlertType @map("alert_type") @default(weather)
+  alertType DisasterAlertType @default(weather) @map("alert_type")
   severity  DisasterSeverity  @default(medium)
 
   // Content
-  title            String  @db.VarChar(255)
-  titleAr          String? @map("title_ar") @db.VarChar(255)
-  message          String  @db.Text
-  messageAr        String? @map("message_ar") @db.Text
-  description      String? @db.Text
-  descriptionAr    String? @map("description_ar") @db.Text
+  title         String  @db.VarChar(255)
+  titleAr       String? @map("title_ar") @db.VarChar(255)
+  message       String  @db.Text
+  messageAr     String? @map("message_ar") @db.Text
+  description   String? @db.Text
+  descriptionAr String? @map("description_ar") @db.Text
 
   // Location
   governorate   String  @db.VarChar(100)
@@ -127,7 +127,7 @@ model DisasterAlert {
   recommendationsAr Json? @map("recommendations_ar") @db.JsonB // Array of strings
 
   // Optional link to disaster
-  reportId String? @map("report_id") @db.Uuid
+  reportId String?         @map("report_id") @db.Uuid
   report   DisasterReport? @relation(fields: [reportId], references: [id], onDelete: SetNull)
 
   // Multi-tenancy
@@ -160,16 +160,16 @@ model FieldAssessment {
   id String @id @default(uuid()) @db.Uuid
 
   // Field & Disaster References
-  fieldId    String @map("field_id") @db.VarChar(100)
-  disasterId String @map("disaster_id") @db.Uuid
+  fieldId    String         @map("field_id") @db.VarChar(100)
+  disasterId String         @map("disaster_id") @db.Uuid
   disaster   DisasterReport @relation(fields: [disasterId], references: [id], onDelete: Cascade)
 
   // Damage Assessment
-  damagePercentage      Float   @map("damage_percentage") // 0-100
-  damageLevel           String  @map("damage_level") @db.VarChar(50) // minimal, light, moderate, severe, catastrophic
-  damageLevelAr         String? @map("damage_level_ar") @db.VarChar(50)
-  affectedAreaHectares  Float   @map("affected_area_hectares")
-  estimatedLossYER      BigInt  @map("estimated_loss_yer")
+  damagePercentage     Float   @map("damage_percentage") // 0-100
+  damageLevel          String  @map("damage_level") @db.VarChar(50) // minimal, light, moderate, severe, catastrophic
+  damageLevelAr        String? @map("damage_level_ar") @db.VarChar(50)
+  affectedAreaHectares Float   @map("affected_area_hectares")
+  estimatedLossYER     BigInt  @map("estimated_loss_yer")
 
   // Crop Info
   affectedCropType String? @map("affected_crop_type") @db.VarChar(100)
@@ -225,7 +225,7 @@ model AlertSubscription {
   isActive Boolean @default(true) @map("is_active")
 
   // Optional link to alert
-  alertId String? @map("alert_id") @db.Uuid
+  alertId String?        @map("alert_id") @db.Uuid
   alert   DisasterAlert? @relation(fields: [alertId], references: [id], onDelete: SetNull)
 
   // Timestamps
@@ -244,48 +244,48 @@ model AlertSubscription {
 // ─────────────────────────────────────────────────────────────────────────────
 
 enum DisasterType {
-  flood     // فيضان
-  drought   // جفاف
-  frost     // صقيع
-  hail      // بَرَد
-  storm     // عاصفة
-  pest      // آفات
-  disease   // أمراض نباتية
-  locust    // جراد
-  wildfire  // حرائق
+  flood // فيضان
+  drought // جفاف
+  frost // صقيع
+  hail // بَرَد
+  storm // عاصفة
+  pest // آفات
+  disease // أمراض نباتية
+  locust // جراد
+  wildfire // حرائق
 
   @@map("disaster_type")
 }
 
 enum DisasterSeverity {
-  low      // منخفض
-  medium   // متوسط
-  high     // عالي
+  low // منخفض
+  medium // متوسط
+  high // عالي
   critical // حرج
 
   @@map("disaster_severity")
 }
 
 enum DisasterStatus {
-  reported    // مُبلَّغ
-  verified    // مُحقَّق
-  active      // نشط
-  monitoring  // تحت المراقبة
-  resolved    // مُنتهي
-  archived    // مؤرشف
+  reported // مُبلَّغ
+  verified // مُحقَّق
+  active // نشط
+  monitoring // تحت المراقبة
+  resolved // مُنتهي
+  archived // مؤرشف
 
   @@map("disaster_status")
 }
 
 enum DisasterAlertType {
-  weather  // طقس
-  pest     // آفات
-  disease  // أمراض
-  flood    // فيضان
-  drought  // جفاف
-  frost    // صقيع
-  locust   // جراد
-  general  // عام
+  weather // طقس
+  pest // آفات
+  disease // أمراض
+  flood // فيضان
+  drought // جفاف
+  frost // صقيع
+  locust // جراد
+  general // عام
 
   @@map("disaster_alert_type")
 }

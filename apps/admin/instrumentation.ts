@@ -116,7 +116,6 @@ export async function onRequestError(
   try {
     const Sentry = await import("@sentry/nextjs");
     if (typeof Sentry.captureRequestError === "function") {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (Sentry.captureRequestError as (...a: any[]) => any)(...args);
     }
   } catch (err: unknown) {

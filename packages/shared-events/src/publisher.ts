@@ -108,7 +108,7 @@ export async function publishFieldCreated(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('field.created', payload, options);
+  await publishEvent('sahool.field.created', payload, options);
 }
 
 export async function publishFieldUpdated(
@@ -127,7 +127,7 @@ export async function publishFieldUpdated(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('field.updated', payload, options);
+  await publishEvent('sahool.field.updated', payload, options);
 }
 
 export async function publishFieldDeleted(
@@ -138,7 +138,7 @@ export async function publishFieldDeleted(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('field.deleted', payload, options);
+  await publishEvent('sahool.field.deleted', payload, options);
 }
 
 // ============================================================================
@@ -165,7 +165,7 @@ export async function publishOrderPlaced(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('order.placed', payload, options);
+  await publishEvent('sahool.order.placed', payload, options);
 }
 
 export async function publishOrderCompleted(
@@ -178,7 +178,7 @@ export async function publishOrderCompleted(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('order.completed', payload, options);
+  await publishEvent('sahool.order.completed', payload, options);
 }
 
 export async function publishOrderCancelled(
@@ -190,7 +190,7 @@ export async function publishOrderCancelled(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('order.cancelled', payload, options);
+  await publishEvent('sahool.order.cancelled', payload, options);
 }
 
 // ============================================================================
@@ -210,7 +210,7 @@ export async function publishSensorReading(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('sensor.reading', payload, options);
+  await publishEvent('sahool.sensor.reading', payload, options);
 }
 
 export async function publishDeviceConnected(
@@ -223,7 +223,7 @@ export async function publishDeviceConnected(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('device.connected', payload, options);
+  await publishEvent('sahool.device.connected', payload, options);
 }
 
 export async function publishDeviceDisconnected(
@@ -236,7 +236,7 @@ export async function publishDeviceDisconnected(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('device.disconnected', payload, options);
+  await publishEvent('sahool.device.disconnected', payload, options);
 }
 
 // ============================================================================
@@ -255,7 +255,7 @@ export async function publishUserCreated(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('user.created', payload, options);
+  await publishEvent('sahool.user.created', payload, options);
 }
 
 export async function publishUserUpdated(
@@ -272,7 +272,7 @@ export async function publishUserUpdated(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('user.updated', payload, options);
+  await publishEvent('sahool.user.updated', payload, options);
 }
 
 // ============================================================================
@@ -290,7 +290,7 @@ export async function publishInventoryLowStock(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('inventory.low_stock', payload, options);
+  await publishEvent('sahool.inventory.low_stock', payload, options);
 }
 
 export async function publishInventoryMovement(
@@ -306,7 +306,7 @@ export async function publishInventoryMovement(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('inventory.movement', payload, options);
+  await publishEvent('sahool.inventory.movement', payload, options);
 }
 
 // ============================================================================
@@ -326,5 +326,5 @@ export async function publishNotificationSend(
   },
   options?: PublishOptions
 ): Promise<void> {
-  await publishEvent('notification.send', payload, options);
+  await publishEvent('sahool.notification.send', payload, options);
 }

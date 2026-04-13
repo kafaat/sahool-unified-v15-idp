@@ -14,11 +14,15 @@ import { ChatGateway } from "./chat/chat.gateway";
 import { ChatService } from "./chat/chat.service";
 import { ChatController } from "./chat/chat.controller";
 import { HealthController } from "./health/health.controller";
+import { EventsModule } from "./events/events.module";
 
 @Module({
   imports: [
     // Structured JSON logging with Pino
     LoggerModule.forRoot(createPinoLoggerConfig("chat-service")),
+
+    // Global NATS publisher service (chat.message.sent, chat.message.read)
+    EventsModule,
 
     // Rate limiting configuration
     ThrottlerModule.forRoot([

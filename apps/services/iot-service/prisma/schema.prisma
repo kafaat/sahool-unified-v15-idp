@@ -11,8 +11,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   // Direct URL for migrations (bypasses PgBouncer connection pooler)
   directUrl = env("DATABASE_URL_DIRECT")
   // TLS/SSL enforcement for secure connections
@@ -98,7 +98,7 @@ enum CommandStatus {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Device {
-  id       String @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
 
   // Tenant & Identity
   tenantId String       @map("tenant_id") @db.VarChar(100)
@@ -222,9 +222,9 @@ model Actuator {
   actuatorType ActuatorType @map("actuator_type")
 
   // Actuator State
-  name          String? @db.VarChar(255)
-  currentState  Json?   @map("current_state") @db.JsonB // Current state (e.g., {"position": 50, "enabled": true})
-  lastCommand   String? @map("last_command") @db.VarChar(255)
+  name          String?   @db.VarChar(255)
+  currentState  Json?     @map("current_state") @db.JsonB // Current state (e.g., {"position": 50, "enabled": true})
+  lastCommand   String?   @map("last_command") @db.VarChar(255)
   lastCommandAt DateTime? @map("last_command_at") @db.Timestamptz
 
   // Timestamps

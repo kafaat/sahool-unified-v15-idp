@@ -15,6 +15,7 @@ import { ChatService } from "../chat/chat.service";
 import { ChatController } from "../chat/chat.controller";
 import { HealthController } from "../health/health.controller";
 import { PrismaService } from "../prisma/prisma.service";
+import { ChatEventsService } from "../events/chat-events.service";
 import { CreateConversationDto } from "../chat/dto/create-conversation.dto";
 import { SendMessageDto, MessageType } from "../chat/dto/send-message.dto";
 
@@ -131,6 +132,7 @@ describe("Health Endpoints", () => {
         providers: [
           ChatService,
           { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
         ],
       }).compile();
 
@@ -159,6 +161,7 @@ describe("Health Endpoints", () => {
         controllers: [HealthController],
         providers: [
           { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
         ],
       }).compile();
 
@@ -232,6 +235,7 @@ describe("Module Initialization", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -250,6 +254,7 @@ describe("Module Initialization", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -264,6 +269,7 @@ describe("Module Initialization", () => {
       controllers: [HealthController],
       providers: [
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -287,6 +293,7 @@ describe("ChatService - Conversation Creation", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -437,6 +444,7 @@ describe("ChatService - Message Creation & Validation", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -713,6 +721,7 @@ describe("ChatService - Participant Management", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 

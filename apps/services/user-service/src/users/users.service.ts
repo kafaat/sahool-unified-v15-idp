@@ -10,6 +10,7 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { UserEventsService } from "../events/user-events.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcryptjs";
@@ -28,7 +29,10 @@ import {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly events: UserEventsService,
+  ) {}
 
   /**
    * Create a new user
@@ -94,6 +98,19 @@ export class UsersService {
           },
         },
       },
+    });
+
+    // Fire-and-forget NATS publish — downstream services (audit, notification)
+    // react to `sahool.user.created`. Do not block user-creation on event bus
+    // availability; UserEventsService logs + swallows failures.
+    void this.events.publishUserCreated({
+      tenantId,
+      userId: (user as User).id,
+      email: (user as User).email,
+      firstName: (user as User).firstName ?? undefined,
+      lastName: (user as User).lastName ?? undefined,
+      role: String((user as User).role),
+      createdAt: (user as User).createdAt,
     });
 
     return user as User;
@@ -231,10 +248,17 @@ export class UsersService {
    * تحديث مستخدم
    */
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    // Check if user exists
+    // Check if user exists — also fetch role/status so we can detect role or
+    // status changes and emit the dedicated events.
     const existingUser = await this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, email: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        tenantId: true,
+      },
     });
 
     if (!existingUser) {
@@ -297,7 +321,49 @@ export class UsersService {
       },
     });
 
-    return user as User;
+    const updated = user as User;
+
+    // Emit generic "updated" event for any non-empty change set.
+    // Use the persisted `updated.updatedAt` (set by Prisma's
+    // @updatedAt directive on the row we just wrote) rather than
+    // `new Date()` — the latter races against the DB clock and
+    // makes event-vs-row correlation in audit-service unreliable.
+    void this.events.publishUserUpdated({
+      tenantId: updated.tenantId,
+      userId: updated.id,
+      changes: {
+        email: updateUserDto.email,
+        firstName: updateUserDto.firstName,
+        lastName: updateUserDto.lastName,
+        role: updateUserDto.role,
+      },
+      updatedAt: updated.updatedAt,
+    });
+
+    // Specialised events — downstream audit & authorization caches can
+    // invalidate more precisely when only the role or status flipped.
+    if (updateUserDto.role && updateUserDto.role !== String(existingUser.role)) {
+      void this.events.publishUserRoleChanged({
+        tenantId: updated.tenantId,
+        userId: updated.id,
+        oldRole: String(existingUser.role),
+        newRole: String(updateUserDto.role),
+      });
+    }
+
+    if (
+      updateUserDto.status &&
+      updateUserDto.status !== String(existingUser.status)
+    ) {
+      void this.events.publishUserStatusChanged({
+        tenantId: updated.tenantId,
+        userId: updated.id,
+        oldStatus: String(existingUser.status),
+        newStatus: String(updateUserDto.status),
+      });
+    }
+
+    return updated;
   }
 
   /**
@@ -314,7 +380,7 @@ export class UsersService {
     }
 
     // Soft delete by setting status to INACTIVE
-    return this.prisma.user.update({
+    const deactivated = (await this.prisma.user.update({
       where: { id },
       data: {
         status: UserStatus.INACTIVE,
@@ -323,7 +389,15 @@ export class UsersService {
         ...CommonSelects.userBasic,
         tenantId: true,
       },
+    })) as User;
+
+    void this.events.publishUserDeleted({
+      tenantId: deactivated.tenantId,
+      userId: deactivated.id,
+      hardDelete: false,
     });
+
+    return deactivated;
   }
 
   /**
@@ -333,6 +407,7 @@ export class UsersService {
   async hardDelete(id: string): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: { id },
+      select: { id: true, tenantId: true },
     });
 
     if (!user) {
@@ -341,6 +416,12 @@ export class UsersService {
 
     await this.prisma.user.delete({
       where: { id },
+    });
+
+    void this.events.publishUserDeleted({
+      tenantId: user.tenantId,
+      userId: user.id,
+      hardDelete: true,
     });
   }
 

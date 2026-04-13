@@ -221,7 +221,7 @@ setInterval(() => {
   for (const client of clients) {
     try {
       client.write(frame);
-    } catch (_e) {
+    } catch {
       clients.delete(client);
     }
   }

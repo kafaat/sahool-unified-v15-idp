@@ -84,8 +84,10 @@ spec:
     - id: fetch
       name: Fetch Base Template
       action: fetch:template
+      # Worker services use the data-pipeline skeleton (NATS subscriber +
+      # no HTTP listener). Original `./skeleton` was a dead link.
       input:
-        url: ./skeleton
+        url: ../../../idp/templates/data-pipeline/skeleton
         values:
           name: ${{ parameters.name }}
           owner: ${{ parameters.owner }}

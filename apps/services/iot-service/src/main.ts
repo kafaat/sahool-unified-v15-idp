@@ -14,11 +14,32 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe, RequestMethod } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import helmet from "helmet";
+import { initializeNatsClient, NatsClient } from "@sahool/shared-events";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
 import { RequestLoggingInterceptor } from "./utils/request-logging.interceptor";
 
 async function bootstrap() {
+  // Initialize NATS BEFORE Nest app starts so the IoT service can publish
+  // sensor alerts to notification-service via @sahool/shared-events. Without
+  // this call, publishNotificationSend() throws "NATS connection is not
+  // available" — the .catch() in iot.service.ts swallows it silently and
+  // sensor alerts disappear in production. Failure is non-fatal: the
+  // service still starts and serves HTTP / MQTT.
+  try {
+    await initializeNatsClient({
+      servers: process.env.NATS_URL || "nats://nats:4222",
+      name: "iot-service",
+    });
+    console.log("[NATS] Connected — sensor alerts will publish to event bus");
+  } catch (err) {
+    console.warn(
+      `[NATS] Connection failed (degraded mode, sensor alerts will be dropped): ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+  }
+
   const app = await NestFactory.create(AppModule);
 
   // Security headers
@@ -101,6 +122,18 @@ async function bootstrap() {
     console.log(`\nReceived ${signal}, starting graceful shutdown...`);
     try {
       await app.close();
+      // Drain pending NATS publishes before exiting so in-flight sensor
+      // alerts aren't lost.
+      try {
+        const nats = NatsClient.getInstance();
+        if (nats.isConnected()) {
+          await nats.disconnect();
+        }
+      } catch (err) {
+        console.warn(
+          `[NATS] Drain failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
       console.log('Service shutdown complete');
       process.exit(0);
     } catch (error) {

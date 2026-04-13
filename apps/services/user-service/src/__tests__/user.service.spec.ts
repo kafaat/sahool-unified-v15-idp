@@ -23,6 +23,19 @@ import {
 import { Reflector } from "@nestjs/core";
 import { UsersService } from "../users/users.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { UserEventsService } from "../events/user-events.service";
+
+// Shared no-op events stub for every TestingModule below — UsersService
+// emits NATS events on every CRUD path now, but tests don't care about
+// those side-effects.
+const userEventsStub = {
+  publishUserCreated: jest.fn().mockResolvedValue(undefined),
+  publishUserUpdated: jest.fn().mockResolvedValue(undefined),
+  publishUserRoleChanged: jest.fn().mockResolvedValue(undefined),
+  publishUserStatusChanged: jest.fn().mockResolvedValue(undefined),
+  publishUserDeleted: jest.fn().mockResolvedValue(undefined),
+  isConnected: jest.fn().mockReturnValue(false),
+};
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import {
   UserStatus,
@@ -62,6 +75,7 @@ describe("HealthController", () => {
       controllers: [HealthController, HealthzController],
       providers: [
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: UserEventsService, useValue: userEventsStub },
         { provide: RedisTokenRevocationStore, useValue: mockRedisStore },
       ],
     }).compile();
@@ -158,6 +172,7 @@ describe("HealthController", () => {
         controllers: [HealthController],
         providers: [
           { provide: PrismaService, useValue: mockPrisma },
+          { provide: UserEventsService, useValue: userEventsStub },
           // RedisTokenRevocationStore not provided
         ],
       }).compile();
@@ -230,6 +245,7 @@ describe("Module Initialization", () => {
         providers: [
           UsersService,
           { provide: PrismaService, useValue: mockPrismaService },
+          { provide: UserEventsService, useValue: userEventsStub },
         ],
       }).compile();
 

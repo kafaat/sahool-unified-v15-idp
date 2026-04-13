@@ -173,6 +173,63 @@ class AuthApiClient {
     });
   }
 
+  /**
+   * Self-registration. Routes through the same Next.js rewrite as login
+   * (`/api/v1/auth/register` → Kong → user-service). Replaces a raw
+   * `fetch(${NEXT_PUBLIC_API_URL}/api/v1/auth/register)` call that
+   * `RegisterClient.tsx` used to make.
+   *
+   * What this client actually provides (vs what it does NOT):
+   *   * provides : 30 s default request timeout (DEFAULT_TIMEOUT),
+   *                same-origin cookie credentials (via `request()`),
+   *                a `{ success, ... }` discriminated-union return —
+   *                ERRORS ARE RETURNED, NOT THROWN, except for the
+   *                token-refresh path (which throws on failure).
+   *   * does NOT : automatic retry on transient failure, CSRF
+   *                double-submit token injection (auth endpoints are
+   *                anonymous so CSRF is unnecessary), bilingual error
+   *                normalization (the caller is responsible for
+   *                surfacing `messageAr` if present in the response).
+   *   For richer behavior use `unifiedApiClient` from
+   *   `lib/api/unified-client.ts`, which adds CSRF + interceptors.
+   *
+   * `phone` is normalized by the caller (RegisterClient handles the
+   * Yemen-specific operator detection + +967 prefix).
+   */
+  async register(input: {
+    email?: string;
+    phone?: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }) {
+    // Normalise email BEFORE validation so a value like ` user@x.com `
+    // isn't rejected as "Invalid email format" only to be silently
+    // accepted by the body's `.toLowerCase().trim()` a few lines down.
+    const normalizedEmail = input.email?.toLowerCase().trim();
+
+    if (!normalizedEmail && !input.phone) {
+      return {
+        success: false as const,
+        error: 'Either email or phone is required',
+      };
+    }
+    if (normalizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return { success: false as const, error: 'Invalid email format' };
+    }
+
+    return this.request<LoginResponse>('/api/v1/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: normalizedEmail || undefined,
+        phone: input.phone || undefined,
+        password: input.password,
+        firstName: input.firstName.trim(),
+        lastName: input.lastName.trim(),
+      }),
+    });
+  }
+
   async getCurrentUser() {
     // Use the Next.js server-side proxy which decodes the httpOnly cookie.
     // The backend POST /api/v1/auth/me endpoint is not reliably reachable

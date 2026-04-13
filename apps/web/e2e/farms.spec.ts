@@ -16,7 +16,7 @@ import {
   waitForToast,
   navigateAndWait,
 } from "./helpers/page.helpers";
-import { testData, timeouts } from "./helpers/test-data";
+import { timeouts } from "./helpers/test-data";
 
 /**
  * Generate random farm data

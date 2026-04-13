@@ -7,6 +7,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { NotFoundException, BadRequestException } from "@nestjs/common";
 import { ChatService } from "../src/chat/chat.service";
 import { PrismaService } from "../src/prisma/prisma.service";
+import { ChatEventsService } from "../src/events/chat-events.service";
 import { CreateConversationDto } from "../src/chat/dto/create-conversation.dto";
 import { SendMessageDto } from "../src/chat/dto/send-message.dto";
 import { MessageType } from "../src/chat/dto/send-message.dto";
@@ -103,6 +104,14 @@ describe("ChatService", () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: ChatEventsService,
+          useValue: {
+            publishMessageSent: jest.fn(),
+            publishMessageRead: jest.fn(),
+            isConnected: jest.fn().mockReturnValue(false),
+          },
         },
       ],
     }).compile();

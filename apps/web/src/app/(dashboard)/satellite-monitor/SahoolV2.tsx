@@ -484,7 +484,7 @@ export default function SahoolV2() {
                     const MAX_BYTES = 50 * 1024 * 1024;
                     const oversize: File | undefined = files.find((f: File) => f.size > MAX_BYTES);
                     if (oversize) {
-                      // eslint-disable-next-line no-alert
+
                       alert(`الملف "${oversize.name}" يتجاوز الحد الأقصى 50 ميجابايت`);
                       e.target.value = '';
                       return;

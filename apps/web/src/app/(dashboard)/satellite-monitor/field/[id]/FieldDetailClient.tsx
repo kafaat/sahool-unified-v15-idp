@@ -156,7 +156,7 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
         } catch (err) {
           // Non-fatal: the season is already created; surface in console
           // for debugging but don't block the modal from closing.
-          // eslint-disable-next-line no-console
+
           console.error('Failed to record plowing operation', err);
         }
       }
@@ -176,14 +176,14 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
             equipmentNameAr: newEntry.landPreparationEquipmentNameAr,
           });
         } catch (err) {
-          // eslint-disable-next-line no-console
+
           console.error('Failed to record land-preparation operation', err);
         }
       }
 
       setSeasonModalOpen(false);
     } catch (err) {
-      // eslint-disable-next-line no-console
+
       console.error('Failed to start crop season', err);
     }
   };

@@ -505,12 +505,20 @@ SAHOOL_EDGE_ALL = "sahool.edge.*"
 # User/Auth Subjects - موضوعات المستخدمين والمصادقة
 # ─────────────────────────────────────────────────────────────────────────────
 
+# `user.created` is the platform-canonical "a user record now exists" event,
+# emitted regardless of provenance (admin-created, self-registered via
+# AuthService, partner OAuth, etc.). `user.registered` is the more specific
+# self-registration variant kept for backwards-compatibility with older
+# subscribers.
+SAHOOL_USER_CREATED = "sahool.user.created"
 SAHOOL_USER_REGISTERED = "sahool.user.registered"
 SAHOOL_USER_VERIFIED = "sahool.user.verified"
 SAHOOL_USER_LOGGED_IN = "sahool.user.logged_in"
 SAHOOL_USER_LOGGED_OUT = "sahool.user.logged_out"
 SAHOOL_USER_UPDATED = "sahool.user.updated"
 SAHOOL_USER_DELETED = "sahool.user.deleted"
+SAHOOL_USER_ROLE_CHANGED = "sahool.user.role_changed"
+SAHOOL_USER_STATUS_CHANGED = "sahool.user.status_changed"
 SAHOOL_USER_PASSWORD_CHANGED = "sahool.user.password_changed"
 SAHOOL_USER_2FA_ENABLED = "sahool.user.2fa_enabled"
 SAHOOL_USER_ACCOUNT_LOCKED = "sahool.user.account_locked"
@@ -738,6 +746,9 @@ SAHOOL_LLM_ALL = "sahool.llm.*"
 
 SAHOOL_CHAT_AI_QUERY = "sahool.chat.ai_query"
 SAHOOL_CHAT_AI_RESPONSE = "sahool.chat.ai_response"
+# Conversation lifecycle (peer-to-peer messaging, not AI-only)
+SAHOOL_CHAT_MESSAGE_SENT = "sahool.chat.message.sent"
+SAHOOL_CHAT_MESSAGE_READ = "sahool.chat.message.read"
 
 SAHOOL_CHAT_ALL = "sahool.chat.*"
 

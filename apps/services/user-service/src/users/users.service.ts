@@ -324,6 +324,10 @@ export class UsersService {
     const updated = user as User;
 
     // Emit generic "updated" event for any non-empty change set.
+    // Use the persisted `updated.updatedAt` (set by Prisma's
+    // @updatedAt directive on the row we just wrote) rather than
+    // `new Date()` — the latter races against the DB clock and
+    // makes event-vs-row correlation in audit-service unreliable.
     void this.events.publishUserUpdated({
       tenantId: updated.tenantId,
       userId: updated.id,
@@ -333,7 +337,7 @@ export class UsersService {
         lastName: updateUserDto.lastName,
         role: updateUserDto.role,
       },
-      updatedAt: new Date(),
+      updatedAt: updated.updatedAt,
     });
 
     // Specialised events — downstream audit & authorization caches can

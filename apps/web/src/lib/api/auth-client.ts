@@ -179,10 +179,12 @@ class AuthApiClient {
    * `fetch(${NEXT_PUBLIC_API_URL}/api/v1/auth/register)` call that
    * `RegisterClient.tsx` used to make.
    *
-   * NOTE on what this client provides vs what it does NOT:
-   *   * provides : explicit timeout (15 s default in `request()`),
-   *                same-origin cookie credentials, structured error
-   *                throw with the server's error string.
+   * What this client actually provides (vs what it does NOT):
+   *   * provides : 30 s default request timeout (DEFAULT_TIMEOUT),
+   *                same-origin cookie credentials (via `request()`),
+   *                a `{ success, ... }` discriminated-union return —
+   *                ERRORS ARE RETURNED, NOT THROWN, except for the
+   *                token-refresh path (which throws on failure).
    *   * does NOT : automatic retry on transient failure, CSRF
    *                double-submit token injection (auth endpoints are
    *                anonymous so CSRF is unnecessary), bilingual error
@@ -201,20 +203,25 @@ class AuthApiClient {
     firstName: string;
     lastName: string;
   }) {
-    if (!input.email && !input.phone) {
+    // Normalise email BEFORE validation so a value like ` user@x.com `
+    // isn't rejected as "Invalid email format" only to be silently
+    // accepted by the body's `.toLowerCase().trim()` a few lines down.
+    const normalizedEmail = input.email?.toLowerCase().trim();
+
+    if (!normalizedEmail && !input.phone) {
       return {
         success: false as const,
         error: 'Either email or phone is required',
       };
     }
-    if (input.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
+    if (normalizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return { success: false as const, error: 'Invalid email format' };
     }
 
     return this.request<LoginResponse>('/api/v1/auth/register', {
       method: 'POST',
       body: JSON.stringify({
-        email: input.email ? input.email.toLowerCase().trim() : undefined,
+        email: normalizedEmail || undefined,
         phone: input.phone || undefined,
         password: input.password,
         firstName: input.firstName.trim(),

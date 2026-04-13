@@ -89,6 +89,12 @@ IS_EXCEPTION() {
 #   publishEvent('subject', …)
 #   subscribePattern('subject', …)
 #   subscribe('subject', …)
+#
+# We use grep -P (PCRE) below for `\b` word-boundary support — `\b` is
+# NOT supported by POSIX ERE (`grep -E`), and in some BSD greps it is
+# silently treated as a literal backspace, which would let real
+# violations slip through CI. PCRE is available in GNU grep on every
+# linux runner used by GitHub Actions.
 PATTERN='\b(publish|subscribe|subscribePattern|publishEvent)\s*\(\s*['"'"'"]'
 
 echo "→ Scanning for NATS subjects without \`sahool.\` prefix..."
@@ -121,7 +127,15 @@ while IFS=: read -r file line content; do
 
   # Extract the first string-literal argument: capture the content
   # between the first pair of matching quotes after `(`.
-  subject=$(echo "$content" | sed -n "s/.*\b\(publish\|subscribe\|subscribePattern\|publishEvent\)\s*(\s*['\"]\\([^'\"]*\\)['\"].*/\\2/p" | head -1)
+  #
+  # Avoid `\b` and `\s` — neither is in POSIX BRE/ERE for sed (GNU sed
+  # supports them as extensions, BSD sed does not). The leading `.*[^a-zA-Z_]`
+  # acts as a portable word-boundary alternative: it forces at least one
+  # non-identifier char before `publish`/`subscribe`, which prevents matches
+  # like `republishEvent(...)`. `[[:space:]]*` is the POSIX-safe form of `\s*`.
+  subject=$(echo "$content" \
+    | sed -n "s/.*[^a-zA-Z_]\(publish\|subscribe\|subscribePattern\|publishEvent\)[[:space:]]*([[:space:]]*['\"]\\([^'\"]*\\)['\"].*/\\2/p" \
+    | head -1)
 
   if [[ -z "$subject" ]]; then
     continue
@@ -140,7 +154,7 @@ while IFS=: read -r file line content; do
   echo "::error file=$file,line=$line::NATS subject '$subject' is missing the 'sahool.' prefix"
   echo "   $file:$line  → $subject"
   violations=$((violations + 1))
-done < <(grep -rnE --include='*.ts' --include='*.tsx' --include='*.js' --include='*.py' \
+done < <(grep -rnP --include='*.ts' --include='*.tsx' --include='*.js' --include='*.py' \
            "$PATTERN" "${SCAN_PATHS[@]}" 2>/dev/null || true)
 
 echo

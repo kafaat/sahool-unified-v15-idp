@@ -11,6 +11,7 @@
  * typed constants in `@sahool/shared-events`.
  */
 
+import { randomUUID } from "node:crypto";
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import {
   initializeNatsClient,
@@ -211,7 +212,7 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
       if (!conn || conn.isClosed()) return;
 
       const envelope = {
-        eventId: crypto.randomUUID(),
+        eventId: randomUUID(),
         eventType: subject,
         timestamp: new Date().toISOString(),
         version: "1.0",

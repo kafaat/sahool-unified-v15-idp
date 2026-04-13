@@ -10,6 +10,7 @@
  * Python registry in `shared/events/subjects.py`.
  */
 
+import { randomUUID } from "node:crypto";
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import { initializeNatsClient, NatsClient } from "@sahool/shared-events";
 
@@ -119,7 +120,7 @@ export class ChatEventsService implements OnModuleInit, OnModuleDestroy {
       if (!conn || conn.isClosed()) return;
 
       const envelope = {
-        eventId: crypto.randomUUID(),
+        eventId: randomUUID(),
         eventType: subject,
         timestamp: new Date().toISOString(),
         version: "1.0",

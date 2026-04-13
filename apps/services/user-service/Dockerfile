@@ -16,10 +16,27 @@ WORKDIR /workspace
 # Copy shared modules first (required for imports from ../../shared/)
 COPY apps/services/shared ./shared/
 
+# Copy @sahool/shared-events package (workspace dependency — same pattern
+# as iot-service). Required because user-service now publishes
+# sahool.user.* events through @sahool/shared-events.
+COPY packages/shared-events ./packages/shared-events/
+
+# Build shared-events so it's ready to be linked via the file: protocol.
+WORKDIR /workspace/packages/shared-events
+RUN npm config set registry https://registry.npmjs.org; \
+    if npm install && npm run build; then true; \
+    else npm config set registry https://registry.npmmirror.com && npm install && npm run build; fi
+
 # Copy service to maintain relative path: ../../shared/ from user-service/src/
+WORKDIR /workspace
 COPY apps/services/user-service ./user-service/
 
 WORKDIR /workspace/user-service
+
+# Rewrite the @sahool/shared-events dep to point at the locally-built copy
+# so `npm install` doesn't try to fetch a non-existent package from the
+# public registry.
+RUN npm pkg set dependencies.'@sahool/shared-events'='file:../packages/shared-events'
 
 # Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
 RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \

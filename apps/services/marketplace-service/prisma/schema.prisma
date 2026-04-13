@@ -280,7 +280,9 @@ model Transaction {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  wallet    Wallet           @relation(fields: [walletId], references: [id])
+  // Restrict: financial audit trail — never cascade-delete a wallet
+  // that still has transactions attached to it.
+  wallet    Wallet           @relation(fields: [walletId], references: [id], onDelete: Restrict)
   auditLogs WalletAuditLog[]
 
   @@index([tenantId], name: "idx_transaction_tenant")
@@ -357,7 +359,8 @@ model Loan {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  wallet Wallet @relation(fields: [walletId], references: [id])
+  // Restrict: loan history must outlive any wallet reorganisation.
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Restrict)
 
   @@index([tenantId], name: "idx_loan_tenant")
   @@index([walletId], name: "idx_loan_wallet")
@@ -403,7 +406,8 @@ model CreditEvent {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  wallet Wallet @relation(fields: [walletId], references: [id])
+  // Restrict: credit events are a permanent ledger.
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Restrict)
 
   @@index([tenantId], name: "idx_credit_event_tenant")
   @@index([walletId])
@@ -451,8 +455,11 @@ model Escrow {
   releasedAt DateTime? @map("released_at")
   refundedAt DateTime? @map("refunded_at")
 
-  buyerWallet  Wallet @relation("BuyerEscrows", fields: [buyerWalletId], references: [id])
-  sellerWallet Wallet @relation("SellerEscrows", fields: [sellerWalletId], references: [id])
+  // Restrict: escrow rows are part of the dispute-resolution audit
+  // trail; a wallet with active escrow must be closed explicitly,
+  // never silently cascade-deleted.
+  buyerWallet  Wallet @relation("BuyerEscrows", fields: [buyerWalletId], references: [id], onDelete: Restrict)
+  sellerWallet Wallet @relation("SellerEscrows", fields: [sellerWalletId], references: [id], onDelete: Restrict)
 
   @@index([tenantId], name: "idx_escrow_tenant")
   @@index([buyerWalletId])
@@ -498,7 +505,9 @@ model ScheduledPayment {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  wallet Wallet @relation(fields: [walletId], references: [id])
+  // Restrict: scheduled payments must be cancelled explicitly before
+  // the owning wallet can be deleted.
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Restrict)
 
   @@index([tenantId], name: "idx_scheduled_payment_tenant")
   @@index([walletId])
@@ -551,8 +560,12 @@ model WalletAuditLog {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  wallet      Wallet       @relation(fields: [walletId], references: [id])
-  transaction Transaction? @relation(fields: [transactionId], references: [id])
+  // Restrict on wallet: audit rows outlive any wallet cleanup.
+  // SetNull on transaction: audit entries can exist without a specific
+  // transaction reference (e.g. manual adjustments), so if a
+  // transaction is ever hard-deleted we keep the audit row.
+  wallet      Wallet       @relation(fields: [walletId], references: [id], onDelete: Restrict)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
 
   @@index([tenantId], name: "idx_wallet_audit_tenant")
   @@index([walletId])
@@ -664,7 +677,9 @@ model ProductReview {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  buyer    BuyerProfile    @relation(fields: [buyerId], references: [id])
+  // Restrict: reviews are reputational data — a buyer profile can't
+  // be hard-deleted while reviews still reference it.
+  buyer    BuyerProfile    @relation(fields: [buyerId], references: [id], onDelete: Restrict)
   response ReviewResponse?
 
   @@index([tenantId], name: "idx_review_tenant")
@@ -688,7 +703,9 @@ model ReviewResponse {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   review ProductReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  seller SellerProfile @relation(fields: [sellerId], references: [id])
+  // Restrict: a seller can't disappear while they still have
+  // review responses in the public feed.
+  seller SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Restrict)
 
   @@index([tenantId], name: "idx_review_response_tenant")
   @@index([reviewId])

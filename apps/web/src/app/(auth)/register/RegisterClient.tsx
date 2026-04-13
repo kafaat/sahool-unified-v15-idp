@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/stores/auth.store';
+import { authApiClient } from '@/lib/api/auth-client';
 import { useToast } from '@/components/ui/toast';
 
 /**
@@ -248,45 +249,21 @@ export default function RegisterClient() {
         normalizedPhone = `${YEMEN_COUNTRY_CODE}${normalizedPhone}`;
       }
 
-      // Call registration API with timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      // Use the typed authApiClient.register() instead of a raw fetch.
+      // This routes through the Next.js rewrite (same-origin) so the
+      // browser carries the CSRF cookie + the unified client applies
+      // the timeout, retry, and bilingual error envelope automatically.
+      // See E2E_USER_JOURNEY_AUDIT.md F-3 for the rationale.
+      const result = await authApiClient.register({
+        email: formData.email,
+        phone: normalizedPhone,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+      });
 
-      let response: Response;
-      try {
-        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/auth/register`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formData.email ? formData.email.toLowerCase().trim() : undefined,
-            password: formData.password,
-            firstName: formData.firstName.trim(),
-            lastName: formData.lastName.trim(),
-            phone: normalizedPhone || undefined,
-          }),
-          credentials: 'include',
-          signal: controller.signal,
-        });
-      } finally {
-        clearTimeout(timeoutId);
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType?.includes('application/json')) {
-        throw new Error('Invalid response from server');
-      }
-
-      const data: {
-        message?: string;
-        detail?: string;
-        access_token?: string;
-        refresh_token?: string;
-      } = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || data.detail || 'Registration failed');
+      if (!result.success) {
+        throw new Error(result.error || result.message || 'Registration failed');
       }
 
       showToast({
@@ -295,17 +272,17 @@ export default function RegisterClient() {
         message: 'Account created successfully',
       });
 
-      // Auto-login after successful registration if tokens are returned
-      if (data.access_token) {
-        // Set session via API
+      // Auto-login after successful registration if tokens are returned.
+      // The session endpoint sets httpOnly cookies — the next navigation
+      // will carry them automatically.
+      const tokens = result.data;
+      if (tokens?.access_token) {
         const sessionResponse = await fetch('/api/auth/session', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            access_token: data.access_token,
-            refresh_token: data.refresh_token,
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
           }),
         });
 

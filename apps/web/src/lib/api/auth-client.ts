@@ -173,6 +173,45 @@ class AuthApiClient {
     });
   }
 
+  /**
+   * Self-registration. Routes through the same Next.js rewrite as login
+   * (`/api/v1/auth/register` → Kong → user-service). Replaces the raw
+   * `fetch(${NEXT_PUBLIC_API_URL}/api/v1/auth/register)` call that
+   * `RegisterClient.tsx` used to make — that bypassed CSRF, retry,
+   * timeouts, and bilingual error normalization.
+   *
+   * `phone` is normalized by the caller (RegisterClient handles the
+   * Yemen-specific operator detection + +967 prefix).
+   */
+  async register(input: {
+    email?: string;
+    phone?: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }) {
+    if (!input.email && !input.phone) {
+      return {
+        success: false as const,
+        error: 'Either email or phone is required',
+      };
+    }
+    if (input.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
+      return { success: false as const, error: 'Invalid email format' };
+    }
+
+    return this.request<LoginResponse>('/api/v1/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: input.email ? input.email.toLowerCase().trim() : undefined,
+        phone: input.phone || undefined,
+        password: input.password,
+        firstName: input.firstName.trim(),
+        lastName: input.lastName.trim(),
+      }),
+    });
+  }
+
   async getCurrentUser() {
     // Use the Next.js server-side proxy which decodes the httpOnly cookie.
     // The backend POST /api/v1/auth/me endpoint is not reliably reachable

@@ -11,6 +11,7 @@
 
 import {
   Injectable,
+  Optional,
   UnauthorizedException,
   NotFoundException,
   BadRequestException,
@@ -23,6 +24,7 @@ import * as crypto from "crypto";
 import * as nodemailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
 import { PrismaService } from "../prisma/prisma.service";
+import { UserEventsService } from "../events/user-events.service";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
 import { JWTConfig } from "../utils/jwt.config";
 import { UserStatus } from "../utils/validation";
@@ -111,6 +113,10 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly revocationStore: RedisTokenRevocationStore,
+    // Optional — UserEventsService comes from the global EventsModule.
+    // Marked Optional() so the constructor still works in tests that
+    // don't set up the events module.
+    @Optional() private readonly userEvents?: UserEventsService,
   ) { }
 
   /**
@@ -675,6 +681,21 @@ export class AuthService {
     this.logger.log(`User registered successfully`, {
       userId: user.id,
       email: this.sanitizeForLog(email),
+    });
+
+    // Publish `sahool.user.created` so audit-service, notification-service,
+    // and any future consumer can react. Self-registration was previously
+    // bypassing the event bus entirely (the R-1a fix only covered the
+    // admin path via UsersService.create) — this completes that work.
+    // Fire-and-forget; degraded NATS does not block account creation.
+    void this.userEvents?.publishUserCreated({
+      tenantId: user.tenantId,
+      userId: user.id,
+      email: user.email,
+      firstName: user.firstName ?? undefined,
+      lastName: user.lastName ?? undefined,
+      role: String(user.role),
+      createdAt: user.createdAt,
     });
 
     // Generate tokens for immediate login

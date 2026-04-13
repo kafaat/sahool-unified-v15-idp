@@ -63,10 +63,23 @@ export const FIELD_ENDPOINTS = {
   NEARBY: `${API_PREFIX}/fields/nearby`,
   SYNC: `${API_PREFIX}/fields/sync`,
   SYNC_BATCH: `${API_PREFIX}/fields/sync/batch`,
-  BOUNDARY: `${API_PREFIX}/field-core/fields/{fieldId}/boundary`,
-  BOUNDARY_UPDATE: `${API_PREFIX}/field-core/fields/{fieldId}/boundary`,
-  BOUNDARY_HISTORY: `${API_PREFIX}/field-core/fields/{fieldId}/boundary-history`,
-  BOUNDARY_ROLLBACK: `${API_PREFIX}/field-core/fields/{fieldId}/boundary-history/rollback`,
+  /**
+   * Field boundary endpoints.
+   *
+   * IMPORTANT — paths must NOT include the legacy `field-core/` segment.
+   * The owning service is `field-management-service` and its NestJS
+   * controller is mounted at `/api/v1/fields`
+   * (`@Controller("api/v1/fields")` + `@Put(":id/boundary")`). The Kong
+   * route block is `["/api/v1/fields", "/api/v1/field", "/field"]` —
+   * none of which actually proxy `/api/v1/field-core/...` to the
+   * upstream, so the previous paths produced 404 in production. This is
+   * a vertical-slice fix surfaced by the end-to-end review on
+   * 2026-04-13. See docs/audits/E2E_USER_JOURNEY_AUDIT.md.
+   */
+  BOUNDARY: `${API_PREFIX}/fields/{fieldId}/boundary`,
+  BOUNDARY_UPDATE: `${API_PREFIX}/fields/{fieldId}/boundary`,
+  BOUNDARY_HISTORY: `${API_PREFIX}/fields/{fieldId}/boundary-history`,
+  BOUNDARY_ROLLBACK: `${API_PREFIX}/fields/{fieldId}/boundary-history/rollback`,
 } as const;
 
 // ---------------------------------------------------------------------------

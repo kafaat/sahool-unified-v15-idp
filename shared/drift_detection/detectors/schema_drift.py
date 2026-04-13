@@ -288,7 +288,23 @@ class SchemaDriftDetector(BaseDriftDetector):
                     "verificationtoken",
                     "authenticator",
                 }
+                # Cross-tenant platform models: these are intentionally NOT per-tenant
+                # and therefore MUST NOT carry tenant_id. Scoped by (service_name, model).
+                #
+                # • partner-auth-service/OAuthClient  — a partner app is a platform
+                #   entity that serves many tenants (one client_id → N tenants).
+                #   Per-tenant authorization is enforced downstream via the `tenantId`
+                #   column on AccessToken / RefreshToken / AuthCode / ConsentGrant.
+                # • partner-auth-service/SigningKey   — the RSA key set used to sign
+                #   every JWT platform-wide. A per-tenant JWKS would break federated
+                #   verification and is a known anti-pattern (RFC 7517 § 4.5).
+                cross_tenant_models = {
+                    ("partner-auth-service", "oauthclient"),
+                    ("partner-auth-service", "signingkey"),
+                }
                 if model_name.lower() in skip_models:
+                    continue
+                if (service_name, model_name.lower()) in cross_tenant_models:
                     continue
                 # Check for tenant_id in any common Prisma naming pattern:
                 # - tenantId (camelCase field name)

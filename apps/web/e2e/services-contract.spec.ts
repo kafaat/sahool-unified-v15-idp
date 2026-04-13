@@ -380,7 +380,6 @@ async function setupContractTracking(page: Page): Promise<ApiCallTracker> {
   // Catch JS errors so we surface contract bugs that crash the page
   page.on("pageerror", (err) => {
     if (!/hydration|chunk|ChunkLoadError/i.test(err.message)) {
-      // eslint-disable-next-line no-console
       console.warn(`[pageerror] ${err.message}`);
     }
   });
@@ -590,7 +589,7 @@ test.describe("Service Contract: Cross-cutting", () => {
     ).toBeTruthy();
   });
 
-  test("CSRF token is fetched before any mutation", async ({ page, request }) => {
+  test("CSRF token is fetched before any mutation", async ({ request }) => {
     // This test verifies the CSRF endpoint exists and returns a token.
     // The actual double-submit verification happens in unified-client interceptors.
     const serverAvailable = !!process.env.API_AVAILABLE || !process.env.CI;

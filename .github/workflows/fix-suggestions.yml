@@ -158,7 +158,7 @@ jobs:
           echo "eslint_fixable=$ESLINT_FIXABLE" >> $GITHUB_OUTPUT
 
       - name: Post fix suggestions comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const pythonCount = parseInt('${{ steps.changed.outputs.python_count }}') || 0;

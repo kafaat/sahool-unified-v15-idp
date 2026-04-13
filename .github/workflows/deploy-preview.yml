@@ -110,7 +110,7 @@ jobs:
 
       - name: Comment Preview URL
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const surgeUrl = '${{ steps.surge.outputs.url }}';
@@ -200,7 +200,7 @@ jobs:
 
       - name: Comment Flutter Preview URL
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const owner = context.repo.owner;
@@ -249,7 +249,7 @@ jobs:
 
       - name: Comment cleanup
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.createComment({

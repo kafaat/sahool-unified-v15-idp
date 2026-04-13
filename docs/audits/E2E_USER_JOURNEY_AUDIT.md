@@ -314,6 +314,7 @@ $ apps/services/user-service $ npx jest                → 243 / 243 ✓
 | C-3 | Wire `@vercel/otel` into `apps/web/instrumentation.ts` so middleware starts a parent span that backend services can join. | M | Backend services already emit OTel; web is the only gap. |
 | C-4 (new) | Add a `sahool.user.login` event to `AuthService.login()` so audit-service stops polling for login activity. | XS | Symmetry with F-2. |
 | C-5 (new) | Add a positive contract-conformance test that diffs `FIELD_ENDPOINTS.*` against the actual `field-management-service` controller routes at build time. | M | Would have caught F-1 in CI before it ever reached production. |
+| C-6 (new) | Improve `api-contracts-guard.yml` regex to distinguish value-changes from export-removals. Current `grep "^-.*[A-Z_]*:"` triggers on any edited value, forcing a `BREAKING:` prefix even for true bug-fixes (hit during this audit — see commit `ed689b32`). Suggested: compare the LHS (`<KEY>:`) set before / after — only flag keys that disappear entirely. | S | Avoids misleading `BREAKING:` markers in git history. |
 
 ---
 

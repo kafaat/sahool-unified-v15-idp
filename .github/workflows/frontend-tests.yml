@@ -1581,32 +1581,59 @@ jobs:
           echo "All test artifacts have been uploaded and are available for download." >> $GITHUB_STEP_SUMMARY
 
       - name: Comment PR with Test Results
+        # Report each component's status from the job's actual `result`,
+        # not from whether an artifact directory happened to land on
+        # disk. An upstream flake cancelling / skipping a downstream
+        # artifact upload used to be reported as "❌ Failed", causing
+        # false-alarm red checks on Web/Admin when only Flutter Android
+        # had flaked (see PR #1581). `needs.<job>.result` reflects the
+        # real outcome: success | failure | cancelled | skipped.
+        # See §7a of docs/prompts/fix-flutter-android-ci-flake.md.
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v8
+        env:
+          WEB_BUILD_RESULT: ${{ needs.web-build.result }}
+          ADMIN_BUILD_RESULT: ${{ needs.admin-build.result }}
+          FLUTTER_BUILD_RESULT: ${{ needs.flutter-android-build.result }}
+          E2E_RESULT: ${{ needs.web-e2e-tests.result }}
+          MOBILE_INTEG_RESULT: ${{ needs.mobile-integration-tests.result }}
         with:
           script: |
             const fs = require('fs');
 
-            let comment = '## 🧪 Frontend Test Results\n\n';
-            comment += '### Build Status\n\n';
+            // Real job outcomes from the workflow graph — not a
+            // guess based on artifact presence.
+            const jobs = {
+              webBuild:    process.env.WEB_BUILD_RESULT,
+              adminBuild:  process.env.ADMIN_BUILD_RESULT,
+              flutterBuild:process.env.FLUTTER_BUILD_RESULT,
+              e2e:         process.env.E2E_RESULT,
+              mobileInteg: process.env.MOBILE_INTEG_RESULT,
+            };
 
+            const icon = (r) =>
+              r === 'success'   ? '✅ Passed'    :
+              r === 'failure'   ? '❌ Failed'    :
+              r === 'cancelled' ? '🚫 Cancelled' :
+              r === 'skipped'   ? '⚠️ Skipped'   :
+                                  `❓ ${r || 'unknown'}`;
+
+            // Coverage artifacts are optional and uploaded opportunistically,
+            // so the existing artifact-presence check is still correct here.
             const artifactsPath = 'artifacts';
-            const webBuild = fs.existsSync(`${artifactsPath}/web-build`);
-            const adminBuild = fs.existsSync(`${artifactsPath}/admin-build`);
-            const flutterBuild = fs.existsSync(`${artifactsPath}/flutter-android-apk`);
-            const e2eTests = fs.existsSync(`${artifactsPath}/playwright-results`);
-            const mobileIntegration = fs.existsSync(`${artifactsPath}/mobile-integration-results`);
-            const webCoverage = fs.existsSync(`${artifactsPath}/web-coverage`);
-            const adminCoverage = fs.existsSync(`${artifactsPath}/admin-coverage`);
+            const webCoverage     = fs.existsSync(`${artifactsPath}/web-coverage`);
+            const adminCoverage   = fs.existsSync(`${artifactsPath}/admin-coverage`);
             const flutterCoverage = fs.existsSync(`${artifactsPath}/flutter-coverage`);
 
+            let comment = '## 🧪 Frontend Test Results\n\n';
+            comment += '### Build Status\n\n';
             comment += `| Component | Status |\n`;
             comment += `|-----------|--------|\n`;
-            comment += `| Web App | ${webBuild ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| Admin Dashboard | ${adminBuild ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| Flutter Android | ${flutterBuild ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| E2E Tests | ${e2eTests ? '✅ Completed' : '⚠️ Skipped'} |\n`;
-            comment += `| Mobile Integration | ${mobileIntegration ? '✅ Completed' : '⚠️ Skipped'} |\n`;
+            comment += `| Web App | ${icon(jobs.webBuild)} |\n`;
+            comment += `| Admin Dashboard | ${icon(jobs.adminBuild)} |\n`;
+            comment += `| Flutter Android | ${icon(jobs.flutterBuild)} |\n`;
+            comment += `| E2E Tests | ${icon(jobs.e2e)} |\n`;
+            comment += `| Mobile Integration | ${icon(jobs.mobileInteg)} |\n`;
 
             comment += '\n### 📊 Coverage Reports\n\n';
             if (webCoverage || adminCoverage || flutterCoverage) {

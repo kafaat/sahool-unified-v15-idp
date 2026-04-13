@@ -166,7 +166,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('field.created');
+      expect(subject).toBe('sahool.field.created');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.fieldId).toBe('field-123');
@@ -182,7 +182,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('field.updated');
+      expect(subject).toBe('sahool.field.updated');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.changes.name).toBe('Updated Name');
@@ -197,7 +197,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('field.deleted');
+      expect(subject).toBe('sahool.field.deleted');
     });
   });
 
@@ -216,7 +216,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('order.placed');
+      expect(subject).toBe('sahool.order.placed');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.orderId).toBe('order-123');
@@ -233,7 +233,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('order.completed');
+      expect(subject).toBe('sahool.order.completed');
     });
 
     it('should publish order.cancelled event', async () => {
@@ -245,7 +245,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('order.cancelled');
+      expect(subject).toBe('sahool.order.cancelled');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.reason).toBe('Customer request');
@@ -268,7 +268,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('sensor.reading');
+      expect(subject).toBe('sahool.sensor.reading');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.sensorType).toBe('soil_moisture');
@@ -283,7 +283,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('device.connected');
+      expect(subject).toBe('sahool.device.connected');
     });
 
     it('should publish device.disconnected event', async () => {
@@ -295,7 +295,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('device.disconnected');
+      expect(subject).toBe('sahool.device.disconnected');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.reason).toBe('timeout');
@@ -318,7 +318,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('user.created');
+      expect(subject).toBe('sahool.user.created');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.email).toBe('test@example.com');
@@ -333,7 +333,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('user.updated');
+      expect(subject).toBe('sahool.user.updated');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.changes.email).toBe('new@example.com');
@@ -355,7 +355,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('inventory.low_stock');
+      expect(subject).toBe('sahool.inventory.low_stock');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.currentStock).toBe(5);
@@ -372,7 +372,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('inventory.movement');
+      expect(subject).toBe('sahool.inventory.movement');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.movementType).toBe('in');
@@ -396,7 +396,7 @@ describe('Event Publisher', () => {
       });
 
       const [subject, data] = mockConnection.publish.mock.calls[0];
-      expect(subject).toBe('notification.send');
+      expect(subject).toBe('sahool.notification.send');
 
       const decoded = JSON.parse(new TextDecoder().decode(data));
       expect(decoded.payload.channel).toBe('push');

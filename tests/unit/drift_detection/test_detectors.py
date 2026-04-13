@@ -178,6 +178,40 @@ class TestSchemaDriftDetector:
         detector = SchemaDriftDetector(str(tmp_path))
         assert detector.category == DriftCategory.SCHEMA
 
+    @pytest.mark.asyncio
+    async def test_cross_tenant_models_exempted(self, tmp_path: Path):
+        """partner-auth-service/{OAuthClient,SigningKey} are architecturally
+        cross-tenant and MUST NOT be flagged for missing tenant_id."""
+        svc = tmp_path / "apps" / "services" / "partner-auth-service" / "prisma"
+        svc.mkdir(parents=True)
+        (svc / "schema.prisma").write_text(
+            "model OAuthClient {\n"
+            "  id String @id\n"
+            '  clientId String @unique @map("client_id")\n'
+            "}\n"
+            "\n"
+            "model SigningKey {\n"
+            "  id String @id\n"
+            "  kid String @unique\n"
+            "}\n"
+            "\n"
+            "model AccessToken {\n"
+            "  id String @id\n"
+            '  tenantId String @map("tenant_id")\n'
+            "}\n"
+        )
+        detector = SchemaDriftDetector(str(tmp_path))
+        results = await detector.detect()
+        tenant_results = [
+            r
+            for r in results
+            if r.source == "tenant_isolation" and r.service_name == "partner-auth-service"
+        ]
+        assert tenant_results == [], (
+            f"Expected no tenant_isolation drifts for partner-auth-service "
+            f"cross-tenant models, got: {[(r.service_name, r.actual) for r in tenant_results]}"
+        )
+
 
 class TestAPIDriftDetector:
     """Tests for APIDriftDetector."""

@@ -137,7 +137,13 @@ export const test = base.extend<CustomFixtures>({
   // React 19 `use()` hook, which triggers react-hooks/rules-of-hooks.
   // This is a Playwright fixture, not a React render context, so the
   // hook rules don't apply. The rule is suppressed at the call site.
-  testUser: async (_options, use) => {
+  //
+  // Playwright also requires the first argument to use the destructuring
+  // pattern (even when no dependencies are needed) so it can statically
+  // inspect the dependency list — that's why the first arg is `{}` and
+  // not a plain identifier like `_options`.
+  // eslint-disable-next-line no-empty-pattern
+  testUser: async ({}, use) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(TEST_USER);
   },

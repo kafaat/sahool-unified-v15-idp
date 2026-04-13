@@ -89,8 +89,10 @@ spec:
     - id: fetch
       name: Fetch Base Template
       action: fetch:template
+      # API extensions use the node-service skeleton (NestJS + Prisma).
+      # Original `./skeleton` was a dead link.
       input:
-        url: ./skeleton
+        url: ../../../idp/templates/node-service/skeleton
         values:
           name: ${{ parameters.name }}
           owner: ${{ parameters.owner }}

@@ -90,8 +90,12 @@ spec:
     - id: fetch
       name: Fetch Base Template
       action: fetch:template
+      # Reuse the canonical Python FastAPI skeleton from the IDP
+      # templates directory instead of maintaining a parallel copy here.
+      # Original path `./skeleton` resolved to a non-existent directory —
+      # Backstage would fail with "template source not found".
       input:
-        url: ./skeleton
+        url: ../../../idp/templates/python-fastapi/skeleton
         values:
           name: ${{ parameters.name }}
           owner: ${{ parameters.owner }}

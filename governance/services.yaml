@@ -1443,6 +1443,68 @@ services:
       replicas: 2
 
   # ═══════════════════════════════════════════════════════════════════════════
+  # PARTNER AUTH SERVICE - خادم مصادقة الشركاء (OAuth 2.0 / OIDC)
+  # ═══════════════════════════════════════════════════════════════════════════
+  partner-auth-service:
+    name: "Partner Auth Service"
+    name_ar: "خادم مصادقة الشركاء"
+    type: nestjs
+    category: core
+    layer: business
+    path: "apps/services/partner-auth-service"
+    port: 3030
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
+    events:
+      produces:
+        - PartnerClientCreated.v1
+        - PartnerTokenIssued.v1
+        - PartnerTokenRevoked.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CARBON SERVICE - خدمة تتبع الكربون
+  # ═══════════════════════════════════════════════════════════════════════════
+  carbon-service:
+    name: "Carbon Service"
+    name_ar: "خدمة تتبع الكربون"
+    type: python
+    category: analytics
+    layer: business
+    path: "apps/services/carbon-service"
+    port: 8195
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "sustainability-team@sahool.io"
+    team: sustainability
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - CarbonFootprintComputed.v1
+      consumes:
+        - FieldOperationRecorded.v1
+    dependencies:
+      - postgres
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
   # ALERT SERVICE - خدمة التنبيهات
   # ═══════════════════════════════════════════════════════════════════════════
   alert-service:

@@ -67,7 +67,10 @@ allow-licenses:
 
 # Packages whose license cannot be resolved by the dependency graph.
 # GitHub's dependency graph sometimes returns "Null" for pip packages specified
-# with version ranges or extras (e.g. qrcode[pil]>=7.4.2,<9.0.0).
+# with version ranges or extras (e.g. qrcode[pil]>=7.4.2,<9.0.0), and for
+# workspace-local npm packages that aren't published to the public registry
+# (GitHub can't query a non-existent `npm view` entry for their license).
 # Verify the actual license before adding a package here.
 allow-dependencies-licenses:
-  - pkg:pypi/qrcode  # Actually BSD-3-Clause; resolver fails on range-based pip specs
+  - pkg:pypi/qrcode              # Actually BSD-3-Clause; resolver fails on range-based pip specs
+  - pkg:npm/%40sahool/shared-events  # Workspace-local package; license field in its package.json is MIT

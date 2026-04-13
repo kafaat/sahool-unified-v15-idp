@@ -514,16 +514,13 @@ test.describe("Marketplace Page", () => {
       const count = await addToCartButtons.count();
 
       if (count > 0) {
-        // Get initial cart count if any
+        // Locate the cart button so we can check the badge after the click.
+        // The earlier version read the *initial* badge count into a local
+        // variable and never used it — CodeQL flagged it as a dead
+        // assignment (alert 17936). Comparing before/after is a sensible
+        // future improvement, but for now the test only asserts that a
+        // badge appears after the add-to-cart click.
         const cartButton = page.locator('button:has-text("السلة")');
-        const initialBadge = cartButton.locator("span.bg-red-500");
-        const hadBadge = await initialBadge
-          .isVisible({ timeout: 500 })
-          .catch(() => false);
-        let _initialCount = 0;
-        if (hadBadge) {
-          _initialCount = parseInt((await initialBadge.textContent()) || "0");
-        }
 
         // Click first add to cart button
         await addToCartButtons.first().click();

@@ -235,6 +235,9 @@ jobs:
         id: eslint
         if: needs.changes.outputs.node == 'true' || needs.changes.outputs.packages == 'true'
         run: |
+          # Clear npm cache tmp dir before install — see _cacache/tmp EEXIST
+          # fix comment in reusable-setup.yml.
+          rm -rf ~/.npm/_cacache/tmp/ 2>/dev/null || true
           npm install --legacy-peer-deps --quiet 2>/dev/null || true
           npm run lint 2>&1 || echo "::warning::ESLint found linting errors"
         continue-on-error: true
@@ -594,12 +597,17 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Install root dependencies
-        run: npm install --legacy-peer-deps --quiet || echo "::warning::Root npm install had issues — some workspace packages may be missing"
+        # Clear npm cache tmp dir before install — see _cacache/tmp EEXIST
+        # fix comment in reusable-setup.yml.
+        run: |
+          rm -rf ~/.npm/_cacache/tmp/ 2>/dev/null || true
+          npm install --legacy-peer-deps --quiet || echo "::warning::Root npm install had issues — some workspace packages may be missing"
 
       - name: Install service dependencies
         run: |
           if [ -f "${{ matrix.service }}/package.json" ]; then
             cd ${{ matrix.service }}
+            rm -rf ~/.npm/_cacache/tmp/ 2>/dev/null || true
             npm install --legacy-peer-deps --quiet 2>/dev/null || true
           fi
 

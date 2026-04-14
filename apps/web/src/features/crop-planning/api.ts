@@ -5,9 +5,9 @@
 
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
+import { CROP_PLANNING_ENDPOINTS } from '@sahool/shared-types/contracts';
 
-// advisory-service:8093
-const BASE = '/api/v1/crop-planning';
+// advisory-service:8093 — endpoint templates from shared contract
 
 const api = createApiClient();
 
@@ -55,7 +55,7 @@ export const cropPlanningApi = {
    */
   getPlans: async (fieldId?: string): Promise<CropPlan[]> => {
     const params = fieldId ? `?field_id=${encodeURIComponent(fieldId)}` : '';
-    const endpoint = `${BASE}/plans${params}`;
+    const endpoint = `${CROP_PLANNING_ENDPOINTS.PLANS}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data ?? response.data;
@@ -67,8 +67,8 @@ export const cropPlanningApi = {
    * إنشاء خطة محصول جديدة
    */
   createPlan: async (payload: CreateCropPlanPayload): Promise<CropPlan> => {
-    return safeFetch(`${BASE}/plans`, async () => {
-      const response = await api.post(`${BASE}/plans`, payload);
+    return safeFetch(CROP_PLANNING_ENDPOINTS.PLANS, async () => {
+      const response = await api.post(CROP_PLANNING_ENDPOINTS.PLANS, payload);
       return response.data.data ?? response.data;
     });
   },
@@ -79,7 +79,7 @@ export const cropPlanningApi = {
    */
   getRecommendations: async (fieldId?: string): Promise<CropRecommendation[]> => {
     const params = fieldId ? `?field_id=${encodeURIComponent(fieldId)}` : '';
-    const endpoint = `${BASE}/recommendations${params}`;
+    const endpoint = `${CROP_PLANNING_ENDPOINTS.RECOMMENDATIONS}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data ?? response.data;

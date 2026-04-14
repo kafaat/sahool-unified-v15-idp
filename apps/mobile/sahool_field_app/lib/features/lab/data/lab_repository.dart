@@ -7,6 +7,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/api_config.dart';
+import '../../../core/contracts/api_endpoints.dart';
 import '../../../core/network/api_result.dart';
 import '../domain/lab_models.dart';
 
@@ -57,7 +58,7 @@ class LabRepository {
       if (type != null) queryParams['type'] = type;
 
       final response = await _dio.get(
-        '/api/v1/lab/samples',
+        LabEndpoints.samples,
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
 
@@ -90,7 +91,7 @@ class LabRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/lab/samples',
+        LabEndpoints.samples,
         data: {
           'type': type,
           'experimentName': experimentName,
@@ -115,7 +116,7 @@ class LabRepository {
   /// جلب عينة بالباركود
   Future<ApiResult<LabSample>> getSampleByBarcode(String barcode) async {
     try {
-      final response = await _dio.get('/api/v1/lab/samples/barcode/$barcode');
+      final response = await _dio.get(LabEndpoints.sampleByBarcode(barcode));
       return Success(
         LabSample.fromJson(response.data as Map<String, dynamic>),
       );

@@ -770,6 +770,66 @@ abstract final class PartnerHeaders {
   static const String contractVersion = 'X-Sahool-Contract-Version';
 }
 
+/// GDD - Growing Degree Days
+/// @since 4.17.0
+abstract final class GddEndpoints {
+  static String accumulation(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/accumulation';
+  static String records(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/records';
+  static String calculate(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/calculate';
+  static String currentStage(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/current-stage';
+  static String stages(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/stages';
+  static const String crops = '$apiPrefix/gdd/crops';
+  static String cropRequirements(String cropType) =>
+      '$apiPrefix/gdd/crops/$cropType/requirements';
+  static String forecast(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/forecast';
+  static String settings(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/settings';
+  static String compare(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/compare';
+  static String trend(String fieldId) =>
+      '$apiPrefix/gdd/fields/$fieldId/trend';
+}
+
+/// Gamification
+/// @since 4.17.0
+abstract final class GamificationEndpoints {
+  static String profile(String userId) =>
+      '$apiPrefix/gamification/profile/$userId';
+  static const String leaderboard = '$apiPrefix/gamification/leaderboard';
+}
+
+/// Lab Sample Tracking
+/// @since 4.17.0
+abstract final class LabEndpoints {
+  static const String samples = '$apiPrefix/lab/samples';
+  static String sampleByBarcode(String barcode) =>
+      '$apiPrefix/lab/samples/barcode/$barcode';
+}
+
+/// Payment (Tharwatt wallet integration)
+/// @since 4.17.0
+abstract final class PaymentEndpoints {
+  static const String deposit = '$apiPrefix/payment/deposit';
+  static const String withdraw = '$apiPrefix/payment/withdraw';
+  static const String transfer = '$apiPrefix/payment/transfer';
+  static const String topup = '$apiPrefix/payment/topup';
+  static String status(String transactionId) =>
+      '$apiPrefix/payment/status/$transactionId';
+  static const String transactions = '$apiPrefix/payment/transactions';
+  static String balance(String walletId) =>
+      '$apiPrefix/payment/balance/$walletId';
+  static const String validatePhone = '$apiPrefix/payment/validate-phone';
+  static const String operators = '$apiPrefix/payment/operators';
+  static String cancel(String transactionId) =>
+      '$apiPrefix/payment/cancel/$transactionId';
+}
+
 /// @since 4.10.0 — Partner limits & defaults
 abstract final class PartnerLimits {
   static const int accessTokenTtlSec = 14400; // 4h

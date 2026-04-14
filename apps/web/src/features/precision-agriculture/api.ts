@@ -5,9 +5,9 @@
 
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
+import { PRECISION_ENDPOINTS } from '@sahool/shared-types/contracts';
 
-// indicators-service:8091
-const BASE = '/api/v1/precision-agriculture';
+// indicators-service:8091 — endpoint templates from shared contract
 
 const api = createApiClient();
 
@@ -69,7 +69,7 @@ export const precisionAgricultureApi = {
    * جلب خريطة التطبيق متغير المعدل لحقل معين
    */
   getVraMap: async (fieldId: string): Promise<VraMap> => {
-    const endpoint = `${BASE}/vra/${encodeURIComponent(fieldId)}`;
+    const endpoint = PRECISION_ENDPOINTS.VRA.replace('{fieldId}', encodeURIComponent(fieldId));
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data ?? response.data;
@@ -82,7 +82,7 @@ export const precisionAgricultureApi = {
    */
   getGdd: async (fieldId: string, startDate?: string): Promise<GddData> => {
     const params = startDate ? `?start_date=${encodeURIComponent(startDate)}` : '';
-    const endpoint = `${BASE}/gdd/${encodeURIComponent(fieldId)}${params}`;
+    const endpoint = `${PRECISION_ENDPOINTS.GDD.replace('{fieldId}', encodeURIComponent(fieldId))}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data ?? response.data;
@@ -94,8 +94,8 @@ export const precisionAgricultureApi = {
    * حساب متطلبات الأسمدة
    */
   calculateFertilizer: async (payload: FertilizerCalculation): Promise<FertilizerResult> => {
-    return safeFetch(`${BASE}/fertilizer/calculate`, async () => {
-      const response = await api.post(`${BASE}/fertilizer/calculate`, payload);
+    return safeFetch(PRECISION_ENDPOINTS.FERTILIZER_CALCULATE, async () => {
+      const response = await api.post(PRECISION_ENDPOINTS.FERTILIZER_CALCULATE, payload);
       return response.data.data ?? response.data;
     });
   },

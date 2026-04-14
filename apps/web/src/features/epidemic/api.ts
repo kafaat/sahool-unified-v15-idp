@@ -5,9 +5,9 @@
 
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
+import { EPIDEMIC_ENDPOINTS } from '@sahool/shared-types/contracts';
 
-// crop-intelligence-service:8095
-const BASE = '/api/v1/epidemics';
+// crop-intelligence-service:8095 — endpoint templates from shared contract
 
 const api = createApiClient();
 
@@ -49,7 +49,7 @@ export const epidemicApi = {
    */
   getEpidemics: async (status?: string): Promise<Epidemic[]> => {
     const params = status ? `?status=${encodeURIComponent(status)}` : '';
-    const endpoint = `${BASE}${params}`;
+    const endpoint = `${EPIDEMIC_ENDPOINTS.LIST}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data ?? response.data;
@@ -61,7 +61,7 @@ export const epidemicApi = {
    * جلب وباء بواسطة المعرف
    */
   getEpidemicById: async (id: string): Promise<Epidemic> => {
-    const endpoint = `${BASE}/${encodeURIComponent(id)}`;
+    const endpoint = EPIDEMIC_ENDPOINTS.GET.replace('{epidemicId}', encodeURIComponent(id));
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data ?? response.data;
@@ -73,8 +73,8 @@ export const epidemicApi = {
    * الإبلاغ عن ملاحظة وباء جديدة
    */
   reportEpidemic: async (payload: EpidemicReport): Promise<Epidemic> => {
-    return safeFetch(`${BASE}/report`, async () => {
-      const response = await api.post(`${BASE}/report`, payload);
+    return safeFetch(EPIDEMIC_ENDPOINTS.REPORT, async () => {
+      const response = await api.post(EPIDEMIC_ENDPOINTS.REPORT, payload);
       return response.data.data ?? response.data;
     });
   },

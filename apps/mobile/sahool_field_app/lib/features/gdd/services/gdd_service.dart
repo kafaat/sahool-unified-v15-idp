@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/api_config.dart';
+import '../../../core/contracts/api_endpoints.dart';
 import '../models/gdd_models.dart';
 
 /// GDD Service Provider
@@ -63,7 +64,7 @@ class GDDService {
       }
 
       final response = await _dio.get(
-        '/api/v1/gdd/fields/$fieldId/accumulation',
+        GddEndpoints.accumulation(fieldId),
         queryParameters: queryParams,
       );
 
@@ -105,7 +106,7 @@ class GDDService {
       }
 
       final response = await _dio.get(
-        '/api/v1/gdd/fields/$fieldId/records',
+        GddEndpoints.records(fieldId),
         queryParameters: queryParams,
       );
 
@@ -137,7 +138,7 @@ class GDDService {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/gdd/fields/$fieldId/calculate',
+        GddEndpoints.calculate(fieldId),
         data: {
           'date': date.toIso8601String().split('T')[0],
           't_min': tMin,
@@ -169,7 +170,7 @@ class GDDService {
   Future<ApiResult<GrowthStage>> getCurrentGrowthStage(String fieldId) async {
     try {
       final response = await _dio.get(
-        '/api/v1/gdd/fields/$fieldId/current-stage',
+        GddEndpoints.currentStage(fieldId),
       );
 
       return ApiResult.success(
@@ -197,7 +198,7 @@ class GDDService {
   ) async {
     try {
       final response = await _dio.get(
-        '/api/v1/gdd/fields/$fieldId/stages',
+        GddEndpoints.stages(fieldId),
       );
 
       final data = response.data as Map<String, dynamic>;
@@ -226,7 +227,7 @@ class GDDService {
   ) async {
     try {
       final response = await _dio.get(
-        '/api/v1/gdd/crops/${cropType.value}/requirements',
+        GddEndpoints.cropRequirements(cropType.value),
       );
 
       return ApiResult.success(
@@ -251,7 +252,7 @@ class GDDService {
   /// جلب قائمة المحاصيل المدعومة
   Future<ApiResult<List<CropGDDRequirements>>> getSupportedCrops() async {
     try {
-      final response = await _dio.get('/api/v1/gdd/crops');
+      final response = await _dio.get(GddEndpoints.crops);
 
       final data = response.data as Map<String, dynamic>;
       final crops = (data['crops'] as List)
@@ -280,7 +281,7 @@ class GDDService {
   }) async {
     try {
       final response = await _dio.get(
-        '/api/v1/gdd/fields/$fieldId/forecast',
+        GddEndpoints.forecast(fieldId),
         queryParameters: {'days': days},
       );
 
@@ -308,7 +309,7 @@ class GDDService {
   Future<ApiResult<GDDSettings>> getGDDSettings(String fieldId) async {
     try {
       final response = await _dio.get(
-        '/api/v1/gdd/fields/$fieldId/settings',
+        GddEndpoints.settings(fieldId),
       );
 
       return ApiResult.success(
@@ -337,7 +338,7 @@ class GDDService {
   ) async {
     try {
       final response = await _dio.put(
-        '/api/v1/gdd/fields/$fieldId/settings',
+        GddEndpoints.settings(fieldId),
         data: settings.toJson(),
       );
 
@@ -360,7 +361,7 @@ class GDDService {
   ) async {
     try {
       final response = await _dio.post(
-        '/api/v1/gdd/fields/${settings.fieldId}/settings',
+        GddEndpoints.settings(settings.fieldId),
         data: settings.toJson(),
       );
 
@@ -389,7 +390,7 @@ class GDDService {
   }) async {
     try {
       final response = await _dio.get(
-        '/api/v1/gdd/fields/$fieldId/compare',
+        GddEndpoints.compare(fieldId),
         queryParameters: {
           'current_year': currentYear,
           'comparison_year': comparisonYear,
@@ -423,7 +424,7 @@ class GDDService {
       }
 
       final response = await _dio.get(
-        '/api/v1/gdd/fields/$fieldId/trend',
+        GddEndpoints.trend(fieldId),
         queryParameters: queryParams,
       );
 

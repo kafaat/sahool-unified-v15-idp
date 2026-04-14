@@ -1,14 +1,13 @@
-/// SAHOOL Unified API Endpoint Paths (Dart)
+/// SAHOOL Unified API Endpoint Paths (Dart) — sahool_field_app vendored copy.
 /// مسارات نقاط النهاية الموحدة
 ///
 /// SOURCE OF TRUTH: packages/shared-types/src/contracts/api-endpoints.ts
-/// This file is MANUALLY maintained — the current `sync-contracts-to-dart.ts`
-/// generator only auto-emits service_ports.dart and error_codes.dart. When
-/// you add, remove, or rename endpoints / OTP purposes / OTP channels in the
-/// TS source of truth, mirror the change here AND in the vendored copy at
-/// `apps/mobile/sahool_field_app/lib/core/contracts/api_endpoints.dart`.
+/// MIRROR (canonical Dart): apps/mobile/lib/core/contracts/api_endpoints.dart
 ///
-/// Used by: Mobile app (Flutter/Dart)
+/// MANUALLY MAINTAINED. `sahool_field_app` is its own Flutter package
+/// (separate pubspec) so it cannot import from the sibling `apps/mobile`
+/// package root. When editing endpoints, keep all three in sync: the TS
+/// source, the canonical Dart mirror, and this copy.
 ///
 /// @version 16.0.0
 library;
@@ -384,6 +383,7 @@ abstract final class ChatEndpoints {
       '$apiPrefix/chat/conversations/$conversationId/mute';
   static String report(String conversationId) =>
       '$apiPrefix/chat/conversations/$conversationId/report';
+  /// Same URL as [messages], invoked with DELETE to clear history
   static String clearMessages(String conversationId) =>
       '$apiPrefix/chat/conversations/$conversationId/messages';
 }

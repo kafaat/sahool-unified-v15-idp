@@ -311,6 +311,24 @@ export const ADVISORY_ENDPOINTS = {
   AGRO_NUTRIENTS: `${API_PREFIX}/agro-advisor/nutrients`,
   /** @since 4.7.0 — Jeevn-style unified per-field advisory (one call → comprehensive answer) */
   COMPREHENSIVE: `${API_PREFIX}/advisory/comprehensive/{fieldId}`,
+  /** @since 4.14.0 — Field-scoped advisory actions used by the web proxy layer */
+  RECOMMENDATIONS_BY_FIELD: `${API_PREFIX}/advisory/recommendations/{fieldId}`,
+  DISEASE_ASSESS: `${API_PREFIX}/advisory/disease-assess/{fieldId}`,
+  FERTILIZER_PLAN: `${API_PREFIX}/advisory/fertilizer-plan/{fieldId}`,
+  CROP_ADVICE: `${API_PREFIX}/advisory/crop-advice/{fieldId}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Pest Management Endpoints - نقاط إدارة الآفات
+// @since 4.14.0 — separated from CROP_HEALTH (diseases only) because the
+// pest-detection-service exposes /pests and /treatments as its own domain.
+// ---------------------------------------------------------------------------
+
+export const PEST_ENDPOINTS = {
+  LIST: `${API_PREFIX}/pests`,
+  BY_CROP: `${API_PREFIX}/pests/crop/{cropType}`,
+  IDENTIFY: `${API_PREFIX}/pests/identify`,
+  TREATMENT_RECOMMEND: `${API_PREFIX}/treatments/recommend`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -336,6 +354,8 @@ export const TASK_ENDPOINTS = {
   DELETE: `${API_PREFIX}/tasks/{taskId}`,
   STATUS: `${API_PREFIX}/tasks/{taskId}/status`,
   COMPLETE: `${API_PREFIX}/tasks/{taskId}/complete`,
+  /** @since 4.14.0 — Task assignment action surfaced by the web proxy */
+  ASSIGN: `${API_PREFIX}/tasks/{taskId}/assign`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -355,6 +375,20 @@ export const EQUIPMENT_ENDPOINTS = {
   MAINTENANCE_ALERTS: `${API_PREFIX}/equipment/maintenance/alerts`,
   /** @since 4.7.0 — Geofence event ingest (auto-drafts FieldOperation on entry into a field zone) */
   GEOFENCE_EVENT: `${API_PREFIX}/equipment/geofence/event`,
+  /** @since 4.14.0 — Surfaced by the web proxy */
+  MAINTENANCE_SCHEDULE: `${API_PREFIX}/equipment/maintenance-schedule`,
+  MAINTENANCE_SCHEDULE_BY_ID: `${API_PREFIX}/equipment/{equipmentId}/maintenance-schedule`,
+  ISSUES: `${API_PREFIX}/equipment/{equipmentId}/issues`,
+  /** @since 4.15.0 — Mobile equipment tracking surface */
+  ALERTS: `${API_PREFIX}/equipment/alerts`,
+  LOCATION: `${API_PREFIX}/equipment/{equipmentId}/location`,
+  TELEMETRY: `${API_PREFIX}/equipment/{equipmentId}/telemetry`,
+  FUEL: `${API_PREFIX}/equipment/{equipmentId}/fuel`,
+  FUEL_SUMMARY: `${API_PREFIX}/equipment/{equipmentId}/fuel/summary`,
+  USAGE: `${API_PREFIX}/equipment/{equipmentId}/usage`,
+  USAGE_START: `${API_PREFIX}/equipment/{equipmentId}/usage/start`,
+  USAGE_END: `${API_PREFIX}/equipment/{equipmentId}/usage/{logId}/end`,
+  USAGE_SUMMARY: `${API_PREFIX}/equipment/{equipmentId}/usage/summary`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -479,6 +513,29 @@ export const BILLING_ENDPOINTS = {
   TENANT_SUBSCRIPTION: `${API_PREFIX}/billing/tenants/{tenantId}/subscription`,
   TENANT_INVOICES: `${API_PREFIX}/billing/tenants/{tenantId}/invoices`,
   TENANT_USAGE: `${API_PREFIX}/billing/tenants/{tenantId}/usage`,
+  /**
+   * @since 4.15.0 — Mobile billing surface.
+   * NOTE: DEPOSIT/WITHDRAW/TRANSFER are *flat* `/billing/deposit` paths
+   * (what the mobile app actually hits), while WALLET_DEPOSIT/WITHDRAW/TRANSFER
+   * above use the `/billing/wallet/*` variant. Both shapes are kept because
+   * billing-core exposes them in parallel; picking one over the other is a
+   * separate reconciliation tracked with the 2026-04 audit.
+   */
+  DEPOSIT: `${API_PREFIX}/billing/deposit`,
+  WITHDRAW: `${API_PREFIX}/billing/withdraw`,
+  TRANSFER: `${API_PREFIX}/billing/transfer`,
+  PAYMENTS: `${API_PREFIX}/billing/payments`,
+  INVOICE_PAYMENT_INTENT: `${API_PREFIX}/billing/invoices/{invoiceId}/payment-intent`,
+  /** Stripe payment-intent lifecycle (mobile pays via Stripe SDK) */
+  STRIPE_CONFIG: `${API_PREFIX}/billing/stripe/config`,
+  STRIPE_PAYMENT_INTENTS: `${API_PREFIX}/billing/stripe/payment-intents`,
+  STRIPE_PAYMENT_INTENT_CONFIRM: `${API_PREFIX}/billing/stripe/payment-intents/{paymentIntentId}/confirm`,
+  STRIPE_SETUP_INTENTS: `${API_PREFIX}/billing/stripe/setup-intents`,
+  STRIPE_SETUP_INTENT_CONFIRM: `${API_PREFIX}/billing/stripe/setup-intents/{setupIntentId}/confirm`,
+  /** Saved payment methods */
+  PAYMENT_METHODS: `${API_PREFIX}/billing/payment-methods`,
+  PAYMENT_METHOD_GET: `${API_PREFIX}/billing/payment-methods/{paymentMethodId}`,
+  PAYMENT_METHOD_DEFAULT: `${API_PREFIX}/billing/payment-methods/{paymentMethodId}/default`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -499,6 +556,11 @@ export const CHAT_ENDPOINTS = {
   COMMUNITY_POSTS: `${API_PREFIX}/posts`,
   COMMUNITY_POST_GET: `${API_PREFIX}/posts/{postId}`,
   COMMUNITY_COMMENTS: `${API_PREFIX}/posts/{postId}/comments`,
+  /** @since 4.15.0 — Conversation moderation actions used by mobile chat */
+  MUTE: `${API_PREFIX}/chat/conversations/{conversationId}/mute`,
+  REPORT: `${API_PREFIX}/chat/conversations/{conversationId}/report`,
+  /** Same URL as MESSAGES but DELETE method — clears conversation history */
+  CLEAR_MESSAGES: `${API_PREFIX}/chat/conversations/{conversationId}/messages`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -611,6 +673,12 @@ export const TERRAIN_ENDPOINTS = {
   EROSION_COMBINED: `${API_PREFIX}/terrain/erosion/combined`,
   /** @since 4.9.0 — Yemen region preset shortcut (fewest inputs, auto-fills climate + soil defaults) */
   EROSION_YEMEN: `${API_PREFIX}/terrain/erosion/yemen`,
+  /** @since 4.14.0 — Field-scoped terrain endpoints surfaced by the web proxy */
+  DEM_FIELD: `${API_PREFIX}/terrain/dem/{fieldId}`,
+  SLOPE_FIELD: `${API_PREFIX}/terrain/slope/{fieldId}`,
+  TWI: `${API_PREFIX}/terrain/twi/{fieldId}`,
+  CONTOURS: `${API_PREFIX}/terrain/contours/{fieldId}`,
+  ANALYZE: `${API_PREFIX}/terrain/analyze`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -623,6 +691,8 @@ export const USER_ENDPOINTS = {
   CREATE: `${API_PREFIX}/users`,
   UPDATE: `${API_PREFIX}/users/{userId}`,
   DELETE: `${API_PREFIX}/users/{userId}`,
+  /** @since 4.15.0 — Block another user (used by mobile chat) */
+  BLOCK: `${API_PREFIX}/users/{userId}/block`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -646,6 +716,14 @@ export const SOIL_ENDPOINTS = {
   TEST_GET: `${API_PREFIX}/soil/tests/{testId}`,
   TEST_CREATE: `${API_PREFIX}/soil/tests`,
   RECOMMENDATIONS: `${API_PREFIX}/soil/recommendations`,
+  /** @since 4.14.0 — Endpoints surfaced by the web `/api/soil-analysis` proxy */
+  TESTS_BY_FIELD: `${API_PREFIX}/soil/tests/field/{fieldId}`,
+  PRODUCTS: `${API_PREFIX}/soil/products`,
+  CROP_REQUIREMENTS: `${API_PREFIX}/soil/crops/{crop}/requirements`,
+  INTERPRET: `${API_PREFIX}/soil/interpret`,
+  AMENDMENT_PLAN: `${API_PREFIX}/soil/recommendations/amendment-plan`,
+  PH_STATUS: `${API_PREFIX}/soil/interpretation/ph-status`,
+  EC_STATUS: `${API_PREFIX}/soil/interpretation/ec-status`,
 } as const;
 
 export const DRONE_ENDPOINTS = {

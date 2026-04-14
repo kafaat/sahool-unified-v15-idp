@@ -12,6 +12,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import {
+  AUTH_ENDPOINTS,
+  OTP_CHANNEL,
+  OTP_PURPOSE,
+  type SendOtpRequest,
+} from '@sahool/shared-types/contracts';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -55,17 +61,27 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    if (!body?.phone && !body?.email) {
+    // Backend DTO expects `identifier`; accept legacy `phone`/`email` keys too.
+    const identifier = body?.identifier ?? body?.phone ?? body?.email;
+    if (!identifier) {
       return NextResponse.json(
         { success: false, error: 'Phone number or email is required' },
         { status: 400 }
       );
     }
 
-    const backendResponse = await fetch(`${API_BASE_URL}/api/v1/auth/send-otp`, {
+    const backendPayload: SendOtpRequest = {
+      identifier,
+      channel: body?.channel ?? OTP_CHANNEL.SMS,
+      purpose: body?.purpose ?? OTP_PURPOSE.LOGIN,
+      ...(body?.language && { language: body.language }),
+      ...(body?.tenantId && { tenantId: body.tenantId }),
+    };
+
+    const backendResponse = await fetch(`${API_BASE_URL}${AUTH_ENDPOINTS.SEND_OTP}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(backendPayload),
     });
 
     const data = await backendResponse.json().catch(() => ({}));

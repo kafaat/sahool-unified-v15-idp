@@ -12,6 +12,7 @@
 
 import { logger } from '../logger';
 import Cookies from 'js-cookie';
+import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ---------------------------------------------------------------------------
 // Types (inline to avoid importing the 510-line types.ts)
@@ -167,7 +168,7 @@ class AuthApiClient {
       ? { email: trimmed.toLowerCase(), password }
       : { phone: trimmed, password };
 
-    return this.request<LoginResponse>('/api/v1/auth/login', {
+    return this.request<LoginResponse>(AUTH_ENDPOINTS.LOGIN, {
       method: 'POST',
       body: JSON.stringify(body),
     });
@@ -218,7 +219,7 @@ class AuthApiClient {
       return { success: false as const, error: 'Invalid email format' };
     }
 
-    return this.request<LoginResponse>('/api/v1/auth/register', {
+    return this.request<LoginResponse>(AUTH_ENDPOINTS.REGISTER, {
       method: 'POST',
       body: JSON.stringify({
         email: normalizedEmail || undefined,

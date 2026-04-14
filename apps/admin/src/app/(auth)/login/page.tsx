@@ -106,7 +106,11 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sahool-50 to-sahool-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-gradient-to-br from-sahool-50 to-sahool-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4"
+    >
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">

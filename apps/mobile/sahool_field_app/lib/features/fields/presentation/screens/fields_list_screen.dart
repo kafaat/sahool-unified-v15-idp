@@ -487,10 +487,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   }
 
   void _addField() {
-    // Navigate to map screen for drawing field boundary
-    context
-        .push('/map', extra: {'mode': 'draw', 'tenantId': _tenantId}).then((_) {
-      // Refresh fields after returning from map
+    // Navigate to dedicated field creation form
+    context.push('/fields/create', extra: {'tenantId': _tenantId}).then((_) {
+      // Refresh fields after returning from form
       ref.read(fieldControllerProvider(_tenantId).notifier).loadFields();
     });
   }

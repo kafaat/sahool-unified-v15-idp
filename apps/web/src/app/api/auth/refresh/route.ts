@@ -14,6 +14,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
 import { isRateLimited } from '@/lib/rate-limiter';
+import {
+  AUTH_ENDPOINTS,
+  type RefreshTokenRequest,
+} from '@sahool/shared-types/contracts';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -59,10 +63,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward refresh request to the backend
-    const backendResponse = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+    const refreshPayload: RefreshTokenRequest = { refresh_token: refreshToken };
+    const backendResponse = await fetch(`${API_BASE_URL}${AUTH_ENDPOINTS.REFRESH}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      body: JSON.stringify(refreshPayload),
     });
 
     if (!backendResponse.ok) {

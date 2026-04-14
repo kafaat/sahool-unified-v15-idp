@@ -6,6 +6,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
+import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 export async function POST() {
   try {
@@ -29,7 +30,7 @@ export async function POST() {
 
     // Forward activity to backend for server-side audit trail (fire-and-forget)
     const apiUrl = process.env.API_GATEWAY_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    fetch(`${apiUrl}/api/v1/auth/activity`, {
+    fetch(`${apiUrl}${AUTH_ENDPOINTS.ACTIVITY}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       signal: AbortSignal.timeout(3000),

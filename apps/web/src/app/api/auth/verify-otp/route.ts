@@ -19,6 +19,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import {
+  AUTH_ENDPOINTS,
+  OTP_PURPOSE,
+  type VerifyOtpRequest,
+} from '@sahool/shared-types/contracts';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -69,17 +74,27 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    if (!body?.otp) {
+    // Accept either `otp` (legacy client) or `otpCode` (backend DTO field)
+    const otpCode = body?.otpCode ?? body?.otp;
+    if (!otpCode) {
       return NextResponse.json(
         { success: false, error: 'OTP code is required' },
         { status: 400 }
       );
     }
 
-    const backendResponse = await fetch(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
+    // Normalize payload to match backend DTO (uses `otpCode`, not `otp`)
+    const backendPayload: VerifyOtpRequest = {
+      identifier: body?.identifier,
+      otpCode,
+      purpose: body?.purpose ?? OTP_PURPOSE.LOGIN,
+      ...(body?.tenantId && { tenantId: body.tenantId }),
+    };
+
+    const backendResponse = await fetch(`${API_BASE_URL}${AUTH_ENDPOINTS.VERIFY_OTP}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(backendPayload),
     });
 
     const data = await backendResponse.json().catch(() => ({}));
@@ -96,11 +111,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const purpose = body?.purpose ?? 'login';
+    const purpose = body?.purpose ?? OTP_PURPOSE.LOGIN;
 
     // Password-reset OTP: return the reset_token to the client (no session cookies set)
-    if (purpose === 'reset') {
-      const resetToken = data?.reset_token ?? data?.token;
+    // Backend purpose is `password_reset`; legacy clients may send `reset`.
+    if (purpose === OTP_PURPOSE.PASSWORD_RESET || purpose === 'reset') {
+      const resetToken = data?.reset_token ?? data?.resetToken ?? data?.token;
 
       if (!resetToken) {
         logger.warn('[Auth VerifyOTP] Backend response missing reset token');
@@ -114,6 +130,15 @@ export async function POST(request: NextRequest) {
         success: true,
         reset_token: resetToken,
         message: data?.message || 'OTP verified',
+      });
+    }
+
+    // Phone verification: no session cookies, just confirm status
+    if (purpose === OTP_PURPOSE.VERIFY_PHONE) {
+      return NextResponse.json({
+        success: true,
+        verified: data?.verified ?? true,
+        message: data?.message || 'Phone verified successfully',
       });
     }
 

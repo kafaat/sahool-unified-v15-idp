@@ -142,12 +142,12 @@ class SendOtpRequestDto implements SendOtpDto {
   @ApiProperty({
     description: "Purpose of OTP",
     example: "password_reset",
-    enum: ["password_reset", "verify_phone"],
+    enum: ["password_reset", "verify_phone", "login"],
   })
   @IsString()
   @IsNotEmpty({ message: "Purpose is required" })
-  @IsIn(["password_reset", "verify_phone"], { message: "Purpose must be password_reset or verify_phone" })
-  purpose: "password_reset" | "verify_phone";
+  @IsIn(["password_reset", "verify_phone", "login"], { message: "Purpose must be password_reset, verify_phone, or login" })
+  purpose: "password_reset" | "verify_phone" | "login";
 
   @ApiPropertyOptional({
     description: "Preferred language for OTP message",
@@ -188,11 +188,11 @@ class VerifyOtpRequestDto implements VerifyOtpDto {
   @ApiProperty({
     description: "Purpose of OTP verification",
     example: "password_reset",
-    enum: ["password_reset", "verify_phone"],
+    enum: ["password_reset", "verify_phone", "login"],
   })
   @IsString()
   @IsNotEmpty({ message: "Purpose is required" })
-  @IsIn(["password_reset", "verify_phone"], { message: "Purpose must be password_reset or verify_phone" })
+  @IsIn(["password_reset", "verify_phone", "login"], { message: "Purpose must be password_reset, verify_phone, or login" })
   purpose: string;
 
   @ApiPropertyOptional({

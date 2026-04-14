@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/contracts/api_endpoints.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/input_sanitizer.dart';
 import '../../../../core/utils/input_validator.dart';
@@ -88,7 +89,7 @@ class ChatApi {
   /// Get all conversations for current user
   Future<List<Conversation>> getConversations() async {
     try {
-      final response = await _dio.get('/api/v1/chat/conversations');
+      final response = await _dio.get(ChatEndpoints.conversations);
       final data = response.data as List<dynamic>;
       return data
           .map((json) => Conversation.fromJson(
@@ -104,7 +105,7 @@ class ChatApi {
   /// Get conversation by ID
   Future<Conversation> getConversation(String conversationId) async {
     try {
-      final response = await _dio.get('/api/v1/chat/conversations/$conversationId');
+      final response = await _dio.get(ChatEndpoints.conversationGet(conversationId));
       return Conversation.fromJson(
         response.data as Map<String, dynamic>,
         currentUserId: _currentUserId,
@@ -126,7 +127,7 @@ class ChatApi {
       if (before != null) queryParams['before'] = before;
 
       final response = await _dio.get(
-        '/api/v1/chat/conversations/$conversationId/messages',
+        ChatEndpoints.messages(conversationId),
         queryParameters: queryParams,
       );
 
@@ -169,7 +170,7 @@ class ChatApi {
       );
 
       final response = await _dio.post(
-        '/api/v1/chat/conversations/$conversationId/messages',
+        ChatEndpoints.messages(conversationId),
         data: {
           'content': sanitizedContent,
           'type': type.name,
@@ -201,7 +202,7 @@ class ChatApi {
           : null;
 
       final response = await _dio.post(
-        '/api/v1/chat/conversations',
+        ChatEndpoints.conversations,
         data: {
           'participantId': participantId,
           'productId': productId,
@@ -222,7 +223,7 @@ class ChatApi {
   /// Mark conversation as read
   Future<void> markAsRead(String conversationId) async {
     try {
-      await _dio.put('/api/v1/chat/conversations/$conversationId/read');
+      await _dio.put(ChatEndpoints.markRead(conversationId));
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -231,7 +232,7 @@ class ChatApi {
   /// Get unread count
   Future<int> getUnreadCount() async {
     try {
-      final response = await _dio.get('/api/v1/chat/conversations/unread-count');
+      final response = await _dio.get(ChatEndpoints.unreadCount);
       return response.data['count'] as int? ?? 0;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -241,7 +242,7 @@ class ChatApi {
   /// Block a user
   Future<void> blockUser(String userId) async {
     try {
-      await _dio.post('/api/v1/users/$userId/block');
+      await _dio.post(UserEndpoints.block(userId));
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -251,7 +252,7 @@ class ChatApi {
   Future<void> muteConversation(String conversationId,
       {bool mute = true}) async {
     try {
-      await _dio.put('/api/v1/chat/conversations/$conversationId/mute', data: {
+      await _dio.put(ChatEndpoints.mute(conversationId), data: {
         'muted': mute,
       });
     } on DioException catch (e) {
@@ -266,7 +267,7 @@ class ChatApi {
     String? description,
   }) async {
     try {
-      await _dio.post('/api/v1/chat/conversations/$conversationId/report', data: {
+      await _dio.post(ChatEndpoints.report(conversationId), data: {
         'reason': reason,
         'description': description != null
             ? InputSanitizer.sanitizeForStorage(description)
@@ -280,7 +281,7 @@ class ChatApi {
   /// Clear chat history for a conversation
   Future<void> clearChatHistory(String conversationId) async {
     try {
-      await _dio.delete('/api/v1/chat/conversations/$conversationId/messages');
+      await _dio.delete(ChatEndpoints.clearMessages(conversationId));
     } on DioException catch (e) {
       throw _handleError(e);
     }

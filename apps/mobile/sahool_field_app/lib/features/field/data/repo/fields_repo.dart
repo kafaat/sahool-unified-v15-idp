@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/contracts/api_endpoints.dart';
 import '../../../../core/error_handling/error_handling.dart';
 import '../../../../core/storage/database.dart';
 import '../../../../core/sync/network_status.dart';
@@ -119,7 +120,7 @@ class FieldsRepo {
         tenantId: tenantId,
         entityType: 'field',
         entityId: fieldId,
-        apiEndpoint: '/api/v1/fields',
+        apiEndpoint: FieldEndpoints.list,
         method: const Value('POST'),
         payload: jsonEncode(geoJsonPayload),
       ),
@@ -185,7 +186,7 @@ class FieldsRepo {
         tenantId: field.tenantId,
         entityType: 'field',
         entityId: fieldId,
-        apiEndpoint: '/api/v1/fields/$fieldId/boundary',
+        apiEndpoint: FieldEndpoints.boundary(fieldId),
         method: const Value('PUT'),
         payload: jsonEncode(geoJsonPayload),
         ifMatch: Value(field.etag), // Include ETag for optimistic locking
@@ -228,7 +229,7 @@ class FieldsRepo {
         tenantId: field.tenantId,
         entityType: 'field',
         entityId: fieldId,
-        apiEndpoint: '/api/v1/fields/$fieldId',
+        apiEndpoint: FieldEndpoints.get(fieldId),
         method: const Value('PATCH'),
         payload: jsonEncode({
           'field_id': fieldId,
@@ -263,7 +264,7 @@ class FieldsRepo {
         tenantId: field.tenantId,
         entityType: 'field',
         entityId: fieldId,
-        apiEndpoint: '/api/v1/fields/$fieldId',
+        apiEndpoint: FieldEndpoints.get(fieldId),
         method: const Value('DELETE'),
         payload: jsonEncode({
           'field_id': fieldId,

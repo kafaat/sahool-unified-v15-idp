@@ -28,6 +28,7 @@ def _sanitize(value: str, max_len: int = 200) -> str:
         cleaned = cleaned[:max_len] + "...[truncated]"
     return cleaned
 
+
 # Low-confidence threshold: empirically, <3.0 means single-keyword hit only.
 # Tune after collecting production data per ADR-010.
 LOW_CONFIDENCE_THRESHOLD = 3.0

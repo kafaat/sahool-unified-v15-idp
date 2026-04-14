@@ -1,0 +1,504 @@
+version: 0.1.0
+generated_by: scripts/generate_skill_registry.py
+skill_count: 36
+skills:
+- name: advisory-evaluation
+  path: .claude/skills/context-engineering/evaluation.md
+  version: 0.1.0
+  description: Use when assessing the quality of an agricultural AI advisory (crop recommendation, irrigation advice, pest
+    guidance, fertilizer plan) against weighted SAHOOL criteria — accuracy (30%), relevance (25%), actionability (20%), timeliness
+    (15%), safety (10%). TRIGGER when reviewing AI-generated farmer-facing output, scoring advisory recommendations, writing
+    tests under tests/evaluation/, or when the user asks to "evaluate", "score", "grade", or "judge" advisory quality. Enforces
+    bilingual EN/AR scoring rubrics and crop-specific validation (Zadoks stages, date-palm seasonality, PHI compliance).
+  triggers:
+  - evaluate
+  - score
+  - grade
+  - judge
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: caption-subtitle-formatter
+  path: .claude/skills/content-creation/caption-subtitle-formatter.md
+  version: 0.1.0
+  description: Formats captions and subtitles for readability, timing, and accessibility across videos. TRIGGER when the user
+    asks to "format subtitles", "create captions", "write SRT/VTT", "add timecodes", or shares transcript text needing accessibility-friendly
+    formatting and timing alignment.
+  triggers:
+  - format subtitles
+  - create captions
+  - write SRT/VTT
+  - add timecodes
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: code-review-generic
+  path: .claude/skills/coding-automation/code-review-generic.md
+  version: 0.1.0
+  description: Reviews code for bugs, inefficiencies, and adherence to best practices, providing actionable improvement suggestions.
+    TRIGGER when the user asks for a quick, language-agnostic "code review", "review this snippet", "find bugs", "suggest
+    improvements" on code outside the SAHOOL platform scope. DO NOT TRIGGER for reviews of SAHOOL microservices or shared
+    modules - defer to the SAHOOL-specific code-review.md in `.claude/skills/development/`.
+  triggers:
+  - code review
+  - review this snippet
+  - find bugs
+  - suggest improvements
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: competitive-intelligence
+  path: .claude/skills/research-analysis/competitive-intelligence.md
+  version: 0.1.0
+  description: Compares products, protocols, or tools to provide structured analysis of strengths, weaknesses, and opportunities.
+    TRIGGER when the user asks for a "competitor analysis", "compare X vs Y", "SWOT", "feature matrix", or wants to evaluate
+    multiple products/protocols/tools against each other.
+  triggers:
+  - competitor analysis
+  - compare X vs Y
+  - SWOT
+  - feature matrix
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: content-repurposing-engine
+  path: .claude/skills/writing-content/content-repurposing-engine.md
+  version: 0.1.0
+  description: Converts long-form content into multiple formats like social media threads, short video scripts, or summaries
+    while preserving the core message. TRIGGER when the user asks to "repurpose", "turn this blog into a thread", "adapt for
+    LinkedIn/Twitter/TikTok", "convert article to script", or needs the same idea reformatted for different channels.
+  triggers:
+  - repurpose
+  - turn this blog into a thread
+  - adapt for LinkedIn/Twitter/TikTok
+  - convert article to script
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: context-compression
+  path: .claude/skills/context-engineering/compression.md
+  version: 0.1.0
+  description: Use when the agricultural context to send to an LLM exceeds the token budget and must be reduced without losing
+    safety-critical information (dosages, PHI, spray windows, RPW alerts). TRIGGER when preparing prompts with sensor readings,
+    multi-field daily reports, or historical farm data; or when the user asks to "compress", "summarize for LLM", "fit into
+    context window", or batch-prepares offline advisory payloads. Applies the SAHOOL 3-level compression (80%/50%/25% retention)
+    with standard agricultural abbreviations and bilingual keys.
+  triggers:
+  - compress
+  - summarize for LLM
+  - fit into context window
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: crop-advisor
+  path: .claude/skills/sahool/crop-advisor.md
+  version: 0.1.0
+  description: Use when generating crop management advisories for SAHOOL farmers — planting decisions, irrigation schedules,
+    fertilization rates, pest/disease control, harvest timing. TRIGGER when the user asks for "advisory", "recommendation",
+    "نصيحة", "what should the farmer do", or when responding to field-level diagnostic outputs (NDVI drop, soil test result,
+    pest detection, disease alert) with actionable guidance. Enforces the SAHOOL Advisory Framework (situation → analysis
+    → recommendation → rationale → action plan → follow-up), bilingual EN/AR output, and priority-tagged alerts (Critical/Warning/Advisory/Informational).
+  triggers:
+  - advisory
+  - recommendation
+  - نصيحة
+  - what should the farmer do
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: deep-research-synthesizer
+  path: .claude/skills/research-analysis/deep-research-synthesizer.md
+  version: 0.1.0
+  description: Synthesizes insights from large datasets, filters irrelevant data, identifies patterns, and produces actionable
+    summaries. TRIGGER when the user asks to "synthesize research", "analyze these sources", "extract insights", "find patterns
+    in this data", or provides many documents/notes and wants a structured takeaway.
+  triggers:
+  - synthesize research
+  - analyze these sources
+  - extract insights
+  - find patterns in this data
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: devops-assistant
+  path: .claude/skills/coding-automation/devops-assistant.md
+  version: 0.1.0
+  description: Assists in version control, deployment, and automation tasks, ensuring smooth DevOps operations and workflow
+    efficiency. TRIGGER when the user asks for help with generic "git workflow", "release tagging", "deployment checklist",
+    "rollback plan", or "CI/CD automation" outside SAHOOL's opinionated toolchain. DO NOT TRIGGER for SAHOOL-specific commits,
+    contracts, fixops, or service-health workflows - use the dedicated SAHOOL slash commands (/commit, /check-contracts, /fixops-run,
+    /service-health) instead.
+  triggers:
+  - git workflow
+  - release tagging
+  - deployment checklist
+  - rollback plan
+  - CI/CD automation
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: docker-compose-orchestration
+  path: .claude/skills/docker-compose-orchestration
+  version: 0.1.0
+  description: Container orchestration with Docker Compose for multi-container applications, networking, volumes, and production
+    deployment
+  triggers: []
+  tenant_id: '*'
+  deprecated: false
+  source: SKILL.md
+- name: docker-development
+  path: .claude/skills/docker-development
+  version: 1.5.0
+  description: 'Use when working with ANY Docker task: writing Dockerfiles, configuring docker-compose/compose.yml, multi-stage
+    builds, docker-bake.hcl, container security audits, .dockerignore optimization, or CI/CD container testing. Triggers on:
+    Dockerfile, docker-compose, container, image build, multi-stage, docker bake, compose.'
+  triggers: []
+  tenant_id: '*'
+  deprecated: false
+  source: SKILL.md
+- name: excalidraw-diagram-generator
+  path: .claude/skills/visual-infographic/excalidraw-diagram-generator.md
+  version: 0.1.0
+  description: Converts textual concepts or workflows into clear diagram instructions suitable for Excalidraw or other visual
+    tools. TRIGGER when the user asks to "draw a diagram", "create an excalidraw", "visualize this workflow", "make a mind
+    map", or describes a system/process they want rendered as nodes and connectors.
+  triggers:
+  - draw a diagram
+  - create an excalidraw
+  - visualize this workflow
+  - make a mind map
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: farm-documentation
+  path: .claude/skills/sahool/farm-documentation.md
+  version: 0.1.0
+  description: Use when producing standardized farm records — field operation logs, crop cycle documentation, input application
+    records, yield records, compliance documentation — in Obsidian-compatible Markdown with bilingual EN/AR. TRIGGER when
+    the user asks to "document", "write report", "log operation", "generate compliance record", or creates farm-facing entries
+    under docs/knowledge-base/ or Obsidian vaults. Emits proper YAML frontmatter (farm_id, field_id, crop_type, season, status,
+    tags), wikilinks, callouts, and task lists.
+  triggers:
+  - document
+  - write report
+  - log operation
+  - generate compliance record
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: farm-memory
+  path: .claude/skills/context-engineering/memory.md
+  version: 0.1.0
+  description: Use when storing or recalling persistent farm history — entities (farms, fields, farmers, equipment), events
+    (planting, treatment, harvest, inspection), observations, decisions, outcomes, or farmer preferences. TRIGGER when the
+    user mentions "last season", "previous treatments", "field history", "farmer preferences", "similar situations", or "lessons
+    learned"; or when writing data that must persist across offline-online sync cycles. Organizes data in hierarchical namespaces
+    (entities/events/observations/decisions/outcomes) with bilingual EN/AR keys.
+  triggers:
+  - last season
+  - previous treatments
+  - field history
+  - farmer preferences
+  - similar situations
+  - lessons learned
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: flowchart-decision-builder
+  path: .claude/skills/visual-infographic/flowchart-decision-builder.md
+  version: 0.1.0
+  description: Generates decision trees and flowcharts from textual input to simplify complex decision-making processes. TRIGGER
+    when the user asks for a "flowchart", "decision tree", "if-then diagram", "process diagram", or describes a branching
+    procedure they want rendered with nodes and conditional paths.
+  triggers:
+  - flowchart
+  - decision tree
+  - if-then diagram
+  - process diagram
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: hook-generator
+  path: .claude/skills/content-creation/hook-generator.md
+  version: 0.1.0
+  description: Produces attention-grabbing hooks for videos, social posts, and content intros to maximize engagement. TRIGGER
+    when the user asks for a "hook", "opener", "intro line", "viral opening", "thumbnail text", or wants 3-10 alternate hook
+    options for a specific topic or post.
+  triggers:
+  - hook
+  - opener
+  - intro line
+  - viral opening
+  - thumbnail text
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: infographic-builder
+  path: .claude/skills/visual-infographic/infographic-builder.md
+  version: 0.1.0
+  description: Turns textual content into structured infographic formats suitable for reports, presentations, and educational
+    materials. TRIGGER when the user asks to "build an infographic", "visualize this data", "create a visual summary", "make
+    slides from this", or wants textual content converted into a chartable/sectioned visual format.
+  triggers:
+  - build an infographic
+  - visualize this data
+  - create a visual summary
+  - make slides from this
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: knowledge-structuring
+  path: .claude/skills/research-analysis/knowledge-structuring.md
+  version: 0.1.0
+  description: Organizes unstructured information into clear frameworks, bullet points, or structured notes for easier understanding
+    and application. TRIGGER when the user asks to "organize these notes", "turn this into a framework", "structure this knowledge",
+    "make this into a mental model", or pastes raw notes/brainstorms needing hierarchy and grouping.
+  triggers:
+  - organize these notes
+  - turn this into a framework
+  - structure this knowledge
+  - make this into a mental model
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: long-form-summary-compressor
+  path: .claude/skills/writing-content/long-form-summary-compressor.md
+  version: 0.1.0
+  description: Condenses long text into concise summaries, keeping essential ideas intact for quick consumption and understanding.
+    TRIGGER when the user asks to "summarize", "TL;DR", "shorten this article", "give me the key takeaways", or pastes a long
+    document and requests a digest. DO NOT TRIGGER for SAHOOL agricultural context compression (use context-compression instead).
+  triggers:
+  - summarize
+  - TL;DR
+  - shorten this article
+  - give me the key takeaways
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: next-best-practices
+  path: .claude/skills/next-best-practices
+  version: 0.1.0
+  description: Next.js best practices - file conventions, RSC boundaries, data patterns, async APIs, metadata, error handling,
+    route handlers, image/font optimization, bundling
+  triggers: []
+  tenant_id: '*'
+  deprecated: false
+  source: SKILL.md
+- name: next-upgrade
+  path: .claude/skills/next-upgrade
+  version: 0.1.0
+  description: Upgrade Next.js to the latest version following official migration guides and codemods
+  triggers: []
+  tenant_id: '*'
+  deprecated: false
+  source: SKILL.md
+- name: obsidian-canvas
+  path: .claude/skills/obsidian/canvas.md
+  version: 0.1.0
+  description: Use when creating Obsidian JSON Canvas (.canvas) files for visual problem mapping in SAHOOL — farm layouts,
+    crop rotation plans, irrigation network maps, pest spread tracking, decision flowcharts. TRIGGER when the user asks for
+    "canvas", "visual map", "farm diagram", "rotation visualization", or "decision flowchart"; or when writing/editing any
+    file with a .canvas extension. Emits valid JSON Canvas schema with bilingual Arabic/English labels and agricultural iconography.
+  triggers:
+  - canvas
+  - visual map
+  - farm diagram
+  - rotation visualization
+  - decision flowchart
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: obsidian-markdown
+  path: .claude/skills/obsidian/markdown.md
+  version: 0.1.0
+  description: Use when generating Obsidian-compatible Markdown for SAHOOL farm documentation — wikilinks, callouts, Dataview
+    queries, bilingual EN/AR frontmatter, task lists, and tag hierarchies (#sahool/field,
+  triggers: []
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: onchain-transaction-analyzer
+  path: .claude/skills/research-analysis/onchain-transaction-analyzer.md
+  version: 0.1.0
+  description: Analyzes blockchain transactions by tracing wallets, contracts, and token movements and providing simple, understandable
+    explanations. TRIGGER when the user shares an on-chain tx hash, wallet address, or contract and asks to "explain this
+    transaction", "trace wallet", "decode this tx", "what did this wallet do", or "follow the tokens".
+  triggers:
+  - explain this transaction
+  - trace wallet
+  - decode this tx
+  - what did this wallet do
+  - follow the tokens
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: postgres-best-practices
+  path: .claude/skills/postgres-best-practices
+  version: 0.1.0
+  description: Best practices and guidelines for working with Postgres. Covers schema design, indexing strategies, query optimization,
+    migrations, and common pitfalls. Use when writing SQL, designing database schemas, optimizing queries, or setting up a
+    Postgres database.
+  triggers: []
+  tenant_id: '*'
+  deprecated: false
+  source: SKILL.md
+- name: sahool-code-audit
+  path: .claude/skills/sahool-code-audit
+  version: 1.0.0
+  description: Three-phase code review, audit, and fix workflow for the SAHOOL agricultural platform (Python FastAPI, Node.js
+    NestJS, Flutter, PostGIS, shared contracts). Use when user asks to "review this code", "audit the service", "fix lint
+    errors", "run ruff/mypy/bandit", "check SAHOOL standards", "apply fixops", or pastes a diff/PR for review. Enforces platform-specific
+    rules (health endpoints, NATS subjects, tenant scoping, Pydantic v2, Riverpod, certificate pinning) and routes fixes through
+    code-fix-agent (8162), code-review-service (8102), and /fixops-run.
+  triggers:
+  - review this code
+  - audit the service
+  - fix lint errors
+  - run ruff/mypy/bandit
+  - check SAHOOL standards
+  - apply fixops
+  tenant_id: '*'
+  deprecated: false
+  source: SKILL.md
+- name: scqa-writing-framework
+  path: .claude/skills/writing-content/scqa-writing-framework.md
+  version: 0.1.0
+  description: Structures content using the Situation, Complication, Question, Answer framework for clear, logical, and engaging
+    narratives suitable for threads, articles, and reports. TRIGGER when the user asks to write, structure, or outline an
+    article, thread, executive summary, consulting deliverable, or technical explanation; or mentions "SCQA", "situation complication
+    question answer", "pyramid principle", "story structure", or "make this more compelling".
+  triggers:
+  - SCQA
+  - situation complication question answer
+  - pyramid principle
+  - story structure
+  - make this more compelling
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: service-scaffolding
+  path: .claude/skills/sahool/service-scaffolding.md
+  version: 0.1.0
+  description: Use when creating a new SAHOOL microservice under apps/services/. Enforces the IDP template, lifespan pattern,
+    3-tier pip mirror, non-root container, contract registration, and governance entry. Triggers when the user says "create
+    a new service", "scaffold a service", "add a microservice", or when a PR adds a new apps/services/* directory.
+  triggers:
+  - create a new service
+  - scaffold a service
+  - add a microservice
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: skill-creator
+  path: .claude/skills/coding-automation/skill-creator.md
+  version: 0.1.0
+  description: Generates new AI skills in `.md` format, providing structured name, description, and instructions for future
+    use. TRIGGER when the user asks to "create a new skill", "scaffold a skill file", "add a skill for X", or describes a
+    recurring capability they want packaged as a reusable `.md` skill with YAML frontmatter.
+  triggers:
+  - create a new skill
+  - scaffold a skill file
+  - add a skill for X
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: source-validation
+  path: .claude/skills/research-analysis/source-validation.md
+  version: 0.1.0
+  description: Validates the credibility of information sources, highlighting reliability, relevance, and potential biases.
+    TRIGGER when the user asks to "verify these sources", "check credibility", "fact-check", "is this reliable", or provides
+    citations/URLs and wants trustworthiness assessed before relying on them.
+  triggers:
+  - verify these sources
+  - check credibility
+  - fact-check
+  - is this reliable
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: structured-copywriting
+  path: .claude/skills/writing-content/structured-copywriting.md
+  version: 0.1.0
+  description: Generates high-impact copy with clear hooks, structured flow, and concise messaging for marketing, articles,
+    and social media content. TRIGGER when the user asks to write "landing page copy", "ad copy", "marketing email", "product
+    description", "sales page", or requests persuasive content with hooks and a CTA.
+  triggers:
+  - landing page copy
+  - ad copy
+  - marketing email
+  - product description
+  - sales page
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: tone-style-enforcer
+  path: .claude/skills/writing-content/tone-style-enforcer.md
+  version: 0.1.0
+  description: Ensures all outputs match a consistent brand or personal tone, maintaining clarity, style, and audience alignment
+    across multiple outputs. TRIGGER when the user asks to "match my voice", "enforce brand tone", "rewrite in consistent
+    style", "apply style guide", or provides a reference sample and asks to match it across generated content.
+  triggers:
+  - match my voice
+  - enforce brand tone
+  - rewrite in consistent style
+  - apply style guide
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: ui-ux-layout-advisor
+  path: .claude/skills/visual-infographic/ui-ux-layout-advisor.md
+  version: 0.1.0
+  description: Advises on interface layouts to optimize clarity, spacing, hierarchy, and usability. TRIGGER when the user
+    asks for "UX review", "UI layout suggestions", "improve this screen", "accessibility review", or shares a mockup/wireframe
+    and wants layout, hierarchy, or spacing advice. Pairs well with Arabic/RTL reviews but does not replace the arabic-rtl-tester
+    subagent.
+  triggers:
+  - UX review
+  - UI layout suggestions
+  - improve this screen
+  - accessibility review
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: video-editing-planner
+  path: .claude/skills/content-creation/video-editing-planner.md
+  version: 0.1.0
+  description: Suggests editing structure, scene cuts, transitions, and pacing for improved video content quality and engagement.
+    TRIGGER when the user asks for an "edit plan", "cut list", "scene breakdown", "transitions", or shares raw footage/outline
+    and wants guidance on pacing and post-production structure.
+  triggers:
+  - edit plan
+  - cut list
+  - scene breakdown
+  - transitions
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: video-script-generator
+  path: .claude/skills/content-creation/video-script-generator.md
+  version: 0.1.0
+  description: Generates video scripts with hooks, structured sections, pacing, and call-to-actions optimized for engagement
+    and retention. TRIGGER when the user asks to "write a video script", "YouTube script", "Reel/TikTok/Shorts script", "podcast
+    outline", or wants a narrated plan for a short or long-form video with hook + CTA.
+  triggers:
+  - write a video script
+  - YouTube script
+  - Reel/TikTok/Shorts script
+  - podcast outline
+  tenant_id: '*'
+  deprecated: false
+  source: legacy
+- name: workflow-automation-agent
+  path: .claude/skills/coding-automation/workflow-automation-agent.md
+  version: 0.1.0
+  description: Breaks complex tasks into step-by-step workflows, mapping actions to tools, optimizing execution, and improving
+    efficiency. TRIGGER when the user asks to "automate this workflow", "turn this into steps", "design an agent for X", "map
+    this to tools", or describes a multi-step goal needing decomposition with tool-call planning.
+  triggers:
+  - automate this workflow
+  - turn this into steps
+  - design an agent for X
+  - map this to tools
+  tenant_id: '*'
+  deprecated: false
+  source: legacy

@@ -22,7 +22,7 @@ numpy>=1.26.0,<2.5.0  # Compatible with TensorFlow 2.20.0
 # Geospatial (optional, for advanced features)
 # shapely==2.1.2
 # Testing
-pytest==8.4.2
+pytest==9.0.3
 pytest-asyncio==0.26.0
 pytest-cov>=6.0.0
 # Development

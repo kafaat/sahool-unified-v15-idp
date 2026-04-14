@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from app.models import Skill
 
-
 EXTERNAL_PENALTY = 0.7
 TRIGGER_WEIGHT = 2.0
 DESC_WORD_WEIGHT = 0.2
@@ -52,8 +51,4 @@ def score_skill(query: str, skill: Skill) -> float:
 
 def filter_skills(skills: list[Skill], tenant_id: str) -> list[Skill]:
     """Exclude deprecated skills and enforce tenant scoping."""
-    return [
-        s
-        for s in skills
-        if not s.deprecated and (s.tenant_id == "*" or s.tenant_id == tenant_id)
-    ]
+    return [s for s in skills if not s.deprecated and (s.tenant_id == "*" or s.tenant_id == tenant_id)]

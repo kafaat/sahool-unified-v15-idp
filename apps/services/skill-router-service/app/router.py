@@ -95,9 +95,7 @@ def route(req: RouteRequest) -> RouteResponse:
             },
         )
 
-    return RouteResponse(
-        results=[RouteResult(skill=name, score=round(value, 3)) for name, value in top]
-    )
+    return RouteResponse(results=[RouteResult(skill=name, score=round(value, 3)) for name, value in top])
 
 
 @router.get("/api/v1/skills")

@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.15.0
+/// Contract version: 4.17.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.

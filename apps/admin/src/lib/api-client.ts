@@ -24,7 +24,11 @@ import {
   RETRY_DELAY,
   IS_PRODUCTION,
 } from '@/config/api';
-import { CUSTOM_HEADERS } from '@sahool/shared-types/contracts';
+import {
+  AUDIT_ENDPOINTS,
+  AUTH_ENDPOINTS,
+  CUSTOM_HEADERS,
+} from '@sahool/shared-types/contracts';
 
 // =============================================================================
 // Types & Interfaces | الأنواع والواجهات
@@ -333,7 +337,7 @@ class AdminApiClient {
     this.auditQueue = [];
 
     try {
-      await this.post('/api/v1/admin/audit/batch', { entries: logsToSend });
+      await this.post(AUDIT_ENDPOINTS.ADMIN_BATCH, { entries: logsToSend });
       logger.info(`Flushed ${logsToSend.length} audit log entries`);
     } catch (error) {
       this.auditQueue = [...logsToSend, ...this.auditQueue];
@@ -367,7 +371,7 @@ class AdminApiClient {
     if (options.startDate) params.start_date = options.startDate;
     if (options.endDate) params.end_date = options.endDate;
 
-    return this.get('/api/v1/admin/audit', params);
+    return this.get(AUDIT_ENDPOINTS.ADMIN_AUDIT, params);
   }
 
   // ===========================================================================
@@ -528,7 +532,7 @@ class AdminApiClient {
       user: User;
       requires_2fa?: boolean;
       temp_token?: string;
-    }>('/api/v1/auth/login', {
+    }>(AUTH_ENDPOINTS.LOGIN, {
       method: 'POST',
       body: JSON.stringify(body),
       skipRetry: true, // Don't retry auth requests
@@ -536,11 +540,11 @@ class AdminApiClient {
   }
 
   async getCurrentUser() {
-    return this.request<User>('/api/v1/auth/me');
+    return this.request<User>(AUTH_ENDPOINTS.ME);
   }
 
   async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
+    return this.request<{ access_token: string }>(AUTH_ENDPOINTS.REFRESH, {
       method: 'POST',
       body: JSON.stringify({ refresh_token: refreshToken }),
     });

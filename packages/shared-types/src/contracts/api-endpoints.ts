@@ -288,6 +288,11 @@ export const IRRIGATION_ENDPOINTS = {
   CROPS: `${API_PREFIX}/irrigation/crops`,
   METHODS: `${API_PREFIX}/irrigation/methods`,
   PIVOT_CONTROL: `${API_PREFIX}/irrigation/pivot/control`,
+  /** @since 4.16.0 — Surfaced by the web irrigation + pivot-irrigation features */
+  EFFICIENCY_REPORT: `${API_PREFIX}/irrigation/efficiency-report`,
+  IRRIGATION_EXECUTED: `${API_PREFIX}/irrigation/irrigation-executed`,
+  CALCULATE_WITH_ACTION: `${API_PREFIX}/irrigation/calculate-with-action`,
+  PIVOT_SPEED: `${API_PREFIX}/irrigation/pivot/speed`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -316,6 +321,8 @@ export const ADVISORY_ENDPOINTS = {
   DISEASE_ASSESS: `${API_PREFIX}/advisory/disease-assess/{fieldId}`,
   FERTILIZER_PLAN: `${API_PREFIX}/advisory/fertilizer-plan/{fieldId}`,
   CROP_ADVICE: `${API_PREFIX}/advisory/crop-advice/{fieldId}`,
+  /** @since 4.16.0 — Spray-timing windows used by the web crop-protection feature */
+  SPRAY_WINDOWS: `${API_PREFIX}/advisory/spray-windows`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -980,6 +987,62 @@ export const CROP_ENDPOINTS = {
 export const SEED_ENDPOINTS = {
   LIST: `${API_PREFIX}/seeds`,
   GET: `${API_PREFIX}/seeds/{seedId}`,
+  /** @since 4.16.0 — Seed variety recommendations used by the web seeds feature */
+  RECOMMENDATIONS: `${API_PREFIX}/seeds/recommendations`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Epidemic Surveillance Endpoints
+// @since 4.16.0 — surfaced by the web `epidemic` feature
+// ---------------------------------------------------------------------------
+
+export const EPIDEMIC_ENDPOINTS = {
+  LIST: `${API_PREFIX}/epidemics`,
+  GET: `${API_PREFIX}/epidemics/{epidemicId}`,
+  REPORT: `${API_PREFIX}/epidemics/report`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Field Leveling Endpoints
+// @since 4.16.0 — surfaced by the web `leveling` feature (distinct from the
+// `/leveling/analyze` etc. constants under TERRAIN_ENDPOINTS, which the
+// terrain-core-service exposes directly; these field-scoped paths live on
+// the leveling-optimizer-service).
+// ---------------------------------------------------------------------------
+
+export const LEVELING_ENDPOINTS = {
+  ANALYZE: `${API_PREFIX}/leveling/analyze`,
+  PLAN: `${API_PREFIX}/leveling/plan/{fieldId}`,
+  COST: `${API_PREFIX}/leveling/cost/{fieldId}`,
+  EQUIPMENT: `${API_PREFIX}/leveling/equipment/{fieldId}`,
+  SIMULATE: `${API_PREFIX}/leveling/simulate`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Precision Agriculture Endpoints
+// @since 4.16.0 — surfaced by the web `precision-agriculture` feature.
+// Wraps VRA prescriptions, GDD accumulation, and per-field fertilizer
+// calculators exposed by precision-ag services.
+// ---------------------------------------------------------------------------
+
+export const PRECISION_ENDPOINTS = {
+  VRA: `${API_PREFIX}/precision-agriculture/vra/{fieldId}`,
+  GDD: `${API_PREFIX}/precision-agriculture/gdd/{fieldId}`,
+  FERTILIZER_CALCULATE: `${API_PREFIX}/precision-agriculture/fertilizer/calculate`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Satellite Monitor Endpoints
+// @since 4.16.0 — dashboard aggregator (distinct from vegetation-analysis
+// SATELLITE_ENDPOINTS which expose raw analysis; this sits on top of it
+// and powers the /satellite-monitor dashboard page).
+// ---------------------------------------------------------------------------
+
+export const SATELLITE_MONITOR_ENDPOINTS = {
+  FIELDS: `${API_PREFIX}/satellite-monitor/fields`,
+  FIELD_GET: `${API_PREFIX}/satellite-monitor/fields/{fieldId}`,
+  STATS: `${API_PREFIX}/satellite-monitor/stats`,
+  ALERTS: `${API_PREFIX}/satellite-monitor/alerts`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -1075,6 +1138,70 @@ export const COOPERATIVE_ENDPOINTS = {
 //   3. Interop standards: AgGateway Modus 1.0 XML, ISOXML, shapefile Rx.
 //   4. Offline-first mobile benefits from ETag + 304 + chunked resumable upload.
 // ===========================================================================
+
+// ---------------------------------------------------------------------------
+// GDD (Growing Degree Days) Endpoints
+// @since 4.17.0 — surfaced by the mobile `features/gdd` service. Distinct
+// from the precision-agriculture `GDD` entry which is a single per-field
+// summary; this group covers the full GDD domain (accumulation, stages,
+// forecasts, settings, trend, comparison).
+// ---------------------------------------------------------------------------
+
+export const GDD_ENDPOINTS = {
+  ACCUMULATION: `${API_PREFIX}/gdd/fields/{fieldId}/accumulation`,
+  RECORDS: `${API_PREFIX}/gdd/fields/{fieldId}/records`,
+  CALCULATE: `${API_PREFIX}/gdd/fields/{fieldId}/calculate`,
+  CURRENT_STAGE: `${API_PREFIX}/gdd/fields/{fieldId}/current-stage`,
+  STAGES: `${API_PREFIX}/gdd/fields/{fieldId}/stages`,
+  CROPS: `${API_PREFIX}/gdd/crops`,
+  CROP_REQUIREMENTS: `${API_PREFIX}/gdd/crops/{cropType}/requirements`,
+  FORECAST: `${API_PREFIX}/gdd/fields/{fieldId}/forecast`,
+  SETTINGS: `${API_PREFIX}/gdd/fields/{fieldId}/settings`,
+  COMPARE: `${API_PREFIX}/gdd/fields/{fieldId}/compare`,
+  TREND: `${API_PREFIX}/gdd/fields/{fieldId}/trend`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Gamification Endpoints
+// @since 4.17.0 — surfaced by the mobile gamification feature (farmer
+// profile + community leaderboard). Backend service TBD.
+// ---------------------------------------------------------------------------
+
+export const GAMIFICATION_ENDPOINTS = {
+  PROFILE: `${API_PREFIX}/gamification/profile/{userId}`,
+  LEADERBOARD: `${API_PREFIX}/gamification/leaderboard`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Lab Sample Tracking Endpoints
+// @since 4.17.0 — surfaced by the mobile lab feature (soil/leaf/water
+// sample submission + barcode lookup).
+// ---------------------------------------------------------------------------
+
+export const LAB_ENDPOINTS = {
+  SAMPLES: `${API_PREFIX}/lab/samples`,
+  SAMPLE_BY_BARCODE: `${API_PREFIX}/lab/samples/barcode/{barcode}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Payment Endpoints (Tharwatt wallet integration)
+// @since 4.17.0 — distinct from BILLING_ENDPOINTS which covers Stripe and
+// the platform wallet; PAYMENT_ENDPOINTS is the Tharwatt-specific top-up /
+// withdrawal / transfer surface used by the mobile app in Yemen.
+// ---------------------------------------------------------------------------
+
+export const PAYMENT_ENDPOINTS = {
+  DEPOSIT: `${API_PREFIX}/payment/deposit`,
+  WITHDRAW: `${API_PREFIX}/payment/withdraw`,
+  TRANSFER: `${API_PREFIX}/payment/transfer`,
+  TOPUP: `${API_PREFIX}/payment/topup`,
+  STATUS: `${API_PREFIX}/payment/status/{transactionId}`,
+  TRANSACTIONS: `${API_PREFIX}/payment/transactions`,
+  BALANCE: `${API_PREFIX}/payment/balance/{walletId}`,
+  VALIDATE_PHONE: `${API_PREFIX}/payment/validate-phone`,
+  OPERATORS: `${API_PREFIX}/payment/operators`,
+  CANCEL: `${API_PREFIX}/payment/cancel/{transactionId}`,
+} as const;
 
 // ---------------------------------------------------------------------------
 // Unified Upload Endpoints - نقاط الرفع الموحَّدة (@since 4.10.0)

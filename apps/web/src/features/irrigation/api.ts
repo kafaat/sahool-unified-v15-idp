@@ -25,21 +25,18 @@ import type {
 const api = createApiClient();
 
 /**
- * Smart Irrigation ML endpoints
- * نقاط نهاية الري الذكي
- *
- * All paths share the `/api/v1/irrigation` prefix so that Kong's
- * irrigation-smart route matcher (strip_path: true) forwards them to
- * the backend without needing a dedicated Kong route per sub-path.
- * Paths without the `/irrigation` segment would 404 at the gateway.
+ * Smart Irrigation ML endpoints — sourced from shared IRRIGATION_ENDPOINTS.
+ * All paths share the `/api/v1/irrigation` prefix so Kong's irrigation-smart
+ * route matcher (strip_path: true) forwards them without a dedicated route
+ * per sub-path. Paths without the `/irrigation` segment would 404.
  */
 const SMART_IRRIGATION_ENDPOINTS = {
-  CALCULATE: '/api/v1/irrigation/calculate',
-  WATER_BALANCE: '/api/v1/irrigation/water-balance',
-  EFFICIENCY_REPORT: '/api/v1/irrigation/efficiency-report',
-  SENSOR_READING: '/api/v1/irrigation/sensor-reading',
-  IRRIGATION_EXECUTED: '/api/v1/irrigation/irrigation-executed',
-  CALCULATE_WITH_ACTION: '/api/v1/irrigation/calculate-with-action',
+  CALCULATE: IRRIGATION_ENDPOINTS.CALCULATE,
+  WATER_BALANCE: IRRIGATION_ENDPOINTS.WATER_BALANCE,
+  EFFICIENCY_REPORT: IRRIGATION_ENDPOINTS.EFFICIENCY_REPORT,
+  SENSOR_READING: IRRIGATION_ENDPOINTS.SENSOR_READING,
+  IRRIGATION_EXECUTED: IRRIGATION_ENDPOINTS.IRRIGATION_EXECUTED,
+  CALCULATE_WITH_ACTION: IRRIGATION_ENDPOINTS.CALCULATE_WITH_ACTION,
 } as const;
 
 export const irrigationApi = {

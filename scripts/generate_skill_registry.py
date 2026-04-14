@@ -38,6 +38,9 @@ _STOPWORDS = {
     "here", "there", "then", "now",
 }
 
+# Iteration 2 P1: tokens that look like acronyms but are skill-boilerplate noise.
+_CAPS_NOISE = {"TRIGGER", "DO", "NOT", "OR", "AND", "ARE", "AI", "ML", "SDK"}
+
 
 def parse_frontmatter(md_path: Path) -> dict | None:
     """Return the YAML frontmatter dict, or None if no frontmatter present."""
@@ -66,13 +69,16 @@ def _add(result: list[str], seen: set[str], token: str) -> None:
 def extract_triggers(description: str) -> list[str]:
     """Extract trigger phrases and individual keywords.
 
-    Strategy (Iteration 1 P0):
-      1. Keep quoted phrases as-is (multi-word matchers).
-      2. Split quoted phrases into individual words (>=4 chars, not stopword).
-      3. Pull slash-separated tech tokens (e.g. "ruff/mypy/bandit").
-      4. Pull CLI-like tokens (starting with "/", ending with "-run" etc).
-
-    This gives both phrase-level precision and keyword-level recall.
+    Strategy:
+      P0 (already present):
+        1. Quoted phrases as-is (multi-word matchers).
+        2. Keywords from within quoted phrases.
+        3. Slash-separated tech tokens (ruff/mypy/bandit, SRT/VTT).
+        4. Slash-commands and hyphenated tool names.
+      P1 (body-keyword extraction):
+        5. ALL-CAPS acronyms anywhere in description (NDVI, RPW, PHI, LAI, GPS).
+        6. Mixed-case internal-capital tokens (PostGIS, FastAPI, SQLCipher).
+        7. Words inside parentheticals (Pydantic, Riverpod, NATS, health endpoints).
     """
     result: list[str] = []
     seen: set[str] = set()
@@ -104,6 +110,23 @@ def extract_triggers(description: str) -> list[str]:
         for t in token:
             if t and len(t) >= 4:
                 _add(result, seen, t.lower())
+
+    # 5. All-caps acronyms (NDVI, RPW, LAI, PHI, GPS, NATS, SQL, RBAC).
+    for acronym in re.findall(r"\b[A-Z]{2,}\b", text):
+        if acronym in _CAPS_NOISE:
+            continue
+        _add(result, seen, acronym.lower())
+
+    # 6. Mixed-case tokens with internal capital (PostGIS, FastAPI, SQLCipher, NestJS).
+    for word in re.findall(r"\b[A-Z][a-z]+[A-Z][A-Za-z0-9]+\b", text):
+        _add(result, seen, word.lower())
+
+    # 7. Parenthetical content — technical term lists.
+    for paren in re.findall(r"\(([^)]+)\)", text):
+        for word in re.findall(r"[A-Za-z][A-Za-z0-9_-]{3,}", paren):
+            wl = word.lower()
+            if wl not in _STOPWORDS:
+                _add(result, seen, wl)
 
     return result
 

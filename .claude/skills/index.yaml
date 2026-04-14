@@ -20,6 +20,22 @@ skills:
   - farmer-facing
   - crop-specific
   - date-palm
+  - sahool
+  - en
+  - ar
+  - phi
+  - crop
+  - recommendation
+  - irrigation
+  - advice
+  - pest
+  - guidance
+  - fertilizer
+  - plan
+  - zadoks
+  - stages
+  - seasonality
+  - compliance
   tenant_id: '*'
   deprecated: false
   external: false
@@ -72,6 +88,7 @@ skills:
   - development
   - language-agnostic
   - code-review
+  - sahool
   tenant_id: '*'
   deprecated: false
   external: false
@@ -143,6 +160,15 @@ skills:
   - safety-critical
   - multi-field
   - batch-prepares
+  - llm
+  - phi
+  - rpw
+  - sahool
+  - dosages
+  - spray
+  - windows
+  - alerts
+  - retention
   tenant_id: '*'
   deprecated: false
   external: false
@@ -169,6 +195,21 @@ skills:
   - field-level
   - follow-up
   - priority-tagged
+  - sahool
+  - ndvi
+  - en
+  - ar
+  - drop
+  - soil
+  - test
+  - result
+  - detection
+  - alert
+  - situation
+  - analysis
+  - rationale
+  - action
+  - plan
   tenant_id: '*'
   deprecated: false
   external: false
@@ -225,6 +266,10 @@ skills:
   - commit
   - check-contracts
   - fixops-run
+  - ci
+  - cd
+  - sahool
+  - devops
   tenant_id: '*'
   deprecated: false
   external: false
@@ -251,6 +296,9 @@ skills:
   - docker-compose
   - multi-stage
   - docker-bake
+  - any
+  - ci
+  - cd
   tenant_id: '*'
   deprecated: false
   external: true
@@ -303,6 +351,15 @@ skills:
   - knowledge
   - farm-facing
   - knowledge-base
+  - en
+  - ar
+  - yaml
+  - farm_id
+  - field_id
+  - crop_type
+  - season
+  - status
+  - tags
   tenant_id: '*'
   deprecated: false
   external: false
@@ -340,6 +397,16 @@ skills:
   - decisions
   - outcomes
   - offline-online
+  - en
+  - ar
+  - farms
+  - fields
+  - farmers
+  - equipment
+  - planting
+  - treatment
+  - harvest
+  - inspection
   tenant_id: '*'
   deprecated: false
   external: false
@@ -455,6 +522,10 @@ skills:
   - give
   - takeaways
   - context-compression
+  - tl
+  - dr
+  - sahool
+  - instead
   tenant_id: '*'
   deprecated: false
   external: false
@@ -467,6 +538,7 @@ skills:
   triggers:
   - image
   - font
+  - rsc
   tenant_id: '*'
   deprecated: false
   external: true
@@ -504,6 +576,8 @@ skills:
   - editing
   - arabic
   - english
+  - json
+  - sahool
   tenant_id: '*'
   deprecated: false
   external: false
@@ -516,6 +590,8 @@ skills:
   triggers:
   - sahool
   - field
+  - en
+  - ar
   tenant_id: '*'
   deprecated: false
   external: false
@@ -550,7 +626,8 @@ skills:
   description: Best practices and guidelines for working with Postgres. Covers schema design, indexing strategies, query optimization,
     migrations, and common pitfalls. Use when writing SQL, designing database schemas, optimizing queries, or setting up a
     Postgres database.
-  triggers: []
+  triggers:
+  - sql
   tenant_id: '*'
   deprecated: false
   external: true
@@ -589,6 +666,25 @@ skills:
   - code-fix-agent
   - code-review-service
   - fixops-run
+  - pr
+  - nats
+  - fastapi
+  - nestjs
+  - postgis
+  - python
+  - node
+  - flutter
+  - shared
+  - contracts
+  - health
+  - endpoints
+  - subjects
+  - tenant
+  - scoping
+  - pydantic
+  - riverpod
+  - certificate
+  - pinning
   tenant_id: '*'
   deprecated: false
   external: false
@@ -638,6 +734,9 @@ skills:
   - apps
   - services
   - non-root
+  - sahool
+  - idp
+  - pr
   tenant_id: '*'
   deprecated: false
   external: false
@@ -656,6 +755,7 @@ skills:
   - skill
   - scaffold
   - file
+  - yaml
   tenant_id: '*'
   deprecated: false
   external: false
@@ -703,6 +803,7 @@ skills:
   - description
   - sales
   - high-impact
+  - cta
   tenant_id: '*'
   deprecated: false
   external: false
@@ -755,6 +856,8 @@ skills:
   - arabic
   - rtl
   - arabic-rtl-tester
+  - ux
+  - ui
   tenant_id: '*'
   deprecated: false
   external: false
@@ -804,6 +907,7 @@ skills:
   - outline
   - call-to-actions
   - long-form
+  - cta
   tenant_id: '*'
   deprecated: false
   external: false

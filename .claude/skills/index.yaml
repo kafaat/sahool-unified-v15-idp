@@ -1,4 +1,4 @@
-version: 0.1.0
+version: 0.2.0
 generated_by: scripts/generate_skill_registry.py
 skill_count: 36
 skills:
@@ -15,8 +15,14 @@ skills:
   - score
   - grade
   - judge
+  - tests
+  - evaluation
+  - farmer-facing
+  - crop-specific
+  - date-palm
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: caption-subtitle-formatter
   path: .claude/skills/content-creation/caption-subtitle-formatter.md
@@ -29,8 +35,18 @@ skills:
   - create captions
   - write SRT/VTT
   - add timecodes
+  - format
+  - subtitles
+  - create
+  - captions
+  - write
+  - timecodes
+  - srt
+  - vtt
+  - accessibility-friendly
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: code-review-generic
   path: .claude/skills/coding-automation/code-review-generic.md
@@ -44,8 +60,21 @@ skills:
   - review this snippet
   - find bugs
   - suggest improvements
+  - code
+  - review
+  - snippet
+  - find
+  - bugs
+  - suggest
+  - improvements
+  - claude
+  - skills
+  - development
+  - language-agnostic
+  - code-review
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: competitive-intelligence
   path: .claude/skills/research-analysis/competitive-intelligence.md
@@ -58,8 +87,17 @@ skills:
   - compare X vs Y
   - SWOT
   - feature matrix
+  - competitor
+  - analysis
+  - compare
+  - feature
+  - matrix
+  - products
+  - protocols
+  - tools
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: content-repurposing-engine
   path: .claude/skills/writing-content/content-repurposing-engine.md
@@ -72,8 +110,20 @@ skills:
   - turn this blog into a thread
   - adapt for LinkedIn/Twitter/TikTok
   - convert article to script
+  - turn
+  - blog
+  - thread
+  - adapt
+  - linkedin
+  - twitter
+  - tiktok
+  - convert
+  - article
+  - script
+  - long-form
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: context-compression
   path: .claude/skills/context-engineering/compression.md
@@ -87,8 +137,15 @@ skills:
   - compress
   - summarize for LLM
   - fit into context window
+  - summarize
+  - context
+  - window
+  - safety-critical
+  - multi-field
+  - batch-prepares
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: crop-advisor
   path: .claude/skills/sahool/crop-advisor.md
@@ -103,8 +160,18 @@ skills:
   - recommendation
   - نصيحة
   - what should the farmer do
+  - farmer
+  - pest
+  - disease
+  - critical
+  - warning
+  - informational
+  - field-level
+  - follow-up
+  - priority-tagged
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: deep-research-synthesizer
   path: .claude/skills/research-analysis/deep-research-synthesizer.md
@@ -117,8 +184,20 @@ skills:
   - analyze these sources
   - extract insights
   - find patterns in this data
+  - synthesize
+  - research
+  - analyze
+  - sources
+  - extract
+  - insights
+  - find
+  - patterns
+  - data
+  - documents
+  - notes
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: devops-assistant
   path: .claude/skills/coding-automation/devops-assistant.md
@@ -134,17 +213,32 @@ skills:
   - deployment checklist
   - rollback plan
   - CI/CD automation
+  - workflow
+  - release
+  - tagging
+  - deployment
+  - checklist
+  - rollback
+  - plan
+  - automation
+  - service-health
+  - commit
+  - check-contracts
+  - fixops-run
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: docker-compose-orchestration
   path: .claude/skills/docker-compose-orchestration
   version: 0.1.0
   description: Container orchestration with Docker Compose for multi-container applications, networking, volumes, and production
     deployment
-  triggers: []
+  triggers:
+  - multi-container
   tenant_id: '*'
   deprecated: false
+  external: true
   source: SKILL.md
 - name: docker-development
   path: .claude/skills/docker-development
@@ -152,9 +246,14 @@ skills:
   description: 'Use when working with ANY Docker task: writing Dockerfiles, configuring docker-compose/compose.yml, multi-stage
     builds, docker-bake.hcl, container security audits, .dockerignore optimization, or CI/CD container testing. Triggers on:
     Dockerfile, docker-compose, container, image build, multi-stage, docker bake, compose.'
-  triggers: []
+  triggers:
+  - compose
+  - docker-compose
+  - multi-stage
+  - docker-bake
   tenant_id: '*'
   deprecated: false
+  external: true
   source: SKILL.md
 - name: excalidraw-diagram-generator
   path: .claude/skills/visual-infographic/excalidraw-diagram-generator.md
@@ -167,8 +266,19 @@ skills:
   - create an excalidraw
   - visualize this workflow
   - make a mind map
+  - draw
+  - diagram
+  - create
+  - excalidraw
+  - visualize
+  - workflow
+  - make
+  - mind
+  - system
+  - process
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: farm-documentation
   path: .claude/skills/sahool/farm-documentation.md
@@ -183,8 +293,19 @@ skills:
   - write report
   - log operation
   - generate compliance record
+  - write
+  - report
+  - operation
+  - generate
+  - compliance
+  - record
+  - docs
+  - knowledge
+  - farm-facing
+  - knowledge-base
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: farm-memory
   path: .claude/skills/context-engineering/memory.md
@@ -201,8 +322,27 @@ skills:
   - farmer preferences
   - similar situations
   - lessons learned
+  - last
+  - season
+  - previous
+  - treatments
+  - field
+  - history
+  - farmer
+  - preferences
+  - similar
+  - situations
+  - lessons
+  - learned
+  - entities
+  - events
+  - observations
+  - decisions
+  - outcomes
+  - offline-online
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: flowchart-decision-builder
   path: .claude/skills/visual-infographic/flowchart-decision-builder.md
@@ -215,8 +355,15 @@ skills:
   - decision tree
   - if-then diagram
   - process diagram
+  - decision
+  - tree
+  - if-then
+  - diagram
+  - process
+  - decision-making
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: hook-generator
   path: .claude/skills/content-creation/hook-generator.md
@@ -230,8 +377,16 @@ skills:
   - intro line
   - viral opening
   - thumbnail text
+  - intro
+  - line
+  - viral
+  - opening
+  - thumbnail
+  - text
+  - attention-grabbing
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: infographic-builder
   path: .claude/skills/visual-infographic/infographic-builder.md
@@ -244,8 +399,20 @@ skills:
   - visualize this data
   - create a visual summary
   - make slides from this
+  - build
+  - infographic
+  - visualize
+  - data
+  - create
+  - visual
+  - summary
+  - make
+  - slides
+  - chartable
+  - sectioned
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: knowledge-structuring
   path: .claude/skills/research-analysis/knowledge-structuring.md
@@ -258,8 +425,19 @@ skills:
   - turn this into a framework
   - structure this knowledge
   - make this into a mental model
+  - organize
+  - notes
+  - turn
+  - framework
+  - structure
+  - knowledge
+  - make
+  - mental
+  - model
+  - brainstorms
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: long-form-summary-compressor
   path: .claude/skills/writing-content/long-form-summary-compressor.md
@@ -272,17 +450,26 @@ skills:
   - TL;DR
   - shorten this article
   - give me the key takeaways
+  - shorten
+  - article
+  - give
+  - takeaways
+  - context-compression
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: next-best-practices
   path: .claude/skills/next-best-practices
   version: 0.1.0
   description: Next.js best practices - file conventions, RSC boundaries, data patterns, async APIs, metadata, error handling,
     route handlers, image/font optimization, bundling
-  triggers: []
+  triggers:
+  - image
+  - font
   tenant_id: '*'
   deprecated: false
+  external: true
   source: SKILL.md
 - name: next-upgrade
   path: .claude/skills/next-upgrade
@@ -291,6 +478,7 @@ skills:
   triggers: []
   tenant_id: '*'
   deprecated: false
+  external: true
   source: SKILL.md
 - name: obsidian-canvas
   path: .claude/skills/obsidian/canvas.md
@@ -305,17 +493,32 @@ skills:
   - farm diagram
   - rotation visualization
   - decision flowchart
+  - visual
+  - farm
+  - diagram
+  - rotation
+  - visualization
+  - decision
+  - flowchart
+  - writing
+  - editing
+  - arabic
+  - english
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: obsidian-markdown
   path: .claude/skills/obsidian/markdown.md
   version: 0.1.0
   description: Use when generating Obsidian-compatible Markdown for SAHOOL farm documentation — wikilinks, callouts, Dataview
     queries, bilingual EN/AR frontmatter, task lists, and tag hierarchies (#sahool/field,
-  triggers: []
+  triggers:
+  - sahool
+  - field
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: onchain-transaction-analyzer
   path: .claude/skills/research-analysis/onchain-transaction-analyzer.md
@@ -329,8 +532,17 @@ skills:
   - decode this tx
   - what did this wallet do
   - follow the tokens
+  - explain
+  - transaction
+  - trace
+  - wallet
+  - decode
+  - follow
+  - tokens
+  - on-chain
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: postgres-best-practices
   path: .claude/skills/postgres-best-practices
@@ -341,6 +553,7 @@ skills:
   triggers: []
   tenant_id: '*'
   deprecated: false
+  external: true
   source: SKILL.md
 - name: sahool-code-audit
   path: .claude/skills/sahool-code-audit
@@ -357,8 +570,28 @@ skills:
   - run ruff/mypy/bandit
   - check SAHOOL standards
   - apply fixops
+  - review
+  - code
+  - audit
+  - service
+  - lint
+  - errors
+  - ruff
+  - mypy
+  - bandit
+  - check
+  - sahool
+  - standards
+  - apply
+  - fixops
+  - diff
+  - platform-specific
+  - code-fix-agent
+  - code-review-service
+  - fixops-run
   tenant_id: '*'
   deprecated: false
+  external: false
   source: SKILL.md
 - name: scqa-writing-framework
   path: .claude/skills/writing-content/scqa-writing-framework.md
@@ -373,8 +606,20 @@ skills:
   - pyramid principle
   - story structure
   - make this more compelling
+  - situation
+  - complication
+  - question
+  - answer
+  - pyramid
+  - principle
+  - story
+  - structure
+  - make
+  - more
+  - compelling
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: service-scaffolding
   path: .claude/skills/sahool/service-scaffolding.md
@@ -386,8 +631,16 @@ skills:
   - create a new service
   - scaffold a service
   - add a microservice
+  - create
+  - service
+  - scaffold
+  - microservice
+  - apps
+  - services
+  - non-root
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: skill-creator
   path: .claude/skills/coding-automation/skill-creator.md
@@ -399,8 +652,13 @@ skills:
   - create a new skill
   - scaffold a skill file
   - add a skill for X
+  - create
+  - skill
+  - scaffold
+  - file
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: source-validation
   path: .claude/skills/research-analysis/source-validation.md
@@ -413,8 +671,16 @@ skills:
   - check credibility
   - fact-check
   - is this reliable
+  - verify
+  - sources
+  - check
+  - credibility
+  - reliable
+  - citations
+  - urls
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: structured-copywriting
   path: .claude/skills/writing-content/structured-copywriting.md
@@ -428,8 +694,18 @@ skills:
   - marketing email
   - product description
   - sales page
+  - landing
+  - page
+  - copy
+  - marketing
+  - email
+  - product
+  - description
+  - sales
+  - high-impact
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: tone-style-enforcer
   path: .claude/skills/writing-content/tone-style-enforcer.md
@@ -442,8 +718,19 @@ skills:
   - enforce brand tone
   - rewrite in consistent style
   - apply style guide
+  - match
+  - voice
+  - enforce
+  - brand
+  - tone
+  - rewrite
+  - consistent
+  - style
+  - apply
+  - guide
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: ui-ux-layout-advisor
   path: .claude/skills/visual-infographic/ui-ux-layout-advisor.md
@@ -457,8 +744,20 @@ skills:
   - UI layout suggestions
   - improve this screen
   - accessibility review
+  - review
+  - layout
+  - suggestions
+  - improve
+  - screen
+  - accessibility
+  - mockup
+  - wireframe
+  - arabic
+  - rtl
+  - arabic-rtl-tester
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: video-editing-planner
   path: .claude/skills/content-creation/video-editing-planner.md
@@ -471,8 +770,17 @@ skills:
   - cut list
   - scene breakdown
   - transitions
+  - edit
+  - plan
+  - list
+  - scene
+  - breakdown
+  - footage
+  - outline
+  - post-production
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: video-script-generator
   path: .claude/skills/content-creation/video-script-generator.md
@@ -485,8 +793,20 @@ skills:
   - YouTube script
   - Reel/TikTok/Shorts script
   - podcast outline
+  - write
+  - video
+  - script
+  - youtube
+  - reel
+  - tiktok
+  - shorts
+  - podcast
+  - outline
+  - call-to-actions
+  - long-form
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy
 - name: workflow-automation-agent
   path: .claude/skills/coding-automation/workflow-automation-agent.md
@@ -499,6 +819,17 @@ skills:
   - turn this into steps
   - design an agent for X
   - map this to tools
+  - automate
+  - workflow
+  - turn
+  - steps
+  - design
+  - agent
+  - tools
+  - step-by-step
+  - multi-step
+  - tool-call
   tenant_id: '*'
   deprecated: false
+  external: false
   source: legacy

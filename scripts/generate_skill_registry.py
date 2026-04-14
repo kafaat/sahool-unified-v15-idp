@@ -7,7 +7,6 @@ extracts YAML frontmatter, and writes .claude/skills/index.yaml.
 
 Deliberately minimal per ADR-010 Step 0:
 - No schema validation
-- No smart trigger extraction (simple quoted-phrase pull)
 - No CLI flags
 - No abstraction layers
 
@@ -26,6 +25,19 @@ SKILLS_DIR = Path(__file__).resolve().parent.parent / ".claude" / "skills"
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = SKILLS_DIR / "index.yaml"
 
+# Iteration 1 P0: keyword extraction stopwords (common English + skill boilerplate).
+_STOPWORDS = {
+    "a", "an", "the", "this", "that", "these", "those",
+    "for", "to", "of", "in", "on", "at", "by", "with",
+    "and", "or", "but", "not", "is", "are", "was", "were",
+    "from", "as", "into", "onto", "about", "any", "all", "some",
+    "use", "used", "uses", "using", "when", "trigger", "asks",
+    "user", "your", "our", "my", "their", "its", "it",
+    "what", "whether", "such", "also", "only", "than",
+    "has", "have", "had", "will", "should", "would", "can",
+    "here", "there", "then", "now",
+}
+
 
 def parse_frontmatter(md_path: Path) -> dict | None:
     """Return the YAML frontmatter dict, or None if no frontmatter present."""
@@ -42,22 +54,71 @@ def parse_frontmatter(md_path: Path) -> dict | None:
     return fm if isinstance(fm, dict) else None
 
 
-def extract_triggers(description: str) -> list[str]:
-    """Pull quoted phrases from description as trigger keywords.
+def _add(result: list[str], seen: set[str], token: str) -> None:
+    """Add a normalized trigger if not already present."""
+    key = token.lower().strip()
+    if not key or key in seen:
+        return
+    seen.add(key)
+    result.append(token.strip())
 
-    Router will refine these at runtime; index is just a starting point.
+
+def extract_triggers(description: str) -> list[str]:
+    """Extract trigger phrases and individual keywords.
+
+    Strategy (Iteration 1 P0):
+      1. Keep quoted phrases as-is (multi-word matchers).
+      2. Split quoted phrases into individual words (>=4 chars, not stopword).
+      3. Pull slash-separated tech tokens (e.g. "ruff/mypy/bandit").
+      4. Pull CLI-like tokens (starting with "/", ending with "-run" etc).
+
+    This gives both phrase-level precision and keyword-level recall.
     """
-    quoted = re.findall(r'"([^"]+)"', description or "")
-    quoted += re.findall(r"'([^']+)'", description or "")
-    # Deduplicate, preserve order
-    seen: set[str] = set()
     result: list[str] = []
-    for phrase in quoted:
-        key = phrase.lower().strip()
-        if key and key not in seen:
-            seen.add(key)
-            result.append(phrase.strip())
+    seen: set[str] = set()
+    text = description or ""
+
+    # 1. Quoted phrases (double + single quotes, curly quotes).
+    phrase_pattern = re.compile(r'["\'""„«]([^"\'""„«»]+)["\'""»]')
+    phrases = phrase_pattern.findall(text)
+    for phrase in phrases:
+        _add(result, seen, phrase)
+
+    # 2. Keywords within quoted phrases (length >=4, not stopword).
+    for phrase in phrases:
+        for word in re.findall(r"[A-Za-z][A-Za-z0-9_-]{3,}", phrase):
+            wl = word.lower()
+            if wl not in _STOPWORDS:
+                _add(result, seen, wl)
+
+    # 3. Slash-separated tech tokens anywhere in description
+    #    (e.g. "ruff/mypy/bandit", "SRT/VTT", "EN/AR").
+    for tech in re.findall(r"\b([A-Za-z][A-Za-z0-9]+(?:/[A-Za-z][A-Za-z0-9]+)+)\b", text):
+        for word in tech.split("/"):
+            wl = word.lower()
+            if len(wl) >= 3 and wl not in _STOPWORDS:
+                _add(result, seen, wl)
+
+    # 4. Slash-commands and tool names (/fixops-run, /check-contracts, code-fix-agent).
+    for token in re.findall(r"/([a-z][a-z0-9-]+)|\b([a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)+)\b", text):
+        for t in token:
+            if t and len(t) >= 4:
+                _add(result, seen, t.lower())
+
     return result
+
+
+def _is_external(skill_path: Path) -> bool:
+    """Bundled plugin skills live in folders we recognize as external."""
+    external_markers = {
+        "docker-development",
+        "docker-compose-orchestration",
+        "next-best-practices",
+        "next-upgrade",
+        "postgres-best-practices",
+    }
+    # Check the skill folder itself plus all its parents
+    return any(part in external_markers for part in skill_path.parts)
 
 
 def build_entry(md_path: Path, fm: dict, source: str) -> dict | None:
@@ -78,6 +139,7 @@ def build_entry(md_path: Path, fm: dict, source: str) -> dict | None:
         "triggers": extract_triggers(fm.get("description", "")),
         "tenant_id": "*",
         "deprecated": False,
+        "external": _is_external(skill_path),
         "source": source,
     }
 
@@ -125,7 +187,7 @@ def main() -> int:
         deduped.append(s)
 
     output = {
-        "version": "0.1.0",
+        "version": "0.2.0",  # bumped for Iteration 1 P0 schema (external field, keyword triggers)
         "generated_by": "scripts/generate_skill_registry.py",
         "skill_count": len(deduped),
         "skills": sorted(deduped, key=lambda s: s["name"]),
@@ -137,6 +199,8 @@ def main() -> int:
     )
 
     print(f"Wrote {len(deduped)} skills to {OUTPUT.relative_to(REPO_ROOT)}")
+    external_count = sum(1 for s in deduped if s.get("external"))
+    print(f"  - {external_count} flagged external (bundled plugins)")
     if skipped:
         print(f"Skipped {len(skipped)} file(s) without valid frontmatter:", file=sys.stderr)
         for p in skipped:

@@ -6,12 +6,29 @@ import logging
 import time
 
 from fastapi import APIRouter
+from prometheus_client import Counter
 
 from app.loader import load_skills
 from app.models import RouteRequest, RouteResponse, RouteResult
 from app.scoring import filter_skills, score_skill
 
 logger = logging.getLogger("skill-router")
+
+# Low-confidence threshold: empirically, <3.0 means single-keyword hit only.
+# Tune after collecting production data per ADR-010.
+LOW_CONFIDENCE_THRESHOLD = 3.0
+
+# Metrics that surface routing gaps (ADR-010 feedback loop).
+ROUTE_NO_MATCH = Counter(
+    "skill_router_no_match_total",
+    "Routing queries that returned zero matching skills",
+    ["tenant_id"],
+)
+ROUTE_LOW_CONFIDENCE = Counter(
+    "skill_router_low_confidence_total",
+    "Routing queries where top score < LOW_CONFIDENCE_THRESHOLD",
+    ["tenant_id"],
+)
 
 router = APIRouter()
 
@@ -52,6 +69,31 @@ def route(req: RouteRequest) -> RouteResponse:
             "latency_ms": round(latency_ms, 2),
         },
     )
+
+    # Surface routing gaps for Iteration 2+ decisions.
+    if not scored:
+        ROUTE_NO_MATCH.labels(tenant_id=req.tenant_id).inc()
+        logger.warning(
+            "routing_gap",
+            extra={
+                "kind": "no_match",
+                "query": req.query,
+                "tenant_id": req.tenant_id,
+            },
+        )
+    elif top and top[0][1] < LOW_CONFIDENCE_THRESHOLD:
+        ROUTE_LOW_CONFIDENCE.labels(tenant_id=req.tenant_id).inc()
+        logger.warning(
+            "routing_gap",
+            extra={
+                "kind": "low_confidence",
+                "query": req.query,
+                "tenant_id": req.tenant_id,
+                "top_skill": top[0][0],
+                "top_score": round(top[0][1], 3),
+                "threshold": LOW_CONFIDENCE_THRESHOLD,
+            },
+        )
 
     return RouteResponse(
         results=[RouteResult(skill=name, score=round(value, 3)) for name, value in top]

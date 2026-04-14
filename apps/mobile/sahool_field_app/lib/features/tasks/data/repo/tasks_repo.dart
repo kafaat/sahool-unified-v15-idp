@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/contracts/api_endpoints.dart';
 import '../../../../core/error_handling/error_handling.dart';
 import '../../../../core/storage/database.dart';
 import '../../../../core/sync/network_status.dart';
@@ -113,7 +114,7 @@ class TasksRepo {
         tenantId: task.tenantId,
         entityType: 'task',
         entityId: taskId,
-        apiEndpoint: '/api/v1/tasks/$taskId/complete',
+        apiEndpoint: TaskEndpoints.complete(taskId),
         method: 'PUT',
         payload: jsonEncode({
           'task_id': taskId,
@@ -162,7 +163,7 @@ class TasksRepo {
         tenantId: task.tenantId,
         entityType: 'task',
         entityId: taskId,
-        apiEndpoint: '/api/v1/tasks/$taskId',
+        apiEndpoint: TaskEndpoints.get(taskId),
         method: 'PUT',
         payload: jsonEncode({
           'task_id': taskId,
@@ -238,7 +239,7 @@ class TasksRepo {
         tenantId: tenantId,
         entityType: 'task',
         entityId: taskId,
-        apiEndpoint: '/api/v1/tasks',
+        apiEndpoint: TaskEndpoints.list,
         method: 'POST',
         payload: jsonEncode(task.toJson()),
       );
@@ -300,7 +301,7 @@ class TasksRepo {
         tenantId: existingTask.tenantId,
         entityType: 'task',
         entityId: taskId,
-        apiEndpoint: '/api/v1/tasks/$taskId',
+        apiEndpoint: TaskEndpoints.get(taskId),
         method: 'PUT',
         payload: jsonEncode(updatedTask.toJson()),
       );
@@ -341,7 +342,7 @@ class TasksRepo {
         tenantId: existingTask.tenantId,
         entityType: 'task',
         entityId: taskId,
-        apiEndpoint: '/api/v1/tasks/$taskId',
+        apiEndpoint: TaskEndpoints.get(taskId),
         method: 'DELETE',
         payload:
             jsonEncode({'task_id': taskId, 'tenant_id': existingTask.tenantId}),

@@ -379,6 +379,16 @@ export const EQUIPMENT_ENDPOINTS = {
   MAINTENANCE_SCHEDULE: `${API_PREFIX}/equipment/maintenance-schedule`,
   MAINTENANCE_SCHEDULE_BY_ID: `${API_PREFIX}/equipment/{equipmentId}/maintenance-schedule`,
   ISSUES: `${API_PREFIX}/equipment/{equipmentId}/issues`,
+  /** @since 4.15.0 — Mobile equipment tracking surface */
+  ALERTS: `${API_PREFIX}/equipment/alerts`,
+  LOCATION: `${API_PREFIX}/equipment/{equipmentId}/location`,
+  TELEMETRY: `${API_PREFIX}/equipment/{equipmentId}/telemetry`,
+  FUEL: `${API_PREFIX}/equipment/{equipmentId}/fuel`,
+  FUEL_SUMMARY: `${API_PREFIX}/equipment/{equipmentId}/fuel/summary`,
+  USAGE: `${API_PREFIX}/equipment/{equipmentId}/usage`,
+  USAGE_START: `${API_PREFIX}/equipment/{equipmentId}/usage/start`,
+  USAGE_END: `${API_PREFIX}/equipment/{equipmentId}/usage/{logId}/end`,
+  USAGE_SUMMARY: `${API_PREFIX}/equipment/{equipmentId}/usage/summary`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -503,6 +513,29 @@ export const BILLING_ENDPOINTS = {
   TENANT_SUBSCRIPTION: `${API_PREFIX}/billing/tenants/{tenantId}/subscription`,
   TENANT_INVOICES: `${API_PREFIX}/billing/tenants/{tenantId}/invoices`,
   TENANT_USAGE: `${API_PREFIX}/billing/tenants/{tenantId}/usage`,
+  /**
+   * @since 4.15.0 — Mobile billing surface.
+   * NOTE: DEPOSIT/WITHDRAW/TRANSFER are *flat* `/billing/deposit` paths
+   * (what the mobile app actually hits), while WALLET_DEPOSIT/WITHDRAW/TRANSFER
+   * above use the `/billing/wallet/*` variant. Both shapes are kept because
+   * billing-core exposes them in parallel; picking one over the other is a
+   * separate reconciliation tracked with the 2026-04 audit.
+   */
+  DEPOSIT: `${API_PREFIX}/billing/deposit`,
+  WITHDRAW: `${API_PREFIX}/billing/withdraw`,
+  TRANSFER: `${API_PREFIX}/billing/transfer`,
+  PAYMENTS: `${API_PREFIX}/billing/payments`,
+  INVOICE_PAYMENT_INTENT: `${API_PREFIX}/billing/invoices/{invoiceId}/payment-intent`,
+  /** Stripe payment-intent lifecycle (mobile pays via Stripe SDK) */
+  STRIPE_CONFIG: `${API_PREFIX}/billing/stripe/config`,
+  STRIPE_PAYMENT_INTENTS: `${API_PREFIX}/billing/stripe/payment-intents`,
+  STRIPE_PAYMENT_INTENT_CONFIRM: `${API_PREFIX}/billing/stripe/payment-intents/{paymentIntentId}/confirm`,
+  STRIPE_SETUP_INTENTS: `${API_PREFIX}/billing/stripe/setup-intents`,
+  STRIPE_SETUP_INTENT_CONFIRM: `${API_PREFIX}/billing/stripe/setup-intents/{setupIntentId}/confirm`,
+  /** Saved payment methods */
+  PAYMENT_METHODS: `${API_PREFIX}/billing/payment-methods`,
+  PAYMENT_METHOD_GET: `${API_PREFIX}/billing/payment-methods/{paymentMethodId}`,
+  PAYMENT_METHOD_DEFAULT: `${API_PREFIX}/billing/payment-methods/{paymentMethodId}/default`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -523,6 +556,11 @@ export const CHAT_ENDPOINTS = {
   COMMUNITY_POSTS: `${API_PREFIX}/posts`,
   COMMUNITY_POST_GET: `${API_PREFIX}/posts/{postId}`,
   COMMUNITY_COMMENTS: `${API_PREFIX}/posts/{postId}/comments`,
+  /** @since 4.15.0 — Conversation moderation actions used by mobile chat */
+  MUTE: `${API_PREFIX}/chat/conversations/{conversationId}/mute`,
+  REPORT: `${API_PREFIX}/chat/conversations/{conversationId}/report`,
+  /** Same URL as MESSAGES but DELETE method — clears conversation history */
+  CLEAR_MESSAGES: `${API_PREFIX}/chat/conversations/{conversationId}/messages`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -653,6 +691,8 @@ export const USER_ENDPOINTS = {
   CREATE: `${API_PREFIX}/users`,
   UPDATE: `${API_PREFIX}/users/{userId}`,
   DELETE: `${API_PREFIX}/users/{userId}`,
+  /** @since 4.15.0 — Block another user (used by mobile chat) */
+  BLOCK: `${API_PREFIX}/users/{userId}/block`,
 } as const;
 
 // ---------------------------------------------------------------------------

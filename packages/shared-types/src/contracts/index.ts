@@ -35,7 +35,15 @@
 //          * TERRAIN_ENDPOINTS: DEM_FIELD, SLOPE_FIELD, TWI, CONTOURS, ANALYZE
 //          * EQUIPMENT_ENDPOINTS: MAINTENANCE_SCHEDULE(_BY_ID), ISSUES
 //          Purely additive; no renames, no removals.
-export const CONTRACT_VERSION = "4.14.0" as const;
+// 4.15.0 — expand mobile surface so feature repositories stop hardcoding:
+//          * BILLING_ENDPOINTS: DEPOSIT/WITHDRAW/TRANSFER (flat variants),
+//            PAYMENTS, INVOICE_PAYMENT_INTENT, STRIPE_*, PAYMENT_METHOD*
+//          * CHAT_ENDPOINTS: MUTE, REPORT, CLEAR_MESSAGES
+//          * USER_ENDPOINTS: BLOCK
+//          * EQUIPMENT_ENDPOINTS: ALERTS, LOCATION, TELEMETRY, FUEL,
+//            FUEL_SUMMARY, USAGE, USAGE_START, USAGE_END, USAGE_SUMMARY
+//          Purely additive.
+export const CONTRACT_VERSION = "4.15.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

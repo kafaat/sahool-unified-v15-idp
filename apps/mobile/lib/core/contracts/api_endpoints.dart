@@ -65,6 +65,10 @@ abstract final class FieldEndpoints {
   static const String nearby = '$apiPrefix/fields/nearby';
   static const String sync = '$apiPrefix/fields/sync';
   static const String syncBatch = '$apiPrefix/fields/sync/batch';
+
+  /// @since 4.15.0
+  static String boundary(String fieldId) =>
+      '$apiPrefix/fields/$fieldId/boundary';
 }
 
 /// Weather - الطقس
@@ -209,6 +213,27 @@ abstract final class EquipmentEndpoints {
       '$apiPrefix/equipment/$equipmentId/maintenance-schedule';
   static String issues(String equipmentId) =>
       '$apiPrefix/equipment/$equipmentId/issues';
+
+  /// @since 4.15.0 — Mobile tracking + telemetry surface
+  static const String alerts = '$apiPrefix/equipment/alerts';
+  static String status(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/status';
+  static String location(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/location';
+  static String telemetry(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/telemetry';
+  static String fuel(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/fuel';
+  static String fuelSummary(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/fuel/summary';
+  static String usage(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/usage';
+  static String usageStart(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/usage/start';
+  static String usageEnd(String equipmentId, String logId) =>
+      '$apiPrefix/equipment/$equipmentId/usage/$logId/end';
+  static String usageSummary(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/usage/summary';
 }
 
 /// Traceability - التتبع
@@ -304,11 +329,47 @@ abstract final class BillingEndpoints {
   static const String usage = '$apiPrefix/billing/usage';
   static const String wallet = '$apiPrefix/billing/wallet';
   static const String transactions = '$apiPrefix/billing/transactions';
+
+  /// @since 4.15.0 — Mobile billing surface (Stripe + wallet + invoices)
+  /// Flat wallet paths used by mobile (billing-core exposes both
+  /// `/billing/deposit` and `/billing/wallet/deposit` in parallel).
+  static const String deposit = '$apiPrefix/billing/deposit';
+  static const String withdraw = '$apiPrefix/billing/withdraw';
+  static const String transfer = '$apiPrefix/billing/transfer';
+  static const String payments = '$apiPrefix/billing/payments';
+  static String invoicePaymentIntent(String invoiceId) =>
+      '$apiPrefix/billing/invoices/$invoiceId/payment-intent';
+  static String tenantSubscription(String tenantId) =>
+      '$apiPrefix/billing/tenants/$tenantId/subscription';
+  static String tenantInvoices(String tenantId) =>
+      '$apiPrefix/billing/tenants/$tenantId/invoices';
+  static String tenantUsage(String tenantId) =>
+      '$apiPrefix/billing/tenants/$tenantId/usage';
+
+  /// Stripe payment / setup intents
+  static const String stripeConfig = '$apiPrefix/billing/stripe/config';
+  static const String stripePaymentIntents =
+      '$apiPrefix/billing/stripe/payment-intents';
+  static String stripePaymentIntentConfirm(String paymentIntentId) =>
+      '$apiPrefix/billing/stripe/payment-intents/$paymentIntentId/confirm';
+  static const String stripeSetupIntents =
+      '$apiPrefix/billing/stripe/setup-intents';
+  static String stripeSetupIntentConfirm(String setupIntentId) =>
+      '$apiPrefix/billing/stripe/setup-intents/$setupIntentId/confirm';
+
+  /// Saved payment methods
+  static const String paymentMethods = '$apiPrefix/billing/payment-methods';
+  static String paymentMethod(String paymentMethodId) =>
+      '$apiPrefix/billing/payment-methods/$paymentMethodId';
+  static String paymentMethodDefault(String paymentMethodId) =>
+      '$apiPrefix/billing/payment-methods/$paymentMethodId/default';
 }
 
 /// Chat & Community - الدردشة والمجتمع
 abstract final class ChatEndpoints {
   static const String conversations = '$apiPrefix/chat/conversations';
+  static String conversationGet(String conversationId) =>
+      '$apiPrefix/chat/conversations/$conversationId';
   static String messages(String conversationId) =>
       '$apiPrefix/chat/conversations/$conversationId/messages';
   static String markRead(String conversationId) =>
@@ -317,6 +378,23 @@ abstract final class ChatEndpoints {
       '$apiPrefix/chat/conversations/unread-count';
   static String fieldMessages(String fieldId) =>
       '$apiPrefix/chat/fields/$fieldId/messages';
+
+  /// @since 4.15.0 — Moderation actions
+  static String mute(String conversationId) =>
+      '$apiPrefix/chat/conversations/$conversationId/mute';
+  static String report(String conversationId) =>
+      '$apiPrefix/chat/conversations/$conversationId/report';
+  static String clearMessages(String conversationId) =>
+      '$apiPrefix/chat/conversations/$conversationId/messages';
+}
+
+/// Users - المستخدمون
+/// @since 4.15.0
+abstract final class UserEndpoints {
+  static const String list = '$apiPrefix/users';
+  static String get(String userId) => '$apiPrefix/users/$userId';
+  static String update(String userId) => '$apiPrefix/users/$userId';
+  static String block(String userId) => '$apiPrefix/users/$userId/block';
 }
 
 /// AI Advisor - المستشار الذكي

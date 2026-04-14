@@ -15,7 +15,8 @@ class Settings(BaseModel):
     SERVICE_NAME: str = "skill-router-service"
     SERVICE_VERSION: str = "16.0.0"
     PORT: int = int(os.getenv("PORT", "8205"))
-    HOST: str = os.getenv("HOST", "0.0.0.0")
+    # Bind all interfaces is intentional for containerized deployment behind Kong.
+    HOST: str = os.getenv("HOST", "0.0.0.0")  # nosec B104
 
 
 settings = Settings()

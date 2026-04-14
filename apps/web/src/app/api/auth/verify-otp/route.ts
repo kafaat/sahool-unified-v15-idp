@@ -69,17 +69,27 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    if (!body?.otp) {
+    // Accept either `otp` (legacy client) or `otpCode` (backend DTO field)
+    const otpCode = body?.otpCode ?? body?.otp;
+    if (!otpCode) {
       return NextResponse.json(
         { success: false, error: 'OTP code is required' },
         { status: 400 }
       );
     }
 
+    // Normalize payload to match backend DTO (uses `otpCode`, not `otp`)
+    const backendPayload = {
+      identifier: body?.identifier,
+      otpCode,
+      purpose: body?.purpose,
+      ...(body?.tenantId && { tenantId: body.tenantId }),
+    };
+
     const backendResponse = await fetch(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(backendPayload),
     });
 
     const data = await backendResponse.json().catch(() => ({}));
@@ -99,8 +109,9 @@ export async function POST(request: NextRequest) {
     const purpose = body?.purpose ?? 'login';
 
     // Password-reset OTP: return the reset_token to the client (no session cookies set)
-    if (purpose === 'reset') {
-      const resetToken = data?.reset_token ?? data?.token;
+    // Backend purpose is `password_reset`; legacy clients may send `reset`.
+    if (purpose === 'password_reset' || purpose === 'reset') {
+      const resetToken = data?.reset_token ?? data?.resetToken ?? data?.token;
 
       if (!resetToken) {
         logger.warn('[Auth VerifyOTP] Backend response missing reset token');
@@ -114,6 +125,15 @@ export async function POST(request: NextRequest) {
         success: true,
         reset_token: resetToken,
         message: data?.message || 'OTP verified',
+      });
+    }
+
+    // Phone verification: no session cookies, just confirm status
+    if (purpose === 'verify_phone') {
+      return NextResponse.json({
+        success: true,
+        verified: data?.verified ?? true,
+        message: data?.message || 'Phone verified successfully',
       });
     }
 

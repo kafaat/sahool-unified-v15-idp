@@ -55,17 +55,27 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    if (!body?.phone && !body?.email) {
+    // Backend DTO expects `identifier`; accept legacy `phone`/`email` keys too.
+    const identifier = body?.identifier ?? body?.phone ?? body?.email;
+    if (!identifier) {
       return NextResponse.json(
         { success: false, error: 'Phone number or email is required' },
         { status: 400 }
       );
     }
 
+    const backendPayload = {
+      identifier,
+      channel: body?.channel ?? 'sms',
+      purpose: body?.purpose ?? 'login',
+      ...(body?.language && { language: body.language }),
+      ...(body?.tenantId && { tenantId: body.tenantId }),
+    };
+
     const backendResponse = await fetch(`${API_BASE_URL}/api/v1/auth/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(backendPayload),
     });
 
     const data = await backendResponse.json().catch(() => ({}));

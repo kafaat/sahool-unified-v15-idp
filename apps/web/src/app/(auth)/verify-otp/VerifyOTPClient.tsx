@@ -12,7 +12,7 @@ const OTP_LENGTH = 6;
 const OTP_EXPIRATION_SECONDS = 300; // 5 minutes
 const RESEND_COOLDOWN_SECONDS = 60; // 1 minute
 
-type Purpose = 'password_reset' | 'verify_phone';
+type Purpose = 'password_reset' | 'verify_phone' | 'login';
 type Channel = 'sms' | 'whatsapp' | 'telegram';
 
 interface VerifyOTPFormProps {
@@ -109,6 +109,7 @@ function getPurposeLabel(purpose: Purpose): { ar: string; en: string } {
   const labels: Record<Purpose, { ar: string; en: string }> = {
     password_reset: { ar: 'إعادة تعيين كلمة المرور', en: 'Password Reset' },
     verify_phone: { ar: 'التحقق من رقم الهاتف', en: 'Phone Verification' },
+    login: { ar: 'تسجيل الدخول', en: 'Sign In' },
   };
   return labels[purpose] || labels.verify_phone;
 }
@@ -200,7 +201,7 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
             router.push('/login');
           }
         } else {
-          // For phone verification, redirect to dashboard
+          // For phone verification and login, cookies are set server-side → go to dashboard
           router.push('/dashboard');
         }
       }, 2000);

@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Phone, Smartphone } from 'lucide-react';
+import { Mail, Lock, Phone, Smartphone, MessageSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -45,6 +45,7 @@ function isSafeReturnTo(value: string | null): value is string {
 }
 
 export default function LoginClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
   const { showToast } = useToast();
@@ -53,8 +54,55 @@ export default function LoginClient() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   const identifier = loginMethod === 'email' ? email : phone;
+
+  const handleOtpLogin = async () => {
+    if (!phone) {
+      showToast({
+        type: 'error',
+        messageAr: 'يرجى إدخال رقم الهاتف أولاً',
+        message: 'Please enter your phone number first',
+      });
+      return;
+    }
+    setIsSendingOtp(true);
+    try {
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: phone,
+          channel: 'sms',
+          purpose: 'login',
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data?.error || data?.message || 'Failed to send OTP');
+      }
+      showToast({
+        type: 'success',
+        messageAr: 'تم إرسال رمز التحقق',
+        message: 'Verification code sent',
+      });
+      const params = new URLSearchParams({
+        identifier: phone,
+        purpose: 'login',
+        channel: 'sms',
+      });
+      router.push(`/verify-otp?${params.toString()}`);
+    } catch (error) {
+      showToast({
+        type: 'error',
+        messageAr: 'فشل إرسال رمز التحقق',
+        message: getErrorMessage(error),
+      });
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,6 +228,30 @@ export default function LoginClient() {
               <span className="text-sm">Login</span>
             </Button>
           </form>
+          {loginMethod === 'phone' && (
+            <div className="mt-3">
+              <div className="relative my-3">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-white px-2 text-gray-500">أو • or</span>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                fullWidth
+                isLoading={isSendingOtp}
+                onClick={handleOtpLogin}
+                size="lg"
+              >
+                <MessageSquare className="w-4 h-4" aria-hidden="true" />
+                <span className="mx-2 font-semibold">الدخول برمز SMS</span>
+                <span className="text-sm">• Login with SMS code</span>
+              </Button>
+            </div>
+          )}
           <div className="mt-6 text-center space-y-3">
             <Link
               href="/forgot-password"

@@ -1,0 +1,32 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sahool-skills-library
+  description: Unified library of 29 Claude Code AI skills for writing, visual design, research, content creation, coding automation, and SAHOOL agricultural advisory
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/.claude/skills
+    backstage.io/techdocs-ref: dir:./.claude/skills
+  tags:
+    - ai
+    - claude-code
+    - skills
+    - agents
+    - bilingual
+    - library
+  links:
+    - url: https://github.com/kafaat/sahool-unified-v15-idp/blob/main/.claude/skills/README.md
+      title: Skills Library Index
+    - url: https://github.com/kafaat/sahool-unified-v15-idp/tree/main/.claude/skills/sahool
+      title: SAHOOL-Specific Skills
+    - url: https://github.com/kafaat/sahool-unified-v15-idp/tree/main/.claude/skills/context-engineering
+      title: Context Engineering Skills
+spec:
+  type: library
+  lifecycle: production
+  owner: ai-team
+  system: sahool-platform
+  dependsOn:
+    - component:ai-agents-core
+    - component:agent-registry
+    - component:llm-orchestrator-service

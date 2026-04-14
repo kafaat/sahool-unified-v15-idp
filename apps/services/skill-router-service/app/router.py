@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import time
+import urllib.parse
 
 from fastapi import APIRouter
 from prometheus_client import Counter
@@ -15,31 +16,24 @@ from app.scoring import filter_skills, score_skill
 logger = logging.getLogger("skill-router")
 
 
-# Control-character escape table for log sanitization.
-# str.translate with an explicit mapping is a CodeQL-recognized sanitizer.
-_LOG_ESCAPE_TABLE = str.maketrans(
-    {
-        "\r": "\\r",
-        "\n": "\\n",
-        "\t": "\\t",
-        "\x00": "\\x00",
-        "\x1b": "\\x1b",
-    }
-)
-
-
 def _sanitize(value: str, max_len: int = 200) -> str:
     """Defuse control characters in user input before it reaches log output.
 
     Prevents log-injection attacks (CodeQL py/log-injection) where a malicious
     payload could embed newlines to forge additional log lines.
 
-    Uses str.translate() with a precomputed table — this is a pattern
-    CodeQL recognizes as a sanitizer, unlike a chain of str.replace() calls.
+    Implementation: urllib.parse.quote() percent-encodes all control chars
+    (\\r, \\n, \\t, \\x00, ANSI escapes, etc). This is one of the two
+    sanitizer patterns CodeQL's taint analysis recognizes (along with
+    html.escape). Custom str.replace()/str.translate() chains are NOT
+    recognized even though they escape the same characters.
+
+    safe=' ' keeps spaces unencoded so logs remain human-readable for
+    natural-language queries.
     """
     if not isinstance(value, str):
         value = str(value)
-    cleaned = value.translate(_LOG_ESCAPE_TABLE)
+    cleaned = urllib.parse.quote(value, safe=" ")
     if len(cleaned) > max_len:
         cleaned = cleaned[:max_len] + "...[truncated]"
     return cleaned

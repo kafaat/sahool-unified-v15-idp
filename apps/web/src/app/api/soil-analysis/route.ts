@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
+import { SOIL_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -193,8 +194,8 @@ export async function GET(request: NextRequest) {
             400
           );
         }
-        // Backend: GET /api/v1/soil/tests/field/{field_id}
-        path = `/api/v1/soil/tests/field/${encodeURIComponent(fieldId)}`;
+        // Backend: GET /api/v1/soil/tests/field/{field_id} — template from SOIL_ENDPOINTS
+        path = SOIL_ENDPOINTS.TESTS_BY_FIELD.replace('{fieldId}', encodeURIComponent(fieldId));
         break;
       }
       case 'soil-test': {
@@ -205,11 +206,11 @@ export async function GET(request: NextRequest) {
             400
           );
         }
-        path = `/api/v1/soil/tests/${encodeURIComponent(testId)}`;
+        path = SOIL_ENDPOINTS.TEST_GET.replace('{testId}', encodeURIComponent(testId));
         break;
       }
       case 'products': {
-        path = `/api/v1/soil/products`;
+        path = SOIL_ENDPOINTS.PRODUCTS;
         break;
       }
       case 'crop-requirements': {
@@ -221,7 +222,7 @@ export async function GET(request: NextRequest) {
             400
           );
         }
-        path = `/api/v1/soil/crops/${encodeURIComponent(crop)}/requirements`;
+        path = SOIL_ENDPOINTS.CROP_REQUIREMENTS.replace('{crop}', encodeURIComponent(crop));
         break;
       }
       default:
@@ -359,7 +360,7 @@ export async function POST(request: NextRequest) {
         const crop = typeof body.crop === 'string' && SAFE_ID_PATTERN.test(body.crop)
           ? body.crop
           : 'wheat';
-        path = `/api/v1/soil/interpret`;
+        path = SOIL_ENDPOINTS.INTERPRET;
         payload = { test_id: testId, crop };
         timeoutMs = LONG_ANALYSIS_TIMEOUT_MS;
         break;
@@ -378,7 +379,7 @@ export async function POST(request: NextRequest) {
           : 'wheat';
         const targetYield = validNumber(body.target_yield_t_ha, 0, 50) ?? 5.0;
         const areaHa = validNumber(body.area_ha, 0, 100_000) ?? 1.0;
-        path = `/api/v1/soil/recommendations/amendment-plan`;
+        path = SOIL_ENDPOINTS.AMENDMENT_PLAN;
         payload = {
           test_id: testId,
           crop,
@@ -435,7 +436,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        path = `/api/v1/soil/tests`;
+        path = SOIL_ENDPOINTS.TESTS;
         payload = {
           field_id: fieldId,
           sample_depth_cm: validNumber(body.sample_depth_cm, 0, 500) ?? 30.0,
@@ -461,7 +462,7 @@ export async function POST(request: NextRequest) {
             400
           );
         }
-        path = `/api/v1/soil/interpretation/ph-status`;
+        path = SOIL_ENDPOINTS.PH_STATUS;
         payload = { ph };
         break;
       }
@@ -474,7 +475,7 @@ export async function POST(request: NextRequest) {
             400
           );
         }
-        path = `/api/v1/soil/interpretation/ec-status`;
+        path = SOIL_ENDPOINTS.EC_STATUS;
         payload = { ec_ds_m: ec };
         break;
       }

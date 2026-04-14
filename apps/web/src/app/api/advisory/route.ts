@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import { ADVISORY_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -203,11 +204,13 @@ export async function GET(request: NextRequest) {
     const fieldError = validateId(fieldId, 'fieldId', 'معرف الحقل');
     if (fieldError) return fieldError;
 
-    // Build upstream URL with query params
-    const upstream = new URL(
-      `/api/v1/advisory/recommendations/${encodeURIComponent(fieldId!)}`,
-      ADVISORY_SERVICE_URL,
+    // Build upstream URL with query params. Path template from shared contract
+    // so any rename flows through @sahool/shared-types/contracts.
+    const path = ADVISORY_ENDPOINTS.RECOMMENDATIONS_BY_FIELD.replace(
+      '{fieldId}',
+      encodeURIComponent(fieldId!),
     );
+    const upstream = new URL(path, ADVISORY_SERVICE_URL);
 
     // Forward optional filters
     const allowedParams = ['page', 'limit', 'type', 'status'];
@@ -322,12 +325,14 @@ export async function POST(request: NextRequest) {
     const fieldError = validateId(fieldId, 'fieldId', 'معرف الحقل');
     if (fieldError) return fieldError;
 
-    // Map action to upstream endpoint. Paths are hardcoded constants — never
-    // interpolated from user input — so URL construction is SSRF-safe.
+    // Map action to upstream endpoint using shared contract templates.
+    // Paths come from ADVISORY_ENDPOINTS (never interpolated from user input)
+    // so URL construction is SSRF-safe.
+    const fieldSlug = encodeURIComponent(fieldId!);
     const actionPathMap: Record<AdvisoryAction, string> = {
-      'disease-assess': `/api/v1/advisory/disease-assess/${encodeURIComponent(fieldId!)}`,
-      'fertilizer-plan': `/api/v1/advisory/fertilizer-plan/${encodeURIComponent(fieldId!)}`,
-      'crop-advice': `/api/v1/advisory/crop-advice/${encodeURIComponent(fieldId!)}`,
+      'disease-assess': ADVISORY_ENDPOINTS.DISEASE_ASSESS.replace('{fieldId}', fieldSlug),
+      'fertilizer-plan': ADVISORY_ENDPOINTS.FERTILIZER_PLAN.replace('{fieldId}', fieldSlug),
+      'crop-advice': ADVISORY_ENDPOINTS.CROP_ADVICE.replace('{fieldId}', fieldSlug),
     };
 
     const upstream = new URL(

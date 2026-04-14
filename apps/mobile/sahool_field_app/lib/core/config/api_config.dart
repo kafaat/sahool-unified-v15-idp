@@ -2,7 +2,20 @@ library;
 
 /// API Configuration for SAHOOL Field App
 /// إعدادات الاتصال بالخادم
-
+///
+/// Golden-rule migration status (2026-04):
+///   ✅ auth  — paths sourced from AuthEndpoints / OtpPurpose
+///   ✅ fields, tasks — paths from FieldEndpoints / TaskEndpoints
+///   ⚠️  satellite, weather, indicators, fertilizer, irrigation,
+///       crop-health, virtual-sensors, equipment, iot, community,
+///       notifications, marketplace:
+///       These still build URLs via a `_{domain}Base` pattern because
+///       several of them drift from the shared contract paths (e.g. mobile
+///       hits `/api/v1/satellite/analyze` but `SatelliteEndpoints.analyze`
+///       is `/api/v1/satellite/v1/analyze`). Mechanical substitution would
+///       change live URLs, so leaving them until the drift itself is
+///       reconciled backend-side — DO NOT rewrite without verifying the
+///       Kong route + upstream service path for each call.
 import 'env_config.dart';
 import '../contracts/api_endpoints.dart';
 
@@ -76,23 +89,29 @@ class ApiConfig {
   // Field Core Endpoints (port 3000)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  /// Fields endpoints
-  static String get fields => '$baseUrl/api/v1/fields';
-  static String fieldById(String id) => '$baseUrl/api/v1/fields/$id';
-  static String get fieldsSync => '$baseUrl/api/v1/fields/sync';
+  /// Fields endpoints (paths from FieldEndpoints; base URL from env)
+  static String get fields => '$baseUrl${FieldEndpoints.list}';
+  static String fieldById(String id) => '$baseUrl${FieldEndpoints.get(id)}';
+  static String get fieldsSync => '$baseUrl${FieldEndpoints.sync}';
+  // NOTE: `/fields/batch` is NOT in the shared contract — backend
+  // field-management-service still exposes the legacy path. When the
+  // backend migrates to `/fields/sync/batch` (FieldEndpoints.syncBatch),
+  // flip this line. Tracked as a follow-up to the 2026-04 contracts unification.
   static String get fieldsBatch => '$baseUrl/api/v1/fields/batch';
-  static String get fieldsNearby => '$baseUrl/api/v1/fields/nearby';
+  static String get fieldsNearby => '$baseUrl${FieldEndpoints.nearby}';
 
   /// Tasks endpoints
-  static String get tasks => '$baseUrl/api/v1/tasks';
-  static String taskById(String id) => '$baseUrl/api/v1/tasks/$id';
+  static String get tasks => '$baseUrl${TaskEndpoints.list}';
+  static String taskById(String id) => '$baseUrl${TaskEndpoints.get(id)}';
 
-  /// Community endpoints
+  /// Community endpoints — no contract group exists for these three yet
+  /// (community-chat service was deprecated; posts/stories/experts live in
+  /// the marketplace/advisor domain). Leaving hardcoded pending contract work.
   static String get posts => '$baseUrl/api/v1/posts';
   static String get stories => '$baseUrl/api/v1/stories';
   static String get experts => '$baseUrl/api/v1/experts';
 
-  /// Provider config endpoints
+  /// Provider config endpoints — no contract group yet
   static String get providers => '$baseUrl/api/v1/providers';
   static String get providerConfig => '$baseUrl/api/v1/config';
 

@@ -4,14 +4,10 @@
 /// SOURCE OF TRUTH: packages/shared-types/src/contracts/api-endpoints.ts
 /// MIRROR (canonical Dart): apps/mobile/lib/core/contracts/api_endpoints.dart
 ///
-/// This file is a MANUALLY MAINTAINED vendored copy — the current
-/// `sync-contracts-to-dart.ts` generator only auto-emits service_ports.dart
-/// and error_codes.dart. `sahool_field_app` is its own Flutter package
-/// (separate pubspec) and cannot import from the sibling `apps/mobile` root
-/// directly, so we duplicate this file. When editing, keep ALL THREE copies
-/// in sync: the TS source, the canonical Dart mirror, and this copy.
-///
-/// CI guard: `.github/workflows/api-contracts-guard.yml`.
+/// MANUALLY MAINTAINED. `sahool_field_app` is its own Flutter package
+/// (separate pubspec) so it cannot import from the sibling `apps/mobile`
+/// package root. When editing endpoints, keep all three in sync: the TS
+/// source, the canonical Dart mirror, and this copy.
 ///
 /// @version 16.0.0
 library;
@@ -149,6 +145,25 @@ abstract final class AdvisoryEndpoints {
   /// @since 4.7.0 — Jeevn-style unified per-field advisory
   static String comprehensive(String fieldId) =>
       '$apiPrefix/advisory/comprehensive/$fieldId';
+
+  /// @since 4.14.0 — Field-scoped advisory actions
+  static String recommendationsByField(String fieldId) =>
+      '$apiPrefix/advisory/recommendations/$fieldId';
+  static String diseaseAssess(String fieldId) =>
+      '$apiPrefix/advisory/disease-assess/$fieldId';
+  static String fertilizerPlan(String fieldId) =>
+      '$apiPrefix/advisory/fertilizer-plan/$fieldId';
+  static String cropAdvice(String fieldId) =>
+      '$apiPrefix/advisory/crop-advice/$fieldId';
+}
+
+/// Pest Management - إدارة الآفات
+/// @since 4.14.0 — separate from CropHealth (diseases only)
+abstract final class PestEndpoints {
+  static const String list = '$apiPrefix/pests';
+  static String byCrop(String cropType) => '$apiPrefix/pests/crop/$cropType';
+  static const String identify = '$apiPrefix/pests/identify';
+  static const String treatmentRecommend = '$apiPrefix/treatments/recommend';
 }
 
 /// Crop Loan Verification - التحقق من القروض الزراعية
@@ -166,6 +181,9 @@ abstract final class TaskEndpoints {
   static String update(String taskId) => '$apiPrefix/tasks/$taskId';
   static String delete(String taskId) => '$apiPrefix/tasks/$taskId';
   static String complete(String taskId) => '$apiPrefix/tasks/$taskId/complete';
+
+  /// @since 4.14.0
+  static String assign(String taskId) => '$apiPrefix/tasks/$taskId/assign';
 }
 
 /// Equipment - المعدات
@@ -182,6 +200,14 @@ abstract final class EquipmentEndpoints {
 
   /// @since 4.7.0 — Geofence event ingest (auto-drafts FieldOperation)
   static const String geofenceEvent = '$apiPrefix/equipment/geofence/event';
+
+  /// @since 4.14.0
+  static const String maintenanceSchedule =
+      '$apiPrefix/equipment/maintenance-schedule';
+  static String maintenanceScheduleById(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/maintenance-schedule';
+  static String issues(String equipmentId) =>
+      '$apiPrefix/equipment/$equipmentId/issues';
 }
 
 /// Traceability - التتبع
@@ -215,6 +241,9 @@ abstract final class AlertEndpoints {
       '$apiPrefix/alerts/$alertId/acknowledge';
   static String resolve(String alertId) =>
       '$apiPrefix/alerts/$alertId/resolve';
+  static String dismiss(String alertId) =>
+      '$apiPrefix/alerts/$alertId/dismiss';
+  static const String rules = '$apiPrefix/alerts/rules';
 }
 
 /// Notifications - الإشعارات
@@ -456,6 +485,33 @@ abstract final class TerrainEndpoints {
   /// climate + soil defaults from region profile)
   /// @since 4.9.0
   static const String erosionYemen = '$apiPrefix/terrain/erosion/yemen';
+
+  /// @since 4.14.0 — Field-scoped variants surfaced by the web proxy
+  static String demField(String fieldId) =>
+      '$apiPrefix/terrain/dem/$fieldId';
+  static String slopeField(String fieldId) =>
+      '$apiPrefix/terrain/slope/$fieldId';
+  static String twi(String fieldId) => '$apiPrefix/terrain/twi/$fieldId';
+  static String contours(String fieldId) =>
+      '$apiPrefix/terrain/contours/$fieldId';
+}
+
+/// Soil Analysis - تحليل التربة
+/// @since 4.14.0
+abstract final class SoilEndpoints {
+  static const String tests = '$apiPrefix/soil/tests';
+  static String testGet(String testId) => '$apiPrefix/soil/tests/$testId';
+  static String testsByField(String fieldId) =>
+      '$apiPrefix/soil/tests/field/$fieldId';
+  static const String products = '$apiPrefix/soil/products';
+  static String cropRequirements(String crop) =>
+      '$apiPrefix/soil/crops/$crop/requirements';
+  static const String interpret = '$apiPrefix/soil/interpret';
+  static const String amendmentPlan =
+      '$apiPrefix/soil/recommendations/amendment-plan';
+  static const String phStatus = '$apiPrefix/soil/interpretation/ph-status';
+  static const String ecStatus = '$apiPrefix/soil/interpretation/ec-status';
+  static const String recommendations = '$apiPrefix/soil/recommendations';
 }
 
 /// Public endpoints (no auth required)

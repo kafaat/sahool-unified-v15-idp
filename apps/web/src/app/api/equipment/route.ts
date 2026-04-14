@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import { EQUIPMENT_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -155,16 +156,19 @@ export async function GET(request: NextRequest) {
       if (eqError) return eqError;
     }
 
-    // Build upstream URL based on view
+    // Build upstream URL based on view — paths from EQUIPMENT_ENDPOINTS.
     let upstreamPath: string;
     if (view === 'maintenance-schedule') {
       upstreamPath = equipmentId
-        ? `/api/v1/equipment/${encodeURIComponent(equipmentId)}/maintenance-schedule`
-        : '/api/v1/equipment/maintenance-schedule';
+        ? EQUIPMENT_ENDPOINTS.MAINTENANCE_SCHEDULE_BY_ID.replace(
+            '{equipmentId}',
+            encodeURIComponent(equipmentId),
+          )
+        : EQUIPMENT_ENDPOINTS.MAINTENANCE_SCHEDULE;
     } else {
       upstreamPath = equipmentId
-        ? `/api/v1/equipment/${encodeURIComponent(equipmentId)}`
-        : '/api/v1/equipment';
+        ? EQUIPMENT_ENDPOINTS.GET.replace('{equipmentId}', encodeURIComponent(equipmentId))
+        : EQUIPMENT_ENDPOINTS.LIST;
     }
 
     const upstream = new URL(upstreamPath, UPSTREAM_BASE);
@@ -328,10 +332,11 @@ export async function POST(request: NextRequest) {
     const eqError = validateId(equipmentId, 'equipmentId', 'معرف المعدات');
     if (eqError) return eqError;
 
-    // Map action to upstream endpoint
+    // Map action to upstream endpoint using contract templates
+    const equipSlug = encodeURIComponent(equipmentId!);
     const actionPathMap: Record<EquipmentPostAction, string> = {
-      'log-maintenance': `/api/v1/equipment/${encodeURIComponent(equipmentId!)}/maintenance`,
-      'report-issue': `/api/v1/equipment/${encodeURIComponent(equipmentId!)}/issues`,
+      'log-maintenance': EQUIPMENT_ENDPOINTS.MAINTENANCE.replace('{equipmentId}', equipSlug),
+      'report-issue': EQUIPMENT_ENDPOINTS.ISSUES.replace('{equipmentId}', equipSlug),
     };
 
     const upstream = new URL(

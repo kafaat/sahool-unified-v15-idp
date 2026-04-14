@@ -311,6 +311,24 @@ export const ADVISORY_ENDPOINTS = {
   AGRO_NUTRIENTS: `${API_PREFIX}/agro-advisor/nutrients`,
   /** @since 4.7.0 — Jeevn-style unified per-field advisory (one call → comprehensive answer) */
   COMPREHENSIVE: `${API_PREFIX}/advisory/comprehensive/{fieldId}`,
+  /** @since 4.14.0 — Field-scoped advisory actions used by the web proxy layer */
+  RECOMMENDATIONS_BY_FIELD: `${API_PREFIX}/advisory/recommendations/{fieldId}`,
+  DISEASE_ASSESS: `${API_PREFIX}/advisory/disease-assess/{fieldId}`,
+  FERTILIZER_PLAN: `${API_PREFIX}/advisory/fertilizer-plan/{fieldId}`,
+  CROP_ADVICE: `${API_PREFIX}/advisory/crop-advice/{fieldId}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Pest Management Endpoints - نقاط إدارة الآفات
+// @since 4.14.0 — separated from CROP_HEALTH (diseases only) because the
+// pest-detection-service exposes /pests and /treatments as its own domain.
+// ---------------------------------------------------------------------------
+
+export const PEST_ENDPOINTS = {
+  LIST: `${API_PREFIX}/pests`,
+  BY_CROP: `${API_PREFIX}/pests/crop/{cropType}`,
+  IDENTIFY: `${API_PREFIX}/pests/identify`,
+  TREATMENT_RECOMMEND: `${API_PREFIX}/treatments/recommend`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -336,6 +354,8 @@ export const TASK_ENDPOINTS = {
   DELETE: `${API_PREFIX}/tasks/{taskId}`,
   STATUS: `${API_PREFIX}/tasks/{taskId}/status`,
   COMPLETE: `${API_PREFIX}/tasks/{taskId}/complete`,
+  /** @since 4.14.0 — Task assignment action surfaced by the web proxy */
+  ASSIGN: `${API_PREFIX}/tasks/{taskId}/assign`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -355,6 +375,10 @@ export const EQUIPMENT_ENDPOINTS = {
   MAINTENANCE_ALERTS: `${API_PREFIX}/equipment/maintenance/alerts`,
   /** @since 4.7.0 — Geofence event ingest (auto-drafts FieldOperation on entry into a field zone) */
   GEOFENCE_EVENT: `${API_PREFIX}/equipment/geofence/event`,
+  /** @since 4.14.0 — Surfaced by the web proxy */
+  MAINTENANCE_SCHEDULE: `${API_PREFIX}/equipment/maintenance-schedule`,
+  MAINTENANCE_SCHEDULE_BY_ID: `${API_PREFIX}/equipment/{equipmentId}/maintenance-schedule`,
+  ISSUES: `${API_PREFIX}/equipment/{equipmentId}/issues`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -611,6 +635,12 @@ export const TERRAIN_ENDPOINTS = {
   EROSION_COMBINED: `${API_PREFIX}/terrain/erosion/combined`,
   /** @since 4.9.0 — Yemen region preset shortcut (fewest inputs, auto-fills climate + soil defaults) */
   EROSION_YEMEN: `${API_PREFIX}/terrain/erosion/yemen`,
+  /** @since 4.14.0 — Field-scoped terrain endpoints surfaced by the web proxy */
+  DEM_FIELD: `${API_PREFIX}/terrain/dem/{fieldId}`,
+  SLOPE_FIELD: `${API_PREFIX}/terrain/slope/{fieldId}`,
+  TWI: `${API_PREFIX}/terrain/twi/{fieldId}`,
+  CONTOURS: `${API_PREFIX}/terrain/contours/{fieldId}`,
+  ANALYZE: `${API_PREFIX}/terrain/analyze`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -646,6 +676,14 @@ export const SOIL_ENDPOINTS = {
   TEST_GET: `${API_PREFIX}/soil/tests/{testId}`,
   TEST_CREATE: `${API_PREFIX}/soil/tests`,
   RECOMMENDATIONS: `${API_PREFIX}/soil/recommendations`,
+  /** @since 4.14.0 — Endpoints surfaced by the web `/api/soil-analysis` proxy */
+  TESTS_BY_FIELD: `${API_PREFIX}/soil/tests/field/{fieldId}`,
+  PRODUCTS: `${API_PREFIX}/soil/products`,
+  CROP_REQUIREMENTS: `${API_PREFIX}/soil/crops/{crop}/requirements`,
+  INTERPRET: `${API_PREFIX}/soil/interpret`,
+  AMENDMENT_PLAN: `${API_PREFIX}/soil/recommendations/amendment-plan`,
+  PH_STATUS: `${API_PREFIX}/soil/interpretation/ph-status`,
+  EC_STATUS: `${API_PREFIX}/soil/interpretation/ec-status`,
 } as const;
 
 export const DRONE_ENDPOINTS = {

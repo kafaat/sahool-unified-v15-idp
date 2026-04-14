@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import { ALERT_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -207,7 +208,7 @@ export async function GET(request: NextRequest) {
       backendParams.set('field_id', fieldIdParam);
     }
 
-    const backendUrl = `${ALERT_SERVICE_URL}/api/v1/alerts?${backendParams.toString()}`;
+    const backendUrl = `${ALERT_SERVICE_URL}${ALERT_ENDPOINTS.LIST}?${backendParams.toString()}`;
 
     const response = await fetch(backendUrl, {
       method: 'GET',
@@ -371,7 +372,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const backendUrl = `${ALERT_SERVICE_URL}/api/v1/alerts/${encodeURIComponent(alert_id)}/${encodeURIComponent(action)}`;
+    // Contract template: ALERT_ENDPOINTS.ACKNOWLEDGE/RESOLVE/DISMISS all share
+    // the `/alerts/{alertId}/{action}` shape — build from the matching template.
+    const alertActionTemplate: Record<AlertAction, string> = {
+      acknowledge: ALERT_ENDPOINTS.ACKNOWLEDGE,
+      resolve: ALERT_ENDPOINTS.RESOLVE,
+      dismiss: ALERT_ENDPOINTS.DISMISS,
+    };
+    const backendPath = alertActionTemplate[action as AlertAction].replace(
+      '{alertId}',
+      encodeURIComponent(alert_id),
+    );
+    const backendUrl = `${ALERT_SERVICE_URL}${backendPath}`;
 
     const response = await fetch(backendUrl, {
       method: 'POST',

@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
+import { TERRAIN_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -152,7 +153,7 @@ export async function GET(request: NextRequest) {
           }
         }
         const qs = params.toString();
-        path = `/api/v1/terrain/dem/${encodeURIComponent(fieldId)}${qs ? `?${qs}` : ''}`;
+        path = `${TERRAIN_ENDPOINTS.DEM_FIELD.replace('{fieldId}', encodeURIComponent(fieldId))}${qs ? `?${qs}` : ''}`;
         break;
       }
       case 'slope': {
@@ -165,28 +166,28 @@ export async function GET(request: NextRequest) {
           params.set('slope_unit', units);
         }
         const qs = params.toString();
-        path = `/api/v1/terrain/slope/${encodeURIComponent(fieldId)}${qs ? `?${qs}` : ''}`;
+        path = `${TERRAIN_ENDPOINTS.SLOPE_FIELD.replace('{fieldId}', encodeURIComponent(fieldId))}${qs ? `?${qs}` : ''}`;
         break;
       }
       case 'flow': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
-        path = `/api/v1/terrain/flow/${encodeURIComponent(fieldId)}`;
+        path = TERRAIN_ENDPOINTS.HYDROLOGY_FLOW.replace('{fieldId}', encodeURIComponent(fieldId));
         break;
       }
       case 'twi': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
-        path = `/api/v1/terrain/twi/${encodeURIComponent(fieldId)}`;
+        path = TERRAIN_ENDPOINTS.TWI.replace('{fieldId}', encodeURIComponent(fieldId));
         break;
       }
       case 'contours': {
         if (!fieldId) {
           return NextResponse.json({ error: 'fieldId required', error_ar: 'معرف الحقل مطلوب' }, { status: 400 });
         }
-        path = `/api/v1/terrain/contours/${encodeURIComponent(fieldId)}`;
+        path = TERRAIN_ENDPOINTS.CONTOURS.replace('{fieldId}', encodeURIComponent(fieldId));
         break;
       }
       case 'aspect': {
@@ -296,7 +297,7 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case 'analyze': {
-        path = `/api/v1/terrain/analyze`;
+        path = TERRAIN_ENDPOINTS.ANALYZE;
 
         // Validate optional coordinates: must be a GeoJSON-like Polygon ring
         // [[lon, lat], ...] with lon ∈ [-180,180] and lat ∈ [-90,90]. This

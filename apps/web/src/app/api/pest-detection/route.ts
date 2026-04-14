@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
+import { PEST_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -168,7 +169,7 @@ export async function GET(request: NextRequest) {
           params.set('severity', severity);
         }
         const qs = params.toString();
-        path = `/api/v1/pests${qs ? `?${qs}` : ''}`;
+        path = `${PEST_ENDPOINTS.LIST}${qs ? `?${qs}` : ''}`;
         break;
       }
       case 'by-crop': {
@@ -188,7 +189,7 @@ export async function GET(request: NextRequest) {
           params.set('region', region);
         }
         const qs = params.toString();
-        path = `/api/v1/pests/crop/${encodeURIComponent(cropType)}${qs ? `?${qs}` : ''}`;
+        path = `${PEST_ENDPOINTS.BY_CROP.replace('{cropType}', encodeURIComponent(cropType))}${qs ? `?${qs}` : ''}`;
         break;
       }
       default:
@@ -348,7 +349,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        path = `/api/v1/pests/identify`;
+        path = PEST_ENDPOINTS.IDENTIFY;
         payload = {
           ...(fieldId != null && { field_id: fieldId }),
           ...(image != null && { image }),
@@ -382,10 +383,10 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: 'Invalid severity format' }, { status: 400 });
         }
 
-        // NOTE (contract mismatch): the pest-detection-service only exposes
-        // POST /api/v1/treatments/recommend — there is no /api/v1/pests/treatment
-        // endpoint. We forward to the canonical backend route.
-        path = `/api/v1/treatments/recommend`;
+        // Contract template: PEST_ENDPOINTS.TREATMENT_RECOMMEND.
+        // pest-detection-service exposes POST /api/v1/treatments/recommend —
+        // it does NOT expose /api/v1/pests/treatment.
+        path = PEST_ENDPOINTS.TREATMENT_RECOMMEND;
         payload = {
           pest_id: pestId,
           ...(fieldId != null && { field_id: fieldId }),

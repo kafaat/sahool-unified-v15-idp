@@ -23,7 +23,19 @@
 //          and `reset` vs `password_reset` drift between web proxy routes
 //          and user-service DTOs. Adds `login` as a valid OTP purpose for
 //          passwordless OTP login on mobile + web.
-export const CONTRACT_VERSION = "4.13.0" as const;
+// 4.14.0 — expand endpoint coverage so the web proxy routes under
+//          apps/web/src/app/api/ can stop hardcoding `/api/v1/…` strings:
+//          * ADVISORY_ENDPOINTS: field-scoped recommendations/disease-assess
+//            /fertilizer-plan/crop-advice
+//          * PEST_ENDPOINTS: new group for pest-detection-service
+//            (LIST, BY_CROP, IDENTIFY, TREATMENT_RECOMMEND)
+//          * SOIL_ENDPOINTS: TESTS_BY_FIELD, PRODUCTS, CROP_REQUIREMENTS,
+//            INTERPRET, AMENDMENT_PLAN, PH_STATUS, EC_STATUS
+//          * TASK_ENDPOINTS: ASSIGN
+//          * TERRAIN_ENDPOINTS: DEM_FIELD, SLOPE_FIELD, TWI, CONTOURS, ANALYZE
+//          * EQUIPMENT_ENDPOINTS: MAINTENANCE_SCHEDULE(_BY_ID), ISSUES
+//          Purely additive; no renames, no removals.
+export const CONTRACT_VERSION = "4.14.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

@@ -16,6 +16,7 @@ import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
 import { validateCsrfRequest } from '@/lib/security/csrf-server';
+import { TASK_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -266,7 +267,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const upstream = buildUpstreamUrl('/api/v1/tasks');
+    const upstream = buildUpstreamUrl(TASK_ENDPOINTS.LIST);
     if (!upstream) {
       logger.error('[Tasks API] Upstream URL blocked by SSRF allowlist');
       return bilingualError(
@@ -389,7 +390,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const upstream = buildUpstreamUrl('/api/v1/tasks');
+    const upstream = buildUpstreamUrl(TASK_ENDPOINTS.LIST);
     if (!upstream) {
       logger.error('[Tasks API] Upstream URL blocked by SSRF allowlist');
       return bilingualError(
@@ -500,8 +501,8 @@ export async function PATCH(request: NextRequest) {
 
     // Map action to upstream endpoint
     const actionPathMap: Record<PatchAction, string> = {
-      complete: `/api/v1/tasks/${encodeURIComponent(taskId!)}/complete`,
-      assign: `/api/v1/tasks/${encodeURIComponent(taskId!)}/assign`,
+      complete: TASK_ENDPOINTS.COMPLETE.replace('{taskId}', encodeURIComponent(taskId!)),
+      assign: TASK_ENDPOINTS.ASSIGN.replace('{taskId}', encodeURIComponent(taskId!)),
     };
 
     const upstream = buildUpstreamUrl(actionPathMap[action as PatchAction]);

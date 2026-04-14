@@ -2,6 +2,7 @@
 /// مستودع بيانات الإنجازات
 
 import 'package:dio/dio.dart';
+import '../../../../core/contracts/api_endpoints.dart';
 import '../../domain/models/achievement.dart';
 
 /// مستودع الإنجازات
@@ -13,7 +14,7 @@ class GamificationRepository {
   /// جلب ملف الإنجازات للمستخدم
   Future<UserGamificationProfile> fetchProfile(String userId) async {
     try {
-      final response = await _dio.get('/api/v1/gamification/profile/$userId');
+      final response = await _dio.get(GamificationEndpoints.profile(userId));
       return UserGamificationProfile.fromJson(
           response.data as Map<String, dynamic>);
     } on DioException {
@@ -27,7 +28,7 @@ class GamificationRepository {
       LeaderboardPeriod period) async {
     try {
       final response = await _dio.get(
-        '/api/v1/gamification/leaderboard',
+        GamificationEndpoints.leaderboard,
         queryParameters: {'period': period.name},
       );
       return (response.data as List)

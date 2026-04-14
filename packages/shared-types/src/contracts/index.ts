@@ -56,7 +56,18 @@
 //          * SATELLITE_MONITOR_ENDPOINTS (new): FIELDS, FIELD_GET, STATS,
 //            ALERTS (dashboard aggregator, distinct from SATELLITE_ENDPOINTS)
 //          Purely additive.
-export const CONTRACT_VERSION = "4.16.0" as const;
+// 4.17.0 — expand mobile feature surface for remaining repos:
+//          * GDD_ENDPOINTS (new): ACCUMULATION, RECORDS, CALCULATE,
+//            CURRENT_STAGE, STAGES, CROPS, CROP_REQUIREMENTS, FORECAST,
+//            SETTINGS, COMPARE, TREND
+//          * GAMIFICATION_ENDPOINTS (new): PROFILE, LEADERBOARD
+//          * LAB_ENDPOINTS (new): SAMPLES, SAMPLE_BY_BARCODE
+//          * PAYMENT_ENDPOINTS (new): Tharwatt wallet integration
+//            (DEPOSIT/WITHDRAW/TRANSFER/TOPUP/STATUS/TRANSACTIONS/
+//            BALANCE/VALIDATE_PHONE/OPERATORS/CANCEL). Distinct from
+//            BILLING_ENDPOINTS which covers Stripe + platform wallet.
+//          Purely additive.
+export const CONTRACT_VERSION = "4.17.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

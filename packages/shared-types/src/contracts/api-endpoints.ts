@@ -1140,6 +1140,70 @@ export const COOPERATIVE_ENDPOINTS = {
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
+// GDD (Growing Degree Days) Endpoints
+// @since 4.17.0 — surfaced by the mobile `features/gdd` service. Distinct
+// from the precision-agriculture `GDD` entry which is a single per-field
+// summary; this group covers the full GDD domain (accumulation, stages,
+// forecasts, settings, trend, comparison).
+// ---------------------------------------------------------------------------
+
+export const GDD_ENDPOINTS = {
+  ACCUMULATION: `${API_PREFIX}/gdd/fields/{fieldId}/accumulation`,
+  RECORDS: `${API_PREFIX}/gdd/fields/{fieldId}/records`,
+  CALCULATE: `${API_PREFIX}/gdd/fields/{fieldId}/calculate`,
+  CURRENT_STAGE: `${API_PREFIX}/gdd/fields/{fieldId}/current-stage`,
+  STAGES: `${API_PREFIX}/gdd/fields/{fieldId}/stages`,
+  CROPS: `${API_PREFIX}/gdd/crops`,
+  CROP_REQUIREMENTS: `${API_PREFIX}/gdd/crops/{cropType}/requirements`,
+  FORECAST: `${API_PREFIX}/gdd/fields/{fieldId}/forecast`,
+  SETTINGS: `${API_PREFIX}/gdd/fields/{fieldId}/settings`,
+  COMPARE: `${API_PREFIX}/gdd/fields/{fieldId}/compare`,
+  TREND: `${API_PREFIX}/gdd/fields/{fieldId}/trend`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Gamification Endpoints
+// @since 4.17.0 — surfaced by the mobile gamification feature (farmer
+// profile + community leaderboard). Backend service TBD.
+// ---------------------------------------------------------------------------
+
+export const GAMIFICATION_ENDPOINTS = {
+  PROFILE: `${API_PREFIX}/gamification/profile/{userId}`,
+  LEADERBOARD: `${API_PREFIX}/gamification/leaderboard`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Lab Sample Tracking Endpoints
+// @since 4.17.0 — surfaced by the mobile lab feature (soil/leaf/water
+// sample submission + barcode lookup).
+// ---------------------------------------------------------------------------
+
+export const LAB_ENDPOINTS = {
+  SAMPLES: `${API_PREFIX}/lab/samples`,
+  SAMPLE_BY_BARCODE: `${API_PREFIX}/lab/samples/barcode/{barcode}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Payment Endpoints (Tharwatt wallet integration)
+// @since 4.17.0 — distinct from BILLING_ENDPOINTS which covers Stripe and
+// the platform wallet; PAYMENT_ENDPOINTS is the Tharwatt-specific top-up /
+// withdrawal / transfer surface used by the mobile app in Yemen.
+// ---------------------------------------------------------------------------
+
+export const PAYMENT_ENDPOINTS = {
+  DEPOSIT: `${API_PREFIX}/payment/deposit`,
+  WITHDRAW: `${API_PREFIX}/payment/withdraw`,
+  TRANSFER: `${API_PREFIX}/payment/transfer`,
+  TOPUP: `${API_PREFIX}/payment/topup`,
+  STATUS: `${API_PREFIX}/payment/status/{transactionId}`,
+  TRANSACTIONS: `${API_PREFIX}/payment/transactions`,
+  BALANCE: `${API_PREFIX}/payment/balance/{walletId}`,
+  VALIDATE_PHONE: `${API_PREFIX}/payment/validate-phone`,
+  OPERATORS: `${API_PREFIX}/payment/operators`,
+  CANCEL: `${API_PREFIX}/payment/cancel/{transactionId}`,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Unified Upload Endpoints - نقاط الرفع الموحَّدة (@since 4.10.0)
 //
 // Chunked resumable upload inspired by FieldView POST /v4/uploads.

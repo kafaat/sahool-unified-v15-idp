@@ -85,7 +85,16 @@ def extract_triggers(description: str) -> list[str]:
     text = description or ""
 
     # 1. Quoted phrases (double + single quotes, curly quotes).
-    phrase_pattern = re.compile(r'["\'""„«]([^"\'""„«»]+)["\'""»]')
+    # Explicit unicode escapes to avoid duplicate-char-in-class warnings
+    # (CodeQL py/regex/duplicate-in-character-class):
+    #   \u0022 = "    \u0027 = '
+    #   \u201C = "    \u201D = "    \u201E = „
+    #   \u00AB = «    \u00BB = »
+    phrase_pattern = re.compile(
+        r"[\u0022\u0027\u201C\u201D\u201E\u00AB]"
+        r"([^\u0022\u0027\u201C\u201D\u201E\u00AB\u00BB]+)"
+        r"[\u0022\u0027\u201D\u00BB]"
+    )
     phrases = phrase_pattern.findall(text)
     for phrase in phrases:
         _add(result, seen, phrase)

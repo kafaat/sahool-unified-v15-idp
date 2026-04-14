@@ -14,6 +14,20 @@ from app.scoring import filter_skills, score_skill
 
 logger = logging.getLogger("skill-router")
 
+
+def _sanitize(value: str, max_len: int = 200) -> str:
+    """Defuse control characters in user input before it reaches log output.
+
+    Prevents log-injection attacks (CodeQL py/log-injection) where a malicious
+    payload could embed newlines to forge additional log lines.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    cleaned = value.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
+    if len(cleaned) > max_len:
+        cleaned = cleaned[:max_len] + "...[truncated]"
+    return cleaned
+
 # Low-confidence threshold: empirically, <3.0 means single-keyword hit only.
 # Tune after collecting production data per ADR-010.
 LOW_CONFIDENCE_THRESHOLD = 3.0
@@ -40,15 +54,17 @@ logger.info("skills_loaded", extra={"skill_count": len(SKILLS)})
 @router.post("/api/v1/route", response_model=RouteResponse)
 def route(req: RouteRequest) -> RouteResponse:
     t0 = time.perf_counter()
+    safe_query = _sanitize(req.query)
+    safe_tenant = _sanitize(req.tenant_id, max_len=64)
     logger.info(
         "routing_request",
-        extra={"query": req.query, "tenant_id": req.tenant_id, "top_k": req.top_k},
+        extra={"query": safe_query, "tenant_id": safe_tenant, "top_k": req.top_k},
     )
 
     candidates = filter_skills(SKILLS, req.tenant_id)
     logger.info(
         "tenant_filter_applied",
-        extra={"tenant_id": req.tenant_id, "candidate_count": len(candidates)},
+        extra={"tenant_id": safe_tenant, "candidate_count": len(candidates)},
     )
 
     scored: list[tuple[str, float]] = []
@@ -77,8 +93,8 @@ def route(req: RouteRequest) -> RouteResponse:
             "routing_gap",
             extra={
                 "kind": "no_match",
-                "query": req.query,
-                "tenant_id": req.tenant_id,
+                "query": safe_query,
+                "tenant_id": safe_tenant,
             },
         )
     elif top and top[0][1] < LOW_CONFIDENCE_THRESHOLD:
@@ -87,8 +103,8 @@ def route(req: RouteRequest) -> RouteResponse:
             "routing_gap",
             extra={
                 "kind": "low_confidence",
-                "query": req.query,
-                "tenant_id": req.tenant_id,
+                "query": safe_query,
+                "tenant_id": safe_tenant,
                 "top_skill": top[0][0],
                 "top_score": round(top[0][1], 3),
                 "threshold": LOW_CONFIDENCE_THRESHOLD,

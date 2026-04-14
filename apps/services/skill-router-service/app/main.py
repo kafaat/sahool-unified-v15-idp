@@ -70,7 +70,12 @@ def healthz() -> dict:
 
 @app.get("/readyz")
 def readyz() -> dict:
-    """Readiness probe — fails loudly if the registry YAML is broken."""
+    """Readiness probe — fails loudly in server logs, opaquely in response.
+
+    We deliberately do not expose exception details to the caller
+    (CodeQL py/stack-trace-exposure). Operators see the full stack trace
+    via logger.exception; external callers get a generic status only.
+    """
     try:
         skills = load_skills()
         return {
@@ -78,11 +83,11 @@ def readyz() -> dict:
             "skills_loaded": len(skills),
             "skills_index_path": settings.SKILLS_INDEX_PATH,
         }
-    except Exception as exc:
+    except Exception:
         logger.exception("readyz_failed")
         return {
             "status": "error",
-            "error": str(exc),
+            "error": "registry_load_failed",
             "skills_index_path": settings.SKILLS_INDEX_PATH,
         }
 

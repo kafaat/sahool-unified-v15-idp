@@ -43,7 +43,20 @@
 //          * EQUIPMENT_ENDPOINTS: ALERTS, LOCATION, TELEMETRY, FUEL,
 //            FUEL_SUMMARY, USAGE, USAGE_START, USAGE_END, USAGE_SUMMARY
 //          Purely additive.
-export const CONTRACT_VERSION = "4.15.0" as const;
+// 4.16.0 — expand web feature surface so the remaining 9 feature-API files
+//          can stop hardcoding `/api/v1/…`:
+//          * SEED_ENDPOINTS: RECOMMENDATIONS
+//          * IRRIGATION_ENDPOINTS: EFFICIENCY_REPORT, IRRIGATION_EXECUTED,
+//            CALCULATE_WITH_ACTION, PIVOT_SPEED
+//          * ADVISORY_ENDPOINTS: SPRAY_WINDOWS
+//          * EPIDEMIC_ENDPOINTS (new): LIST, GET, REPORT
+//          * LEVELING_ENDPOINTS (new): ANALYZE, PLAN, COST, EQUIPMENT,
+//            SIMULATE (field-scoped leveling-optimizer-service surface)
+//          * PRECISION_ENDPOINTS (new): VRA, GDD, FERTILIZER_CALCULATE
+//          * SATELLITE_MONITOR_ENDPOINTS (new): FIELDS, FIELD_GET, STATS,
+//            ALERTS (dashboard aggregator, distinct from SATELLITE_ENDPOINTS)
+//          Purely additive.
+export const CONTRACT_VERSION = "4.16.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

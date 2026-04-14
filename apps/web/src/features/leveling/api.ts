@@ -5,6 +5,7 @@
 
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
+import { LEVELING_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type {
   LevelingAnalysis,
   LevelingAnalysisRequest,
@@ -19,7 +20,7 @@ import type {
 
 const api = createApiClient({ timeout: 60000 });
 
-const LEVELING_BASE = '/api/v1/leveling';
+// Endpoint templates from shared contract — see LEVELING_ENDPOINTS
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
@@ -54,8 +55,8 @@ export const levelingApi = {
    * تحليل الحقل لمتطلبات التسوية وإنشاء خطة مثالية
    */
   analyzeFieldLeveling: async (request: LevelingAnalysisRequest): Promise<LevelingAnalysis> => {
-    return safeFetch(`${LEVELING_BASE}/analyze`, async () => {
-      const response = await api.post(`${LEVELING_BASE}/analyze`, {
+    return safeFetch(LEVELING_ENDPOINTS.ANALYZE, async () => {
+      const response = await api.post(LEVELING_ENDPOINTS.ANALYZE, {
         field_id: request.fieldId,
         elevation_points: request.elevationPoints.map((p) => ({
           x: p.x,
@@ -80,7 +81,7 @@ export const levelingApi = {
    * الحصول على خطة التسوية المثلى للحقل
    */
   getLevelingPlan: async (fieldId: string): Promise<LevelingPlan> => {
-    const endpoint = `${LEVELING_BASE}/plan/${fieldId}`;
+    const endpoint = LEVELING_ENDPOINTS.PLAN.replace('{fieldId}', fieldId);
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
       return response.data.data || response.data;
@@ -92,7 +93,7 @@ export const levelingApi = {
    * الحصول على تقدير التكلفة المفصل لعملية التسوية
    */
   getCostEstimation: async (params: CostEstimationParams): Promise<CostEstimation> => {
-    const endpoint = `${LEVELING_BASE}/cost/${params.fieldId}`;
+    const endpoint = LEVELING_ENDPOINTS.COST.replace('{fieldId}', params.fieldId);
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint, {
         params: {
@@ -113,7 +114,7 @@ export const levelingApi = {
   getEquipmentRecommendations: async (
     params: EquipmentRecommendationParams
   ): Promise<EquipmentRecommendation[]> => {
-    const endpoint = `${LEVELING_BASE}/equipment/${params.fieldId}`;
+    const endpoint = LEVELING_ENDPOINTS.EQUIPMENT.replace('{fieldId}', params.fieldId);
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint, {
         params: {
@@ -131,8 +132,8 @@ export const levelingApi = {
    * محاكاة سيناريو التسوية وإرجاع النتائج المتوقعة
    */
   simulateLeveling: async (request: LevelingSimulationRequest): Promise<LevelingSimulation> => {
-    return safeFetch(`${LEVELING_BASE}/simulate`, async () => {
-      const response = await api.post(`${LEVELING_BASE}/simulate`, {
+    return safeFetch(LEVELING_ENDPOINTS.SIMULATE, async () => {
+      const response = await api.post(LEVELING_ENDPOINTS.SIMULATE, {
         field_id: request.fieldId,
         elevation_points: request.elevationPoints.map((p) => ({
           x: p.x,

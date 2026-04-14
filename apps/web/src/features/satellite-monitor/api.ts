@@ -26,7 +26,7 @@
 
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
-import { API_PREFIX } from '@sahool/shared-types/contracts';
+import { API_PREFIX, SATELLITE_MONITOR_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type {
   SatelliteField,
   SatelliteDashboardStats,
@@ -57,14 +57,14 @@ const api = createApiClient({ timeout: 15000 });
 
 export const satelliteMonitorApi = {
   getFields: async (filters?: SatelliteFilters): Promise<SatelliteField[]> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields`, async () => {
+    return safeFetch(SATELLITE_MONITOR_ENDPOINTS.FIELDS, async () => {
       const params = new URLSearchParams();
       if (filters?.cropType) params.set('crop_type', filters.cropType);
       if (filters?.healthStatus) params.set('health_status', filters.healthStatus);
       if (filters?.search) params.set('search', filters.search);
       if (filters?.sortBy) params.set('sort_by', filters.sortBy);
       if (filters?.sortOrder) params.set('sort_order', filters.sortOrder);
-      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields?${params.toString()}`);
+      const response = await api.get(`${SATELLITE_MONITOR_ENDPOINTS.FIELDS}?${params.toString()}`);
       const data = response.data.data || response.data;
       if (Array.isArray(data)) return data;
       return [];
@@ -72,23 +72,24 @@ export const satelliteMonitorApi = {
   },
 
   getFieldById: async (id: string): Promise<SatelliteField> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${id}`, async () => {
-      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${id}`);
+    const endpoint = SATELLITE_MONITOR_ENDPOINTS.FIELD_GET.replace('{fieldId}', id);
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       return response.data.data || response.data;
     });
   },
 
   getStats: async (): Promise<SatelliteDashboardStats> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/stats`, async () => {
-      const response = await api.get(`${API_PREFIX}/satellite-monitor/stats`);
+    return safeFetch(SATELLITE_MONITOR_ENDPOINTS.STATS, async () => {
+      const response = await api.get(SATELLITE_MONITOR_ENDPOINTS.STATS);
       return response.data.data || response.data;
     });
   },
 
   getAlerts: async (fieldId?: string): Promise<SatelliteAlert[]> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/alerts`, async () => {
+    return safeFetch(SATELLITE_MONITOR_ENDPOINTS.ALERTS, async () => {
       const params = fieldId ? `?field_id=${fieldId}` : '';
-      const response = await api.get(`${API_PREFIX}/satellite-monitor/alerts${params}`);
+      const response = await api.get(`${SATELLITE_MONITOR_ENDPOINTS.ALERTS}${params}`);
       return response.data.data || response.data;
     });
   },

@@ -288,6 +288,11 @@ export const IRRIGATION_ENDPOINTS = {
   CROPS: `${API_PREFIX}/irrigation/crops`,
   METHODS: `${API_PREFIX}/irrigation/methods`,
   PIVOT_CONTROL: `${API_PREFIX}/irrigation/pivot/control`,
+  /** @since 4.16.0 — Surfaced by the web irrigation + pivot-irrigation features */
+  EFFICIENCY_REPORT: `${API_PREFIX}/irrigation/efficiency-report`,
+  IRRIGATION_EXECUTED: `${API_PREFIX}/irrigation/irrigation-executed`,
+  CALCULATE_WITH_ACTION: `${API_PREFIX}/irrigation/calculate-with-action`,
+  PIVOT_SPEED: `${API_PREFIX}/irrigation/pivot/speed`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -316,6 +321,8 @@ export const ADVISORY_ENDPOINTS = {
   DISEASE_ASSESS: `${API_PREFIX}/advisory/disease-assess/{fieldId}`,
   FERTILIZER_PLAN: `${API_PREFIX}/advisory/fertilizer-plan/{fieldId}`,
   CROP_ADVICE: `${API_PREFIX}/advisory/crop-advice/{fieldId}`,
+  /** @since 4.16.0 — Spray-timing windows used by the web crop-protection feature */
+  SPRAY_WINDOWS: `${API_PREFIX}/advisory/spray-windows`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -980,6 +987,62 @@ export const CROP_ENDPOINTS = {
 export const SEED_ENDPOINTS = {
   LIST: `${API_PREFIX}/seeds`,
   GET: `${API_PREFIX}/seeds/{seedId}`,
+  /** @since 4.16.0 — Seed variety recommendations used by the web seeds feature */
+  RECOMMENDATIONS: `${API_PREFIX}/seeds/recommendations`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Epidemic Surveillance Endpoints
+// @since 4.16.0 — surfaced by the web `epidemic` feature
+// ---------------------------------------------------------------------------
+
+export const EPIDEMIC_ENDPOINTS = {
+  LIST: `${API_PREFIX}/epidemics`,
+  GET: `${API_PREFIX}/epidemics/{epidemicId}`,
+  REPORT: `${API_PREFIX}/epidemics/report`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Field Leveling Endpoints
+// @since 4.16.0 — surfaced by the web `leveling` feature (distinct from the
+// `/leveling/analyze` etc. constants under TERRAIN_ENDPOINTS, which the
+// terrain-core-service exposes directly; these field-scoped paths live on
+// the leveling-optimizer-service).
+// ---------------------------------------------------------------------------
+
+export const LEVELING_ENDPOINTS = {
+  ANALYZE: `${API_PREFIX}/leveling/analyze`,
+  PLAN: `${API_PREFIX}/leveling/plan/{fieldId}`,
+  COST: `${API_PREFIX}/leveling/cost/{fieldId}`,
+  EQUIPMENT: `${API_PREFIX}/leveling/equipment/{fieldId}`,
+  SIMULATE: `${API_PREFIX}/leveling/simulate`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Precision Agriculture Endpoints
+// @since 4.16.0 — surfaced by the web `precision-agriculture` feature.
+// Wraps VRA prescriptions, GDD accumulation, and per-field fertilizer
+// calculators exposed by precision-ag services.
+// ---------------------------------------------------------------------------
+
+export const PRECISION_ENDPOINTS = {
+  VRA: `${API_PREFIX}/precision-agriculture/vra/{fieldId}`,
+  GDD: `${API_PREFIX}/precision-agriculture/gdd/{fieldId}`,
+  FERTILIZER_CALCULATE: `${API_PREFIX}/precision-agriculture/fertilizer/calculate`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Satellite Monitor Endpoints
+// @since 4.16.0 — dashboard aggregator (distinct from vegetation-analysis
+// SATELLITE_ENDPOINTS which expose raw analysis; this sits on top of it
+// and powers the /satellite-monitor dashboard page).
+// ---------------------------------------------------------------------------
+
+export const SATELLITE_MONITOR_ENDPOINTS = {
+  FIELDS: `${API_PREFIX}/satellite-monitor/fields`,
+  FIELD_GET: `${API_PREFIX}/satellite-monitor/fields/{fieldId}`,
+  STATS: `${API_PREFIX}/satellite-monitor/stats`,
+  ALERTS: `${API_PREFIX}/satellite-monitor/alerts`,
 } as const;
 
 // ---------------------------------------------------------------------------

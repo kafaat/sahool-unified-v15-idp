@@ -12,6 +12,7 @@ import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/Toast';
 import { apiClient } from '@/lib/api';
+import { FIELD_ENDPOINTS } from '@sahool/shared-types/contracts';
 import {
   X,
   MapPin,
@@ -192,7 +193,7 @@ export default function FieldCreateDialog({
         // Backend expects: coordinates as [[lng,lat], ...] (2D) AND/OR boundary as GeoJSON
         const flatCoords = boundary.coordinates[0]; // First ring of GeoJSON polygon
 
-        const response = await apiClient.post('/api/v1/fields', {
+        const response = await apiClient.post(FIELD_ENDPOINTS.CREATE, {
           name: fieldName.trim(),
           nameAr: fieldNameAr.trim() || undefined,
           cropType,

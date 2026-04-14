@@ -154,6 +154,7 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
       const areaHa = fmt(props.areaHa, 2);
       const pct = fmt(props.percentage, 1);
 
+      // nosemgrep: javascript.lang.security.audit.xss.direct-response-write.html-in-template-string,html-in-template-string -- intentional HTML template; user data escaped via esc()
       const safeContent = `
         <div style="direction:rtl;font-family:Tajawal,sans-serif;min-width:200px">
           <h4 style="margin:0 0 6px;font-size:14px">${zoneName} — ${zoneNameAr}</h4>

@@ -353,6 +353,7 @@ class AutoRemediationEngine:
                         error=f"Command '{base_cmd}' not in allowed commands: {sorted(self._ALLOWED_COMMANDS)}",
                     )
 
+                # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
                 result = subprocess.run(
                     argv,
                     shell=False,

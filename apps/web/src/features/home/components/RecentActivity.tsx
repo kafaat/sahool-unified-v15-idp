@@ -58,6 +58,7 @@ const ActivityItemComponent: React.FC<{
 
   return (
     <Link
+      // nosemgrep: react-href-var -- href is sourced from hardcoded `activityConfig` object, not user input
       href={config!.href}
       className="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors group cursor-pointer animate-slide-in-up"
       style={{

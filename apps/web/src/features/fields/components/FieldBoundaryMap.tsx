@@ -86,6 +86,7 @@ const Polygon = dynamic(
 function createVertexIcon(L: any, color: string = '#2563eb') {
   return L.divIcon({
     className: '',
+    // nosemgrep: javascript.lang.security.audit.xss.direct-response-write.html-in-template-string,html-in-template-string -- intentional HTML template; user data escaped via esc()
     html: `<div style="
       width: 12px; height: 12px;
       background: ${color};

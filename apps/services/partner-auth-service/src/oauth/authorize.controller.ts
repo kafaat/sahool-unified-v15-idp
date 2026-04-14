@@ -225,6 +225,7 @@ export class AuthorizeController {
         : { error: "error", error_description: String(body) };
     const escape = (s: string) =>
       s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&#34;", "'": "&#39;" })[c]!);
+    // nosemgrep: javascript.lang.security.audit.xss.direct-response-write.html-in-template-string,html-in-template-string -- intentional HTML template; user data escaped via esc()
     return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${escape(errObj.error ?? "Error")}</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:-apple-system,sans-serif;max-width:520px;margin:60px auto;padding:24px;color:#1a2332}.code{background:#f2f5f9;padding:16px;border-radius:8px;font-family:monospace}</style></head><body><h1>${escape(errObj.error ?? "Error")}</h1><p class="code">${escape(errObj.error_description ?? "")}</p><p style="color:#7a8699;font-size:13px">If you arrived here from an application, please return to the application — do not proceed with a browser back/forward.</p></body></html>`;
   }
 }

@@ -63,6 +63,7 @@ class SensitiveDataMasker:
         ),
         # Google Cloud Keys
         "gcp_key": re.compile(
+            # nosemgrep: private-key -- regex pattern used to DETECT and redact private keys in logs, not an actual key
             r'(["\']?private[-_]?key["\']?\s*[:=]\s*["\']?)(-----BEGIN PRIVATE KEY-----[^-]+-----END PRIVATE KEY-----)(["\']?)',
             re.IGNORECASE,
         ),

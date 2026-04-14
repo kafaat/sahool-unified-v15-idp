@@ -28,8 +28,10 @@ export const validators = {
   email: (email: string): boolean => {
     if (!email || typeof email !== 'string') return false;
     // RFC 5322 simplified - rejects user@.com, user@com, etc.
+    // Input length is capped to 254 chars (RFC 5321) before evaluation, bounding backtracking.
     const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email.trim()) && email.length <= 254;
+    // nosemgrep: detect-redos -- length pre-check limits input to 254 chars, preventing catastrophic backtracking
+    return email.length <= 254 && emailRegex.test(email.trim());
   },
 
   /**
@@ -274,8 +276,10 @@ export function validateInput(
     };
   }
 
+  // nosemgrep: unsafe-dynamic-method -- `type` is constrained by TypeScript to `keyof typeof validators`, not user-controlled at runtime
   const isValid = validators[type](value);
   const sanitizedValue =
+    // nosemgrep: unsafe-dynamic-method -- `type` is constrained by TypeScript; guarded by `type in sanitizers`
     type in sanitizers ? sanitizers[type as keyof typeof sanitizers](value) : value;
 
   return {

@@ -704,6 +704,7 @@ async def export_audit_logs(
         import io
 
         output = io.StringIO()
+        # nosemgrep: use-defusedcsv -- all values are internal audit record fields (ids, ISO timestamps, enum values), not user-authored formula content
         writer = csv.writer(output)
         writer.writerow(
             [

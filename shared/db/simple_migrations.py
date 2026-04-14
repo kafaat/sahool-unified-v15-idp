@@ -143,9 +143,7 @@ class SimpleMigrationRunner:
         async with self._pool.acquire() as conn:
             # Ensure tracking table exists (always real, even in dry-run)
             if not dry_run:
-                await conn.execute(
-                    _CREATE_TRACKING_TABLE
-                )  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- static DDL constant
+                await conn.execute(_CREATE_TRACKING_TABLE)  # nosemgrep: asyncpg-sqli,sqlalchemy-execute-raw-query,formatted-sql-query -- static DDL constant, no user input
 
             applied_versions = await self._get_applied_versions(conn, dry_run=dry_run)
 
@@ -170,16 +168,12 @@ class SimpleMigrationRunner:
                     async with conn.transaction():
                         await conn.execute(migration.up)
                         duration_ms = int((time.monotonic() - t0) * 1000)
-                        await conn.execute(  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- table name is module constant, values are parameterized
-                            f"""
+                        insert_sql = f"""
                             INSERT INTO {_TRACKING_TABLE} (version, description, duration_ms)
                             VALUES ($1, $2, $3)
                             ON CONFLICT (version) DO NOTHING
-                            """,  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
-                            migration.version,
-                            migration.description,
-                            duration_ms,
-                        )
+                            """  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
+                        await conn.execute(insert_sql, migration.version, migration.description, duration_ms)  # nosemgrep: asyncpg-sqli,sqlalchemy-execute-raw-query,formatted-sql-query -- table name is module constant, values parameterized
                     result.applied.append(migration.version)
                     self._log.info(
                         "migration_applied",
@@ -262,10 +256,8 @@ class SimpleMigrationRunner:
                     t0 = time.monotonic()
                     async with conn.transaction():
                         await conn.execute(migration.down)
-                        await conn.execute(  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- table name is module constant, version is parameterized
-                            f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1",  # nosec B608
-                            migration.version,
-                        )
+                        delete_sql = f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1"  # nosec B608 - _TRACKING_TABLE is a module constant
+                        await conn.execute(delete_sql, migration.version)  # nosemgrep: asyncpg-sqli,sqlalchemy-execute-raw-query,formatted-sql-query -- table name is module constant, version is parameterized
                     duration_ms = int((time.monotonic() - t0) * 1000)
                     result.applied.append(migration.version)
                     self._log.info(

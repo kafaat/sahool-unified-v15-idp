@@ -128,9 +128,8 @@ class FarmerRepository:
         params.extend([limit, offset])
 
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(
-                query, *params
-            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
+            # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders; where_clause is built from hardcoded column names
+            rows = await conn.fetch(query, *params)
             return [self._row_to_dict(row) for row in rows]
 
     async def update(
@@ -190,9 +189,8 @@ class FarmerRepository:
         """  # nosec B608 - set_clauses uses hardcoded allowed_fields column names; all values use $N parameterized placeholders
 
         async with self.pool.acquire() as conn:
-            row = await conn.fetchrow(
-                query, *params
-            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
+            # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders; set_clauses built from hardcoded allowed_fields column names
+            row = await conn.fetchrow(query, *params)
             return self._row_to_dict(row) if row else None
 
     async def delete(self, farmer_id: str | UUID, tenant_id: str) -> bool:
@@ -358,9 +356,8 @@ class DealRepository:
         params.extend([limit, offset])
 
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(
-                query, *params
-            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
+            # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders; where_clause is built from hardcoded column names
+            rows = await conn.fetch(query, *params)
             return [self._row_to_dict(row) for row in rows]
 
     async def update_stage(
@@ -434,9 +431,8 @@ class DealRepository:
         """  # nosec B608 - set_clauses uses hardcoded allowed_fields column names; all values use $N parameterized placeholders
 
         async with self.pool.acquire() as conn:
-            row = await conn.fetchrow(
-                query, *params
-            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
+            # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders; set_clauses built from hardcoded allowed_fields column names
+            row = await conn.fetchrow(query, *params)
             return self._row_to_dict(row) if row else None
 
     async def delete(self, deal_id: str | UUID, tenant_id: str) -> bool:
@@ -641,9 +637,8 @@ class InteractionRepository:
         params.extend([limit, offset])
 
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(
-                query, *params
-            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
+            # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders; where_clause is built from hardcoded column names
+            rows = await conn.fetch(query, *params)
             return [self._row_to_dict(row) for row in rows]
 
     async def list_by_farmer(

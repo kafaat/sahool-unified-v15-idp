@@ -218,6 +218,7 @@ class SecretManager:
             return data.get("value")
 
         except Exception as e:
+            # nosemgrep: python-logger-credential-disclosure -- logs operational error, no credentials in format string
             logger.warning(
                 "Failed to read secret from Vault: %s", type(e).__name__
             )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
@@ -280,6 +281,7 @@ class SecretManager:
             return True
 
         except Exception as e:
+            # nosemgrep: python-logger-credential-disclosure -- logs operational error, no credentials in format string
             logger.error(
                 "Failed to write secret to Vault: %s", type(e).__name__
             )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials

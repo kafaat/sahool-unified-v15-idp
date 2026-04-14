@@ -20,6 +20,7 @@ const warn = m => console.log(`  ⚠️  ${m}`);
 const fail = m => console.log(`  ❌ ${m}`);
 
 async function ss(page, name) {
+  // nosemgrep: path-join-resolve-traversal -- `name` is a fixed identifier chosen by the test (not user input)
   const f = path.join(SS_DIR, `${name}.png`);
   await page.screenshot({ path: f, fullPage: false });
   console.log(`  📸 ${name}.png`);

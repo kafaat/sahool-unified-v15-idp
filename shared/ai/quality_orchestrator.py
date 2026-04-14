@@ -444,6 +444,7 @@ class AutoAudit:
             import io
 
             output = io.StringIO()
+            # nosemgrep: use-defusedcsv -- all values written are internal audit fields (ids, enum values, ISO timestamps), not user-supplied formula content
             writer = csv.writer(output)
             writer.writerow(["id", "action", "timestamp", "session_id", "user_id", "agent_id", "details"])
             for entry in self.entries:

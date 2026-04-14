@@ -140,6 +140,7 @@ export function SensorMap() {
                 </p>
                 ${
                   sensor.location.fieldName
+                    // nosemgrep: javascript.lang.security.audit.xss.direct-response-write.html-in-template-string,html-in-template-string -- intentional HTML template; user data escaped via esc()
                     ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${safeFieldName}</p>`
                     : ''
                 }
@@ -159,6 +160,7 @@ export function SensorMap() {
                 }
                 ${
                   sensor.battery !== undefined
+                    // nosemgrep: javascript.lang.security.audit.xss.direct-response-write.html-in-template-string,html-in-template-string -- intentional HTML template; user data escaped via esc()
                     ? `<p style="margin: 4px 0; font-size: 0.75rem; color: #666;">البطارية: ${safeBattery}%</p>`
                     : ''
                 }

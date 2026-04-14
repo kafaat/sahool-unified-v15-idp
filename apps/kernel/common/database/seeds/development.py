@@ -27,7 +27,7 @@ def _dev_seed_password_hash() -> str:
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     except ImportError:
         # Fallback: pre-computed hash for "password123" - development only
-        return "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyJ3DUX.Sq2."  # nosemgrep: generic.secrets.security.detected-bcrypt-hash -- dev seed fallback when bcrypt unavailable
+        return "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyJ3DUX.Sq2."  # nosemgrep: detected-bcrypt-hash -- dev seed fallback for "password123"; not used in any non-development environment
 
 
 class DevelopmentSeeder(BaseSeeder):

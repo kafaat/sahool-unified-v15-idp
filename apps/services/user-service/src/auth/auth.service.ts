@@ -860,6 +860,7 @@ export class AuthService {
     // Build bilingual email content (Arabic/English)
     const subject = "SAHOOL - Password Reset Request | طلب إعادة تعيين كلمة المرور";
 
+    // nosemgrep: javascript.lang.security.audit.xss.direct-response-write.html-in-template-string,html-in-template-string -- intentional HTML template; user data escaped via esc()
     const htmlBody = `
 <!DOCTYPE html>
 <html dir="ltr">

@@ -44,8 +44,10 @@ class TwoFASetupResponse(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
+                # nosemgrep: generic-api-key -- OpenAPI example TOTP secret, not a real credential
                 "secret": "JBSWY3DPEHPK3PXP",
                 "qr_code": "data:image/png;base64,iVBORw0KG...",
+                # nosemgrep: generic-api-key -- OpenAPI example TOTP secret, not a real credential
                 "manual_entry_key": "JBSWY3DPEHPK3PXP",
                 "issuer": "SAHOOL Agricultural Platform",
                 "account_name": "admin@sahool.io",

@@ -551,6 +551,7 @@ class SahoolApiClient {
 
   async sendFieldMessage(fieldId: string, message: string) {
     // Sanitize message to prevent XSS using comprehensive sanitizer
+    // nosemgrep: prohibit-jquery-html -- `sanitizers.html(...)` is our custom HTML sanitizer, not jQuery's .html()
     const sanitizedMessage = sanitizers.html(message);
 
     // Validate message is safe text

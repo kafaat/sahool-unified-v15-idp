@@ -118,6 +118,7 @@ class FrontendDiagnosticRunner:
             if self.config.auto_fix:
                 cmd.append("--fix")
 
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             result = subprocess.run(
                 cmd,
                 cwd=self.working_dir,
@@ -172,6 +173,7 @@ class FrontendDiagnosticRunner:
         try:
             cmd = ["npx", "tsc", "--noEmit", "--pretty", "false"]
 
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             result = subprocess.run(
                 cmd,
                 cwd=full_path,
@@ -216,6 +218,7 @@ class FrontendDiagnosticRunner:
             if self.config.auto_fix:
                 cmd.append("--apply")
 
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             result = subprocess.run(
                 cmd,
                 cwd=self.working_dir,
@@ -314,6 +317,7 @@ class MobileDiagnosticRunner:
         try:
             cmd = ["flutter", "analyze", "--no-pub"]
 
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             result = subprocess.run(
                 cmd,
                 cwd=full_path,
@@ -371,6 +375,7 @@ class MobileDiagnosticRunner:
         try:
             cmd = ["dart", "format", "--set-exit-if-changed", "--output=none", "."]
 
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             result = subprocess.run(
                 cmd,
                 cwd=full_path,
@@ -414,6 +419,7 @@ class MobileDiagnosticRunner:
         try:
             cmd = ["dart", "fix", "--apply"]
 
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             result = subprocess.run(
                 cmd,
                 cwd=full_path,

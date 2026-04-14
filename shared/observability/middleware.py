@@ -256,9 +256,8 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 if len(body) <= self.max_body_size:
                     request_log["body"] = body.decode("utf-8")
                 else:
-                    request_log["body"] = (
-                        f"<truncated, size: {len(body)} bytes>"  # nosemgrep: raw-html-format -- log dict value, not HTML response
-                    )
+                    # nosemgrep: raw-html-format -- log dict value, not an HTML response
+                    request_log["body"] = f"<truncated, size: {len(body)} bytes>"
 
                 # Reconstruct request for further processing
                 from starlette.requests import Request as StarletteRequest

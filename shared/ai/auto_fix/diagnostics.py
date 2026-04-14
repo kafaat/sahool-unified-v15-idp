@@ -734,6 +734,7 @@ class CodeDiagnostics:
             return False
 
         try:
+            # nosemgrep: dangerous-asyncio-create-exec-audit -- internal tooling; args are hardcoded program names + validated paths, not user-controlled shell strings
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.DEVNULL,

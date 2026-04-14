@@ -397,6 +397,7 @@ else:
                 )
 
             # Run process with timeout
+            # nosemgrep: dangerous-asyncio-create-exec-audit -- internal tooling; args are hardcoded program names + validated paths, not user-controlled shell strings
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,
@@ -679,6 +680,7 @@ class SecureSandbox(CodeSandbox):
             ]
 
             # Run Docker
+            # nosemgrep: dangerous-asyncio-create-exec-audit -- internal tooling; args are hardcoded program names + validated paths, not user-controlled shell strings
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,

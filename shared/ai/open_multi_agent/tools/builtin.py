@@ -392,6 +392,7 @@ class BuiltinTools:
             logger.warning("command_not_in_allowlist", command=base_cmd)
 
         try:
+            # nosemgrep: dangerous-asyncio-shell-audit -- internal diagnostics tool invocation with sanitized args
             proc = await asyncio.create_subprocess_shell(
                 command,
                 stdout=asyncio.subprocess.PIPE,

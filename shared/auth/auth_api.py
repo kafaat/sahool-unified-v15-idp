@@ -64,6 +64,7 @@ class LoginResponse(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
+                # nosemgrep: generic-api-key -- OpenAPI documentation example JWT, not a real credential
                 "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "token_type": "bearer",
                 "user": {

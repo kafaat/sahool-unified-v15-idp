@@ -268,8 +268,10 @@ export function validateInput(
     };
   }
 
+  // nosemgrep: unsafe-dynamic-method -- `type` is constrained by TypeScript to `keyof typeof validators`, not user-controlled at runtime
   const isValid = validators[type](value);
   const sanitizedValue =
+    // nosemgrep: unsafe-dynamic-method -- `type` is constrained by TypeScript; guarded by Object.hasOwn
     Object.hasOwn(sanitizers, type) ? sanitizers[type as keyof typeof sanitizers](value) : value;
 
   return {

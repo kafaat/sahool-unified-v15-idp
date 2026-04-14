@@ -249,6 +249,7 @@ class HealthChecker:
 
         try:
             cmd = ["docker", "compose", "ps", "--format", "json"]
+            # nosemgrep: dangerous-asyncio-create-exec-audit -- internal tooling; args are hardcoded program names + validated paths, not user-controlled shell strings
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 cwd=self.working_dir,
@@ -308,6 +309,7 @@ class HealthChecker:
         """Check Python dependencies | فحص تبعيات Python"""
         try:
             cmd = ["pip", "check"]
+            # nosemgrep: dangerous-asyncio-create-exec-audit -- internal tooling; args are hardcoded program names + validated paths, not user-controlled shell strings
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,
@@ -346,6 +348,7 @@ class HealthChecker:
         """Check Node.js dependencies | فحص تبعيات Node.js"""
         try:
             cmd = ["npm", "ls", "--json"]
+            # nosemgrep: dangerous-asyncio-create-exec-audit -- internal tooling; args are hardcoded program names + validated paths, not user-controlled shell strings
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 cwd=self.working_dir,

@@ -109,7 +109,7 @@ def __getattr__(name: str):
             raise ImportError(f"Module {module_path!r} is not in the allow-list")
         import importlib
 
-        mod = importlib.import_module(module_path)  # nosemgrep: python.lang.security.audit.non-literal-import
+        mod = importlib.import_module(module_path)  # nosemgrep: non-literal-import -- module_path is validated against _ALLOWED_MODULES allow-list above
         val = getattr(mod, attr)
         # Cache on the module so __getattr__ is not called again for this name.
         setattr(sys.modules[__name__], name, val)

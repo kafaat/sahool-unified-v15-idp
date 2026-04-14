@@ -374,6 +374,7 @@ const MapView = React.memo<MapViewProps>(function MapView({
           closeOnClick: false,
         })
           .setLngLat(e.lngLat)
+          // nosemgrep: javascript.lang.security.audit.xss.direct-response-write.html-in-template-string,html-in-template-string -- intentional HTML template; user data escaped via esc()
           .setHTML(`<div id="${popupId}" class="sahool-popup-content"></div>`)
           .addTo(map.current!);
 

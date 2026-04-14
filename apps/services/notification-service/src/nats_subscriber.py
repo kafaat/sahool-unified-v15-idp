@@ -89,6 +89,7 @@ def _get_nats_credentials() -> tuple[str | None, str | None]:
         if parsed.username and parsed.password:
             return parsed.username, parsed.password
     except Exception as exc:
+        # nosemgrep: python-logger-credential-disclosure -- logs operational error, no credentials in format string
         logger.debug(
             "Failed to parse NATS credentials from URL: %s", type(exc).__name__
         )  # nosemgrep: python-logger-credential-disclosure

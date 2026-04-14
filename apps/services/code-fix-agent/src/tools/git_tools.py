@@ -231,6 +231,7 @@ class GitTools:
 
         logger.debug("git_command", args=args, cwd=str(work_dir))
 
+        # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
         result = subprocess.run(
             ["git"] + args,
             cwd=work_dir,
@@ -911,6 +912,7 @@ class GitTools:
                 args.extend(["--depth", str(depth)])
             args.extend([url, str(target_path)])
 
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             result = subprocess.run(
                 ["git"] + args,
                 capture_output=True,

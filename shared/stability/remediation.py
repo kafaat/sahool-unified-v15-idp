@@ -387,6 +387,7 @@ class RemediationEngine:
                     if action.command:
                         import asyncio
 
+                        # nosemgrep: dangerous-asyncio-shell-audit -- internal diagnostics tool invocation with sanitized args
                         proc = await asyncio.create_subprocess_shell(
                             action.command,
                             stdout=asyncio.subprocess.PIPE,

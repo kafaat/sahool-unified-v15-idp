@@ -689,6 +689,7 @@ class ToolRegistry:
                 if available:
                     # Try to get version
                     try:
+                        # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
                         result = subprocess.run(
                             tool.version_command.split(),
                             capture_output=True,
@@ -807,6 +808,7 @@ class ToolRegistry:
         # Run the tool
         start_time = time.time()
         try:
+            # nosemgrep: dangerous-asyncio-create-exec-audit -- internal tooling; args are hardcoded program names + validated paths, not user-controlled shell strings
             process = await asyncio.create_subprocess_exec(
                 *args,
                 stdout=asyncio.subprocess.PIPE,

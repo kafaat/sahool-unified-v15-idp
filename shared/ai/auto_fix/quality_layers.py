@@ -236,6 +236,7 @@ class QualityOrchestrator:
     async def _run_cmd(self, cmd: list[str], check: bool = False) -> subprocess.CompletedProcess:
         """Run a command asynchronously."""
         try:
+            # nosemgrep: dangerous-asyncio-create-exec-audit -- internal tooling; args are hardcoded program names + validated paths, not user-controlled shell strings
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,
@@ -243,13 +244,16 @@ class QualityOrchestrator:
                 cwd=self.working_dir,
             )
             stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=self.timeout)
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             return subprocess.CompletedProcess(
                 cmd, proc.returncode or 0, stdout.decode(errors="replace"), stderr.decode(errors="replace")
             )
         except TimeoutError:
             logger.warning("Command timed out: %s", " ".join(cmd))
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             return subprocess.CompletedProcess(cmd, 124, "", "timeout")
         except FileNotFoundError:
+            # nosemgrep: dangerous-subprocess-use-audit -- internal tooling (Auto-Fix/diagnostics); args are hardcoded program names + validated paths, not user-controlled shell strings
             return subprocess.CompletedProcess(cmd, 127, "", f"Command not found: {cmd[0]}")
 
     def _tool_available(self, cmd: str) -> bool:

@@ -414,6 +414,7 @@ export class StructuredLogger {
       ...context,
     };
 
+    // nosemgrep: unsafe-dynamic-method -- `level` is constrained by TypeScript to the known log level union
     this.logger[level](JSON.stringify(logEntry));
   }
 

@@ -89,6 +89,111 @@ export interface GeoMultiPolygon {
 }
 
 // ---------------------------------------------------------------------------
+// Auth Request / Response Shapes - أشكال طلبات واستجابات المصادقة
+// ---------------------------------------------------------------------------
+
+/**
+ * OTP delivery channel — must match user-service SendOtpDto.
+ * Backend: `apps/services/user-service/src/auth/auth.service.ts` SendOtpDto
+ */
+export const OTP_CHANNEL = {
+  SMS: 'sms',
+  WHATSAPP: 'whatsapp',
+  TELEGRAM: 'telegram',
+  EMAIL: 'email',
+} as const;
+export type OtpChannel = (typeof OTP_CHANNEL)[keyof typeof OTP_CHANNEL];
+
+/**
+ * OTP purpose — must match user-service SendOtpDto / VerifyOtpDto.
+ * `login` was added 2026-04 to enable passwordless OTP login.
+ */
+export const OTP_PURPOSE = {
+  PASSWORD_RESET: 'password_reset',
+  VERIFY_PHONE: 'verify_phone',
+  LOGIN: 'login',
+} as const;
+export type OtpPurpose = (typeof OTP_PURPOSE)[keyof typeof OTP_PURPOSE];
+
+/**
+ * send-otp request body — canonical shape accepted by backend user-service
+ * at POST /api/v1/auth/send-otp. Proxy routes (web/admin) MUST forward
+ * exactly these field names.
+ */
+export interface SendOtpRequest {
+  identifier: string;
+  channel: OtpChannel;
+  purpose: OtpPurpose;
+  language?: Locale;
+  tenantId?: string;
+}
+
+export interface SendOtpResponse {
+  success: boolean;
+  message?: string;
+  expiresIn?: number;
+}
+
+/**
+ * verify-otp request body — canonical shape. Backend DTO uses `otpCode`
+ * (NOT `otp`). Historical bug: web proxy accepted `otp` and forwarded it
+ * unchanged, making verify-otp silently fail.
+ */
+export interface VerifyOtpRequest {
+  identifier: string;
+  otpCode: string;
+  purpose: OtpPurpose;
+  tenantId?: string;
+}
+
+export interface VerifyOtpResponse {
+  success: boolean;
+  message?: string;
+  /** Present only when purpose = 'password_reset' */
+  resetToken?: string;
+  /** Present only when purpose = 'verify_phone' */
+  verified?: boolean;
+  /** Present only when purpose = 'login' — login tokens are issued */
+  access_token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+  token_type?: string;
+  user?: UserProfile;
+}
+
+/** POST /api/v1/auth/login request body */
+export interface LoginRequest {
+  email?: string;
+  phone?: string;
+  password: string;
+  totp_code?: string;
+  tenantId?: string;
+}
+
+/** POST /api/v1/auth/register request body */
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  phone?: string;
+  tenantId?: string;
+}
+
+/** POST /api/v1/auth/logout request body */
+export interface LogoutRequest {
+  refresh_token?: string;
+  session_id?: string;
+  revoke_all_sessions?: boolean;
+}
+
+/** POST /api/v1/auth/refresh request body */
+export interface RefreshTokenRequest {
+  refresh_token: string;
+}
+
+// ---------------------------------------------------------------------------
 // Auth Response Shapes - أشكال استجابات المصادقة
 // ---------------------------------------------------------------------------
 

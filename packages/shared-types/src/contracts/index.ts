@@ -17,7 +17,13 @@
 // 4.12.1 — fix FIELD_ENDPOINTS.BOUNDARY* (was hitting non-existent
 //          `/api/v1/field-core/...` route — caught by the 2026-04-13
 //          end-to-end vertical-slice review).
-export const CONTRACT_VERSION = "4.12.1" as const;
+// 4.13.0 — add canonical auth request shapes (SendOtpRequest, VerifyOtpRequest,
+//          LoginRequest, RegisterRequest, LogoutRequest, RefreshTokenRequest)
+//          + OTP_PURPOSE/OTP_CHANNEL const enums. Fixes `otp` vs `otpCode`
+//          and `reset` vs `password_reset` drift between web proxy routes
+//          and user-service DTOs. Adds `login` as a valid OTP purpose for
+//          passwordless OTP login on mobile + web.
+export const CONTRACT_VERSION = "4.13.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

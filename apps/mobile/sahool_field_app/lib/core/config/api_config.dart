@@ -4,6 +4,7 @@ library;
 /// إعدادات الاتصال بالخادم
 
 import 'env_config.dart';
+import '../contracts/api_endpoints.dart';
 
 /// Service ports for local development
 /// منافذ الخدمات للتطوير المحلي
@@ -95,12 +96,14 @@ class ApiConfig {
   static String get providers => '$baseUrl/api/v1/providers';
   static String get providerConfig => '$baseUrl/api/v1/config';
 
-  /// Auth endpoints
-  static String get login => '$baseUrl/api/v1/auth/login';
-  static String get register => '$baseUrl/api/v1/auth/register';
-  static String get refreshToken => '$baseUrl/api/v1/auth/refresh';
-  static String get sendOtp => '$baseUrl/api/v1/auth/send-otp';
-  static String get verifyOtp => '$baseUrl/api/v1/auth/verify-otp';
+  /// Auth endpoints (paths from shared contracts, base URL from env)
+  /// See: lib/core/contracts/api_endpoints.dart → AuthEndpoints
+  static String get login => '$baseUrl${AuthEndpoints.login}';
+  static String get register => '$baseUrl${AuthEndpoints.register}';
+  static String get refreshToken => '$baseUrl${AuthEndpoints.refresh}';
+  static String get sendOtp => '$baseUrl${AuthEndpoints.sendOtp}';
+  static String get verifyOtp => '$baseUrl${AuthEndpoints.verifyOtp}';
+  static String get logout => '$baseUrl${AuthEndpoints.logout}';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Satellite Service Endpoints (port 8090)

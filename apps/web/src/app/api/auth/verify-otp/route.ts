@@ -19,6 +19,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import {
+  AUTH_ENDPOINTS,
+  OTP_PURPOSE,
+  type VerifyOtpRequest,
+} from '@sahool/shared-types/contracts';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -79,14 +84,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Normalize payload to match backend DTO (uses `otpCode`, not `otp`)
-    const backendPayload = {
+    const backendPayload: VerifyOtpRequest = {
       identifier: body?.identifier,
       otpCode,
-      purpose: body?.purpose,
+      purpose: body?.purpose ?? OTP_PURPOSE.LOGIN,
       ...(body?.tenantId && { tenantId: body.tenantId }),
     };
 
-    const backendResponse = await fetch(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
+    const backendResponse = await fetch(`${API_BASE_URL}${AUTH_ENDPOINTS.VERIFY_OTP}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(backendPayload),
@@ -106,11 +111,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const purpose = body?.purpose ?? 'login';
+    const purpose = body?.purpose ?? OTP_PURPOSE.LOGIN;
 
     // Password-reset OTP: return the reset_token to the client (no session cookies set)
     // Backend purpose is `password_reset`; legacy clients may send `reset`.
-    if (purpose === 'password_reset' || purpose === 'reset') {
+    if (purpose === OTP_PURPOSE.PASSWORD_RESET || purpose === 'reset') {
       const resetToken = data?.reset_token ?? data?.resetToken ?? data?.token;
 
       if (!resetToken) {
@@ -129,7 +134,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Phone verification: no session cookies, just confirm status
-    if (purpose === 'verify_phone') {
+    if (purpose === OTP_PURPOSE.VERIFY_PHONE) {
       return NextResponse.json({
         success: true,
         verified: data?.verified ?? true,

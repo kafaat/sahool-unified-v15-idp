@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../http/api_client.dart';
 import '../config/env_config.dart';
+import '../contracts/api_endpoints.dart';
 import '../di/providers.dart';
 import '../utils/app_logger.dart';
 import '../security/security_audit_service.dart';
@@ -552,7 +553,7 @@ class AuthService {
 
     try {
       final response = await apiClient!.post(
-        '/api/v1/auth/login',
+        AuthEndpoints.login,
         {
           'email': email,
           'password': password,
@@ -656,10 +657,10 @@ class AuthService {
     }
 
     try {
-      await apiClient!.post('/api/v1/auth/send-otp', {
+      await apiClient!.post(AuthEndpoints.sendOtp, {
         'identifier': identifier,
         'channel': channel,
-        'purpose': 'login',
+        'purpose': OtpPurpose.login,
         'language': language,
       });
       AppLogger.i('OTP sent successfully', tag: 'AUTH');
@@ -692,10 +693,10 @@ class AuthService {
     }
 
     try {
-      final response = await apiClient!.post('/api/v1/auth/verify-otp', {
+      final response = await apiClient!.post(AuthEndpoints.verifyOtp, {
         'identifier': identifier,
         'otpCode': otpCode,
-        'purpose': 'login',
+        'purpose': OtpPurpose.login,
       });
 
       if (response == null) {
@@ -852,7 +853,7 @@ class AuthService {
 
     try {
       final response = await apiClient!.post(
-        '/api/v1/auth/reset-password',
+        AuthEndpoints.resetPassword,
         {
           'token': token,
           'newPassword': newPassword,
@@ -978,7 +979,7 @@ class AuthService {
     if (apiClient != null && !_shouldUseMockMode()) {
       try {
         // Revoke refresh token explicitly
-        await apiClient!.post('/api/v1/auth/logout', {
+        await apiClient!.post(AuthEndpoints.logout, {
           'refresh_token': refreshToken,
           'session_id': sessionId,
           'revoke_all_sessions': false,
@@ -1053,7 +1054,7 @@ class AuthService {
     // Call logout API with revoke_all_sessions flag
     if (apiClient != null && !_shouldUseMockMode()) {
       try {
-        await apiClient!.post('/api/v1/auth/logout', {
+        await apiClient!.post(AuthEndpoints.logout, {
           'refresh_token': refreshToken,
           'revoke_all_sessions': true,
         });
@@ -1268,7 +1269,7 @@ class AuthService {
 
     try {
       final response = await apiClient!.post(
-        '/api/v1/auth/refresh',
+        AuthEndpoints.refresh,
         {
           'refresh_token': refreshToken,
         },

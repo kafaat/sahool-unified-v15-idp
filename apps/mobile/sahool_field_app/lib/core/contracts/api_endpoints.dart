@@ -1,8 +1,16 @@
-/// SAHOOL Unified API Endpoint Paths (Dart)
+/// SAHOOL Unified API Endpoint Paths (Dart) — sahool_field_app vendored copy.
 /// مسارات نقاط النهاية الموحدة
 ///
-/// Auto-generated from: packages/shared-types/src/contracts/api-endpoints.ts
-/// Used by: Mobile app (Flutter/Dart)
+/// SOURCE OF TRUTH: packages/shared-types/src/contracts/api-endpoints.ts
+/// MIRROR (canonical Dart): apps/mobile/lib/core/contracts/api_endpoints.dart
+///
+/// This file is a vendored copy because `sahool_field_app` is its own Flutter
+/// package (separate pubspec) and cannot import from the sibling `apps/mobile`
+/// package directly. Keep BOTH Dart files in sync with the TypeScript source.
+/// CI guard: `.github/workflows/api-contracts-guard.yml`.
+///
+/// DO NOT EDIT manually — regenerate via:
+///   npx tsx scripts/sync-contracts-to-dart.ts
 ///
 /// @version 16.0.0
 library;

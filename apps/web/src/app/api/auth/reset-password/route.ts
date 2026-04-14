@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isRateLimited } from '@/lib/rate-limiter';
 import { logger } from '@/lib/logger';
+import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const backendResponse = await fetch(`${API_BASE_URL}/api/v1/auth/reset-password`, {
+    const backendResponse = await fetch(`${API_BASE_URL}${AUTH_ENDPOINTS.RESET_PASSWORD}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

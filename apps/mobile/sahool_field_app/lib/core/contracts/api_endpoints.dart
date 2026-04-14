@@ -4,13 +4,14 @@
 /// SOURCE OF TRUTH: packages/shared-types/src/contracts/api-endpoints.ts
 /// MIRROR (canonical Dart): apps/mobile/lib/core/contracts/api_endpoints.dart
 ///
-/// This file is a vendored copy because `sahool_field_app` is its own Flutter
-/// package (separate pubspec) and cannot import from the sibling `apps/mobile`
-/// package directly. Keep BOTH Dart files in sync with the TypeScript source.
-/// CI guard: `.github/workflows/api-contracts-guard.yml`.
+/// This file is a MANUALLY MAINTAINED vendored copy — the current
+/// `sync-contracts-to-dart.ts` generator only auto-emits service_ports.dart
+/// and error_codes.dart. `sahool_field_app` is its own Flutter package
+/// (separate pubspec) and cannot import from the sibling `apps/mobile` root
+/// directly, so we duplicate this file. When editing, keep ALL THREE copies
+/// in sync: the TS source, the canonical Dart mirror, and this copy.
 ///
-/// DO NOT EDIT manually — regenerate via:
-///   npx tsx scripts/sync-contracts-to-dart.ts
+/// CI guard: `.github/workflows/api-contracts-guard.yml`.
 ///
 /// @version 16.0.0
 library;

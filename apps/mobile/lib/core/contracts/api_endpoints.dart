@@ -1,7 +1,13 @@
 /// SAHOOL Unified API Endpoint Paths (Dart)
 /// مسارات نقاط النهاية الموحدة
 ///
-/// Auto-generated from: packages/shared-types/src/contracts/api-endpoints.ts
+/// SOURCE OF TRUTH: packages/shared-types/src/contracts/api-endpoints.ts
+/// This file is MANUALLY maintained — the current `sync-contracts-to-dart.ts`
+/// generator only auto-emits service_ports.dart and error_codes.dart. When
+/// you add, remove, or rename endpoints / OTP purposes / OTP channels in the
+/// TS source of truth, mirror the change here AND in the vendored copy at
+/// `apps/mobile/sahool_field_app/lib/core/contracts/api_endpoints.dart`.
+///
 /// Used by: Mobile app (Flutter/Dart)
 ///
 /// @version 16.0.0

@@ -170,9 +170,9 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
         },
         body: JSON.stringify({
           identifier,
-          otp,
+          // Use canonical DTO field name; proxy route still accepts legacy `otp`.
+          otpCode: otp,
           purpose,
-          channel,
         }),
       });
 

@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
 
     let response: Response;
     try {
-      response = await fetch(`${API_URL}${AUTH_ENDPOINTS.RESEND_OTP}`, {
+      // Backend user-service does not expose a dedicated /auth/resend-otp
+      // endpoint — resending is the same as sending a fresh OTP. Forward to
+      // /auth/send-otp; the per-identifier rate limit above prevents abuse.
+      response = await fetch(`${API_URL}${AUTH_ENDPOINTS.SEND_OTP}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier, purpose, channel }),

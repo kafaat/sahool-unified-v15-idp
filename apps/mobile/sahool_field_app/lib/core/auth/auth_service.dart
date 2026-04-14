@@ -1233,21 +1233,28 @@ class AuthService {
         }
       }
 
-      // Optionally validate with server (for remote session invalidation)
+      // Optionally validate with server (for remote session invalidation).
+      // Backend exposes POST /auth/me guarded by JwtAuthGuard — a 401 means
+      // the token was revoked server-side. There is no /auth/validate
+      // endpoint; calling it used to return 404 and incorrectly log the user
+      // out on every app resume.
       if (apiClient != null && !_shouldUseMockMode()) {
         try {
-          final response = await apiClient!.get('/api/v1/auth/validate');
-          if (response is Map) {
-            return response['valid'] == true;
-          }
-          return true;
+          final response = await apiClient!.post(AuthEndpoints.me, const {});
+          // Any 2xx response means the token is still accepted by the server.
+          return response != null;
         } catch (e) {
           // Network error - assume valid if token isn't expired
           if (e is ApiException && e.isNetworkError) {
             return true;
           }
-          // Server says invalid
-          return false;
+          // 401/403 — token was revoked or user was deactivated
+          if (e is ApiException &&
+              (e.statusCode == 401 || e.statusCode == 403)) {
+            return false;
+          }
+          // Any other server error — don't force logout over transient issues
+          return true;
         }
       }
 

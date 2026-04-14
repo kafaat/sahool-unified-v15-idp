@@ -30,16 +30,43 @@ function RegisterForm() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * Validate Yemeni phone format: +967XXXXXXXXX or 7XXXXXXXX
+   * Matches backend @IsYemeniPhone() decorator in user-service.
+   */
+  const validateYemeniPhone = (phone: string): string => {
+    if (!phone) return ''; // optional
+    const normalized = phone.replace(/\s+/g, '');
+    // Accept: +967 followed by 9 digits starting with 7, OR 9 digits starting with 7
+    const yemeniPattern = /^(\+967)?7\d{8}$/;
+    if (!yemeniPattern.test(normalized)) {
+      return 'رقم هاتف يمني غير صالح (مثال: +9677XXXXXXXX)';
+    }
+    return '';
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'phone') {
+      setPhoneError(validateYemeniPhone(value));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate phone before submit
+    const phoneValidation = validateYemeniPhone(formData.phone);
+    if (phoneValidation) {
+      setPhoneError(phoneValidation);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -75,7 +102,11 @@ function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4"
+    >
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -167,7 +198,7 @@ function RegisterForm() {
               </div>
             </div>
 
-            {/* Phone Field (Optional) */}
+            {/* Phone Field (Optional - Yemeni format) */}
             <div>
               <label
                 htmlFor="phone"
@@ -183,11 +214,22 @@ function RegisterForm() {
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                  placeholder="+966 5XX XXX XXXX"
+                  className={`w-full pr-10 pl-4 py-3 border rounded-lg focus:ring-2 outline-none transition dark:bg-gray-700 dark:text-gray-100 ${
+                    phoneError
+                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                      : 'border-gray-300 dark:border-gray-600 focus:ring-green-500 focus:border-green-500'
+                  }`}
+                  placeholder="+9677XXXXXXXX"
                   dir="ltr"
+                  aria-invalid={!!phoneError}
+                  aria-describedby={phoneError ? 'phone-error' : undefined}
                 />
               </div>
+              {phoneError && (
+                <p id="phone-error" className="text-red-600 text-xs mt-1.5" role="alert">
+                  {phoneError}
+                </p>
+              )}
             </div>
 
             {/* Password Field */}

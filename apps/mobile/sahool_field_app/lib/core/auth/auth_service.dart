@@ -345,6 +345,62 @@ class AuthStateNotifier extends StateNotifier<AuthState>
     }
   }
 
+  /// Send OTP for passwordless login
+  /// Returns null on success, or error message on failure
+  Future<String?> sendLoginOtp({
+    required String identifier,
+    String channel = 'sms',
+  }) async {
+    try {
+      await _authService.sendLoginOtp(
+        identifier: identifier,
+        channel: channel,
+      );
+      return null;
+    } on AuthException catch (e) {
+      return e.message;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  /// Login with OTP (passwordless)
+  Future<bool> loginWithOtp({
+    required String identifier,
+    required String otpCode,
+  }) async {
+    state = state.copyWith(status: AuthStatus.loading);
+
+    try {
+      final user = await _authService.loginWithOtp(
+        identifier: identifier,
+        otpCode: otpCode,
+      );
+      final token = await _authService.getAccessToken();
+      final tokenExpiry = await _authService.getTokenExpiry();
+
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        user: user,
+        accessToken: token,
+        sessionInfo: SessionInfo(
+          tokenExpiresAt: tokenExpiry,
+          lastActivity: DateTime.now(),
+          sessionStartedAt: DateTime.now(),
+          isBiometricSession: false,
+        ),
+      );
+      _startSessionMonitoring();
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStatus.unauthenticated,
+        error: e.toString(),
+      );
+      return false;
+    }
+  }
+
   /// Login with biometric authentication
   Future<bool> loginWithBiometric() async {
     state = state.copyWith(status: AuthStatus.loading);
@@ -580,6 +636,134 @@ class AuthService {
       } else {
         throw AuthException(e.message, code: e.code);
       }
+    }
+  }
+
+  /// Send OTP to phone/email for passwordless login
+  /// إرسال رمز التحقق للهاتف/البريد لتسجيل الدخول بدون كلمة مرور
+  Future<void> sendLoginOtp({
+    required String identifier,
+    String channel = 'sms',
+    String language = 'ar',
+  }) async {
+    AppLogger.i('Sending login OTP', tag: 'AUTH',
+        data: {'channel': channel});
+
+    if (apiClient == null || _shouldUseMockMode()) {
+      AppLogger.w('OTP send running in MOCK mode', tag: 'AUTH');
+      await Future.delayed(const Duration(milliseconds: 500));
+      return;
+    }
+
+    try {
+      await apiClient!.post('/api/v1/auth/send-otp', {
+        'identifier': identifier,
+        'channel': channel,
+        'purpose': 'login',
+        'language': language,
+      });
+      AppLogger.i('OTP sent successfully', tag: 'AUTH');
+    } on ApiException catch (e) {
+      AppLogger.e('Failed to send OTP', tag: 'AUTH', error: e);
+      if (e.statusCode == 429) {
+        throw AuthException(
+          'محاولات كثيرة. يرجى الانتظار قبل طلب رمز جديد',
+          code: 'OTP_RATE_LIMITED',
+        );
+      } else if (e.isNetworkError) {
+        throw AuthException('لا يوجد اتصال بالإنترنت',
+            code: 'NETWORK_ERROR');
+      }
+      throw AuthException(e.message.isNotEmpty ? e.message : 'فشل إرسال الرمز',
+          code: e.code);
+    }
+  }
+
+  /// Verify OTP and login (passwordless)
+  /// التحقق من رمز OTP وتسجيل الدخول بدون كلمة مرور
+  Future<User> loginWithOtp({
+    required String identifier,
+    required String otpCode,
+  }) async {
+    AppLogger.i('Verifying OTP for login', tag: 'AUTH');
+
+    if (apiClient == null || _shouldUseMockMode()) {
+      return _loginWithMock(identifier, otpCode);
+    }
+
+    try {
+      final response = await apiClient!.post('/api/v1/auth/verify-otp', {
+        'identifier': identifier,
+        'otpCode': otpCode,
+        'purpose': 'login',
+      });
+
+      if (response == null) {
+        throw AuthException('استجابة غير صالحة من الخادم');
+      }
+
+      final data =
+          response is Map<String, dynamic> ? response : response['data'];
+
+      final accessToken = data['access_token'] ?? data['accessToken'];
+      final refreshToken = data['refresh_token'] ?? data['refreshToken'];
+      final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
+      final sessionId = data['session_id'] ?? data['sessionId'];
+
+      if (accessToken == null || refreshToken == null) {
+        throw AuthException('بيانات التوكن مفقودة في الاستجابة');
+      }
+
+      final tokens = TokenPair(
+        accessToken: accessToken as String,
+        refreshToken: refreshToken as String,
+        expiresIn:
+            expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
+      );
+
+      final userData = data['user'] ?? data;
+      final user = User(
+        id: userData['id'] ?? 'unknown',
+        email: userData['email'] ?? identifier,
+        name: userData['name'] ?? 'مستخدم',
+        role: userData['role'] ?? 'farmer',
+        tenantId: userData['tenant_id'] ??
+            userData['tenantId'] ??
+            EnvConfig.defaultTenantId,
+        phone: userData['phone'] ?? identifier,
+        avatarUrl: userData['avatar_url'] ?? userData['avatarUrl'],
+      );
+
+      apiClient!.setAuthToken(tokens.accessToken);
+      apiClient!.setTenantId(user.tenantId);
+
+      await _storeTokens(tokens);
+      await _storeUserData(user);
+
+      _currentSessionId = sessionId as String?;
+      if (_currentSessionId != null) {
+        await secureStorage.write('session_id', _currentSessionId!);
+      }
+
+      userContext.setUser(user.id, tenantId: user.tenantId, role: user.role);
+      _refreshRetryCount = 0;
+      _scheduleTokenRefresh(tokens.expiresIn);
+
+      AppLogger.i('OTP login successful',
+          tag: 'AUTH', data: {'userId': user.id});
+      return user;
+    } on ApiException catch (e) {
+      AppLogger.e('OTP login failed', tag: 'AUTH', error: e);
+      if (e.statusCode == 400) {
+        throw AuthException('رمز التحقق غير صحيح أو منتهي الصلاحية',
+            code: 'INVALID_OTP');
+      } else if (e.statusCode == 429) {
+        throw AuthException('محاولات كثيرة. يرجى الانتظار 15 دقيقة',
+            code: 'OTP_RATE_LIMITED');
+      } else if (e.isNetworkError) {
+        throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
+      }
+      throw AuthException(e.message, code: e.code);
     }
   }
 

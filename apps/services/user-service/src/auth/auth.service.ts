@@ -58,7 +58,7 @@ export interface ResetPasswordDto {
 export interface SendOtpDto {
   identifier: string;
   channel: "sms" | "whatsapp" | "telegram" | "email";
-  purpose: "password_reset" | "verify_phone";
+  purpose: "password_reset" | "verify_phone" | "login";
   language?: string;
 }
 
@@ -1215,6 +1215,11 @@ SAHOOL - National Agricultural Intelligence Platform
     message: string;
     resetToken?: string;
     verified?: boolean;
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+    token_type?: string;
+    user?: TokenResponse["user"];
   }> {
     const { identifier, otpCode, purpose } = dto;
 
@@ -1328,6 +1333,62 @@ SAHOOL - National Agricultural Intelligence Platform
           success: true,
           message: "OTP verified successfully. Use the reset token to set a new password.",
           resetToken,
+        };
+      }
+
+      // For login, find user by identifier and issue tokens (passwordless OTP login)
+      // SECURITY: Filter by tenantId to prevent cross-tenant login via OTP
+      if (purpose === "login") {
+        const isEmail = identifier.includes("@");
+        const user = await this.prisma.user.findFirst({
+          where: {
+            ...(isEmail ? { email: identifier } : { phone: identifier }),
+            ...(tenantId && { tenantId }),
+          },
+        });
+
+        if (!user) {
+          throw new BadRequestException("User not found.");
+        }
+
+        if (user.status !== UserStatus.ACTIVE) {
+          throw new BadRequestException("Account is not available. Please contact support.");
+        }
+
+        // Reset failed login counter on successful OTP login
+        await this.resetFailedLoginAttempts(user.id);
+
+        const tokens = await this.generateTokens(user);
+
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            lastLoginAt: new Date(),
+            ...(isEmail ? {} : { phoneVerified: true }),
+          },
+        });
+
+        this.logger.log(`User logged in via OTP`, {
+          userId: user.id,
+          identifier: this.sanitizeForLog(identifier),
+        });
+
+        return {
+          success: true,
+          message: "OTP login successful.",
+          verified: true,
+          ...tokens,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`.trim(),
+            name_ar: user.nameAr || undefined,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            tenantId: user.tenantId,
+            tenant_id: user.tenantId,
+          },
         };
       }
 

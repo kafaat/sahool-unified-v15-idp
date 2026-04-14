@@ -99,6 +99,8 @@ class ApiConfig {
   static String get login => '$baseUrl/api/v1/auth/login';
   static String get register => '$baseUrl/api/v1/auth/register';
   static String get refreshToken => '$baseUrl/api/v1/auth/refresh';
+  static String get sendOtp => '$baseUrl/api/v1/auth/send-otp';
+  static String get verifyOtp => '$baseUrl/api/v1/auth/verify-otp';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Satellite Service Endpoints (port 8090)

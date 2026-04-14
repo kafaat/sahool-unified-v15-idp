@@ -22,6 +22,7 @@ import '../../features/map_home/ui/map_screen.dart';
 import '../../features/fields/presentation/screens/fields_list_screen.dart';
 import '../../features/fields/presentation/screens/field_details_screen.dart';
 import '../../features/fields/domain/entities/field_entity.dart';
+import '../../features/field/ui/field_form_screen.dart';
 import '../../features/field_hub/ui/field_dashboard.dart';
 
 // Features - Precision Agriculture
@@ -217,6 +218,17 @@ class AppRouter {
       // ═══════════════════════════════════════════════════════════════════════
       // Field Details Routes (outside shell for full-screen experience)
       // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/fields/create',
+        name: 'field-create',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          return FieldFormScreen(
+            tenantId: args?['tenantId'] as String?,
+          );
+        },
+      ),
 
       GoRoute(
         path: '/field/:id',

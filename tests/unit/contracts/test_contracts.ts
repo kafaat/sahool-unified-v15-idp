@@ -42,6 +42,7 @@ import {
   INVENTORY_ENDPOINTS,
   TRACEABILITY_ENDPOINTS,
   PUBLIC_ENDPOINTS,
+  SERVICE_HEALTH_ENDPOINTS,
   buildUrl,
   API_PREFIX,
 } from "../../../packages/shared-types/src/contracts/index";
@@ -327,6 +328,143 @@ console.log(`  ✓ buildUrl helper validated`);
 // 9. SERVICE_REGISTRY Metadata
 // ─────────────────────────────────────────────────────────────────────────────
 section("SERVICE_REGISTRY");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tests: Contract drift fixes (v2.3.0)
+// ─────────────────────────────────────────────────────────────────────────────
+
+console.log("\n▶ Contract drift fixes (v2.3.0)");
+
+// FIELD_ENDPOINTS.BOUNDARY* must no longer use deprecated /field-core/ prefix
+assert(
+  !FIELD_ENDPOINTS.BOUNDARY.includes("/field-core/"),
+  "FIELD_ENDPOINTS.BOUNDARY should not contain deprecated /field-core/ prefix",
+);
+assert(
+  FIELD_ENDPOINTS.BOUNDARY === `${API_PREFIX}/fields/{fieldId}/boundary`,
+  "FIELD_ENDPOINTS.BOUNDARY should use /api/v1/fields/{fieldId}/boundary",
+);
+assert(
+  !FIELD_ENDPOINTS.BOUNDARY_HISTORY.includes("/field-core/"),
+  "FIELD_ENDPOINTS.BOUNDARY_HISTORY should not contain /field-core/",
+);
+assert(
+  !FIELD_ENDPOINTS.BOUNDARY_ROLLBACK.includes("/field-core/"),
+  "FIELD_ENDPOINTS.BOUNDARY_ROLLBACK should not contain /field-core/",
+);
+
+// CHAT_ENDPOINTS field-* must no longer use deprecated /field-chat/ prefix
+assert(
+  !CHAT_ENDPOINTS.FIELD_MESSAGES.includes("/field-chat/"),
+  "CHAT_ENDPOINTS.FIELD_MESSAGES should not contain deprecated /field-chat/",
+);
+assert(
+  CHAT_ENDPOINTS.FIELD_MESSAGES === `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  "CHAT_ENDPOINTS.FIELD_MESSAGES should use /api/v1/chat/fields/{fieldId}/messages",
+);
+assert(
+  !CHAT_ENDPOINTS.FIELD_PARTICIPANTS.includes("/field-chat/"),
+  "CHAT_ENDPOINTS.FIELD_PARTICIPANTS should not contain /field-chat/",
+);
+
+// ADVISORY_ENDPOINTS must have new canonical entries + deprecated aliases
+const advisoryAny = ADVISORY_ENDPOINTS as Record<string, string>;
+assert(
+  advisoryAny.ADVICE === `${API_PREFIX}/advisory/advice`,
+  "ADVISORY_ENDPOINTS.ADVICE should be /api/v1/advisory/advice",
+);
+assert(
+  advisoryAny.DISEASE === `${API_PREFIX}/advisory/disease`,
+  "ADVISORY_ENDPOINTS.DISEASE should be /api/v1/advisory/disease",
+);
+assert(
+  advisoryAny.NUTRIENTS === `${API_PREFIX}/advisory/nutrients`,
+  "ADVISORY_ENDPOINTS.NUTRIENTS should be /api/v1/advisory/nutrients",
+);
+assert(
+  advisoryAny.AGRO_ADVICE !== undefined,
+  "ADVISORY_ENDPOINTS.AGRO_ADVICE (deprecated alias) should still exist for back-compat",
+);
+
+// WEATHER_ENDPOINTS Kong-routed variants - real external URLs
+const weatherAny = WEATHER_ENDPOINTS as Record<string, string>;
+assert(
+  weatherAny.KONG_CURRENT === `${API_PREFIX}/weather/weather/current`,
+  "WEATHER_ENDPOINTS.KONG_CURRENT should reflect actual Kong-routed URL",
+);
+assert(
+  weatherAny.KONG_FORECAST === `${API_PREFIX}/weather/weather/forecast`,
+  "WEATHER_ENDPOINTS.KONG_FORECAST should reflect actual Kong-routed URL",
+);
+assert(
+  weatherAny.KONG_AGRICULTURAL_REPORT ===
+    `${API_PREFIX}/weather/weather/agricultural-report`,
+  "WEATHER_ENDPOINTS.KONG_AGRICULTURAL_REPORT should reflect actual Kong-routed URL",
+);
+assert(
+  weatherAny.KONG_CURRENT_BY_LOCATION === `${API_PREFIX}/weather/v1/current/{locationId}`,
+  "WEATHER_ENDPOINTS.KONG_CURRENT_BY_LOCATION should be /api/v1/weather/v1/current/{locationId}",
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tests: SERVICE_HEALTH_ENDPOINTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+console.log("\n▶ SERVICE_HEALTH_ENDPOINTS");
+
+assert(
+  typeof SERVICE_HEALTH_ENDPOINTS === "object" && SERVICE_HEALTH_ENDPOINTS !== null,
+  "SERVICE_HEALTH_ENDPOINTS should be exported as an object",
+);
+
+const healthEntries = Object.entries(SERVICE_HEALTH_ENDPOINTS as Record<string, string>);
+assert(
+  healthEntries.length >= 15,
+  `SERVICE_HEALTH_ENDPOINTS should expose at least 15 services, got ${healthEntries.length}`,
+);
+
+for (const [key, path] of healthEntries) {
+  assert(
+    typeof path === "string" && path.startsWith(`${API_PREFIX}/`),
+    `SERVICE_HEALTH_ENDPOINTS.${key} should start with ${API_PREFIX}/`,
+  );
+  assert(
+    path.endsWith("/healthz"),
+    `SERVICE_HEALTH_ENDPOINTS.${key} should end with /healthz, got ${path}`,
+  );
+  assert(
+    !path.includes("{"),
+    `SERVICE_HEALTH_ENDPOINTS.${key} must not contain path parameters`,
+  );
+}
+
+// Common services must be present
+const requiredHealth = [
+  "FIELD_MANAGEMENT",
+  "WEATHER",
+  "IRRIGATION",
+  "ADVISORY",
+  "TASKS",
+  "NOTIFICATIONS",
+  "ALERTS",
+];
+for (const key of requiredHealth) {
+  assert(
+    key in (SERVICE_HEALTH_ENDPOINTS as Record<string, string>),
+    `SERVICE_HEALTH_ENDPOINTS.${key} is required for the Service Health Dashboard`,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tests: CONTRACT_VERSION cadence
+// ─────────────────────────────────────────────────────────────────────────────
+
+console.log("\n▶ CONTRACT_VERSION cadence");
+assert(
+  /^2\.(?:[3-9]|[1-9]\d+)\.\d+$/.test(CONTRACT_VERSION) ||
+    /^[3-9]\.\d+\.\d+$/.test(CONTRACT_VERSION),
+  `CONTRACT_VERSION must be bumped to >= 2.3.0 after drift fixes, got ${CONTRACT_VERSION}`,
+);
 
 if (SERVICE_REGISTRY) {
   const registryEntries = Object.entries(SERVICE_REGISTRY);

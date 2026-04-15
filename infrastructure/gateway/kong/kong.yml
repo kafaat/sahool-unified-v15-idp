@@ -124,6 +124,16 @@ services:
     port: 3000
     protocol: http
     routes:
+      # Prefix covers all FIELD_ENDPOINTS from @sahool/shared-types/contracts:
+      #   /api/v1/fields                                (LIST, CREATE)
+      #   /api/v1/fields/{fieldId}                      (GET, UPDATE, DELETE)
+      #   /api/v1/fields/nearby                         (NEARBY)
+      #   /api/v1/fields/sync                           (SYNC)
+      #   /api/v1/fields/sync/batch                     (SYNC_BATCH)
+      #   /api/v1/fields/{fieldId}/boundary             (BOUNDARY, BOUNDARY_UPDATE)
+      #   /api/v1/fields/{fieldId}/boundary-history     (BOUNDARY_HISTORY)
+      #   /api/v1/fields/{fieldId}/boundary-history/rollback (BOUNDARY_ROLLBACK)
+      #   /api/v1/fields/healthz                        (SERVICE_HEALTH_ENDPOINTS.FIELD_MANAGEMENT)
       - name: field-management-service-route
         paths: ["/api/v1/fields", "/api/v1/field", "/field"]
         strip_path: true

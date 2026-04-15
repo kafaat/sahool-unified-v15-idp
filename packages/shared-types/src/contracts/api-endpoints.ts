@@ -220,6 +220,9 @@ export const ADVISORY_ENDPOINTS = {
 
 // ---------------------------------------------------------------------------
 // Task Endpoints - نقاط المهام
+// WIP: task-service (port 8103) currently implements a subset only.
+// Endpoints marked below are tracked by endpoint-reality-check.
+// See: scripts/endpoint-reality-check.ts
 // ---------------------------------------------------------------------------
 
 export const TASK_ENDPOINTS = {
@@ -231,6 +234,9 @@ export const TASK_ENDPOINTS = {
   STATUS: `${API_PREFIX}/tasks/{taskId}/status`,
   COMPLETE: `${API_PREFIX}/tasks/{taskId}/complete`,
 } as const;
+
+/** WIP services allowed to have partial endpoint implementation. */
+export const WIP_SERVICES = ["task-service", "yolo26-vision-service", "drone-service"] as const;
 
 // ---------------------------------------------------------------------------
 // Equipment Endpoints - نقاط المعدات
@@ -468,12 +474,47 @@ export const TERRAIN_ENDPOINTS = {
   DEM: `${API_PREFIX}/terrain/dem`,
   SLOPE: `${API_PREFIX}/terrain/slope`,
   ASPECT: `${API_PREFIX}/terrain/aspect`,
+  /** @deprecated Use HYDROLOGY_ENDPOINTS.DRAINAGE */
   HYDROLOGY_DRAINAGE: `${API_PREFIX}/hydrology/drainage`,
+  /** @deprecated Use HYDROLOGY_ENDPOINTS.WATERSHED */
   HYDROLOGY_WATERSHED: `${API_PREFIX}/hydrology/watershed`,
+  /** @deprecated Use HYDROLOGY_ENDPOINTS.FLOW */
   HYDROLOGY_FLOW: `${API_PREFIX}/hydrology/flow`,
   LEVELING_OPTIMIZE: `${API_PREFIX}/leveling/optimize`,
   LEVELING_CUT_FILL: `${API_PREFIX}/leveling/cut-fill`,
   LEVELING_COST: `${API_PREFIX}/leveling/cost`,
+} as const;
+
+/**
+ * Hydrology Service Endpoints (port 8165)
+ * نقاط خدمة الهيدرولوجيا - watershed, drainage, and flow analysis
+ */
+export const HYDROLOGY_ENDPOINTS = {
+  DRAINAGE: `${API_PREFIX}/hydrology/drainage`,
+  DRAINAGE_BY_FIELD: `${API_PREFIX}/hydrology/drainage/{fieldId}`,
+  WATERSHED: `${API_PREFIX}/hydrology/watershed`,
+  WATERSHED_DELINEATE: `${API_PREFIX}/hydrology/watershed/delineate`,
+  FLOW: `${API_PREFIX}/hydrology/flow`,
+  FLOW_ACCUMULATION: `${API_PREFIX}/hydrology/flow/accumulation`,
+  STREAM_NETWORK: `${API_PREFIX}/hydrology/streams`,
+  RAINFALL_RUNOFF: `${API_PREFIX}/hydrology/rainfall-runoff`,
+  INFILTRATION: `${API_PREFIX}/hydrology/infiltration`,
+} as const;
+
+/**
+ * Vegetation Analysis Service Endpoints (port 8090)
+ * نقاط تحليل الغطاء النباتي - specialized vegetation indices beyond SATELLITE_ENDPOINTS
+ */
+export const VEGETATION_ENDPOINTS = {
+  ANALYZE: `${API_PREFIX}/vegetation/analyze`,
+  NDVI: `${API_PREFIX}/vegetation/ndvi/{fieldId}`,
+  EVI: `${API_PREFIX}/vegetation/evi/{fieldId}`,
+  SAVI: `${API_PREFIX}/vegetation/savi/{fieldId}`,
+  NDWI: `${API_PREFIX}/vegetation/ndwi/{fieldId}`,
+  LAI: `${API_PREFIX}/vegetation/lai/{fieldId}`,
+  CHLOROPHYLL: `${API_PREFIX}/vegetation/chlorophyll/{fieldId}`,
+  TIMESERIES: `${API_PREFIX}/vegetation/timeseries/{fieldId}`,
+  STRESS_MAP: `${API_PREFIX}/vegetation/stress/{fieldId}`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -508,14 +549,39 @@ export const SOIL_ENDPOINTS = {
   TESTS: `${API_PREFIX}/soil/tests`,
   TEST_GET: `${API_PREFIX}/soil/tests/{testId}`,
   TEST_CREATE: `${API_PREFIX}/soil/tests`,
+  TEST_UPDATE: `${API_PREFIX}/soil/tests/{testId}`,
+  TEST_DELETE: `${API_PREFIX}/soil/tests/{testId}`,
+  TESTS_BY_FIELD: `${API_PREFIX}/soil/fields/{fieldId}/tests`,
+  ANALYSIS: `${API_PREFIX}/soil/analysis`,
+  ANALYSIS_INTERPRET: `${API_PREFIX}/soil/analysis/interpret`,
+  SENSORS: `${API_PREFIX}/soil/sensors`,
+  SENSOR_READINGS: `${API_PREFIX}/soil/sensors/{sensorId}/readings`,
+  MOISTURE: `${API_PREFIX}/soil/moisture/{fieldId}`,
+  SALINITY: `${API_PREFIX}/soil/salinity/{fieldId}`,
+  PH: `${API_PREFIX}/soil/ph/{fieldId}`,
+  NUTRIENTS: `${API_PREFIX}/soil/nutrients/{fieldId}`,
   RECOMMENDATIONS: `${API_PREFIX}/soil/recommendations`,
+  RECOMMENDATIONS_BY_FIELD: `${API_PREFIX}/soil/recommendations/{fieldId}`,
 } as const;
 
 export const DRONE_ENDPOINTS = {
   FLIGHTS: `${API_PREFIX}/drone/flights`,
   FLIGHT_GET: `${API_PREFIX}/drone/flights/{flightId}`,
+  FLIGHT_CREATE: `${API_PREFIX}/drone/flights`,
+  FLIGHT_UPDATE: `${API_PREFIX}/drone/flights/{flightId}`,
+  FLIGHT_DELETE: `${API_PREFIX}/drone/flights/{flightId}`,
   FLIGHT_PLAN: `${API_PREFIX}/drone/flights/plan`,
+  FLIGHT_START: `${API_PREFIX}/drone/flights/{flightId}/start`,
+  FLIGHT_PAUSE: `${API_PREFIX}/drone/flights/{flightId}/pause`,
+  FLIGHT_RESUME: `${API_PREFIX}/drone/flights/{flightId}/resume`,
+  FLIGHT_ABORT: `${API_PREFIX}/drone/flights/{flightId}/abort`,
+  FLIGHT_MISSIONS: `${API_PREFIX}/drone/flights/{flightId}/missions`,
+  FLIGHT_TELEMETRY: `${API_PREFIX}/drone/flights/{flightId}/telemetry`,
   DEVICES: `${API_PREFIX}/drone/devices`,
+  DEVICE_GET: `${API_PREFIX}/drone/devices/{deviceId}`,
+  DEVICE_REGISTER: `${API_PREFIX}/drone/devices`,
+  DEVICE_STATUS: `${API_PREFIX}/drone/devices/{deviceId}/status`,
+  VRA_APPLY: `${API_PREFIX}/drone/vra/apply`,
 } as const;
 
 export const INVENTORY_ENDPOINTS = {

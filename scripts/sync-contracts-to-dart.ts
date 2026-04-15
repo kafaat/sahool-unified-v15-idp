@@ -187,8 +187,18 @@ bool isRetryable(String code) => getErrorMessage(code).retryable;
   // Auto-discover all *_ENDPOINTS exports from the TypeScript module so the
   // generator stays in sync as new endpoint groups are added (no manual list
   // to keep aligned). HEALTH_ENDPOINTS first for stability.
-  const allKeys = Object.keys(endpointsModule).filter((k) =>
-    /^[A-Z][A-Z0-9_]*_ENDPOINTS$/.test(k),
+  //
+  // Filter out non-object exports (e.g. PUBLIC_ENDPOINTS which is a string[]
+  // of path literals, not a Record<name, path>) — those would produce invalid
+  // Dart class members with numeric names.
+  const isEndpointRecord = (v: unknown): boolean =>
+    typeof v === "object" &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.keys(v as object).every((k) => /^[A-Z_][A-Z0-9_]*$/.test(k));
+
+  const allKeys = Object.keys(endpointsModule).filter(
+    (k) => /^[A-Z][A-Z0-9_]*_ENDPOINTS$/.test(k) && isEndpointRecord(endpointsModule[k]),
   );
   const orderedKeys = [
     "HEALTH_ENDPOINTS",
@@ -201,10 +211,13 @@ bool isRetryable(String code) => getErrorMessage(code).retryable;
 
   const ENDPOINT_GROUPS = orderedKeys.map((tsName) => {
     // CROP_HEALTH_ENDPOINTS → CropHealthEndpoints
-    const dartClass = tsName
-      .replace(/_ENDPOINTS$/, "Endpoints")
-      .toLowerCase()
-      .replace(/(?:^|_)([a-z0-9])/g, (_, c: string) => c.toUpperCase());
+    // VIRTUAL_SENSOR_ENDPOINTS → VirtualSensorEndpoints
+    const dartClass =
+      tsName
+        .replace(/_ENDPOINTS$/, "")
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join("") + "Endpoints";
     const label = tsName.replace(/_ENDPOINTS$/, "").toLowerCase().replace(/_/g, " ");
     return { tsName, dartClass, label };
   });

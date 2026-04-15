@@ -10,7 +10,7 @@ const String apiVersion = 'v1';
 const String apiPrefix = '/api/$apiVersion';
 
 /// health
-abstract final class Healthendpoints {
+abstract final class HealthEndpoints {
   static const String liveness = '/healthz';
   static const String readiness = '/readyz';
   static const String health = '/health';
@@ -18,7 +18,7 @@ abstract final class Healthendpoints {
 }
 
 /// service health
-abstract final class ServiceHealthendpoints {
+abstract final class ServiceHealthEndpoints {
   static const String fieldManagement = '\$apiPrefix/fields/healthz';
   static const String weather = '\$apiPrefix/weather/healthz';
   static const String vegetation = '\$apiPrefix/vegetation/healthz';
@@ -34,7 +34,7 @@ abstract final class ServiceHealthendpoints {
   static const String marketplace = '\$apiPrefix/marketplace/healthz';
   static const String billing = '\$apiPrefix/billing/healthz';
   static const String chat = '\$apiPrefix/chat/healthz';
-  static const String yieldServiceHealthendpoints = '\$apiPrefix/yield/healthz';
+  static const String yieldServiceHealth = '\$apiPrefix/yield/healthz';
   static const String disasters = '\$apiPrefix/disasters/healthz';
   static const String providers = '\$apiPrefix/providers/healthz';
   static const String agroRules = '\$apiPrefix/agro-rules/healthz';
@@ -42,7 +42,7 @@ abstract final class ServiceHealthendpoints {
 }
 
 /// auth
-abstract final class Authendpoints {
+abstract final class AuthEndpoints {
   static const String login = '\$apiPrefix/auth/login';
   static const String logout = '\$apiPrefix/auth/logout';
   static const String refresh = '\$apiPrefix/auth/refresh';
@@ -57,7 +57,7 @@ abstract final class Authendpoints {
 }
 
 /// advisory
-abstract final class Advisoryendpoints {
+abstract final class AdvisoryEndpoints {
   static const String recommend = '\$apiPrefix/fertilizer/recommend';
   static const String soilInterpret = '\$apiPrefix/fertilizer/soil/interpret';
   static const String crops = '\$apiPrefix/fertilizer/crops';
@@ -85,14 +85,14 @@ abstract final class Advisoryendpoints {
 }
 
 /// agri calendar
-abstract final class AgriCalendarendpoints {
+abstract final class AgriCalendarEndpoints {
   static const String events = '\$apiPrefix/agri-calendar/events';
   static const String plantingTimes = '\$apiPrefix/agri-calendar/planting-times';
   static const String harvestTimes = '\$apiPrefix/agri-calendar/harvest-times';
 }
 
 /// agro rules
-abstract final class AgroRulesendpoints {
+abstract final class AgroRulesEndpoints {
   static String fieldRules(String fieldId) => '\$apiPrefix/agro-rules/fields/$fieldId/rules';
   static const String createRule = '\$apiPrefix/agro-rules/rules';
   static String triggerRule(String ruleId) => '\$apiPrefix/agro-rules/rules/$ruleId/trigger';
@@ -101,7 +101,7 @@ abstract final class AgroRulesendpoints {
 }
 
 /// ai
-abstract final class Aiendpoints {
+abstract final class AiEndpoints {
   static const String copilotChat = '\$apiPrefix/copilot/chat';
   static const String copilotChatDirect = '\$apiPrefix/chat';
   static const String copilotChatStreamDirect = '\$apiPrefix/chat/stream';
@@ -119,9 +119,9 @@ abstract final class Aiendpoints {
 }
 
 /// alert
-abstract final class Alertendpoints {
+abstract final class AlertEndpoints {
   static const String list = '\$apiPrefix/alerts';
-  static String getAlertendpoints(String alertId) => '\$apiPrefix/alerts/$alertId';
+  static String getAlert(String alertId) => '\$apiPrefix/alerts/$alertId';
   static const String create = '\$apiPrefix/alerts';
   static String delete(String alertId) => '\$apiPrefix/alerts/$alertId';
   static String acknowledge(String alertId) => '\$apiPrefix/alerts/$alertId/acknowledge';
@@ -131,7 +131,7 @@ abstract final class Alertendpoints {
 }
 
 /// astronomical
-abstract final class Astronomicalendpoints {
+abstract final class AstronomicalEndpoints {
   static const String calendar = '\$apiPrefix/astronomy/calendar';
   static const String prayerTimes = '\$apiPrefix/astronomy/prayer-times';
   static const String moonPhases = '\$apiPrefix/astronomy/moon-phases';
@@ -140,7 +140,7 @@ abstract final class Astronomicalendpoints {
 }
 
 /// audit
-abstract final class Auditendpoints {
+abstract final class AuditEndpoints {
   static const String logs = '\$apiPrefix/audit/logs';
   static String logGet(String logId) => '\$apiPrefix/audit/logs/$logId';
   static const String stats = '\$apiPrefix/audit/stats';
@@ -149,7 +149,7 @@ abstract final class Auditendpoints {
 }
 
 /// billing
-abstract final class Billingendpoints {
+abstract final class BillingEndpoints {
   static const String subscription = '\$apiPrefix/billing/subscription';
   static const String subscriptions = '\$apiPrefix/billing/subscriptions';
   static const String plans = '\$apiPrefix/billing/plans';
@@ -181,7 +181,7 @@ abstract final class Billingendpoints {
 }
 
 /// carbon
-abstract final class Carbonendpoints {
+abstract final class CarbonEndpoints {
   static const String compute = '\$apiPrefix/carbon/compute';
   static String computeOperation(String operationId) => '\$apiPrefix/carbon/operations/$operationId/compute';
   static String fieldSummary(String fieldId) => '\$apiPrefix/carbon/fields/$fieldId/summary';
@@ -189,7 +189,7 @@ abstract final class Carbonendpoints {
 }
 
 /// chat
-abstract final class Chatendpoints {
+abstract final class ChatEndpoints {
   static const String conversations = '\$apiPrefix/chat/conversations';
   static String conversationGet(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId';
   static String messages(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId/messages';
@@ -212,7 +212,7 @@ abstract final class Chatendpoints {
 }
 
 /// community
-abstract final class Communityendpoints {
+abstract final class CommunityEndpoints {
   static const String posts = '\$apiPrefix/community/posts';
   static String postGet(String postId) => '\$apiPrefix/community/posts/$postId';
   static const String postCreate = '\$apiPrefix/community/posts';
@@ -238,7 +238,7 @@ abstract final class Communityendpoints {
 }
 
 /// compliance
-abstract final class Complianceendpoints {
+abstract final class ComplianceEndpoints {
   static const String checklists = '\$apiPrefix/compliance/checklists';
   static String checklistGet(String checklistId) => '\$apiPrefix/compliance/checklists/$checklistId';
   static const String audits = '\$apiPrefix/compliance/audits';
@@ -247,7 +247,7 @@ abstract final class Complianceendpoints {
 }
 
 /// cooperative
-abstract final class Cooperativeendpoints {
+abstract final class CooperativeEndpoints {
   static const String bookings = '\$apiPrefix/cooperatives/bookings';
   static const String purchaseOrders = '\$apiPrefix/cooperatives/purchase-orders';
   static const String revenue = '\$apiPrefix/cooperatives/revenue';
@@ -255,9 +255,9 @@ abstract final class Cooperativeendpoints {
 }
 
 /// crop
-abstract final class Cropendpoints {
+abstract final class CropEndpoints {
   static const String list = '\$apiPrefix/crops';
-  static String getCropendpoints(String cropId) => '\$apiPrefix/crops/$cropId';
+  static String getCrop(String cropId) => '\$apiPrefix/crops/$cropId';
   static const String create = '\$apiPrefix/crops';
   static String update(String cropId) => '\$apiPrefix/crops/$cropId';
   static String delete(String cropId) => '\$apiPrefix/crops/$cropId';
@@ -265,7 +265,7 @@ abstract final class Cropendpoints {
 }
 
 /// crop health
-abstract final class CropHealthendpoints {
+abstract final class CropHealthEndpoints {
   static const String analyze = '\$apiPrefix/crop-health/analyze';
   static const String diagnose = '\$apiPrefix/crop-health/diagnose';
   static const String diagnoseBatch = '\$apiPrefix/crop-health/diagnose/batch';
@@ -284,14 +284,14 @@ abstract final class CropHealthendpoints {
 }
 
 /// crop planning
-abstract final class CropPlanningendpoints {
+abstract final class CropPlanningEndpoints {
   static const String plans = '\$apiPrefix/crop-planning/plans';
   static String planById(String planId) => '\$apiPrefix/crop-planning/plans/$planId';
   static const String recommendations = '\$apiPrefix/crop-planning/recommendations';
 }
 
 /// crop rotation
-abstract final class CropRotationendpoints {
+abstract final class CropRotationEndpoints {
   static const String plans = '\$apiPrefix/crop-rotation/plans';
   static const String recommend = '\$apiPrefix/crop-rotation/recommend';
   static const String multiYearPlan = '\$apiPrefix/crop-rotation/multi-year-plan';
@@ -302,9 +302,9 @@ abstract final class CropRotationendpoints {
 }
 
 /// crop season
-abstract final class CropSeasonendpoints {
+abstract final class CropSeasonEndpoints {
   static const String list = '\$apiPrefix/crop-seasons';
-  static String getCropSeasonendpoints(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId';
+  static String getCropSeason(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId';
   static String update(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId';
   static String end(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId/end';
   static String delete(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId';
@@ -314,7 +314,7 @@ abstract final class CropSeasonendpoints {
 }
 
 /// dashboard
-abstract final class Dashboardendpoints {
+abstract final class DashboardEndpoints {
   static const String summary = '\$apiPrefix/dashboard/summary';
   static const String stats = '\$apiPrefix/dashboard/stats';
   static const String recentActivity = '\$apiPrefix/dashboard/recent-activity';
@@ -323,7 +323,7 @@ abstract final class Dashboardendpoints {
 }
 
 /// disaster
-abstract final class Disasterendpoints {
+abstract final class DisasterEndpoints {
   static const String assess = '\$apiPrefix/disasters/assess';
   static const String alerts = '\$apiPrefix/disasters/alerts';
   static const String assessSingular = '\$apiPrefix/disaster/assess';
@@ -335,16 +335,16 @@ abstract final class Disasterendpoints {
 }
 
 /// document
-abstract final class Documentendpoints {
+abstract final class DocumentEndpoints {
   static const String list = '\$apiPrefix/documents';
-  static String getDocumentendpoints(String documentId) => '\$apiPrefix/documents/$documentId';
+  static String getDocument(String documentId) => '\$apiPrefix/documents/$documentId';
   static const String upload = '\$apiPrefix/documents/upload';
   static String delete(String documentId) => '\$apiPrefix/documents/$documentId';
   static const String categories = '\$apiPrefix/documents/categories';
 }
 
 /// drone
-abstract final class Droneendpoints {
+abstract final class DroneEndpoints {
   static const String flights = '\$apiPrefix/drone/flights';
   static String flightGet(String flightId) => '\$apiPrefix/drone/flights/$flightId';
   static const String flightCreate = '\$apiPrefix/drone/flights';
@@ -365,7 +365,7 @@ abstract final class Droneendpoints {
 }
 
 /// edge
-abstract final class Edgeendpoints {
+abstract final class EdgeEndpoints {
   static const String devices = '\$apiPrefix/edge/devices';
   static String deviceGet(String deviceId) => '\$apiPrefix/edge/devices/$deviceId';
   static const String deviceCreate = '\$apiPrefix/edge/devices';
@@ -374,22 +374,22 @@ abstract final class Edgeendpoints {
   static String deviceStatus(String deviceId) => '\$apiPrefix/edge/devices/$deviceId/status';
   static const String deployModel = '\$apiPrefix/edge/deploy';
   static String deployStatus(String deploymentId) => '\$apiPrefix/edge/deploy/$deploymentId/status';
-  static const String syncEdgeendpoints = '\$apiPrefix/edge/sync';
+  static const String syncEdge = '\$apiPrefix/edge/sync';
   static String syncStatus(String syncId) => '\$apiPrefix/edge/sync/$syncId/status';
   static String metrics(String deviceId) => '\$apiPrefix/edge/devices/$deviceId/metrics';
 }
 
 /// epidemic
-abstract final class Epidemicendpoints {
+abstract final class EpidemicEndpoints {
   static const String list = '\$apiPrefix/epidemics';
-  static String getEpidemicendpoints(String epidemicId) => '\$apiPrefix/epidemics/$epidemicId';
+  static String getEpidemic(String epidemicId) => '\$apiPrefix/epidemics/$epidemicId';
   static const String report = '\$apiPrefix/epidemics/report';
 }
 
 /// equipment
-abstract final class Equipmentendpoints {
+abstract final class EquipmentEndpoints {
   static const String list = '\$apiPrefix/equipment';
-  static String getEquipmentendpoints(String equipmentId) => '\$apiPrefix/equipment/$equipmentId';
+  static String getEquipment(String equipmentId) => '\$apiPrefix/equipment/$equipmentId';
   static const String create = '\$apiPrefix/equipment';
   static String update(String equipmentId) => '\$apiPrefix/equipment/$equipmentId';
   static String delete(String equipmentId) => '\$apiPrefix/equipment/$equipmentId';
@@ -414,22 +414,22 @@ abstract final class Equipmentendpoints {
 }
 
 /// erp sync
-abstract final class ErpSyncendpoints {
+abstract final class ErpSyncEndpoints {
   static String postFieldOperation(String operationId) => '\$apiPrefix/erp-sync/field-operations/$operationId/post';
   static const String health = '\$apiPrefix/erp-sync/health';
 }
 
 /// export
-abstract final class Exportendpoints {
+abstract final class ExportEndpoints {
   static const String create = '\$apiPrefix/exports';
   static String status(String exportId) => '\$apiPrefix/exports/$exportId/status';
   static String contents(String exportId) => '\$apiPrefix/exports/$exportId/contents';
 }
 
 /// farm
-abstract final class Farmendpoints {
+abstract final class FarmEndpoints {
   static const String list = '\$apiPrefix/farms';
-  static String getFarmendpoints(String farmId) => '\$apiPrefix/farms/$farmId';
+  static String getFarm(String farmId) => '\$apiPrefix/farms/$farmId';
   static const String create = '\$apiPrefix/farms';
   static String update(String farmId) => '\$apiPrefix/farms/$farmId';
   static String delete(String farmId) => '\$apiPrefix/farms/$farmId';
@@ -439,14 +439,14 @@ abstract final class Farmendpoints {
 }
 
 /// field
-abstract final class Fieldendpoints {
+abstract final class FieldEndpoints {
   static const String list = '\$apiPrefix/fields';
-  static String getFieldendpoints(String fieldId) => '\$apiPrefix/fields/$fieldId';
+  static String getField(String fieldId) => '\$apiPrefix/fields/$fieldId';
   static const String create = '\$apiPrefix/fields';
   static String update(String fieldId) => '\$apiPrefix/fields/$fieldId';
   static String delete(String fieldId) => '\$apiPrefix/fields/$fieldId';
   static const String nearby = '\$apiPrefix/fields/nearby';
-  static const String syncFieldendpoints = '\$apiPrefix/fields/sync';
+  static const String syncField = '\$apiPrefix/fields/sync';
   static const String syncBatch = '\$apiPrefix/fields/sync/batch';
   static String boundary(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary';
   static String boundaryUpdate(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary';
@@ -456,9 +456,9 @@ abstract final class Fieldendpoints {
 }
 
 /// field operation
-abstract final class FieldOperationendpoints {
+abstract final class FieldOperationEndpoints {
   static const String list = '\$apiPrefix/field-operations';
-  static String getFieldOperationendpoints(String operationId) => '\$apiPrefix/field-operations/$operationId';
+  static String getFieldOperation(String operationId) => '\$apiPrefix/field-operations/$operationId';
   static String update(String operationId) => '\$apiPrefix/field-operations/$operationId';
   static String delete(String operationId) => '\$apiPrefix/field-operations/$operationId';
   static String listByField(String fieldId) => '\$apiPrefix/fields/$fieldId/operations';
@@ -468,30 +468,30 @@ abstract final class FieldOperationendpoints {
 }
 
 /// field report
-abstract final class FieldReportendpoints {
+abstract final class FieldReportEndpoints {
   static String create(String fieldId) => '\$apiPrefix/fields/$fieldId/reports';
   static String listByField(String fieldId) => '\$apiPrefix/fields/$fieldId/reports';
-  static String getFieldReportendpoints(String reportId) => '\$apiPrefix/field-reports/$reportId';
+  static String getFieldReport(String reportId) => '\$apiPrefix/field-reports/$reportId';
   static String getContent(String reportId) => '\$apiPrefix/field-reports/$reportId/content';
 }
 
 /// field sub zone
-abstract final class FieldSubZoneendpoints {
+abstract final class FieldSubZoneEndpoints {
   static String listByField(String fieldId) => '\$apiPrefix/fields/$fieldId/sub-zones';
   static String create(String fieldId) => '\$apiPrefix/fields/$fieldId/sub-zones';
-  static String getFieldSubZoneendpoints(String subZoneId) => '\$apiPrefix/field-sub-zones/$subZoneId';
+  static String getFieldSubZone(String subZoneId) => '\$apiPrefix/field-sub-zones/$subZoneId';
   static String update(String subZoneId) => '\$apiPrefix/field-sub-zones/$subZoneId';
   static String delete(String subZoneId) => '\$apiPrefix/field-sub-zones/$subZoneId';
 }
 
 /// gamification
-abstract final class Gamificationendpoints {
+abstract final class GamificationEndpoints {
   static String profile(String userId) => '\$apiPrefix/gamification/profile/$userId';
   static const String leaderboard = '\$apiPrefix/gamification/leaderboard';
 }
 
 /// gdd
-abstract final class Gddendpoints {
+abstract final class GddEndpoints {
   static String accumulation(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/accumulation';
   static String records(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/records';
   static String calculate(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/calculate';
@@ -506,7 +506,7 @@ abstract final class Gddendpoints {
 }
 
 /// hydrology
-abstract final class Hydrologyendpoints {
+abstract final class HydrologyEndpoints {
   static const String drainage = '\$apiPrefix/hydrology/drainage';
   static String drainageByField(String fieldId) => '\$apiPrefix/hydrology/drainage/$fieldId';
   static const String watershed = '\$apiPrefix/hydrology/watershed';
@@ -519,7 +519,7 @@ abstract final class Hydrologyendpoints {
 }
 
 /// indicator
-abstract final class Indicatorendpoints {
+abstract final class IndicatorEndpoints {
   static const String dashboard = '\$apiPrefix/indicators/dashboard';
   static String dashboardTenant(String tenantId) => '\$apiPrefix/indicators/dashboard/$tenantId';
   static const String summary = '\$apiPrefix/indicators/summary';
@@ -530,7 +530,7 @@ abstract final class Indicatorendpoints {
 }
 
 /// intelligence
-abstract final class Intelligenceendpoints {
+abstract final class IntelligenceEndpoints {
   static String fieldScore(String fieldId) => '\$apiPrefix/fields/$fieldId/intelligence/score';
   static String fieldZones(String fieldId) => '\$apiPrefix/fields/$fieldId/intelligence/zones';
   static String fieldAlerts(String fieldId) => '\$apiPrefix/fields/$fieldId/intelligence/alerts';
@@ -542,9 +542,9 @@ abstract final class Intelligenceendpoints {
 }
 
 /// inventory
-abstract final class Inventoryendpoints {
+abstract final class InventoryEndpoints {
   static const String list = '\$apiPrefix/inventory';
-  static String getInventoryendpoints(String itemId) => '\$apiPrefix/inventory/$itemId';
+  static String getInventory(String itemId) => '\$apiPrefix/inventory/$itemId';
   static const String create = '\$apiPrefix/inventory';
   static String update(String itemId) => '\$apiPrefix/inventory/$itemId';
   static String delete(String itemId) => '\$apiPrefix/inventory/$itemId';
@@ -552,7 +552,7 @@ abstract final class Inventoryendpoints {
 }
 
 /// iot
-abstract final class Iotendpoints {
+abstract final class IotEndpoints {
   static const String devices = '\$apiPrefix/iot/devices';
   static String deviceGet(String deviceId) => '\$apiPrefix/iot/devices/$deviceId';
   static const String deviceCreate = '\$apiPrefix/iot/devices';
@@ -574,7 +574,7 @@ abstract final class Iotendpoints {
 }
 
 /// irrigation
-abstract final class Irrigationendpoints {
+abstract final class IrrigationEndpoints {
   static String recommendation(String fieldId) => '\$apiPrefix/irrigation/fields/$fieldId/recommendation';
   static const String calculate = '\$apiPrefix/irrigation/calculate';
   static const String et0 = '\$apiPrefix/irrigation/et0';
@@ -599,7 +599,7 @@ abstract final class Irrigationendpoints {
 }
 
 /// labor
-abstract final class Laborendpoints {
+abstract final class LaborEndpoints {
   static const String workers = '\$apiPrefix/labor/workers';
   static String workerById(String workerId) => '\$apiPrefix/labor/workers/$workerId';
   static const String schedule = '\$apiPrefix/labor/schedule';
@@ -607,13 +607,13 @@ abstract final class Laborendpoints {
 }
 
 /// lab
-abstract final class Labendpoints {
+abstract final class LabEndpoints {
   static const String samples = '\$apiPrefix/lab/samples';
   static String sampleByBarcode(String barcode) => '\$apiPrefix/lab/samples/barcode/$barcode';
 }
 
 /// leveling
-abstract final class Levelingendpoints {
+abstract final class LevelingEndpoints {
   static const String analyze = '\$apiPrefix/leveling/analyze';
   static String plan(String fieldId) => '\$apiPrefix/leveling/plan/$fieldId';
   static String cost(String fieldId) => '\$apiPrefix/leveling/cost/$fieldId';
@@ -622,12 +622,12 @@ abstract final class Levelingendpoints {
 }
 
 /// loan verification
-abstract final class LoanVerificationendpoints {
+abstract final class LoanVerificationEndpoints {
   static String verify(String fieldId) => '\$apiPrefix/loans/crop-loan-verification/$fieldId';
 }
 
 /// logistics
-abstract final class Logisticsendpoints {
+abstract final class LogisticsEndpoints {
   static const String shipments = '\$apiPrefix/logistics/shipments';
   static String shipmentGet(String shipmentId) => '\$apiPrefix/logistics/shipments/$shipmentId';
   static const String shipmentCreate = '\$apiPrefix/logistics/shipments';
@@ -637,7 +637,7 @@ abstract final class Logisticsendpoints {
 }
 
 /// marketplace
-abstract final class Marketplaceendpoints {
+abstract final class MarketplaceEndpoints {
   static const String listings = '\$apiPrefix/marketplace/listings';
   static const String listingCreate = '\$apiPrefix/marketplace/listings';
   static const String products = '\$apiPrefix/marketplace/products';
@@ -659,9 +659,9 @@ abstract final class Marketplaceendpoints {
 }
 
 /// notification
-abstract final class Notificationendpoints {
+abstract final class NotificationEndpoints {
   static const String list = '\$apiPrefix/notifications';
-  static String getNotificationendpoints(String notificationId) => '\$apiPrefix/notifications/$notificationId';
+  static String getNotification(String notificationId) => '\$apiPrefix/notifications/$notificationId';
   static String markRead(String notificationId) => '\$apiPrefix/notifications/$notificationId/read';
   static const String markAllRead = '\$apiPrefix/notifications/read-all';
   static const String preferences = '\$apiPrefix/notifications/preferences';
@@ -670,10 +670,10 @@ abstract final class Notificationendpoints {
 }
 
 /// partner admin client
-abstract final class PartnerAdminClientendpoints {
+abstract final class PartnerAdminClientEndpoints {
   static const String create = '\$apiPrefix/admin/partner-auth/clients';
   static const String list = '\$apiPrefix/admin/partner-auth/clients';
-  static String getPartnerAdminClientendpoints(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId';
+  static String getPartnerAdminClient(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId';
   static String update(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId';
   static String rotateSecret(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId/rotate-secret';
   static String rotateApiKey(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId/rotate-api-key';
@@ -683,20 +683,20 @@ abstract final class PartnerAdminClientendpoints {
 }
 
 /// partner admin consent
-abstract final class PartnerAdminConsentendpoints {
+abstract final class PartnerAdminConsentEndpoints {
   static const String list = '\$apiPrefix/admin/partner-auth/consents';
   static String revoke(String grantId) => '\$apiPrefix/admin/partner-auth/consents/$grantId';
 }
 
 /// partner admin signing key
-abstract final class PartnerAdminSigningKeyendpoints {
+abstract final class PartnerAdminSigningKeyEndpoints {
   static const String list = '\$apiPrefix/admin/partner-auth/signing-keys';
   static const String rotate = '\$apiPrefix/admin/partner-auth/signing-keys/rotate';
   static String delete(String kid) => '\$apiPrefix/admin/partner-auth/signing-keys/$kid';
 }
 
 /// partner admin token
-abstract final class PartnerAdminTokenendpoints {
+abstract final class PartnerAdminTokenEndpoints {
   static const String listAccess = '\$apiPrefix/admin/partner-auth/tokens/access';
   static const String listRefresh = '\$apiPrefix/admin/partner-auth/tokens/refresh';
   static String revokeAllForClient(String clientId) => '\$apiPrefix/admin/partner-auth/tokens/revoke-all/client/$clientId';
@@ -704,28 +704,28 @@ abstract final class PartnerAdminTokenendpoints {
 }
 
 /// partner boundary
-abstract final class PartnerBoundaryendpoints {
+abstract final class PartnerBoundaryEndpoints {
   static const String create = '/partner/v1/boundaries';
-  static String getPartnerBoundaryendpoints(String boundaryId) => '/partner/v1/boundaries/$boundaryId';
+  static String getPartnerBoundary(String boundaryId) => '/partner/v1/boundaries/$boundaryId';
   static const String batchQuery = '/partner/v1/boundaries/query';
 }
 
 /// partner export
-abstract final class PartnerExportendpoints {
+abstract final class PartnerExportEndpoints {
   static const String create = '/partner/v1/exports';
   static String status(String exportId) => '/partner/v1/exports/$exportId/status';
   static String contents(String exportId) => '/partner/v1/exports/$exportId/contents';
 }
 
 /// partner field
-abstract final class PartnerFieldendpoints {
+abstract final class PartnerFieldEndpoints {
   static const String list = '/partner/v1/fields';
   static const String listAll = '/partner/v1/fields/all';
-  static String getPartnerFieldendpoints(String fieldId) => '/partner/v1/fields/$fieldId';
+  static String getPartnerField(String fieldId) => '/partner/v1/fields/$fieldId';
 }
 
 /// partner layer
-abstract final class PartnerLayerendpoints {
+abstract final class PartnerLayerEndpoints {
   static const String asPlantedList = '/partner/v1/layers/asPlanted';
   static String asPlantedContents(String activityId) => '/partner/v1/layers/asPlanted/$activityId/contents';
   static const String asHarvestedList = '/partner/v1/layers/asHarvested';
@@ -739,7 +739,7 @@ abstract final class PartnerLayerendpoints {
 }
 
 /// partner oauth
-abstract final class PartnerOauthendpoints {
+abstract final class PartnerOauthEndpoints {
   static const String authorize = '/partner/v1/oauth/authorize';
   static const String token = '/partner/v1/oauth/token';
   static const String revoke = '/partner/v1/oauth/revoke';
@@ -750,14 +750,14 @@ abstract final class PartnerOauthendpoints {
 }
 
 /// partner org
-abstract final class PartnerOrgendpoints {
+abstract final class PartnerOrgEndpoints {
   static String resourceOwner(String resourceOwnerId) => '/partner/v1/resourceOwners/$resourceOwnerId';
   static String farmOrg(String farmOrganizationType, String farmOrganizationId) => '/partner/v1/farmOrganizations/$farmOrganizationType/$farmOrganizationId';
   static const String operations = '/partner/v1/operations/all';
 }
 
 /// partner upload
-abstract final class PartnerUploadendpoints {
+abstract final class PartnerUploadEndpoints {
   static const String create = '/partner/v1/uploads';
   static String chunk(String uploadId) => '/partner/v1/uploads/$uploadId';
   static String status(String uploadId) => '/partner/v1/uploads/$uploadId/status';
@@ -766,7 +766,7 @@ abstract final class PartnerUploadendpoints {
 }
 
 /// payment
-abstract final class Paymentendpoints {
+abstract final class PaymentEndpoints {
   static const String deposit = '\$apiPrefix/payment/deposit';
   static const String withdraw = '\$apiPrefix/payment/withdraw';
   static const String transfer = '\$apiPrefix/payment/transfer';
@@ -780,7 +780,7 @@ abstract final class Paymentendpoints {
 }
 
 /// pest
-abstract final class Pestendpoints {
+abstract final class PestEndpoints {
   static const String list = '\$apiPrefix/pests';
   static String byCrop(String cropType) => '\$apiPrefix/pests/crop/$cropType';
   static const String identify = '\$apiPrefix/pests/identify';
@@ -788,14 +788,14 @@ abstract final class Pestendpoints {
 }
 
 /// precision
-abstract final class Precisionendpoints {
+abstract final class PrecisionEndpoints {
   static String vra(String fieldId) => '\$apiPrefix/precision-agriculture/vra/$fieldId';
   static String gdd(String fieldId) => '\$apiPrefix/precision-agriculture/gdd/$fieldId';
   static const String fertilizerCalculate = '\$apiPrefix/precision-agriculture/fertilizer/calculate';
 }
 
 /// provider
-abstract final class Providerendpoints {
+abstract final class ProviderEndpoints {
   static const String list = '\$apiPrefix/providers';
   static String config(String providerId) => '\$apiPrefix/providers/$providerId/config';
   static String configUpdate(String providerId) => '\$apiPrefix/providers/$providerId/config';
@@ -803,21 +803,8 @@ abstract final class Providerendpoints {
   static String providerConfigItem(String providerId) => '\$apiPrefix/provider-config/$providerId';
 }
 
-/// public
-abstract final class Publicendpoints {
-  static const String 0 = '\$apiPrefix/auth/login';
-  static const String 1 = '\$apiPrefix/auth/register';
-  static const String 2 = '\$apiPrefix/auth/forgot-password';
-  static const String 3 = '\$apiPrefix/auth/reset-password';
-  static const String 4 = '\$apiPrefix/auth/verify-otp';
-  static const String 5 = '\$apiPrefix/auth/send-otp';
-  static const String 6 = '/healthz';
-  static const String 7 = '/readyz';
-  static const String 8 = '/health';
-}
-
 /// research
-abstract final class Researchendpoints {
+abstract final class ResearchEndpoints {
   static const String trials = '\$apiPrefix/research/trials';
   static String trialGet(String trialId) => '\$apiPrefix/research/trials/$trialId';
   static const String trialCreate = '\$apiPrefix/research/trials';
@@ -827,7 +814,7 @@ abstract final class Researchendpoints {
 }
 
 /// satellite
-abstract final class Satelliteendpoints {
+abstract final class SatelliteEndpoints {
   static const String analyze = '\$apiPrefix/satellite/v1/analyze';
   static String analyzeField(String fieldId) => '\$apiPrefix/satellite/analyze/$fieldId';
   static String timeseries(String fieldId) => '\$apiPrefix/satellite/v1/timeseries/$fieldId';
@@ -841,7 +828,7 @@ abstract final class Satelliteendpoints {
 }
 
 /// satellite monitor
-abstract final class SatelliteMonitorendpoints {
+abstract final class SatelliteMonitorEndpoints {
   static const String fields = '\$apiPrefix/satellite-monitor/fields';
   static String fieldGet(String fieldId) => '\$apiPrefix/satellite-monitor/fields/$fieldId';
   static const String stats = '\$apiPrefix/satellite-monitor/stats';
@@ -849,9 +836,9 @@ abstract final class SatelliteMonitorendpoints {
 }
 
 /// scouting
-abstract final class Scoutingendpoints {
+abstract final class ScoutingEndpoints {
   static const String list = '\$apiPrefix/scouting/reports';
-  static String getScoutingendpoints(String reportId) => '\$apiPrefix/scouting/reports/$reportId';
+  static String getScouting(String reportId) => '\$apiPrefix/scouting/reports/$reportId';
   static const String create = '\$apiPrefix/scouting/reports';
   static String update(String reportId) => '\$apiPrefix/scouting/reports/$reportId';
   static String delete(String reportId) => '\$apiPrefix/scouting/reports/$reportId';
@@ -860,9 +847,9 @@ abstract final class Scoutingendpoints {
 }
 
 /// season
-abstract final class Seasonendpoints {
+abstract final class SeasonEndpoints {
   static const String list = '\$apiPrefix/seasons';
-  static String getSeasonendpoints(String seasonId) => '\$apiPrefix/seasons/$seasonId';
+  static String getSeason(String seasonId) => '\$apiPrefix/seasons/$seasonId';
   static const String create = '\$apiPrefix/seasons';
   static String update(String seasonId) => '\$apiPrefix/seasons/$seasonId';
   static String delete(String seasonId) => '\$apiPrefix/seasons/$seasonId';
@@ -870,14 +857,14 @@ abstract final class Seasonendpoints {
 }
 
 /// seed
-abstract final class Seedendpoints {
+abstract final class SeedEndpoints {
   static const String list = '\$apiPrefix/seeds';
-  static String getSeedendpoints(String seedId) => '\$apiPrefix/seeds/$seedId';
+  static String getSeed(String seedId) => '\$apiPrefix/seeds/$seedId';
   static const String recommendations = '\$apiPrefix/seeds/recommendations';
 }
 
 /// soil
-abstract final class Soilendpoints {
+abstract final class SoilEndpoints {
   static const String tests = '\$apiPrefix/soil/tests';
   static String testGet(String testId) => '\$apiPrefix/soil/tests/$testId';
   static const String testCreate = '\$apiPrefix/soil/tests';
@@ -904,15 +891,15 @@ abstract final class Soilendpoints {
 }
 
 /// support
-abstract final class Supportendpoints {
+abstract final class SupportEndpoints {
   static const String tickets = '\$apiPrefix/support/tickets';
   static String ticketById(String ticketId) => '\$apiPrefix/support/tickets/$ticketId';
 }
 
 /// task
-abstract final class Taskendpoints {
+abstract final class TaskEndpoints {
   static const String list = '\$apiPrefix/tasks';
-  static String getTaskendpoints(String taskId) => '\$apiPrefix/tasks/$taskId';
+  static String getTask(String taskId) => '\$apiPrefix/tasks/$taskId';
   static const String create = '\$apiPrefix/tasks';
   static String update(String taskId) => '\$apiPrefix/tasks/$taskId';
   static String delete(String taskId) => '\$apiPrefix/tasks/$taskId';
@@ -922,7 +909,7 @@ abstract final class Taskendpoints {
 }
 
 /// team
-abstract final class Teamendpoints {
+abstract final class TeamEndpoints {
   static const String members = '\$apiPrefix/team/members';
   static String memberGet(String memberId) => '\$apiPrefix/team/members/$memberId';
   static const String memberInvite = '\$apiPrefix/team/members/invite';
@@ -932,7 +919,7 @@ abstract final class Teamendpoints {
 }
 
 /// terrain
-abstract final class Terrainendpoints {
+abstract final class TerrainEndpoints {
   static const String dem = '\$apiPrefix/terrain/dem';
   static const String slope = '\$apiPrefix/terrain/slope';
   static String aspect(String fieldId) => '\$apiPrefix/terrain/aspect/$fieldId';
@@ -954,7 +941,7 @@ abstract final class Terrainendpoints {
 }
 
 /// traceability
-abstract final class Traceabilityendpoints {
+abstract final class TraceabilityEndpoints {
   static const String batches = '\$apiPrefix/traceability/batches';
   static String batchGet(String batchId) => '\$apiPrefix/traceability/batches/$batchId';
   static const String events = '\$apiPrefix/traceability/events';
@@ -966,7 +953,7 @@ abstract final class Traceabilityendpoints {
 }
 
 /// upload
-abstract final class Uploadendpoints {
+abstract final class UploadEndpoints {
   static const String create = '\$apiPrefix/uploads';
   static String chunk(String uploadId) => '\$apiPrefix/uploads/$uploadId';
   static String status(String uploadId) => '\$apiPrefix/uploads/$uploadId/status';
@@ -975,9 +962,9 @@ abstract final class Uploadendpoints {
 }
 
 /// user
-abstract final class Userendpoints {
+abstract final class UserEndpoints {
   static const String list = '\$apiPrefix/users';
-  static String getUserendpoints(String userId) => '\$apiPrefix/users/$userId';
+  static String getUser(String userId) => '\$apiPrefix/users/$userId';
   static const String create = '\$apiPrefix/users';
   static String update(String userId) => '\$apiPrefix/users/$userId';
   static String delete(String userId) => '\$apiPrefix/users/$userId';
@@ -985,7 +972,7 @@ abstract final class Userendpoints {
 }
 
 /// vegetation
-abstract final class Vegetationendpoints {
+abstract final class VegetationEndpoints {
   static const String analyze = '\$apiPrefix/vegetation/analyze';
   static String ndvi(String fieldId) => '\$apiPrefix/vegetation/ndvi/$fieldId';
   static String evi(String fieldId) => '\$apiPrefix/vegetation/evi/$fieldId';
@@ -998,7 +985,7 @@ abstract final class Vegetationendpoints {
 }
 
 /// virtual sensor
-abstract final class VirtualSensorendpoints {
+abstract final class VirtualSensorEndpoints {
   static const String et0Calculate = '\$apiPrefix/virtual-sensors/et0/calculate';
   static const String etcCalculate = '\$apiPrefix/virtual-sensors/etc/calculate';
   static const String crops = '\$apiPrefix/virtual-sensors/crops';
@@ -1011,7 +998,7 @@ abstract final class VirtualSensorendpoints {
 }
 
 /// vision
-abstract final class Visionendpoints {
+abstract final class VisionEndpoints {
   static const String detectPest = '\$apiPrefix/vision/detect/pest';
   static const String detectDisease = '\$apiPrefix/vision/detect/disease';
   static const String detectWeed = '\$apiPrefix/vision/detect/weed';
@@ -1030,7 +1017,7 @@ abstract final class Visionendpoints {
 }
 
 /// vra
-abstract final class Vraendpoints {
+abstract final class VraEndpoints {
   static const String maps = '\$apiPrefix/vra/maps';
   static String mapGet(String mapId) => '\$apiPrefix/vra/maps/$mapId';
   static const String mapCreate = '\$apiPrefix/vra/maps';
@@ -1040,7 +1027,7 @@ abstract final class Vraendpoints {
 }
 
 /// weather
-abstract final class Weatherendpoints {
+abstract final class WeatherEndpoints {
   static const String current = '\$apiPrefix/weather/current';
   static String currentByLocation(String locationId) => '\$apiPrefix/weather/current/$locationId';
   static const String forecast = '\$apiPrefix/weather/forecast';
@@ -1067,7 +1054,7 @@ abstract final class Weatherendpoints {
 }
 
 /// yield
-abstract final class Yieldendpoints {
+abstract final class YieldEndpoints {
   static String predict(String fieldId) => '\$apiPrefix/yield/fields/$fieldId/predict';
   static String history(String fieldId) => '\$apiPrefix/yield/fields/$fieldId/history';
   static const String predictPost = '\$apiPrefix/yield/predict';

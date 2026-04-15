@@ -8,6 +8,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { RefreshCw, CheckCircle, AlertTriangle, XCircle, Activity } from "lucide-react";
+import { SERVICE_HEALTH_ENDPOINTS } from "@sahool/shared-types/contracts";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -38,49 +39,49 @@ const MONITORED_SERVICES = [
     key: "field-management",
     name: "Field Management",
     nameAr: "إدارة الحقول",
-    endpoint: "/api/v1/fields/healthz",
+    endpoint: SERVICE_HEALTH_ENDPOINTS.FIELD_MANAGEMENT,
   },
   {
     key: "weather",
     name: "Weather Service",
     nameAr: "خدمة الطقس",
-    endpoint: "/api/v1/weather/healthz",
+    endpoint: SERVICE_HEALTH_ENDPOINTS.WEATHER,
   },
   {
     key: "vegetation",
     name: "Vegetation Analysis",
     nameAr: "تحليل الغطاء النباتي",
-    endpoint: "/api/v1/vegetation/healthz",
+    endpoint: SERVICE_HEALTH_ENDPOINTS.VEGETATION,
   },
   {
     key: "irrigation",
     name: "Smart Irrigation",
     nameAr: "الري الذكي",
-    endpoint: "/api/v1/irrigation/healthz",
+    endpoint: SERVICE_HEALTH_ENDPOINTS.IRRIGATION,
   },
   {
     key: "advisory",
     name: "Advisory Service",
     nameAr: "خدمة الاستشارات",
-    endpoint: "/api/v1/advisory/healthz",
+    endpoint: SERVICE_HEALTH_ENDPOINTS.ADVISORY,
   },
   {
     key: "tasks",
     name: "Task Service",
     nameAr: "إدارة المهام",
-    endpoint: "/api/v1/tasks/healthz",
+    endpoint: SERVICE_HEALTH_ENDPOINTS.TASKS,
   },
   {
     key: "notifications",
     name: "Notifications",
     nameAr: "الإشعارات",
-    endpoint: "/api/v1/notifications/healthz",
+    endpoint: SERVICE_HEALTH_ENDPOINTS.NOTIFICATIONS,
   },
   {
     key: "alerts",
     name: "Alert Service",
     nameAr: "خدمة التنبيهات",
-    endpoint: "/api/v1/alerts/healthz",
+    endpoint: SERVICE_HEALTH_ENDPOINTS.ALERTS,
   },
 ];
 

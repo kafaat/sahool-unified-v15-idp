@@ -11,6 +11,7 @@
  */
 
 import Cookies from "js-cookie";
+import { AUTH_ENDPOINTS } from "@sahool/shared-types/contracts";
 import { logger } from "../logger";
 
 // ---------------------------------------------------------------------------
@@ -155,18 +156,18 @@ class AuthApiClient {
       return { success: false as const, error: "Invalid email format" };
     }
 
-    return this.request<LoginResponse>("/api/v1/auth/login", {
+    return this.request<LoginResponse>(AUTH_ENDPOINTS.LOGIN, {
       method: "POST",
       body: JSON.stringify({ email: trimmedEmail, password }),
     });
   }
 
   async getCurrentUser() {
-    return this.request<AuthUser>("/api/v1/auth/me");
+    return this.request<AuthUser>(AUTH_ENDPOINTS.ME);
   }
 
   async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>("/api/v1/auth/refresh", {
+    return this.request<{ access_token: string }>(AUTH_ENDPOINTS.REFRESH, {
       method: "POST",
       body: JSON.stringify({ refresh_token: refreshToken }),
     });

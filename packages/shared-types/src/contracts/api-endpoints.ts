@@ -32,6 +32,34 @@ export const HEALTH_ENDPOINTS = {
   METRICS: "/metrics",
 } as const;
 
+/**
+ * Service health-check endpoints routed through Kong Gateway.
+ * Pattern: `${API_PREFIX}/{service-slug}/healthz`
+ * Used by the web Service Health Dashboard and platform monitoring.
+ */
+export const SERVICE_HEALTH_ENDPOINTS = {
+  FIELD_MANAGEMENT: `${API_PREFIX}/fields/healthz`,
+  WEATHER: `${API_PREFIX}/weather/healthz`,
+  VEGETATION: `${API_PREFIX}/vegetation/healthz`,
+  IRRIGATION: `${API_PREFIX}/irrigation/healthz`,
+  ADVISORY: `${API_PREFIX}/advisory/healthz`,
+  TASKS: `${API_PREFIX}/tasks/healthz`,
+  NOTIFICATIONS: `${API_PREFIX}/notifications/healthz`,
+  ALERTS: `${API_PREFIX}/alerts/healthz`,
+  CROP_HEALTH: `${API_PREFIX}/crop-health/healthz`,
+  SATELLITE: `${API_PREFIX}/satellite/healthz`,
+  EQUIPMENT: `${API_PREFIX}/equipment/healthz`,
+  IOT: `${API_PREFIX}/iot/healthz`,
+  MARKETPLACE: `${API_PREFIX}/marketplace/healthz`,
+  BILLING: `${API_PREFIX}/billing/healthz`,
+  CHAT: `${API_PREFIX}/chat/healthz`,
+  YIELD: `${API_PREFIX}/yield/healthz`,
+  DISASTERS: `${API_PREFIX}/disasters/healthz`,
+  PROVIDERS: `${API_PREFIX}/providers/healthz`,
+  AGRO_RULES: `${API_PREFIX}/agro-rules/healthz`,
+  INTELLIGENCE: `${API_PREFIX}/intelligence/healthz`,
+} as const;
+
 // ---------------------------------------------------------------------------
 // Auth Endpoints - نقاط المصادقة
 // ---------------------------------------------------------------------------
@@ -63,10 +91,11 @@ export const FIELD_ENDPOINTS = {
   NEARBY: `${API_PREFIX}/fields/nearby`,
   SYNC: `${API_PREFIX}/fields/sync`,
   SYNC_BATCH: `${API_PREFIX}/fields/sync/batch`,
-  BOUNDARY: `${API_PREFIX}/field-core/fields/{fieldId}/boundary`,
-  BOUNDARY_UPDATE: `${API_PREFIX}/field-core/fields/{fieldId}/boundary`,
-  BOUNDARY_HISTORY: `${API_PREFIX}/field-core/fields/{fieldId}/boundary-history`,
-  BOUNDARY_ROLLBACK: `${API_PREFIX}/field-core/fields/{fieldId}/boundary-history/rollback`,
+  /** Current external path (via Kong) - field-management-service */
+  BOUNDARY: `${API_PREFIX}/fields/{fieldId}/boundary`,
+  BOUNDARY_UPDATE: `${API_PREFIX}/fields/{fieldId}/boundary`,
+  BOUNDARY_HISTORY: `${API_PREFIX}/fields/{fieldId}/boundary-history`,
+  BOUNDARY_ROLLBACK: `${API_PREFIX}/fields/{fieldId}/boundary-history/rollback`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -84,6 +113,18 @@ export const WEATHER_ENDPOINTS = {
   ALERTS_BY_FIELD: `${API_PREFIX}/weather/alerts/field/{fieldId}`,
   LOCATIONS: `${API_PREFIX}/weather/locations`,
   AGRICULTURAL_CALENDAR: `${API_PREFIX}/weather/agricultural-calendar`,
+  /**
+   * Kong-routed actual external paths.
+   * Kong routes /api/v1/weather/* → weather-service which has /weather/* endpoints.
+   * Use these until Kong strip_path is enabled for weather routes.
+   */
+  KONG_CURRENT: `${API_PREFIX}/weather/weather/current`,
+  KONG_FORECAST: `${API_PREFIX}/weather/weather/forecast`,
+  KONG_AGRICULTURAL_REPORT: `${API_PREFIX}/weather/weather/agricultural-report`,
+  /** Yemen/location-scoped endpoints (Kong-routed with v1 prefix) */
+  KONG_CURRENT_BY_LOCATION: `${API_PREFIX}/weather/v1/current/{locationId}`,
+  KONG_FORECAST_BY_LOCATION: `${API_PREFIX}/weather/v1/forecast/{locationId}`,
+  KONG_LOCATIONS: `${API_PREFIX}/weather/v1/locations`,
   /** @deprecated Use CURRENT instead */
   WEATHER_CORE_CURRENT: `${API_PREFIX}/weather-core/weather/current`,
   /** @deprecated Use FORECAST instead */
@@ -165,8 +206,15 @@ export const ADVISORY_ENDPOINTS = {
   RECOMMENDATIONS: `${API_PREFIX}/advisory/recommendations`,
   FERTILIZER_ADVISORY: `${API_PREFIX}/advisory/fertilizer`,
   FERTILIZER_CALCULATE: `${API_PREFIX}/advisory/fertilizer/calculate`,
+  /** Current external paths (via Kong) - advisory-service */
+  ADVICE: `${API_PREFIX}/advisory/advice`,
+  DISEASE: `${API_PREFIX}/advisory/disease`,
+  NUTRIENTS: `${API_PREFIX}/advisory/nutrients`,
+  /** @deprecated Use ADVICE instead (agro-advisor service was consolidated into advisory-service) */
   AGRO_ADVICE: `${API_PREFIX}/agro-advisor/advice`,
+  /** @deprecated Use DISEASE instead */
   AGRO_DISEASE: `${API_PREFIX}/agro-advisor/disease`,
+  /** @deprecated Use NUTRIENTS instead */
   AGRO_NUTRIENTS: `${API_PREFIX}/agro-advisor/nutrients`,
 } as const;
 
@@ -321,9 +369,14 @@ export const CHAT_ENDPOINTS = {
   MARK_READ: `${API_PREFIX}/chat/conversations/{conversationId}/read`,
   CREATE_CONVERSATION: `${API_PREFIX}/chat/conversations`,
   UNREAD_COUNT: `${API_PREFIX}/chat/conversations/unread-count`,
-  FIELD_MESSAGES: `${API_PREFIX}/field-chat/fields/{fieldId}/messages`,
-  FIELD_SEND: `${API_PREFIX}/field-chat/fields/{fieldId}/messages`,
-  FIELD_PARTICIPANTS: `${API_PREFIX}/field-chat/fields/{fieldId}/participants`,
+  /** Current external paths (via Kong) - chat-service (field-chat consolidated) */
+  FIELD_MESSAGES: `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  FIELD_SEND: `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  FIELD_PARTICIPANTS: `${API_PREFIX}/chat/fields/{fieldId}/participants`,
+  /** @deprecated Use FIELD_MESSAGES instead (field-chat service was deprecated) */
+  FIELD_CHAT_MESSAGES: `${API_PREFIX}/field-chat/fields/{fieldId}/messages`,
+  /** @deprecated Use FIELD_PARTICIPANTS instead */
+  FIELD_CHAT_PARTICIPANTS: `${API_PREFIX}/field-chat/fields/{fieldId}/participants`,
   COMMUNITY_POSTS: `${API_PREFIX}/posts`,
   COMMUNITY_POST_GET: `${API_PREFIX}/posts/{postId}`,
   COMMUNITY_COMMENTS: `${API_PREFIX}/posts/{postId}/comments`,

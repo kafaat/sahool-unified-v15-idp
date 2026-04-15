@@ -4,6 +4,28 @@
  */
 
 import Cookies from "js-cookie";
+import {
+  ADVISORY_ENDPOINTS,
+  AGRO_RULES_ENDPOINTS,
+  ALERT_ENDPOINTS,
+  AUTH_ENDPOINTS,
+  CHAT_ENDPOINTS,
+  CROP_HEALTH_ENDPOINTS,
+  DISASTER_ENDPOINTS,
+  EQUIPMENT_ENDPOINTS,
+  FIELD_ENDPOINTS,
+  INTELLIGENCE_ENDPOINTS,
+  IOT_ENDPOINTS,
+  IRRIGATION_ENDPOINTS,
+  MARKETPLACE_ENDPOINTS,
+  PROVIDER_ENDPOINTS,
+  SATELLITE_ENDPOINTS,
+  TASK_ENDPOINTS,
+  BILLING_ENDPOINTS,
+  WEATHER_ENDPOINTS,
+  YIELD_ENDPOINTS,
+  buildUrl,
+} from "@sahool/shared-types/contracts";
 import { sanitizers, validators, validationErrors } from "../validation";
 import { logger } from "../logger";
 import { getCsrfHeaders } from "../security/security";
@@ -240,8 +262,8 @@ class SahoolApiClient {
 
     // Check and refresh token if needed (skip for auth endpoints)
     if (
-      endpoint !== "/api/v1/auth/refresh" &&
-      endpoint !== "/api/v1/auth/login"
+      endpoint !== AUTH_ENDPOINTS.REFRESH &&
+      endpoint !== AUTH_ENDPOINTS.LOGIN
     ) {
       const tokenValid = await this.ensureValidToken();
       if (!tokenValid) {
@@ -330,8 +352,8 @@ class SahoolApiClient {
           // Handle 401 Unauthorized - try to refresh token
           if (
             response.status === 401 &&
-            endpoint !== "/api/v1/auth/refresh" &&
-            endpoint !== "/api/v1/auth/login"
+            endpoint !== AUTH_ENDPOINTS.REFRESH &&
+            endpoint !== AUTH_ENDPOINTS.LOGIN
           ) {
             logger.info("Received 401 response, attempting token refresh");
 
@@ -488,7 +510,7 @@ class SahoolApiClient {
       access_token: string;
       refresh_token?: string;
       user: User;
-    }>("/api/v1/auth/login", {
+    }>(AUTH_ENDPOINTS.LOGIN, {
       method: "POST",
       body: JSON.stringify({ email: sanitizedEmail, password }),
       skipRetry: true, // Don't retry auth requests
@@ -496,11 +518,11 @@ class SahoolApiClient {
   }
 
   async getCurrentUser() {
-    return this.request<User>("/api/v1/auth/me");
+    return this.request<User>(AUTH_ENDPOINTS.ME);
   }
 
   async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>("/api/v1/auth/refresh", {
+    return this.request<{ access_token: string }>(AUTH_ENDPOINTS.REFRESH, {
       method: "POST",
       body: JSON.stringify({ refresh_token: refreshToken }),
     });
@@ -514,7 +536,7 @@ class SahoolApiClient {
     tenantId: string,
     options?: { limit?: number; offset?: number },
   ) {
-    return this.request<Field[]>("/api/v1/fields", {
+    return this.request<Field[]>(FIELD_ENDPOINTS.LIST, {
       params: {
         tenantId,
         limit: String(options?.limit || 100),
@@ -524,11 +546,11 @@ class SahoolApiClient {
   }
 
   async getField(fieldId: string) {
-    return this.request<Field>(`/api/v1/fields/${fieldId}`);
+    return this.request<Field>(buildUrl(FIELD_ENDPOINTS.GET, { fieldId }));
   }
 
   async createField(data: FieldCreateRequest) {
-    return this.request<Field>("/api/v1/fields", {
+    return this.request<Field>(FIELD_ENDPOINTS.CREATE, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -539,7 +561,7 @@ class SahoolApiClient {
     if (etag) {
       headers["If-Match"] = etag;
     }
-    return this.request<Field>(`/api/v1/fields/${fieldId}`, {
+    return this.request<Field>(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId }), {
       method: "PUT",
       body: JSON.stringify(data),
       headers,
@@ -547,13 +569,13 @@ class SahoolApiClient {
   }
 
   async deleteField(fieldId: string) {
-    return this.request<void>(`/api/v1/fields/${fieldId}`, {
+    return this.request<void>(buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId }), {
       method: "DELETE",
     });
   }
 
   async getNearbyFields(lat: number, lng: number, radius: number = 5000) {
-    return this.request<Field[]>("/api/v1/fields/nearby", {
+    return this.request<Field[]>(FIELD_ENDPOINTS.NEARBY, {
       params: {
         lat: String(lat),
         lng: String(lng),
@@ -567,11 +589,13 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFieldNdvi(fieldId: string) {
-    return this.request<NdviData>(`/api/v1/fields/${fieldId}/ndvi`);
+    return this.request<NdviData>(
+      buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }),
+    );
   }
 
   async getNdviSummary(tenantId: string) {
-    return this.request<NdviSummary>("/api/v1/ndvi/summary", {
+    return this.request<NdviSummary>(SATELLITE_ENDPOINTS.NDVI_SUMMARY, {
       params: { tenantId },
     });
   }
@@ -582,7 +606,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getWeather(lat: number, lng: number, fieldId: string = "default") {
-    return this.request<WeatherData>("/api/v1/weather/weather/current", {
+    return this.request<WeatherData>(WEATHER_ENDPOINTS.KONG_CURRENT, {
       method: "POST",
       body: JSON.stringify({
         tenant_id: "default",
@@ -594,7 +618,7 @@ class SahoolApiClient {
   }
 
   async getWeatherForecast(lat: number, lng: number, days: number = 7, fieldId: string = "default") {
-    return this.request<WeatherForecast>("/api/v1/weather/weather/forecast", {
+    return this.request<WeatherForecast>(WEATHER_ENDPOINTS.KONG_FORECAST, {
       method: "POST",
       body: JSON.stringify({
         tenant_id: "default",
@@ -607,29 +631,37 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    return this.request<AgriculturalRisk[]>("/api/v1/weather/weather/agricultural-report", {
-      method: "POST",
-      body: JSON.stringify({
-        tenant_id: "default",
-        field_id: fieldId,
-        lat,
-        lon: lng,
-      }),
-    });
+    return this.request<AgriculturalRisk[]>(
+      WEATHER_ENDPOINTS.KONG_AGRICULTURAL_REPORT,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          tenant_id: "default",
+          field_id: fieldId,
+          lat,
+          lon: lng,
+        }),
+      },
+    );
   }
 
   // Weather Advanced API (location_id based - for Yemen locations)
   // Kong route: /api/v1/weather → strips to / → service has /v1/* endpoints
   async getWeatherByLocation(locationId: string) {
-    return this.request<WeatherData>(`/api/v1/weather/v1/current/${locationId}`);
+    return this.request<WeatherData>(
+      buildUrl(WEATHER_ENDPOINTS.KONG_CURRENT_BY_LOCATION, { locationId }),
+    );
   }
 
   async getWeatherForecastByLocation(locationId: string, days: number = 7) {
-    return this.request<WeatherForecast>(`/api/v1/weather/v1/forecast/${locationId}?days=${days}`);
+    return this.request<WeatherForecast>(
+      buildUrl(WEATHER_ENDPOINTS.KONG_FORECAST_BY_LOCATION, { locationId }),
+      { params: { days: String(days) } },
+    );
   }
 
   async getWeatherLocations(): Promise<ApiResponse<unknown>> {
-    return this.request("/api/v1/weather/v1/locations");
+    return this.request(WEATHER_ENDPOINTS.KONG_LOCATIONS);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -677,7 +709,7 @@ class SahoolApiClient {
       let response: Response;
       try {
         response = await fetch(
-          `${this.baseUrl}/api/v1/crop-health/analyze`,
+          `${this.baseUrl}${CROP_HEALTH_ENDPOINTS.ANALYZE}`,
           {
             method: "POST",
             headers: uploadHeaders,
@@ -729,12 +761,14 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSensorData(fieldId: string) {
-    return this.request<Sensor[]>(`/api/v1/iot/fields/${fieldId}/sensors`);
+    return this.request<Sensor[]>(
+      buildUrl(IOT_ENDPOINTS.FIELD_SENSORS, { fieldId }),
+    );
   }
 
   async getSensorHistory(sensorId: string, from: Date, to: Date) {
     return this.request<SensorReading[]>(
-      `/api/v1/iot/sensors/${sensorId}/history`,
+      buildUrl(IOT_ENDPOINTS.SENSOR_HISTORY, { sensorId }),
       {
         params: {
           from: from.toISOString(),
@@ -750,7 +784,7 @@ class SahoolApiClient {
 
   async getIrrigationRecommendation(fieldId: string) {
     return this.request<IrrigationRecommendation>(
-      `/api/v1/irrigation/fields/${fieldId}/recommendation`,
+      buildUrl(IRRIGATION_ENDPOINTS.RECOMMENDATION, { fieldId }),
     );
   }
 
@@ -760,7 +794,7 @@ class SahoolApiClient {
     windSpeed: number;
     solarRadiation: number;
   }) {
-    return this.request<ET0Calculation>("/api/v1/irrigation/et0", {
+    return this.request<ET0Calculation>(IRRIGATION_ENDPOINTS.ET0, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -782,7 +816,7 @@ class SahoolApiClient {
     };
   }) {
     return this.request<FertilizerRecommendation>(
-      "/api/v1/fertilizer/recommend",
+      ADVISORY_ENDPOINTS.RECOMMEND,
       {
         method: "POST",
         body: JSON.stringify(data),
@@ -798,7 +832,7 @@ class SahoolApiClient {
     const params: Record<string, string> = { tenantId };
     if (since) params.since = since;
 
-    return this.request<any>("/api/v1/fields/sync", { params });
+    return this.request<any>(FIELD_ENDPOINTS.SYNC, { params });
   }
 
   async batchSync(data: {
@@ -807,7 +841,7 @@ class SahoolApiClient {
     tenantId: string;
     fields: any[];
   }) {
-    return this.request<any>("/api/v1/fields/sync/batch", {
+    return this.request<any>(FIELD_ENDPOINTS.SYNC_BATCH, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -827,14 +861,14 @@ class SahoolApiClient {
       soilMoisture?: number;
     };
   }) {
-    return this.request<any>("/api/v1/advisory/advice", {
+    return this.request<any>(ADVISORY_ENDPOINTS.ADVICE, {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async getDiseaseDetection(cropType: string, symptoms: string[]) {
-    return this.request<any>("/api/v1/advisory/disease", {
+    return this.request<any>(ADVISORY_ENDPOINTS.DISEASE, {
       method: "POST",
       body: JSON.stringify({ cropType, symptoms }),
     });
@@ -845,7 +879,7 @@ class SahoolApiClient {
     growthStage: string;
     soilAnalysis: any;
   }) {
-    return this.request<any>("/api/v1/advisory/nutrients", {
+    return this.request<any>(ADVISORY_ENDPOINTS.NUTRIENTS, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -856,7 +890,9 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getIoTRules(fieldId: string) {
-    return this.request<any>(`/api/v1/agro-rules/fields/${fieldId}/rules`);
+    return this.request<any>(
+      buildUrl(AGRO_RULES_ENDPOINTS.FIELD_RULES, { fieldId }),
+    );
   }
 
   async createIoTRule(data: {
@@ -865,16 +901,19 @@ class SahoolApiClient {
     action: string;
     threshold: number;
   }) {
-    return this.request<any>("/api/v1/agro-rules/rules", {
+    return this.request<any>(AGRO_RULES_ENDPOINTS.CREATE_RULE, {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async triggerRule(ruleId: string) {
-    return this.request<any>(`/api/v1/agro-rules/rules/${ruleId}/trigger`, {
-      method: "POST",
-    });
+    return this.request<any>(
+      buildUrl(AGRO_RULES_ENDPOINTS.TRIGGER_RULE, { ruleId }),
+      {
+        method: "POST",
+      },
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -887,7 +926,7 @@ class SahoolApiClient {
     options?: { limit?: number; offset?: number },
   ) {
     return this.request<any[]>(
-      `/api/v1/chat/fields/${fieldId}/messages`,
+      buildUrl(CHAT_ENDPOINTS.FIELD_MESSAGES, { fieldId }),
       {
         params: {
           limit: String(options?.limit || 50),
@@ -924,15 +963,18 @@ class SahoolApiClient {
       };
     }
 
-    return this.request<any>(`/api/v1/chat/fields/${fieldId}/messages`, {
-      method: "POST",
-      body: JSON.stringify({ message: sanitizedMessage }),
-    });
+    return this.request<any>(
+      buildUrl(CHAT_ENDPOINTS.FIELD_SEND, { fieldId }),
+      {
+        method: "POST",
+        body: JSON.stringify({ message: sanitizedMessage }),
+      },
+    );
   }
 
   async getFieldChatParticipants(fieldId: string) {
     return this.request<any[]>(
-      `/api/v1/chat/fields/${fieldId}/participants`,
+      buildUrl(CHAT_ENDPOINTS.FIELD_PARTICIPANTS, { fieldId }),
     );
   }
 
@@ -942,23 +984,26 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFieldBoundary(fieldId: string) {
-    return this.request<any>(`/api/v1/fields/${fieldId}/boundary`);
+    return this.request<any>(buildUrl(FIELD_ENDPOINTS.BOUNDARY, { fieldId }));
   }
 
   async updateFieldBoundary(fieldId: string, boundary: any, etag?: string) {
     const headers: HeadersInit = {};
     if (etag) headers["If-Match"] = etag;
 
-    return this.request<any>(`/api/v1/fields/${fieldId}/boundary`, {
-      method: "PUT",
-      body: JSON.stringify({ boundary }),
-      headers,
-    });
+    return this.request<any>(
+      buildUrl(FIELD_ENDPOINTS.BOUNDARY_UPDATE, { fieldId }),
+      {
+        method: "PUT",
+        body: JSON.stringify({ boundary }),
+        headers,
+      },
+    );
   }
 
   async getFieldBoundaryHistory(fieldId: string) {
     return this.request<any[]>(
-      `/api/v1/fields/${fieldId}/boundary-history`,
+      buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }),
     );
   }
 
@@ -968,7 +1013,7 @@ class SahoolApiClient {
     reason?: string,
   ) {
     return this.request<any>(
-      `/api/v1/fields/${fieldId}/boundary-history/rollback`,
+      buildUrl(FIELD_ENDPOINTS.BOUNDARY_ROLLBACK, { fieldId }),
       {
         method: "POST",
         body: JSON.stringify({ historyId, reason }),
@@ -981,13 +1026,15 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getEquipment(tenantId: string) {
-    return this.request<Equipment[]>("/api/v1/equipment", {
+    return this.request<Equipment[]>(EQUIPMENT_ENDPOINTS.LIST, {
       params: { tenantId },
     });
   }
 
   async getEquipmentById(equipmentId: string) {
-    return this.request<Equipment>(`/api/v1/equipment/${equipmentId}`);
+    return this.request<Equipment>(
+      buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId }),
+    );
   }
 
   async createEquipment(data: {
@@ -996,22 +1043,25 @@ class SahoolApiClient {
     tenantId: string;
     specifications?: any;
   }) {
-    return this.request<Equipment>("/api/v1/equipment", {
+    return this.request<Equipment>(EQUIPMENT_ENDPOINTS.CREATE, {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async updateEquipmentStatus(equipmentId: string, status: string) {
-    return this.request<Equipment>(`/api/v1/equipment/${equipmentId}/status`, {
-      method: "PUT",
-      body: JSON.stringify({ status }),
-    });
+    return this.request<Equipment>(
+      buildUrl(EQUIPMENT_ENDPOINTS.STATUS, { equipmentId }),
+      {
+        method: "PUT",
+        body: JSON.stringify({ status }),
+      },
+    );
   }
 
   async getEquipmentMaintenanceSchedule(equipmentId: string) {
     return this.request<MaintenanceSchedule[]>(
-      `/api/v1/equipment/${equipmentId}/maintenance`,
+      buildUrl(EQUIPMENT_ENDPOINTS.MAINTENANCE, { equipmentId }),
     );
   }
 
@@ -1035,25 +1085,25 @@ class SahoolApiClient {
     if (options.limit) params.limit = String(options.limit);
     if (options.offset) params.offset = String(options.offset);
 
-    return this.request<Task[]>("/api/v1/tasks", { params });
+    return this.request<Task[]>(TASK_ENDPOINTS.LIST, { params });
   }
 
   async getTask(taskId: string) {
-    return this.request<Task>(`/api/v1/tasks/${taskId}`);
+    return this.request<Task>(buildUrl(TASK_ENDPOINTS.GET, { taskId }));
   }
 
   async updateTask(
     taskId: string,
     data: { status?: string; title?: string; description?: string },
   ) {
-    return this.request<Task>(`/api/v1/tasks/${taskId}`, {
+    return this.request<Task>(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId }), {
       method: "PUT",
       body: JSON.stringify(data),
     });
   }
 
   async createTask(data: TaskCreateRequest) {
-    return this.request<Task>("/api/v1/tasks", {
+    return this.request<Task>(TASK_ENDPOINTS.CREATE, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -1063,21 +1113,21 @@ class SahoolApiClient {
     taskId: string,
     status: "pending" | "in_progress" | "completed" | "cancelled",
   ) {
-    return this.request<Task>(`/api/v1/tasks/${taskId}/status`, {
+    return this.request<Task>(buildUrl(TASK_ENDPOINTS.STATUS, { taskId }), {
       method: "PUT",
       body: JSON.stringify({ status }),
     });
   }
 
   async completeTask(taskId: string, notes?: string) {
-    return this.request<Task>(`/api/v1/tasks/${taskId}/complete`, {
+    return this.request<Task>(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId }), {
       method: "POST",
       body: JSON.stringify({ notes }),
     });
   }
 
   async deleteTask(taskId: string) {
-    return this.request<void>(`/api/v1/tasks/${taskId}`, {
+    return this.request<void>(buildUrl(TASK_ENDPOINTS.DELETE, { taskId }), {
       method: "DELETE",
     });
   }
@@ -1096,13 +1146,16 @@ class SahoolApiClient {
     if (options.status) params.status = options.status;
     if (options.fieldId) params.fieldId = options.fieldId;
 
-    return this.request<any[]>("/api/v1/alerts", { params });
+    return this.request<any[]>(ALERT_ENDPOINTS.LIST, { params });
   }
 
   async acknowledgeAlert(alertId: string) {
-    return this.request<any>(`/api/v1/alerts/${alertId}/acknowledge`, {
-      method: "POST",
-    });
+    return this.request<any>(
+      buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId }),
+      {
+        method: "POST",
+      },
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1120,18 +1173,23 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getProviders() {
-    return this.request<any[]>("/api/v1/providers");
+    return this.request<any[]>(PROVIDER_ENDPOINTS.LIST);
   }
 
   async getProviderConfig(providerId: string) {
-    return this.request<any>(`/api/v1/providers/${providerId}/config`);
+    return this.request<any>(
+      buildUrl(PROVIDER_ENDPOINTS.CONFIG, { providerId }),
+    );
   }
 
   async updateProviderConfig(providerId: string, config: any) {
-    return this.request<any>(`/api/v1/providers/${providerId}/config`, {
-      method: "PUT",
-      body: JSON.stringify(config),
-    });
+    return this.request<any>(
+      buildUrl(PROVIDER_ENDPOINTS.CONFIG_UPDATE, { providerId }),
+      {
+        method: "PUT",
+        body: JSON.stringify(config),
+      },
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1144,7 +1202,7 @@ class SahoolApiClient {
     weatherConditions: any;
     soilMoisture?: number;
   }) {
-    return this.request<any>("/api/v1/crop-health/decision", {
+    return this.request<any>(CROP_HEALTH_ENDPOINTS.DECISION, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -1152,7 +1210,7 @@ class SahoolApiClient {
 
   async getCropHealthHistory(fieldId: string, days: number = 30) {
     return this.request<any[]>(
-      `/api/v1/crop-health/fields/${fieldId}/history`,
+      buildUrl(CROP_HEALTH_ENDPOINTS.HISTORY, { fieldId }),
       {
         params: { days: String(days) },
       },
@@ -1173,9 +1231,12 @@ class SahoolApiClient {
     const params = options
       ? Object.fromEntries(Object.entries(options).filter(([, v]) => v != null))
       : undefined;
-    return this.request<any[]>(`/api/v1/satellite/v1/timeseries/${fieldId}`, {
-      params: params as Record<string, string>,
-    });
+    return this.request<any[]>(
+      buildUrl(SATELLITE_ENDPOINTS.TIMESERIES, { fieldId }),
+      {
+        params: params as Record<string, string>,
+      },
+    );
   }
 
   async requestSatelliteAnalysis(
@@ -1183,7 +1244,7 @@ class SahoolApiClient {
     analysisType: "ndvi" | "moisture" | "thermal",
   ) {
     // Maps to vegetation-analysis-service /v1/analyze (POST)
-    return this.request<any>(`/api/v1/satellite/v1/analyze`, {
+    return this.request<any>(SATELLITE_ENDPOINTS.ANALYZE, {
       method: "POST",
       body: JSON.stringify({ field_id: fieldId, analysis_type: analysisType }),
     });
@@ -1191,12 +1252,14 @@ class SahoolApiClient {
 
   async getSatelliteIndices(fieldId: string) {
     // Maps to vegetation-analysis-service /v1/indices/{field_id}
-    return this.request<any>(`/api/v1/satellite/v1/indices/${fieldId}`);
+    return this.request<any>(
+      buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId }),
+    );
   }
 
   async getSatelliteSatellites() {
     // Maps to vegetation-analysis-service /v1/satellites
-    return this.request<any>(`/api/v1/satellite/v1/satellites`);
+    return this.request<any>(SATELLITE_ENDPOINTS.SATELLITES);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1210,7 +1273,7 @@ class SahoolApiClient {
     const params = options
       ? Object.fromEntries(Object.entries(options).filter(([, v]) => v != null))
       : undefined;
-    return this.request<MarketplaceListing[]>("/api/v1/marketplace/listings", {
+    return this.request<MarketplaceListing[]>(MARKETPLACE_ENDPOINTS.LISTINGS, {
       params: params as Record<string, string>,
     });
   }
@@ -1223,10 +1286,13 @@ class SahoolApiClient {
     quantity: number;
     unit: string;
   }) {
-    return this.request<MarketplaceListing>("/api/v1/marketplace/listings", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    return this.request<MarketplaceListing>(
+      MARKETPLACE_ENDPOINTS.LISTING_CREATE,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1235,18 +1301,20 @@ class SahoolApiClient {
 
   async getSubscription(tenantId: string) {
     return this.request<Subscription>(
-      `/api/v1/billing/tenants/${tenantId}/subscription`,
+      buildUrl(BILLING_ENDPOINTS.TENANT_SUBSCRIPTION, { tenantId }),
     );
   }
 
   async getInvoices(tenantId: string) {
     return this.request<Invoice[]>(
-      `/api/v1/billing/tenants/${tenantId}/invoices`,
+      buildUrl(BILLING_ENDPOINTS.TENANT_INVOICES, { tenantId }),
     );
   }
 
   async getUsageStats(tenantId: string) {
-    return this.request<any>(`/api/v1/billing/tenants/${tenantId}/usage`);
+    return this.request<any>(
+      buildUrl(BILLING_ENDPOINTS.TENANT_USAGE, { tenantId }),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1254,11 +1322,11 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async predictYield(fieldId: string) {
-    return this.request<any>(`/api/v1/yield/fields/${fieldId}/predict`);
+    return this.request<any>(buildUrl(YIELD_ENDPOINTS.PREDICT, { fieldId }));
   }
 
   async getYieldHistory(fieldId: string) {
-    return this.request<any[]>(`/api/v1/yield/fields/${fieldId}/history`);
+    return this.request<any[]>(buildUrl(YIELD_ENDPOINTS.HISTORY, { fieldId }));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1266,14 +1334,14 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async assessDisaster(fieldId: string, disasterType: string) {
-    return this.request<any>("/api/v1/disasters/assess", {
+    return this.request<any>(DISASTER_ENDPOINTS.ASSESS, {
       method: "POST",
       body: JSON.stringify({ fieldId, disasterType }),
     });
   }
 
   async getDisasterAlerts(region: string) {
-    return this.request<any[]>("/api/v1/disasters/alerts", {
+    return this.request<any[]>(DISASTER_ENDPOINTS.ALERTS, {
       params: { region },
     });
   }
@@ -1283,16 +1351,20 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getLivingFieldScore(fieldId: string) {
-    return this.request<any>(`/api/v1/fields/${fieldId}/intelligence/score`);
+    return this.request<any>(
+      buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_SCORE, { fieldId }),
+    );
   }
 
   async getFieldZones(fieldId: string) {
-    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/zones`);
+    return this.request<any[]>(
+      buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_ZONES, { fieldId }),
+    );
   }
 
   async getFieldIntelligenceAlerts(fieldId: string) {
     return this.request<any[]>(
-      `/api/v1/fields/${fieldId}/intelligence/alerts`,
+      buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_ALERTS, { fieldId }),
       {
         params: { status: "active" },
       },
@@ -1312,7 +1384,7 @@ class SahoolApiClient {
     },
   ) {
     return this.request<any>(
-      `/api/v1/intelligence/alerts/${alertId}/create-task`,
+      buildUrl(INTELLIGENCE_ENDPOINTS.CREATE_TASK, { alertId }),
       {
         method: "POST",
         body: JSON.stringify(taskData),
@@ -1321,7 +1393,7 @@ class SahoolApiClient {
   }
 
   async getBestDaysForActivity(activity: string, days: number = 14) {
-    return this.request<any[]>("/api/v1/intelligence/best-days", {
+    return this.request<any[]>(INTELLIGENCE_ENDPOINTS.BEST_DAYS, {
       params: {
         activity: activity.toLowerCase(),
         days: String(Math.max(1, Math.min(days, 30))),
@@ -1330,7 +1402,7 @@ class SahoolApiClient {
   }
 
   async validateTaskDate(date: string, activity: string) {
-    return this.request<any>("/api/v1/intelligence/validate-date", {
+    return this.request<any>(INTELLIGENCE_ENDPOINTS.VALIDATE_DATE, {
       method: "POST",
       body: JSON.stringify({
         date: new Date(date).toISOString(),
@@ -1341,7 +1413,7 @@ class SahoolApiClient {
 
   async getFieldRecommendations(fieldId: string) {
     return this.request<any[]>(
-      `/api/v1/fields/${fieldId}/intelligence/recommendations`,
+      buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_RECOMMENDATIONS, { fieldId }),
     );
   }
 }

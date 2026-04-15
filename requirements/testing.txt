@@ -5,7 +5,7 @@
 # Synced with constraints.txt
 
 # Pytest Framework
-pytest==8.4.2
+pytest==9.0.3
 pytest-asyncio==0.26.0
 pytest-cov>=6.0.0
 pytest-timeout>=2.2.0

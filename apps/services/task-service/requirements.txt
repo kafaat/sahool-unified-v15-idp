@@ -18,7 +18,7 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, 
 redis>=7.1.0,<8.0.0
 
 # Service-specific dependencies
-python-multipart==0.0.22
+python-multipart==0.0.26
 
 # Database dependencies - قاعدة البيانات
 sqlalchemy==2.0.48
